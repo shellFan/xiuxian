@@ -1,0 +1,102 @@
+import assert from 'node:assert/strict';
+
+import { GameContext } from '../../assets/scripts/core/game-context';
+import { MergeService } from '../../assets/scripts/services/merge-service';
+import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
+import { SaveService } from '../../assets/scripts/services/save-service';
+import { WorkerEntity } from '../../assets/scripts/model/worker-entity';
+
+function createMerge(): { context: GameContext; merge: MergeService; storage: MemoryStorageAdapter } {
+  const storage = new MemoryStorageAdapter();
+  const context = new GameContext({ saveService: new SaveService(storage), boardRows: 1, boardColumns: 3 });
+  return { context, merge: new MergeService(context), storage };
+}
+
+function testMergesLevelsOneThroughFiveAndUpdatesState(): void {
+  const { context, merge, storage } = createMerge();
+  for (let level = 1; level <= 5; level += 1) {
+    const first = { row: 0, column: 0 };
+    const second = { row: 0, column: 1 };
+    context.board.place(WorkerEntity.create(level), first);
+    context.board.place(WorkerEntity.create(level), second);
+    const result = merge.merge(first, second);
+    assert.equal(result.success, true);
+    assert.equal(result.worker.level, level + 1);
+    assert.equal(context.board.occupiedCount, 1);
+    assert.equal(context.player.maxWorkerLevel, level + 1);
+    assert.equal(context.player.salary, [10, 30, 70, 150, 310][level - 1]);
+    assert.equal(context.player.workers.length, 1);
+    assert.match(storage.getItem('game-save') ?? '', /worker-/);
+    context.board.remove(first);
+  }
+}
+
+function testMaxLevelMergeIsRejectedWithoutChangingBoard(): void {
+  const { context, merge, storage } = createMerge();
+  context.board.place(WorkerEntity.create(6), { row: 0, column: 0 });
+  context.board.place(WorkerEntity.create(6), { row: 0, column: 1 });
+  const before = context.board.toSaveData();
+  const result = merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
+  assert.deepEqual(result, { success: false, message: '最高等级为Lv6' });
+  assert.deepEqual(context.board.toSaveData(), before);
+  assert.equal(context.player.salary, 0);
+  assert.equal(storage.getItem('game-save'), null);
+}
+
+function testReentrantMergeIsIgnoredDuringTransaction(): void {
+  const { context, merge, storage } = createMerge();
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 1 });
+  let nested: ReturnType<MergeService['merge']> | undefined;
+  context.events.on('mergeCompleted', () => {
+    nested = merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
+  });
+  const result = merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
+  assert.equal(result.success, true);
+  assert.deepEqual(nested, { success: false, message: '合成进行中' });
+  assert.equal(context.player.salary, 10);
+  assert.equal((storage.getItem('game-save')?.match(/worker-/g) ?? []).length, 1);
+}
+
+
+function testSaveFailureRollsBackTheWholeTransaction(): void {
+  const storage = new MemoryStorageAdapter();
+  const context = new GameContext({ saveService: new SaveService({
+    getItem: (key) => storage.getItem(key),
+    setItem: () => { throw new Error('quota exceeded'); },
+    removeItem: (key) => storage.removeItem(key),
+  }), boardRows: 1, boardColumns: 3 });
+  const merge = new MergeService(context);
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 1 });
+  const beforeBoard = context.board.toSaveData();
+  const beforeWorkers = context.player.workers;
+
+  assert.throws(() => merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 }), /quota exceeded/);
+  assert.deepEqual(context.board.toSaveData(), beforeBoard);
+  assert.deepEqual(context.player.workers, beforeWorkers);
+  assert.equal(context.player.salary, 0);
+  assert.equal(context.player.maxWorkerLevel, 0);
+}
+
+function testFeedbackListenerFailureDoesNotAbortCommittedMerge(): void {
+  const { context, merge } = createMerge();
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 1 });
+  const events: string[] = [];
+  context.events.on('mergeCompleted', () => { throw new Error('view failed'); });
+  context.events.on('salaryChanged', () => { events.push('salary'); });
+  context.events.on('gameSaved', () => { events.push('saved'); });
+
+  const result = merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
+  assert.equal(result.success, true);
+  assert.equal(context.board.occupiedCount, 1);
+  assert.equal(context.player.salary, 10);
+  assert.deepEqual(events, ['salary', 'saved']);
+}
+testMergesLevelsOneThroughFiveAndUpdatesState();
+testMaxLevelMergeIsRejectedWithoutChangingBoard();
+testReentrantMergeIsIgnoredDuringTransaction();
+testSaveFailureRollsBackTheWholeTransaction();
+testFeedbackListenerFailureDoesNotAbortCommittedMerge();
+console.log('merge service tests passed');

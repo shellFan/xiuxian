@@ -7,16 +7,29 @@ export interface WorkerRecruitedEvent {
 }
 
 export interface GameSavedEvent {
-  readonly reason: 'recruitment';
+  readonly reason: 'recruitment' | 'merge';
 }
 
 export interface RecruitmentFailedEvent {
   readonly message: string;
 }
 
+export interface MergeCompletedEvent {
+  readonly first: BoardPosition;
+  readonly second: BoardPosition;
+  readonly worker: WorkerEntity;
+  readonly salaryReward: number;
+}
+
+export interface SalaryChangedEvent {
+  readonly amount: number;
+  readonly total: number;
+}
+
 export interface GameEvents extends Record<string, unknown> {
   readonly workerRecruited: WorkerRecruitedEvent;
   readonly gameSaved: GameSavedEvent;
   readonly recruitmentFailed: RecruitmentFailedEvent;
+  readonly mergeCompleted: MergeCompletedEvent;
+  readonly salaryChanged: SalaryChangedEvent;
 }
-
