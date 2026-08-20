@@ -1,0 +1,55 @@
+{
+  "id": "TASK-009",
+  "title": "实现第一版核心主界面",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "goal": "实现 MainView：标题、当前职级、工资、4x4 棋盘、招聘按钮和文案。",
+  "background": "Phase 1 core demo task 009; depends on TASK-008 being DONE.",
+  "requirements": [
+    "实现 MainView：标题、当前职级、工资、4x4 棋盘、招聘按钮和文案。",
+    "Worker 使用简单卡片/Emoji/Lv 文本并由模型刷新。",
+    "连接 GameContext、招聘、拖拽、合成和状态更新。"
+  ],
+  "acceptanceCriteria": [
+    "UI 不作为事实来源且不直接改 salary/localStorage。",
+    "Main.scene 节点与组件引用完整。",
+    "静态检查与 UI 结构测试通过。"
+  ],
+  "allowedPaths": [
+    "assets/scenes/Main.scene",
+    "assets/scripts/ui/main-view.ts",
+    "assets/scripts/ui/worker-view.ts",
+    "assets/scripts/ui/merge-board-view.ts",
+    "assets/prefabs/**",
+    "tests/ui/**"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": ""
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer.",
+    "Do not implement Phase 2 features.",
+    "Do not claim Cocos Editor validation without launching the Editor.",
+    "Keep domain state independent from UI nodes."
+  ],
+  "references": [
+    "AGENTS.md",
+    "docs/superpowers/specs/2026-08-20-phase-1-core-demo-design.md",
+    "docs/superpowers/plans/2026-08-20-phase-1-core-demo.md"
+  ],
+  "maxReviewRounds": 3
+}

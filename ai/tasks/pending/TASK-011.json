@@ -1,0 +1,53 @@
+{
+  "id": "TASK-011",
+  "title": "实现第一阶段稳定性测试",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "goal": "补齐 Config、Save、Board、Merge、Economy、招聘、拖拽锁的稳定性测试。",
+  "background": "Phase 1 core demo task 011; depends on TASK-010 being DONE.",
+  "requirements": [
+    "补齐 Config、Save、Board、Merge、Economy、招聘、拖拽锁的稳定性测试。",
+    "覆盖恢复后合成、连续快速合成、重复奖励、满棋盘和非法输入。",
+    "不得用仅断言 Mock 调用次数替代领域行为验证。"
+  ],
+  "acceptanceCriteria": [
+    "所有自动测试稳定通过。",
+    "核心边界与回归场景有明确断言。",
+    "npm run build、npm run test、npm run ai:check 通过。"
+  ],
+  "allowedPaths": [
+    "tests/**",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.game.json"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": ""
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer.",
+    "Do not implement Phase 2 features.",
+    "Do not claim Cocos Editor validation without launching the Editor.",
+    "Keep domain state independent from UI nodes."
+  ],
+  "references": [
+    "AGENTS.md",
+    "docs/superpowers/specs/2026-08-20-phase-1-core-demo-design.md",
+    "docs/superpowers/plans/2026-08-20-phase-1-core-demo.md"
+  ],
+  "maxReviewRounds": 3
+}

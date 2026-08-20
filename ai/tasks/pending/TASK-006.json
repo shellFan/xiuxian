@@ -1,0 +1,53 @@
+{
+  "id": "TASK-006",
+  "title": "实现拖拽系统",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "goal": "实现 WorkerView 与 MergeBoardView 的单指拖拽、坐标换算和目标格解析。",
+  "background": "Phase 1 core demo task 006; depends on TASK-005 being DONE.",
+  "requirements": [
+    "实现 WorkerView 与 MergeBoardView 的单指拖拽、坐标换算和目标格解析。",
+    "实现 IDLE/DRAGGING/MERGING 交互锁。",
+    "处理出界、快速拖动、失效 Node、占用变化和动画期间输入。"
+  ],
+  "acceptanceCriteria": [
+    "空格移动、不同等级回原位、同等级交给合成服务。",
+    "事件在销毁时解绑，Tween/Node 做有效性保护。",
+    "拖拽状态测试与 build 通过。"
+  ],
+  "allowedPaths": [
+    "assets/scripts/ui/worker-view.ts",
+    "assets/scripts/ui/merge-board-view.ts",
+    "assets/scripts/game/drag-controller.ts",
+    "tests/drag/**"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": ""
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer.",
+    "Do not implement Phase 2 features.",
+    "Do not claim Cocos Editor validation without launching the Editor.",
+    "Keep domain state independent from UI nodes."
+  ],
+  "references": [
+    "AGENTS.md",
+    "docs/superpowers/specs/2026-08-20-phase-1-core-demo-design.md",
+    "docs/superpowers/plans/2026-08-20-phase-1-core-demo.md"
+  ],
+  "maxReviewRounds": 3
+}

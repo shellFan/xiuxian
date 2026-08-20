@@ -1,0 +1,54 @@
+{
+  "id": "TASK-003",
+  "title": "实现玩家数据与本地存档系统",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "goal": "实现 PlayerData、GameSaveData、StorageAdapter 与 SaveService。",
+  "background": "Phase 1 core demo task 003; depends on TASK-002 being DONE.",
+  "requirements": [
+    "实现 PlayerData、GameSaveData、StorageAdapter 与 SaveService。",
+    "支持新玩家、手动/自动保存、空存档、非法 JSON、saveVersion 和默认值迁移。",
+    "业务代码不得直接访问 localStorage。"
+  ],
+  "acceptanceCriteria": [
+    "board Worker 状态可序列化恢复。",
+    "保存 salary/maxWorkerLevel/lastSaveTime。",
+    "Save 测试覆盖首次、正常、空、非法和旧版本。"
+  ],
+  "allowedPaths": [
+    "assets/scripts/model/player-data.ts",
+    "assets/scripts/model/save-data.ts",
+    "assets/scripts/services/save-service.ts",
+    "assets/scripts/services/storage-adapter.ts",
+    "tests/save/**"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": ""
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer.",
+    "Do not implement Phase 2 features.",
+    "Do not claim Cocos Editor validation without launching the Editor.",
+    "Keep domain state independent from UI nodes."
+  ],
+  "references": [
+    "AGENTS.md",
+    "docs/superpowers/specs/2026-08-20-phase-1-core-demo-design.md",
+    "docs/superpowers/plans/2026-08-20-phase-1-core-demo.md"
+  ],
+  "maxReviewRounds": 3
+}

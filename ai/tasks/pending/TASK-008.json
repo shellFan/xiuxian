@@ -1,0 +1,53 @@
+{
+  "id": "TASK-008",
+  "title": "实现基础经济系统",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "goal": "实现 EconomyService，工资变更只能经服务执行。",
+  "background": "Phase 1 core demo task 008; depends on TASK-007 being DONE.",
+  "requirements": [
+    "实现 EconomyService，工资变更只能经服务执行。",
+    "合成奖励从 economy.json 读取并防重复发放。",
+    "拒绝 NaN、非整数和非法负数变更。"
+  ],
+  "acceptanceCriteria": [
+    "奖励为 10/20/40/80/160。",
+    "工资变化触发保存与事件。",
+    "经济测试通过。"
+  ],
+  "allowedPaths": [
+    "assets/scripts/services/economy-service.ts",
+    "assets/scripts/core/game-context.ts",
+    "assets/scripts/core/game-events.ts",
+    "tests/economy/**"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": ""
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer.",
+    "Do not implement Phase 2 features.",
+    "Do not claim Cocos Editor validation without launching the Editor.",
+    "Keep domain state independent from UI nodes."
+  ],
+  "references": [
+    "AGENTS.md",
+    "docs/superpowers/specs/2026-08-20-phase-1-core-demo-design.md",
+    "docs/superpowers/plans/2026-08-20-phase-1-core-demo.md"
+  ],
+  "maxReviewRounds": 3
+}

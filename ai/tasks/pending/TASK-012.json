@@ -1,0 +1,57 @@
+{
+  "id": "TASK-012",
+  "title": "第一阶段整体验收",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "CRITICAL",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "goal": "执行全局 build/test/ai:check，审查目录、引用、事件解绑、Tween、存档、路径和主流程。",
+  "background": "Phase 1 core demo task 012; depends on TASK-011 being DONE.",
+  "requirements": [
+    "执行全局 build/test/ai:check，审查目录、引用、事件解绑、Tween、存档、路径和主流程。",
+    "仅修复验收发现的小范围问题，不新增第二阶段功能。",
+    "生成 ai/reports/PHASE-1-RESULT.md，明确 Cocos Editor 人工验证状态。"
+  ],
+  "acceptanceCriteria": [
+    "TASK-001~011 均 DONE。",
+    "BLOCKER/HIGH 清零，Sol Final Review PASS。",
+    "报告包含范围、测试、Git 和人工验证。"
+  ],
+  "allowedPaths": [
+    "assets/**",
+    "settings/**",
+    "project.json",
+    "tsconfig.game.json",
+    "package.json",
+    "package-lock.json",
+    "tests/**",
+    "ai/reports/**"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": ""
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer.",
+    "Do not implement Phase 2 features.",
+    "Do not claim Cocos Editor validation without launching the Editor.",
+    "Keep domain state independent from UI nodes."
+  ],
+  "references": [
+    "AGENTS.md",
+    "docs/superpowers/specs/2026-08-20-phase-1-core-demo-design.md",
+    "docs/superpowers/plans/2026-08-20-phase-1-core-demo.md"
+  ],
+  "maxReviewRounds": 3
+}

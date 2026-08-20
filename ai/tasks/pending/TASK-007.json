@@ -1,0 +1,53 @@
+{
+  "id": "TASK-007",
+  "title": "实现合成升级核心逻辑",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "goal": "实现 MergeService：两个同级 Worker 合成为下一级，最高仅 Lv6。",
+  "background": "Phase 1 core demo task 007; depends on TASK-006 being DONE.",
+  "requirements": [
+    "实现 MergeService：两个同级 Worker 合成为下一级，最高仅 Lv6。",
+    "原子完成删除、创建、棋盘更新、maxWorkerLevel、工资、保存和反馈事件。",
+    "锁定合成事务，防止重复合并、奖励和保存。"
+  ],
+  "acceptanceCriteria": [
+    "Lv1~Lv5 正确升级，Lv6+Lv6 明确拒绝。",
+    "失败不破坏棋盘。",
+    "合成与竞态测试通过。"
+  ],
+  "allowedPaths": [
+    "assets/scripts/services/merge-service.ts",
+    "assets/scripts/game/merge/**",
+    "assets/scripts/core/game-events.ts",
+    "tests/merge/**"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": ""
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer.",
+    "Do not implement Phase 2 features.",
+    "Do not claim Cocos Editor validation without launching the Editor.",
+    "Keep domain state independent from UI nodes."
+  ],
+  "references": [
+    "AGENTS.md",
+    "docs/superpowers/specs/2026-08-20-phase-1-core-demo-design.md",
+    "docs/superpowers/plans/2026-08-20-phase-1-core-demo.md"
+  ],
+  "maxReviewRounds": 3
+}

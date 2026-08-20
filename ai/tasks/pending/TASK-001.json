@@ -1,0 +1,56 @@
+{
+  "id": "TASK-001",
+  "title": "创建 Cocos Creator 项目基础骨架",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "goal": "创建 Cocos Creator 3.8 TypeScript 项目元数据、Main 场景及约定目录。",
+  "background": "Phase 1 core demo task 001; depends on provider preflight being DONE.",
+  "requirements": [
+    "创建 Cocos Creator 3.8 TypeScript 项目元数据、Main 场景及约定目录。",
+    "实现 GameBootstrap、GameConfig、EventBus、基础常量、类型与轻量 GameLogger。",
+    "建立可由 Node TypeScript 静态检查的业务 tsconfig 和基础测试入口。"
+  ],
+  "acceptanceCriteria": [
+    "Cocos 项目目录和 project.json/settings 可被 Creator 3.8 识别。",
+    "Main.scene 包含竖屏 Canvas 入口且 GameBootstrap 生命周期清晰。",
+    "npm run build 与 npm run test 通过。"
+  ],
+  "allowedPaths": [
+    "assets/**",
+    "settings/**",
+    "project.json",
+    "tsconfig.game.json",
+    "package.json",
+    "package-lock.json",
+    "tests/**"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": ""
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer.",
+    "Do not implement Phase 2 features.",
+    "Do not claim Cocos Editor validation without launching the Editor.",
+    "Keep domain state independent from UI nodes."
+  ],
+  "references": [
+    "AGENTS.md",
+    "docs/superpowers/specs/2026-08-20-phase-1-core-demo-design.md",
+    "docs/superpowers/plans/2026-08-20-phase-1-core-demo.md"
+  ],
+  "maxReviewRounds": 3
+}
