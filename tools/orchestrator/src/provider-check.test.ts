@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { assertDeveloperSucceeded, buildTaskContext } from './task-runner';
 import { DeveloperResult, Task } from './types';
-import { gitStatusArgs } from './git-manager';
+import { gitStatusArgs, matches } from './git-manager';
 
 test('Codex developer and reviewer args use their configured models', () => {
   assert.deepEqual(buildCodexArgs('developer', 'gpt-5.6-luna', 'ai/state/TASK/developer-result.json', 'ai/schemas/developer.schema.json'), ['exec', '--model', 'gpt-5.6-luna', '--sandbox', 'workspace-write', '--output-schema', 'ai/schemas/developer.schema.json', '-o', 'ai/state/TASK/developer-result.json', '-']);
@@ -71,4 +71,11 @@ test('orchestrator rejects a failed Developer Result before review', () => {
 
 test('Git status expands untracked directories into individual files', () => {
   assert.deepEqual(gitStatusArgs(), ['status', '--porcelain', '--untracked-files=all']);
+});
+
+test('double-star paths match files at arbitrary depth', () => {
+  assert.equal(matches('assets/scenes/Main.scene', 'assets/**'), true);
+  assert.equal(matches('assets/scripts/core/game-bootstrap.ts', 'assets/**'), true);
+  assert.equal(matches('tests/.compiled/tests/core.test.js', 'tests/**'), true);
+  assert.equal(matches('outside/file.ts', 'assets/**'), false);
 });
