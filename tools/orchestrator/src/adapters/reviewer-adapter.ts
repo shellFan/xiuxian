@@ -1,0 +1,1 @@
+import {ReviewerAdapter} from '../types'; import {MockAdapter} from './mock-adapter'; import {CodexAdapter} from './codex-adapter'; import {config} from '../config'; export function reviewerAdapter():ReviewerAdapter{return config.reviewerProvider==='mock'?new MockAdapter():new CodexAdapter()}

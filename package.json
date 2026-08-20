@@ -1,0 +1,24 @@
+{
+  "name": "niuma-xiuxian-ai-infrastructure",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "ai:dev": "tsx tools/orchestrator/src/index.ts dev",
+    "ai:task": "tsx tools/orchestrator/src/index.ts task",
+    "ai:review": "tsx tools/orchestrator/src/index.ts review",
+    "ai:status": "tsx tools/orchestrator/src/index.ts status",
+    "ai:check": "tsx tools/orchestrator/src/index.ts check",
+    "test": "npm run ai:check",
+    "build": "tsc -p tools/orchestrator/tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

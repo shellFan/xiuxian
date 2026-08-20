@@ -1,0 +1,12 @@
+node_modules/
+.env
+*.log
+ai/logs/*
+!ai/logs/.gitkeep
+ai/state/*
+!ai/state/.gitkeep
+ai/reports/*
+!ai/reports/.gitkeep
+ai/reviews/*
+!ai/reviews/.gitkeep
+*.tsbuildinfo
