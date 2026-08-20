@@ -32,12 +32,28 @@ export class GameContext {
   public readonly config = GameConfig;
 
   public constructor(options: GameContextOptions = {}) {
-    this.board = options.board ?? new MergeBoard({
-      rows: options.boardRows ?? GameConfig.boardRows,
-      columns: options.boardColumns ?? GameConfig.boardColumns,
-    });
-    this.player = options.player ?? PlayerData.createDefault();
     this.saveService = options.saveService ?? new SaveService(options.storage ?? new LocalStorageAdapter());
+    let saved = options.player || options.board ? undefined : this.saveService.load();
+    if (saved && !options.board) {
+      try {
+        this.board = MergeBoard.fromSaveData(saved.workers, {
+          rows: options.boardRows ?? GameConfig.boardRows,
+          columns: options.boardColumns ?? GameConfig.boardColumns,
+        });
+      } catch {
+        saved = PlayerData.createDefault().toSaveData();
+        this.board = new MergeBoard({
+          rows: options.boardRows ?? GameConfig.boardRows,
+          columns: options.boardColumns ?? GameConfig.boardColumns,
+        });
+      }
+    } else {
+      this.board = options.board ?? new MergeBoard({
+        rows: options.boardRows ?? GameConfig.boardRows,
+        columns: options.boardColumns ?? GameConfig.boardColumns,
+      });
+    }
+    this.player = options.player ?? new PlayerData(saved);
     this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,

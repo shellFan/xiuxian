@@ -2,7 +2,7 @@
   "id": "TASK-012",
   "title": "第一阶段整体验收",
   "version": 1,
-  "status": "PENDING",
+  "status": "DONE",
   "priority": "CRITICAL",
   "createdBy": "chatgpt-gpt-5.6-sol",
   "assignedTo": "codex-gpt-5.6-luna",

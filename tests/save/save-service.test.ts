@@ -4,6 +4,7 @@ import { PlayerData } from '../../assets/scripts/model/player-data';
 import { CURRENT_SAVE_VERSION } from '../../assets/scripts/model/save-data';
 import { SaveService } from '../../assets/scripts/services/save-service';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
+import { GameContext } from '../../assets/scripts/core/game-context';
 
 function testNewPlayerUsesDefaults(): void {
   const storage = new MemoryStorageAdapter();
@@ -48,9 +49,74 @@ function testIgnoresMalformedWorkersAndRejectsFutureSaves(): void {
   assert.deepEqual(new SaveService(storage).load(), PlayerData.createDefault().toSaveData());
 }
 
+function testInvalidPlayerScalarsFallBackToSafeDefaults(): void {
+  const storage = new MemoryStorageAdapter();
+  storage.setItem('game-save', JSON.stringify({
+    saveVersion: CURRENT_SAVE_VERSION,
+    salary: 0.5,
+    maxWorkerLevel: -1,
+    lastSaveTime: Number.MAX_SAFE_INTEGER + 1,
+    workers: [],
+  }));
+  assert.deepEqual(new SaveService(storage).load(), {
+    saveVersion: CURRENT_SAVE_VERSION,
+    salary: 0,
+    maxWorkerLevel: 0,
+    lastSaveTime: 0,
+    workers: [],
+  });
+}
+
+function testLocalStorageAdapterRequiresExplicitCocosStorageInjection(): void {
+  const { LocalStorageAdapter } = require('../../assets/scripts/services/storage-adapter') as typeof import('../../assets/scripts/services/storage-adapter');
+  assert.throws(() => new LocalStorageAdapter().getItem('missing'), /Persistent storage is unavailable/);
+  const persistent = new MemoryStorageAdapter();
+  const adapter = new LocalStorageAdapter(persistent);
+  adapter.setItem('persistent-key', 'saved');
+  assert.equal(adapter.getItem('persistent-key'), 'saved');
+}
+
+function testGameContextRestoresSavedPlayerAndBoard(): void {
+  const storage = new MemoryStorageAdapter();
+  const service = new SaveService(storage);
+  service.save(new PlayerData({ salary: 80, maxWorkerLevel: 2, workers: [
+    { id: 'worker-restore', level: 2, row: 0, column: 1 },
+  ] }));
+
+  const context = new GameContext({ saveService: new SaveService(storage), boardRows: 1, boardColumns: 2 });
+
+  assert.equal(context.player.salary, 80);
+  assert.equal(context.player.maxWorkerLevel, 2);
+  assert.equal(context.board.getWorker({ row: 0, column: 1 })?.id, 'worker-restore');
+  assert.equal(context.board.getWorker({ row: 0, column: 1 })?.level, 2);
+}
+
+function testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer(): void {
+  const invalidWorkers = [
+    [{ id: 'duplicate', level: 1, row: 0, column: 0 }, { id: 'duplicate', level: 1, row: 0, column: 1 }],
+    [{ id: 'fractional-position', level: 1, row: 0.5, column: 0 }],
+    [{ id: 'out-of-bounds', level: 1, row: 1, column: 0 }],
+    [{ id: 'invalid-level', level: 0, row: 0, column: 0 }],
+    [{ id: 'too-strong', level: 7, row: 0, column: 0 }],
+  ];
+
+  for (const workers of invalidWorkers) {
+    const storage = new MemoryStorageAdapter();
+    storage.setItem('game-save', JSON.stringify({ saveVersion: CURRENT_SAVE_VERSION, salary: 80, maxWorkerLevel: 2, workers }));
+    const context = new GameContext({ saveService: new SaveService(storage), boardRows: 1, boardColumns: 2 });
+    assert.equal(context.player.salary, 0);
+    assert.equal(context.player.maxWorkerLevel, 0);
+    assert.equal(context.board.occupiedCount, 0);
+  }
+}
+
 testNewPlayerUsesDefaults();
 testSavesAndRestoresPlayerAndWorkers();
 testEmptyAndInvalidStorageBecomeNewPlayer();
 testMigratesOlderVersionAndDefaultsMissingFields();
 testIgnoresMalformedWorkersAndRejectsFutureSaves();
+testInvalidPlayerScalarsFallBackToSafeDefaults();
+testGameContextRestoresSavedPlayerAndBoard();
+testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer();
+testLocalStorageAdapterRequiresExplicitCocosStorageInjection();
 console.log('save tests passed');

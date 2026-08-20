@@ -101,7 +101,7 @@ function testGameContextUsesValidatedEconomyConfig(): void {
     economy: { mergeRewards: [11, 22, 44, 88, 176] },
     game: { board: { columns: 4, rows: 4 } },
   };
-  const context = new GameContext({ configService: ConfigService.load(config) });
+  const context = new GameContext({ configService: ConfigService.load(config), storage: new MemoryStorageAdapter() });
   assert.deepEqual(context.economy.mergeRewards, [11, 22, 44, 88, 176]);
 }
 testGameContextUsesValidatedEconomyConfig();

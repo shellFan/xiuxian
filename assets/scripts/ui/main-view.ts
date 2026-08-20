@@ -10,6 +10,7 @@ import { WorkerView } from './worker-view';
 import { ToastView } from './toast-view';
 import { FeedbackView } from './feedback-view';
 import type { MergeCompletedEvent, SalaryChangedEvent } from '../core/game-events';
+import { LocalStorageAdapter } from '../services/storage-adapter';
 
 const { ccclass } = _decorator;
 const property = (value: unknown): any => { const decorator = _decorator as unknown as { property?: (type: unknown) => any }; return decorator.property ? decorator.property(value) : () => {}; };
@@ -51,7 +52,7 @@ export class MainView extends Component {
 
   protected onLoad(): void {
     this.resolveSceneReferences();
-    if (!this.context) this.attachContext(new GameContext());
+    if (!this.context) this.attachContext(new GameContext({ storage: new LocalStorageAdapter(Cocos.sys.localStorage) }));
     else this.bindWorkerViews(this.workerViews);
   }
 

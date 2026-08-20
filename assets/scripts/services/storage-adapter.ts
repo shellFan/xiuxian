@@ -5,16 +5,25 @@ export interface StorageAdapter {
 }
 
 export class LocalStorageAdapter implements StorageAdapter {
+  public constructor(private readonly storage?: StorageAdapter) {}
+
   public getItem(key: string): string | null {
-    return globalThis.localStorage.getItem(key);
+    return this.requireStorage().getItem(key);
   }
 
   public setItem(key: string, value: string): void {
-    globalThis.localStorage.setItem(key, value);
+    this.requireStorage().setItem(key, value);
   }
 
   public removeItem(key: string): void {
-    globalThis.localStorage.removeItem(key);
+    this.requireStorage().removeItem(key);
+  }
+
+  private requireStorage(): StorageAdapter {
+    if (!this.storage) {
+      throw new Error('Persistent storage is unavailable; inject a StorageAdapter for this environment');
+    }
+    return this.storage;
   }
 }
 

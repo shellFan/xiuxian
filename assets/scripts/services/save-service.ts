@@ -30,12 +30,12 @@ function migrate(raw: unknown): GameSaveData {
     throw new Error('Unsupported save data');
   }
   const workers = Array.isArray(raw.workers) ? raw.workers.filter(isWorker).map((worker) => ({ ...worker })) : [];
-  const maxWorkerLevel = isFiniteNumber(raw.maxWorkerLevel) ? raw.maxWorkerLevel : workers.reduce((max, worker) => Math.max(max, worker.level), 0);
+  const maxWorkerLevel = isNonNegativeSafeInteger(raw.maxWorkerLevel) ? raw.maxWorkerLevel : workers.reduce((max, worker) => Math.max(max, worker.level), 0);
   return {
     saveVersion: CURRENT_SAVE_VERSION,
-    salary: isFiniteNumber(raw.salary) ? raw.salary : 0,
+    salary: isNonNegativeSafeInteger(raw.salary) ? raw.salary : 0,
     maxWorkerLevel,
-    lastSaveTime: isFiniteNumber(raw.lastSaveTime) ? raw.lastSaveTime : 0,
+    lastSaveTime: isNonNegativeSafeInteger(raw.lastSaveTime) ? raw.lastSaveTime : 0,
     workers,
   };
 }
@@ -49,4 +49,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
+}
+function isNonNegativeSafeInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 }
