@@ -1,7 +1,7 @@
 {
   "id": "TASK-000-PROVIDER-TEST-2",
   "title": "Verify Codex dual-model provider loop after pre-phase repair",
-  "version": 1,
+  "version": 2,
   "status": "DONE",
   "priority": "CRITICAL",
   "createdBy": "chatgpt-gpt-5.6-sol",
@@ -10,11 +10,11 @@
   "goal": "Verify the real Luna Developer and Sol Reviewer loop without touching game code.",
   "background": "Fresh safe provider smoke task. The original failed task remains unchanged as failure evidence.",
   "requirements": [
-    "Create ai/reports/provider-test-2.md containing exactly one line: Provider Test Passed."
+    "Create ai/reports/provider-test-2.md containing exactly the text `Provider Test Passed` with an optional final newline and no period."
   ],
   "acceptanceCriteria": [
     "ai/reports/provider-test-2.md exists.",
-    "Its content is exactly Provider Test Passed followed by an optional final newline.",
+    "Its content is exactly `Provider Test Passed` followed by an optional final newline, with no period.",
     "A schema-valid Luna Developer Result is generated.",
     "A schema-valid Sol Reviewer Result is generated with PASS."
   ],
