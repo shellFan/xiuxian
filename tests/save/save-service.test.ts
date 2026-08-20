@@ -38,8 +38,19 @@ function testMigratesOlderVersionAndDefaultsMissingFields(): void {
     workers: [{ id: 'w', level: 1, row: 0, column: 0 }] });
 }
 
+function testIgnoresMalformedWorkersAndRejectsFutureSaves(): void {
+  const storage = new MemoryStorageAdapter();
+  storage.setItem('game-save', JSON.stringify({ saveVersion: 2, salary: 12, workers: [
+    { id: 'valid', level: 1, row: 0, column: 0 }, { id: 'bad', level: '1', row: 0, column: 1 },
+  ] }));
+  assert.deepEqual(new SaveService(storage).load().workers, [{ id: 'valid', level: 1, row: 0, column: 0 }]);
+  storage.setItem('game-save', JSON.stringify({ saveVersion: CURRENT_SAVE_VERSION + 1, salary: 99 }));
+  assert.deepEqual(new SaveService(storage).load(), PlayerData.createDefault().toSaveData());
+}
+
 testNewPlayerUsesDefaults();
 testSavesAndRestoresPlayerAndWorkers();
 testEmptyAndInvalidStorageBecomeNewPlayer();
 testMigratesOlderVersionAndDefaultsMissingFields();
+testIgnoresMalformedWorkersAndRejectsFutureSaves();
 console.log('save tests passed');

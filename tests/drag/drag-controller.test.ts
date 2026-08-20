@@ -42,6 +42,8 @@ test('locks input while merging and handles an occupied target after the lock cl
   assert.equal(controller.begin('a', { row: 0, column: 0 }), true);
   assert.equal(controller.drop({ row: 0, column: 1 }), 'merge');
   assert.equal(controller.state, DragState.MERGING);
+  assert.equal(controller.drop({ row: 0, column: 1 }), 'ignored');
+  assert.deepEqual(controller.sourcePosition, { row: 0, column: 0 });
   assert.equal(controller.begin('a', { row: 0, column: 0 }), false);
   controller.completeMerge();
   occupied = false;

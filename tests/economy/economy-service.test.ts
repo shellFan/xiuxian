@@ -53,6 +53,16 @@ function testInvalidSalaryChangesAreRejected(): void {
   assert.equal(context.player.salary, 0);
 }
 
+function testInvalidMergeRewardsAreRejectedWithoutChangingSalary(): void {
+  const { context } = createContext();
+  for (const input of [
+    ['', 1], ['merge-invalid', 0], ['merge-invalid', 6], ['merge-invalid', 1.5],
+  ] as const) {
+    assert.throws(() => context.economy.grantMergeReward(input[0], input[1]), /Invalid merge reward/);
+  }
+  assert.equal(context.player.salary, 0);
+}
+
 function testMergeUsesEconomyConfigurationAndService(): void {
   const storage = new MemoryStorageAdapter();
   const context = new GameContext({
@@ -79,6 +89,7 @@ testSalaryChangeSavesAndEmitsEvent();
 testMergeRewardCannotBeGrantedTwiceDuringSalaryEvent();
 testMergeRewardsAreConfiguredAndGrantedOnlyOnce();
 testInvalidSalaryChangesAreRejected();
+testInvalidMergeRewardsAreRejectedWithoutChangingSalary();
 testMergeUsesEconomyConfigurationAndService();
 function testGameContextUsesValidatedEconomyConfig(): void {
   const config: ConfigBundle = {

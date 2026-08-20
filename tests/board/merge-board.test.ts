@@ -71,10 +71,19 @@ function testRestoreRejectsDuplicateWorkerIds(): void {
   assert.throws(() => MergeBoard.restore(data, { rows: 1, columns: 2 }), /Duplicate worker id/);
 }
 
+function testRejectsIllegalPositionsWithoutChangingBoard(): void {
+  const board = new MergeBoard({ rows: 1, columns: 2 });
+  const worker = WorkerEntity.create(1);
+  assert.throws(() => board.getWorker({ row: -1, column: 0 }), /Invalid board position/);
+  assert.throws(() => board.place(worker, { row: 1, column: 0 }), /Invalid board position/);
+  assert.deepEqual(board.toSaveData(), []);
+}
+
 testDefaultBoardHasSixteenDistinctCells();
 testPlacementAndMovementKeepCellsUniquelyOccupied();
 testOnlySameLevelsMergeAndHighestLevelStops();
 testFullBoardAndSerializationRestore();
 testCellsCannotBypassBoardValidation();
 testRestoreRejectsDuplicateWorkerIds();
+testRejectsIllegalPositionsWithoutChangingBoard();
 console.log('board tests passed');
