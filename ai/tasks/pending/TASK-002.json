@@ -12,7 +12,8 @@
   "requirements": [
     "实现 ConfigService，集中加载与校验 worker/economy/game JSON。",
     "配置 Lv1~Lv6 名称与 salary，配置 4x4 棋盘及合成奖励 10/20/40/80/160。",
-    "缺配置、缺字段、重复或非法等级必须产生明确错误。"
+    "缺配置、缺字段、重复或非法等级必须产生明确错误。",
+    "建立通用业务测试发现入口，使 npm test 自动执行 tests 下所有编译后的 *.test.js，后续 Task 新增测试无需再次修改 package scripts。"
   ],
   "acceptanceCriteria": [
     "配置内容无业务硬编码分支。",
@@ -23,7 +24,10 @@
     "assets/scripts/services/config-service.ts",
     "assets/scripts/model/config-types.ts",
     "assets/configs/**",
-    "tests/config/**"
+    "tests/config/**",
+    "tests/run-all.cjs",
+    "package.json",
+    "package-lock.json"
   ],
   "forbiddenPaths": [
     ".git/**",
