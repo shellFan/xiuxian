@@ -7,6 +7,9 @@ import { RecruitmentService, type RecruitmentResult } from '../services/recruitm
 import { GameContext } from '../core/game-context';
 import { MergeBoardView } from './merge-board-view';
 import { WorkerView } from './worker-view';
+import { ToastView } from './toast-view';
+import { FeedbackView } from './feedback-view';
+import type { MergeCompletedEvent, SalaryChangedEvent } from '../core/game-events';
 
 const { ccclass } = _decorator;
 const property = (value: unknown): any => { const decorator = _decorator as unknown as { property?: (type: unknown) => any }; return decorator.property ? decorator.property(value) : () => {}; };
@@ -33,12 +36,17 @@ export class MainView extends Component {
   public boardView?: MergeBoardView;
   @property([WorkerView])
   public workerViews: WorkerView[] = [];
+  @property(ToastView)
+  public toastView?: ToastView;
+  @property(FeedbackView)
+  public feedbackView?: FeedbackView;
   public boardSnapshot: Array<WorkerCardState | undefined> = [];
   public context?: GameContext;
 
   private recruitment?: RecruitmentService;
   private merge?: MergeService;
   private drag?: DragController;
+  private lastDisplayedMaxWorkerLevel = 0;
   private readonly onRecruitPressed = (): void => { this.recruit(); };
 
   protected onLoad(): void {
@@ -59,8 +67,8 @@ export class MainView extends Component {
       onMerge: (from, to) => { this.merge?.merge(from, to); this.drag?.completeMerge(); this.refresh(); },
     });
     context.events.on('workerRecruited', this.refreshFromEvent);
-    context.events.on('mergeCompleted', this.refreshFromEvent);
-    context.events.on('salaryChanged', this.refreshFromEvent);
+    context.events.on('mergeCompleted', this.onMergeCompleted);
+    context.events.on('salaryChanged', this.onSalaryChanged);
     this.recruitButton?.on?.('click', this.onRecruitPressed, this);
     this.bindWorkerViews(this.workerViews);
     this.refresh();
@@ -69,19 +77,20 @@ export class MainView extends Component {
   public detachContext(): void {
     if (this.context) {
       this.context.events.off('workerRecruited', this.refreshFromEvent);
-      this.context.events.off('mergeCompleted', this.refreshFromEvent);
-      this.context.events.off('salaryChanged', this.refreshFromEvent);
+      this.context.events.off('mergeCompleted', this.onMergeCompleted);
+      this.context.events.off('salaryChanged', this.onSalaryChanged);
     }
     this.recruitButton?.off?.('click', this.onRecruitPressed, this);
     this.workerViews.forEach((view) => view.unbind());
     this.workerViews.forEach((view) => view.clear());
+    this.feedbackView?.stopTweens(); this.toastView?.stop();
     this.context = undefined; this.recruitment = undefined; this.merge = undefined; this.drag = undefined;
     this.boardSnapshot = [];
   }
 
   public recruit(): RecruitmentResult | undefined {
     const result = this.recruitment?.recruit();
-    if (result && !result.success) this.setText(this.hintLabel, result.message);
+    if (result && !result.success) { this.setText(this.hintLabel, result.message); this.toastView?.show(result.message); }
     return result;
   }
 
@@ -94,7 +103,7 @@ export class MainView extends Component {
   public getDragController(): DragController | undefined { return this.drag; }
   public onDestroy(): void { this.detachContext(); }
 
-  public refresh(): void {
+  public refresh(updateLevelBaseline = true): void {
     const context = this.context;
     if (!context) return;
     const rank = context.configService.worker.levels.find((level) => level.level === context.player.maxWorkerLevel) ?? context.configService.worker.levels[0];
@@ -111,6 +120,7 @@ export class MainView extends Component {
       if (card) view.refresh(card);
       else view.clear();
     });
+    if (updateLevelBaseline) this.lastDisplayedMaxWorkerLevel = context.player.maxWorkerLevel;
   }
 
   private resolveSceneReferences(): void {
@@ -122,6 +132,8 @@ export class MainView extends Component {
     this.salaryLabel ??= component('SalaryLabel', 'Label') as TextLike | undefined;
     this.hintLabel ??= component('HintLabel', 'Label') as TextLike | undefined;
     this.recruitButton ??= component('RecruitButton', 'Button') as ButtonLike | undefined;
+    this.toastView ??= component('Toast', 'ToastView') as ToastView | undefined;
+    this.feedbackView ??= component('Feedback', 'FeedbackView') as FeedbackView | undefined;
     const boardNode = child('MergeBoard');
     this.boardView ??= boardNode?.getComponent?.('MergeBoardView') as MergeBoardView | undefined;
     if (this.boardView && !this.workerViews.length) {
@@ -130,5 +142,17 @@ export class MainView extends Component {
   }
 
   private readonly refreshFromEvent = (): void => { this.refresh(); };
+  private readonly onSalaryChanged = (event: SalaryChangedEvent): void => { this.refresh(false); this.feedbackView?.showSalary(event.amount); };
+  private readonly onMergeCompleted = (event: MergeCompletedEvent): void => {
+    const previousLevel = this.lastDisplayedMaxWorkerLevel;
+    this.refresh();
+    if (event.worker.level > previousLevel) {
+      const rank = this.context?.configService.worker.levels.find((level) => level.level === event.worker.level);
+      if (rank) this.feedbackView?.showBreakthrough(rank.name, rank.level);
+    }
+    const position = event.second.row * (this.boardView?.columns ?? 4) + event.second.column;
+    const target = this.workerViews[position] as unknown as { node?: unknown } | undefined;
+    this.feedbackView?.playMerge(target?.node as any);
+  };
   private setText(target: TextLike | undefined, value: string): void { if (target) target.string = value; }
 }

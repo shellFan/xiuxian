@@ -5,13 +5,26 @@ import test from 'node:test';
 
 const moduleApi = Module as unknown as { _load: (request: string, parent: NodeModule | null, isMain: boolean) => unknown };
 const loader = moduleApi._load;
+const tweenRuns: Array<{ target: any; properties: any; stopped: boolean; finish: () => void }> = [];
 moduleApi._load = function (request: string, parent: NodeModule | null, isMain: boolean): unknown {
-  if (request === 'cc') return { _decorator: { ccclass: () => (target: unknown) => target, property: () => () => {} }, Component: class {}, Label: class {}, Button: class {}, UITransform: class {} };
+  if (request === 'cc') {
+    class MockTween {
+      private readonly run: typeof tweenRuns[number];
+      public constructor(public readonly target: any) { this.run = { target, properties: {}, stopped: false, finish: () => {} }; tweenRuns.push(this.run); }
+      public to(_duration: number, properties: any) { this.run.properties = properties; return this; }
+      public call(callback: () => void) { this.run.finish = callback; return this; }
+      public start() { return this; }
+      public stop() { this.run.stopped = true; }
+    }
+    return { _decorator: { ccclass: () => (target: unknown) => target, property: () => () => {} }, Component: class {}, Label: class {}, Button: class {}, UITransform: class {}, UIOpacity: class {}, tween: (target: any) => new MockTween(target) };
+  }
   return loader.call(this, request, parent, isMain);
 };
 const { MainView } = require('../../assets/scripts/ui/main-view') as typeof import('../../assets/scripts/ui/main-view');
 const { WorkerView } = require('../../assets/scripts/ui/worker-view') as typeof import('../../assets/scripts/ui/worker-view');
 const { MergeBoardView } = require('../../assets/scripts/ui/merge-board-view') as typeof import('../../assets/scripts/ui/merge-board-view');
+const { ToastView } = require('../../assets/scripts/ui/toast-view') as typeof import('../../assets/scripts/ui/toast-view');
+const { FeedbackView } = require('../../assets/scripts/ui/feedback-view') as typeof import('../../assets/scripts/ui/feedback-view');
 const { GameContext } = require('../../assets/scripts/core/game-context') as typeof import('../../assets/scripts/core/game-context');
 const { MemoryStorageAdapter } = require('../../assets/scripts/services/storage-adapter') as typeof import('../../assets/scripts/services/storage-adapter');
 moduleApi._load = loader;
@@ -30,6 +43,98 @@ test('refreshes labels and worker cards from the authoritative GameContext', () 
   assert.equal(main.boardSnapshot[0].displayText, '🐮 Lv1');
 });
 
+test('ToastView presents a message without changing game state and can be stopped safely', () => {
+  tweenRuns.length = 0;
+  const toast = new ToastView() as any;
+  const label = { string: '' };
+  const node = { active: false, isValid: true };
+  toast.opacity = { opacity: 0 };
+  toast.messageLabel = label;
+  toast.node = node;
+  toast.show('工位满了');
+  assert.equal(label.string, '工位满了');
+  assert.equal(node.active, true);
+  toast.stop();
+  assert.equal(node.active, false);
+  toast.onDestroy();
+  assert.equal(tweenRuns[0].stopped, true);
+});
+
+test('FeedbackView uses separate salary and breakthrough nodes and restores merge scale on cancellation', () => {
+  tweenRuns.length = 0;
+  const feedback = new FeedbackView() as any;
+  const salaryLabel = { string: '' };
+  const salaryNode = { active: false, isValid: true, position: { x: 0, y: 0, z: 0 } };
+  const salaryOpacity = { opacity: 255 };
+  const breakthroughNode = { active: false, isValid: true };
+  const mergeNode = { active: true, isValid: true, scale: { x: 1, y: 1, z: 1 } };
+  feedback.salaryLabel = salaryLabel;
+  feedback.salaryOpacity = salaryOpacity;
+  feedback.salaryNode = salaryNode;
+  feedback.breakthroughNode = breakthroughNode;
+  feedback.showSalary(25);
+  assert.equal(salaryLabel.string, '+25 工资');
+  feedback.showBreakthrough('筑基牛马', 2);
+  assert.equal(feedback.lastBreakthrough, '突破：筑基牛马 Lv2');
+  assert.equal(salaryNode.active, true);
+  assert.equal(breakthroughNode.active, true);
+  feedback.playMerge(mergeNode);
+  assert.equal(mergeNode.scale.x, 1);
+  assert.equal(tweenRuns.some((run) => run.properties.scale), true);
+  salaryNode.position = { x: 0, y: 24, z: 0 };
+  salaryNode.active = true;
+  feedback.showSalary(50);
+  assert.deepEqual(salaryNode.position, { x: 0, y: 0, z: 0 });
+  assert.equal(salaryOpacity.opacity, 255);
+  feedback.playMerge(mergeNode);
+  mergeNode.scale = { x: 1.18, y: 1.18, z: 1 };
+  feedback.playMerge(mergeNode);
+  assert.deepEqual(mergeNode.scale, { x: 1, y: 1, z: 1 });
+  feedback.stopTweens();
+  assert.deepEqual(mergeNode.scale, { x: 1, y: 1, z: 1 });
+  assert.deepEqual(salaryNode.position, { x: 0, y: 0, z: 0 });
+  assert.equal(salaryNode.active, false);
+  assert.equal(salaryOpacity.opacity, 255);
+  assert.equal(breakthroughNode.active, false);
+  feedback.onDisable();
+  feedback.onDestroy();
+  assert.equal(tweenRuns.every((run) => run.stopped), true);
+});
+
+test('FeedbackView restores feedback state after tween completion', () => {
+  tweenRuns.length = 0;
+  const feedback = new FeedbackView() as any;
+  const salaryNode = { active: false, isValid: true, position: { x: 3, y: 4, z: 0 } };
+  const mergeNode = { active: true, isValid: true, scale: { x: 1, y: 1, z: 1 } };
+  feedback.salaryNode = salaryNode;
+  feedback.showSalary(10);
+  tweenRuns[0].finish();
+  assert.deepEqual(salaryNode.position, { x: 3, y: 4, z: 0 });
+  assert.equal(salaryNode.active, false);
+  feedback.playMerge(mergeNode);
+  tweenRuns[tweenRuns.length - 1].finish();
+  tweenRuns[tweenRuns.length - 1].finish();
+  assert.equal(feedback.mergeScales.size, 0);
+  assert.deepEqual(mergeNode.scale, { x: 1, y: 1, z: 1 });
+});
+
+test('full board recruitment shows a Toast instead of mutating the board', () => {
+  const context = new GameContext({ storage: new MemoryStorageAdapter(), boardRows: 1, boardColumns: 1 });
+  const main = new MainView() as any;
+  const toast = new ToastView() as any;
+  const label = { string: '' };
+  toast.messageLabel = label;
+  toast.node = { active: false, isValid: true };
+  main.toastView = toast;
+  main.attachContext(context);
+  main.recruit();
+  const before = context.board.toSaveData();
+  const result = main.recruit();
+  assert.equal(result?.success, false);
+  assert.deepEqual(context.board.toSaveData(), before);
+  assert.equal(label.string, '工位满了');
+});
+
 test('WorkerView exposes a model-driven card presentation without owning game state', () => {
   const view = new WorkerView() as any;
   view.refresh({ id: 'worker-test', level: 3 });
@@ -41,11 +146,14 @@ test('WorkerView exposes a model-driven card presentation without owning game st
 
 test('Main.scene declares the core screen nodes and view components', () => {
   const scene = fs.readFileSync('assets/scenes/Main.scene', 'utf8');
-  for (const name of ['MainView', 'Title', 'RankLabel', 'SalaryLabel', 'MergeBoard', 'RecruitButton', 'HintLabel']) {
+  for (const name of ['MainView', 'Title', 'RankLabel', 'SalaryLabel', 'MergeBoard', 'RecruitButton', 'HintLabel', 'Toast', 'Feedback', 'SalaryFeedback', 'BreakthroughFeedback']) {
     assert.match(scene, new RegExp(`_name":"${name}"`));
   }
   assert.match(scene, /MergeBoardView/);
   assert.match(scene, /WorkerView/);
+  assert.match(scene, /ToastView/);
+  assert.match(scene, /FeedbackView/);
+  assert.match(scene, /UIOpacity/);
 });
 
 test('Main.scene has a consistent node/component reference graph', () => {
@@ -58,9 +166,12 @@ test('Main.scene has a consistent node/component reference graph', () => {
   }
   const main = nodes.find((node) => node._name === 'MainView')!;
   assert.equal(main._parent.__id__, 5);
-  assert.equal(main._children.length, 6);
+  assert.equal(main._children.length, 8);
   assert.equal(scene[5]._children.some((child: any) => child.__id__ === scene.indexOf(main)), true);
   assert.equal(scene.find((item) => item.__type__ === 'MainView')!.titleLabel.__id__, 10);
+  const mainComponent = scene.find((item) => item.__type__ === 'MainView')!;
+  assert.equal(scene[mainComponent.toastView.__id__].node.__id__, scene.find((item) => item.__type__ === 'ToastView')!.node.__id__);
+  assert.equal(scene[mainComponent.feedbackView.__id__].node.__id__, scene.find((item) => item.__type__ === 'FeedbackView')!.node.__id__);
   assert.equal(scene.filter((item) => item._name?.startsWith('BoardCell')).length, 16);
   for (const name of ['Title', 'RankLabel', 'SalaryLabel', 'HintLabel']) {
     const node = nodes.find((item) => item._name === name)!;
