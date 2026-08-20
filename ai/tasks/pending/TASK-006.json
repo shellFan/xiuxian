@@ -1,14 +1,14 @@
 {
   "id": "TASK-006",
   "title": "实现拖拽系统",
-  "version": 2,
+  "version": 3,
   "status": "PENDING",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
   "assignedTo": "codex-gpt-5.6-luna",
   "reviewer": "codex-gpt-5.6-sol",
   "goal": "实现 WorkerView 与 MergeBoardView 的单指拖拽、坐标换算和目标格解析。",
-  "background": "Phase 1 core demo task 006; depends on TASK-005 being DONE. ChatGPT architecture adjudication reopens the task to resolve round-03 drag recovery and coordinate HIGH findings.",
+  "background": "Phase 1 core demo task 006; depends on TASK-005 being DONE. ChatGPT architecture adjudication reopens the task to resolve round-03 drag recovery and coordinate HIGH findings. Infrastructure-only retry after Luna apply_patch wrapper failure with zero task changes.",
   "requirements": [
     "实现 WorkerView 与 MergeBoardView 的单指拖拽、坐标换算和目标格解析。",
     "实现 IDLE/DRAGGING/MERGING 交互锁。",
