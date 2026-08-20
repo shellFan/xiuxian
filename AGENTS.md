@@ -6,11 +6,11 @@
 
 ## Agent roles
 
-- ChatGPT GPT-5.6 Sol：总策划、产品负责人、总架构师和任务规划者，负责 PRD、玩法、数值、架构、任务、验收和版本规划。
-- Hy3：主开发 Agent，读取 Task、检查代码、实现、测试、Build，并输出结构化结果。
-- Codex Sol：技术负责人和 Reviewer，审查正确性、架构、性能、测试、安全、Cocos 与微信小游戏兼容性。
+- ChatGPT GPT-5.6 Sol：总策划、产品负责人、总架构师、Task 规划者、验收负责人和重大问题裁决者。
+- Codex GPT-5.6 Luna：Developer，负责编写和修改代码、执行 Task、Build/Test、修复 Sol Review 问题并输出 Developer Result。
+- Codex GPT-5.6 Sol：Reviewer，负责 Code、Architecture、Performance、Security、Test、Cocos Creator 与微信小游戏兼容性 Review。
 
-Codex 默认不与 Hy3 抢业务开发工作；发现问题时输出整改意见。
+Reviewer 默认不直接大规模代写业务代码；发现 `BLOCKER` 或 `HIGH` 问题时输出整改要求，由 Luna Developer 修复。
 
 ## Review levels
 

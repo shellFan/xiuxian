@@ -1,0 +1,48 @@
+{
+  "id": "TASK-000-PROVIDER-TEST-2",
+  "title": "Verify Codex dual-model provider loop after pre-phase repair",
+  "version": 1,
+  "status": "DONE",
+  "priority": "CRITICAL",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "goal": "Verify the real Luna Developer and Sol Reviewer loop without touching game code.",
+  "background": "Fresh safe provider smoke task. The original failed task remains unchanged as failure evidence.",
+  "requirements": [
+    "Create ai/reports/provider-test-2.md containing exactly one line: Provider Test Passed."
+  ],
+  "acceptanceCriteria": [
+    "ai/reports/provider-test-2.md exists.",
+    "Its content is exactly Provider Test Passed followed by an optional final newline.",
+    "A schema-valid Luna Developer Result is generated.",
+    "A schema-valid Sol Reviewer Result is generated with PASS."
+  ],
+  "allowedPaths": [
+    "ai/reports/**",
+    "ai/state/**"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "assets/**",
+    "settings/**",
+    "tools/orchestrator/src/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "",
+    "test": "",
+    "lint": ""
+  },
+  "constraints": [
+    "Do not modify game code.",
+    "Do not modify orchestrator source.",
+    "Do not use Mock providers.",
+    "Do not modify the original TASK-000-PROVIDER-TEST failure record."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/tasks/failed/TASK-000-PROVIDER-TEST.json"
+  ],
+  "maxReviewRounds": 3
+}
