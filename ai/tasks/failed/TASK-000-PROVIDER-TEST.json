@@ -2,7 +2,7 @@
   "id": "TASK-000-PROVIDER-TEST",
   "title": "Verify Codex dual-model provider loop",
   "version": 1,
-  "status": "PENDING",
+  "status": "FAILED",
   "priority": "HIGH",
   "createdBy": "chatgpt",
   "assignedTo": "codex-luna",
