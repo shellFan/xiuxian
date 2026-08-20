@@ -1,20 +1,22 @@
 {
   "id": "TASK-006",
   "title": "实现拖拽系统",
-  "version": 3,
-  "status": "ESCALATED",
+  "version": 4,
+  "status": "PENDING",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
   "assignedTo": "codex-gpt-5.6-luna",
   "reviewer": "codex-gpt-5.6-sol",
   "goal": "实现 WorkerView 与 MergeBoardView 的单指拖拽、坐标换算和目标格解析。",
-  "background": "Phase 1 core demo task 006; depends on TASK-005 being DONE. ChatGPT architecture adjudication reopens the task to resolve round-03 drag recovery and coordinate HIGH findings. Infrastructure-only retry after Luna apply_patch wrapper failure with zero task changes.",
+  "background": "Phase 1 core demo task 006; depends on TASK-005 being DONE. ChatGPT architecture adjudication reopens the task to resolve round-03 drag recovery and coordinate HIGH findings. Infrastructure-only retry after Luna apply_patch wrapper failure with zero task changes. Second ChatGPT adjudication: make touch-start preparation atomic and complete visual recovery tests.",
   "requirements": [
     "实现 WorkerView 与 MergeBoardView 的单指拖拽、坐标换算和目标格解析。",
     "实现 IDLE/DRAGGING/MERGING 交互锁。",
     "处理出界、快速拖动、失效 Node、占用变化和动画期间输入。",
     "视觉恢复为不可省略的同步协议；所有 restore/cancel/merge exception 路径必须恢复源格并在 finally 清理 activeTouchId。",
-    "WorkerView 必须基于实际 dragNode.parent UITransform 转换 getUILocation 坐标；测试覆盖多触点、不同容器、Node 失效、解绑和所有恢复落点。"
+    "WorkerView 必须基于实际 dragNode.parent UITransform 转换 getUILocation 坐标；测试覆盖多触点、不同容器、Node 失效、解绑和所有恢复落点。",
+    "touch-start 必须先完成所有可失败坐标准备再 begin，或任何异常统一 cancel 回 IDLE；测试覆盖坐标异常后可再次触摸。",
+    "补齐 unbind/onDestroy、原格、越界、不同等级、占用变化与 merge exception 的实际节点视觉归位测试。"
   ],
   "acceptanceCriteria": [
     "空格移动、不同等级回原位、同等级交给合成服务。",
