@@ -9,8 +9,8 @@
     "ai:status": "tsx tools/orchestrator/src/index.ts status",
     "ai:provider-check": "tsx tools/orchestrator/src/index.ts provider-check",
     "ai:check": "tsx tools/orchestrator/src/index.ts check",
-    "test": "npm run ai:check",
-    "build": "tsc -p tools/orchestrator/tsconfig.json --noEmit"
+    "test": "tsc -p tsconfig.game.json --outDir tests/.compiled --noEmit false && node tests/.compiled/tests/core/foundation.test.js",
+    "build": "tsc -p tsconfig.game.json --noEmit"
   },
   "dependencies": {
     "ajv": "^8.17.1",

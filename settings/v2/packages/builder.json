@@ -1,0 +1,6 @@
+{
+  "platform": "wechatgame",
+  "md5Cache": false,
+  "startScene": "db://assets/scenes/Main.scene",
+  "outputName": "niuma-xiuxian"
+}

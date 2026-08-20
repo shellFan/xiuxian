@@ -1,0 +1,4 @@
+{
+  "server": { "port": 7456 },
+  "previewUrl": "http://localhost:7456"
+}
