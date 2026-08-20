@@ -1,19 +1,21 @@
 {
   "id": "TASK-001",
   "title": "创建 Cocos Creator 项目基础骨架",
-  "version": 5,
-  "status": "ESCALATED",
+  "version": 6,
+  "status": "PENDING",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
   "assignedTo": "codex-gpt-5.6-luna",
   "reviewer": "codex-gpt-5.6-sol",
   "goal": "创建 Cocos Creator 3.8 TypeScript 项目元数据、Main 场景及约定目录。",
-  "background": "Phase 1 core demo task 001; depends on provider preflight being DONE.",
+  "background": "Phase 1 core demo task 001; depends on provider preflight being DONE. ChatGPT architecture adjudication reopens the task to resolve Sol round-03 HIGH without skipping it.",
   "requirements": [
     "创建 Cocos Creator 3.8 TypeScript 项目元数据、Main 场景及约定目录。",
     "实现 GameBootstrap、GameConfig、EventBus、基础常量、类型与轻量 GameLogger。",
     "建立可由 Node TypeScript 静态检查的业务 tsconfig 和基础测试入口。",
-    "保留独立 ai:check 脚本；Task 内 npm test 只运行可在 Luna 沙箱执行的业务测试，ai:check 由外层 orchestrator 单独验证。"
+    "保留独立 ai:check 脚本；Task 内 npm test 只运行可在 Luna 沙箱执行的业务测试，ai:check 由外层 orchestrator 单独验证。",
+    "按 Cocos Creator 3.x UUID 压缩类 ID 规则，将 meta UUID 00000000-0000-0000-0000-000000000003 对应的 23 字符类 ID 00000AAAAAAAAAAAAAAAAAD 写入 Main.scene 自定义组件 __type__。",
+    "测试必须计算/验证压缩类 ID并拒绝 cc.Component + _script 与 36 字符 UUID；Cocos Editor 未实际运行时保留 MANUAL TEST REQUIRED。"
   ],
   "acceptanceCriteria": [
     "Cocos 项目目录和 project.json/settings 可被 Creator 3.8 识别。",
@@ -51,7 +53,8 @@
   "references": [
     "AGENTS.md",
     "docs/superpowers/specs/2026-08-20-phase-1-core-demo-design.md",
-    "docs/superpowers/plans/2026-08-20-phase-1-core-demo.md"
+    "docs/superpowers/plans/2026-08-20-phase-1-core-demo.md",
+    "ai/reviews/TASK-001-review-03.json"
   ],
   "maxReviewRounds": 3
 }
