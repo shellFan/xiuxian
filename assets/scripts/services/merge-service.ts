@@ -2,12 +2,6 @@ import type { BoardPosition } from '../game/merge/merge-types';
 import { WorkerEntity } from '../model/worker-entity';
 import type { GameContext } from '../core/game-context';
 
-const DEFAULT_MERGE_REWARDS = Object.freeze([10, 20, 40, 80, 160]);
-
-export interface MergeServiceOptions {
-  readonly mergeRewards?: readonly number[];
-}
-
 export interface MergeSuccess {
   readonly success: true;
   readonly worker: WorkerEntity;
@@ -23,12 +17,9 @@ export type MergeResult = MergeSuccess | MergeFailure;
 
 export class MergeService {
   private locked = false;
-  private readonly mergeRewards: readonly number[];
-
-  public constructor(private readonly context: GameContext, options: MergeServiceOptions = {}) {
-    this.mergeRewards = options.mergeRewards ?? DEFAULT_MERGE_REWARDS;
-    if (this.mergeRewards.length < Math.min(this.context.board.maxWorkerLevel, 6) - 1 ||
-      this.mergeRewards.some((reward) => !Number.isFinite(reward) || reward < 0)) {
+  public constructor(private readonly context: GameContext) {
+    if (context.economy.mergeRewards.length < Math.min(this.context.board.maxWorkerLevel, 6) - 1 ||
+      context.economy.mergeRewards.some((reward) => !Number.isInteger(reward) || reward < 0)) {
       throw new Error('Merge rewards must cover every merge level and be non-negative');
     }
   }
@@ -48,23 +39,21 @@ export class MergeService {
     const workersBefore = this.context.player.workers.map((worker) => ({ ...worker }));
     const salaryBefore = this.context.player.salary;
     const maxWorkerLevelBefore = this.context.player.maxWorkerLevel;
+    const mergeId = [left.id, right.id].sort().join(':');
 
     try {
       const worker = this.context.board.merge(first, second);
-      const salaryReward = this.mergeRewards[left.level - 1];
       this.context.syncPlayerWorkers();
       this.context.player.maxWorkerLevel = Math.max(this.context.player.maxWorkerLevel, worker.level);
-      this.context.player.salary += salaryReward;
+      let salaryReward: number;
       try {
-        this.context.saveService.save(this.context.player);
+        salaryReward = this.context.economy.grantMergeReward(mergeId, left.level);
       } catch (error) {
         this.restore(boardBefore, workersBefore, salaryBefore, maxWorkerLevelBefore);
         throw error;
       }
 
       this.emitFeedback('mergeCompleted', { first, second, worker, salaryReward });
-      this.emitFeedback('salaryChanged', { amount: salaryReward, total: this.context.player.salary });
-      this.emitFeedback('gameSaved', { reason: 'merge' });
       return { success: true, worker, salaryReward };
     } finally {
       this.locked = false;

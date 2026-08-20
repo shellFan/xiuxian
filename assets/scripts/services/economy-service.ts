@@ -1,6 +1,5 @@
 import type { GameContext } from '../core/game-context';
 
-const DEFAULT_MERGE_REWARDS = Object.freeze([10, 20, 40, 80, 160]);
 
 export interface EconomyServiceOptions {
   readonly mergeRewards?: readonly number[];
@@ -11,7 +10,7 @@ export class EconomyService {
   private readonly grantedMergeRewards = new Set<string>();
 
   public constructor(private readonly context: GameContext, options: EconomyServiceOptions = {}) {
-    this.mergeRewards = Object.freeze([...(options.mergeRewards ?? DEFAULT_MERGE_REWARDS)]);
+    this.mergeRewards = Object.freeze([...(options.mergeRewards ?? context.configService.economy.mergeRewards)]);
     if (this.mergeRewards.length !== 5 || this.mergeRewards.some((reward) => !Number.isInteger(reward) || reward < 0)) {
       throw new Error('Invalid economy merge rewards');
     }
@@ -46,8 +45,13 @@ export class EconomyService {
     }
     if (this.grantedMergeRewards.has(mergeId)) return 0;
     const reward = this.mergeRewards[mergeLevel - 1];
-    this.changeSalary(reward);
     this.grantedMergeRewards.add(mergeId);
+    try {
+      this.changeSalary(reward);
+    } catch (error) {
+      this.grantedMergeRewards.delete(mergeId);
+      throw error;
+    }
     return reward;
   }
 }
