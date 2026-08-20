@@ -1,0 +1,5 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","additionalProperties":false,
+  "required":["taskId","status","summary","changedFiles","createdFiles","deletedFiles","tests","build","knownIssues","outOfScopeFindings"],
+  "properties":{"taskId":{"type":"string","pattern":"^TASK-[0-9]+(?:-[A-Z0-9-]+)?$"},"status":{"enum":["DONE","FAILED"]},"summary":{"type":"string"},"changedFiles":{"type":"array","items":{"type":"string"}},"createdFiles":{"type":"array","items":{"type":"string"}},"deletedFiles":{"type":"array","items":{"type":"string"}},"tests":{"type":"array","items":{"type":"string"}},"build":{"type":"object","required":["passed","details"],"properties":{"passed":{"type":"boolean"},"details":{"type":"string"}},"additionalProperties":false},"knownIssues":{"type":"array","items":{"type":"string"}},"outOfScopeFindings":{"type":"array","items":{"type":"string"}}}
+}

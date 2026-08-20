@@ -6,4 +6,4 @@ Git baseline 记录 HEAD、branch、status、tracked diff 和 untracked files；
 
 结果文件优先：Developer 写 `ai/state/<id>/developer-result.json`，Reviewer 写 `review-result-round-XX.json`；stdout 只作 fallback。新增 Provider 时实现 `DeveloperAdapter` 或 `ReviewerAdapter`，返回 `AgentExecutionResult<T>`。
 
-`FAILED` 用于 Schema、CLI、超时、解析、构建、路径和 IO 错误；正常 Review 连续达到最大轮次仍不通过才是 `ESCALATED`。使用 `npm run ai:check` 调试 Mock 流程。
+`FAILED` 用于 Schema、CLI、超时、解析、构建、路径和 IO 错误；正常 Review 连续达到最大轮次仍不通过才是 `ESCALATED`。使用 `npm run ai:check` 调试 Mock 流程，使用 `npm run ai:provider-check` 检查 Codex CLI 和双模型配置。Codex Adapter 通过 Config 注入 Developer/Reviewer 模型，Developer 使用可写执行模式，Reviewer 使用只读沙箱模式。

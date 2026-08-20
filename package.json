@@ -7,6 +7,7 @@
     "ai:task": "tsx tools/orchestrator/src/index.ts task",
     "ai:review": "tsx tools/orchestrator/src/index.ts review",
     "ai:status": "tsx tools/orchestrator/src/index.ts status",
+    "ai:provider-check": "tsx tools/orchestrator/src/index.ts provider-check",
     "ai:check": "tsx tools/orchestrator/src/index.ts check",
     "test": "npm run ai:check",
     "build": "tsc -p tools/orchestrator/tsconfig.json --noEmit"

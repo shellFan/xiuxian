@@ -4,7 +4,7 @@
   "additionalProperties": false,
   "required": ["id","title","version","status","priority","createdBy","assignedTo","reviewer","goal","background","requirements","acceptanceCriteria","allowedPaths","forbiddenPaths","commands","constraints","references","maxReviewRounds"],
   "properties": {
-    "id": {"type":"string","pattern":"^TASK-[0-9]+$"}, "title":{"type":"string","minLength":1}, "version":{"type":"integer","minimum":1},
+    "id": {"type":"string","pattern":"^TASK-[0-9]+(?:-[A-Z0-9-]+)?$"}, "title":{"type":"string","minLength":1}, "version":{"type":"integer","minimum":1},
     "status":{"enum":["PENDING","RUNNING","REVIEW","FIXING","DONE","FAILED","ESCALATED"]}, "priority":{"enum":["LOW","MEDIUM","HIGH","CRITICAL"]},
     "createdBy":{"type":"string"}, "assignedTo":{"type":"string","default":"hy3"}, "reviewer":{"type":"string","default":"codex-sol"},
     "goal":{"type":"string"}, "background":{"type":"string"}, "requirements":{"type":"array","items":{"type":"string"}}, "acceptanceCriteria":{"type":"array","items":{"type":"string"}},
