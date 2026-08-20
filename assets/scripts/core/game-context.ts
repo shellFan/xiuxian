@@ -1,12 +1,3 @@
-const DEFAULT_CONFIG = {
-  worker: { levels: [
-    { level: 1, name: '实习牛马', salary: 10 }, { level: 2, name: '普通牛马', salary: 20 },
-    { level: 3, name: '高级牛马', salary: 40 }, { level: 4, name: '资深牛马', salary: 80 },
-    { level: 5, name: '牛马主管', salary: 160 }, { level: 6, name: '牛马总监', salary: 320 },
-  ] },
-  economy: { mergeRewards: [10, 20, 40, 80, 160] },
-  game: { board: { columns: 4, rows: 4 } },
-} as const;
 import { EconomyService } from '../services/economy-service';
 import { EventBus } from './event-bus';
 import { GameConfig } from './game-config';
@@ -15,6 +6,9 @@ import { MergeBoard } from '../game/merge/merge-board';
 import { PlayerData } from '../model/player-data';
 import { SaveService } from '../services/save-service';
 import { ConfigService } from '../services/config-service';
+import workerConfig from '../../configs/worker.json';
+import economyConfig from '../../configs/economy.json';
+import gameConfig from '../../configs/game.json';
 import { LocalStorageAdapter, type StorageAdapter } from '../services/storage-adapter';
 
 export interface GameContextOptions {
@@ -44,7 +38,7 @@ export class GameContext {
     });
     this.player = options.player ?? PlayerData.createDefault();
     this.saveService = options.saveService ?? new SaveService(options.storage ?? new LocalStorageAdapter());
-    this.configService = options.configService ?? ConfigService.load(DEFAULT_CONFIG);
+    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
     });

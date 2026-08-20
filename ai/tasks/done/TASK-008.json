@@ -2,7 +2,7 @@
   "id": "TASK-008",
   "title": "实现基础经济系统",
   "version": 6,
-  "status": "PENDING",
+  "status": "DONE",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
   "assignedTo": "codex-gpt-5.6-luna",
@@ -44,8 +44,8 @@
     "Use real Codex Luna Developer and Codex Sol Reviewer.",
     "Do not implement Phase 2 features.",
     "Do not claim Cocos Editor validation without launching the Editor.",
-    "Keep domain state independent from UI nodes."
-    ,"Architecture adjudication: use static TypeScript JSON imports for assets/configs/*.json, enable resolveJsonModule, and validate the imported bundle through ConfigService; do not use Node require or duplicate hardcoded defaults."
+    "Keep domain state independent from UI nodes.",
+    "Architecture adjudication: use static TypeScript JSON imports for assets/configs/*.json, enable resolveJsonModule, and validate the imported bundle through ConfigService; do not use Node require or duplicate hardcoded defaults."
   ],
   "references": [
     "AGENTS.md",
