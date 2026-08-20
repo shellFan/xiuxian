@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { assertDeveloperSucceeded, buildTaskContext } from './task-runner';
 import { DeveloperResult, Task } from './types';
+import { gitStatusArgs } from './git-manager';
 
 test('Codex developer and reviewer args use their configured models', () => {
   assert.deepEqual(buildCodexArgs('developer', 'gpt-5.6-luna', 'ai/state/TASK/developer-result.json', 'ai/schemas/developer.schema.json'), ['exec', '--model', 'gpt-5.6-luna', '--sandbox', 'workspace-write', '--output-schema', 'ai/schemas/developer.schema.json', '-o', 'ai/state/TASK/developer-result.json', '-']);
@@ -66,4 +67,8 @@ test('orchestrator rejects a failed Developer Result before review', () => {
     build: { passed: false, details: 'not run' }, knownIssues: [], outOfScopeFindings: []
   } satisfies DeveloperResult;
   assert.throws(() => assertDeveloperSucceeded(result, 'TASK-001'), /Developer reported FAILED/);
+});
+
+test('Git status expands untracked directories into individual files', () => {
+  assert.deepEqual(gitStatusArgs(), ['status', '--porcelain', '--untracked-files=all']);
 });
