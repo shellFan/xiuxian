@@ -69,6 +69,7 @@ test('does not report success or remain locked when callbacks are unavailable', 
 
 test('clears its lock when worker lookup or merge callback throws', () => {
   let lookupCount = 0;
+  let restored = 0;
   const lookupFailure = new DragController({
     getWorker: () => { lookupCount += 1; if (lookupCount > 1) throw new Error('stale board'); return { id: 'a', level: 1 }; },
   });
@@ -78,8 +79,10 @@ test('clears its lock when worker lookup or merge callback throws', () => {
   const mergeFailure = new DragController({
     getWorker: (position) => position.column === 0 ? { id: 'a', level: 1 } : { id: 'b', level: 1 },
     onMerge: () => { throw new Error('merge rejected'); },
+    onRestore: () => { restored += 1; },
   });
   assert.equal(mergeFailure.begin('a', { row: 0, column: 0 }), true);
   assert.equal(mergeFailure.drop({ row: 0, column: 1 }), 'restore');
   assert.equal(mergeFailure.state, DragState.IDLE);
+  assert.equal(restored, 1);
 });
