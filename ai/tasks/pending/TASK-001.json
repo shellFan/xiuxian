@@ -1,7 +1,7 @@
 {
   "id": "TASK-001",
   "title": "创建 Cocos Creator 项目基础骨架",
-  "version": 3,
+  "version": 4,
   "status": "PENDING",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
@@ -13,7 +13,7 @@
     "创建 Cocos Creator 3.8 TypeScript 项目元数据、Main 场景及约定目录。",
     "实现 GameBootstrap、GameConfig、EventBus、基础常量、类型与轻量 GameLogger。",
     "建立可由 Node TypeScript 静态检查的业务 tsconfig 和基础测试入口。",
-    "更新根 package scripts 时必须保留 orchestrator 的 build/ai:check 覆盖，并组合业务 build/test。"
+    "保留独立 ai:check 脚本；Task 内 npm test 只运行可在 Luna 沙箱执行的业务测试，ai:check 由外层 orchestrator 单独验证。"
   ],
   "acceptanceCriteria": [
     "Cocos 项目目录和 project.json/settings 可被 Creator 3.8 识别。",
