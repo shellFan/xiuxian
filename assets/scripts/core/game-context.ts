@@ -1,3 +1,4 @@
+import { EconomyService } from '../services/economy-service';
 import { EventBus } from './event-bus';
 import { GameConfig } from './game-config';
 import type { GameEvents } from './game-events';
@@ -13,6 +14,7 @@ export interface GameContextOptions {
   readonly storage?: StorageAdapter;
   readonly boardRows?: number;
   readonly boardColumns?: number;
+  readonly economyRewards?: readonly number[];
 }
 
 export class GameContext {
@@ -20,6 +22,7 @@ export class GameContext {
   public readonly player: PlayerData;
   public readonly saveService: SaveService;
   public readonly events = new EventBus<GameEvents>();
+  public readonly economy: EconomyService;
   public readonly config = GameConfig;
 
   public constructor(options: GameContextOptions = {}) {
@@ -29,6 +32,7 @@ export class GameContext {
     });
     this.player = options.player ?? PlayerData.createDefault();
     this.saveService = options.saveService ?? new SaveService(options.storage ?? new LocalStorageAdapter());
+    this.economy = new EconomyService(this, { mergeRewards: options.economyRewards });
   }
 
   public syncPlayerWorkers(): void {

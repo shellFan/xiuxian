@@ -1,7 +1,7 @@
 {
   "id": "TASK-008",
   "title": "实现基础经济系统",
-  "version": 1,
+  "version": 4,
   "status": "PENDING",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
@@ -21,6 +21,7 @@
   ],
   "allowedPaths": [
     "assets/scripts/services/economy-service.ts",
+    "assets/scripts/services/merge-service.ts",
     "assets/scripts/core/game-context.ts",
     "assets/scripts/core/game-events.ts",
     "tests/economy/**"
