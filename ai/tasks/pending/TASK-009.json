@@ -1,7 +1,7 @@
 {
   "id": "TASK-009",
   "title": "实现第一版核心主界面",
-  "version": 2,
+  "version": 3,
   "status": "PENDING",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
@@ -44,7 +44,8 @@
     "Use real Codex Luna Developer and Codex Sol Reviewer.",
     "Do not implement Phase 2 features.",
     "Do not claim Cocos Editor validation without launching the Editor.",
-    "Keep domain state independent from UI nodes."
+    "Keep domain state independent from UI nodes.",
+    "Architecture adjudication: remove automatic Layout control from the board; use 16 fixed cell centers matching MergeBoardView coordinates, restore every cell node position on refresh/clear, and provide a runtime Label lookup fallback using the real Cocos Label class. Add position-level tests for unique cell centers after recruit, move, merge, and cancel."
   ],
   "references": [
     "AGENTS.md",

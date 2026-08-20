@@ -3,12 +3,19 @@ import { DragController } from '../game/drag-controller';
 import type { MergeBoardView, PointLike } from './merge-board-view';
 import type { BoardPosition } from '../game/merge/merge-types';
 const { ccclass } = _decorator;
+const property = (value: unknown): any => { const decorator = _decorator as unknown as { property?: (type: unknown) => any }; return decorator.property ? decorator.property(value) : () => {}; };
 export interface TouchLike { getID?: () => number; getUILocation?: () => PointLike; getLocation?: () => PointLike; }
 interface TransformLike { convertToNodeSpaceAR?: (point: { x: number; y: number; z: number }) => PointLike; }
-interface DragNodeLike { readonly isValid?: boolean; readonly position?: PointLike; readonly parent?: { getComponent?: (type: typeof UITransform) => TransformLike | null }; on?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; off?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; setPosition?: (position: PointLike & { readonly z: number }) => void; }
+interface DragNodeLike { readonly isValid?: boolean; active?: boolean; readonly position?: PointLike; readonly parent?: { getComponent?: (type: typeof UITransform) => TransformLike | null }; on?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; off?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; setPosition?: (position: PointLike & { readonly z: number }) => void; }
+interface TextLike { string: string; }
 @ccclass('WorkerView')
 export class WorkerView extends Component {
-  public workerId = ''; public level = 1; private boardView?: MergeBoardView; private controller?: DragController; private activeTouchId: number | undefined; private ownsSession = false; private sourceLocalPosition?: PointLike;
+  @property({ type: 'cc.Label' })
+  public displayLabel?: TextLike;
+  public workerId = ''; public level = 1; public emoji = '🐮'; public displayText = '🐮 Lv1'; private boardView?: MergeBoardView; private controller?: DragController; private activeTouchId: number | undefined; private ownsSession = false; private sourceLocalPosition?: PointLike;
+  public static format(worker: { readonly level: number }): string { return `🐮 Lv${worker.level}`; }
+  public refresh(worker: { readonly id: string; readonly level: number }): void { this.workerId = worker.id; this.level = worker.level; this.displayText = WorkerView.format(worker); if (this.displayLabel) this.displayLabel.string = this.displayText; this.dragNode && (this.dragNode.active = true); }
+  public clear(): void { this.workerId = ''; this.displayText = ''; if (this.displayLabel) this.displayLabel.string = '▫'; }
   private get dragNode(): DragNodeLike | undefined { return (this as unknown as { node?: DragNodeLike }).node; }
   private readonly onTouchStart = (event: TouchLike): void => {
     const point = this.point(event);
