@@ -9,7 +9,7 @@
     "ai:status": "tsx tools/orchestrator/src/index.ts status",
     "ai:provider-check": "tsx tools/orchestrator/src/index.ts provider-check",
     "ai:check": "tsx tools/orchestrator/src/index.ts check",
-    "test": "tsc -p tsconfig.game.json --outDir tests/.compiled --noEmit false && node tests/.compiled/tests/core/foundation.test.js",
+    "test": "tsc -p tsconfig.game.json --outDir tests/.compiled --noEmit false && node tests/run-all.cjs",
     "build": "tsc -p tsconfig.game.json --noEmit"
   },
   "dependencies": {

@@ -2,7 +2,7 @@
   "id": "TASK-002",
   "title": "实现配置驱动系统",
   "version": 1,
-  "status": "PENDING",
+  "status": "DONE",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
   "assignedTo": "codex-gpt-5.6-luna",
