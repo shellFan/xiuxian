@@ -68,10 +68,7 @@ test('Main.scene has a consistent node/component reference graph', () => {
   }
   assert.equal(nodes.find((node) => node._name === 'RecruitButton')!._components.some((component: any) => ref(component).__type__ === 'cc.Button'), true);
   const board = nodes.find((node) => node._name === 'MergeBoard')!;
-  const layout = board._components.map(ref).find((component: any) => component.__type__ === 'cc.Layout');
-  assert.equal(layout._layoutType, 3);
-  assert.equal(layout._spacingX, 15);
-  assert.equal(layout._spacingY, 15);
+  assert.equal(board._components.map(ref).some((component: any) => component.__type__ === 'cc.Layout'), false);
   assert.equal(board._children.every((child: any) => ref(child)._active === true), true);
   assert.equal(nodes.find((node) => node._name === 'RecruitButton')!._components.some((component: any) => ref(component).__type__ === 'cc.Label'), true);
   const sceneText = fs.readFileSync('assets/scenes/Main.scene', 'utf8');
@@ -104,4 +101,40 @@ test('scene assembly binds every worker view and clears an empty cell', () => {
   assert.equal(views.every((view: any) => view.boardView === board), true);
   main.detachContext();
   assert.equal(views.every((view: any) => view.boardView === undefined), true);
+});
+
+test('refresh restores unique fixed cell centers after recruit, move, merge, and cancel', () => {
+  const context = new GameContext({ storage: new MemoryStorageAdapter() });
+  const main = new MainView() as any;
+  const views = Array.from({ length: 16 }, () => {
+    const node = { active: false, position: { x: 0, y: 0 }, on() {}, off() {}, setPosition(position: { x: number; y: number }) { this.position = position; } };
+    const view = new WorkerView() as any;
+    view.node = node;
+    return view;
+  });
+  const board = new (MergeBoardView as any)();
+  board.configure({ originX: 0, originY: 0, cellWidth: 10, cellHeight: 10, rows: 4, columns: 4 });
+  main.boardView = board;
+  main.attachContext(context);
+  main.bindWorkerViews(views);
+
+  const positions = () => views.map((view: any) => `${view.node.position.x},${view.node.position.y}`);
+  assert.equal(new Set(positions()).size, 16);
+  main.recruit();
+  assert.equal(new Set(positions()).size, 16);
+
+  const drag = main.getDragController();
+  assert.equal(drag.begin(context.board.getWorker({ row: 0, column: 0 })!.id, { row: 0, column: 0 }), true);
+  assert.equal(drag.drop({ row: 0, column: 2 }), 'move');
+  assert.equal(new Set(positions()).size, 16);
+
+  main.recruit();
+  assert.equal(drag.begin(context.board.getWorker({ row: 0, column: 0 })!.id, { row: 0, column: 0 }), true);
+  assert.equal(drag.drop({ row: 0, column: 2 }), 'merge');
+  assert.equal(new Set(positions()).size, 16);
+
+  assert.equal(drag.begin('missing-worker', { row: 0, column: 0 }), false);
+  assert.equal(drag.begin(context.board.getWorker({ row: 0, column: 0 })!.id, { row: 0, column: 0 }), true);
+  assert.equal(drag.cancel(), 'restore');
+  assert.equal(new Set(positions()).size, 16);
 });

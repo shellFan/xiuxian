@@ -1,4 +1,5 @@
 import { _decorator, Component } from 'cc';
+import * as Cocos from 'cc';
 import { DragController } from '../game/drag-controller';
 import type { BoardPosition } from '../game/merge/merge-types';
 import { MergeService } from '../services/merge-service';
@@ -9,6 +10,7 @@ import { WorkerView } from './worker-view';
 
 const { ccclass } = _decorator;
 const property = (value: unknown): any => { const decorator = _decorator as unknown as { property?: (type: unknown) => any }; return decorator.property ? decorator.property(value) : () => {}; };
+const resolveCocosType = (name: string): unknown => (Cocos as unknown as Record<string, unknown>)[name] ?? `cc.${name}`;
 
 interface TextLike { string: string; }
 interface ButtonLike { on?: (event: string, callback: () => void, target?: unknown) => void; off?: (event: string, callback: () => void, target?: unknown) => void; }
@@ -17,15 +19,15 @@ export interface WorkerCardState { readonly id: string; readonly level: number; 
 
 @ccclass('MainView')
 export class MainView extends Component {
-  @property({ type: 'cc.Label' })
+  @property(resolveCocosType('Label'))
   public titleLabel?: TextLike;
-  @property({ type: 'cc.Label' })
+  @property(resolveCocosType('Label'))
   public rankLabel?: TextLike;
-  @property({ type: 'cc.Label' })
+  @property(resolveCocosType('Label'))
   public salaryLabel?: TextLike;
-  @property({ type: 'cc.Label' })
+  @property(resolveCocosType('Label'))
   public hintLabel?: TextLike;
-  @property({ type: 'cc.Button' })
+  @property(resolveCocosType('Button'))
   public recruitButton?: ButtonLike;
   @property(MergeBoardView)
   public boardView?: MergeBoardView;
@@ -105,7 +107,8 @@ export class MainView extends Component {
     });
     this.workerViews.forEach((view, index) => {
       const card = this.boardSnapshot[index];
-      if (card) { view.refresh(card); this.boardView && view.setBoardPosition(card.position); }
+      if (this.boardView) view.setBoardPosition(card?.position ?? { row: Math.floor(index / this.boardView.rows), column: index % this.boardView.columns });
+      if (card) view.refresh(card);
       else view.clear();
     });
   }

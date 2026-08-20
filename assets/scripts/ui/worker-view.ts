@@ -1,21 +1,23 @@
 import { _decorator, Component, UITransform } from 'cc';
+import * as Cocos from 'cc';
 import { DragController } from '../game/drag-controller';
 import type { MergeBoardView, PointLike } from './merge-board-view';
 import type { BoardPosition } from '../game/merge/merge-types';
 const { ccclass } = _decorator;
 const property = (value: unknown): any => { const decorator = _decorator as unknown as { property?: (type: unknown) => any }; return decorator.property ? decorator.property(value) : () => {}; };
+const resolveCocosType = (name: string): unknown => (Cocos as unknown as Record<string, unknown>)[name] ?? `cc.${name}`;
 export interface TouchLike { getID?: () => number; getUILocation?: () => PointLike; getLocation?: () => PointLike; }
 interface TransformLike { convertToNodeSpaceAR?: (point: { x: number; y: number; z: number }) => PointLike; }
-interface DragNodeLike { readonly isValid?: boolean; active?: boolean; readonly position?: PointLike; readonly parent?: { getComponent?: (type: typeof UITransform) => TransformLike | null }; on?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; off?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; setPosition?: (position: PointLike & { readonly z: number }) => void; }
+interface DragNodeLike { readonly isValid?: boolean; active?: boolean; readonly position?: PointLike; readonly parent?: { getComponent?: (type: typeof UITransform) => TransformLike | null }; getComponent?: (type: unknown) => unknown; on?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; off?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; setPosition?: (position: PointLike & { readonly z: number }) => void; }
 interface TextLike { string: string; }
 @ccclass('WorkerView')
 export class WorkerView extends Component {
-  @property({ type: 'cc.Label' })
+  @property(resolveCocosType('Label'))
   public displayLabel?: TextLike;
   public workerId = ''; public level = 1; public emoji = '🐮'; public displayText = '🐮 Lv1'; private boardView?: MergeBoardView; private controller?: DragController; private activeTouchId: number | undefined; private ownsSession = false; private sourceLocalPosition?: PointLike;
   public static format(worker: { readonly level: number }): string { return `🐮 Lv${worker.level}`; }
-  public refresh(worker: { readonly id: string; readonly level: number }): void { this.workerId = worker.id; this.level = worker.level; this.displayText = WorkerView.format(worker); if (this.displayLabel) this.displayLabel.string = this.displayText; this.dragNode && (this.dragNode.active = true); }
-  public clear(): void { this.workerId = ''; this.displayText = ''; if (this.displayLabel) this.displayLabel.string = '▫'; }
+  public refresh(worker: { readonly id: string; readonly level: number }): void { this.workerId = worker.id; this.level = worker.level; this.displayText = WorkerView.format(worker); const label = this.resolveDisplayLabel(); if (label) label.string = this.displayText; this.dragNode && (this.dragNode.active = true); }
+  public clear(): void { this.workerId = ''; this.displayText = ''; const label = this.resolveDisplayLabel(); if (label) label.string = '▫'; if (this.dragNode) this.dragNode.active = true; }
   private get dragNode(): DragNodeLike | undefined { return (this as unknown as { node?: DragNodeLike }).node; }
   private readonly onTouchStart = (event: TouchLike): void => {
     const point = this.point(event);
@@ -43,9 +45,10 @@ export class WorkerView extends Component {
   public onDestroy(): void { this.unbind(); }
   public isNodeValid(): boolean { return this.dragNode?.isValid !== false; }
   public setBoardPosition(position: { readonly row: number; readonly column: number }): void { if (!this.boardView?.isNodeValid() || !this.isNodeValid()) return; const point = this.boardView.boardPositionToScreenPoint(position); const local = this.screenToWorkerParentPoint(point); if (local) this.setNodePoint(local); }
-  private screenToWorkerParentPoint(point: PointLike): PointLike | undefined { const transform = this.dragNode?.parent?.getComponent?.(UITransform); return transform?.convertToNodeSpaceAR?.({ ...point, z: 0 }); }
+  private screenToWorkerParentPoint(point: PointLike): PointLike | undefined { const transform = this.dragNode?.parent?.getComponent?.(UITransform); return transform?.convertToNodeSpaceAR?.({ ...point, z: 0 }) ?? this.boardView?.screenToWorkerParentPoint(point) ?? point; }
   private restoreSourcePosition(source = this.controller?.sourcePosition, local = this.sourceLocalPosition): void { if (local) this.setNodePoint(local); else if (source) this.setBoardPosition(source); }
   private setNodePoint(point: PointLike): void { if (this.isNodeValid()) this.dragNode?.setPosition?.({ x: point.x, y: point.y, z: 0 }); }
+  private resolveDisplayLabel(): TextLike | undefined { if (this.displayLabel) return this.displayLabel; const label = this.dragNode?.getComponent?.((Cocos as unknown as Record<string, unknown>).Label ?? 'Label'); return label as TextLike | undefined; }
   private cancelActiveDrag(): void { try { const source = this.controller?.sourcePosition; this.controller?.cancel(); this.restoreSourcePosition(source); } catch { /* invalid visual nodes cannot be restored */ } finally { this.activeTouchId = undefined; this.ownsSession = false; } }
   private point(event: TouchLike): PointLike | undefined { return event.getUILocation?.() ?? event.getLocation?.(); }
   private touchId(event: TouchLike): number | undefined { const id = event.getID?.(); return typeof id === 'number' && Number.isFinite(id) ? id : undefined; }
