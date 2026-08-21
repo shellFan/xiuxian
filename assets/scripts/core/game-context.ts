@@ -13,6 +13,8 @@ import gameConfig from '../../configs/game.json';
 import careerConfig from '../../configs/career.json';
 import { LocalStorageAdapter, type StorageAdapter } from '../services/storage-adapter';
 import { CareerService } from '../services/career-service';
+import { MindService } from '../services/mind-service';
+import { MockRewardProvider, type RewardProvider } from '../services/reward-provider';
 
 export interface GameContextOptions {
   readonly board?: MergeBoard;
@@ -24,6 +26,7 @@ export interface GameContextOptions {
   readonly economyRewards?: readonly number[];
   readonly cultivationRewards?: readonly number[];
   readonly configService?: ConfigService;
+  readonly rewardProvider?: RewardProvider;
 }
 
 export class GameContext {
@@ -34,6 +37,8 @@ export class GameContext {
   public readonly economy: EconomyService;
   public readonly cultivation: CultivationService;
   public readonly career: CareerService;
+  public readonly mind: MindService;
+  public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
 
@@ -68,6 +73,8 @@ export class GameContext {
       mergeRewards: options.cultivationRewards ?? this.configService.economy.cultivationRewards ?? [5, 10, 20, 40, 80],
     });
     this.career = new CareerService(this);
+    this.rewardProvider = options.rewardProvider ?? new MockRewardProvider();
+    this.mind = new MindService(this, this.rewardProvider);
   }
 
   public syncPlayerWorkers(): void {
