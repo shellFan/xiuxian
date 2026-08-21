@@ -35,6 +35,16 @@ export class SaveService {
     player.lastSaveTime = saveTime;
   }
 
+  public saveIdleSettlement(player: PlayerData, settlementId: string, timestamp: number): void {
+    if (typeof settlementId !== 'string' || settlementId.trim() === '') throw new Error('Invalid settlement id');
+    if (!Number.isFinite(timestamp)) throw new Error('Invalid save time');
+    const saveTime = Math.max(player.lastSaveTime, timestamp);
+    const data = { ...player.toSaveData(), lastIdleSettlementId: settlementId, lastSaveTime: saveTime };
+    this.storage.setItem(this.key, JSON.stringify(data));
+    player.lastIdleSettlementId = settlementId;
+    player.lastSaveTime = saveTime;
+  }
+
   public autoSave(player: PlayerData): void { this.save(player); }
 }
 

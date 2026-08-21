@@ -55,15 +55,18 @@ export class IdleService {
       lastSaveTime: this.context.player.lastSaveTime,
       lastIdleSettlementId: this.context.player.lastIdleSettlementId,
     };
-    this.context.player.salary += salary;
-    this.context.player.cultivationExp += cultivationExp;
-    this.context.player.lastIdleSettlementId = settlementId;
+    let salaryApplied = false;
+    let cultivationApplied = false;
     try {
+      this.context.economy.applyIdleSalary(salary);
+      salaryApplied = true;
+      this.context.cultivation.applyIdleExperience(cultivationExp);
+      cultivationApplied = true;
       if (!Number.isSafeInteger(this.context.player.salary) || !Number.isSafeInteger(this.context.player.cultivationExp)) throw new Error('Invalid idle reward');
-      this.context.saveService.saveAt(this.context.player, previous.lastSaveTime + elapsedSeconds * 1000);
+      this.context.saveService.saveIdleSettlement(this.context.player, settlementId, now);
     } catch (error) {
-      this.context.player.salary = previous.salary;
-      this.context.player.cultivationExp = previous.cultivationExp;
+      if (cultivationApplied) this.context.cultivation.rollbackIdleExperience(cultivationExp);
+      if (salaryApplied) this.context.economy.rollbackIdleSalary(salary);
       this.context.player.lastSaveTime = previous.lastSaveTime;
       this.context.player.lastIdleSettlementId = previous.lastIdleSettlementId;
       throw error;

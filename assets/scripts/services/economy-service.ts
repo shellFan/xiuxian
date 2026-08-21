@@ -43,6 +43,20 @@ export class EconomyService {
     }
   }
 
+  public applyIdleSalary(amount: number): void {
+    validateRewardAmount(amount, 'salary');
+    const total = this.context.player.salary + amount;
+    if (!Number.isSafeInteger(total)) throw new Error('Invalid salary change');
+    this.context.player.salary = total;
+  }
+
+  public rollbackIdleSalary(amount: number): void {
+    validateRewardAmount(amount, 'salary');
+    const total = this.context.player.salary - amount;
+    if (!Number.isSafeInteger(total) || total < 0) throw new Error('Invalid salary rollback');
+    this.context.player.salary = total;
+  }
+
   public grantMergeReward(mergeId: string, mergeLevel: number, options: RewardGrantOptions = {}): number {
     if (typeof mergeId !== 'string' || mergeId.trim() === '' || !Number.isInteger(mergeLevel) || mergeLevel < 1 || mergeLevel > 5) {
       throw new Error('Invalid merge reward');
@@ -74,5 +88,9 @@ export class EconomyService {
   public rollbackMergeReward(mergeId: string, reward: number): void {
     if (this.grantedMergeRewards.delete(mergeId)) this.context.player.salary -= reward;
   }
+}
+
+function validateRewardAmount(amount: number, name: string): void {
+  if (!Number.isSafeInteger(amount) || amount < 0) throw new Error(`Invalid ${name} change`);
 }
 

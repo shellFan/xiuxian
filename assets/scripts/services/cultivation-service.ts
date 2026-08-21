@@ -19,6 +19,20 @@ export class CultivationService {
     }
   }
 
+  public applyIdleExperience(amount: number): void {
+    validateExperienceAmount(amount);
+    const total = this.context.player.cultivationExp + amount;
+    if (!Number.isSafeInteger(total)) throw new Error('Invalid cultivation change');
+    this.context.player.cultivationExp = total;
+  }
+
+  public rollbackIdleExperience(amount: number): void {
+    validateExperienceAmount(amount);
+    const total = this.context.player.cultivationExp - amount;
+    if (!Number.isSafeInteger(total) || total < 0) throw new Error('Invalid cultivation rollback');
+    this.context.player.cultivationExp = total;
+  }
+
   public grantMergeReward(mergeId: string, mergeLevel: number, options: CultivationRewardGrantOptions = {}): number {
     if (typeof mergeId !== 'string' || mergeId.trim() === '' || !Number.isInteger(mergeLevel) || mergeLevel < 1 || mergeLevel > 5) {
       throw new Error('Invalid cultivation reward');
@@ -43,4 +57,8 @@ export class CultivationService {
   public rollbackMergeReward(mergeId: string, reward: number): void {
     if (this.grantedMergeRewards.delete(mergeId)) this.context.player.cultivationExp -= reward;
   }
+}
+
+function validateExperienceAmount(amount: number): void {
+  if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('Invalid cultivation change');
 }
