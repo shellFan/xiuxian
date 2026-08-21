@@ -14,6 +14,7 @@ export interface MergeCompletedEvent {
   readonly second: BoardPosition;
   readonly worker: WorkerEntity;
   readonly salaryReward: number;
+  readonly cultivationReward: number;
 }
 export interface SalaryChangedEvent { readonly amount: number; readonly total: number; }
 export interface GameEvents extends Record<string, unknown> {

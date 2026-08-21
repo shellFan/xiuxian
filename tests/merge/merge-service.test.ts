@@ -27,6 +27,7 @@ function testMergesLevelsOneThroughFiveAndUpdatesState(): void {
     assert.equal(context.board.occupiedCount, 1);
     assert.equal(context.player.maxWorkerLevel, level + 1);
     assert.equal(context.player.salary, [10, 30, 70, 150, 310][level - 1]);
+    assert.equal(context.player.cultivationExp, [5, 15, 35, 75, 155][level - 1]);
     assert.equal(context.player.workers.length, 1);
     assert.match(storage.getItem('game-save') ?? '', /worker-/);
     context.board.remove(second);
@@ -57,6 +58,7 @@ function testMaxLevelMergeIsRejectedWithoutChangingBoard(): void {
   assert.deepEqual(result, { success: false, message: '最高等级为Lv6' });
   assert.deepEqual(context.board.toSaveData(), before);
   assert.equal(context.player.salary, 0);
+  assert.equal(context.player.cultivationExp, 0);
   assert.equal(storage.getItem('game-save'), null);
 }
 
@@ -72,6 +74,7 @@ function testReentrantMergeIsIgnoredDuringTransaction(): void {
   assert.equal(result.success, true);
   assert.deepEqual(nested, { success: false, message: '合成进行中' });
   assert.equal(context.player.salary, 10);
+  assert.equal(context.player.cultivationExp, 5);
   assert.equal((storage.getItem('game-save')?.match(/worker-/g) ?? []).length, 1);
 }
 
@@ -93,6 +96,7 @@ function testSaveFailureRollsBackTheWholeTransaction(): void {
   assert.deepEqual(context.board.toSaveData(), beforeBoard);
   assert.deepEqual(context.player.workers, beforeWorkers);
   assert.equal(context.player.salary, 0);
+  assert.equal(context.player.cultivationExp, 0);
   assert.equal(context.player.maxWorkerLevel, 0);
 }
 

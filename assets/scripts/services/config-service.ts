@@ -66,6 +66,15 @@ function validateEconomy(economy: Record<string, unknown>): void {
     requireNumber(reward, `economy.mergeRewards[${index}]`);
     if ((reward as number) < 0) fail(`economy.mergeRewards[${index}] must be non-negative`);
   });
+  if (economy.cultivationRewards !== undefined) {
+    if (!Array.isArray(economy.cultivationRewards)) fail('economy.cultivationRewards must be an array');
+    const cultivationRewards = economy.cultivationRewards as unknown[];
+    if (cultivationRewards.length !== 5) fail('economy.cultivationRewards must contain exactly 5 rewards');
+    cultivationRewards.forEach((reward, index) => {
+      requireNumber(reward, `economy.cultivationRewards[${index}]`);
+      if ((reward as number) < 0) fail(`economy.cultivationRewards[${index}] must be non-negative`);
+    });
+  }
 }
 
 function validateGame(game: Record<string, unknown>): void {

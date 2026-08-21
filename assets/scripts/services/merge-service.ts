@@ -6,6 +6,7 @@ export interface MergeSuccess {
   readonly success: true;
   readonly worker: WorkerEntity;
   readonly salaryReward: number;
+  readonly cultivationReward: number;
 }
 
 export interface MergeFailure {
@@ -46,15 +47,17 @@ export class MergeService {
       this.context.syncPlayerWorkers();
       this.context.player.maxWorkerLevel = Math.max(this.context.player.maxWorkerLevel, worker.level);
       let salaryReward: number;
+      let cultivationReward: number;
       try {
         salaryReward = this.context.economy.grantMergeReward(mergeId, left.level);
+        cultivationReward = this.context.cultivation.grantMergeReward(mergeId, left.level);
       } catch (error) {
         this.restore(boardBefore, workersBefore, salaryBefore, maxWorkerLevelBefore);
         throw error;
       }
 
-      this.emitFeedback('mergeCompleted', { first, second, worker, salaryReward });
-      return { success: true, worker, salaryReward };
+      this.emitFeedback('mergeCompleted', { first, second, worker, salaryReward, cultivationReward });
+      return { success: true, worker, salaryReward, cultivationReward };
     } finally {
       this.locked = false;
     }

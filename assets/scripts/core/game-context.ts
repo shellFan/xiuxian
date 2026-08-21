@@ -1,4 +1,5 @@
 import { EconomyService } from '../services/economy-service';
+import { CultivationService } from '../services/cultivation-service';
 import { EventBus } from './event-bus';
 import { GameConfig } from './game-config';
 import type { GameEvents } from './game-events';
@@ -19,6 +20,7 @@ export interface GameContextOptions {
   readonly boardRows?: number;
   readonly boardColumns?: number;
   readonly economyRewards?: readonly number[];
+  readonly cultivationRewards?: readonly number[];
   readonly configService?: ConfigService;
 }
 
@@ -28,6 +30,7 @@ export class GameContext {
   public readonly saveService: SaveService;
   public readonly events = new EventBus<GameEvents>();
   public readonly economy: EconomyService;
+  public readonly cultivation: CultivationService;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
 
@@ -57,6 +60,9 @@ export class GameContext {
     this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
+    });
+    this.cultivation = new CultivationService(this, {
+      mergeRewards: options.cultivationRewards ?? this.configService.economy.cultivationRewards ?? [5, 10, 20, 40, 80],
     });
   }
 
