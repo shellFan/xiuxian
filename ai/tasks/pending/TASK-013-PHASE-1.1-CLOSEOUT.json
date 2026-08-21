@@ -1,0 +1,68 @@
+{
+  "id": "TASK-013-PHASE-1.1-CLOSEOUT",
+  "title": "Phase 1.1 收尾修复",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "goal": "仅修复保存时间、合成落点与单一 GameContext composition root，并生成 Phase 1.1 报告。",
+  "background": "ChatGPT 对远程 Phase 1 分支独立 Review 后提出的三个收尾问题；不得重构整个 Phase 1 或开发 Phase 2。",
+  "requirements": [
+    "SaveService 接受可注入 now(): number（默认 Date.now），每次成功保存记录当前毫秒时间戳，持久化值与 PlayerData.lastSaveTime 一致；写入失败时内存时间不得与持久化状态分叉。",
+    "新增保存测试：新玩家保存后时间大于 0、连续保存不倒退、加载恢复时间、非法保存时间迁移后再次保存正确。",
+    "from Worker 拖到 to Worker 合成后，新 Worker 必须留在 to/target；数据位置、mergeCompleted 事件语义、UI 动画目标一致。",
+    "新增合成测试断言 source 为空、target 为新等级 Worker。",
+    "GameBootstrap 创建并持有真正的业务 GameContext；MainView 使用 Bootstrap 提供的同一个 Context，不得另建独立业务状态；一个 Session 只有一套 Save/Economy/Board/Event 状态。",
+    "不引入 DI 框架，不开发任何 Phase 2 功能。",
+    "生成 ai/reports/PHASE-1.1-RESULT.md，如实记录 Cocos Editor 是否实际运行。"
+  ],
+  "acceptanceCriteria": [
+    "npm test、npm run build、npm run ai:check 均通过。",
+    "真实 gpt-5.6-sol Review 为 PASS，BLOCKER/HIGH 为 0。",
+    "保存时间、target 合成落点、单一 GameContext 均有行为测试。",
+    "PHASE-1.1-RESULT.md 已生成。"
+  ],
+  "allowedPaths": [
+    "assets/scripts/services/save-service.ts",
+    "assets/scripts/game/merge/merge-board.ts",
+    "assets/scripts/services/merge-service.ts",
+    "assets/scripts/core/game-bootstrap.ts",
+    "assets/scripts/core/game-bootstrap-component.ts",
+    "assets/scripts/core/game-context.ts",
+    "assets/scripts/core/game-types.ts",
+    "assets/scripts/ui/main-view.ts",
+    "assets/scenes/Main.scene",
+    "tests/save/**",
+    "tests/board/**",
+    "tests/merge/**",
+    "tests/core/**",
+    "tests/ui/**",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Use test-driven development and keep changes narrowly scoped to the three review findings.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "Do not implement Phase 2 features."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1-RESULT.md"
+  ],
+  "maxReviewRounds": 3
+}
