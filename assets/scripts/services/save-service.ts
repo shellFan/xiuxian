@@ -1,6 +1,7 @@
 import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData } from '../model/save-data';
 import { PlayerData } from '../model/player-data';
 import type { StorageAdapter } from './storage-adapter';
+import { DEFAULT_CLOCK, type Clock } from '../core/clock';
 
 export const DEFAULT_SAVE_KEY = 'game-save';
 
@@ -8,7 +9,7 @@ export class SaveService {
   public constructor(
     private readonly storage: StorageAdapter,
     private readonly key = DEFAULT_SAVE_KEY,
-    private readonly now: () => number = Date.now,
+    private readonly clockOrNow: Clock | (() => number) = DEFAULT_CLOCK,
   ) {}
 
   public load(): GameSaveData {
@@ -22,7 +23,8 @@ export class SaveService {
   }
 
   public save(player: PlayerData): void {
-    const saveTime = Math.max(player.lastSaveTime, this.now());
+    const now = typeof this.clockOrNow === 'function' ? this.clockOrNow() : this.clockOrNow.now();
+    const saveTime = Math.max(player.lastSaveTime, now);
     const data = { ...player.toSaveData(), lastSaveTime: saveTime };
     this.storage.setItem(this.key, JSON.stringify(data));
     player.lastSaveTime = saveTime;
@@ -43,6 +45,20 @@ function migrate(raw: unknown): GameSaveData {
     maxWorkerLevel,
     lastSaveTime: isNonNegativeSafeInteger(raw.lastSaveTime) ? raw.lastSaveTime : 0,
     workers,
+    cultivationExp: isNonNegativeSafeInteger(raw.cultivationExp) ? raw.cultivationExp : 0,
+    careerLevel: isPositiveSafeInteger(raw.careerLevel) ? raw.careerLevel : 1,
+    mind: isNonNegativeSafeInteger(raw.mind) ? raw.mind : 100,
+    maxMind: isPositiveSafeInteger(raw.maxMind) ? raw.maxMind : 100,
+    performance: isNonNegativeSafeInteger(raw.performance) ? raw.performance : 0,
+    sectId: typeof raw.sectId === 'string' ? raw.sectId : null,
+    talentId: typeof raw.talentId === 'string' ? raw.talentId : null,
+    workMode: raw.workMode === 'WORK' ? 'WORK' : 'FISHING',
+    workSeconds: isNonNegativeSafeInteger(raw.workSeconds) ? raw.workSeconds : 0,
+    fishingSeconds: isNonNegativeSafeInteger(raw.fishingSeconds) ? raw.fishingSeconds : 0,
+    kpiProgress: isRecord(raw.kpiProgress) ? numericRecord(raw.kpiProgress) : {},
+    promotionFailCount: isNonNegativeSafeInteger(raw.promotionFailCount) ? raw.promotionFailCount : 0,
+    officeLevel: isPositiveSafeInteger(raw.officeLevel) ? raw.officeLevel : 1,
+    lastIdleSettlementId: typeof raw.lastIdleSettlementId === 'string' ? raw.lastIdleSettlementId : null,
   };
 }
 
@@ -58,4 +74,8 @@ function isFiniteNumber(value: unknown): value is number {
 }
 function isNonNegativeSafeInteger(value: unknown): value is number {
   return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+}
+function isPositiveSafeInteger(value: unknown): value is number { return isNonNegativeSafeInteger(value) && value >= 1; }
+function numericRecord(value: Record<string, unknown>): Record<string, number> {
+  return Object.fromEntries(Object.entries(value).filter(([, item]) => isNonNegativeSafeInteger(item))) as Record<string, number>;
 }

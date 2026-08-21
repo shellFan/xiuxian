@@ -5,6 +5,7 @@ import { CURRENT_SAVE_VERSION } from '../../assets/scripts/model/save-data';
 import { SaveService } from '../../assets/scripts/services/save-service';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { GameContext } from '../../assets/scripts/core/game-context';
+import { FixedClock } from '../../assets/scripts/core/clock';
 
 function testNewPlayerUsesDefaults(): void {
   const storage = new MemoryStorageAdapter();
@@ -20,7 +21,9 @@ function testSavesAndRestoresPlayerAndWorkers(): void {
   ] });
   service.save(player);
   assert.deepEqual(service.load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 80, maxWorkerLevel: 3, lastSaveTime: 123,
-    workers: [{ id: 'worker-1', level: 2, row: 1, column: 3 }] });
+    workers: [{ id: 'worker-1', level: 2, row: 1, column: 3 }], cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100,
+    performance: 0, sectId: null, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
+    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null });
 }
 
 function testSuccessfulSavesRecordMonotonicInjectedTime(): void {
@@ -39,6 +42,14 @@ function testSuccessfulSavesRecordMonotonicInjectedTime(): void {
   service.save(player);
   assert.equal(player.lastSaveTime, 120);
   assert.equal(service.load().lastSaveTime, 120);
+}
+
+function testSaveServiceAcceptsSharedClock(): void {
+  const storage = new MemoryStorageAdapter();
+  const service = new SaveService(storage, 'game-save', new FixedClock(321));
+  const player = PlayerData.createDefault();
+  service.save(player);
+  assert.equal(service.load().lastSaveTime, 321);
 }
 
 function testFailedSaveDoesNotChangeInMemorySaveTime(): void {
@@ -65,7 +76,19 @@ function testMigratesOlderVersionAndDefaultsMissingFields(): void {
   const storage = new MemoryStorageAdapter();
   storage.setItem('game-save', JSON.stringify({ saveVersion: 1, salary: 20, workers: [{ id: 'w', level: 1, row: 0, column: 0 }] }));
   assert.deepEqual(new SaveService(storage).load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 20, maxWorkerLevel: 1, lastSaveTime: 0,
-    workers: [{ id: 'w', level: 1, row: 0, column: 0 }] });
+    workers: [{ id: 'w', level: 1, row: 0, column: 0 }], cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100,
+    performance: 0, sectId: null, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
+    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null });
+}
+
+function testPhaseTwoDefaultsSurvivePlayerRoundTrip(): void {
+  const player = PlayerData.createDefault();
+  assert.equal(player.cultivationExp, 0);
+  assert.equal(player.careerLevel, 1);
+  assert.equal(player.mind, 100);
+  assert.equal(player.maxMind, 100);
+  assert.equal(player.workMode, 'FISHING');
+  assert.deepEqual(new PlayerData(player.toSaveData()).toSaveData(), player.toSaveData());
 }
 
 function testIgnoresMalformedWorkersAndRejectsFutureSaves(): void {
@@ -93,6 +116,9 @@ function testInvalidPlayerScalarsFallBackToSafeDefaults(): void {
     maxWorkerLevel: 0,
     lastSaveTime: 0,
     workers: [],
+    cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100, performance: 0, sectId: null, talentId: null,
+    workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0, kpiProgress: {}, promotionFailCount: 0, officeLevel: 1,
+    lastIdleSettlementId: null,
   });
 }
 
@@ -153,12 +179,14 @@ function testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer(): void {
 testNewPlayerUsesDefaults();
 testSavesAndRestoresPlayerAndWorkers();
 testSuccessfulSavesRecordMonotonicInjectedTime();
+testSaveServiceAcceptsSharedClock();
 testFailedSaveDoesNotChangeInMemorySaveTime();
 testEmptyAndInvalidStorageBecomeNewPlayer();
 testMigratesOlderVersionAndDefaultsMissingFields();
 testIgnoresMalformedWorkersAndRejectsFutureSaves();
 testInvalidPlayerScalarsFallBackToSafeDefaults();
 testMigratedInvalidSaveTimeCanBeReplacedByNextSave();
+testPhaseTwoDefaultsSurvivePlayerRoundTrip();
 testGameContextRestoresSavedPlayerAndBoard();
 testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer();
 testLocalStorageAdapterRequiresExplicitCocosStorageInjection();

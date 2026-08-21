@@ -5,6 +5,23 @@ import path from 'node:path';
 import { EventBus } from '../../assets/scripts/core/event-bus';
 import { GameBootstrap } from '../../assets/scripts/core/game-bootstrap';
 import { GameConfig } from '../../assets/scripts/core/game-config';
+import { SystemClock, FixedClock, FakeClock } from '../../assets/scripts/core/clock';
+import { MathRandomProvider, FixedRandomProvider, SequenceRandomProvider } from '../../assets/scripts/core/random-provider';
+
+function testClockImplementations(): void {
+  assert.equal(typeof new SystemClock().now(), 'number');
+  assert.equal(new FixedClock(123).now(), 123);
+  const fake = new FakeClock(10);
+  fake.advance(5);
+  assert.equal(fake.now(), 15);
+}
+
+function testRandomProviderImplementations(): void {
+  assert.equal(new MathRandomProvider().next() >= 0, true);
+  assert.equal(new FixedRandomProvider(0.25).next(), 0.25);
+  const sequence = new SequenceRandomProvider([0.1, 0.9]);
+  assert.deepEqual([sequence.next(), sequence.next(), sequence.next()], [0.1, 0.9, 0.1]);
+}
 
 function testGameConfig(): void {
   assert.equal(GameConfig.designWidth, 720);
@@ -44,6 +61,8 @@ function testGameBootstrapOwnsOneBusinessContextAndEventBus(): void {
 testGameConfig();
 testEventBus();
 testGameBootstrapOwnsOneBusinessContextAndEventBus();
+testClockImplementations();
+testRandomProviderImplementations();
 
 function testMainSceneBootstrapContract(): void {
   const scenePath = path.resolve(__dirname, '../../../../assets/scenes/Main.scene');

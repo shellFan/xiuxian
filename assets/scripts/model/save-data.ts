@@ -1,4 +1,6 @@
-export const CURRENT_SAVE_VERSION = 2;
+export const CURRENT_SAVE_VERSION = 3;
+
+export type WorkMode = 'WORK' | 'FISHING';
 
 export interface WorkerSaveData {
   readonly id: string;
@@ -13,4 +15,18 @@ export interface GameSaveData {
   readonly maxWorkerLevel: number;
   readonly lastSaveTime: number;
   readonly workers: readonly WorkerSaveData[];
+  readonly cultivationExp: number;
+  readonly careerLevel: number;
+  readonly mind: number;
+  readonly maxMind: number;
+  readonly performance: number;
+  readonly sectId: string | null;
+  readonly talentId: string | null;
+  readonly workMode: WorkMode;
+  readonly workSeconds: number;
+  readonly fishingSeconds: number;
+  readonly kpiProgress: Readonly<Record<string, number>>;
+  readonly promotionFailCount: number;
+  readonly officeLevel: number;
+  readonly lastIdleSettlementId: string | null;
 }
