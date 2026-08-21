@@ -10,7 +10,9 @@ import { ConfigService } from '../services/config-service';
 import workerConfig from '../../configs/worker.json';
 import economyConfig from '../../configs/economy.json';
 import gameConfig from '../../configs/game.json';
+import careerConfig from '../../configs/career.json';
 import { LocalStorageAdapter, type StorageAdapter } from '../services/storage-adapter';
+import { CareerService } from '../services/career-service';
 
 export interface GameContextOptions {
   readonly board?: MergeBoard;
@@ -31,6 +33,7 @@ export class GameContext {
   public readonly events = new EventBus<GameEvents>();
   public readonly economy: EconomyService;
   public readonly cultivation: CultivationService;
+  public readonly career: CareerService;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
 
@@ -57,13 +60,14 @@ export class GameContext {
       });
     }
     this.player = options.player ?? new PlayerData(saved);
-    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig);
+    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
     });
     this.cultivation = new CultivationService(this, {
       mergeRewards: options.cultivationRewards ?? this.configService.economy.cultivationRewards ?? [5, 10, 20, 40, 80],
     });
+    this.career = new CareerService(this);
   }
 
   public syncPlayerWorkers(): void {

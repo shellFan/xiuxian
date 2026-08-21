@@ -1,4 +1,4 @@
-import type { ConfigBundle, EconomyConfig, GameConfig, WorkerConfig, WorkerLevelConfig } from '../model/config-types';
+import type { CareerConfig, ConfigBundle, EconomyConfig, GameConfig, WorkerConfig } from '../model/config-types';
 
 export class ConfigValidationError extends Error {
   public constructor(message: string) {
@@ -9,11 +9,13 @@ export class ConfigValidationError extends Error {
 
 export class ConfigService {
   public readonly worker: WorkerConfig;
+  public readonly career: CareerConfig;
   public readonly economy: EconomyConfig;
   public readonly game: GameConfig;
 
   private constructor(config: ConfigBundle) {
     this.worker = deepFreeze(config.worker);
+    this.career = deepFreeze(config.career ?? defaultCareerConfig());
     this.economy = deepFreeze(config.economy);
     this.game = deepFreeze(config.game);
     Object.freeze(this);
@@ -24,8 +26,8 @@ export class ConfigService {
     return new ConfigService(raw as ConfigBundle);
   }
 
-  public static loadFromJson(worker: unknown, economy: unknown, game: unknown): ConfigService {
-    return ConfigService.load({ worker, economy, game });
+  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown): ConfigService {
+    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined });
   }
 }
 
@@ -36,8 +38,27 @@ function validateBundle(raw: unknown): asserts raw is ConfigBundle {
   requireObject(bundle.economy, 'economy');
   requireObject(bundle.game, 'game');
   validateWorkers(bundle.worker as Record<string, unknown>);
+  if (bundle.career !== undefined) validateCareer(bundle.career as Record<string, unknown>);
   validateEconomy(bundle.economy as Record<string, unknown>);
   validateGame(bundle.game as Record<string, unknown>);
+}
+
+function validateCareer(career: Record<string, unknown>): void {
+  if (!Array.isArray(career.levels)) fail('career.levels must be an array');
+  const levels = career.levels as unknown[];
+  if (levels.length !== 10) fail('career.levels must contain exactly 10 levels');
+  levels.forEach((raw, index) => {
+    requireObject(raw, `career.levels[${index}]`);
+    const level = raw as Record<string, unknown>;
+    requireNumber(level.level, `career.levels[${index}].level`);
+    if (level.level !== index + 1) fail(`career.levels[${index}].level must be ${index + 1}`);
+    requireString(level.name, `career.levels[${index}].name`);
+    requireString(level.realm, `career.levels[${index}].realm`);
+    requireNumber(level.requiredExp, `career.levels[${index}].requiredExp`);
+    if (!Number.isSafeInteger(level.requiredExp) || (level.requiredExp as number) < 0) fail(`career.levels[${index}].requiredExp must be a non-negative safe integer`);
+    const previous = index > 0 ? levels[index - 1] as Record<string, unknown> : undefined;
+    if (previous && (level.requiredExp as number) <= (previous.requiredExp as number)) fail(`career.levels[${index}].requiredExp must increase`);
+  });
 }
 
 function validateWorkers(worker: Record<string, unknown>): void {
@@ -101,4 +122,8 @@ function deepFreeze<T>(value: T): T {
     for (const child of Object.values(value as Record<string, unknown>)) deepFreeze(child);
   }
   return value;
+}
+
+function defaultCareerConfig(): CareerConfig {
+  return { levels: Array.from({ length: 10 }, (_, index) => ({ level: index + 1, name: `职级${index + 1}`, realm: `境界${index + 1}`, requiredExp: index * 100 })) };
 }

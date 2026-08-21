@@ -2,7 +2,7 @@
   "id": "TASK-022",
   "title": "实现 Career 职级系统",
   "version": 1,
-  "status": "PENDING",
+  "status": "DONE",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
   "assignedTo": "codex-gpt-5.6-luna",
