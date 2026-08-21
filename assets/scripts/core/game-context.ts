@@ -15,6 +15,8 @@ import { LocalStorageAdapter, type StorageAdapter } from '../services/storage-ad
 import { CareerService } from '../services/career-service';
 import { MindService } from '../services/mind-service';
 import { MockRewardProvider, type RewardProvider } from '../services/reward-provider';
+import { IdleService } from '../services/idle-service';
+import { DEFAULT_CLOCK, type Clock } from './clock';
 
 export interface GameContextOptions {
   readonly board?: MergeBoard;
@@ -27,6 +29,7 @@ export interface GameContextOptions {
   readonly cultivationRewards?: readonly number[];
   readonly configService?: ConfigService;
   readonly rewardProvider?: RewardProvider;
+  readonly clock?: Clock;
 }
 
 export class GameContext {
@@ -38,12 +41,13 @@ export class GameContext {
   public readonly cultivation: CultivationService;
   public readonly career: CareerService;
   public readonly mind: MindService;
+  public readonly idle: IdleService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
 
   public constructor(options: GameContextOptions = {}) {
-    this.saveService = options.saveService ?? new SaveService(options.storage ?? new LocalStorageAdapter());
+    this.saveService = options.saveService ?? new SaveService(options.storage ?? new LocalStorageAdapter(), undefined, options.clock ?? DEFAULT_CLOCK);
     let saved = options.player || options.board ? undefined : this.saveService.load();
     if (saved && !options.board) {
       try {
@@ -75,6 +79,7 @@ export class GameContext {
     this.career = new CareerService(this);
     this.rewardProvider = options.rewardProvider ?? new MockRewardProvider();
     this.mind = new MindService(this, this.rewardProvider);
+    this.idle = new IdleService(this, { clock: options.clock });
   }
 
   public syncPlayerWorkers(): void {

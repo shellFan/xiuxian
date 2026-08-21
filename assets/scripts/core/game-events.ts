@@ -6,7 +6,7 @@ export interface WorkerRecruitedEvent {
   readonly position: BoardPosition;
 }
 export interface GameSavedEvent {
-  readonly reason: 'recruitment' | 'merge' | 'economy';
+  readonly reason: 'recruitment' | 'merge' | 'economy' | 'idle';
 }
 export interface RecruitmentFailedEvent { readonly message: string; }
 export interface MergeCompletedEvent {
@@ -17,10 +17,14 @@ export interface MergeCompletedEvent {
   readonly cultivationReward: number;
 }
 export interface SalaryChangedEvent { readonly amount: number; readonly total: number; }
+export interface IdleSettledEvent { readonly settlementId: string; readonly salary: number; readonly cultivationExp: number; readonly elapsedSeconds: number; readonly capped: boolean; }
+export interface ClockAnomalyEvent { readonly code: 'CLOCK_ANOMALY'; readonly now: number; readonly lastSaveTime: number; }
 export interface GameEvents extends Record<string, unknown> {
   readonly workerRecruited: WorkerRecruitedEvent;
   readonly gameSaved: GameSavedEvent;
   readonly recruitmentFailed: RecruitmentFailedEvent;
   readonly mergeCompleted: MergeCompletedEvent;
   readonly salaryChanged: SalaryChangedEvent;
+  readonly idleSettled: IdleSettledEvent;
+  readonly clockAnomaly: ClockAnomalyEvent;
 }

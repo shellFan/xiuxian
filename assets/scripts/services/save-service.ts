@@ -24,7 +24,12 @@ export class SaveService {
 
   public save(player: PlayerData): void {
     const now = typeof this.clockOrNow === 'function' ? this.clockOrNow() : this.clockOrNow.now();
-    const saveTime = Math.max(player.lastSaveTime, now);
+    this.saveAt(player, now);
+  }
+
+  public saveAt(player: PlayerData, timestamp: number): void {
+    if (!Number.isFinite(timestamp)) throw new Error('Invalid save time');
+    const saveTime = Math.max(player.lastSaveTime, timestamp);
     const data = { ...player.toSaveData(), lastSaveTime: saveTime };
     this.storage.setItem(this.key, JSON.stringify(data));
     player.lastSaveTime = saveTime;

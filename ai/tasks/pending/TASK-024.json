@@ -1,7 +1,7 @@
 {
   "id": "TASK-024",
   "title": "实现挂机与离线收益",
-  "version": 1,
+  "version": 2,
   "status": "PENDING",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
@@ -48,6 +48,7 @@
     "assets/scripts/services/idle-service.ts",
     "assets/scripts/services/economy-service.ts",
     "assets/scripts/services/cultivation-service.ts",
+    "assets/scripts/services/save-service.ts",
     "tests/idle/**",
     "tests/economy/**"
   ]
