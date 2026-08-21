@@ -100,6 +100,31 @@ function testSaveFailureRollsBackTheWholeTransaction(): void {
   assert.equal(context.player.maxWorkerLevel, 0);
 }
 
+function testMergePersistsAllRewardsWithOneAtomicSaveAttempt(): void {
+  const storage = new MemoryStorageAdapter();
+  let saveAttempts = 0;
+  const context = new GameContext({ saveService: new SaveService({
+    getItem: (key) => storage.getItem(key),
+    setItem: (key, value) => {
+      saveAttempts += 1;
+      if (saveAttempts > 1) throw new Error('unexpected second save');
+      storage.setItem(key, value);
+    },
+    removeItem: (key) => storage.removeItem(key),
+  }), boardRows: 1, boardColumns: 3 });
+  const merge = new MergeService(context);
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 1 });
+
+  const result = merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
+
+  assert.equal(result.success, true);
+  assert.equal(saveAttempts, 1);
+  const saved = JSON.parse(storage.getItem('game-save') ?? '{}') as { salary: number; cultivationExp: number };
+  assert.equal(saved.salary, 10);
+  assert.equal(saved.cultivationExp, 5);
+}
+
 function testFeedbackListenerFailureDoesNotAbortCommittedMerge(): void {
   const { context, merge } = createMerge();
   context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
@@ -162,6 +187,7 @@ testMergeCommitsTheNewWorkerAtTheDropTarget();
 testMaxLevelMergeIsRejectedWithoutChangingBoard();
 testReentrantMergeIsIgnoredDuringTransaction();
 testSaveFailureRollsBackTheWholeTransaction();
+testMergePersistsAllRewardsWithOneAtomicSaveAttempt();
 testFeedbackListenerFailureDoesNotAbortCommittedMerge();
 testConsecutiveMergesRemainConsistent();
 testRestoredBoardCanMergeImmediately();

@@ -4,6 +4,10 @@ export interface CultivationServiceOptions {
   readonly mergeRewards?: readonly number[];
 }
 
+export interface CultivationRewardGrantOptions {
+  readonly persist?: boolean;
+}
+
 export class CultivationService {
   public readonly mergeRewards: readonly number[];
   private readonly grantedMergeRewards = new Set<string>();
@@ -15,7 +19,7 @@ export class CultivationService {
     }
   }
 
-  public grantMergeReward(mergeId: string, mergeLevel: number): number {
+  public grantMergeReward(mergeId: string, mergeLevel: number, options: CultivationRewardGrantOptions = {}): number {
     if (typeof mergeId !== 'string' || mergeId.trim() === '' || !Number.isInteger(mergeLevel) || mergeLevel < 1 || mergeLevel > 5) {
       throw new Error('Invalid cultivation reward');
     }
@@ -27,12 +31,16 @@ export class CultivationService {
     this.grantedMergeRewards.add(mergeId);
     this.context.player.cultivationExp = total;
     try {
-      this.context.saveService.save(this.context.player);
+      if (options.persist !== false) this.context.saveService.save(this.context.player);
     } catch (error) {
       this.context.player.cultivationExp = previousExp;
       this.grantedMergeRewards.delete(mergeId);
       throw error;
     }
     return reward;
+  }
+
+  public rollbackMergeReward(mergeId: string, reward: number): void {
+    if (this.grantedMergeRewards.delete(mergeId)) this.context.player.cultivationExp -= reward;
   }
 }

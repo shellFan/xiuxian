@@ -5,6 +5,10 @@ export interface EconomyServiceOptions {
   readonly mergeRewards?: readonly number[];
 }
 
+export interface RewardGrantOptions {
+  readonly persist?: boolean;
+}
+
 export class EconomyService {
   public readonly mergeRewards: readonly number[];
   private readonly grantedMergeRewards = new Set<string>();
@@ -39,20 +43,36 @@ export class EconomyService {
     }
   }
 
-  public grantMergeReward(mergeId: string, mergeLevel: number): number {
+  public grantMergeReward(mergeId: string, mergeLevel: number, options: RewardGrantOptions = {}): number {
     if (typeof mergeId !== 'string' || mergeId.trim() === '' || !Number.isInteger(mergeLevel) || mergeLevel < 1 || mergeLevel > 5) {
       throw new Error('Invalid merge reward');
     }
     if (this.grantedMergeRewards.has(mergeId)) return 0;
     const reward = this.mergeRewards[mergeLevel - 1];
     this.grantedMergeRewards.add(mergeId);
+    const previousSalary = this.context.player.salary;
     try {
-      this.changeSalary(reward);
+      this.context.player.salary += reward;
+      if (!Number.isSafeInteger(this.context.player.salary)) throw new Error('Invalid salary change');
+      if (options.persist !== false) {
+        this.context.saveService.save(this.context.player);
+        try {
+          this.context.events.emit('salaryChanged', { amount: reward, total: this.context.player.salary });
+          this.context.events.emit('gameSaved', { reason: 'economy' });
+        } catch {
+          // Feedback listeners cannot undo a committed economy transaction.
+        }
+      }
     } catch (error) {
+      this.context.player.salary = previousSalary;
       this.grantedMergeRewards.delete(mergeId);
       throw error;
     }
     return reward;
+  }
+
+  public rollbackMergeReward(mergeId: string, reward: number): void {
+    if (this.grantedMergeRewards.delete(mergeId)) this.context.player.salary -= reward;
   }
 }
 

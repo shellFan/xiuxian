@@ -1,7 +1,7 @@
 {
   "id": "TASK-021",
   "title": "实现修为系统",
-  "version": 2,
+  "version": 3,
   "status": "PENDING",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
@@ -47,6 +47,7 @@
     "assets/scripts/core/**",
     "assets/scripts/services/cultivation-service.ts",
     "assets/scripts/services/config-service.ts",
+    "assets/scripts/services/economy-service.ts",
     "assets/scripts/services/merge-service.ts",
     "tests/cultivation/**",
     "tests/merge/**"

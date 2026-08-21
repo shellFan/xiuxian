@@ -46,15 +46,20 @@ export class MergeService {
       const worker = this.context.board.merge(first, second);
       this.context.syncPlayerWorkers();
       this.context.player.maxWorkerLevel = Math.max(this.context.player.maxWorkerLevel, worker.level);
-      let salaryReward: number;
-      let cultivationReward: number;
+      let salaryReward = 0;
+      let cultivationReward = 0;
       try {
-        salaryReward = this.context.economy.grantMergeReward(mergeId, left.level);
-        cultivationReward = this.context.cultivation.grantMergeReward(mergeId, left.level);
+        salaryReward = this.context.economy.grantMergeReward(mergeId, left.level, { persist: false });
+        cultivationReward = this.context.cultivation.grantMergeReward(mergeId, left.level, { persist: false });
+        this.context.saveService.save(this.context.player);
       } catch (error) {
+        this.context.economy.rollbackMergeReward(mergeId, salaryReward ?? 0);
+        this.context.cultivation.rollbackMergeReward(mergeId, cultivationReward ?? 0);
         this.restore(boardBefore, workersBefore, salaryBefore, maxWorkerLevelBefore);
         throw error;
       }
+      this.emitFeedback('salaryChanged', { amount: salaryReward, total: this.context.player.salary });
+      this.emitFeedback('gameSaved', { reason: 'merge' });
 
       this.emitFeedback('mergeCompleted', { first, second, worker, salaryReward, cultivationReward });
       return { success: true, worker, salaryReward, cultivationReward };
