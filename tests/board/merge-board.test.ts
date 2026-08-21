@@ -30,8 +30,10 @@ function testOnlySameLevelsMergeAndHighestLevelStops(): void {
   assert.equal(board.canMerge({ row: 0, column: 0 }, { row: 0, column: 1 }), true);
   const merged = board.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
   assert.equal(merged.level, 3);
+  assert.equal(board.getWorker({ row: 0, column: 0 }), undefined);
+  assert.equal(board.getWorker({ row: 0, column: 1 })?.id, merged.id);
   assert.equal(board.emptyCount, 2);
-  board.place(WorkerEntity.create(4), { row: 0, column: 1 });
+  board.place(WorkerEntity.create(4), { row: 0, column: 0 });
   assert.equal(board.canMerge({ row: 0, column: 0 }, { row: 0, column: 1 }), false);
   const maxBoard = new MergeBoard({ rows: 1, columns: 2, maxWorkerLevel: 6 });
   maxBoard.place(WorkerEntity.create(6), { row: 0, column: 0 });

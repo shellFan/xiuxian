@@ -97,7 +97,7 @@ export class MergeBoard {
     const left = this.remove(source);
     this.remove(target);
     const merged = WorkerEntity.create(left!.level + 1);
-    this.place(merged, source);
+    this.place(merged, target);
     return merged;
   }
 

@@ -10,7 +10,7 @@ import { WorkerView } from './worker-view';
 import { ToastView } from './toast-view';
 import { FeedbackView } from './feedback-view';
 import type { MergeCompletedEvent, SalaryChangedEvent } from '../core/game-events';
-import { LocalStorageAdapter } from '../services/storage-adapter';
+import { GameBootstrapComponent } from '../core/game-bootstrap-component';
 
 const { ccclass } = _decorator;
 const property = (value: unknown): any => { const decorator = _decorator as unknown as { property?: (type: unknown) => any }; return decorator.property ? decorator.property(value) : () => {}; };
@@ -18,7 +18,7 @@ const resolveCocosType = (name: string): unknown => (Cocos as unknown as Record<
 
 interface TextLike { string: string; }
 interface ButtonLike { on?: (event: string, callback: () => void, target?: unknown) => void; off?: (event: string, callback: () => void, target?: unknown) => void; }
-interface SceneNodeLike { name?: string; children?: readonly SceneNodeLike[]; active?: boolean; getChildByName?: (name: string) => SceneNodeLike | null; getComponent?: (type: string) => unknown; }
+interface SceneNodeLike { name?: string; children?: readonly SceneNodeLike[]; parent?: SceneNodeLike; active?: boolean; getChildByName?: (name: string) => SceneNodeLike | null; getComponent?: (type: unknown) => unknown; }
 export interface WorkerCardState { readonly id: string; readonly level: number; readonly displayText: string; readonly position: BoardPosition; }
 
 @ccclass('MainView')
@@ -52,7 +52,12 @@ export class MainView extends Component {
 
   protected onLoad(): void {
     this.resolveSceneReferences();
-    if (!this.context) this.attachContext(new GameContext({ storage: new LocalStorageAdapter(Cocos.sys.localStorage) }));
+    if (!this.context) {
+      const node = (this as unknown as { node?: SceneNodeLike }).node;
+      const bootstrap = node?.parent?.getComponent?.(GameBootstrapComponent) as GameBootstrapComponent | undefined;
+      if (!bootstrap?.context) throw new Error('MainView requires GameBootstrapComponent context');
+      this.attachContext(bootstrap.context);
+    }
     else this.bindWorkerViews(this.workerViews);
   }
 

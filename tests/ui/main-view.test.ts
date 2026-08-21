@@ -6,6 +6,7 @@ import test from 'node:test';
 const moduleApi = Module as unknown as { _load: (request: string, parent: NodeModule | null, isMain: boolean) => unknown };
 const loader = moduleApi._load;
 const tweenRuns: Array<{ target: any; properties: any; stopped: boolean; finish: () => void }> = [];
+const bootstrapStorage = new Map<string, string>();
 moduleApi._load = function (request: string, parent: NodeModule | null, isMain: boolean): unknown {
   if (request === 'cc') {
     class MockTween {
@@ -16,7 +17,16 @@ moduleApi._load = function (request: string, parent: NodeModule | null, isMain: 
       public start() { return this; }
       public stop() { this.run.stopped = true; }
     }
-    return { _decorator: { ccclass: () => (target: unknown) => target, property: () => () => {} }, Component: class {}, Label: class {}, Button: class {}, UITransform: class {}, UIOpacity: class {}, tween: (target: any) => new MockTween(target) };
+    return {
+      _decorator: { ccclass: () => (target: unknown) => target, property: () => () => {} },
+      Component: class {}, Label: class {}, Button: class {}, UITransform: class {}, UIOpacity: class {},
+      sys: { localStorage: {
+        getItem: (key: string) => bootstrapStorage.get(key) ?? null,
+        setItem: (key: string, value: string) => { bootstrapStorage.set(key, value); },
+        removeItem: (key: string) => { bootstrapStorage.delete(key); },
+      } },
+      tween: (target: any) => new MockTween(target),
+    };
   }
   return loader.call(this, request, parent, isMain);
 };
@@ -25,9 +35,29 @@ const { WorkerView } = require('../../assets/scripts/ui/worker-view') as typeof 
 const { MergeBoardView } = require('../../assets/scripts/ui/merge-board-view') as typeof import('../../assets/scripts/ui/merge-board-view');
 const { ToastView } = require('../../assets/scripts/ui/toast-view') as typeof import('../../assets/scripts/ui/toast-view');
 const { FeedbackView } = require('../../assets/scripts/ui/feedback-view') as typeof import('../../assets/scripts/ui/feedback-view');
+const { GameBootstrapComponent } = require('../../assets/scripts/core/game-bootstrap-component') as typeof import('../../assets/scripts/core/game-bootstrap-component');
 const { GameContext } = require('../../assets/scripts/core/game-context') as typeof import('../../assets/scripts/core/game-context');
 const { MemoryStorageAdapter } = require('../../assets/scripts/services/storage-adapter') as typeof import('../../assets/scripts/services/storage-adapter');
 moduleApi._load = loader;
+
+test('MainView onLoad uses the GameBootstrapComponent business context', () => {
+  bootstrapStorage.clear();
+  const bootstrap = new GameBootstrapComponent() as any;
+  bootstrap.onLoad();
+  const main = new MainView() as any;
+  main.node = { parent: { getComponent: (type: unknown) => type === GameBootstrapComponent ? bootstrap : undefined } };
+
+  main.onLoad();
+
+  assert.equal(main.context, bootstrap.context);
+  assert.equal(main.context.saveService, bootstrap.context.saveService);
+  assert.equal(main.context.economy, bootstrap.context.economy);
+  assert.equal(main.context.board, bootstrap.context.board);
+  assert.equal(main.context.events, bootstrap.context.events);
+  main.recruit();
+  assert.equal(bootstrap.context.player.workers.length, 1);
+  assert.equal(bootstrap.context.board.getWorker({ row: 0, column: 0 })?.level, 1);
+});
 
 test('refreshes labels and worker cards from the authoritative GameContext', () => {
   const context = new GameContext({ storage: new MemoryStorageAdapter() });
@@ -245,7 +275,7 @@ test('refresh restores unique fixed cell centers after recruit, move, merge, and
   assert.equal(new Set(positions()).size, 16);
 
   assert.equal(drag.begin('missing-worker', { row: 0, column: 0 }), false);
-  assert.equal(drag.begin(context.board.getWorker({ row: 0, column: 0 })!.id, { row: 0, column: 0 }), true);
+  assert.equal(drag.begin(context.board.getWorker({ row: 0, column: 2 })!.id, { row: 0, column: 2 }), true);
   assert.equal(drag.cancel(), 'restore');
   assert.equal(new Set(positions()).size, 16);
 });

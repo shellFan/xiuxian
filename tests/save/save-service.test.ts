@@ -8,19 +8,48 @@ import { GameContext } from '../../assets/scripts/core/game-context';
 
 function testNewPlayerUsesDefaults(): void {
   const storage = new MemoryStorageAdapter();
-  const service = new SaveService(storage);
+  const service = new SaveService(storage, 'game-save', () => 123);
   assert.deepEqual(service.load(), PlayerData.createDefault().toSaveData());
 }
 
 function testSavesAndRestoresPlayerAndWorkers(): void {
   const storage = new MemoryStorageAdapter();
-  const service = new SaveService(storage);
+  const service = new SaveService(storage, 'game-save', () => 123);
   const player = new PlayerData({ salary: 80, maxWorkerLevel: 3, lastSaveTime: 123, workers: [
     { id: 'worker-1', level: 2, row: 1, column: 3 },
   ] });
   service.save(player);
   assert.deepEqual(service.load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 80, maxWorkerLevel: 3, lastSaveTime: 123,
     workers: [{ id: 'worker-1', level: 2, row: 1, column: 3 }] });
+}
+
+function testSuccessfulSavesRecordMonotonicInjectedTime(): void {
+  const storage = new MemoryStorageAdapter();
+  let now = 100;
+  const service = new SaveService(storage, 'game-save', () => now);
+  const player = PlayerData.createDefault();
+  service.save(player);
+  assert.equal(player.lastSaveTime, 100);
+  assert.equal(service.load().lastSaveTime, 100);
+  now = 90;
+  service.save(player);
+  assert.equal(player.lastSaveTime, 100);
+  assert.equal(service.load().lastSaveTime, 100);
+  now = 120;
+  service.save(player);
+  assert.equal(player.lastSaveTime, 120);
+  assert.equal(service.load().lastSaveTime, 120);
+}
+
+function testFailedSaveDoesNotChangeInMemorySaveTime(): void {
+  const player = new PlayerData({ lastSaveTime: 7 });
+  const service = new SaveService({
+    getItem: () => null,
+    setItem: () => { throw new Error('quota exceeded'); },
+    removeItem: () => {},
+  }, 'game-save', () => 99);
+  assert.throws(() => service.save(player), /quota exceeded/);
+  assert.equal(player.lastSaveTime, 7);
 }
 
 function testEmptyAndInvalidStorageBecomeNewPlayer(): void {
@@ -65,6 +94,17 @@ function testInvalidPlayerScalarsFallBackToSafeDefaults(): void {
     lastSaveTime: 0,
     workers: [],
   });
+}
+
+function testMigratedInvalidSaveTimeCanBeReplacedByNextSave(): void {
+  const storage = new MemoryStorageAdapter();
+  storage.setItem('game-save', JSON.stringify({ saveVersion: CURRENT_SAVE_VERSION, lastSaveTime: -4 }));
+  const service = new SaveService(storage, 'game-save', () => 500);
+  const player = new PlayerData(service.load());
+  assert.equal(player.lastSaveTime, 0);
+  service.save(player);
+  assert.equal(player.lastSaveTime, 500);
+  assert.equal(service.load().lastSaveTime, 500);
 }
 
 function testLocalStorageAdapterRequiresExplicitCocosStorageInjection(): void {
@@ -112,10 +152,13 @@ function testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer(): void {
 
 testNewPlayerUsesDefaults();
 testSavesAndRestoresPlayerAndWorkers();
+testSuccessfulSavesRecordMonotonicInjectedTime();
+testFailedSaveDoesNotChangeInMemorySaveTime();
 testEmptyAndInvalidStorageBecomeNewPlayer();
 testMigratesOlderVersionAndDefaultsMissingFields();
 testIgnoresMalformedWorkersAndRejectsFutureSaves();
 testInvalidPlayerScalarsFallBackToSafeDefaults();
+testMigratedInvalidSaveTimeCanBeReplacedByNextSave();
 testGameContextRestoresSavedPlayerAndBoard();
 testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer();
 testLocalStorageAdapterRequiresExplicitCocosStorageInjection();

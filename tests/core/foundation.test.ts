@@ -33,8 +33,17 @@ function testGameBootstrapLifecycle(): void {
   assert.equal(bootstrap.lifecycle, 'destroyed');
 }
 
+function testGameBootstrapOwnsOneBusinessContextAndEventBus(): void {
+  const bootstrap = new GameBootstrap();
+  assert.equal(bootstrap.context instanceof Object, true);
+  const context = bootstrap.context as any;
+  assert.equal(context.events, bootstrap.events);
+  assert.equal(context.economy.context, context);
+}
+
 testGameConfig();
 testEventBus();
+testGameBootstrapOwnsOneBusinessContextAndEventBus();
 
 function testMainSceneBootstrapContract(): void {
   const scenePath = path.resolve(__dirname, '../../../../assets/scenes/Main.scene');
@@ -73,7 +82,7 @@ function testCocosBootstrapLifecycleAdapterContract(): void {
   const adapter = fs.readFileSync(adapterPath, 'utf8');
 
   assert.match(adapter, /extends Component/);
-  assert.match(adapter, /new GameBootstrap\(\)/);
+  assert.match(adapter, /new GameBootstrap\(/);
   assert.match(adapter, /onLoad\(\)/);
   assert.match(adapter, /\.start\(\)/);
   assert.match(adapter, /onDestroy\(\)/);

@@ -29,7 +29,22 @@ function testMergesLevelsOneThroughFiveAndUpdatesState(): void {
     assert.equal(context.player.salary, [10, 30, 70, 150, 310][level - 1]);
     assert.equal(context.player.workers.length, 1);
     assert.match(storage.getItem('game-save') ?? '', /worker-/);
-    context.board.remove(first);
+    context.board.remove(second);
+  }
+}
+
+function testMergeCommitsTheNewWorkerAtTheDropTarget(): void {
+  const { context, merge } = createMerge();
+  const source = { row: 0, column: 0 };
+  const target = { row: 0, column: 1 };
+  context.board.place(WorkerEntity.create(1), source);
+  context.board.place(WorkerEntity.create(1), target);
+  const result = merge.merge(source, target);
+  assert.equal(result.success, true);
+  if (result.success) {
+    assert.equal(context.board.getWorker(source), undefined);
+    assert.equal(context.board.getWorker(target)?.id, result.worker.id);
+    assert.equal(context.board.getWorker(target)?.level, 2);
   }
 }
 
@@ -105,7 +120,7 @@ function testConsecutiveMergesRemainConsistent(): void {
 
   assert.equal(merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 }).success, true);
   assert.equal(merge.merge({ row: 0, column: 2 }, { row: 0, column: 3 }).success, true);
-  const final = merge.merge({ row: 0, column: 0 }, { row: 0, column: 2 });
+  const final = merge.merge({ row: 0, column: 1 }, { row: 0, column: 3 });
 
   assert.equal(final.success, true);
   assert.equal(final.worker.level, 3);
@@ -131,7 +146,7 @@ function testRestoredBoardCanMergeImmediately(): void {
     saveService: new SaveService(storage),
   });
   const restoredMerge = new MergeService(restoredContext);
-  const result = restoredMerge.merge({ row: 0, column: 0 }, { row: 0, column: 2 });
+  const result = restoredMerge.merge({ row: 0, column: 0 }, { row: 0, column: 3 });
 
   assert.equal(result.success, true);
   assert.equal(result.worker.level, 3);
@@ -139,6 +154,7 @@ function testRestoredBoardCanMergeImmediately(): void {
   assert.equal(restoredContext.player.salary, 30);
 }
 testMergesLevelsOneThroughFiveAndUpdatesState();
+testMergeCommitsTheNewWorkerAtTheDropTarget();
 testMaxLevelMergeIsRejectedWithoutChangingBoard();
 testReentrantMergeIsIgnoredDuringTransaction();
 testSaveFailureRollsBackTheWholeTransaction();

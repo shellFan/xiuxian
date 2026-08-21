@@ -5,7 +5,11 @@ import type { StorageAdapter } from './storage-adapter';
 export const DEFAULT_SAVE_KEY = 'game-save';
 
 export class SaveService {
-  public constructor(private readonly storage: StorageAdapter, private readonly key = DEFAULT_SAVE_KEY) {}
+  public constructor(
+    private readonly storage: StorageAdapter,
+    private readonly key = DEFAULT_SAVE_KEY,
+    private readonly now: () => number = Date.now,
+  ) {}
 
   public load(): GameSaveData {
     const raw = this.storage.getItem(this.key);
@@ -18,8 +22,10 @@ export class SaveService {
   }
 
   public save(player: PlayerData): void {
-    const data = player.toSaveData();
+    const saveTime = Math.max(player.lastSaveTime, this.now());
+    const data = { ...player.toSaveData(), lastSaveTime: saveTime };
     this.storage.setItem(this.key, JSON.stringify(data));
+    player.lastSaveTime = saveTime;
   }
 
   public autoSave(player: PlayerData): void { this.save(player); }
