@@ -29,4 +29,7 @@ export interface GameSaveData {
   readonly promotionFailCount: number;
   readonly officeLevel: number;
   readonly lastIdleSettlementId: string | null;
+  readonly salaryRemainder?: number;
+  readonly cultivationRemainder?: number;
+  readonly mindRemainder?: number;
 }

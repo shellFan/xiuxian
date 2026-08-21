@@ -6,6 +6,7 @@ import { DEFAULT_CLOCK, type Clock } from '../core/clock';
 export const DEFAULT_SAVE_KEY = 'game-save';
 
 export class SaveService {
+  private latestSnapshot: GameSaveData | null = null;
   public constructor(
     private readonly storage: StorageAdapter,
     private readonly key = DEFAULT_SAVE_KEY,
@@ -14,13 +15,19 @@ export class SaveService {
 
   public load(): GameSaveData {
     const raw = this.storage.getItem(this.key);
-    if (!raw || !raw.trim()) return PlayerData.createDefault().toSaveData();
+    if (!raw || !raw.trim()) return this.commitLoaded(PlayerData.createDefault().toSaveData());
     try {
-      return migrate(JSON.parse(raw));
+      return this.commitLoaded(migrate(JSON.parse(raw)));
     } catch {
-      return PlayerData.createDefault().toSaveData();
+      return this.commitLoaded(PlayerData.createDefault().toSaveData());
     }
   }
+
+  public getLatestCommittedSnapshot(): GameSaveData | null {
+    return this.latestSnapshot ? cloneSaveData(this.latestSnapshot) : null;
+  }
+
+  public get latestCommittedSnapshot(): GameSaveData | null { return this.getLatestCommittedSnapshot(); }
 
   public save(player: PlayerData): void {
     const now = typeof this.clockOrNow === 'function' ? this.clockOrNow() : this.clockOrNow.now();
@@ -32,6 +39,7 @@ export class SaveService {
     const saveTime = Math.max(player.lastSaveTime, timestamp);
     const data = { ...player.toSaveData(), lastSaveTime: saveTime };
     this.storage.setItem(this.key, JSON.stringify(data));
+    this.latestSnapshot = cloneSaveData(data);
     player.lastSaveTime = saveTime;
   }
 
@@ -41,11 +49,17 @@ export class SaveService {
     const saveTime = Math.max(player.lastSaveTime, timestamp);
     const data = { ...player.toSaveData(), lastIdleSettlementId: settlementId, lastSaveTime: saveTime };
     this.storage.setItem(this.key, JSON.stringify(data));
+    this.latestSnapshot = cloneSaveData(data);
     player.lastIdleSettlementId = settlementId;
     player.lastSaveTime = saveTime;
   }
 
   public autoSave(player: PlayerData): void { this.save(player); }
+
+  private commitLoaded(data: GameSaveData): GameSaveData {
+    this.latestSnapshot = cloneSaveData(data);
+    return cloneSaveData(data);
+  }
 }
 
 function migrate(raw: unknown): GameSaveData {
@@ -54,7 +68,7 @@ function migrate(raw: unknown): GameSaveData {
   }
   const workers = Array.isArray(raw.workers) ? raw.workers.filter(isWorker).map((worker) => ({ ...worker })) : [];
   const maxWorkerLevel = isNonNegativeSafeInteger(raw.maxWorkerLevel) ? raw.maxWorkerLevel : workers.reduce((max, worker) => Math.max(max, worker.level), 0);
-  return {
+  const data: GameSaveData = {
     saveVersion: CURRENT_SAVE_VERSION,
     salary: isNonNegativeSafeInteger(raw.salary) ? raw.salary : 0,
     maxWorkerLevel,
@@ -75,6 +89,17 @@ function migrate(raw: unknown): GameSaveData {
     officeLevel: isPositiveSafeInteger(raw.officeLevel) ? raw.officeLevel : 1,
     lastIdleSettlementId: typeof raw.lastIdleSettlementId === 'string' ? raw.lastIdleSettlementId : null,
   };
+  if (isNonNegativeSafeInteger(raw.salaryRemainder) && raw.salaryRemainder !== 0) dataWithRemainder(data, 'salaryRemainder', raw.salaryRemainder);
+  if (isNonNegativeSafeInteger(raw.cultivationRemainder) && raw.cultivationRemainder !== 0) dataWithRemainder(data, 'cultivationRemainder', raw.cultivationRemainder);
+  if (isNonNegativeSafeInteger(raw.mindRemainder) && raw.mindRemainder !== 0) dataWithRemainder(data, 'mindRemainder', raw.mindRemainder);
+  return data;
+}
+
+function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultivationRemainder' | 'mindRemainder', value: number): void {
+  Object.assign(data, { [key]: value });
+}
+function cloneSaveData(data: GameSaveData): GameSaveData {
+  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress } };
 }
 
 function isWorker(value: unknown): value is WorkerSaveData {

@@ -22,12 +22,14 @@ export class WorkService {
   private readonly salaryPerHour: readonly number[];
   private readonly cultivationPerHour: readonly number[];
   private readonly mindPerHour: number;
+  private committedSnapshot: ReturnType<GameContext['player']['toSaveData']>;
 
   public constructor(private readonly context: GameContext, options: WorkServiceOptions = {}) {
     this.salaryPerHour = normalizeRates(options.salaryPerHour ?? idleConfig.salaryPerHour, 'salary');
     this.cultivationPerHour = normalizeRates(options.cultivationPerHour ?? idleConfig.cultivationPerHour, 'cultivation');
     this.mindPerHour = options.mindPerHour ?? 60;
     if (!Number.isSafeInteger(this.mindPerHour) || this.mindPerHour < 0) throw new Error('Invalid work mind rate');
+    this.committedSnapshot = this.context.player.toSaveData();
   }
 
   public get mode(): WorkMode { return this.context.player.workMode; }
@@ -40,10 +42,12 @@ export class WorkService {
   }
 
   public save(): void {
+    const previous = this.context.player.toSaveData();
     try {
       this.context.saveService.save(this.context.player);
+      this.committedSnapshot = this.context.player.toSaveData();
     } catch (error) {
-      restorePlayer(this.context.player, this.context.saveService.load());
+      restorePlayer(this.context.player, this.context.saveService.getLatestCommittedSnapshot() ?? this.committedSnapshot ?? previous);
       throw error;
     }
   }
@@ -56,20 +60,24 @@ export class WorkService {
     const previousSeconds = this.context.player[secondsKey];
     const nextSeconds = previousSeconds + elapsedSeconds;
     if (!Number.isSafeInteger(nextSeconds)) throw new Error('Invalid work duration');
-    const denominator = mode === 'WORK' ? 3600 : 7200;
+    const multiplier = mode === 'WORK' ? 2 : 1;
     const salaryRate = this.rateForBoard(this.salaryPerHour);
     const cultivationRate = this.rateForBoard(this.cultivationPerHour);
-    const salary = cumulativeReward(salaryRate, nextSeconds, denominator) - cumulativeReward(salaryRate, previousSeconds, denominator);
-    const cultivationExp = cumulativeReward(cultivationRate, nextSeconds, denominator) - cumulativeReward(cultivationRate, previousSeconds, denominator);
-    const mindDelta = mode === 'WORK'
-      ? -(cumulativeReward(this.mindPerHour, nextSeconds, 3600) - cumulativeReward(this.mindPerHour, previousSeconds, 3600))
-      : cumulativeReward(this.mindPerHour, nextSeconds, 3600) - cumulativeReward(this.mindPerHour, previousSeconds, 3600);
     const previous = this.context.player.toSaveData();
+    const salaryResult = accumulate(salaryRate, elapsedSeconds, multiplier, this.context.player.salaryRemainder, 7200);
+    const cultivationResult = accumulate(cultivationRate, elapsedSeconds, multiplier, this.context.player.cultivationRemainder, 7200);
+    const mindResult = accumulate(this.mindPerHour, elapsedSeconds, 1, this.context.player.mindRemainder, 3600);
+    const salary = salaryResult.reward;
+    const cultivationExp = cultivationResult.reward;
+    const mindDelta = mode === 'WORK' ? -mindResult.reward : mindResult.reward;
     try {
       this.context.economy.applyIdleSalary(salary);
       this.context.cultivation.applyIdleExperience(cultivationExp);
       const actualMindDelta = this.context.mind.applyDelta(mindDelta);
       this.context.player[secondsKey] = nextSeconds;
+      this.context.player.salaryRemainder = salaryResult.remainder;
+      this.context.player.cultivationRemainder = cultivationResult.remainder;
+      this.context.player.mindRemainder = mindResult.remainder;
       return { salary, cultivationExp, mind: actualMindDelta, elapsedSeconds, mode };
     } catch (error) {
       restorePlayer(this.context.player, previous);
@@ -88,10 +96,10 @@ function normalizeRates(value: number | readonly number[], name: string): readon
   return Object.freeze(rates);
 }
 
-function cumulativeReward(rate: number, seconds: number, denominator: number): number {
-  const numerator = rate * seconds;
+function accumulate(rate: number, seconds: number, multiplier: number, remainder: number, denominator: number): { reward: number; remainder: number } {
+  const numerator = remainder + rate * seconds * multiplier;
   if (!Number.isSafeInteger(numerator)) throw new Error('Invalid work reward');
-  return Math.floor(numerator / denominator);
+  return { reward: Math.floor(numerator / denominator), remainder: numerator % denominator };
 }
 
 function restorePlayer(player: GameContext['player'], data: ReturnType<GameContext['player']['toSaveData']>): void {
@@ -113,4 +121,7 @@ function restorePlayer(player: GameContext['player'], data: ReturnType<GameConte
   player.workSeconds = data.workSeconds;
   player.fishingSeconds = data.fishingSeconds;
   player.lastSaveTime = data.lastSaveTime;
+  player.salaryRemainder = data.salaryRemainder ?? 0;
+  player.cultivationRemainder = data.cultivationRemainder ?? 0;
+  player.mindRemainder = data.mindRemainder ?? 0;
 }

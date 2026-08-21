@@ -19,6 +19,9 @@ export interface PlayerDataOptions {
   readonly promotionFailCount?: number;
   readonly officeLevel?: number;
   readonly lastIdleSettlementId?: string | null;
+  readonly salaryRemainder?: number;
+  readonly cultivationRemainder?: number;
+  readonly mindRemainder?: number;
 }
 
 export class PlayerData {
@@ -40,6 +43,9 @@ export class PlayerData {
   public promotionFailCount: number;
   public officeLevel: number;
   public lastIdleSettlementId: string | null;
+  public salaryRemainder: number;
+  public cultivationRemainder: number;
+  public mindRemainder: number;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -60,6 +66,9 @@ export class PlayerData {
     this.promotionFailCount = options.promotionFailCount ?? 0;
     this.officeLevel = options.officeLevel ?? 1;
     this.lastIdleSettlementId = options.lastIdleSettlementId ?? null;
+    this.salaryRemainder = normalizeRemainder(options.salaryRemainder);
+    this.cultivationRemainder = normalizeRemainder(options.cultivationRemainder);
+    this.mindRemainder = normalizeRemainder(options.mindRemainder);
   }
 
   public static createDefault(): PlayerData {
@@ -67,7 +76,7 @@ export class PlayerData {
   }
 
   public toSaveData(): GameSaveData {
-    return {
+    const data: GameSaveData = {
       saveVersion: CURRENT_SAVE_VERSION,
       salary: this.salary,
       maxWorkerLevel: this.maxWorkerLevel,
@@ -78,5 +87,13 @@ export class PlayerData {
       workSeconds: this.workSeconds, fishingSeconds: this.fishingSeconds, kpiProgress: { ...this.kpiProgress },
       promotionFailCount: this.promotionFailCount, officeLevel: this.officeLevel, lastIdleSettlementId: this.lastIdleSettlementId,
     };
+    if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
+    if (this.cultivationRemainder !== 0) Object.assign(data, { cultivationRemainder: this.cultivationRemainder });
+    if (this.mindRemainder !== 0) Object.assign(data, { mindRemainder: this.mindRemainder });
+    return data;
   }
+}
+
+function normalizeRemainder(value: number | undefined): number {
+  return value !== undefined && Number.isSafeInteger(value) && value >= 0 ? value : 0;
 }

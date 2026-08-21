@@ -140,6 +140,39 @@ function testWorkSaveFailureRestoresLatestCrossServiceSave(): void {
   assert.equal(context.player.workMode, 'FISHING');
 }
 
+function testWeightedRemaindersSurviveRateChangesAndReload(): void {
+  const storage = new MemoryStorageAdapter();
+  const first = new GameContext({ player: new PlayerData({ workMode: 'WORK' }), saveService: new SaveService(storage) });
+  first.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  const firstWork = new WorkService(first, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 1 });
+  firstWork.tick(1800);
+  firstWork.save();
+
+  const second = new GameContext({ saveService: new SaveService(storage), board: first.board, player: new PlayerData(new SaveService(storage).load()) });
+  const secondWork = new WorkService(second, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 1 });
+  assert.deepEqual(secondWork.tick(1800), { salary: 1, cultivationExp: 1, mind: -1, elapsedSeconds: 1800, mode: 'WORK' });
+}
+
+function testWorkSaveFailureDoesNotReadStorageDuringRollback(): void {
+  let reads = 0;
+  let fail = false;
+  const storage: StorageAdapter = {
+    getItem: () => { reads += 1; return null; },
+    setItem: () => { if (fail) throw new Error('quota exceeded'); },
+    removeItem: () => undefined,
+  };
+  const context = new GameContext({ player: new PlayerData(), saveService: new SaveService(storage) });
+  context.economy.changeSalary(5);
+  const readsAfterCommit = reads;
+  const work = new WorkService(context, { salaryPerHour: 3600, cultivationPerHour: 3600, mindPerHour: 3600 });
+  work.tick(1);
+  fail = true;
+
+  assert.throws(() => work.save(), /quota exceeded/);
+  assert.equal(reads, readsAfterCommit);
+  assert.equal(context.player.salary, 5);
+}
+
 testWorkTickUsesFullRatesAndConsumesMind();
 testFishingTickUsesHalfRatesAndRecoversMind();
 testShortTicksMatchSingleTickForBothModes();
@@ -148,4 +181,6 @@ testTickSaveFailureRollsBackAllState();
 testWorkRemainderSurvivesSaveAndReload();
 testFishingRemainderSurvivesSaveAndReload();
 testWorkSaveFailureRestoresLatestCrossServiceSave();
+testWeightedRemaindersSurviveRateChangesAndReload();
+testWorkSaveFailureDoesNotReadStorageDuringRollback();
 console.log('work service tests passed');
