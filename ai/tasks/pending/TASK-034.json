@@ -1,0 +1,54 @@
+{
+  "id": "TASK-034",
+  "title": "实现离线收益弹窗与 Mock Reward",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现离线回归弹窗、普通领取与 Mock 广告双倍，严格防重复回调与重复奖励。",
+  "background": "Phase 2 sequential task TASK-034; depends on TASK-033 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "同一 settlement 普通奖励只结算一次，bonus 只追加一次。",
+    "覆盖 Mock 成功/失败/重复回调与重复打开弹窗，不调用微信广告。"
+  ],
+  "acceptanceCriteria": [
+    "同一 settlement 普通奖励只结算一次，bonus 只追加一次。",
+    "覆盖 Mock 成功/失败/重复回调与重复打开弹窗，不调用微信广告。"
+  ],
+  "allowedPaths": [
+    "assets/scripts/ui/**",
+    "assets/scripts/services/idle-service.ts",
+    "assets/scripts/services/reward-provider.ts",
+    "assets/scripts/core/**",
+    "assets/scripts/model/**",
+    "tests/idle/**",
+    "tests/reward/**",
+    "tests/ui/**"
+  ]
+}

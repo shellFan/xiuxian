@@ -1,0 +1,52 @@
+{
+  "id": "TASK-028",
+  "title": "实现统一 Effect Engine",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现 GameEffect 与 EffectService，统一解释 salary/performance/cultivation/mind 变更并事务保存。",
+  "background": "Phase 2 sequential task TASK-028; depends on TASK-027 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "事件不直接修改 PlayerData；核心资源批量变更原子提交，保存失败整体回滚。"
+  ],
+  "acceptanceCriteria": [
+    "事件不直接修改 PlayerData；核心资源批量变更原子提交，保存失败整体回滚。"
+  ],
+  "allowedPaths": [
+    "assets/scripts/model/**",
+    "assets/scripts/core/**",
+    "assets/scripts/services/effect-service.ts",
+    "assets/scripts/services/economy-service.ts",
+    "assets/scripts/services/cultivation-service.ts",
+    "assets/scripts/services/mind-service.ts",
+    "tests/effects/**",
+    "tests/economy/**"
+  ]
+}

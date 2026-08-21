@@ -1,0 +1,55 @@
+{
+  "id": "TASK-031",
+  "title": "实现晋升答辩系统",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现 PromotionService 三选一卡牌判定、概率 clamp、成功/失败事务与 Mock Reward 重试。",
+  "background": "Phase 2 sequential task TASK-031; depends on TASK-030 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "基础70%，道心与关系户修正后 clamp 5%~95%。",
+    "覆盖输入概率0/5/70/95/100；成功升级重置KPI并奖励绩效，失败 mind-10 且 failCount+1。"
+  ],
+  "acceptanceCriteria": [
+    "基础70%，道心与关系户修正后 clamp 5%~95%。",
+    "覆盖输入概率0/5/70/95/100；成功升级重置KPI并奖励绩效，失败 mind-10 且 failCount+1。"
+  ],
+  "allowedPaths": [
+    "assets/scripts/model/**",
+    "assets/scripts/core/**",
+    "assets/scripts/services/promotion-service.ts",
+    "assets/scripts/services/career-service.ts",
+    "assets/scripts/services/kpi-service.ts",
+    "assets/scripts/services/mind-service.ts",
+    "assets/scripts/services/reward-provider.ts",
+    "tests/promotion/**",
+    "tests/reward/**"
+  ]
+}

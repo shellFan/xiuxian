@@ -1,0 +1,54 @@
+{
+  "id": "TASK-025",
+  "title": "实现工作与摸鱼模式",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现 WorkMode WORK/FISHING 的在线 tick 结算，更新工资、修为、道心及累计秒数。",
+  "background": "Phase 2 sequential task TASK-025; depends on TASK-024 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "WORK 工资/修为100%且消耗道心；FISHING 工资/修为50%且恢复道心。",
+    "模式切换保存，不使用后台 Timer 或每帧保存。"
+  ],
+  "acceptanceCriteria": [
+    "WORK 工资/修为100%且消耗道心；FISHING 工资/修为50%且恢复道心。",
+    "模式切换保存，不使用后台 Timer 或每帧保存。"
+  ],
+  "allowedPaths": [
+    "assets/configs/idle.json",
+    "assets/scripts/model/**",
+    "assets/scripts/core/**",
+    "assets/scripts/services/work-service.ts",
+    "assets/scripts/services/economy-service.ts",
+    "assets/scripts/services/cultivation-service.ts",
+    "assets/scripts/services/mind-service.ts",
+    "tests/work/**"
+  ]
+}

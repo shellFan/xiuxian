@@ -1,0 +1,53 @@
+{
+  "id": "TASK-022",
+  "title": "实现 Career 职级系统",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现前 10 职级配置与 CareerService，严格分离 worker.level 和 player.careerLevel。",
+  "background": "Phase 2 sequential task TASK-022; depends on TASK-021 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "10 个职级名称、境界、requiredExp 配置驱动。",
+    "Worker Level 与 Career Level 无字段复用或隐式同步。"
+  ],
+  "acceptanceCriteria": [
+    "10 个职级名称、境界、requiredExp 配置驱动。",
+    "Worker Level 与 Career Level 无字段复用或隐式同步。"
+  ],
+  "allowedPaths": [
+    "assets/configs/career.json",
+    "assets/scripts/model/**",
+    "assets/scripts/services/config-service.ts",
+    "assets/scripts/services/career-service.ts",
+    "assets/scripts/core/**",
+    "tests/career/**",
+    "tests/config/**"
+  ]
+}

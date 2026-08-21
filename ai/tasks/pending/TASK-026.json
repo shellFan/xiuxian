@@ -1,0 +1,53 @@
+{
+  "id": "TASK-026",
+  "title": "实现宗门系统",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现 sect.json 与 SectService，首次四选一并提供配置化 modifier。",
+  "background": "Phase 2 sequential task TASK-026; depends on TASK-025 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "PRIVATE/FOREIGN/STATE/BIG_TECH 四宗门数值配置正确。",
+    "只能首次选择并自动保存，Phase 2 不支持随意切换。"
+  ],
+  "acceptanceCriteria": [
+    "PRIVATE/FOREIGN/STATE/BIG_TECH 四宗门数值配置正确。",
+    "只能首次选择并自动保存，Phase 2 不支持随意切换。"
+  ],
+  "allowedPaths": [
+    "assets/configs/sect.json",
+    "assets/scripts/model/**",
+    "assets/scripts/services/sect-service.ts",
+    "assets/scripts/services/config-service.ts",
+    "assets/scripts/core/**",
+    "tests/sect/**",
+    "tests/config/**"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "TASK-032",
+  "title": "实现绩效与办公室等级",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现绩效事务与 office.json/OfficeService，按 careerLevel 自动解锁 5 级办公室。",
+  "background": "Phase 2 sequential task TASK-032; depends on TASK-031 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "绩效来源限定 KPI/晋升/稀有事件，不实现商店。",
+    "Career 1~2/3~4/5~6/7/8+ 映射办公室等级1~5并保存。"
+  ],
+  "acceptanceCriteria": [
+    "绩效来源限定 KPI/晋升/稀有事件，不实现商店。",
+    "Career 1~2/3~4/5~6/7/8+ 映射办公室等级1~5并保存。"
+  ],
+  "allowedPaths": [
+    "assets/configs/office.json",
+    "assets/scripts/model/**",
+    "assets/scripts/core/**",
+    "assets/scripts/services/economy-service.ts",
+    "assets/scripts/services/office-service.ts",
+    "assets/scripts/services/config-service.ts",
+    "assets/scripts/services/promotion-service.ts",
+    "tests/performance/**",
+    "tests/office/**",
+    "tests/config/**"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "TASK-035",
+  "title": "补齐 Phase 2 稳定性回归",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "补齐迁移、离线、道心、宗门、天赋、事件、晋升、经济、Reward 与端到端恢复测试。",
+  "background": "Phase 2 sequential task TASK-035; depends on TASK-034 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "关键测试矩阵全部覆盖且断言领域状态，不仅断言 Mock 调用。",
+    "修复测试发现的 Phase 2 范围内 BLOCKER/HIGH，禁止 Phase 3 功能。"
+  ],
+  "acceptanceCriteria": [
+    "关键测试矩阵全部覆盖且断言领域状态，不仅断言 Mock 调用。",
+    "修复测试发现的 Phase 2 范围内 BLOCKER/HIGH，禁止 Phase 3 功能。"
+  ],
+  "allowedPaths": [
+    "assets/scripts/**",
+    "assets/configs/**",
+    "tests/**"
+  ]
+}

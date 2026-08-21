@@ -1,0 +1,51 @@
+{
+  "id": "TASK-036",
+  "title": "Phase 2 Final Review",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "执行 Phase 2 整体验收、修复全部 BLOCKER/HIGH，并生成 PHASE-2-RESULT.md。",
+  "background": "Phase 2 sequential task TASK-036; depends on TASK-035 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "验证首次流程、招聘合成成长、工作摸鱼、事件、KPI、晋升、办公室、重启离线收益完整闭环。",
+    "npm test、npm run build、npm run ai:check PASS；真实 Sol Final Review PASS；报告如实标注 Cocos Editor。"
+  ],
+  "acceptanceCriteria": [
+    "验证首次流程、招聘合成成长、工作摸鱼、事件、KPI、晋升、办公室、重启离线收益完整闭环。",
+    "npm test、npm run build、npm run ai:check PASS；真实 Sol Final Review PASS；报告如实标注 Cocos Editor。"
+  ],
+  "allowedPaths": [
+    "assets/**",
+    "tests/**",
+    "ai/reports/PHASE-2-RESULT.md",
+    "package.json",
+    "tsconfig.game.json"
+  ]
+}

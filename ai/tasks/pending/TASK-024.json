@@ -1,0 +1,54 @@
+{
+  "id": "TASK-024",
+  "title": "实现挂机与离线收益",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现 IdleService，按 Clock 计算离线工资/修为，正常收益最多 8 小时并防重复结算。",
+  "background": "Phase 2 sequential task TASK-024; depends on TASK-023 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "覆盖 0秒、1小时、8小时、12小时、负时间、时间回拨与重复结算。",
+    "delta<=0 收益为0并发 CLOCK_ANOMALY；settlementId 防重；事务失败回滚。"
+  ],
+  "acceptanceCriteria": [
+    "覆盖 0秒、1小时、8小时、12小时、负时间、时间回拨与重复结算。",
+    "delta<=0 收益为0并发 CLOCK_ANOMALY；settlementId 防重；事务失败回滚。"
+  ],
+  "allowedPaths": [
+    "assets/configs/idle.json",
+    "assets/scripts/model/**",
+    "assets/scripts/core/**",
+    "assets/scripts/services/idle-service.ts",
+    "assets/scripts/services/economy-service.ts",
+    "assets/scripts/services/cultivation-service.ts",
+    "tests/idle/**",
+    "tests/economy/**"
+  ]
+}

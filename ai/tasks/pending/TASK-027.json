@@ -1,0 +1,53 @@
+{
+  "id": "TASK-027",
+  "title": "实现天赋系统",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现 talent.json 与 TalentService，固定 RNG 可重复地产生 3 选 1。",
+  "background": "Phase 2 sequential task TASK-027; depends on TASK-026 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "至少六个指定天赋且全部配置化。",
+    "首次随机三个不重复天赋，只能选择一个并保存。"
+  ],
+  "acceptanceCriteria": [
+    "至少六个指定天赋且全部配置化。",
+    "首次随机三个不重复天赋，只能选择一个并保存。"
+  ],
+  "allowedPaths": [
+    "assets/configs/talent.json",
+    "assets/scripts/model/**",
+    "assets/scripts/core/**",
+    "assets/scripts/services/talent-service.ts",
+    "assets/scripts/services/config-service.ts",
+    "tests/talent/**",
+    "tests/config/**"
+  ]
+}

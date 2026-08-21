@@ -1,0 +1,56 @@
+{
+  "id": "TASK-030",
+  "title": "实现 KPI 系统",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现 kpi.json 与 KpiService，按 Career Level 跟踪合成、工作时间、修为等目标。",
+  "background": "Phase 2 sequential task TASK-030; depends on TASK-029 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "修为要求与 KPI 都完成才允许晋升。",
+    "KPI 进度自动保存，奖励仅发一次。"
+  ],
+  "acceptanceCriteria": [
+    "修为要求与 KPI 都完成才允许晋升。",
+    "KPI 进度自动保存，奖励仅发一次。"
+  ],
+  "allowedPaths": [
+    "assets/configs/kpi.json",
+    "assets/scripts/model/**",
+    "assets/scripts/core/**",
+    "assets/scripts/services/kpi-service.ts",
+    "assets/scripts/services/config-service.ts",
+    "assets/scripts/services/merge-service.ts",
+    "assets/scripts/services/work-service.ts",
+    "assets/scripts/services/cultivation-service.ts",
+    "tests/kpi/**",
+    "tests/config/**"
+  ]
+}

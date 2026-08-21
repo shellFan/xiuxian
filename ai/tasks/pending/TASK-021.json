@@ -1,0 +1,53 @@
+{
+  "id": "TASK-021",
+  "title": "实现修为系统",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现配置驱动 CultivationService，并将合成修为奖励接入事务与保存。",
+  "background": "Phase 2 sequential task TASK-021; depends on TASK-020 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "合成 Lv1~Lv5 分别奖励 5/10/20/40/80 修为。",
+    "修为来源和变更统一经服务，保存失败回滚。"
+  ],
+  "acceptanceCriteria": [
+    "合成 Lv1~Lv5 分别奖励 5/10/20/40/80 修为。",
+    "修为来源和变更统一经服务，保存失败回滚。"
+  ],
+  "allowedPaths": [
+    "assets/configs/**",
+    "assets/scripts/model/**",
+    "assets/scripts/core/**",
+    "assets/scripts/services/cultivation-service.ts",
+    "assets/scripts/services/merge-service.ts",
+    "tests/cultivation/**",
+    "tests/merge/**"
+  ]
+}

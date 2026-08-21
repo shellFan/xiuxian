@@ -1,0 +1,52 @@
+{
+  "id": "TASK-033",
+  "title": "整合 Phase 2 主界面",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "扩展 MainView 展示成长数据、首次宗门/天赋流程、工作模式、KPI 与晋升入口。",
+  "background": "Phase 2 sequential task TASK-033; depends on TASK-032 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "UI 不直接修改工资、绩效、修为或道心。",
+    "展示职级/境界/工资/绩效/修为/道心/宗门/模式/KPI/晋升按钮和办公室文本；底部导航仅预留。"
+  ],
+  "acceptanceCriteria": [
+    "UI 不直接修改工资、绩效、修为或道心。",
+    "展示职级/境界/工资/绩效/修为/道心/宗门/模式/KPI/晋升按钮和办公室文本；底部导航仅预留。"
+  ],
+  "allowedPaths": [
+    "assets/scenes/Main.scene",
+    "assets/scripts/ui/**",
+    "assets/scripts/core/**",
+    "assets/scripts/services/**",
+    "assets/prefabs/**",
+    "tests/ui/**"
+  ]
+}

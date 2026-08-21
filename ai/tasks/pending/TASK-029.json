@@ -1,0 +1,54 @@
+{
+  "id": "TASK-029",
+  "title": "实现 30 个随机职场事件",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "实现 career-events.json 与 CareerEventService，使用统一 EffectService、Clock、RandomProvider。",
+  "background": "Phase 2 sequential task TASK-029; depends on TASK-028 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "至少包含指令列出的 30 个事件，类型/choice/effects 全部 Schema 校验。",
+    "在线间隔3~8分钟可注入时钟/RNG，选择效果确定性测试。"
+  ],
+  "acceptanceCriteria": [
+    "至少包含指令列出的 30 个事件，类型/choice/effects 全部 Schema 校验。",
+    "在线间隔3~8分钟可注入时钟/RNG，选择效果确定性测试。"
+  ],
+  "allowedPaths": [
+    "assets/configs/career-events.json",
+    "assets/scripts/model/**",
+    "assets/scripts/core/**",
+    "assets/scripts/services/career-event-service.ts",
+    "assets/scripts/services/effect-service.ts",
+    "assets/scripts/services/config-service.ts",
+    "tests/events/**",
+    "tests/config/**"
+  ]
+}

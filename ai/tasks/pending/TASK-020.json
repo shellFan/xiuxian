@@ -1,0 +1,57 @@
+{
+  "id": "TASK-020",
+  "title": "升级存档 Schema 与 Clock/Random 基础设施",
+  "version": 1,
+  "status": "PENDING",
+  "priority": "HIGH",
+  "createdBy": "chatgpt-gpt-5.6-sol",
+  "assignedTo": "codex-gpt-5.6-luna",
+  "reviewer": "codex-gpt-5.6-sol",
+  "forbiddenPaths": [
+    ".git/**",
+    "ai/tasks/**",
+    "ai/logs/**",
+    "tools/orchestrator/**",
+    "docs/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run ai:check"
+  },
+  "constraints": [
+    "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
+    "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
+    "Do not claim Cocos Editor validation unless the Editor is actually launched.",
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+  ],
+  "references": [
+    "AGENTS.md",
+    "ai/reports/PHASE-1.1-RESULT.md"
+  ],
+  "maxReviewRounds": 3,
+  "goal": "升级 PlayerData/GameSaveData，迁移 Phase 1 存档，并建立可注入 Clock、RandomProvider。",
+  "background": "Phase 2 sequential task TASK-020; depends on TASK-019 being DONE, except TASK-020 which depends on Phase 1.1 PASS.",
+  "requirements": [
+    "Phase 2 新字段均有默认值，Phase 1 存档无损迁移。",
+    "Clock 默认 Date.now，RandomProvider 默认 Math.random，并提供 Fake/Fixed/Sequence 测试实现。",
+    "SaveService 共享 Clock，不重构无关架构。"
+  ],
+  "acceptanceCriteria": [
+    "Phase 2 新字段均有默认值，Phase 1 存档无损迁移。",
+    "Clock 默认 Date.now，RandomProvider 默认 Math.random，并提供 Fake/Fixed/Sequence 测试实现。",
+    "SaveService 共享 Clock，不重构无关架构。"
+  ],
+  "allowedPaths": [
+    "assets/scripts/model/**",
+    "assets/scripts/core/clock.ts",
+    "assets/scripts/core/random-provider.ts",
+    "assets/scripts/services/save-service.ts",
+    "assets/scripts/services/config-service.ts",
+    "assets/scripts/model/config-types.ts",
+    "assets/configs/**",
+    "tests/save/**",
+    "tests/core/**"
+  ]
+}
