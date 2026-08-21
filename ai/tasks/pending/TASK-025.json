@@ -1,7 +1,7 @@
 {
   "id": "TASK-025",
   "title": "实现工作与摸鱼模式",
-  "version": 1,
+  "version": 2,
   "status": "PENDING",
   "priority": "HIGH",
   "createdBy": "chatgpt-gpt-5.6-sol",
@@ -24,7 +24,8 @@
     "Use real Codex Luna Developer and Codex Sol Reviewer; never use Mock.",
     "Do not implement Phase 3 or prohibited systems such as real ads, backend, friends, rankings, store, skins, payments or cloud saves.",
     "Do not claim Cocos Editor validation unless the Editor is actually launched.",
-    "All state changes must go through services and critical save failures must not leave memory ahead of persistence."
+    "All state changes must go through services and critical save failures must not leave memory ahead of persistence.",
+    "Architecture adjudication: persist separate weighted fixed-point remainders for salary, cultivation and mind so rate changes and reloads preserve exact accumulation. SaveService must cache and expose the most recent successful committed snapshot shared by all services; WorkService rollback must use that snapshot without a new storage read and preserve the original write error."
   ],
   "references": [
     "AGENTS.md",
@@ -49,6 +50,7 @@
     "assets/scripts/services/economy-service.ts",
     "assets/scripts/services/cultivation-service.ts",
     "assets/scripts/services/mind-service.ts",
+    "assets/scripts/services/save-service.ts",
     "tests/work/**"
   ]
 }

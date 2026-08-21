@@ -24,6 +24,15 @@ export class MindService {
     return next - previous;
   }
 
+  /** Applies a mind delta without saving; composite services save their full transaction once. */
+  public applyDelta(amount: number): number {
+    if (!Number.isFinite(amount) || !Number.isInteger(amount)) throw new Error('Invalid mind change');
+    const previous = this.current;
+    const next = clampMind(previous + amount, this.max);
+    this.context.player.mind = next;
+    return next - previous;
+  }
+
   public rest(): number {
     return this.change(this.max - this.current);
   }
