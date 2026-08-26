@@ -22,6 +22,8 @@ export interface PlayerDataOptions {
   readonly salaryRemainder?: number;
   readonly cultivationRemainder?: number;
   readonly mindRemainder?: number;
+  readonly workMindRemainder?: number;
+  readonly fishingMindRemainder?: number;
 }
 
 export class PlayerData {
@@ -46,6 +48,8 @@ export class PlayerData {
   public salaryRemainder: number;
   public cultivationRemainder: number;
   public mindRemainder: number;
+  public workMindRemainder: number;
+  public fishingMindRemainder: number;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -69,6 +73,8 @@ export class PlayerData {
     this.salaryRemainder = normalizeRemainder(options.salaryRemainder);
     this.cultivationRemainder = normalizeRemainder(options.cultivationRemainder);
     this.mindRemainder = normalizeRemainder(options.mindRemainder);
+    this.workMindRemainder = normalizeRemainder(options.workMindRemainder);
+    this.fishingMindRemainder = normalizeRemainder(options.fishingMindRemainder);
   }
 
   public static createDefault(): PlayerData {
@@ -89,7 +95,8 @@ export class PlayerData {
     };
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
     if (this.cultivationRemainder !== 0) Object.assign(data, { cultivationRemainder: this.cultivationRemainder });
-    if (this.mindRemainder !== 0) Object.assign(data, { mindRemainder: this.mindRemainder });
+    if (this.workMindRemainder !== 0) Object.assign(data, { workMindRemainder: this.workMindRemainder });
+    if (this.fishingMindRemainder !== 0) Object.assign(data, { fishingMindRemainder: this.fishingMindRemainder });
     return data;
   }
 }

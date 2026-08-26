@@ -91,11 +91,17 @@ function migrate(raw: unknown): GameSaveData {
   };
   if (isNonNegativeSafeInteger(raw.salaryRemainder) && raw.salaryRemainder !== 0) dataWithRemainder(data, 'salaryRemainder', raw.salaryRemainder);
   if (isNonNegativeSafeInteger(raw.cultivationRemainder) && raw.cultivationRemainder !== 0) dataWithRemainder(data, 'cultivationRemainder', raw.cultivationRemainder);
-  if (isNonNegativeSafeInteger(raw.mindRemainder) && raw.mindRemainder !== 0) dataWithRemainder(data, 'mindRemainder', raw.mindRemainder);
+  if (isNonNegativeSafeInteger(raw.workMindRemainder) && raw.workMindRemainder !== 0) dataWithRemainder(data, 'workMindRemainder', raw.workMindRemainder);
+  if (isNonNegativeSafeInteger(raw.fishingMindRemainder) && raw.fishingMindRemainder !== 0) dataWithRemainder(data, 'fishingMindRemainder', raw.fishingMindRemainder);
+  const legacyMindRemainder = raw.mindRemainder;
+  const modeMindRemainderKey = raw.workMode === 'WORK' ? 'workMindRemainder' : 'fishingMindRemainder';
+  if (isNonNegativeSafeInteger(legacyMindRemainder) && !isNonNegativeSafeInteger(raw[modeMindRemainderKey])) {
+    dataWithRemainder(data, modeMindRemainderKey, legacyMindRemainder);
+  }
   return data;
 }
 
-function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultivationRemainder' | 'mindRemainder', value: number): void {
+function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultivationRemainder' | 'workMindRemainder' | 'fishingMindRemainder', value: number): void {
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {

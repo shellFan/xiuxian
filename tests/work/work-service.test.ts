@@ -173,6 +173,83 @@ function testWorkSaveFailureDoesNotReadStorageDuringRollback(): void {
   assert.equal(context.player.salary, 5);
 }
 
+function testMindRemainderKeepsDirectionAcrossModeSwitches(): void {
+  const workContext = createContext(new PlayerData({ mind: 50, workMode: 'WORK' }));
+  const work = new WorkService(workContext.context, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1 });
+  work.tick(3599);
+  work.setMode('FISHING');
+  const reloadedWorkContext = new GameContext({ saveService: new SaveService(workContext.storage), board: workContext.context.board, player: new PlayerData(new SaveService(workContext.storage).load()) });
+  const reloadedWork = new WorkService(reloadedWorkContext, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1 });
+  assert.deepEqual(reloadedWork.tick(1), { salary: 0, cultivationExp: 0, mind: 0, elapsedSeconds: 1, mode: 'FISHING' });
+  assert.equal(reloadedWorkContext.player.mind, 50);
+
+  const fishingContext = createContext(new PlayerData({ mind: 0, workMode: 'FISHING' }));
+  const fishing = new WorkService(fishingContext.context, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1 });
+  fishing.tick(3599);
+  fishing.setMode('WORK');
+  const reloadedFishingContext = new GameContext({ saveService: new SaveService(fishingContext.storage), board: fishingContext.context.board, player: new PlayerData(new SaveService(fishingContext.storage).load()) });
+  const reloadedFishing = new WorkService(reloadedFishingContext, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1 });
+  assert.deepEqual(reloadedFishing.tick(1), { salary: 0, cultivationExp: 0, mind: 0, elapsedSeconds: 1, mode: 'WORK' });
+  assert.equal(reloadedFishingContext.player.mind, 0);
+}
+
+function testDynamicRatesRemainExactAcrossSaveReload(): void {
+  const storage = new MemoryStorageAdapter();
+  const first = new GameContext({ player: new PlayerData({ workMode: 'WORK' }), saveService: new SaveService(storage) });
+  first.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  const firstWork = new WorkService(first, { salaryPerHour: [1, 3, 9, 27, 81, 243], cultivationPerHour: [2, 5, 10, 20, 40, 80], mindPerHour: 0 });
+  firstWork.tick(1800);
+
+  first.board.remove({ row: 0, column: 0 });
+  first.board.place(WorkerEntity.create(2), { row: 0, column: 0 });
+  firstWork.save();
+  const reloaded = new GameContext({
+    saveService: new SaveService(storage),
+    board: first.board,
+    player: new PlayerData(new SaveService(storage).load()),
+  });
+  const reloadedWork = new WorkService(reloaded, { salaryPerHour: [1, 3, 9, 27, 81, 243], cultivationPerHour: [2, 5, 10, 20, 40, 80], mindPerHour: 0 });
+
+  assert.deepEqual(reloadedWork.tick(1800), { salary: 2, cultivationExp: 2, mind: 0, elapsedSeconds: 1800, mode: 'WORK' });
+  assert.equal(reloaded.player.salary, 2);
+  assert.equal(reloaded.player.cultivationExp, 3);
+}
+
+function testLegacyGenericMindRemainderMigratesOncePerMode(): void {
+  for (const [legacyMode, oppositeMode, expectedKey] of [
+    ['WORK', 'FISHING', 'workMindRemainder'],
+    ['FISHING', 'WORK', 'fishingMindRemainder'],
+  ] as const) {
+    const storage = new MemoryStorageAdapter();
+    storage.setItem('game-save', JSON.stringify({ saveVersion: 2, mind: 50, workMode: legacyMode, mindRemainder: 3599 }));
+    const saveService = new SaveService(storage);
+    const migrated = saveService.load();
+
+    assert.equal('mindRemainder' in migrated, false);
+    assert.equal(migrated[expectedKey], 3599);
+
+    const context = new GameContext({ saveService, player: new PlayerData(migrated) });
+    const work = new WorkService(context, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1 });
+    work.setMode(oppositeMode);
+
+    const reloaded = saveService.load();
+    assert.equal('mindRemainder' in reloaded, false);
+    assert.equal(reloaded[expectedKey], 3599);
+    const reloadedContext = new GameContext({ saveService, player: new PlayerData(reloaded), board: context.board });
+    const reloadedWork = new WorkService(reloadedContext, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1 });
+    assert.deepEqual(reloadedWork.tick(1), { salary: 0, cultivationExp: 0, mind: 0, elapsedSeconds: 1, mode: oppositeMode });
+    assert.equal(reloadedContext.player.mind, 50);
+  }
+
+  const priorityStorage = new MemoryStorageAdapter();
+  priorityStorage.setItem('game-save', JSON.stringify({ saveVersion: 2, workMode: 'WORK', mindRemainder: 3599, workMindRemainder: 7 }));
+  const prioritySave = new SaveService(priorityStorage);
+  const priorityData = prioritySave.load();
+  assert.equal('mindRemainder' in priorityData, false);
+  assert.equal(priorityData.workMindRemainder, 7);
+  assert.equal('mindRemainder' in new PlayerData(priorityData).toSaveData(), false);
+}
+
 testWorkTickUsesFullRatesAndConsumesMind();
 testFishingTickUsesHalfRatesAndRecoversMind();
 testShortTicksMatchSingleTickForBothModes();
@@ -183,4 +260,7 @@ testFishingRemainderSurvivesSaveAndReload();
 testWorkSaveFailureRestoresLatestCrossServiceSave();
 testWeightedRemaindersSurviveRateChangesAndReload();
 testWorkSaveFailureDoesNotReadStorageDuringRollback();
+testMindRemainderKeepsDirectionAcrossModeSwitches();
+testDynamicRatesRemainExactAcrossSaveReload();
+testLegacyGenericMindRemainderMigratesOncePerMode();
 console.log('work service tests passed');

@@ -66,7 +66,8 @@ export class WorkService {
     const previous = this.context.player.toSaveData();
     const salaryResult = accumulate(salaryRate, elapsedSeconds, multiplier, this.context.player.salaryRemainder, 7200);
     const cultivationResult = accumulate(cultivationRate, elapsedSeconds, multiplier, this.context.player.cultivationRemainder, 7200);
-    const mindResult = accumulate(this.mindPerHour, elapsedSeconds, 1, this.context.player.mindRemainder, 3600);
+    const mindRemainderKey = mode === 'WORK' ? 'workMindRemainder' : 'fishingMindRemainder';
+    const mindResult = accumulate(this.mindPerHour, elapsedSeconds, 1, this.context.player[mindRemainderKey], 3600);
     const salary = salaryResult.reward;
     const cultivationExp = cultivationResult.reward;
     const mindDelta = mode === 'WORK' ? -mindResult.reward : mindResult.reward;
@@ -77,7 +78,7 @@ export class WorkService {
       this.context.player[secondsKey] = nextSeconds;
       this.context.player.salaryRemainder = salaryResult.remainder;
       this.context.player.cultivationRemainder = cultivationResult.remainder;
-      this.context.player.mindRemainder = mindResult.remainder;
+      this.context.player[mindRemainderKey] = mindResult.remainder;
       return { salary, cultivationExp, mind: actualMindDelta, elapsedSeconds, mode };
     } catch (error) {
       restorePlayer(this.context.player, previous);
@@ -124,4 +125,6 @@ function restorePlayer(player: GameContext['player'], data: ReturnType<GameConte
   player.salaryRemainder = data.salaryRemainder ?? 0;
   player.cultivationRemainder = data.cultivationRemainder ?? 0;
   player.mindRemainder = data.mindRemainder ?? 0;
+  player.workMindRemainder = data.workMindRemainder ?? 0;
+  player.fishingMindRemainder = data.fishingMindRemainder ?? 0;
 }

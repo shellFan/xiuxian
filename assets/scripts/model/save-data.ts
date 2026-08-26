@@ -32,4 +32,6 @@ export interface GameSaveData {
   readonly salaryRemainder?: number;
   readonly cultivationRemainder?: number;
   readonly mindRemainder?: number;
+  readonly workMindRemainder?: number;
+  readonly fishingMindRemainder?: number;
 }
