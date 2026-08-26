@@ -18,6 +18,8 @@ import { MockRewardProvider, type RewardProvider } from '../services/reward-prov
 import { IdleService } from '../services/idle-service';
 import { DEFAULT_CLOCK, type Clock } from './clock';
 import { WorkService } from '../services/work-service';
+import { SectService } from '../services/sect-service';
+import sectConfig from '../../configs/sect.json';
 
 export interface GameContextOptions {
   readonly board?: MergeBoard;
@@ -44,6 +46,7 @@ export class GameContext {
   public readonly mind: MindService;
   public readonly idle: IdleService;
   public readonly work: WorkService;
+  public readonly sect: SectService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -71,7 +74,7 @@ export class GameContext {
       });
     }
     this.player = options.player ?? new PlayerData(saved);
-    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig);
+    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
     });
@@ -83,6 +86,7 @@ export class GameContext {
     this.mind = new MindService(this, this.rewardProvider);
     this.idle = new IdleService(this, { clock: options.clock });
     this.work = new WorkService(this);
+    this.sect = new SectService(this);
   }
 
   public syncPlayerWorkers(): void {

@@ -16,9 +16,23 @@ export interface EconomyConfig {
   readonly cultivationRewards?: readonly number[];
 }
 export interface GameConfig { readonly board: Readonly<{ columns: number; rows: number }>; }
+export type SectId = 'PRIVATE' | 'FOREIGN' | 'STATE' | 'BIG_TECH';
+export interface SectModifiers {
+  readonly salaryMultiplier: number;
+  readonly cultivationMultiplier: number;
+  readonly mindMultiplier: number;
+  readonly performanceMultiplier: number;
+}
+export interface SectConfig {
+  readonly id: SectId;
+  readonly name: string;
+  readonly modifiers: SectModifiers;
+}
+export interface SectBundle { readonly sects: readonly SectConfig[]; }
 export interface ConfigBundle {
   readonly worker: WorkerConfig;
   readonly career?: CareerConfig;
   readonly economy: EconomyConfig;
   readonly game: GameConfig;
+  readonly sect?: SectBundle;
 }

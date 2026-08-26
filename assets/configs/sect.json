@@ -1,0 +1,8 @@
+{
+  "sects": [
+    { "id": "PRIVATE", "name": "私企", "modifiers": { "salaryMultiplier": 1.2, "cultivationMultiplier": 1, "mindMultiplier": 1, "performanceMultiplier": 1 } },
+    { "id": "FOREIGN", "name": "外企", "modifiers": { "salaryMultiplier": 1, "cultivationMultiplier": 1.2, "mindMultiplier": 1, "performanceMultiplier": 1 } },
+    { "id": "STATE", "name": "国企", "modifiers": { "salaryMultiplier": 1, "cultivationMultiplier": 1, "mindMultiplier": 1.2, "performanceMultiplier": 1 } },
+    { "id": "BIG_TECH", "name": "大厂", "modifiers": { "salaryMultiplier": 1, "cultivationMultiplier": 1, "mindMultiplier": 1, "performanceMultiplier": 1.2 } }
+  ]
+}

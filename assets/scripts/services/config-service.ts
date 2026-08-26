@@ -1,4 +1,4 @@
-import type { CareerConfig, ConfigBundle, EconomyConfig, GameConfig, WorkerConfig } from '../model/config-types';
+import type { CareerConfig, ConfigBundle, EconomyConfig, GameConfig, SectBundle, WorkerConfig } from '../model/config-types';
 
 export class ConfigValidationError extends Error {
   public constructor(message: string) {
@@ -12,12 +12,14 @@ export class ConfigService {
   public readonly career: CareerConfig;
   public readonly economy: EconomyConfig;
   public readonly game: GameConfig;
+  public readonly sect: SectBundle;
 
   private constructor(config: ConfigBundle) {
     this.worker = deepFreeze(config.worker);
     this.career = deepFreeze(config.career ?? defaultCareerConfig());
     this.economy = deepFreeze(config.economy);
     this.game = deepFreeze(config.game);
+    this.sect = deepFreeze(config.sect ?? defaultSectConfig());
     Object.freeze(this);
   }
 
@@ -26,8 +28,8 @@ export class ConfigService {
     return new ConfigService(raw as ConfigBundle);
   }
 
-  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown): ConfigService {
-    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined });
+  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown): ConfigService {
+    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined });
   }
 }
 
@@ -41,6 +43,26 @@ function validateBundle(raw: unknown): asserts raw is ConfigBundle {
   if (bundle.career !== undefined) validateCareer(bundle.career as Record<string, unknown>);
   validateEconomy(bundle.economy as Record<string, unknown>);
   validateGame(bundle.game as Record<string, unknown>);
+  if (bundle.sect !== undefined) validateSect(bundle.sect as Record<string, unknown>);
+}
+
+function validateSect(sect: Record<string, unknown>): void {
+  if (!Array.isArray(sect.sects) || sect.sects.length !== 4) fail('sect.sects must contain exactly 4 sects');
+  const ids = new Set<string>();
+  (sect.sects as unknown[]).forEach((raw, index) => {
+    requireObject(raw, `sect.sects[${index}]`);
+    const item = raw as Record<string, unknown>;
+    requireString(item.id, `sect.sects[${index}].id`); requireString(item.name, `sect.sects[${index}].name`);
+    if (!['PRIVATE', 'FOREIGN', 'STATE', 'BIG_TECH'].includes(item.id as string)) fail(`sect.sects[${index}].id is invalid`);
+    if (ids.has(item.id as string)) fail(`sect.sects contains duplicate id ${item.id}`); ids.add(item.id as string);
+    requireObject(item.modifiers, `sect.sects[${index}].modifiers`);
+    const modifiers = item.modifiers as Record<string, unknown>;
+    for (const key of ['salaryMultiplier', 'cultivationMultiplier', 'mindMultiplier', 'performanceMultiplier']) {
+      requireNumber(modifiers[key], `sect.sects[${index}].modifiers.${key}`);
+      if ((modifiers[key] as number) < 0) fail(`sect.sects[${index}].modifiers.${key} must be non-negative`);
+    }
+  });
+  for (const id of ['PRIVATE', 'FOREIGN', 'STATE', 'BIG_TECH']) if (!ids.has(id)) fail(`sect.sects is missing ${id}`);
 }
 
 function validateCareer(career: Record<string, unknown>): void {
@@ -126,4 +148,13 @@ function deepFreeze<T>(value: T): T {
 
 function defaultCareerConfig(): CareerConfig {
   return { levels: Array.from({ length: 10 }, (_, index) => ({ level: index + 1, name: `职级${index + 1}`, realm: `境界${index + 1}`, requiredExp: index * 100 })) };
+}
+
+function defaultSectConfig(): SectBundle {
+  return { sects: [
+    { id: 'PRIVATE', name: '私企', modifiers: { salaryMultiplier: 1.2, cultivationMultiplier: 1, mindMultiplier: 1, performanceMultiplier: 1 } },
+    { id: 'FOREIGN', name: '外企', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1.2, mindMultiplier: 1, performanceMultiplier: 1 } },
+    { id: 'STATE', name: '国企', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1, mindMultiplier: 1.2, performanceMultiplier: 1 } },
+    { id: 'BIG_TECH', name: '大厂', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1, mindMultiplier: 1, performanceMultiplier: 1.2 } },
+  ] };
 }
