@@ -22,6 +22,7 @@ import { SectService } from '../services/sect-service';
 import sectConfig from '../../configs/sect.json';
 import talentConfig from '../../configs/talent.json';
 import { TalentService } from '../services/talent-service';
+import { EffectService } from '../services/effect-service';
 
 export interface GameContextOptions {
   readonly board?: MergeBoard;
@@ -51,6 +52,7 @@ export class GameContext {
   public readonly work: WorkService;
   public readonly sect: SectService;
   public readonly talent: TalentService;
+  public readonly effects: EffectService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -92,6 +94,7 @@ export class GameContext {
     this.work = new WorkService(this);
     this.sect = new SectService(this);
     this.talent = new TalentService(this, options.randomProvider ?? undefined);
+    this.effects = new EffectService(this);
   }
 
   public syncPlayerWorkers(): void {
