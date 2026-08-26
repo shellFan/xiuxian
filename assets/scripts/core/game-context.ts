@@ -20,6 +20,8 @@ import { DEFAULT_CLOCK, type Clock } from './clock';
 import { WorkService } from '../services/work-service';
 import { SectService } from '../services/sect-service';
 import sectConfig from '../../configs/sect.json';
+import talentConfig from '../../configs/talent.json';
+import { TalentService } from '../services/talent-service';
 
 export interface GameContextOptions {
   readonly board?: MergeBoard;
@@ -31,6 +33,7 @@ export interface GameContextOptions {
   readonly economyRewards?: readonly number[];
   readonly cultivationRewards?: readonly number[];
   readonly configService?: ConfigService;
+  readonly randomProvider?: import('./random-provider').RandomProvider;
   readonly rewardProvider?: RewardProvider;
   readonly clock?: Clock;
 }
@@ -47,6 +50,7 @@ export class GameContext {
   public readonly idle: IdleService;
   public readonly work: WorkService;
   public readonly sect: SectService;
+  public readonly talent: TalentService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -74,7 +78,7 @@ export class GameContext {
       });
     }
     this.player = options.player ?? new PlayerData(saved);
-    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig);
+    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
     });
@@ -87,6 +91,7 @@ export class GameContext {
     this.idle = new IdleService(this, { clock: options.clock });
     this.work = new WorkService(this);
     this.sect = new SectService(this);
+    this.talent = new TalentService(this, options.randomProvider ?? undefined);
   }
 
   public syncPlayerWorkers(): void {

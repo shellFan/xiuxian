@@ -1,4 +1,4 @@
-import type { CareerConfig, ConfigBundle, EconomyConfig, GameConfig, SectBundle, WorkerConfig } from '../model/config-types';
+import type { CareerConfig, ConfigBundle, EconomyConfig, GameConfig, SectBundle, TalentBundle, WorkerConfig } from '../model/config-types';
 
 export class ConfigValidationError extends Error {
   public constructor(message: string) {
@@ -13,6 +13,7 @@ export class ConfigService {
   public readonly economy: EconomyConfig;
   public readonly game: GameConfig;
   public readonly sect: SectBundle;
+  public readonly talent: TalentBundle;
 
   private constructor(config: ConfigBundle) {
     this.worker = deepFreeze(config.worker);
@@ -20,6 +21,7 @@ export class ConfigService {
     this.economy = deepFreeze(config.economy);
     this.game = deepFreeze(config.game);
     this.sect = deepFreeze(config.sect ?? defaultSectConfig());
+    this.talent = deepFreeze(config.talent ?? defaultTalentConfig());
     Object.freeze(this);
   }
 
@@ -28,8 +30,8 @@ export class ConfigService {
     return new ConfigService(raw as ConfigBundle);
   }
 
-  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown): ConfigService {
-    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined });
+  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown): ConfigService {
+    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined });
   }
 }
 
@@ -44,6 +46,21 @@ function validateBundle(raw: unknown): asserts raw is ConfigBundle {
   validateEconomy(bundle.economy as Record<string, unknown>);
   validateGame(bundle.game as Record<string, unknown>);
   if (bundle.sect !== undefined) validateSect(bundle.sect as Record<string, unknown>);
+  if (bundle.talent !== undefined) validateTalent(bundle.talent as Record<string, unknown>);
+}
+
+function validateTalent(talent: Record<string, unknown>): void {
+  if (!Array.isArray(talent.talents) || talent.talents.length < 6) fail('talent.talents must contain at least 6 talents');
+  const ids = new Set<string>();
+  (talent.talents as unknown[]).forEach((raw, index) => {
+    requireObject(raw, `talent.talents[${index}]`);
+    const item = raw as Record<string, unknown>;
+    requireString(item.id, `talent.talents[${index}].id`);
+    if (ids.has(item.id as string)) fail(`talent.talents contains duplicate id ${item.id}`);
+    ids.add(item.id as string);
+    requireString(item.name, `talent.talents[${index}].name`);
+    requireString(item.description, `talent.talents[${index}].description`);
+  });
 }
 
 function validateSect(sect: Record<string, unknown>): void {
@@ -156,5 +173,16 @@ function defaultSectConfig(): SectBundle {
     { id: 'FOREIGN', name: '外企', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1.2, mindMultiplier: 1, performanceMultiplier: 1 } },
     { id: 'STATE', name: '国企', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1, mindMultiplier: 1.2, performanceMultiplier: 1 } },
     { id: 'BIG_TECH', name: '大厂', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1, mindMultiplier: 1, performanceMultiplier: 1.2 } },
+  ] };
+}
+
+function defaultTalentConfig(): TalentBundle {
+  return { talents: [
+    { id: 'HARD_WORKER', name: '加班狂魔', description: '勤能补拙，修行与工作皆有收获。' },
+    { id: 'SLACKER', name: '摸鱼大师', description: '懂得休息，摸鱼时也能积攒心境。' },
+    { id: 'LUCKY_STAR', name: '福星高照', description: '机缘深厚，合成时常有惊喜。' },
+    { id: 'WISDOM', name: '悟性超凡', description: '一点就通，修炼效率更高。' },
+    { id: 'IRON_WILL', name: '铁骨铮铮', description: '意志坚定，不惧职场磨砺。' },
+    { id: 'SOCIAL_BUTTERFLY', name: '人脉通天', description: '广结善缘，处世游刃有余。' },
   ] };
 }

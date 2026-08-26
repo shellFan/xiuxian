@@ -29,10 +29,17 @@ export interface SectConfig {
   readonly modifiers: SectModifiers;
 }
 export interface SectBundle { readonly sects: readonly SectConfig[]; }
+export interface TalentConfig {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+}
+export interface TalentBundle { readonly talents: readonly TalentConfig[]; }
 export interface ConfigBundle {
   readonly worker: WorkerConfig;
   readonly career?: CareerConfig;
   readonly economy: EconomyConfig;
   readonly game: GameConfig;
   readonly sect?: SectBundle;
+  readonly talent?: TalentBundle;
 }

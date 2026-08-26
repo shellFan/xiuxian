@@ -1,0 +1,10 @@
+{
+  "talents": [
+    { "id": "HARD_WORKER", "name": "加班狂魔", "description": "勤能补拙，修行与工作皆有收获。" },
+    { "id": "SLACKER", "name": "摸鱼大师", "description": "懂得休息，摸鱼时也能积攒心境。" },
+    { "id": "LUCKY_STAR", "name": "福星高照", "description": "机缘深厚，合成时常有惊喜。" },
+    { "id": "WISDOM", "name": "悟性超凡", "description": "一点就通，修炼效率更高。" },
+    { "id": "IRON_WILL", "name": "铁骨铮铮", "description": "意志坚定，不惧职场磨砺。" },
+    { "id": "SOCIAL_BUTTERFLY", "name": "人脉通天", "description": "广结善缘，处世游刃有余。" }
+  ]
+}

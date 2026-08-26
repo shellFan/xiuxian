@@ -42,5 +42,16 @@ function testRejectsIncompleteMergeRewards(): void {
       (error: unknown) => error instanceof ConfigValidationError && error.message.includes('5 rewards'));
   }
 }
-testLoadsValidatedConfig(); testRejectsMissingConfig(); testRejectsMissingField(); testRejectsDuplicateAndIllegalLevels(); testRejectsIncompleteMergeRewards();
+function testValidatesTalentConfiguration(): void {
+  const talent = { talents: [
+    { id: 'A', name: '甲', description: '甲' }, { id: 'B', name: '乙', description: '乙' },
+    { id: 'C', name: '丙', description: '丙' }, { id: 'D', name: '丁', description: '丁' },
+    { id: 'E', name: '戊', description: '戊' }, { id: 'F', name: '己', description: '己' },
+  ] };
+  const service = ConfigService.load({ ...validConfig, talent });
+  assert.equal(service.talent.talents.length, 6);
+  assert.throws(() => ConfigService.load({ ...validConfig, talent: { talents: talent.talents.slice(0, 5) } }), /at least 6/);
+  assert.throws(() => ConfigService.load({ ...validConfig, talent: { talents: [...talent.talents.slice(0, 5), { ...talent.talents[0], id: 'B' }] } }), /duplicate id B/);
+}
+testLoadsValidatedConfig(); testRejectsMissingConfig(); testRejectsMissingField(); testRejectsDuplicateAndIllegalLevels(); testRejectsIncompleteMergeRewards(); testValidatesTalentConfiguration();
 console.log('config tests passed');
