@@ -1,0 +1,232 @@
+{
+  "events": [
+    {
+      "id": "EVENT_BOSS_PROMISE",
+      "type": "CHOICE",
+      "title": "老板画饼",
+      "description": "老板端着枸杞茶拍你肩膀：“好好干，等公司上市，你们都是元老，期权拿到手软。”",
+      "choices": [
+        { "id": "BELIEVE", "text": "相信老板的饼", "effects": { "cultivation": 15, "mind": -8 } },
+        { "id": "NOD", "text": "熟练点头敷衍", "effects": { "cultivation": 5, "mind": 3 } }
+      ]
+    },
+    {
+      "id": "EVENT_REQUIREMENT_CHANGED",
+      "type": "NEGATIVE",
+      "title": "需求又改了",
+      "description": "产品经理第 7 次甩来原型图：“就改一点点，不影响你进度吧？”修仙进度被迫回退。",
+      "effects": { "performance": -5, "mind": -10, "cultivation": -5 }
+    },
+    {
+      "id": "EVENT_P0_INCIDENT",
+      "type": "NEGATIVE",
+      "title": "P0事故",
+      "description": "凌晨告警炸了，核心链路雪崩。你顶着黑眼圈抢修，保住修为，但心境受损。",
+      "effects": { "salary": 20, "performance": 5, "cultivation": 10, "mind": -15 }
+    },
+    {
+      "id": "EVENT_PRODUCTION_EXPLODED",
+      "type": "NEGATIVE",
+      "title": "线上炸了",
+      "description": "线上服务全线飘红，用户投诉刷屏。你疯狂回滚，修为小涨，道心大跌。",
+      "effects": { "cultivation": 8, "mind": -12, "performance": 3 }
+    },
+    {
+      "id": "EVENT_COLLEAGUE_RESIGNS",
+      "type": "NEGATIVE",
+      "title": "同事跑路",
+      "description": "隔壁老王提桶跑路，他的活全堆到你头上。修为没涨，心境先崩。",
+      "effects": { "performance": -8, "mind": -8, "cultivation": -3 }
+    },
+    {
+      "id": "EVENT_BOSS_RESIGNS",
+      "type": "RARE",
+      "title": "老板跑路",
+      "description": "老板连夜卷款跑路，公司群一夜解散。你懵了，好在修为还在。",
+      "effects": { "mind": -20, "performance": -5, "cultivation": -5 }
+    },
+    {
+      "id": "EVENT_SUDDEN_TEAM_BUILDING",
+      "type": "CHOICE",
+      "title": "突然团建",
+      "description": "周五下午突然通知团建，不去扣绩效。你去还是不去？",
+      "choices": [
+        { "id": "JOIN", "text": "积极参加", "effects": { "mind": 8, "performance": 3 } },
+        { "id": "SLACK", "text": "摸鱼划水", "effects": { "mind": 3, "performance": -2 } }
+      ]
+    },
+    {
+      "id": "EVENT_MANDATORY_WEEKLY_REPORT",
+      "type": "NEGATIVE",
+      "title": "强制周报",
+      "description": "周报模板又加三页，还强制抄送全员。你的修行时间被无情挤占。",
+      "effects": { "mind": -6, "cultivation": -4 }
+    },
+    {
+      "id": "EVENT_PERFORMANCE_325",
+      "type": "NEGATIVE",
+      "title": "绩效3.25",
+      "description": "绩效评级出来了，你喜提 3.25。晋升无望，年终打折。",
+      "effects": { "performance": -15, "mind": -10, "salary": -10 }
+    },
+    {
+      "id": "EVENT_YEAR_END_BONUS_CANCELLED",
+      "type": "NEGATIVE",
+      "title": "年终奖取消",
+      "description": "年会抽奖一等奖是“感谢信”，年终奖因“业绩承压”取消。",
+      "effects": { "salary": -30, "mind": -15 }
+    },
+    {
+      "id": "EVENT_FINANCING_SUCCESS",
+      "type": "POSITIVE",
+      "title": "融资成功",
+      "description": "公司官宣完成 C 轮融资，估值翻倍，期权终于有点盼头。",
+      "effects": { "salary": 20, "mind": 10, "performance": 5 }
+    },
+    {
+      "id": "EVENT_COMPANY_IPO",
+      "type": "RARE",
+      "title": "公司上市",
+      "description": "敲钟了！公司股票代码亮起，元老们的期权一夜纸面富贵。道心大悦。",
+      "effects": { "salary": 50, "mind": 20, "performance": 10, "cultivation": 20 }
+    },
+    {
+      "id": "EVENT_PARACHUTED_LEADER",
+      "type": "CHOICE",
+      "title": "空降领导",
+      "description": "总部空降一位 VP，第一把火就烧向你负责的项目。你如何应对？",
+      "choices": [
+        { "id": "REPORT", "text": "主动汇报", "effects": { "performance": 5, "mind": -3 } },
+        { "id": "OBSERVE", "text": "低调观察", "effects": { "mind": 2, "cultivation": 3 } }
+      ]
+    },
+    {
+      "id": "EVENT_BOSS_RELATIVE",
+      "type": "CHOICE",
+      "title": "老板亲戚入职",
+      "description": "老板的远房表弟空降你们组，活不干、脾气大。你咋处？",
+      "choices": [
+        { "id": "MENTOR", "text": "佛系带飞", "effects": { "mind": -5, "performance": 5 } },
+        { "id": "DISTANCE", "text": "划清界限", "effects": { "mind": 3, "performance": -3 } }
+      ]
+    },
+    {
+      "id": "EVENT_DEPARTMENT_LAYOFF",
+      "type": "NEGATIVE",
+      "title": "部门裁员",
+      "description": "一封全员邮件宣布裁员 30%，幸存者背负双倍 KPI。你暂时留下，但道心受损。",
+      "effects": { "performance": -10, "mind": -12, "cultivation": -5 }
+    },
+    {
+      "id": "EVENT_AGE_35_OPTIMIZATION",
+      "type": "NEGATIVE",
+      "title": "35岁优化",
+      "description": "“人到中年，性价比不足。”HR 谈话暗示你已进入优化名单。",
+      "effects": { "mind": -18, "performance": -8, "salary": -15 }
+    },
+    {
+      "id": "EVENT_HR_MEETING",
+      "type": "CHOICE",
+      "title": "HR约谈",
+      "description": "HR 约你“聊聊职业规划”，咖啡香里藏着刀。你如何接招？",
+      "choices": [
+        { "id": "OPEN", "text": "坦诚相待", "effects": { "mind": -3, "performance": 3 } },
+        { "id": "FORMAL", "text": "官话敷衍", "effects": { "mind": 2, "performance": -2 } }
+      ]
+    },
+    {
+      "id": "EVENT_MIDNIGHT_CALL",
+      "type": "NEGATIVE",
+      "title": "凌晨电话",
+      "description": "凌晨两点，运维电话炸醒你：“线上又挂了，快来！”道心当场裂开。",
+      "effects": { "mind": -14, "cultivation": 5, "performance": 4 }
+    },
+    {
+      "id": "EVENT_WEEKEND_RELEASE",
+      "type": "CHOICE",
+      "title": "周末上线",
+      "description": "版本必须周末上线，你被安排值班。去现场还是远程摸鱼？",
+      "choices": [
+        { "id": "ONSITE", "text": "现场值守", "effects": { "performance": 6, "mind": -6, "salary": 8 } },
+        { "id": "REMOTE", "text": "远程待命", "effects": { "mind": -2, "performance": 2 } }
+      ]
+    },
+    {
+      "id": "EVENT_CLIENT_CHANGES_REQUIREMENT",
+      "type": "NEGATIVE",
+      "title": "客户临时改需求",
+      "description": "交付前夜，客户发来语音：“这个需求我们想改一下。”你的修为回退。",
+      "effects": { "performance": -6, "mind": -8, "cultivation": -4 }
+    },
+    {
+      "id": "EVENT_PROJECT_DELAYED",
+      "type": "NEGATIVE",
+      "title": "项目延期",
+      "description": "联调不顺，里程碑再次延期。KPI 进度条纹丝不动，你有些焦虑。",
+      "effects": { "mind": -7, "performance": -4, "cultivation": -3 }
+    },
+    {
+      "id": "EVENT_PM_MISSING",
+      "type": "NEGATIVE",
+      "title": "产品经理失踪",
+      "description": "需求评审日，产品经理人间蒸发。需求黑洞让你空耗修行时光。",
+      "effects": { "mind": -5, "cultivation": -5 }
+    },
+    {
+      "id": "EVENT_SERVER_CRASHED",
+      "type": "NEGATIVE",
+      "title": "服务器炸了",
+      "description": "机房空调故障，服务器集体宕机。你手忙脚乱重启，道心受损但修为小涨。",
+      "effects": { "cultivation": 6, "mind": -10, "performance": 2 }
+    },
+    {
+      "id": "EVENT_SLOW_QUERY",
+      "type": "NEGATIVE",
+      "title": "数据库慢查询",
+      "description": "一条没走索引的 SQL 把数据库 CPU 打满，接口全部超时。你优化了它。",
+      "effects": { "cultivation": 7, "mind": -5, "performance": 3 }
+    },
+    {
+      "id": "EVENT_EMERGENCY_ROLLBACK",
+      "type": "NEGATIVE",
+      "title": "线上紧急回滚",
+      "description": "新版本引入致命 bug，你秒级回滚救场。惊魂未定，道心下挫。",
+      "effects": { "mind": -9, "cultivation": 5, "performance": 4 }
+    },
+    {
+      "id": "EVENT_COLLEAGUE_LEAVE",
+      "type": "POSITIVE",
+      "title": "同事请假",
+      "description": "同事休年假，分给你那部分活儿也一起暂停。你难得清闲，偷得半日修行。",
+      "effects": { "mind": 8, "cultivation": 4 }
+    },
+    {
+      "id": "EVENT_AFTERNOON_TEA",
+      "type": "POSITIVE",
+      "title": "下午茶",
+      "description": "行政小姐姐推来一车奶茶点心，全场欢呼。一口下肚，道心回满。",
+      "effects": { "mind": 12, "performance": 2 }
+    },
+    {
+      "id": "EVENT_LEADER_BUSINESS_TRIP",
+      "type": "POSITIVE",
+      "title": "领导出差",
+      "description": "直属领导飞去总部开会，一周没人盯着你。自由的气息让道心舒展。",
+      "effects": { "mind": 10, "cultivation": 5 }
+    },
+    {
+      "id": "EVENT_PROJECT_BONUS",
+      "type": "POSITIVE",
+      "title": "项目奖金",
+      "description": "项目顺利交付，老板一高兴发了专项奖金。钱包和绩效双丰收。",
+      "effects": { "salary": 30, "performance": 8 }
+    },
+    {
+      "id": "EVENT_LEAVE_EARLY",
+      "type": "EASTER_EGG",
+      "title": "提前下班",
+      "description": "奇迹发生了——今天竟然没人找你，你准点溜了！夕阳很美，道心大悦。",
+      "effects": { "mind": 15, "cultivation": 5 }
+    }
+  ]
+}

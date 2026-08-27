@@ -1,4 +1,4 @@
-import type { CareerConfig, ConfigBundle, EconomyConfig, GameConfig, SectBundle, TalentBundle, WorkerConfig } from '../model/config-types';
+import type { CareerConfig, CareerEventBundle, ConfigBundle, EconomyConfig, GameConfig, SectBundle, TalentBundle, WorkerConfig } from '../model/config-types';
 
 export class ConfigValidationError extends Error {
   public constructor(message: string) {
@@ -14,6 +14,7 @@ export class ConfigService {
   public readonly game: GameConfig;
   public readonly sect: SectBundle;
   public readonly talent: TalentBundle;
+  public readonly careerEvents: CareerEventBundle;
 
   private constructor(config: ConfigBundle) {
     this.worker = deepFreeze(config.worker);
@@ -22,6 +23,7 @@ export class ConfigService {
     this.game = deepFreeze(config.game);
     this.sect = deepFreeze(config.sect ?? defaultSectConfig());
     this.talent = deepFreeze(config.talent ?? defaultTalentConfig());
+    this.careerEvents = deepFreeze(config.careerEvents ?? { events: [] });
     Object.freeze(this);
   }
 
@@ -30,8 +32,8 @@ export class ConfigService {
     return new ConfigService(raw as ConfigBundle);
   }
 
-  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown): ConfigService {
-    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined });
+  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown, careerEvents?: unknown): ConfigService {
+    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined, careerEvents: careerEvents as CareerEventBundle | undefined });
   }
 }
 
@@ -47,6 +49,52 @@ function validateBundle(raw: unknown): asserts raw is ConfigBundle {
   validateGame(bundle.game as Record<string, unknown>);
   if (bundle.sect !== undefined) validateSect(bundle.sect as Record<string, unknown>);
   if (bundle.talent !== undefined) validateTalent(bundle.talent as Record<string, unknown>);
+  if (bundle.careerEvents !== undefined) validateCareerEvents(bundle.careerEvents as Record<string, unknown>);
+}
+
+const VALID_CAREER_EVENT_TYPES = ['POSITIVE', 'NEGATIVE', 'CHOICE', 'RARE', 'EASTER_EGG'];
+
+function validateCareerEvents(bundle: Record<string, unknown>): void {
+  if (!Array.isArray(bundle.events)) fail('careerEvents.events must be an array');
+  const ids = new Set<string>();
+  (bundle.events as unknown[]).forEach((raw, index) => {
+    requireObject(raw, `careerEvents.events[${index}]`);
+    const event = raw as Record<string, unknown>;
+    requireString(event.id, `careerEvents.events[${index}].id`);
+    if (ids.has(event.id as string)) fail(`careerEvents.events contains duplicate id ${event.id}`);
+    ids.add(event.id as string);
+    if (typeof event.type !== 'string' || !VALID_CAREER_EVENT_TYPES.includes(event.type)) fail(`careerEvents.events[${index}].type is invalid`);
+    requireString(event.title, `careerEvents.events[${index}].title`);
+    requireString(event.description, `careerEvents.events[${index}].description`);
+    const hasChoices = Array.isArray(event.choices) && (event.choices as unknown[]).length > 0;
+    if (hasChoices) {
+      const choices = event.choices as unknown[];
+      if (choices.length < 2) fail(`careerEvents.events[${index}].choices must contain at least 2 choices`);
+      const choiceIds = new Set<string>();
+      choices.forEach((rawChoice, choiceIndex) => {
+        requireObject(rawChoice, `careerEvents.events[${index}].choices[${choiceIndex}]`);
+        const choice = rawChoice as Record<string, unknown>;
+        requireString(choice.id, `careerEvents.events[${index}].choices[${choiceIndex}].id`);
+        if (choiceIds.has(choice.id as string)) fail(`careerEvents.events[${index}].choices contains duplicate id ${choice.id}`);
+        choiceIds.add(choice.id as string);
+        requireString(choice.text, `careerEvents.events[${index}].choices[${choiceIndex}].text`);
+        requireObject(choice.effects, `careerEvents.events[${index}].choices[${choiceIndex}].effects`);
+        for (const key of ['salary', 'performance', 'cultivation', 'mind']) {
+          if (choice.effects[key] !== undefined && !Number.isSafeInteger(choice.effects[key])) fail(`careerEvents.events[${index}].choices[${choiceIndex}].effects.${key} must be a safe integer`);
+        }
+      });
+    } else {
+      if (!isPlainObject(event.effects)) fail(`careerEvents.events[${index}] must define either choices (>=2) or a valid effects object`);
+      const effects = event.effects as Record<string, unknown>;
+      for (const key of ['salary', 'performance', 'cultivation', 'mind']) {
+        if (effects[key] !== undefined && !Number.isSafeInteger(effects[key])) fail(`careerEvents.events[${index}].effects.${key} must be a safe integer`);
+      }
+    }
+  });
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
 function validateTalent(talent: Record<string, unknown>): void {

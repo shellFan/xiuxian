@@ -35,6 +35,17 @@ export interface TalentConfig {
   readonly description: string;
 }
 export interface TalentBundle { readonly talents: readonly TalentConfig[]; }
+export type CareerEventType = 'POSITIVE' | 'NEGATIVE' | 'CHOICE' | 'RARE' | 'EASTER_EGG';
+export interface CareerEventChoice { readonly id: string; readonly text: string; readonly effects: import('./game-effect').GameEffect; }
+export interface CareerEventConfig {
+  readonly id: string;
+  readonly type: CareerEventType;
+  readonly title: string;
+  readonly description: string;
+  readonly effects?: import('./game-effect').GameEffect;
+  readonly choices?: readonly CareerEventChoice[];
+}
+export interface CareerEventBundle { readonly events: readonly CareerEventConfig[]; }
 export interface ConfigBundle {
   readonly worker: WorkerConfig;
   readonly career?: CareerConfig;
@@ -42,4 +53,5 @@ export interface ConfigBundle {
   readonly game: GameConfig;
   readonly sect?: SectBundle;
   readonly talent?: TalentBundle;
+  readonly careerEvents?: CareerEventBundle;
 }

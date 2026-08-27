@@ -50,8 +50,10 @@ function calculateNext(previous: GameSaveData, effect: GameEffect, maxMind: numb
 
 function addNonNegative(current: number, delta: number, name: string): number {
   const next = current + delta;
-  if (!Number.isSafeInteger(next) || next < 0) throw new Error(`Invalid ${name} effect`);
-  return next;
+  if (!Number.isSafeInteger(next)) throw new Error(`Invalid ${name} effect`);
+  // Resources cannot drop below zero; floor instead of failing so that subtractive
+  // career-event effects (TASK-029) never crash event resolution when a resource is low.
+  return next < 0 ? 0 : next;
 }
 
 function applySaveData(player: GameContext['player'], data: GameSaveData): void {

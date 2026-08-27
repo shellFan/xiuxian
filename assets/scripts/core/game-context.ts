@@ -21,8 +21,10 @@ import { WorkService } from '../services/work-service';
 import { SectService } from '../services/sect-service';
 import sectConfig from '../../configs/sect.json';
 import talentConfig from '../../configs/talent.json';
+import careerEventsConfig from '../../configs/career-events.json';
 import { TalentService } from '../services/talent-service';
 import { EffectService } from '../services/effect-service';
+import { CareerEventService } from '../services/career-event-service';
 
 export interface GameContextOptions {
   readonly board?: MergeBoard;
@@ -37,6 +39,7 @@ export interface GameContextOptions {
   readonly randomProvider?: import('./random-provider').RandomProvider;
   readonly rewardProvider?: RewardProvider;
   readonly clock?: Clock;
+  readonly careerEventClock?: Clock;
 }
 
 export class GameContext {
@@ -53,6 +56,7 @@ export class GameContext {
   public readonly sect: SectService;
   public readonly talent: TalentService;
   public readonly effects: EffectService;
+  public readonly careerEvents: CareerEventService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -80,7 +84,7 @@ export class GameContext {
       });
     }
     this.player = options.player ?? new PlayerData(saved);
-    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig);
+    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
     });
@@ -95,6 +99,7 @@ export class GameContext {
     this.sect = new SectService(this);
     this.talent = new TalentService(this, options.randomProvider ?? undefined);
     this.effects = new EffectService(this);
+    this.careerEvents = new CareerEventService(this, { clock: options.careerEventClock ?? options.clock, randomProvider: options.randomProvider });
   }
 
   public syncPlayerWorkers(): void {

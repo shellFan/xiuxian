@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 import { ConfigService, ConfigValidationError } from '../../assets/scripts/services/config-service';
 import type { ConfigBundle } from '../../assets/scripts/model/config-types';
+import careerEvents from '../../assets/configs/career-events.json';
 
 const validConfig: ConfigBundle = {
   worker: { levels: [
@@ -53,5 +54,17 @@ function testValidatesTalentConfiguration(): void {
   assert.throws(() => ConfigService.load({ ...validConfig, talent: { talents: talent.talents.slice(0, 5) } }), /at least 6/);
   assert.throws(() => ConfigService.load({ ...validConfig, talent: { talents: [...talent.talents.slice(0, 5), { ...talent.talents[0], id: 'B' }] } }), /duplicate id B/);
 }
-testLoadsValidatedConfig(); testRejectsMissingConfig(); testRejectsMissingField(); testRejectsDuplicateAndIllegalLevels(); testRejectsIncompleteMergeRewards(); testValidatesTalentConfiguration();
+function testValidatesCareerEventsBundle(): void {
+  const service = ConfigService.loadFromJson(
+    { levels: Array.from({ length: 6 }, (_, index) => ({ level: index + 1, name: `L${index + 1}`, salary: 1 })) },
+    { mergeRewards: [1, 2, 3, 4, 5] },
+    { board: { columns: 4, rows: 4 } },
+    undefined, undefined, undefined, careerEvents,
+  );
+  assert.equal(service.careerEvents.events.length, 30);
+  assert.ok(service.careerEvents.events.every((event) =>
+    ['POSITIVE', 'NEGATIVE', 'CHOICE', 'RARE', 'EASTER_EGG'].includes(event.type)));
+  assert.equal(new Set(service.careerEvents.events.map((event) => event.id)).size, 30);
+}
+testLoadsValidatedConfig(); testRejectsMissingConfig(); testRejectsMissingField(); testRejectsDuplicateAndIllegalLevels(); testRejectsIncompleteMergeRewards(); testValidatesTalentConfiguration(); testValidatesCareerEventsBundle();
 console.log('config tests passed');
