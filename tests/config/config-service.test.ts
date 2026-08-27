@@ -66,5 +66,31 @@ function testValidatesCareerEventsBundle(): void {
     ['POSITIVE', 'NEGATIVE', 'CHOICE', 'RARE', 'EASTER_EGG'].includes(event.type)));
   assert.equal(new Set(service.careerEvents.events.map((event) => event.id)).size, 30);
 }
-testLoadsValidatedConfig(); testRejectsMissingConfig(); testRejectsMissingField(); testRejectsDuplicateAndIllegalLevels(); testRejectsIncompleteMergeRewards(); testValidatesTalentConfiguration(); testValidatesCareerEventsBundle();
+function testRejectsChoiceWithoutChoices(): void {
+  assert.throws(() => ConfigService.load({ ...validConfig, careerEvents: { events: [{ id: 'x', type: 'CHOICE', title: 't', description: 'd', choices: [{ id: 'a', text: 'ta', effects: { mind: 1 } }] }] } }),
+    (error: unknown) => error instanceof ConfigValidationError && /CHOICE and must define at least 2 choices/.test(error.message));
+}
+function testRejectsChoiceWithOnlyDirectEffects(): void {
+  assert.throws(() => ConfigService.load({ ...validConfig, careerEvents: { events: [{ id: 'x', type: 'CHOICE', title: 't', description: 'd', effects: { mind: 1 } }] } }),
+    (error: unknown) => error instanceof ConfigValidationError && /CHOICE and must define at least 2 choices/.test(error.message));
+}
+function testRejectsNegativeWithChoices(): void {
+  assert.throws(() => ConfigService.load({ ...validConfig, careerEvents: { events: [{ id: 'x', type: 'NEGATIVE', title: 't', description: 'd', effects: { mind: -1 }, choices: [{ id: 'a', text: 'ta', effects: { mind: 1 } }, { id: 'b', text: 'tb', effects: { mind: 1 } }] }] } }),
+    (error: unknown) => error instanceof ConfigValidationError && /must not define choices/.test(error.message));
+}
+function testRejectsPositiveWithChoices(): void {
+  assert.throws(() => ConfigService.load({ ...validConfig, careerEvents: { events: [{ id: 'x', type: 'POSITIVE', title: 't', description: 'd', effects: { mind: 1 }, choices: [{ id: 'a', text: 'ta', effects: { mind: 1 } }, { id: 'b', text: 'tb', effects: { mind: 1 } }] }] } }),
+    (error: unknown) => error instanceof ConfigValidationError && /must not define choices/.test(error.message));
+}
+function testRejectsUnknownEffectKey(): void {
+  assert.throws(() => ConfigService.load({ ...validConfig, careerEvents: { events: [{ id: 'x', type: 'POSITIVE', title: 't', description: 'd', effects: { mind: 10, gold: 999 } }] } }),
+    (error: unknown) => error instanceof ConfigValidationError && /unknown key gold/.test(error.message));
+  assert.throws(() => ConfigService.load({ ...validConfig, careerEvents: { events: [{ id: 'x', type: 'CHOICE', title: 't', description: 'd', choices: [{ id: 'a', text: 'ta', effects: { mind: 1, gold: 5 } }, { id: 'b', text: 'tb', effects: { mind: 2 } }] }] } }),
+    (error: unknown) => error instanceof ConfigValidationError && /unknown key gold/.test(error.message));
+}
+function testRejectsEmptyEffect(): void {
+  assert.throws(() => ConfigService.load({ ...validConfig, careerEvents: { events: [{ id: 'x', type: 'POSITIVE', title: 't', description: 'd', effects: {} }] } }),
+    (error: unknown) => error instanceof ConfigValidationError && /must not be empty/.test(error.message));
+}
+testLoadsValidatedConfig(); testRejectsMissingConfig(); testRejectsMissingField(); testRejectsDuplicateAndIllegalLevels(); testRejectsIncompleteMergeRewards(); testValidatesTalentConfiguration(); testValidatesCareerEventsBundle(); testRejectsChoiceWithoutChoices(); testRejectsChoiceWithOnlyDirectEffects(); testRejectsNegativeWithChoices(); testRejectsPositiveWithChoices(); testRejectsUnknownEffectKey(); testRejectsEmptyEffect();
 console.log('config tests passed');

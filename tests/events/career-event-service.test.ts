@@ -166,7 +166,7 @@ function testRejectsIllegalCareerEventConfig(): void {
     (error: unknown) => error instanceof ConfigValidationError && /type is invalid/.test(error.message));
   // missing effects and choices
   assert.throws(() => ConfigService.load({ ...baseConfig(), careerEvents: { events: [{ id: 'x', type: 'POSITIVE', title: 't', description: 'd' }] } }),
-    (error: unknown) => error instanceof ConfigValidationError && /effects object/.test(error.message));
+    (error: unknown) => error instanceof ConfigValidationError && /effects must be an object/.test(error.message));
   // duplicate id
   assert.throws(() => ConfigService.load({ ...baseConfig(), careerEvents: { events: [
     { id: 'x', type: 'POSITIVE', title: 't', description: 'd', effects: { mind: 1 } },

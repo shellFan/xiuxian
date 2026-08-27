@@ -53,6 +53,24 @@ function validateBundle(raw: unknown): asserts raw is ConfigBundle {
 }
 
 const VALID_CAREER_EVENT_TYPES = ['POSITIVE', 'NEGATIVE', 'CHOICE', 'RARE', 'EASTER_EGG'];
+const VALID_EFFECT_KEYS = ['salary', 'performance', 'cultivation', 'mind'];
+
+/**
+ * Unified validation for a GameEffect config object. Only the four known resource
+ * keys are permitted; unknown keys (typos like `gold`) are rejected, and an empty
+ * object is rejected so that a silently-passing no-op effect cannot slip through.
+ * This is config-layer validation only; the EffectService runtime behavior is unchanged.
+ */
+function validateGameEffect(effect: unknown, path: string): void {
+  if (!isPlainObject(effect)) fail(`${path} must be an object`);
+  const record = effect as Record<string, unknown>;
+  const keys = Object.keys(record);
+  if (keys.length === 0) fail(`${path} must not be empty`);
+  for (const key of keys) {
+    if (!VALID_EFFECT_KEYS.includes(key)) fail(`${path} has unknown key ${key}`);
+    if (!Number.isSafeInteger(record[key])) fail(`${path}.${key} must be a safe integer`);
+  }
+}
 
 function validateCareerEvents(bundle: Record<string, unknown>): void {
   if (!Array.isArray(bundle.events)) fail('careerEvents.events must be an array');
@@ -66,10 +84,14 @@ function validateCareerEvents(bundle: Record<string, unknown>): void {
     if (typeof event.type !== 'string' || !VALID_CAREER_EVENT_TYPES.includes(event.type)) fail(`careerEvents.events[${index}].type is invalid`);
     requireString(event.title, `careerEvents.events[${index}].title`);
     requireString(event.description, `careerEvents.events[${index}].description`);
-    const hasChoices = Array.isArray(event.choices) && (event.choices as unknown[]).length > 0;
-    if (hasChoices) {
+    const type = event.type as string;
+    if (type === 'CHOICE') {
+      // CHOICE events are driven by their choices; they must declare at least two
+      // branches and may not rely solely on a top-level effects object.
+      if (!Array.isArray(event.choices) || event.choices.length < 2) {
+        fail(`careerEvents.events[${index}] is CHOICE and must define at least 2 choices`);
+      }
       const choices = event.choices as unknown[];
-      if (choices.length < 2) fail(`careerEvents.events[${index}].choices must contain at least 2 choices`);
       const choiceIds = new Set<string>();
       choices.forEach((rawChoice, choiceIndex) => {
         requireObject(rawChoice, `careerEvents.events[${index}].choices[${choiceIndex}]`);
@@ -78,17 +100,13 @@ function validateCareerEvents(bundle: Record<string, unknown>): void {
         if (choiceIds.has(choice.id as string)) fail(`careerEvents.events[${index}].choices contains duplicate id ${choice.id}`);
         choiceIds.add(choice.id as string);
         requireString(choice.text, `careerEvents.events[${index}].choices[${choiceIndex}].text`);
-        requireObject(choice.effects, `careerEvents.events[${index}].choices[${choiceIndex}].effects`);
-        for (const key of ['salary', 'performance', 'cultivation', 'mind']) {
-          if (choice.effects[key] !== undefined && !Number.isSafeInteger(choice.effects[key])) fail(`careerEvents.events[${index}].choices[${choiceIndex}].effects.${key} must be a safe integer`);
-        }
+        validateGameEffect(choice.effects, `careerEvents.events[${index}].choices[${choiceIndex}].effects`);
       });
     } else {
-      if (!isPlainObject(event.effects)) fail(`careerEvents.events[${index}] must define either choices (>=2) or a valid effects object`);
-      const effects = event.effects as Record<string, unknown>;
-      for (const key of ['salary', 'performance', 'cultivation', 'mind']) {
-        if (effects[key] !== undefined && !Number.isSafeInteger(effects[key])) fail(`careerEvents.events[${index}].effects.${key} must be a safe integer`);
-      }
+      // POSITIVE / NEGATIVE / RARE / EASTER_EGG must declare a top-level effects object
+      // and must NOT use choices.
+      if (Array.isArray(event.choices)) fail(`careerEvents.events[${index}] is ${type} and must not define choices`);
+      validateGameEffect(event.effects, `careerEvents.events[${index}].effects`);
     }
   });
 }
