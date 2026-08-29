@@ -16,6 +16,7 @@ import { CareerService } from '../services/career-service';
 import { MindService } from '../services/mind-service';
 import { MockRewardProvider, type RewardProvider } from '../services/reward-provider';
 import { IdleService } from '../services/idle-service';
+import { OfflineRewardService } from '../services/offline-reward-service';
 import { DEFAULT_CLOCK, type Clock } from './clock';
 import { WorkService } from '../services/work-service';
 import { SectService } from '../services/sect-service';
@@ -58,6 +59,7 @@ export class GameContext {
   public readonly career: CareerService;
   public readonly mind: MindService;
   public readonly idle: IdleService;
+  public readonly offline: OfflineRewardService;
   public readonly work: WorkService;
   public readonly sect: SectService;
   public readonly talent: TalentService;
@@ -104,6 +106,7 @@ export class GameContext {
     this.rewardProvider = options.rewardProvider ?? new MockRewardProvider();
     this.mind = new MindService(this, this.rewardProvider);
     this.idle = new IdleService(this, { clock: options.clock });
+    this.offline = new OfflineRewardService(this, this.idle);
     this.work = new WorkService(this);
     this.sect = new SectService(this);
     this.talent = new TalentService(this, options.randomProvider ?? undefined);

@@ -36,19 +36,12 @@ export class IdleService {
   public settle(settlementId: string): IdleSettlementResult {
     if (typeof settlementId !== 'string' || settlementId.trim() === '') throw new Error('Invalid settlement id');
     if (this.context.player.lastIdleSettlementId === settlementId) return { ...ZERO_RESULT, duplicate: true };
-
-    const now = this.clock.now();
-    const deltaMilliseconds = now - this.context.player.lastSaveTime;
-    if (!Number.isFinite(now) || !Number.isFinite(deltaMilliseconds) || deltaMilliseconds <= 0) {
-      this.context.events.emit('clockAnomaly', { code: 'CLOCK_ANOMALY', now, lastSaveTime: this.context.player.lastSaveTime });
+    const eligible = this.computeEligible();
+    if (eligible.anomaly) {
+      this.context.events.emit('clockAnomaly', { code: 'CLOCK_ANOMALY', now: eligible.now, lastSaveTime: this.context.player.lastSaveTime });
       return ZERO_RESULT;
     }
-
-    const rawSeconds = deltaMilliseconds / 1000;
-    const elapsedSeconds = Math.min(rawSeconds, this.maxOfflineSeconds);
-    const capped = rawSeconds > this.maxOfflineSeconds;
-    const salary = Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600);
-    const cultivationExp = Math.floor(this.rateForBoard(this.cultivationPerHour) * elapsedSeconds / 3600);
+    const { salary, cultivationExp, elapsedSeconds, capped, now } = eligible;
     const previous = {
       salary: this.context.player.salary,
       cultivationExp: this.context.player.cultivationExp,
@@ -77,6 +70,35 @@ export class IdleService {
       this.context.events.emit('gameSaved', { reason: 'idle' });
     } catch { /* UI feedback cannot undo a committed transaction. */ }
     return { salary, cultivationExp, elapsedSeconds, capped, duplicate: false };
+  }
+
+  /** Returns the would-be settlement amounts without granting or persisting (used by the offline popup preview). */
+  public preview(settlementId: string): IdleSettlementResult {
+    if (typeof settlementId !== 'string' || settlementId.trim() === '') throw new Error('Invalid settlement id');
+    if (this.context.player.lastIdleSettlementId === settlementId) return { ...ZERO_RESULT, duplicate: true };
+    const eligible = this.computeEligible();
+    if (eligible.anomaly) return ZERO_RESULT;
+    return { salary: eligible.salary, cultivationExp: eligible.cultivationExp, elapsedSeconds: eligible.elapsedSeconds, capped: eligible.capped, duplicate: false };
+  }
+
+  /** Persists the settlement id (marks the offline reward as claimed) without granting a reward. */
+  public commitSettlement(settlementId: string): void {
+    if (typeof settlementId !== 'string' || settlementId.trim() === '') throw new Error('Invalid settlement id');
+    this.context.saveService.saveIdleSettlement(this.context.player, settlementId, this.clock.now());
+  }
+
+  private computeEligible(): { salary: number; cultivationExp: number; elapsedSeconds: number; capped: boolean; anomaly: boolean; now: number } {
+    const now = this.clock.now();
+    const deltaMilliseconds = now - this.context.player.lastSaveTime;
+    if (!Number.isFinite(now) || !Number.isFinite(deltaMilliseconds) || deltaMilliseconds <= 0) {
+      return { salary: 0, cultivationExp: 0, elapsedSeconds: 0, capped: false, anomaly: true, now };
+    }
+    const rawSeconds = deltaMilliseconds / 1000;
+    const elapsedSeconds = Math.min(rawSeconds, this.maxOfflineSeconds);
+    const capped = rawSeconds > this.maxOfflineSeconds;
+    const salary = Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600);
+    const cultivationExp = Math.floor(this.rateForBoard(this.cultivationPerHour) * elapsedSeconds / 3600);
+    return { salary, cultivationExp, elapsedSeconds, capped, anomaly: false, now };
   }
 
   private rateForBoard(rates: readonly number[]): number {
