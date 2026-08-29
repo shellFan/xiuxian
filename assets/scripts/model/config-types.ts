@@ -55,6 +55,8 @@ export interface ConfigBundle {
   readonly talent?: TalentBundle;
   readonly careerEvents?: CareerEventBundle;
   readonly kpi?: KpiBundle;
+  readonly office?: OfficeBundle;
+  readonly promotion?: PromotionBundle;
 }
 
 /**
@@ -79,3 +81,18 @@ export interface KpiLevelConfig {
 export interface KpiBundle {
   readonly levels: readonly KpiLevelConfig[];
 }
+
+export interface PromotionOption {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+}
+export interface PromotionBundle { readonly options: readonly PromotionOption[]; }
+
+export interface OfficeConfig {
+  readonly level: number;
+  readonly name: string;
+  readonly minCareerLevel: number;
+  readonly maxCareerLevel: number;
+}
+export interface OfficeBundle { readonly offices: readonly OfficeConfig[]; }

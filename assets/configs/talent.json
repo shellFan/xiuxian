@@ -5,6 +5,7 @@
     { "id": "LUCKY_STAR", "name": "福星高照", "description": "机缘深厚，合成时常有惊喜。" },
     { "id": "WISDOM", "name": "悟性超凡", "description": "一点就通，修炼效率更高。" },
     { "id": "IRON_WILL", "name": "铁骨铮铮", "description": "意志坚定，不惧职场磨砺。" },
-    { "id": "SOCIAL_BUTTERFLY", "name": "人脉通天", "description": "广结善缘，处世游刃有余。" }
+    { "id": "SOCIAL_BUTTERFLY", "name": "人脉通天", "description": "广结善缘，处世游刃有余。" },
+    { "id": "GUANXI", "name": "关系户", "description": "朝中有人，晋升答辩更易通过。" }
   ]
 }

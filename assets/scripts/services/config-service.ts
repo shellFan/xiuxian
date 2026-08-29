@@ -1,4 +1,4 @@
-import type { CareerConfig, CareerEventBundle, ConfigBundle, EconomyConfig, GameConfig, KpiBundle, SectBundle, TalentBundle, WorkerConfig } from '../model/config-types';
+import type { CareerConfig, CareerEventBundle, ConfigBundle, EconomyConfig, GameConfig, KpiBundle, OfficeBundle, PromotionBundle, SectBundle, TalentBundle, WorkerConfig } from '../model/config-types';
 
 export class ConfigValidationError extends Error {
   public constructor(message: string) {
@@ -16,6 +16,8 @@ export class ConfigService {
   public readonly talent: TalentBundle;
   public readonly careerEvents: CareerEventBundle;
   public readonly kpi: KpiBundle;
+  public readonly office: OfficeBundle;
+  public readonly promotion: PromotionBundle;
 
   private constructor(config: ConfigBundle) {
     this.worker = deepFreeze(config.worker);
@@ -26,6 +28,8 @@ export class ConfigService {
     this.talent = deepFreeze(config.talent ?? defaultTalentConfig());
     this.careerEvents = deepFreeze(config.careerEvents ?? { events: [] });
     this.kpi = deepFreeze(config.kpi ?? { levels: [] });
+    this.office = deepFreeze(config.office ?? defaultOfficeConfig());
+    this.promotion = deepFreeze(config.promotion ?? { options: [] });
     Object.freeze(this);
   }
 
@@ -34,8 +38,8 @@ export class ConfigService {
     return new ConfigService(raw as ConfigBundle);
   }
 
-  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown, careerEvents?: unknown, kpi?: unknown): ConfigService {
-    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined, careerEvents: careerEvents as CareerEventBundle | undefined, kpi: kpi as KpiBundle | undefined });
+  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown, careerEvents?: unknown, kpi?: unknown, office?: unknown, promotion?: unknown): ConfigService {
+    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined, careerEvents: careerEvents as CareerEventBundle | undefined, kpi: kpi as KpiBundle | undefined, office: office as OfficeBundle | undefined, promotion: promotion as PromotionBundle | undefined });
   }
 }
 
@@ -53,6 +57,8 @@ function validateBundle(raw: unknown): asserts raw is ConfigBundle {
   if (bundle.talent !== undefined) validateTalent(bundle.talent as Record<string, unknown>);
   if (bundle.careerEvents !== undefined) validateCareerEvents(bundle.careerEvents as Record<string, unknown>);
   if (bundle.kpi !== undefined) validateKpi(bundle.kpi as Record<string, unknown>);
+  if (bundle.office !== undefined) validateOffice(bundle.office as Record<string, unknown>);
+  if (bundle.promotion !== undefined) validatePromotion(bundle.promotion as Record<string, unknown>);
 }
 
 const VALID_CAREER_EVENT_TYPES = ['POSITIVE', 'NEGATIVE', 'CHOICE', 'RARE', 'EASTER_EGG'];
@@ -165,6 +171,44 @@ function validateTalent(talent: Record<string, unknown>): void {
     ids.add(item.id as string);
     requireString(item.name, `talent.talents[${index}].name`);
     requireString(item.description, `talent.talents[${index}].description`);
+  });
+}
+
+function validateOffice(office: Record<string, unknown>): void {
+  if (!Array.isArray(office.offices) || office.offices.length !== 5) fail('office.offices must contain exactly 5 offices');
+  const levels = new Set<number>();
+  const covered = new Set<number>();
+  (office.offices as unknown[]).forEach((raw, index) => {
+    requireObject(raw, `office.offices[${index}]`);
+    const item = raw as Record<string, unknown>;
+    requireNumber(item.level, `office.offices[${index}].level`);
+    const level = item.level as number;
+    if (!Number.isSafeInteger(level) || level < 1 || level > 5) fail(`office.offices[${index}].level must be between 1 and 5`);
+    if (levels.has(level)) fail(`office.offices contains duplicate level ${level}`);
+    levels.add(level);
+    requireString(item.name, `office.offices[${index}].name`);
+    requireNumber(item.minCareerLevel, `office.offices[${index}].minCareerLevel`);
+    requireNumber(item.maxCareerLevel, `office.offices[${index}].maxCareerLevel`);
+    const min = item.minCareerLevel as number;
+    const max = item.maxCareerLevel as number;
+    if (!Number.isSafeInteger(min) || !Number.isSafeInteger(max) || min < 1 || max > 10 || min > max) fail(`office.offices[${index}] has invalid career level range`);
+    for (let career = min; career <= max; career += 1) covered.add(career);
+  });
+  for (let level = 1; level <= 5; level += 1) if (!levels.has(level)) fail(`office.offices is missing level ${level}`);
+  for (let career = 1; career <= 10; career += 1) if (!covered.has(career)) fail(`office.offices does not cover career level ${career}`);
+}
+
+function validatePromotion(promotion: Record<string, unknown>): void {
+  if (!Array.isArray(promotion.options) || promotion.options.length < 3) fail('promotion.options must contain at least 3 options');
+  const ids = new Set<string>();
+  (promotion.options as unknown[]).forEach((raw, index) => {
+    requireObject(raw, `promotion.options[${index}]`);
+    const item = raw as Record<string, unknown>;
+    requireString(item.id, `promotion.options[${index}].id`);
+    if (ids.has(item.id as string)) fail(`promotion.options contains duplicate id ${item.id}`);
+    ids.add(item.id as string);
+    requireString(item.name, `promotion.options[${index}].name`);
+    requireString(item.description, `promotion.options[${index}].description`);
   });
 }
 
@@ -289,5 +333,15 @@ function defaultTalentConfig(): TalentBundle {
     { id: 'WISDOM', name: '悟性超凡', description: '一点就通，修炼效率更高。' },
     { id: 'IRON_WILL', name: '铁骨铮铮', description: '意志坚定，不惧职场磨砺。' },
     { id: 'SOCIAL_BUTTERFLY', name: '人脉通天', description: '广结善缘，处世游刃有余。' },
+  ] };
+}
+
+function defaultOfficeConfig(): OfficeBundle {
+  return { offices: [
+    { level: 1, name: '共享工位', minCareerLevel: 1, maxCareerLevel: 2 },
+    { level: 2, name: '普通工位', minCareerLevel: 3, maxCareerLevel: 4 },
+    { level: 3, name: '隔断工位', minCareerLevel: 5, maxCareerLevel: 6 },
+    { level: 4, name: '主管办公室', minCareerLevel: 7, maxCareerLevel: 8 },
+    { level: 5, name: '经理办公室', minCareerLevel: 9, maxCareerLevel: 10 },
   ] };
 }

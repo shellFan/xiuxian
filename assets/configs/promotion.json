@@ -1,0 +1,19 @@
+{
+  "options": [
+    {
+      "id": "PPT",
+      "name": "PPT符箓",
+      "description": "用精美PPT镇住评委"
+    },
+    {
+      "id": "DATA",
+      "name": "数据大法",
+      "description": "用业务数据证明价值"
+    },
+    {
+      "id": "BLAME",
+      "name": "甩锅诀",
+      "description": "合理解释项目问题"
+    }
+  ]
+}
