@@ -59,7 +59,9 @@ export class KpiService {
 
   public isCurrentKpiCompleted(): boolean {
     const requirements = this.getCurrentRequirements();
-    if (requirements.length === 0) return true;
+    // A missing or empty KPI config (e.g. max career level with no promotion targets)
+    // MUST NOT be treated as "promotion ready". No config means not completed.
+    if (requirements.length === 0) return false;
     return requirements.every((requirement) => this.isRequirementCompleted(requirement));
   }
 

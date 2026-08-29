@@ -225,6 +225,16 @@ function testCareerEventResolvesIncrementsKpi(): void {
   assert.equal(context.player.kpiProgress.EVENT_RESOLVED, 1);
 }
 
+function testMaxLevelNoKpiIsNotCompleted(): void {
+  const context = createContext();
+  // Career Level 10 is the max level and has no promotion KPI in config.
+  // A missing/empty KPI config must NOT be treated as "promotion ready".
+  context.player.careerLevel = 10;
+  assert.equal(context.kpi.getCurrentRequirements().length, 0);
+  assert.equal(context.kpi.isCurrentKpiCompleted(), false);
+  assert.equal(context.kpi.getView().allCompleted, false);
+}
+
 testLoadsLevelOneRequirements();
 testMergeIncrementsCounter();
 testFailedMergeDoesNotIncrement();
