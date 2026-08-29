@@ -1,0 +1,76 @@
+{
+  "levels": [
+    {
+      "careerLevel": 1,
+      "requirements": [
+        { "type": "MERGE_COUNT", "target": 3, "description": "合成牛马 3 次" },
+        { "type": "WORK_SECONDS", "target": 300, "description": "累计工作 5 分钟" },
+        { "type": "CULTIVATION", "target": 50, "description": "修为达到 50" }
+      ]
+    },
+    {
+      "careerLevel": 2,
+      "requirements": [
+        { "type": "MERGE_COUNT", "target": 5, "description": "合成牛马 5 次" },
+        { "type": "WORK_SECONDS", "target": 600, "description": "累计工作 10 分钟" },
+        { "type": "CULTIVATION", "target": 120, "description": "修为达到 120" }
+      ]
+    },
+    {
+      "careerLevel": 3,
+      "requirements": [
+        { "type": "MERGE_COUNT", "target": 8, "description": "合成牛马 8 次" },
+        { "type": "WORK_SECONDS", "target": 900, "description": "累计工作 15 分钟" },
+        { "type": "CULTIVATION", "target": 250, "description": "修为达到 250" }
+      ]
+    },
+    {
+      "careerLevel": 4,
+      "requirements": [
+        { "type": "MERGE_COUNT", "target": 12, "description": "合成牛马 12 次" },
+        { "type": "WORK_SECONDS", "target": 1200, "description": "累计工作 20 分钟" },
+        { "type": "CULTIVATION", "target": 400, "description": "修为达到 400" }
+      ]
+    },
+    {
+      "careerLevel": 5,
+      "requirements": [
+        { "type": "MERGE_COUNT", "target": 16, "description": "合成牛马 16 次" },
+        { "type": "WORK_SECONDS", "target": 1500, "description": "累计工作 25 分钟" },
+        { "type": "CULTIVATION", "target": 600, "description": "修为达到 600" }
+      ]
+    },
+    {
+      "careerLevel": 6,
+      "requirements": [
+        { "type": "MERGE_COUNT", "target": 20, "description": "合成牛马 20 次" },
+        { "type": "WORK_SECONDS", "target": 1800, "description": "累计工作 30 分钟" },
+        { "type": "CULTIVATION", "target": 850, "description": "修为达到 850" }
+      ]
+    },
+    {
+      "careerLevel": 7,
+      "requirements": [
+        { "type": "MERGE_COUNT", "target": 25, "description": "合成牛马 25 次" },
+        { "type": "WORK_SECONDS", "target": 2100, "description": "累计工作 35 分钟" },
+        { "type": "CULTIVATION", "target": 1150, "description": "修为达到 1150" }
+      ]
+    },
+    {
+      "careerLevel": 8,
+      "requirements": [
+        { "type": "MERGE_COUNT", "target": 30, "description": "合成牛马 30 次" },
+        { "type": "WORK_SECONDS", "target": 2400, "description": "累计工作 40 分钟" },
+        { "type": "CULTIVATION", "target": 1500, "description": "修为达到 1500" }
+      ]
+    },
+    {
+      "careerLevel": 9,
+      "requirements": [
+        { "type": "MERGE_COUNT", "target": 36, "description": "合成牛马 36 次" },
+        { "type": "WORK_SECONDS", "target": 2700, "description": "累计工作 45 分钟" },
+        { "type": "CULTIVATION", "target": 1900, "description": "修为达到 1900" }
+      ]
+    }
+  ]
+}

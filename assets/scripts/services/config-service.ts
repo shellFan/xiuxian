@@ -1,4 +1,4 @@
-import type { CareerConfig, CareerEventBundle, ConfigBundle, EconomyConfig, GameConfig, SectBundle, TalentBundle, WorkerConfig } from '../model/config-types';
+import type { CareerConfig, CareerEventBundle, ConfigBundle, EconomyConfig, GameConfig, KpiBundle, SectBundle, TalentBundle, WorkerConfig } from '../model/config-types';
 
 export class ConfigValidationError extends Error {
   public constructor(message: string) {
@@ -15,6 +15,7 @@ export class ConfigService {
   public readonly sect: SectBundle;
   public readonly talent: TalentBundle;
   public readonly careerEvents: CareerEventBundle;
+  public readonly kpi: KpiBundle;
 
   private constructor(config: ConfigBundle) {
     this.worker = deepFreeze(config.worker);
@@ -24,6 +25,7 @@ export class ConfigService {
     this.sect = deepFreeze(config.sect ?? defaultSectConfig());
     this.talent = deepFreeze(config.talent ?? defaultTalentConfig());
     this.careerEvents = deepFreeze(config.careerEvents ?? { events: [] });
+    this.kpi = deepFreeze(config.kpi ?? { levels: [] });
     Object.freeze(this);
   }
 
@@ -32,8 +34,8 @@ export class ConfigService {
     return new ConfigService(raw as ConfigBundle);
   }
 
-  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown, careerEvents?: unknown): ConfigService {
-    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined, careerEvents: careerEvents as CareerEventBundle | undefined });
+  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown, careerEvents?: unknown, kpi?: unknown): ConfigService {
+    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined, careerEvents: careerEvents as CareerEventBundle | undefined, kpi: kpi as KpiBundle | undefined });
   }
 }
 
@@ -50,10 +52,12 @@ function validateBundle(raw: unknown): asserts raw is ConfigBundle {
   if (bundle.sect !== undefined) validateSect(bundle.sect as Record<string, unknown>);
   if (bundle.talent !== undefined) validateTalent(bundle.talent as Record<string, unknown>);
   if (bundle.careerEvents !== undefined) validateCareerEvents(bundle.careerEvents as Record<string, unknown>);
+  if (bundle.kpi !== undefined) validateKpi(bundle.kpi as Record<string, unknown>);
 }
 
 const VALID_CAREER_EVENT_TYPES = ['POSITIVE', 'NEGATIVE', 'CHOICE', 'RARE', 'EASTER_EGG'];
 const VALID_EFFECT_KEYS = ['salary', 'performance', 'cultivation', 'mind'];
+const VALID_KPI_TYPES = ['MERGE_COUNT', 'WORK_SECONDS', 'CULTIVATION', 'SALARY_EARNED', 'EVENT_RESOLVED'];
 
 /**
  * Unified validation for a GameEffect config object. Only the four known resource
@@ -113,6 +117,41 @@ function validateCareerEvents(bundle: Record<string, unknown>): void {
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function validateKpi(kpi: Record<string, unknown>): void {
+  if (!Array.isArray(kpi.levels)) fail('kpi.levels must be an array');
+  const levels = kpi.levels as unknown[];
+  const seenLevels = new Set<number>();
+  levels.forEach((raw, index) => {
+    requireObject(raw, `kpi.levels[${index}]`);
+    const level = raw as Record<string, unknown>;
+    requireNumber(level.careerLevel, `kpi.levels[${index}].careerLevel`);
+    const careerLevel = level.careerLevel as number;
+    if (!Number.isSafeInteger(careerLevel) || careerLevel < 1 || careerLevel > 10) {
+      fail(`kpi.levels[${index}].careerLevel must be between 1 and 10`);
+    }
+    if (seenLevels.has(careerLevel)) fail(`kpi.levels contains duplicate careerLevel ${careerLevel}`);
+    seenLevels.add(careerLevel);
+    if (!Array.isArray(level.requirements) || level.requirements.length === 0) {
+      fail(`kpi.levels[${index}].requirements must be a non-empty array`);
+    }
+    const reqs = level.requirements as unknown[];
+    const seenTypes = new Set<string>();
+    reqs.forEach((rawReq, reqIndex) => {
+      requireObject(rawReq, `kpi.levels[${index}].requirements[${reqIndex}]`);
+      const req = rawReq as Record<string, unknown>;
+      requireString(req.type, `kpi.levels[${index}].requirements[${reqIndex}].type`);
+      if (!VALID_KPI_TYPES.includes(req.type as string)) {
+        fail(`kpi.levels[${index}].requirements[${reqIndex}].type is invalid`);
+      }
+      if (seenTypes.has(req.type as string)) fail(`kpi.levels[${index}] contains duplicate requirement type ${req.type}`);
+      seenTypes.add(req.type as string);
+      requireNumber(req.target, `kpi.levels[${index}].requirements[${reqIndex}].target`);
+      const target = req.target as number;
+      if (!Number.isSafeInteger(target) || target <= 0) fail(`kpi.levels[${index}].requirements[${reqIndex}].target must be a positive safe integer`);
+    });
+  });
 }
 
 function validateTalent(talent: Record<string, unknown>): void {

@@ -54,4 +54,28 @@ export interface ConfigBundle {
   readonly sect?: SectBundle;
   readonly talent?: TalentBundle;
   readonly careerEvents?: CareerEventBundle;
+  readonly kpi?: KpiBundle;
+}
+
+/**
+ * KPI identifiers. Only MERGE_COUNT / SALARY_EARNED / EVENT_RESOLVED are stored
+ * in `PlayerData.kpiProgress` (they cannot be derived from existing facts).
+ * WORK_SECONDS reads `PlayerData.workSeconds` and CULTIVATION reads
+ * `PlayerData.cultivationExp` directly, so they must NOT be duplicated into kpiProgress.
+ */
+export type KpiType = 'MERGE_COUNT' | 'WORK_SECONDS' | 'CULTIVATION' | 'SALARY_EARNED' | 'EVENT_RESOLVED';
+
+export interface KpiRequirement {
+  readonly type: KpiType;
+  readonly target: number;
+  readonly description?: string;
+}
+
+export interface KpiLevelConfig {
+  readonly careerLevel: number;
+  readonly requirements: readonly KpiRequirement[];
+}
+
+export interface KpiBundle {
+  readonly levels: readonly KpiLevelConfig[];
 }

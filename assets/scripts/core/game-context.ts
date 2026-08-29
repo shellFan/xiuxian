@@ -23,6 +23,8 @@ import sectConfig from '../../configs/sect.json';
 import talentConfig from '../../configs/talent.json';
 import careerEventsConfig from '../../configs/career-events.json';
 import { TalentService } from '../services/talent-service';
+import { KpiService } from '../services/kpi-service';
+import kpiConfig from '../../configs/kpi.json';
 import { EffectService } from '../services/effect-service';
 import { CareerEventService } from '../services/career-event-service';
 
@@ -57,6 +59,7 @@ export class GameContext {
   public readonly talent: TalentService;
   public readonly effects: EffectService;
   public readonly careerEvents: CareerEventService;
+  public readonly kpi: KpiService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -84,7 +87,7 @@ export class GameContext {
       });
     }
     this.player = options.player ?? new PlayerData(saved);
-    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig);
+    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig,  gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig, kpiConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
     });
@@ -100,6 +103,7 @@ export class GameContext {
     this.talent = new TalentService(this, options.randomProvider ?? undefined);
     this.effects = new EffectService(this);
     this.careerEvents = new CareerEventService(this, { clock: options.careerEventClock ?? options.clock, randomProvider: options.randomProvider });
+    this.kpi = new KpiService(this);
   }
 
   public syncPlayerWorkers(): void {

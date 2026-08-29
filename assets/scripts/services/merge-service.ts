@@ -40,6 +40,7 @@ export class MergeService {
     const workersBefore = this.context.player.workers.map((worker) => ({ ...worker }));
     const salaryBefore = this.context.player.salary;
     const maxWorkerLevelBefore = this.context.player.maxWorkerLevel;
+    const kpiProgressBefore = { ...this.context.player.kpiProgress };
     const mergeId = [left.id, right.id].sort().join(':');
 
     try {
@@ -51,11 +52,14 @@ export class MergeService {
       try {
         salaryReward = this.context.economy.grantMergeReward(mergeId, left.level, { persist: false });
         cultivationReward = this.context.cultivation.grantMergeReward(mergeId, left.level, { persist: false });
+        this.context.kpi?.recordMerge();
+        this.context.kpi?.recordSalaryEarned(salaryReward);
         this.context.saveService.save(this.context.player);
       } catch (error) {
         this.context.economy.rollbackMergeReward(mergeId, salaryReward ?? 0);
         this.context.cultivation.rollbackMergeReward(mergeId, cultivationReward ?? 0);
         this.restore(boardBefore, workersBefore, salaryBefore, maxWorkerLevelBefore);
+        this.context.player.kpiProgress = { ...kpiProgressBefore };
         throw error;
       }
       this.emitFeedback('salaryChanged', { amount: salaryReward, total: this.context.player.salary });

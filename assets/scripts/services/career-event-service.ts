@@ -37,8 +37,15 @@ export class CareerEventService {
     const event = this.pending;
     if (!event || event.id !== eventId) throw new Error('Career event is not pending');
     if (!event.effects) throw new Error(`Career event ${eventId} has no direct effects`);
-    this.context.effects.apply(event.effects);
-    this.pending = undefined;
+    const kpiProgressBefore = { ...this.context.player.kpiProgress };
+    this.context.kpi?.recordEventResolved(event.id);
+    try {
+      this.context.effects.apply(event.effects);
+      this.pending = undefined;
+    } catch (error) {
+      this.context.player.kpiProgress = kpiProgressBefore;
+      throw error;
+    }
   }
 
   /** Resolves a choice event by applying the chosen branch's effects through the unified Effect Engine. */
@@ -48,8 +55,15 @@ export class CareerEventService {
     const choices = event.choices ?? [];
     const choice = choices.find((item) => item.id === choiceId);
     if (!choice) throw new Error(`Unknown choice ${choiceId}`);
-    this.context.effects.apply(choice.effects);
-    this.pending = undefined;
+    const kpiProgressBefore = { ...this.context.player.kpiProgress };
+    this.context.kpi?.recordEventResolved(event.id);
+    try {
+      this.context.effects.apply(choice.effects);
+      this.pending = undefined;
+    } catch (error) {
+      this.context.player.kpiProgress = kpiProgressBefore;
+      throw error;
+    }
   }
 
   private intervalMilliseconds(): number {
