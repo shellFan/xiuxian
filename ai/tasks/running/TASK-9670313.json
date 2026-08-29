@@ -1,0 +1,31 @@
+{
+  "id": "TASK-9670313",
+  "title": "Mock self check",
+  "version": 1,
+  "status": "RUNNING",
+  "priority": "LOW",
+  "createdBy": "check",
+  "assignedTo": "hy3",
+  "reviewer": "codex-sol",
+  "goal": "validate orchestration",
+  "background": "self check",
+  "requirements": [],
+  "acceptanceCriteria": [
+    "mock passes"
+  ],
+  "allowedPaths": [
+    "ai/reports/self-check-*.md"
+  ],
+  "forbiddenPaths": [
+    ".git/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "",
+    "test": "",
+    "lint": ""
+  },
+  "constraints": [],
+  "references": [],
+  "maxReviewRounds": 3
+}
