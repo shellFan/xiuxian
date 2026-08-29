@@ -100,6 +100,8 @@ export class PromotionService {
         this.context.player.careerLevel = newLevel;
         // Reset per-level KPI counters; cumulative facts (workSeconds / cultivationExp) are preserved.
         this.context.kpi.switchLevel(newLevel);
+        // Keep the persisted office mirror consistent with the new career level.
+        this.context.player.officeLevel = this.context.office.getOfficeLevel();
         this.context.player.performance += PERFORMANCE_REWARD;
         this.context.player.promotionFailCount = 0;
         this.context.saveService.save(this.context.player);

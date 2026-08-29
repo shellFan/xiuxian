@@ -1,0 +1,9 @@
+{
+  "offices": [
+    { "level": 1, "name": "共享工位", "minCareerLevel": 1, "maxCareerLevel": 2 },
+    { "level": 2, "name": "普通工位", "minCareerLevel": 3, "maxCareerLevel": 4 },
+    { "level": 3, "name": "隔断工位", "minCareerLevel": 5, "maxCareerLevel": 6 },
+    { "level": 4, "name": "主管办公室", "minCareerLevel": 7, "maxCareerLevel": 8 },
+    { "level": 5, "name": "经理办公室", "minCareerLevel": 9, "maxCareerLevel": 10 }
+  ]
+}
