@@ -42,10 +42,15 @@ export class OfflineRewardService {
     }
     this.claimingDouble = true;
     this.context.rewardProvider.requestReward('OFFLINE_DOUBLE', (granted) => {
-      // Guard against duplicate reward callbacks.
-      if (!granted || this.doubleClaimed) {
+      if (!granted) {
         this.claimingDouble = false;
         onResult(false);
+        return;
+      }
+      // A duplicate provider callback (e.g. a misbehaving ad SDK firing twice) must
+      // not grant the reward a second time nor invoke the result callback again.
+      if (this.doubleClaimed) {
+        this.claimingDouble = false;
         return;
       }
       this.doubleClaimed = true;
