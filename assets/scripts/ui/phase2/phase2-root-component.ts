@@ -58,8 +58,25 @@ export class Phase2Root extends Component {
     this.promotionPopup?.bind(context);
     this.promotionPopup?.bindRetry();
     this.wire();
+    this.subscribe();
     this.selectTab('WORKPLACE');
     this.refreshAll();
+  }
+
+  private subscribe(): void {
+    if (!this.context) return;
+    this.context.events.on('mergeCompleted', this.onPhase2Dirty);
+    this.context.events.on('salaryChanged', this.onPhase2Dirty);
+    this.context.events.on('idleSettled', this.onPhase2Dirty);
+    this.context.events.on('phase2Refresh', this.onPhase2Dirty);
+  }
+
+  public onDestroy(): void {
+    if (!this.context) return;
+    this.context.events.off('mergeCompleted', this.onPhase2Dirty);
+    this.context.events.off('salaryChanged', this.onPhase2Dirty);
+    this.context.events.off('idleSettled', this.onPhase2Dirty);
+    this.context.events.off('phase2Refresh', this.onPhase2Dirty);
   }
 
   private wire(): void {
@@ -94,4 +111,6 @@ export class Phase2Root extends Component {
     this.eventPopup?.render();
     this.promotionPopup?.render();
   }
+
+  private readonly onPhase2Dirty = (): void => { this.refreshAll(); };
 }

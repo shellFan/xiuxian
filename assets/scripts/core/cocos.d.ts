@@ -1,7 +1,13 @@
 declare module 'cc' {
+  export class Node {
+    public getChildByName(name: string): Node | null;
+    public getComponent(type: any): any;
+  }
+
   export class Component {
     protected onLoad(): void;
     protected onDestroy(): void;
+    public readonly node: Node;
   }
 
   export const _decorator: {

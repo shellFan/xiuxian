@@ -53,6 +53,7 @@ export class EventPopup extends Component {
     if (!event) return;
     context.careerEvents.resolve(event.id);
     this.render();
+    context.events.emit('phase2Refresh', { reason: 'event' });
   }
 
   private onChoice(choiceId: string): void {
@@ -62,6 +63,7 @@ export class EventPopup extends Component {
     if (!event) return;
     context.careerEvents.choose(event.id, choiceId);
     this.render();
+    context.events.emit('phase2Refresh', { reason: 'event' });
   }
 
   private set(target: TextLike | undefined, value: string): void {

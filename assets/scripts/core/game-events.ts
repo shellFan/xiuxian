@@ -19,6 +19,7 @@ export interface MergeCompletedEvent {
 export interface SalaryChangedEvent { readonly amount: number; readonly total: number; }
 export interface IdleSettledEvent { readonly settlementId: string; readonly salary: number; readonly cultivationExp: number; readonly elapsedSeconds: number; readonly capped: boolean; }
 export interface ClockAnomalyEvent { readonly code: 'CLOCK_ANOMALY'; readonly now: number; readonly lastSaveTime: number; }
+export interface Phase2RefreshEvent { readonly reason: 'merge' | 'promotion' | 'event' | 'idle' | 'manual'; }
 export interface GameEvents extends Record<string, unknown> {
   readonly workerRecruited: WorkerRecruitedEvent;
   readonly gameSaved: GameSavedEvent;
@@ -27,4 +28,5 @@ export interface GameEvents extends Record<string, unknown> {
   readonly salaryChanged: SalaryChangedEvent;
   readonly idleSettled: IdleSettledEvent;
   readonly clockAnomaly: ClockAnomalyEvent;
+  readonly phase2Refresh: Phase2RefreshEvent;
 }

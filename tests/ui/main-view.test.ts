@@ -196,7 +196,9 @@ test('Main.scene has a consistent node/component reference graph', () => {
   }
   const main = nodes.find((node) => node._name === 'MainView')!;
   assert.equal(main._parent.__id__, 5);
-  assert.equal(main._children.length, 8);
+  // Phase 2 (FIX-01) adds a Phase2Root HUD child under MainView, so there are now 9 children.
+  assert.equal(main._children.length, 9);
+  assert.equal(main._children.some((child: any) => scene[child.__id__]._name === 'Phase2Root'), true);
   assert.equal(scene[5]._children.some((child: any) => child.__id__ === scene.indexOf(main)), true);
   assert.equal(scene.find((item) => item.__type__ === 'MainView')!.titleLabel.__id__, 10);
   const mainComponent = scene.find((item) => item.__type__ === 'MainView')!;
