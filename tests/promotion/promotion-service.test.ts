@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData, type PlayerDataOptions } from '../../assets/scripts/model/player-data';
+import type { GameSaveData } from '../../assets/scripts/model/save-data';
 import { MemoryStorageAdapter, type StorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { FixedRandomProvider } from '../../assets/scripts/core/random-provider';
 import { MockRewardProvider, type RewardProvider } from '../../assets/scripts/services/reward-provider';
@@ -282,6 +283,103 @@ function testDuplicateRetryCallbackOnlyOneToken(): void {
   assert.equal(promotion.retryGranted, true);
 }
 
+// ---------------------------------------------------------------------------
+// Phase 2.2 — Promotion transaction atomicity
+// ---------------------------------------------------------------------------
+class CountingStorageAdapter implements StorageAdapter {
+  public writeCount = 0;
+  public getItem(): string | null { return null; }
+  public setItem(_key: string, _value: string): void { this.writeCount += 1; }
+  public removeItem(): void { /* noop */ }
+}
+
+class FailOnSecondWriteStorageAdapter implements StorageAdapter {
+  public writeCount = 0;
+  public getItem(): string | null { return null; }
+  public setItem(_key: string, _value: string): void {
+    this.writeCount += 1;
+    if (this.writeCount >= 2) throw new Error('second write rejected');
+  }
+  public removeItem(): void { /* noop */ }
+}
+
+class CapturingStorageAdapter implements StorageAdapter {
+  public lastValue: string | null = null;
+  public writeCount = 0;
+  public getItem(): string | null { return null; }
+  public setItem(_key: string, value: string): void { this.lastValue = value; this.writeCount += 1; }
+  public removeItem(): void { /* noop */ }
+}
+
+/** TEST-01: a successful promotion must perform exactly one storage write (no nested Office save). */
+function testPromotionProducesExactlyOneSave(): void {
+  const storage = new CountingStorageAdapter();
+  const player = new PlayerData(readyLevelOne());
+  const context = new GameContext({ player, storage, randomProvider: new FixedRandomProvider(0.5) });
+  assert.equal(storage.writeCount, 0, 'context initialization must not write to storage');
+  context.promotion.promote('PPT'); // success
+  assert.equal(storage.writeCount, 1, 'a successful promotion must perform exactly one storage write');
+}
+
+/** TEST-02: regression guard — if a second save ever exists, the second write must throw and fail the promote. */
+function testNoSecondSaveRegression(): void {
+  const storage = new FailOnSecondWriteStorageAdapter();
+  const player = new PlayerData(readyLevelOne());
+  const context = new GameContext({ player, storage, randomProvider: new FixedRandomProvider(0.5) });
+  const result = context.promotion.promote('PPT'); // success path
+  assert.equal(result.success, true);
+  assert.equal(storage.writeCount, 1, 'only one write occurs; a second would have thrown and failed the promote');
+}
+
+/** TEST-03: the single persisted snapshot is fully consistent — no half-applied promotion state. */
+function testStorageAtomicSnapshot(): void {
+  const storage = new CapturingStorageAdapter();
+  const player = new PlayerData({ ...readyLevelOne(), performance: 5 });
+  const context = new GameContext({ player, storage, randomProvider: new FixedRandomProvider(0.5) });
+  const required = context.career.current().requiredExp;
+  const expectedOverflow = player.cultivationExp - required;
+  context.promotion.promote('PPT');
+  assert.equal(storage.writeCount, 1, 'single atomic write');
+  const saved = JSON.parse(storage.lastValue as string) as GameSaveData;
+  assert.equal(saved.careerLevel, 2, 'new career level persisted');
+  assert.equal(saved.cultivationExp, expectedOverflow, 'cultivation overflow persisted (consistency)');
+  assert.equal(saved.performance, 15, 'performance +10 persisted');
+  assert.equal(saved.promotionFailCount, 0, 'fail count reset persisted');
+  assert.equal(saved.officeLevel, context.office.getOfficeLevel(), 'office mirror synced to new career level');
+  assert.deepEqual(saved.kpiProgress, {}, 'per-level KPI counters reset in the persisted snapshot');
+}
+
+/**
+ * TEST-04: retry token rollback. A failed free attempt (save #1 succeeds) -> granted retry token
+ * -> next successful attempt's save (#2) throws. Player data must roll back AND the already-watched
+ * retry token must survive so the player can retry again (Phase 3 real-ad readiness).
+ */
+function testRetryTokenSurvivesSaveFailure(): void {
+  const storage = new FailOnSecondWriteStorageAdapter();
+  const player = new PlayerData(readyLevelOne());
+  const context = new GameContext({ player, storage, randomProvider: new FixedRandomProvider(0.9) });
+  context.promotion.promote('PPT'); // free attempt fails -> first save succeeds, re-arms retry
+  assert.equal(storage.writeCount, 1);
+  let granted = false;
+  context.promotion.requestRetry((value) => { granted = value; });
+  assert.equal(granted, true, 'retry request granted (mock ad watched)');
+  assert.equal(context.promotion.retryGranted, true, 'token held before the next attempt');
+  // Next attempt succeeds on RNG but its save (the 2nd write) throws.
+  assert.throws(() => context.promotion.promote('PPT'), /second write rejected/);
+  // Player fully rolled back to the pre-attempt state.
+  assert.equal(player.careerLevel, 1);
+  assert.equal(player.performance, 0);
+  assert.equal(player.cultivationExp, 50);
+  // The retry token must NOT be lost: the player watched the ad but the save failed.
+  assert.equal(context.promotion.retryGranted, true, 'retry token survives a save failure');
+  assert.equal(context.promotion.needsRetry(), false, 'token available, no retry-required block');
+  // Once storage recovers, the player may attempt again (token still usable).
+  const recovered = new GameContext({ player, storage: new MemoryStorageAdapter(), randomProvider: new FixedRandomProvider(0.5) });
+  const result = recovered.promotion.promote('PPT');
+  assert.equal(result.success, true, 'can promote again after storage recovers');
+  assert.equal(player.careerLevel, 2);
+}
+
 testKpiIncompleteBlocksPromotion();
 testCultivationInsufficientBlocksPromotion();
 testMaxLevelBlocksPromotion();
@@ -310,4 +408,8 @@ testRetryTokenConsumedOnce();
 testRetryFailNeedsRewardAgain();
 testRequestRetryBeforeFailureRejected();
 testDuplicateRetryCallbackOnlyOneToken();
+testPromotionProducesExactlyOneSave();
+testNoSecondSaveRegression();
+testStorageAtomicSnapshot();
+testRetryTokenSurvivesSaveFailure();
 console.log('promotion service tests passed');

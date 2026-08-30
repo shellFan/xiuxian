@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 
 import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData, type PlayerDataOptions } from '../../assets/scripts/model/player-data';
-import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
+import { MemoryStorageAdapter, type StorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { FixedRandomProvider } from '../../assets/scripts/core/random-provider';
 import { ConfigService } from '../../assets/scripts/services/config-service';
 import { ConfigValidationError } from '../../assets/scripts/services/config-service';
@@ -123,7 +123,27 @@ function testOfficeDerivesFromCareerNotMirror(): void {
   assert.equal(context.office.getOfficeName(), '主管办公室');
 }
 
+class CountingStorageAdapter implements StorageAdapter {
+  public writeCount = 0;
+  public getItem(): string | null { return null; }
+  public setItem(_key: string, _value: string): void { this.writeCount += 1; }
+  public removeItem(): void { /* noop */ }
+}
+
+function testSyncToCareerOnlyMutatesMirror(): void {
+  const storage = new CountingStorageAdapter();
+  const player = new PlayerData({ careerLevel: 7, officeLevel: 1 });
+  const context = new GameContext({ player, storage });
+  assert.equal(context.office.getOfficeLevel(), 4, 'business read derives from careerLevel, ignoring stale mirror');
+  // syncToCareer must update the deprecated mirror without triggering any persistence write.
+  const writesBefore = storage.writeCount;
+  context.office.syncToCareer();
+  assert.equal(player.officeLevel, 4, 'mirror updated to the derived office level');
+  assert.equal(storage.writeCount, writesBefore, 'syncToCareer must not persist (OfficeService is not a transaction owner)');
+}
+
 testPromotionChangesOffice();
 testReloadKeepsOfficeConsistent();
 testOfficeDerivesFromCareerNotMirror();
+testSyncToCareerOnlyMutatesMirror();
 console.log('office service tests passed');

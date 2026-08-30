@@ -90,6 +90,10 @@ export class PromotionService {
     // After a failed interview a rewarded retry is required before another attempt. The first
     // attempt is always free; this guard blocks a naked re-click until a retry token is granted.
     if (this.retryRequired && !this.retryAvailable) throw new Error('Promotion retry required');
+    // Snapshot session retry state BEFORE any mutation so a failed attempt can roll it back
+    // atomically with the player data. A watched retry ad must not be lost just because the
+    // subsequent save fails (Phase 3 real-ad readiness).
+    const retryBefore = { retryRequired: this.retryRequired, retryAvailable: this.retryAvailable, retryRequested: this.retryRequested };
     // Consume the retry token (no-op for a free first attempt).
     this.retryAvailable = false;
     const oldCareerLevel = this.context.player.careerLevel;
@@ -108,11 +112,13 @@ export class PromotionService {
         this.context.kpi.switchLevel(newLevel);
         // careerLevel is the single source of truth for the office; sync the deprecated
         // persisted mirror through the designated single update entry (never hand-maintain it).
+        // OfficeService.syncToCareer only mutates the mirror — it does NOT save.
         this.context.office.syncToCareer();
         this.context.player.performance += PERFORMANCE_REWARD;
         this.context.player.promotionFailCount = 0;
         // A successful breakthrough clears the retry requirement entirely.
         this.retryRequired = false;
+        // The ONLY persistence write for the whole promotion transaction.
         this.context.saveService.save(this.context.player);
       } else {
         const mindDelta = this.context.mind.applyDelta(-MIND_FAILURE_PENALTY);
@@ -124,6 +130,10 @@ export class PromotionService {
       }
     } catch (error) {
       restorePlayer(this.context.player, before);
+      // Roll back session retry state alongside the player data so the transaction is atomic.
+      this.retryRequired = retryBefore.retryRequired;
+      this.retryAvailable = retryBefore.retryAvailable;
+      this.retryRequested = retryBefore.retryRequested;
       throw error;
     }
     return this.result(true, probability, roll, oldCareerLevel, this.context.player.careerLevel, PERFORMANCE_REWARD, 0, this.context.player.promotionFailCount);

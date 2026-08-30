@@ -29,11 +29,22 @@ ChatGPT Sol 在 GitHub 完成 Phase 2 第一轮**真实代码审查**（非 mock
 
 修复后全量回归：`npm test` PASS（27 测试文件）、`npm run build` PASS、`npm run ai:check` PASS。
 
+## Phase 2.2 FINAL FIX PACK（ChatGPT Sol 第二轮真实代码审查整改 — Promotion Transaction）
+
+ChatGPT Sol 在 GitHub 完成 Phase 2.1 修复后的**第二轮真实 Final Review**，结论：**BLOCKER:0 / HIGH:1 / MEDIUM:1 / LOW:1**，Phase 2 仍暂未通过（原子性缺口）。本 Fix Pack 修复事务原子性两项问题，**未进入 Phase 3**。
+
+| FIX | 级别 | 审查发现的问题 | 修复做法 | 回归测试 |
+| --- | --- | --- | --- | --- |
+| FIX-01 | HIGH | 晋升成功存在两次持久化：`PromotionService.promote` 成功路径先 `office.syncToCareer()`，而 `OfficeService.syncToCareer()` 内部又调用 `saveService.save()`，导致一次晋升产生 Office save + Promotion save 两次写入。若第一次 Office save 成功、第二次 Promotion save 失败，内存已 rollback 但存储已写入半完成晋升状态，违反事务原子性 | `OfficeService` 明确为「计算 / 同步服务」而非事务 owner：`syncToCareer()` 仅执行 `player.officeLevel = getOfficeLevel()` 更新 deprecated 镜像，**禁止任何 `saveService.save()`**；晋升成功路径最终只保留 `promotion` 自己的一次 `saveService.save(player)`（写整个 player 快照，含已同步的 `officeLevel`）；确认 `KpiService.switchLevel()` 本身不 save（仅改 `careerLevel` + 重置 `kpiProgress`） | `tests/promotion/promotion-service.test.ts` 新增 TEST-01 `testPromotionProducesExactlyOneSave`（CountingStorageAdapter，上下文初始化 0 写入 → 成功晋升后 `writeCount === 1`）、TEST-02 `testNoSecondSaveRegression`（FailOnSecondWriteStorageAdapter：若仍有第二次 save 必抛错并使 promote 失败，修复后仅 1 次写入、promote 成功）、TEST-03 `testStorageAtomicSnapshot`（CapturingStorageAdapter：单次写入快照同时含 `careerLevel`/`cultivationExp` overflow/`performance+10`/`promotionFailCount=0`/`officeLevel` mirror/`kpiProgress={}`，无半状态）；`tests/office/office-service.test.ts` 新增 `testSyncToCareerOnlyMutatesMirror`（syncToCareer 只改 mirror，`writeCount` 不变） |
+| FIX-02 | MEDIUM | `promote()` 失败仅 `restorePlayer`，未回滚 session 重试状态 `retryRequired/retryAvailable/retryRequested`；若「看广告领 retry token 后、下一次晋升 save 失败」，token 会随 `retryAvailable=false`（token 已消费）一起丢失，玩家「广告白看」 | `promote()` 在消费 token **之前**快照 `retryBefore = {retryRequired, retryAvailable, retryRequested}`；`catch` 中 `restorePlayer` 之后，额外把三个 retry 字段恢复为 `retryBefore`。保存失败 → 玩家数据 + 重试状态整体原子回滚；已领取的 retry token 在 save 失败时保留，可再次尝试（为 Phase 3 真广告做准备） | `tests/promotion/promotion-service.test.ts` 新增 TEST-04 `testRetryTokenSurvivesSaveFailure`（首次免费失败 save#1 成功 → requestRetry 授权 → 二次成功尝试 save#2 抛错 → 断言玩家全回滚且 `retryGranted===true`、`needsRetry()===false`、storage 恢复后再次 promote 成功） |
+
+修复后全量回归：`npm test` PASS（27 测试文件，晋升新增 4 项原子性测试 + 职级新增 1 项 syncToCareer 测试）、`npm run build` PASS、`npm run ai:check` PASS。
+
 ## 测试与构建
 
 | 命令 | 结果 |
 | --- | --- |
-| `npm test` | PASS；27 个测试文件、全部子测试通过（含新增场景完整性 1 + Phase 2 稳定性 30 + 离线 18 + 晋升 30 + 职级 12 + Phase2 UI 5） |
+| `npm test` | PASS；27 个测试文件、全部子测试通过（含新增场景完整性 1 + Phase 2 稳定性 30 + 离线 18 + 晋升 34（原 30 + 原子性 4：exactly-1-save / 二次写入回归 / 原子快照 / retry token 回滚）+ 职级 13（原 12 + syncToCareer 不持久化）+ Phase2 UI 5） |
 | `npm run build` | PASS；`tsc -p tsconfig.game.json --noEmit` exit 0 |
 | `npm run ai:check` | PASS；覆盖 PENDING/RUNNING/REVIEW/DONE、REQUEST_CHANGES、timeout、invalid-json（exit 0） |
 
@@ -68,6 +79,8 @@ ChatGPT Sol 在 GitHub 完成 Phase 2 第一轮**真实代码审查**（非 mock
   - `refactor: make career level the single source of truth for office`（FIX-04）
   - `chore: stop tracking WorkBuddy local memory`（FIX-05）
   - `docs: update phase 2 final review report with fix-pack results`（FIX-06）
+- **Phase 2.2 FINAL FIX PACK（ChatGPT Sol 第二轮审查整改，1 提交）**：
+  - `fix: make promotion persistence atomic and roll back retry session state`（FIX-01 移除 OfficeService 嵌套持久化 + FIX-02 重试 session 状态 rollback + 原子性回归测试）
 - 未 merge、未改写历史、未 force push、未删远程分支、未动 `main`、未提交 `node_modules` / 日志 / 凭证。
 - **修正（FIX-05）**：早期误提交 `1`（`d484d77`）曾将 `.workbuddy` 本地记忆（`memory/2026-08-27.md`、`memory/MEMORY.md`）纳入版本库；已在 Phase 2.1 通过 `git rm --cached` 取消跟踪并新增 `.gitignore: .workbuddy/`，本地记忆不再入库。
 - 工作树当前干净（本提交后）。
@@ -76,17 +89,17 @@ ChatGPT Sol 在 GitHub 完成 Phase 2 第一轮**真实代码审查**（非 mock
 
 **PENDING（未执行）。** 沙箱内无法启动 Cocos Creator Editor / 微信小游戏预览。需在 Cocos Creator 3.8 LTS 中人工打开 `assets/scenes/Main.scene` 并验证：底部 tab 切换、Work/Fishing 切换、KPI 面板（≥3 项）实时刷新、Career Event 弹窗 `resolve`/`choose`、Promotion 入口三选项与结果文案、离线奖励弹窗（普通/双倍互斥）、重启后存档恢复（含 `officeLevel`/`promotionFailCount`/`lastIdleSettlementId`）。上述行为均有 service 级测试覆盖，但运行时渲染需人工确认。
 
-## 已知问题 / 风险评级（Phase 2.1 修复后）
+## 已知问题 / 风险评级（Phase 2.2 修复后）
 
-原审查结论为 BLOCKER:0 / HIGH:3 / MEDIUM:1 / LOW:1。经 Phase 2.1 Fix Pack（FIX-01~05）逐项修复并有回归测试覆盖后，重评如下：
+Phase 2.1 修复后重评为 BLOCKER:0 / HIGH:0 / MEDIUM:0 / LOW:1（残留 UI shim + Cocos PENDING + push PENDING）。ChatGPT Sol 第二轮 Final Review 重新查出事务原子性缺口 **BLOCKER:0 / HIGH:1 / MEDIUM:1 / LOW:1**。经 Phase 2.2 Fix Pack（FIX-01~02）修复并有原子性回归测试覆盖后，最终重评如下：
 
 - **BLOCKER：0**。
-- **HIGH：0**（原 3 项 HIGH 已由 FIX-01 / FIX-02 / FIX-03 全部修复，均有新增 service 级测试覆盖）。
-- **MEDIUM：0**（原 1 项 MEDIUM 已由 FIX-04 修复）。
+- **HIGH：0**（第二轮审查的 1 项 HIGH 已由 FIX-01 修复：晋升成功路径现已为单次原子写入，移除 `OfficeService.syncToCareer` 嵌套持久化；CountingStorageAdapter / FailOnSecondWrite / CapturingStorageAdapter 三项测试锁死「仅一次 save + 无半状态」）。
+- **MEDIUM：0**（第二轮审查的 1 项 MEDIUM 已由 FIX-02 修复：晋升失败现整体回滚 player + 重试 session 状态，retry token 在 save 失败时保留；TEST-04 覆盖）。
 - **LOW（可接受，建议后续收口）**：
-  1. UI `property`/`as any` 装饰器 shim 散落在 6 个视图文件（既有 `main-view.ts` 模式延续）。建议统一收敛到一个 `ui/cc-shim.ts` 模块，降低重复与 `any` 面（同原 LOW#1）。
-  2. `OfflineRewardService` 与 `IdleService` 的“弹窗结算”语义分两层（普通走 `idle.settle`、双倍走 `preview`+手动补发）；当前契约清晰且测试覆盖，但若后续新增“三倍/分享”等激励类型，建议抽象为统一的 `RewardSettlement` 策略（同原 LOW#2）。
-  3. Cocos Creator Editor 运行时渲染验证仍为 **PENDING**（沙箱无法启动 Editor / 微信预览，见下）。
+  1. UI `property`/`as any` 装饰器 shim 散落在 6 个视图文件（既有 `main-view.ts` 模式延续）。建议统一收敛到一个 `ui/cc-shim.ts` 模块，降低重复与 `any` 面。
+  2. Cocos Creator Editor 运行时渲染验证仍为 **PENDING**（沙箱无法启动 Editor / 微信预览，见下）—— 这是第二轮审查所标 LOW（运行时验证项）的本质。
+  3. `OfflineRewardService` 与 `IdleService` 的“弹窗结算”语义分两层；当前契约清晰且测试覆盖，若后续新增“三倍/分享”等激励类型，建议抽象为统一的 `RewardSettlement` 策略。
   4. GitHub push 仍为 **PUSH_PENDING**（TLS/凭证不可达，见 PUSH_STATUS）。
 
 ## PUSH_STATUS
@@ -98,7 +111,7 @@ ChatGPT Sol 在 GitHub 完成 Phase 2 第一轮**真实代码审查**（非 mock
 
 ## PHASE 2 READY FOR CHATGPT REVIEW
 
-- 功能完整度：TASK-031~036 全部实现并独立提交；Phase 2.1 Fix Pack（FIX-01~05）已闭环原审查全部 HIGH/MEDIUM/LOW 项。
-- 质量门槛：`npm test` PASS（27 文件）、`npm run build` PASS、`npm run ai:check` PASS；架构审计 0 BLOCKER / 0 HIGH（修复后重评）。
+- 功能完整度：TASK-031~036 全部实现并独立提交；Phase 2.1 Fix Pack（FIX-01~05）已闭环第一轮审查全部 HIGH/MEDIUM/LOW 项；Phase 2.2 Fix Pack（FIX-01~02）已闭环第二轮审查的 HIGH（晋升事务原子性）+ MEDIUM（重试状态回滚）。
+- 质量门槛：`npm test` PASS（27 文件，晋升+4 原子性 / 职级+1 syncToCareer）、`npm run build` PASS、`npm run ai:check` PASS；架构审计 0 BLOCKER / 0 HIGH（两轮修复后重评）。
 - 待人工项：Cocos Editor 运行时渲染验证（PENDING）、GitHub push（PUSH_PENDING，若 TLS 不可达）。
-- 结论：**Phase 2 + Phase 2.1 Fix Pack 已具备提交 ChatGPT Sol 最终验收条件**；未经 Sol 决策不进入 Phase 3。
+- 结论：**Phase 2 + Phase 2.1 + Phase 2.2 Fix Packs 已具备提交 ChatGPT Sol 最终验收条件**；未经 Sol 决策不进入 Phase 3。

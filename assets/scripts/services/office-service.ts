@@ -33,18 +33,14 @@ export class OfficeService {
     return offices.find((candidate) => candidate.level === this.getOfficeLevel() + 1);
   }
 
-  /** Single update entry: mirrors the derived office level into the persisted field. */
+  /**
+   * Single update entry for the deprecated persisted mirror. This service is a
+   * derivation/sync helper, NOT a transaction owner: it must never persist on its
+   * own. The caller (e.g. PromotionService.promote) is responsible for the single
+   * atomic save that writes the whole player snapshot including `officeLevel`.
+   */
   public syncToCareer(): void {
-    const level = this.getOfficeLevel();
-    if (this.context.player.officeLevel === level) return;
-    const previous = this.context.player.officeLevel;
-    this.context.player.officeLevel = level;
-    try {
-      this.context.saveService.save(this.context.player);
-    } catch (error) {
-      this.context.player.officeLevel = previous;
-      throw error;
-    }
+    this.context.player.officeLevel = this.getOfficeLevel();
   }
 
   private officeForLevel(level: number): OfficeConfig {
