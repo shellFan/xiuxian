@@ -10,16 +10,30 @@
 
 - **TASK-031 晋升答辩**（`936c5db`）：新增 `PromotionService` + `promotion.json`（PPT符箓 / DATA数据大法 / BLAME甩锅诀 三选项）。`canPromote()` 返回 `{allowed, reason}`，reason ∈ {MAX_LEVEL, KPI_INCOMPLETE, CULTIVATION_INSUFFICIENT, READY}。概率 `base 70% + mind>=80 →+10% + mind<30 →-20% + GUANXI关系户天赋 +8%`，`clamp 5~95%`，全部走注入的 `RandomProvider`（禁 `Math.random`）。成功：`careerLevel+1`、扣 `requiredExp` 保留 overflow、复用 `KpiService.switchLevel` 重置 KPI、`performance+10`、`failCount=0`、事务一致；失败：`career` 不变 / KPI 不 clear / `cultivation` 不扣 / `mind-10` / `failCount+1`；`requestRetry` 走 `MockRewardProvider`（禁真实广告）并防重复回调。返回 `PromotionResult`。
 - **TASK-032 绩效与职级**（`6d88445`）：`player.performance` 已存在不新建字段；新增 `office.json`（5 档，career→office 映射 1-2/3-4/5-6/7-8/9-10）。`OfficeService` 从 `careerLevel` 纯函数派生，`PlayerData.officeLevel` 仅作持久镜像（单一更新入口 `syncToCareer`，无第二真相）。KPI 绩效奖励由晋升成功提供。
-- **TASK-033 Phase 2 UI**（`cd98043`）：Cocos Component 展示职级/境界/灵石/绩效/修为/道心/Mind状态文案/Sect/Talent/WorkMode/Office/KPI(≥3项)/Promotion；底部 tab（WORKPLACE/SECT/MERGE/EVENT）切换；Work/Fishing 切换；Career Event 展示 + `resolve`/`choose`；Promotion 入口 + 三选项 + 结果。架构：业务全在 service，Component 只读 ViewModel / 绑按钮。镜像既有 `main-view.ts` 的 `cc` 装饰器 shim 以通过 `tsc`。
+- **TASK-033 Phase 2 UI**（`cd98043`）：Cocos Component 展示职级/境界/灵石/绩效/修为/道心/Mind状态文案/Sect/Talent/WorkMode/Office/KPI(≥3项)/Promotion；底部 tab（WORKPLACE/SECT/MERGE/EVENT）切换；Work/Fishing 切换；Career Event 展示 + `resolve`/`choose`；Promotion 入口 + 三选项 + 结果。架构：业务全在 service，Component 只读 ViewModel / 绑按钮。镜像既有 `main-view.ts` 的 `cc` 装饰器 shim 以通过 `tsc`。（**修正**：该 Task 仅新增 Component，未挂载进 `Main.scene`；场景接入在 Phase 2.1 FIX-01 完成，见上“Phase 2.1 FINAL FIX PACK”。）
 - **TASK-034 离线奖励弹窗 + Mock 激励**（`f06aa28` + 修复 `cf3d2b1`）：复用 `IdleService`（<=0→0、8h=28800s cap、settlementId 去重）。`OfflineRewardService` 包裹 Idle：`preview` / `claimNormal`(1x) / `claimDouble`(2x：额外补发一次基础，总 2x，不重推 Idle 导致时间重复) / 普通·双倍互斥 / 防双击 / 防重复回调 / save 失败 rollback。`rewardProvider` 扩展 `requestReward` + `RewardType` 以支撑 Mock 激励。
 - **TASK-035 系统级稳定性回归**（`b9ad98d`）：新增 `tests/phase2/phase2-stability.test.ts`（30 项）：存档迁移缺字段/损坏/未来版本、Idle 0/8h/12h cap、Mind 边界与非法输入、Sect 4 维度修饰、Talent 固定RNG/3选1/重载确定性/越池拒绝、Events 恰好 30 个（6 选择 + 24 直接）/title/防重复 resolve、KPI 满级非完成 + 切换重置、Promotion 各 reason + 成功/失败 + 事务回滚、Office 派生、Offline 普通·双倍·互斥·重复回调·save 回滚、200 次轻量 stress（事件+KPI+Mind，不变量始终成立）。
 - **TASK-036 最终审查与报告**（本报告，提交见下）：架构审计、禁用模式搜索、Save/Config 审计、`npm test/build/ai:check`、本文档。未进入 Phase 3。
+
+## Phase 2.1 FINAL FIX PACK（ChatGPT Sol 第一轮真实代码审查整改）
+
+ChatGPT Sol 在 GitHub 完成 Phase 2 第一轮**真实代码审查**（非 mock），结论：**BLOCKER:0 / HIGH:3 / MEDIUM:1 / LOW:1**，Phase 2 暂未通过。本 Fix Pack 一次性修复全部问题，**未进入 Phase 3**。
+
+| FIX | 级别 | 审查发现的问题 | 修复做法 | 回归测试 |
+| --- | --- | --- | --- | --- |
+| FIX-01 | HIGH | TASK-033 只新增 Component，`Main.scene` / `Phase2Root` 未挂载；运行时 UI 不显示 | 脚本在 `MainView` 下真实挂载 `Phase2Root` 全子树（14 子节点：CareerPanel / KpiPanel / EventPopup / PromotionPopup + Workplace/Sect/Merge/Event 节点 + 4 tab + Work/Fish 按钮）；`GameBootstrapComponent.wirePhase2Ui()` 注入唯一 `GameContext`（**禁止 new 第二个**）；`Phase2Root` 订阅 `mergeCompleted / salaryChanged / idleSettled / phase2Refresh` 事件驱动 `refreshAll`，**禁无限 update** | `tests/scene/static-scene-integrity.test.ts`（验证 MainView 含 Phase2Root、组件类型、4 面板/按钮引用、tab 容器、无悬空引用、Bootstrap 绑定唯一上下文）；`tests/ui/main-view.test.ts` 同步更新（MainView 子节点 8→9） |
+| FIX-02 | HIGH | Offline Double 用永久 `doubleClaimed` 状态，跨 settlement 错误拒绝 | 改为 per-settlement 作用域：`claimingSettlementId` + `claimedDoubleSettlementIds`（仅 per-session 防重入 / 重复回调）；持久去重仍以 `player.lastIdleSettlementId` 为准；save 失败回滚但不 add 该 settlement，**允许重试** | `tests/offline/offline-reward-service.test.ts` 新增：double s1→advance→normal s2 成功、double s1→double s2 成功、save 失败同 settlement 重试成功 |
+| FIX-03 | HIGH | Promotion Retry 未真正控制失败后重试，可无限裸点 | 状态 `retryRequired / retryAvailable / retryRequested`；首次免费，失败进 RETRY_REQUIRED，再次 promote 无 token 必须拒绝；`requestRetry` 仅在 `retryRequired` 有效、重复请求禁止、重复回调只授一次 token；`needsRetry()` 暴露；`GameContext` 重启后新实例重新免费 | `tests/promotion/promotion-service.test.ts` 新增 8 项：首次免费、失败后无 retry 拒绝、retry 授权、token 仅消费一次、retry 失败需再领、失败前请求拒绝、重复回调只一 token 等 |
+| FIX-04 | MEDIUM | Office 双真相：`careerLevel` 与 `officeLevel` 均可写 | `PlayerData.officeLevel` 标 `@deprecated persisted compatibility only`；业务读一律走 `context.office.getOfficeLevel()` 纯派生；晋升成功改走 `OfficeService.syncToCareer()` 单一写入入口，移除手工 `player.officeLevel = ...` | `tests/office/office-service.test.ts` 新增 `testOfficeDerivesFromCareerNotMirror`（careerLevel=7 + officeLevel=1 → getOfficeLevel() 必须返回 4） |
+| FIX-05 | LOW | 仓库污染：commit `1`（`d484d77`）误提交 `.workbuddy/memory/2026-08-27.md` 等本地记忆 | `git rm --cached` 取消跟踪；`.gitignore` 增加 `.workbuddy/`；新提交 `chore: stop tracking WorkBuddy local memory`；禁止 rebase/amend/force push | 工作树干净、`.workbuddy` 不再 tracked（CI 验证） |
+
+修复后全量回归：`npm test` PASS（27 测试文件）、`npm run build` PASS、`npm run ai:check` PASS。
 
 ## 测试与构建
 
 | 命令 | 结果 |
 | --- | --- |
-| `npm test` | PASS；26 个测试文件、全部子测试通过（新增 Phase 2 稳定性 30 项 + 离线 15 + 晋升 22 + 职级 11 + Phase2 UI 5） |
+| `npm test` | PASS；27 个测试文件、全部子测试通过（含新增场景完整性 1 + Phase 2 稳定性 30 + 离线 18 + 晋升 30 + 职级 12 + Phase2 UI 5） |
 | `npm run build` | PASS；`tsc -p tsconfig.game.json --noEmit` exit 0 |
 | `npm run ai:check` | PASS；覆盖 PENDING/RUNNING/REVIEW/DONE、REQUEST_CHANGES、timeout、invalid-json（exit 0） |
 
@@ -38,7 +52,7 @@
 ## Git
 
 - 基线 HEAD：`97f3ca4`（Phase 2 起点，含 TASK-030.1 KPI 语义对齐修复）。
-- 分支：`ai-automation-bootstrap`，本地领先 `origin/ai-automation-bootstrap` **7** 个提交。
+- 分支：`ai-automation-bootstrap`，本地领先 `origin/ai-automation-bootstrap` **13** 个提交（含 Phase 2.1 Fix Pack 6 个提交）。
 - 本轮提交（按时间）：
   - `936c5db` feat: implement promotion interview system（TASK-031）
   - `6d88445` feat: implement performance and office progression（TASK-032）
@@ -47,23 +61,33 @@
   - `cf3d2b1` fix: ignore duplicate offline reward provider callbacks（TASK-034 期间发现并修复的“防重复回调”健壮性问题）
   - `b9ad98d` test: add phase 2 stability and regression coverage（TASK-035）
   - （本报告）docs: phase 2 final review report（TASK-036）
-- 未 merge、未改写历史、未 force push、未删远程分支、未动 `main`、未提交 `.workbuddy` / `node_modules` / 日志 / 凭证。
+- **Phase 2.1 FINAL FIX PACK（ChatGPT Sol 第一轮审查整改，6 提交）**：
+  - `fix: wire phase 2 HUD into Main.scene and refresh via events`（FIX-01）
+  - `fix: scope offline double reward guard per settlement id`（FIX-02）
+  - `fix: enforce rewarded retry after promotion failure`（FIX-03）
+  - `refactor: make career level the single source of truth for office`（FIX-04）
+  - `chore: stop tracking WorkBuddy local memory`（FIX-05）
+  - `docs: update phase 2 final review report with fix-pack results`（FIX-06）
+- 未 merge、未改写历史、未 force push、未删远程分支、未动 `main`、未提交 `node_modules` / 日志 / 凭证。
+- **修正（FIX-05）**：早期误提交 `1`（`d484d77`）曾将 `.workbuddy` 本地记忆（`memory/2026-08-27.md`、`memory/MEMORY.md`）纳入版本库；已在 Phase 2.1 通过 `git rm --cached` 取消跟踪并新增 `.gitignore: .workbuddy/`，本地记忆不再入库。
 - 工作树当前干净（本提交后）。
 
 ## Cocos Editor 人工验证
 
 **PENDING（未执行）。** 沙箱内无法启动 Cocos Creator Editor / 微信小游戏预览。需在 Cocos Creator 3.8 LTS 中人工打开 `assets/scenes/Main.scene` 并验证：底部 tab 切换、Work/Fishing 切换、KPI 面板（≥3 项）实时刷新、Career Event 弹窗 `resolve`/`choose`、Promotion 入口三选项与结果文案、离线奖励弹窗（普通/双倍互斥）、重启后存档恢复（含 `officeLevel`/`promotionFailCount`/`lastIdleSettlementId`）。上述行为均有 service 级测试覆盖，但运行时渲染需人工确认。
 
-## 已知问题 / 风险评级
+## 已知问题 / 风险评级（Phase 2.1 修复后）
+
+原审查结论为 BLOCKER:0 / HIGH:3 / MEDIUM:1 / LOW:1。经 Phase 2.1 Fix Pack（FIX-01~05）逐项修复并有回归测试覆盖后，重评如下：
 
 - **BLOCKER：0**。
-- **HIGH：0**。
-- **MEDIUM：0**。
+- **HIGH：0**（原 3 项 HIGH 已由 FIX-01 / FIX-02 / FIX-03 全部修复，均有新增 service 级测试覆盖）。
+- **MEDIUM：0**（原 1 项 MEDIUM 已由 FIX-04 修复）。
 - **LOW（可接受，建议后续收口）**：
-  1. UI `property`/`as any` 装饰器 shim 散落在 6 个视图文件（既有 `main-view.ts` 模式延续）。建议统一收敛到一个 `ui/cc-shim.ts` 模块，降低重复与 `any` 面。
-  2. `OfflineRewardService` 与 `IdleService` 的“弹窗结算”语义分两层：普通走 `idle.settle`、双倍走 `preview`+手动补发。当前契约清晰且测试覆盖，但若后续新增“三倍/分享”等激励类型，建议抽象为统一的 `RewardSettlement` 策略。
-  3. Promotion 的“关系户 +8%”依赖既有单一天赋系统（`GUANXI`），未在天赋池内增加专属 SEMANTICS 校验，仅按 id 命中——与既有 talent 设计一致，风险低。
-  4. 沙箱 GitHub push 不可达：非交互环境禁用终端提示后无用户名可读取，既有 `wincred` 条目对 `shellFan` 返回 `401`；本地 7 个提交安全留存，push 状态见 PUSH_STATUS（PUSH_PENDING）。
+  1. UI `property`/`as any` 装饰器 shim 散落在 6 个视图文件（既有 `main-view.ts` 模式延续）。建议统一收敛到一个 `ui/cc-shim.ts` 模块，降低重复与 `any` 面（同原 LOW#1）。
+  2. `OfflineRewardService` 与 `IdleService` 的“弹窗结算”语义分两层（普通走 `idle.settle`、双倍走 `preview`+手动补发）；当前契约清晰且测试覆盖，但若后续新增“三倍/分享”等激励类型，建议抽象为统一的 `RewardSettlement` 策略（同原 LOW#2）。
+  3. Cocos Creator Editor 运行时渲染验证仍为 **PENDING**（沙箱无法启动 Editor / 微信预览，见下）。
+  4. GitHub push 仍为 **PUSH_PENDING**（TLS/凭证不可达，见 PUSH_STATUS）。
 
 ## PUSH_STATUS
 
@@ -74,7 +98,7 @@
 
 ## PHASE 2 READY FOR CHATGPT REVIEW
 
-- 功能完整度：TASK-031~036 全部实现并独立提交；晋升/职级/离线/UI/回归均通过 service 级测试。
-- 质量门槛：`npm test` PASS（26 文件）、`npm run build` PASS、`npm run ai:check` PASS、架构审计 0 BLOCKER / 0 HIGH。
+- 功能完整度：TASK-031~036 全部实现并独立提交；Phase 2.1 Fix Pack（FIX-01~05）已闭环原审查全部 HIGH/MEDIUM/LOW 项。
+- 质量门槛：`npm test` PASS（27 文件）、`npm run build` PASS、`npm run ai:check` PASS；架构审计 0 BLOCKER / 0 HIGH（修复后重评）。
 - 待人工项：Cocos Editor 运行时渲染验证（PENDING）、GitHub push（PUSH_PENDING，若 TLS 不可达）。
-- 结论：**Phase 2 已具备提交 ChatGPT Sol 验收条件**，可进入 Review 流程；未经 Sol 决策不进入 Phase 3。
+- 结论：**Phase 2 + Phase 2.1 Fix Pack 已具备提交 ChatGPT Sol 最终验收条件**；未经 Sol 决策不进入 Phase 3。
