@@ -115,6 +115,15 @@ testCareerNineIsManagerOffice();
 testCareerTenIsManagerOffice();
 testNextOfficeProgression();
 testInvalidOfficeConfigRejected();
+function testOfficeDerivesFromCareerNotMirror(): void {
+  // careerLevel is authoritative; a stale persisted officeLevel mirror must be ignored.
+  const { context, player } = makeContext({ careerLevel: 7, officeLevel: 1 });
+  assert.equal(player.officeLevel, 1, 'mirror left stale on purpose');
+  assert.equal(context.office.getOfficeLevel(), 4, 'office derives from careerLevel (7 -> 4), not the mirror');
+  assert.equal(context.office.getOfficeName(), '主管办公室');
+}
+
 testPromotionChangesOffice();
 testReloadKeepsOfficeConsistent();
+testOfficeDerivesFromCareerNotMirror();
 console.log('office service tests passed');

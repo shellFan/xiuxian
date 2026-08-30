@@ -43,6 +43,12 @@ export class PlayerData {
   public fishingSeconds: number;
   public kpiProgress: Record<string, number>;
   public promotionFailCount: number;
+  /**
+   * @deprecated Persisted compatibility mirror only. The office level is a pure function of
+   * `careerLevel` (see OfficeService); no business logic must read this field. It is kept in
+   * sync through `OfficeService.syncToCareer` for old-save compatibility and to populate the
+   * save schema. Always derive via `context.office.getOfficeLevel()`.
+   */
   public officeLevel: number;
   public lastIdleSettlementId: string | null;
   public salaryRemainder: number;
