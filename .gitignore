@@ -11,3 +11,6 @@ ai/reviews/*
 !ai/reviews/.gitkeep
 *.tsbuildinfo
 tests/.compiled/
+
+# WorkBuddy local memory / workspace state (never commit)
+.workbuddy/
