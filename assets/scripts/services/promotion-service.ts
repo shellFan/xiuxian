@@ -46,8 +46,9 @@ export function clampProbability(value: number): number {
 export class PromotionService {
   private readonly random: RandomProvider;
   private readonly rewardProvider: RewardProvider;
-  private retryRequested = false;
+  private retryRequired = false;
   private retryAvailable = false;
+  private retryRequested = false;
 
   public constructor(
     private readonly context: GameContext,
@@ -86,6 +87,11 @@ export class PromotionService {
     if (!this.getOptions().some((option) => option.id === optionId)) throw new Error(`Unknown promotion option ${optionId}`);
     const check = this.canPromote();
     if (!check.allowed) throw new Error(`Promotion not allowed: ${check.reason}`);
+    // After a failed interview a rewarded retry is required before another attempt. The first
+    // attempt is always free; this guard blocks a naked re-click until a retry token is granted.
+    if (this.retryRequired && !this.retryAvailable) throw new Error('Promotion retry required');
+    // Consume the retry token (no-op for a free first attempt).
+    this.retryAvailable = false;
     const oldCareerLevel = this.context.player.careerLevel;
     const probability = this.getProbability();
     const roll = this.random.next();
@@ -100,14 +106,19 @@ export class PromotionService {
         this.context.player.careerLevel = newLevel;
         // Reset per-level KPI counters; cumulative facts (workSeconds / cultivationExp) are preserved.
         this.context.kpi.switchLevel(newLevel);
-        // Keep the persisted office mirror consistent with the new career level.
-        this.context.player.officeLevel = this.context.office.getOfficeLevel();
+        // careerLevel is the single source of truth for the office; sync the deprecated
+        // persisted mirror through the designated single update entry (never hand-maintain it).
+        this.context.office.syncToCareer();
         this.context.player.performance += PERFORMANCE_REWARD;
         this.context.player.promotionFailCount = 0;
+        // A successful breakthrough clears the retry requirement entirely.
+        this.retryRequired = false;
         this.context.saveService.save(this.context.player);
       } else {
         const mindDelta = this.context.mind.applyDelta(-MIND_FAILURE_PENALTY);
         this.context.player.promotionFailCount += 1;
+        // A failure re-arms the retry requirement; a new token is needed for another attempt.
+        this.retryRequired = true;
         this.context.saveService.save(this.context.player);
         return this.result(false, probability, roll, oldCareerLevel, oldCareerLevel, 0, mindDelta, this.context.player.promotionFailCount);
       }
@@ -120,20 +131,29 @@ export class PromotionService {
 
   /**
    * Requests a rewarded-ad-style retry after a failed interview (Phase 2: mock only).
-   * Guards against re-entrancy (double click) and duplicate reward callbacks.
+   * A retry can only be requested once a free attempt has failed (`retryRequired`); requesting it
+   * before any failure (or while a token is already held, or while a request is in flight) is
+   * rejected without contacting the provider. Guards against re-entrancy and duplicate callbacks so
+   * a misbehaving ad SDK can grant at most one token.
    */
   public requestRetry(onResult: (granted: boolean) => void): void {
-    if (this.retryRequested) return;
+    // Only a genuine failure unlocks a retry request. Calling it before a failure, while a
+    // token is already held, or while a request is already in flight is a no-op: we never
+    // contact the provider and never invoke the callback, so mis-clicks can't burn an ad.
+    if (!this.retryRequired || this.retryAvailable || this.retryRequested) return;
     this.retryRequested = true;
     let settled = false;
     this.rewardProvider.requestReward('PROMOTION_RETRY', (granted) => {
       if (settled) return;
       settled = true;
       this.retryRequested = false;
-      this.retryAvailable = granted;
+      if (granted) this.retryAvailable = true;
       onResult(granted);
     });
   }
+
+  /** True when a failed interview blocks further attempts until a retry token is granted. */
+  public needsRetry(): boolean { return this.retryRequired && !this.retryAvailable; }
 
   public get retryGranted(): boolean { return this.retryAvailable; }
 

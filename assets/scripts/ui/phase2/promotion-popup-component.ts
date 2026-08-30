@@ -35,12 +35,20 @@ export class PromotionPopup extends Component {
     const context = this.context;
     if (!context) return;
     const view = buildPromotionViewModel(context);
-    this.set(this.statusLabel, view.allowed ? `可渡劫（成功率 ${view.probability}%）` : `暂不可渡劫（${view.reason}）`);
+    if (view.needsRetry) {
+      this.set(this.statusLabel, '渡劫失败，需领取重试令（看广告）');
+    } else if (view.allowed) {
+      this.set(this.statusLabel, `可渡劫（成功率 ${view.probability}%）`);
+    } else {
+      this.set(this.statusLabel, `暂不可渡劫（${view.reason}）`);
+    }
     this.set(this.resultLabel, '');
+    // Options are only live when an attempt is allowed AND no pending retry gate blocks it.
+    const canInterview = view.allowed && !view.needsRetry;
     const buttons = [this.optionButton1, this.optionButton2, this.optionButton3];
     buttons.forEach((button, index) => {
       const option = view.options[index];
-      if (button && option && view.allowed) {
+      if (button && option && canInterview) {
         button.on?.('click', () => this.onInterview(option.id), this);
       }
     });
@@ -53,8 +61,10 @@ export class PromotionPopup extends Component {
       const result = context.promotion.promote(optionId);
       this.set(this.resultLabel, result.success ? `恭喜突破境界！晋升至 ${result.newCareerLevel} 级` : '渡劫失败，道心受损');
       this.render();
+      context.events.emit('phase2Refresh', { reason: 'promotion' });
     } catch (error) {
       this.set(this.resultLabel, `渡劫失败：${(error as Error).message}`);
+      this.render();
     }
   }
 

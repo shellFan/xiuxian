@@ -23,6 +23,7 @@ export interface PromotionViewModel {
   readonly allowed: boolean;
   readonly reason: string;
   readonly probability: number;
+  readonly needsRetry: boolean;
   readonly options: ReadonlyArray<{ readonly id: string; readonly name: string; readonly description: string }>;
 }
 
@@ -81,6 +82,7 @@ export function buildPromotionViewModel(context: GameContext): PromotionViewMode
     allowed: check.allowed,
     reason: check.reason,
     probability: context.promotion.getProbability(),
+    needsRetry: context.promotion.needsRetry(),
     options: context.configService.promotion.options.map((option) => ({
       id: option.id,
       name: option.name,

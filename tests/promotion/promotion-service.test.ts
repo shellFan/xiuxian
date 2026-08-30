@@ -195,16 +195,78 @@ function testRepeatedPromotionDoesNotDoubleReward(): void {
   assert.equal(player.careerLevel, 2);
 }
 
-function testMockRetryGrants(): void {
+class FailThenSucceed extends FixedRandomProvider {
+  public constructor() { super(0); }
+  private count = 0;
+  public next(): number { return this.count++ === 0 ? 0.9 : 0.5; }
+}
+
+function testFirstAttemptIsFree(): void {
+  const { promotion } = makeContext(readyLevelOne(), new FixedRandomProvider(0.5));
+  assert.equal(promotion.needsRetry(), false);
+  const result = promotion.promote('PPT');
+  assert.equal(result.success, true);
+  assert.equal(promotion.needsRetry(), false, 'success clears any retry requirement');
+}
+
+function testFailThenPromoteWithoutRetryRejected(): void {
+  const { promotion } = makeContext(readyLevelOne(), new FixedRandomProvider(0.9));
+  promotion.promote('PPT'); // fails
+  assert.equal(promotion.needsRetry(), true);
+  assert.throws(() => promotion.promote('PPT'), /Promotion retry required/);
+}
+
+function testRetryAfterFailureGrants(): void {
+  const { promotion } = makeContext(readyLevelOne(), new FixedRandomProvider(0.9));
+  promotion.promote('PPT'); // fail
+  let granted = false;
+  let calls = 0;
+  promotion.requestRetry((value) => { granted = value; calls += 1; });
+  assert.equal(granted, true);
+  assert.equal(calls, 1);
+  assert.equal(promotion.needsRetry(), false, 'held retry token removes the block');
+}
+
+function testRetryEnablesOneSuccessfulAttempt(): void {
+  const { promotion, player } = makeContext(readyLevelOne(), new FailThenSucceed());
+  promotion.promote('PPT'); // fails (0.9)
+  assert.equal(promotion.needsRetry(), true);
+  promotion.requestRetry(() => undefined); // grants
+  const result = promotion.promote('PPT'); // consumes token, succeeds (0.5)
+  assert.equal(result.success, true);
+  assert.equal(player.careerLevel, 2);
+  assert.equal(promotion.needsRetry(), false);
+}
+
+function testRetryTokenConsumedOnce(): void {
+  const { promotion } = makeContext(readyLevelOne(), new FixedRandomProvider(0.9));
+  promotion.promote('PPT'); // fail
+  promotion.requestRetry(() => undefined); // granted
+  promotion.promote('PPT'); // consumes token, fails again (0.9)
+  assert.equal(promotion.retryGranted, false, 'token consumed');
+  assert.throws(() => promotion.promote('PPT'), /Promotion retry required/);
+}
+
+function testRetryFailNeedsRewardAgain(): void {
+  const { promotion } = makeContext(readyLevelOne(), new FixedRandomProvider(0.9));
+  promotion.promote('PPT'); // fail
+  promotion.requestRetry(() => undefined); // granted
+  promotion.promote('PPT'); // consumes, fails
+  assert.equal(promotion.needsRetry(), true, 'still needs a reward after another failure');
+  assert.throws(() => promotion.promote('PPT'), /Promotion retry required/);
+}
+
+function testRequestRetryBeforeFailureRejected(): void {
   let granted = false;
   let calls = 0;
   const { promotion } = makeContext(readyLevelOne(), undefined, new MockRewardProvider());
   promotion.requestRetry((value) => { granted = value; calls += 1; });
-  assert.equal(granted, true);
-  assert.equal(calls, 1);
+  assert.equal(granted, false, 'retry before any failure is rejected');
+  assert.equal(calls, 0, 'provider must not be contacted before a failure');
+  assert.equal(promotion.retryGranted, false);
 }
 
-function testDuplicateRetryCallbackIgnored(): void {
+function testDuplicateRetryCallbackOnlyOneToken(): void {
   class DoubleCallbackProvider implements RewardProvider {
     public claimMindRecovery(): number { return 0; }
     public requestReward(_type: 'MIND_RECOVERY' | 'OFFLINE_DOUBLE' | 'PROMOTION_RETRY', onComplete: (granted: boolean) => void): void {
@@ -212,10 +274,12 @@ function testDuplicateRetryCallbackIgnored(): void {
       onComplete(true);
     }
   }
+  const { promotion } = makeContext(readyLevelOne(), new FixedRandomProvider(0.9), new DoubleCallbackProvider());
+  promotion.promote('PPT'); // fail first
   let calls = 0;
-  const { promotion } = makeContext(readyLevelOne(), undefined, new DoubleCallbackProvider());
   promotion.requestRetry(() => { calls += 1; });
-  assert.equal(calls, 1);
+  assert.equal(calls, 1, 'duplicate provider callback grants at most one token');
+  assert.equal(promotion.retryGranted, true);
 }
 
 testKpiIncompleteBlocksPromotion();
@@ -238,6 +302,12 @@ testFailureReducesMind();
 testFailureIncrementsFailCount();
 testSaveFailureRollsBackTransaction();
 testRepeatedPromotionDoesNotDoubleReward();
-testMockRetryGrants();
-testDuplicateRetryCallbackIgnored();
+testFirstAttemptIsFree();
+testFailThenPromoteWithoutRetryRejected();
+testRetryAfterFailureGrants();
+testRetryEnablesOneSuccessfulAttempt();
+testRetryTokenConsumedOnce();
+testRetryFailNeedsRewardAgain();
+testRequestRetryBeforeFailureRejected();
+testDuplicateRetryCallbackOnlyOneToken();
 console.log('promotion service tests passed');
