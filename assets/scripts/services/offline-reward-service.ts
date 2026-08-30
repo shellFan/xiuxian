@@ -9,12 +9,15 @@ import type { GameSaveData } from '../model/save-data';
  *  - claimDouble: 2x total via the mock reward provider (an extra base grant on top
  *    of the normal settlement, never re-running IdleService so time is not advanced twice).
  *
- * Normal and double are mutually exclusive and a settlement id is claimed only once,
- * so reopening the popup or double-clicking cannot grant rewards repeatedly.
+ * The double-reward guard is SCOPED PER SETTLEMENT. A single settlement can be claimed at most
+ * once (normal or double), and a double reward is granted at most once per settlement id; this is
+ * independent across different settlement ids. Durable de-duplication still relies on
+ * `player.lastIdleSettlementId` (set by IdleService on commit). The in-service state below only
+ * guards against re-entrancy (a request still in flight) and duplicate reward-provider callbacks.
  */
 export class OfflineRewardService {
-  private doubleClaimed = false;
-  private claimingDouble = false;
+  private claimingSettlementId?: string;
+  private readonly claimedDoubleSettlementIds = new Set<string>();
 
   public constructor(
     private readonly context: GameContext,
@@ -31,30 +34,32 @@ export class OfflineRewardService {
 
   public claimNormal(settlementId: string): IdleSettlementResult {
     if (this.isSettled(settlementId)) throw new Error('Offline reward already claimed');
-    if (this.doubleClaimed) throw new Error('Double reward already claimed');
+    if (this.claimedDoubleSettlementIds.has(settlementId)) throw new Error('Double reward already claimed for this settlement');
     return this.idle.settle(settlementId);
   }
 
   public claimDouble(settlementId: string, onResult: (success: boolean) => void): void {
-    if (this.isSettled(settlementId) || this.doubleClaimed || this.claimingDouble) {
+    // Reject if the settlement is already settled, already doubled, or a double request for any
+    // settlement is currently in flight (re-entrancy / double click).
+    if (this.isSettled(settlementId) || this.claimedDoubleSettlementIds.has(settlementId) || this.claimingSettlementId !== undefined) {
       onResult(false);
       return;
     }
-    this.claimingDouble = true;
+    this.claimingSettlementId = settlementId;
+    let settled = false;
     this.context.rewardProvider.requestReward('OFFLINE_DOUBLE', (granted) => {
+      // A duplicate provider callback (e.g. a misbehaving ad SDK firing twice) must not grant
+      // the reward a second time nor invoke the result callback again.
+      if (settled) return;
+      if (this.claimingSettlementId !== settlementId) return;
+      settled = true;
+      this.claimingSettlementId = undefined;
       if (!granted) {
-        this.claimingDouble = false;
         onResult(false);
         return;
       }
-      // A duplicate provider callback (e.g. a misbehaving ad SDK firing twice) must
-      // not grant the reward a second time nor invoke the result callback again.
-      if (this.doubleClaimed) {
-        this.claimingDouble = false;
-        return;
-      }
-      this.doubleClaimed = true;
-      this.claimingDouble = false;
+      // Belt-and-suspenders: never grant a second double for the same settlement id.
+      if (this.claimedDoubleSettlementIds.has(settlementId)) return;
       const base = this.idle.preview(settlementId);
       const previous = this.context.player.toSaveData();
       try {
@@ -66,10 +71,12 @@ export class OfflineRewardService {
         this.idle.commitSettlement(settlementId);
       } catch (error) {
         this.restore(previous);
-        this.doubleClaimed = false;
         onResult(false);
         throw error;
       }
+      // Mark this settlement id as doubled only after the commit succeeds, so a failed save
+      // leaves the settlement open for a retry.
+      this.claimedDoubleSettlementIds.add(settlementId);
       try {
         if (base.salary > 0) this.context.events.emit('salaryChanged', { amount: base.salary * 2, total: this.context.player.salary });
         this.context.events.emit('idleSettled', {

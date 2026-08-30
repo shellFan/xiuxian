@@ -179,6 +179,55 @@ function testNewSettlementWorks(): void {
   assert.equal(context.player.salary, 20);
 }
 
+function testDoubleThenNormalNewSettlement(): void {
+  const clock = new FakeClock(1_000);
+  const { offline, context } = makeContext(clock);
+  clock.advance(3_600 * 1000);
+  let granted = false;
+  offline.claimDouble('s1', (success) => { granted = success; });
+  assert.equal(granted, true);
+  assert.equal(context.player.salary, 20);
+  clock.advance(3_600 * 1000);
+  const result = offline.claimNormal('s2');
+  assert.equal(result.salary, 10, 'normal of a different settlement still works after a double');
+  assert.equal(context.player.salary, 30);
+}
+
+function testDoubleThenDoubleNewSettlement(): void {
+  const clock = new FakeClock(1_000);
+  const { offline, context } = makeContext(clock);
+  clock.advance(3_600 * 1000);
+  let first = false;
+  offline.claimDouble('s1', (success) => { first = success; });
+  assert.equal(first, true);
+  clock.advance(3_600 * 1000);
+  let second = false;
+  offline.claimDouble('s2', (success) => { second = success; });
+  assert.equal(second, true, 'double of a different settlement is independent');
+  assert.equal(context.player.salary, 40, '2x of s1 + 2x of s2');
+}
+
+function testSaveFailureAllowsRetrySameSettlement(): void {
+  let saveCount = 0;
+  const flakyStorage: StorageAdapter = {
+    getItem: () => null,
+    setItem: () => { saveCount += 1; if (saveCount === 1) throw new Error('quota exceeded'); },
+    removeItem: () => undefined,
+  };
+  const clock = new FakeClock(1_000);
+  const player = new PlayerData({ lastSaveTime: clock.now() });
+  const context = new GameContext({ player, storage: flakyStorage, clock });
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  clock.advance(3_600 * 1000);
+  assert.throws(() => context.offline.claimDouble('s1', () => undefined), /quota exceeded/);
+  assert.equal(player.salary, 0, 'rolled back after save failure');
+  // Retry the SAME settlement: now the save succeeds.
+  let granted = false;
+  context.offline.claimDouble('s1', (success) => { granted = success; });
+  assert.equal(granted, true, 'same settlement can be retried after a save failure');
+  assert.equal(player.salary, 20);
+}
+
 testZeroSeconds();
 testOneHour();
 testEightHourCap();
@@ -194,4 +243,7 @@ testReopenDuplicateRejected();
 testSameSettlementIdDuplicate();
 testSaveFailureRollsBackDouble();
 testNewSettlementWorks();
+testDoubleThenNormalNewSettlement();
+testDoubleThenDoubleNewSettlement();
+testSaveFailureAllowsRetrySameSettlement();
 console.log('offline reward service tests passed');
