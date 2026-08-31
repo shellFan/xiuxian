@@ -14,3 +14,9 @@ tests/.compiled/
 
 # WorkBuddy local memory / workspace state (never commit)
 .workbuddy/
+
+# Cocos Creator generated runtime/cache (not project source)
+/library/
+/temp/
+/local/
+/profiles/

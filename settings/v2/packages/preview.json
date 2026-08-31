@@ -1,4 +1,7 @@
 {
-  "server": { "port": 7456 },
-  "previewUrl": "http://localhost:7456"
+  "server": {
+    "port": 7456
+  },
+  "previewUrl": "http://localhost:7456",
+  "__version__": "1.0.1"
 }
