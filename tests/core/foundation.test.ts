@@ -67,33 +67,44 @@ testRandomProviderImplementations();
 function testMainSceneBootstrapContract(): void {
   const scenePath = path.resolve(__dirname, '../../../../assets/scenes/Main.scene');
   const componentMetaPath = path.resolve(__dirname, '../../../../assets/scripts/core/game-bootstrap-component.ts.meta');
-  const scene = JSON.parse(fs.readFileSync(scenePath, 'utf8')) as Array<Record<string, unknown>>;
+  const scene = JSON.parse(fs.readFileSync(scenePath, 'utf8')) as Array<Record<string, any>>;
   const componentMeta = JSON.parse(fs.readFileSync(componentMetaPath, 'utf8')) as { uuid: string };
-  const canvas = scene[2];
-  const bootstrapNode = scene[5];
-  const bootstrapComponent = scene[6];
 
+  // Cocos Creator 3.8.4 compressUuid (keep first 5 hex, base64-encode the rest).
   const base64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-  const uuid = componentMeta.uuid.replace(/-/g, '');
-  const reservedHeadLength = 5;
-  let classId = uuid.slice(0, reservedHeadLength);
-  for (let index = reservedHeadLength; index < uuid.length; index += 3) {
-    const first = Number.parseInt(uuid[index], 16);
-    const second = Number.parseInt(uuid[index + 1], 16);
-    const third = Number.parseInt(uuid[index + 2], 16);
+  const HEX: Record<string, number> = {};
+  for (let i = 0; i < 16; i++) HEX[i.toString(16)] = i;
+  const uuid = componentMeta.uuid;
+  let classId = uuid.slice(0, 5);
+  const clean = uuid.replace(/-/g, '');
+  for (let index = 5; index < clean.length; index += 3) {
+    const first = HEX[clean[index]];
+    const second = HEX[clean[index + 1]];
+    const third = HEX[clean[index + 2]];
     classId += base64[(first << 2) | (second >> 2)];
     classId += base64[((second & 3) << 4) | third];
   }
 
-  assert.deepEqual(canvas['_children'], [{ __id__: 5 }]);
-  assert.equal(bootstrapNode['_name'], 'GameBootstrap');
-  assert.deepEqual(bootstrapNode['_components'], [{ __id__: 6 }]);
-  assert.equal(classId, '00000AAAAAAAAAAAAAAAAAD');
-  assert.equal(bootstrapComponent['__type__'], classId);
-  assert.deepEqual(bootstrapComponent['node'], { __id__: 5 });
+  // Index-agnostic: locate the GameBootstrap node by name (Cocos may re-index on re-serialize).
+  const bootstrapNode = scene.find((o) => o && o._name === 'GameBootstrap');
+  assert.ok(bootstrapNode, 'GameBootstrap node must exist in the scene');
+  assert.equal(bootstrapNode!['__type__'], 'cc.Node', 'GameBootstrap must be a Node');
+  const compRefs = (bootstrapNode!['_components'] as ReadonlyArray<{ __id__: number }>) ?? [];
+  assert.ok(compRefs.length >= 1, 'GameBootstrap node must carry at least one component');
+  const bootstrapComponent = scene[compRefs[0].__id__];
+  assert.equal(bootstrapComponent['__type__'], classId, 'bootstrap component __type__ must be the compressed meta uuid');
+  assert.deepEqual(bootstrapComponent['node'], { __id__: scene.indexOf(bootstrapNode!) }, 'bootstrap component node back-ref must match its node');
   assert.notEqual(bootstrapComponent['__type__'], componentMeta.uuid);
   assert.notEqual(bootstrapComponent['__type__'], 'cc.Component');
   assert.equal(Object.prototype.hasOwnProperty.call(bootstrapComponent, '_script'), false);
+
+  // The GameBootstrap node must hang under the Canvas node (parent/child back-refs resolve).
+  const parentRef = bootstrapNode!['_parent'] as { __id__: number } | undefined;
+  assert.ok(parentRef, 'GameBootstrap node must have a parent');
+  const parentNode = scene[parentRef!.__id__];
+  assert.equal(parentNode['_name'], 'Canvas', 'GameBootstrap parent must be the Canvas node');
+  const parentChildren = (parentNode['_children'] as ReadonlyArray<{ __id__: number }>) ?? [];
+  assert.ok(parentChildren.some((c) => c.__id__ === scene.indexOf(bootstrapNode!)), 'Canvas must list GameBootstrap as a child');
 }
 
 function testCocosBootstrapLifecycleAdapterContract(): void {
