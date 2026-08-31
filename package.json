@@ -1,7 +1,7 @@
 {
   "name": "niuma-xiuxian-ai-infrastructure",
   "private": true,
-  "version": "0.1.0",
+  "version": "3.8.4",
   "scripts": {
     "ai:dev": "tsx tools/orchestrator/src/index.ts dev",
     "ai:task": "tsx tools/orchestrator/src/index.ts task",

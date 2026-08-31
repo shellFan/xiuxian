@@ -1,8 +1,8 @@
 {
-  "engine": "3.8.0",
+  "engine": "3.8.4",
   "packageName": "com.niuma.xiuxian",
   "name": "牛马修仙传",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "id": "niumaxiuxian",
   "uuid": "00000000-0000-0000-0000-000000000001",
   "description": "竖屏合成挂机职场修仙小游戏",
