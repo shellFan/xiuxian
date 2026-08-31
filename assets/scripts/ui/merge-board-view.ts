@@ -1,4 +1,4 @@
-import { _decorator, Component } from 'cc';
+import { _decorator, Component, CCFloat, CCInteger } from 'cc';
 import type { BoardPosition } from '../game/merge/merge-types';
 const { ccclass } = _decorator;
 const property = (value: unknown): any => { const decorator = _decorator as unknown as { property?: (type: unknown) => any }; return decorator.property ? decorator.property(value) : () => {}; };
@@ -9,14 +9,14 @@ interface TransformLike { convertToNodeSpaceAR?: (point: { x: number; y: number;
 interface BoardNodeLike { readonly isValid?: boolean; readonly parent?: BoardNodeLike; getComponent?: (type: string) => TransformLike | null; }
 @ccclass('MergeBoardView')
 export class MergeBoardView extends Component {
-  @property(Number) public originX = 0;
-  @property(Number) public originY = 0;
-  @property(Number) public cellWidth = 0;
-  @property(Number) public cellHeight = 0;
-  @property(Number) public rows = 4;
-  @property(Number) public columns = 4;
-  @property(Number) public scaleX = 1;
-  @property(Number) public scaleY = 1;
+  @property(CCFloat) public originX = 0;
+  @property(CCFloat) public originY = 0;
+  @property(CCFloat) public cellWidth = 0;
+  @property(CCFloat) public cellHeight = 0;
+  @property(CCInteger) public rows = 4;
+  @property(CCInteger) public columns = 4;
+  @property(CCFloat) public scaleX = 1;
+  @property(CCFloat) public scaleY = 1;
   private transform: CoordinateTransform = {};
   public configure(geometry: BoardGeometry): void { this.originX = geometry.originX; this.originY = geometry.originY; this.cellWidth = geometry.cellWidth; this.cellHeight = geometry.cellHeight; this.rows = geometry.rows; this.columns = geometry.columns; this.scaleX = geometry.scaleX ?? 1; this.scaleY = geometry.scaleY ?? 1; this.transform = geometry; }
   public screenToBoardPosition(point: PointLike): BoardPosition | undefined { return this.targetPosition(point); }
