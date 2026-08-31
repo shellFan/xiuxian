@@ -55,6 +55,7 @@ function decompressUuid(compressed: string): string {
 interface SceneObject {
   __type__?: string;
   _name?: string;
+  _parent?: { __id__: number };
   _children?: ReadonlyArray<{ __id__: number }>;
   _components?: ReadonlyArray<{ __id__: number }>;
   node?: { __id__: number };
@@ -206,8 +207,106 @@ function testBootstrapWiresPhase2Root(): void {
   assert.ok(/bind\([^)]*context\)/.test(src), 'GameBootstrapComponent must bind the shared context into Phase2Root');
 }
 
+// ---------------------------------------------------------------------------
+// STEP 8 (Phase 2 Runtime Acceptance): the scene must be a loadable Cocos 3.8.4
+// SceneAsset, not just a JSON file with class-name refs. These checks run WITHOUT
+// a running Editor, so they catch the "asset visible but won't open" class of bugs.
+// ---------------------------------------------------------------------------
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function loadSceneMeta(): { importer: string; uuid: string; ver: string } {
+  const root = findRepoRoot(__dirname);
+  const meta = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'scenes', 'Main.scene.meta'), 'utf8'));
+  return { importer: meta.importer, uuid: meta.uuid, ver: meta.ver };
+}
+
+// 1) Main.scene.meta must declare itself as a scene importer with a valid uuid,
+//    otherwise Creator treats it as a plain asset and double-click does nothing.
+function testSceneMetaIsSceneAsset(): void {
+  const meta = loadSceneMeta();
+  assert.equal(meta.importer, 'scene', 'Main.scene.meta importer must be "scene" so Creator opens it in the Scene Editor');
+  assert.ok(UUID_RE.test(meta.uuid), `Main.scene.meta uuid must be a valid uuid (got ${meta.uuid})`);
+}
+
+// 2/3) Top-level object must be cc.SceneAsset, and SceneAsset.scene must point at a cc.Scene.
+function testSceneAssetEnvelope(): void {
+  const { scene } = loadScene();
+  assert.ok(scene[0] && scene[0].__type__ === 'cc.SceneAsset', 'Main.scene top object must be cc.SceneAsset');
+  const sceneRef = scene[0].scene as { __id__: number } | undefined;
+  assert.ok(sceneRef && typeof sceneRef.__id__ === 'number', 'SceneAsset.scene must reference the cc.Scene');
+  const sc = scene[sceneRef!.__id__];
+  assert.ok(sc && sc.__type__ === 'cc.Scene', 'SceneAsset.scene must point to a cc.Scene');
+}
+
+// 4) every __id__ reference must lie in [0, array.length); 6) every component.node -> cc.Node.
+function testSceneReferenceGraphConsistent(): void {
+  const { scene } = loadScene();
+
+  const visit = (value: unknown): void => {
+    if (Array.isArray(value)) { value.forEach(visit); return; }
+    if (value && typeof value === 'object') {
+      const obj = value as { __id__?: number };
+      if (typeof obj.__id__ === 'number') {
+        assert.ok(Number.isInteger(obj.__id__) && obj.__id__ >= 0 && obj.__id__ < scene.length,
+          `scene reference __id__=${obj.__id__} must be in [0, ${scene.length})`);
+      }
+      Object.values(value as Record<string, unknown>).forEach(visit);
+    }
+  };
+  scene.forEach(visit);
+
+  for (const o of scene) {
+    if (!o || !o.__type__ || typeof o.__type__ !== 'string') continue;
+    if (o.__type__ === 'cc.SceneAsset' || o.__type__ === 'cc.Scene' || o.__type__ === 'cc.Node') continue;
+    const nodeRef = o.node as { __id__?: number } | undefined;
+    if (nodeRef && typeof nodeRef.__id__ === 'number') {
+      const nd = scene[nodeRef.__id__];
+      assert.ok(nd && nd.__type__ === 'cc.Node', `component ${o.__type__} node must reference a cc.Node (idx ${nodeRef.__id__})`);
+    }
+  }
+
+  // 7) node _parent / _children bidirectional consistency
+  for (let i = 0; i < scene.length; i++) {
+    const o = scene[i];
+    if (!o || o.__type__ !== 'cc.Node') continue;
+    if (o._parent && typeof o._parent.__id__ === 'number') {
+      const p = scene[o._parent.__id__];
+      assert.ok(p, `node ${i} (${o._name}) parent idx ${o._parent.__id__} must exist`);
+      assert.ok(p.__type__ === 'cc.Node' || p.__type__ === 'cc.Scene', `node ${i} parent must be cc.Node/cc.Scene`);
+      if (p._children) assert.ok(p._children.some((c) => c.__id__ === i), `node ${i} (${o._name}) must appear in parent children`);
+    }
+    (o._children ?? []).forEach((c) => {
+      const ch = scene[c.__id__];
+      assert.ok(ch, `node ${i} child idx ${c.__id__} must exist`);
+      assert.ok(ch._parent && ch._parent.__id__ === i, `node ${i} child idx ${c.__id__} parent must be ${i}`);
+    });
+  }
+}
+
+// STEP 7: every required Phase 2 node must survive any scene rebuild.
+function testKeyPhase2NodesPreserved(): void {
+  const { scene } = loadScene();
+  const names = new Set(scene.filter((o) => o && o.__type__ === 'cc.Node').map((o) => o._name as string));
+  const required = [
+    'Canvas', 'GameBootstrap', 'MainView', 'MergeBoard', 'RecruitButton', 'Toast', 'Feedback',
+    'Phase2Root', 'CareerPanel', 'KpiPanel', 'EventPopup', 'PromotionPopup',
+    'WorkplaceNode', 'SectNode', 'MergeNode', 'EventNode', 'WorkButton', 'FishButton',
+  ];
+  for (const n of required) {
+    assert.ok(names.has(n), `required Phase 2 node "${n}" must be present in Main.scene`);
+  }
+  for (const tab of ['Tab_work', 'Tab_sect', 'Tab_merge', 'Tab_event']) {
+    assert.ok(names.has(tab), `bottom tab "${tab}" must be present in Main.scene`);
+  }
+}
+
+testSceneMetaIsSceneAsset();
+testSceneAssetEnvelope();
 testSceneContainsPhase2Root();
 testSceneCustomComponentsResolveToMetaUuids();
 testSceneHasNoDanglingReferences();
+testSceneReferenceGraphConsistent();
+testKeyPhase2NodesPreserved();
 testBootstrapWiresPhase2Root();
 console.log('static scene integrity tests passed');
