@@ -1,7 +1,19 @@
+/**
+ * Minimal headless `cc` module shim for `tsc` / `npm test` / `npm run build`.
+ * Tracked in git — must not reference Cocos Editor cache (`temp/`, `library/`, etc.).
+ * When the project is opened in Creator, the editor supplies full engine types;
+ * this file only augments what headless compilation needs and avoids `any` tokens.
+ */
 declare module 'cc' {
+  /** Inspector property type token for floating-point serialized fields. */
+  export class CCFloat {}
+
+  /** Inspector property type token for integer serialized fields. */
+  export class CCInteger {}
+
   export class Node {
     public getChildByName(name: string): Node | null;
-    public getComponent(type: any): any;
+    public getComponent<T = unknown>(type: new (...args: never[]) => T | string): T | null;
   }
 
   export class Component {
@@ -10,8 +22,12 @@ declare module 'cc' {
     public readonly node: Node;
   }
 
+  type ClassDecorator = <T extends new (...args: never[]) => object>(constructor: T) => T;
+  type PropertyDecorator = (target: object, propertyKey: string | symbol) => void;
+
   export const _decorator: {
-    ccclass(name: string): <T extends new (...args: never[]) => object>(constructor: T) => T;
+    ccclass(name: string): ClassDecorator;
+    property(type?: unknown): PropertyDecorator;
   };
 
   export class UITransform {
