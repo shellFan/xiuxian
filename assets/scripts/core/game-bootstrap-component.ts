@@ -10,6 +10,7 @@ const { ccclass } = _decorator;
 @ccclass('GameBootstrapComponent')
 export class GameBootstrapComponent extends Component {
   private bootstrap: GameBootstrap | undefined;
+  private phase2Root: Phase2Root | undefined;
 
   public get context() { return this.bootstrap?.context; }
 
@@ -32,11 +33,14 @@ export class GameBootstrapComponent extends Component {
     const phase2Node = mainView?.getChildByName('Phase2Root');
     const phase2 = phase2Node?.getComponent(Phase2Root) as Phase2Root | null;
     if (phase2) {
+      this.phase2Root = phase2;
       phase2.bind(this.bootstrap.context);
     }
   }
 
   protected onDestroy(): void {
+    this.phase2Root?.unbind();
+    this.phase2Root = undefined;
     this.bootstrap?.destroy();
     this.bootstrap = undefined;
   }

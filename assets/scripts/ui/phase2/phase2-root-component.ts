@@ -49,8 +49,11 @@ export class Phase2Root extends Component {
   public fishButton?: ButtonLike;
 
   public context?: GameContext;
+  private wired = false;
+  private subscribed = false;
 
   public bind(context: GameContext): void {
+    this.unbind();
     this.context = context;
     this.careerPanel?.bind(context);
     this.kpiPanel?.bind(context);
@@ -63,29 +66,58 @@ export class Phase2Root extends Component {
     this.refreshAll();
   }
 
+  public unbind(): void {
+    this.unwire();
+    this.unsubscribe();
+    this.careerPanel?.unbind();
+    this.kpiPanel?.unbind();
+    this.eventPopup?.unbind();
+    this.promotionPopup?.unbind();
+    this.context = undefined;
+  }
+
   private subscribe(): void {
-    if (!this.context) return;
+    if (!this.context || this.subscribed) return;
     this.context.events.on('mergeCompleted', this.onPhase2Dirty);
     this.context.events.on('salaryChanged', this.onPhase2Dirty);
     this.context.events.on('idleSettled', this.onPhase2Dirty);
     this.context.events.on('phase2Refresh', this.onPhase2Dirty);
+    this.subscribed = true;
   }
 
-  public onDestroy(): void {
-    if (!this.context) return;
+  private unsubscribe(): void {
+    if (!this.context || !this.subscribed) return;
     this.context.events.off('mergeCompleted', this.onPhase2Dirty);
     this.context.events.off('salaryChanged', this.onPhase2Dirty);
     this.context.events.off('idleSettled', this.onPhase2Dirty);
     this.context.events.off('phase2Refresh', this.onPhase2Dirty);
+    this.subscribed = false;
+  }
+
+  public onDestroy(): void {
+    this.unbind();
   }
 
   private wire(): void {
-    this.workplaceTab?.on?.('click', () => this.selectTab('WORKPLACE'), this);
-    this.sectTab?.on?.('click', () => this.selectTab('SECT'), this);
-    this.mergeTab?.on?.('click', () => this.selectTab('MERGE'), this);
-    this.eventTab?.on?.('click', () => this.selectTab('EVENT'), this);
-    this.workButton?.on?.('click', () => this.setMode('WORK'), this);
-    this.fishButton?.on?.('click', () => this.setMode('FISHING'), this);
+    if (this.wired) return;
+    this.workplaceTab?.on?.('click', this.onWorkplaceTab, this);
+    this.sectTab?.on?.('click', this.onSectTab, this);
+    this.mergeTab?.on?.('click', this.onMergeTab, this);
+    this.eventTab?.on?.('click', this.onEventTab, this);
+    this.workButton?.on?.('click', this.onWorkButton, this);
+    this.fishButton?.on?.('click', this.onFishButton, this);
+    this.wired = true;
+  }
+
+  private unwire(): void {
+    if (!this.wired) return;
+    this.workplaceTab?.off?.('click', this.onWorkplaceTab, this);
+    this.sectTab?.off?.('click', this.onSectTab, this);
+    this.mergeTab?.off?.('click', this.onMergeTab, this);
+    this.eventTab?.off?.('click', this.onEventTab, this);
+    this.workButton?.off?.('click', this.onWorkButton, this);
+    this.fishButton?.off?.('click', this.onFishButton, this);
+    this.wired = false;
   }
 
   public selectTab(tab: Phase2Tab): void {
@@ -113,4 +145,10 @@ export class Phase2Root extends Component {
   }
 
   private readonly onPhase2Dirty = (): void => { this.refreshAll(); };
+  private readonly onWorkplaceTab = (): void => { this.selectTab('WORKPLACE'); };
+  private readonly onSectTab = (): void => { this.selectTab('SECT'); };
+  private readonly onMergeTab = (): void => { this.selectTab('MERGE'); };
+  private readonly onEventTab = (): void => { this.selectTab('EVENT'); };
+  private readonly onWorkButton = (): void => { this.setMode('WORK'); };
+  private readonly onFishButton = (): void => { this.setMode('FISHING'); };
 }

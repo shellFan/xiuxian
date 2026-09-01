@@ -25,10 +25,22 @@ export class PromotionPopup extends Component {
   public retryButton?: ButtonLike;
 
   public context?: GameContext;
+  private retryWired = false;
 
   public bind(context: GameContext): void {
+    this.unbind();
     this.context = context;
     this.render();
+  }
+
+  public unbind(): void {
+    this.unwireOptionButtons();
+    this.unwireRetry();
+    this.context = undefined;
+  }
+
+  public onDestroy(): void {
+    this.unbind();
   }
 
   public render(): void {
@@ -43,22 +55,30 @@ export class PromotionPopup extends Component {
       this.set(this.statusLabel, `暂不可渡劫（${view.reason}）`);
     }
     this.set(this.resultLabel, '');
-    // Options are only live when an attempt is allowed AND no pending retry gate blocks it.
     const canInterview = view.allowed && !view.needsRetry;
+    this.unwireOptionButtons();
     const buttons = [this.optionButton1, this.optionButton2, this.optionButton3];
     buttons.forEach((button, index) => {
       const option = view.options[index];
       if (button && option && canInterview) {
-        button.on?.('click', () => this.onInterview(option.id), this);
+        button.on?.('click', this.optionHandlers[index], this);
       }
     });
   }
 
-  private onInterview(optionId: string): void {
+  private unwireOptionButtons(): void {
+    [this.optionButton1, this.optionButton2, this.optionButton3].forEach((button, index) => {
+      button?.off?.('click', this.optionHandlers[index], this);
+    });
+  }
+
+  private onInterviewAt(index: number): void {
     const context = this.context;
     if (!context) return;
+    const option = buildPromotionViewModel(context).options[index];
+    if (!option) return;
     try {
-      const result = context.promotion.promote(optionId);
+      const result = context.promotion.promote(option.id);
       this.set(this.resultLabel, result.success ? `恭喜突破境界！晋升至 ${result.newCareerLevel} 级` : '渡劫失败，道心受损');
       this.render();
       context.events.emit('phase2Refresh', { reason: 'promotion' });
@@ -78,8 +98,23 @@ export class PromotionPopup extends Component {
   }
 
   public bindRetry(): void {
-    this.retryButton?.on?.('click', () => this.onRetry(), this);
+    if (this.retryWired) return;
+    this.retryButton?.on?.('click', this.onRetryClick, this);
+    this.retryWired = true;
   }
+
+  private unwireRetry(): void {
+    if (!this.retryWired) return;
+    this.retryButton?.off?.('click', this.onRetryClick, this);
+    this.retryWired = false;
+  }
+
+  private readonly onRetryClick = (): void => { this.onRetry(); };
+  private readonly optionHandlers = [
+    (): void => { this.onInterviewAt(0); },
+    (): void => { this.onInterviewAt(1); },
+    (): void => { this.onInterviewAt(2); },
+  ] as const;
 
   private set(target: TextLike | undefined, value: string): void {
     if (target) target.string = value;

@@ -15,8 +15,17 @@ export class KpiPanel extends Component {
   public context?: GameContext;
 
   public bind(context: GameContext): void {
+    this.unbind();
     this.context = context;
     this.refresh();
+  }
+
+  public unbind(): void {
+    this.context = undefined;
+  }
+
+  public onDestroy(): void {
+    this.unbind();
   }
 
   public refresh(): void {
