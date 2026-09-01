@@ -117,5 +117,6 @@ export class KpiService {
   private incrementCounter(type: KpiType, amount: number): void {
     const current = this.context.player.kpiProgress[type] ?? 0;
     this.context.player.kpiProgress = { ...this.context.player.kpiProgress, [type]: current + amount };
+    this.context.events.emit('kpiChanged', { careerLevel: this.context.player.careerLevel });
   }
 }

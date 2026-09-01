@@ -53,6 +53,7 @@ export class MindService {
     this.context.player.mind = next;
     try {
       this.context.saveService.save(this.context.player);
+      this.context.events.emit('mindChanged', { delta: next - previous, total: next });
     } catch (error) {
       this.context.player.mind = previous;
       throw error;

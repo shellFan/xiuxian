@@ -1,5 +1,6 @@
 import { _decorator, Component } from 'cc';
 import type { GameContext } from '../../core/game-context';
+import { PHASE2_REFRESH_EVENTS } from '../../core/game-events';
 import { CareerPanel } from './career-panel-component';
 import { KpiPanel } from './kpi-panel-component';
 import { EventPopup } from './event-popup-component';
@@ -78,19 +79,17 @@ export class Phase2Root extends Component {
 
   private subscribe(): void {
     if (!this.context || this.subscribed) return;
-    this.context.events.on('mergeCompleted', this.onPhase2Dirty);
-    this.context.events.on('salaryChanged', this.onPhase2Dirty);
-    this.context.events.on('idleSettled', this.onPhase2Dirty);
-    this.context.events.on('phase2Refresh', this.onPhase2Dirty);
+    for (const event of PHASE2_REFRESH_EVENTS) {
+      this.context.events.on(event, this.onPhase2Dirty);
+    }
     this.subscribed = true;
   }
 
   private unsubscribe(): void {
     if (!this.context || !this.subscribed) return;
-    this.context.events.off('mergeCompleted', this.onPhase2Dirty);
-    this.context.events.off('salaryChanged', this.onPhase2Dirty);
-    this.context.events.off('idleSettled', this.onPhase2Dirty);
-    this.context.events.off('phase2Refresh', this.onPhase2Dirty);
+    for (const event of PHASE2_REFRESH_EVENTS) {
+      this.context.events.off(event, this.onPhase2Dirty);
+    }
     this.subscribed = false;
   }
 

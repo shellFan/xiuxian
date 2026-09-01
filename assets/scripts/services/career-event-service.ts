@@ -2,31 +2,39 @@ import { DEFAULT_CLOCK, type Clock } from '../core/clock';
 import { DEFAULT_RANDOM_PROVIDER, type RandomProvider } from '../core/random-provider';
 import type { GameContext } from '../core/game-context';
 import type { CareerEventConfig } from '../model/config-types';
+import { CareerEventScheduler } from './career-event-scheduler';
 
 export interface CareerEventServiceOptions { readonly clock?: Clock; readonly randomProvider?: RandomProvider; }
 
 export class CareerEventService {
-  private readonly clock: Clock;
   private readonly random: RandomProvider;
-  private nextEventAt: number | undefined;
+  private readonly scheduler: CareerEventScheduler;
   private pending: CareerEventConfig | undefined;
 
   public constructor(private readonly context: GameContext, options: CareerEventServiceOptions = {}) {
-    this.clock = options.clock ?? DEFAULT_CLOCK;
     this.random = options.randomProvider ?? DEFAULT_RANDOM_PROVIDER;
+    this.scheduler = new CareerEventScheduler({
+      clock: options.clock ?? DEFAULT_CLOCK,
+      randomProvider: this.random,
+    });
   }
 
   public current(): CareerEventConfig | undefined { return this.pending; }
 
+  public pause(): void { this.scheduler.pause(); }
+
+  public resume(): void { this.scheduler.resume(); }
+
+  public destroy(): void { this.scheduler.destroy(); }
+
   public poll(): CareerEventConfig | undefined {
     if (this.pending) return this.pending;
-    const now = this.clock.now();
-    if (this.nextEventAt === undefined) this.nextEventAt = now + this.intervalMilliseconds();
-    if (now < this.nextEventAt) return undefined;
+    if (!this.scheduler.isDue()) return undefined;
     const events = this.context.configService.careerEvents.events;
     if (events.length === 0) return undefined;
     this.pending = events[Math.min(events.length - 1, Math.floor(this.random.next() * events.length))];
-    this.nextEventAt = undefined;
+    this.scheduler.markTriggered();
+    this.context.events.emit('eventChanged', { eventId: this.pending.id, pending: true });
     return this.pending;
   }
 
@@ -42,6 +50,7 @@ export class CareerEventService {
     try {
       this.context.effects.apply(event.effects);
       this.pending = undefined;
+      this.context.events.emit('eventChanged', { eventId: event.id, pending: false });
     } catch (error) {
       this.context.player.kpiProgress = kpiProgressBefore;
       throw error;
@@ -60,15 +69,10 @@ export class CareerEventService {
     try {
       this.context.effects.apply(choice.effects);
       this.pending = undefined;
+      this.context.events.emit('eventChanged', { eventId: event.id, pending: false });
     } catch (error) {
       this.context.player.kpiProgress = kpiProgressBefore;
       throw error;
     }
-  }
-
-  private intervalMilliseconds(): number {
-    const minimum = 3 * 60 * 1000;
-    const maximum = 8 * 60 * 1000;
-    return minimum + Math.floor(this.random.next() * (maximum - minimum + 1));
   }
 }

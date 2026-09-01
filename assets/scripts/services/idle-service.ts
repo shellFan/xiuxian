@@ -67,6 +67,7 @@ export class IdleService {
     try {
       if (salary > 0) this.context.events.emit('salaryChanged', { amount: salary, total: this.context.player.salary });
       this.context.events.emit('idleSettled', { settlementId, salary, cultivationExp, elapsedSeconds, capped });
+      this.context.events.emit('offlineRewardChanged', { settlementId, doubled: false });
       this.context.events.emit('gameSaved', { reason: 'idle' });
     } catch { /* UI feedback cannot undo a committed transaction. */ }
     return { salary, cultivationExp, elapsedSeconds, capped, duplicate: false };

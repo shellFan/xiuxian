@@ -20,6 +20,10 @@ export class GameBootstrapComponent extends Component {
     this.wirePhase2Ui();
   }
 
+  protected update(dt: number): void {
+    this.bootstrap?.tick(dt);
+  }
+
   /**
    * Binds the single GameContext created above into the Phase 2 HUD. The context is never created
    * here a second time — it comes from `this.bootstrap`. The Phase2Root node lives under MainView

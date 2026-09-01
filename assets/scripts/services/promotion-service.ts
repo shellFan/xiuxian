@@ -120,12 +120,16 @@ export class PromotionService {
         this.retryRequired = false;
         // The ONLY persistence write for the whole promotion transaction.
         this.context.saveService.save(this.context.player);
+        this.context.events.emit('careerChanged', { careerLevel: this.context.player.careerLevel });
+        this.context.events.emit('promotionChanged', { success: true, careerLevel: this.context.player.careerLevel });
       } else {
         const mindDelta = this.context.mind.applyDelta(-MIND_FAILURE_PENALTY);
         this.context.player.promotionFailCount += 1;
         // A failure re-arms the retry requirement; a new token is needed for another attempt.
         this.retryRequired = true;
         this.context.saveService.save(this.context.player);
+        this.context.events.emit('promotionChanged', { success: false, careerLevel: oldCareerLevel });
+        this.context.events.emit('mindChanged', { delta: mindDelta, total: this.context.player.mind });
         return this.result(false, probability, roll, oldCareerLevel, oldCareerLevel, 0, mindDelta, this.context.player.promotionFailCount);
       }
     } catch (error) {

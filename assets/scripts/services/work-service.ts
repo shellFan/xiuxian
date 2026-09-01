@@ -39,6 +39,7 @@ export class WorkService {
     if (this.context.player.workMode === mode) return;
     this.context.player.workMode = mode;
     this.save();
+    this.context.events.emit('workModeChanged', { mode });
   }
 
   public save(): void {

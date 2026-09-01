@@ -86,6 +86,7 @@ export class OfflineRewardService {
           elapsedSeconds: base.elapsedSeconds,
           capped: base.capped,
         });
+        this.context.events.emit('offlineRewardChanged', { settlementId, doubled: true });
         this.context.events.emit('gameSaved', { reason: 'idle' });
       } catch {
         // Feedback listeners cannot undo a committed transaction.

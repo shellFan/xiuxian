@@ -37,6 +37,7 @@ export class CareerService {
       this.context.player.careerLevel = previousLevel;
       throw error;
     }
+    this.context.events.emit('careerChanged', { careerLevel: this.context.player.careerLevel });
     return true;
   }
 }

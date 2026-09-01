@@ -20,6 +20,7 @@ declare module 'cc' {
     protected onLoad(): void;
     protected onDestroy(): void;
     public readonly node: Node;
+    protected update(dt: number): void;
   }
 
   type ClassDecorator = <T extends new (...args: never[]) => object>(constructor: T) => T;
