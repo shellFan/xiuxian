@@ -1,6 +1,7 @@
 import type { GameContext } from '../core/game-context';
 import type { IdleService, IdleSettlementResult } from './idle-service';
 import type { GameSaveData } from '../model/save-data';
+import { isRewardGranted } from './reward-provider';
 
 /**
  * Wraps IdleService to provide the offline reward popup flow:
@@ -47,14 +48,14 @@ export class OfflineRewardService {
     }
     this.claimingSettlementId = settlementId;
     let settled = false;
-    this.context.rewardProvider.requestReward('OFFLINE_DOUBLE', (granted) => {
+    this.context.rewardProvider.requestReward('OFFLINE_DOUBLE', (result) => {
       // A duplicate provider callback (e.g. a misbehaving ad SDK firing twice) must not grant
       // the reward a second time nor invoke the result callback again.
       if (settled) return;
       if (this.claimingSettlementId !== settlementId) return;
       settled = true;
       this.claimingSettlementId = undefined;
-      if (!granted) {
+      if (!isRewardGranted(result)) {
         onResult(false);
         return;
       }

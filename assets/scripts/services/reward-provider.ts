@@ -1,17 +1,35 @@
-export type RewardType = 'MIND_RECOVERY' | 'OFFLINE_DOUBLE' | 'PROMOTION_RETRY';
+export type RewardType =
+  | 'MIND_RECOVERY'
+  | 'OFFLINE_DOUBLE'
+  | 'PROMOTION_RETRY'
+  | 'EVENT_REROLL'
+  | 'WORK_BOOST'
+  | 'AUTO_MERGE'
+  | 'INSTANT_RECRUIT';
+
+export type RewardResultStatus = 'granted' | 'cancelled' | 'failed';
+
+export interface RewardResult {
+  readonly status: RewardResultStatus;
+  readonly reason?: string;
+}
 
 export interface RewardProvider {
   /** Synchronous mind recovery amount (used by MindService). */
   claimMindRecovery(): number;
   /**
    * Requests a rewarded-ad-style grant. The real implementation would show an ad
-   * and invoke `onComplete` once with the granted flag; the mock resolves
-   * synchronously. Services MUST guard against duplicate callbacks themselves.
+   * and invoke `onComplete` once; the mock resolves synchronously.
+   * Services MUST guard against duplicate callbacks themselves.
    */
-  requestReward(type: RewardType, onComplete: (granted: boolean) => void): void;
+  requestReward(type: RewardType, onComplete: (result: RewardResult) => void): void;
 }
 
-/** Phase 2 本地占位实现；不接入真实广告或网络服务。 */
+export function isRewardGranted(result: RewardResult): boolean {
+  return result.status === 'granted';
+}
+
+/** Phase 3 local mock — no real ad SDK. */
 export class MockRewardProvider implements RewardProvider {
   public constructor(private readonly recoveryAmount = 50) {}
 
@@ -19,7 +37,7 @@ export class MockRewardProvider implements RewardProvider {
     return this.recoveryAmount;
   }
 
-  public requestReward(_type: RewardType, onComplete: (granted: boolean) => void): void {
-    onComplete(true);
+  public requestReward(_type: RewardType, onComplete: (result: RewardResult) => void): void {
+    onComplete({ status: 'granted' });
   }
 }

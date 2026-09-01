@@ -370,9 +370,9 @@ function testOfflineDoubleDuplicateCallbackIgnored(): void {
   const { context } = makeOfflineContext();
   let calls = 0;
   class DoubleCallbackProvider extends MockRewardProvider {
-    public requestReward(_type: 'MIND_RECOVERY' | 'OFFLINE_DOUBLE' | 'PROMOTION_RETRY', onComplete: (granted: boolean) => void): void {
-      onComplete(true);
-      onComplete(true);
+    public requestReward(_type: 'MIND_RECOVERY' | 'OFFLINE_DOUBLE' | 'PROMOTION_RETRY', onComplete: (result: { status: 'granted' | 'cancelled' | 'failed' }) => void): void {
+      onComplete({ status: 'granted' });
+      onComplete({ status: 'granted' });
     }
   }
   const ctx = new GameContext({ player: context.player, storage: new MemoryStorageAdapter(), clock: new FakeClock(1_000 + 3600 * 1000), rewardProvider: new DoubleCallbackProvider() });

@@ -119,9 +119,9 @@ function testDoubleClickOnlyGrantsOnce(): void {
 function testDuplicateRewardCallbackIgnored(): void {
   class DoubleCallbackProvider implements RewardProvider {
     public claimMindRecovery(): number { return 0; }
-    public requestReward(_type: 'MIND_RECOVERY' | 'OFFLINE_DOUBLE' | 'PROMOTION_RETRY', onComplete: (granted: boolean) => void): void {
-      onComplete(true);
-      onComplete(true);
+    public requestReward(_type: 'MIND_RECOVERY' | 'OFFLINE_DOUBLE' | 'PROMOTION_RETRY', onComplete: (result: { status: 'granted' | 'cancelled' | 'failed' }) => void): void {
+      onComplete({ status: 'granted' });
+      onComplete({ status: 'granted' });
     }
   }
   const clock = new FakeClock(1_000);

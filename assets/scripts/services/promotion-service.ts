@@ -2,7 +2,7 @@ import type { GameContext } from '../core/game-context';
 import type { RandomProvider } from '../core/random-provider';
 import { DEFAULT_RANDOM_PROVIDER } from '../core/random-provider';
 import type { RewardProvider } from './reward-provider';
-import { MockRewardProvider } from './reward-provider';
+import { isRewardGranted, MockRewardProvider } from './reward-provider';
 import type { GameSaveData } from '../model/save-data';
 
 export type PromotionReason = 'MAX_LEVEL' | 'KPI_INCOMPLETE' | 'CULTIVATION_INSUFFICIENT' | 'READY';
@@ -157,10 +157,11 @@ export class PromotionService {
     if (!this.retryRequired || this.retryAvailable || this.retryRequested) return;
     this.retryRequested = true;
     let settled = false;
-    this.rewardProvider.requestReward('PROMOTION_RETRY', (granted) => {
+    this.rewardProvider.requestReward('PROMOTION_RETRY', (result) => {
       if (settled) return;
       settled = true;
       this.retryRequested = false;
+      const granted = isRewardGranted(result);
       if (granted) this.retryAvailable = true;
       onResult(granted);
     });
