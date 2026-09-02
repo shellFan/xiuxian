@@ -287,9 +287,12 @@ async function main() {
     case 'approve-phase':
       await cmdApprovePhase();
       break;
-    case 'check':
-      console.log('Self-check not yet implemented for V2. Use "ai:doctor" instead.');
+    case 'check': {
+      const { runIntegrationTest } = await import('./integration-test');
+      const passed = await runIntegrationTest();
+      if (!passed) process.exitCode = 1;
       break;
+    }
     case 'provider-check':
       console.log('Provider check integrated into "ai:doctor --verbose".');
       break;

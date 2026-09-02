@@ -106,10 +106,12 @@ export function buildReviewerContext(
 
 /**
  * Build developer prompt context for Cursor CLI.
+ * Optionally accepts orchestrator context (fix findings, verification results).
  */
 export function buildDeveloperContext(
   task: { id: string; title: string; goal: string; requirements: string[]; acceptanceCriteria: string[]; allowedPaths: string[]; forbiddenPaths: string[]; commands: { install: string; build: string; test: string; lint: string } },
   priorReview?: string,
+  orchestratorContext?: string,
 ): string {
   const parts: string[] = [];
 
@@ -126,6 +128,9 @@ export function buildDeveloperContext(
   if (agentsMd) parts.push(`# AGENTS.md (abbreviated)\n${truncate(agentsMd, 3000, 'AGENTS.md')}`);
 
   if (priorReview) parts.push(`# Prior Review Findings (fix these)\n${truncate(priorReview, 5000, 'review')}`);
+
+  // Orchestrator context (fix context, verification results, etc.)
+  if (orchestratorContext) parts.push(`# Orchestrator Instructions (MUST follow)\n${truncate(orchestratorContext, 10000, 'orchestrator context')}`);
 
   return redactSecrets(parts.join('\n\n'));
 }

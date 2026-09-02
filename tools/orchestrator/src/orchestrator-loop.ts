@@ -21,7 +21,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config, dirs, files } from './config';
-import { Task, TaskStatus, StopReason, RunReport, TaskReport, CheckpointState, PhaseState } from './types';
+import { Task, TaskStatus, StopReason, RunReport, TaskReport, CheckpointState, PhaseState, PlannerContext } from './types';
 import { OpenAIPlannerProvider } from './adapters/openai-planner-provider';
 import { developerAdapter } from './adapters/developer-adapter';
 import { reviewerAdapter } from './adapters/reviewer-adapter';
@@ -32,12 +32,14 @@ import { pendingGates, isGatePassed } from './manual-gate';
 import { isBudgetExceeded, readBudget, budgetSummary, resetBudget } from './budget-tracker';
 import { captureBaseline, delta, pathViolation } from './git-manager';
 import { gitPush, getHeadSha, getCurrentBranch } from './git-push';
-import { moveTask, pendingTasks, loadTask } from './task-loader';
+import { moveTask, pendingTasks, loadTask, allTasks } from './task-loader';
 import { validateTask } from './schema-validator';
 import { getDefaultNotification } from './notification';
 import { log } from './logger';
 import { checkDiffForSecrets } from './secret-redactor';
+import { redactSecrets } from './secret-redactor';
 import { detectDangerousFiles } from './dangerous-diff';
+import { runVerification } from './verification-runner';
 
 let stopRequested = false;
 
@@ -138,13 +140,10 @@ export async function runOrchestratorLoop(options: {
 
       log('ORCHESTRATOR', `Planning next task... (${tasksCompleted}/${maxTasks} completed)`);
 
-      const plannerResult = await planner.planNextTask({
-        phase: currentPhase,
-        recentReports: [],
-        taskStatus: [],
-        gitLog: '',
-        agentsMd: '',
-      });
+      // Build real planner context (MEDIUM-01)
+      const plannerContext = await buildPlannerContextData(currentPhase, report);
+
+      const plannerResult = await planner.planNextTask(plannerContext);
 
       // Handle planner stop reasons
       if (plannerResult.stopReason) {
@@ -244,7 +243,15 @@ export async function runOrchestratorLoop(options: {
 
   } finally {
     releaseLock();
-    clearCheckpoint();
+    // Only clear checkpoint on normal exit (not on errors/crashes)
+    // so that ai:resume can recover
+    const reportStop = report.stopReason;
+    const isNormalExit = reportStop && !['ERROR', 'ESCALATED', 'SECRET_DETECTED', 'DANGEROUS_GIT', 'BRANCH_CHANGED', 'MAIN_MODIFIED'].includes(reportStop);
+    if (isNormalExit) {
+      clearCheckpoint();
+    } else {
+      log('ORCHESTRATOR', `Preserving checkpoint for resume (stopReason=${reportStop})`);
+    }
   }
 }
 
@@ -278,13 +285,13 @@ async function executeOneTask(task: Task): Promise<TaskReport> {
       throw new Error(`PRE_EXISTING_CHANGES_BLOCKED: ${dirtyAllowed.join(', ')}`);
     }
 
-    // Check branch
+    // Check branch — must be on aiBranch, NOT main/master
     const currentBranch = await getCurrentBranch(task.id);
-    if (currentBranch !== config.aiBranch && currentBranch !== 'main' && currentBranch !== 'master') {
-      log(task.id, `Warning: on branch ${currentBranch}, expected ${config.aiBranch}`);
-    }
     if (currentBranch === 'main' || currentBranch === 'master') {
       throw new Error('MAIN_MODIFIED: Cannot run on main/master branch');
+    }
+    if (currentBranch !== config.aiBranch) {
+      throw new Error(`BRANCH_CHANGED: On branch ${currentBranch}, expected ${config.aiBranch}. Stop.`);
     }
 
     // Move task to RUNNING
@@ -314,8 +321,15 @@ async function executeOneTask(task: Task): Promise<TaskReport> {
     const devData = devResult.result;
     taskReport.filesChanged = devData.changedFiles || [];
     taskReport.commits = devData.commits || [];
-    taskReport.testsPassed = devData.build?.passed || false;
-    taskReport.buildPassed = devData.build?.passed || false;
+
+    // === INDEPENDENT VERIFICATION (HIGH-02) ===
+    // Never trust developer self-report — run test/build ourselves
+    updateCheckpointAction('VERIFICATION_START', { taskId: task.id });
+    let verification = await runVerification(currentTask);
+    taskReport.testsPassed = verification.testsPassed;
+    taskReport.buildPassed = verification.buildPassed;
+    log(task.id, `Verification: tests=${verification.testsPassed} build=${verification.buildPassed} duration=${verification.durationMs}ms`);
+    updateCheckpointAction('VERIFICATION_DONE', { taskId: task.id });
 
     updateCheckpointAction('DEVELOPER_DONE', { taskId: task.id, currentSha: await getHeadSha(task.id) });
 
@@ -351,6 +365,38 @@ async function executeOneTask(task: Task): Promise<TaskReport> {
     for (let round = 1; round <= maxRounds; round++) {
       taskReport.reviewRounds = round;
       updateCheckpointAction('REVIEW_START', { taskId: task.id, round });
+
+      // === RE-SCAN before each review round (MEDIUM-05) ===
+      // Refresh delta, re-check secrets and dangerous files
+      const roundDelta = await delta(baseline);
+      gitDelta.changedFiles = roundDelta.changedFiles;
+      gitDelta.patch = roundDelta.patch;
+
+      const roundSecretCheck = checkDiffForSecrets(gitDelta.patch);
+      if (roundSecretCheck.hasSecret) {
+        taskReport.status = 'ESCALATED';
+        taskReport.durationMs = Date.now() - startTime;
+        moveTask(currentTask, 'ESCALATED');
+        return taskReport;
+      }
+
+      const roundDangerous = detectDangerousFiles(gitDelta.changedFiles, gitDelta.patch);
+      const roundBlockers = roundDangerous.filter(f => f.severity === 'BLOCKER');
+      if (roundBlockers.length > 0) {
+        taskReport.status = 'ESCALATED';
+        taskReport.durationMs = Date.now() - startTime;
+        moveTask(currentTask, 'ESCALATED');
+        return taskReport;
+      }
+
+      // Re-run verification after fix rounds (round > 1)
+      if (round > 1) {
+        updateCheckpointAction('RE_VERIFICATION', { taskId: task.id, round });
+        verification = await runVerification(currentTask);
+        taskReport.testsPassed = verification.testsPassed;
+        taskReport.buildPassed = verification.buildPassed;
+        log(task.id, `Re-verification round ${round}: tests=${verification.testsPassed} build=${verification.buildPassed}`);
+      }
 
       const reviewer = reviewerAdapter();
       const reviewResult = await reviewer.review(
@@ -414,8 +460,8 @@ async function executeOneTask(task: Task): Promise<TaskReport> {
         currentTask = moveTask(currentTask, 'FIXING');
         updateCheckpointAction('FIXING_START', { taskId: task.id, round });
 
-        // Build fix context
-        const fixContext = buildFixContext(review);
+        // Build fix context with review findings AND verification results
+        const fixContext = buildFixContext(review, verification);
 
         const fixDev = developerAdapter();
         const fixResult = await fixDev.runTask(currentTask, fixContext);
@@ -444,7 +490,7 @@ async function executeOneTask(task: Task): Promise<TaskReport> {
         fs.mkdirSync(dirs.reports, { recursive: true });
         fs.writeFileSync(
           path.join(dirs.reports, `${task.id}-escalation.md`),
-          `# ${task.id} Escalation\n\nRounds: ${round}\n\n${priorReview}\n\nChanged files: ${gitDelta.changedFiles.join(', ')}`,
+          redactSecrets(`# ${task.id} Escalation\n\nRounds: ${round}\n\n${priorReview}\n\nChanged files: ${gitDelta.changedFiles.join(', ')}`),
         );
 
         return taskReport;
@@ -464,13 +510,105 @@ async function executeOneTask(task: Task): Promise<TaskReport> {
   }
 }
 
+/**
+ * Build real planner context data with actual task status, git log, etc.
+ */
+async function buildPlannerContextData(phase: PhaseState, report: RunReport): Promise<PlannerContext> {
+  // Task status summaries
+  const taskStatus = allTasks().map(t => ({
+    id: t.id,
+    status: t.status,
+    priority: t.priority,
+    title: t.title,
+  }));
+
+  // Recent reports
+  const reportsDir = path.join(dirs.reports, 'tasks');
+  let recentReports: string[] = [];
+  try {
+    if (fs.existsSync(reportsDir)) {
+      recentReports = fs.readdirSync(reportsDir)
+        .filter(f => f.endsWith('.md'))
+        .sort()
+        .slice(-5);
+    }
+  } catch { /* ignore */ }
+
+  // Git log
+  let gitLog = '';
+  try {
+    const { runCommand } = await import('./command-runner');
+    const result = await runCommand('git', ['log', '--oneline', '-20'], 'PLANNER');
+    gitLog = result.success ? result.stdout.trim() : '';
+  } catch { /* ignore */ }
+
+  // AGENTS.md
+  let agentsMd = '';
+  try {
+    const agentsPath = path.join(dirs.root, 'AGENTS.md');
+    if (fs.existsSync(agentsPath)) {
+      agentsMd = fs.readFileSync(agentsPath, 'utf8').slice(0, 5000);
+    }
+  } catch { /* ignore */ }
+
+  // Last review from current run
+  const lastTask = report.tasks[report.tasks.length - 1];
+  const lastReview = lastTask && lastTask.findings && lastTask.findings.length > 0
+    ? JSON.stringify(lastTask.findings)
+    : undefined;
+
+  return {
+    phase,
+    recentReports,
+    taskStatus,
+    gitLog,
+    agentsMd,
+    lastReview,
+  };
+}
+
 function buildTaskContext(task: Task, patch: string, files: string[], prior = ''): string {
   const lifecycle = `ai/tasks/${task.status.toLowerCase()}/${task.id}.json`;
   return `AGENTS.md\nTask:\n${JSON.stringify(task, null, 2)}\nOrchestrator lifecycle note:\n${lifecycle} and deletion of the prior status file are orchestrator-owned expected changes, not pre-existing user changes. Do not block on or modify these lifecycle files.\nChanged files:\n${files.join('\n')}\nPatch:\n${patch}\nPrior review:\n${prior}`;
 }
 
-function buildFixContext(review: { blocker: string[]; high: string[]; requiredFixes: string[] }): string {
-  return `Required fixes:\n${[...review.blocker, ...review.high, ...review.requiredFixes].map(x => `- ${x}`).join('\n')}`;
+function buildFixContext(review: { blocker: string[]; high: string[]; medium: string[]; low: string[]; requiredFixes: string[]; findings?: { severity: string; file: string; line: number; title: string; detail: string; requiredFix: string }[]; summary?: string }, verification?: { testsPassed: boolean; buildPassed: boolean; testOutput: string; buildOutput: string }): string {
+  const parts: string[] = [];
+
+  // Summary
+  if (review.summary) parts.push(`Review Summary: ${review.summary}`);
+
+  // Required fixes (blocker + high + requiredFixes)
+  const allRequired = [...review.blocker, ...review.high, ...review.requiredFixes];
+  if (allRequired.length > 0) {
+    parts.push(`# Required Fixes (MUST address all before re-review)`);
+    parts.push(allRequired.map(x => `- ${x}`).join('\n'));
+  }
+
+  // Medium findings
+  if (review.medium.length > 0) {
+    parts.push(`# Medium Findings (should address)`);
+    parts.push(review.medium.map(x => `- ${x}`).join('\n'));
+  }
+
+  // Structured findings
+  if (review.findings && review.findings.length > 0) {
+    parts.push(`# Detailed Findings`);
+    for (const f of review.findings) {
+      parts.push(`- [${f.severity}] ${f.file}:${f.line} — ${f.title}\n  Detail: ${f.detail}\n  Fix: ${f.requiredFix}`);
+    }
+  }
+
+  // Verification results
+  if (verification) {
+    parts.push(`# Verification Results (independent, NOT from developer self-report)`);
+    parts.push(`Tests: ${verification.testsPassed ? 'PASS' : 'FAIL'}`);
+    parts.push(`Build: ${verification.buildPassed ? 'PASS' : 'FAIL'}`);
+    if (!verification.testsPassed) parts.push(`Test Output:\n${verification.testOutput.slice(0, 3000)}`);
+    if (!verification.buildPassed) parts.push(`Build Output:\n${verification.buildOutput.slice(0, 3000)}`);
+  }
+
+  return parts.join('\n\n');
 }
 
 function ensureDirs(): void {
@@ -490,11 +628,11 @@ function ensureDirs(): void {
 function writeReport(report: RunReport): void {
   const reportFile = path.join(dirs.reports, `tasks`, `${report.startedAt.replace(/[:.]/g, '-')}.md`);
   fs.mkdirSync(path.dirname(reportFile), { recursive: true });
-  fs.writeFileSync(reportFile, formatReport(report));
+  fs.writeFileSync(reportFile, redactSecrets(formatReport(report)));
 }
 
 function writeLatestReport(report: RunReport): void {
-  fs.writeFileSync(files.latestReport, formatReport(report));
+  fs.writeFileSync(files.latestReport, redactSecrets(formatReport(report)));
 }
 
 function formatReport(report: RunReport): string {

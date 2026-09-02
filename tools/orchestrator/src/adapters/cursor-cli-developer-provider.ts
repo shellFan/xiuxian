@@ -14,6 +14,7 @@ import { config, dirs, root } from '../config';
 import { runProcess, commandExists, findCommand } from '../process-runner';
 import { recordCall } from '../budget-tracker';
 import { buildDeveloperContext } from '../context-builder';
+import { redactSecrets } from '../secret-redactor';
 import { log } from '../logger';
 import {
   DeveloperAdapter, Task, AgentExecutionResult, DeveloperResult,
@@ -47,12 +48,20 @@ function resolveCursorCommand(): string {
 
 /**
  * Build the full prompt for Cursor CLI agent.
+ * Accepts orchestrator context string which includes fix context for review rounds.
  */
-function buildCursorPrompt(task: Task, priorReview?: string): string {
+function buildCursorPrompt(task: Task, priorReview?: string, context?: string): string {
   const systemPrompt = readDeveloperSystemPrompt();
   const taskContext = buildDeveloperContext(task, priorReview);
 
-  return `${systemPrompt}\n\n---\n\n${taskContext}\n\n---\n\nIMPORTANT: Output your final result as a JSON object matching the developer schema. The JSON must include: taskId, status, summary, commits, filesChanged, tests, build, knownIssues, gitStatus, pushStatus.`;
+  const parts: string[] = [systemPrompt, taskContext];
+
+  // Include orchestrator context (fix context from review findings, verification results, etc.)
+  if (context) {
+    parts.push(`# Orchestrator Context (MUST follow)\n${context}`);
+  }
+
+  return `${parts.join('\n\n---\n\n')}\n\n---\n\nIMPORTANT: Output your final result as a JSON object matching the developer schema. The JSON must include: taskId, status, summary, commits, filesChanged, tests, build, knownIssues, gitStatus, pushStatus.`;
 }
 
 /**
@@ -101,8 +110,8 @@ export class CursorCliDeveloperProvider implements DeveloperAdapter {
 
     log(taskId, `Starting Cursor CLI Developer for task: ${task.title}`);
 
-    // Build the prompt
-    const prompt = buildCursorPrompt(task);
+    // Build the prompt — pass context for fix rounds
+    const prompt = buildCursorPrompt(task, undefined, context);
 
     // Ensure log directory exists
     const cursorLogDir = path.join(dirs.logs, 'cursor');
@@ -128,15 +137,15 @@ export class CursorCliDeveloperProvider implements DeveloperAdapter {
       const durationMs = Date.now() - started;
       recordCall('cursor', config.cursorModel, durationMs);
 
-      // Log stdout and stderr
+      // Log stdout and stderr (redacted for secrets)
       try {
         fs.writeFileSync(
           path.join(cursorLogDir, `${taskId}.stdout.log`),
-          result.stdout.slice(0, 50000), // Limit log size
+          redactSecrets(result.stdout.slice(0, 50000)), // Limit log size
         );
         fs.writeFileSync(
           path.join(cursorLogDir, `${taskId}.stderr.log`),
-          result.stderr.slice(0, 10000),
+          redactSecrets(result.stderr.slice(0, 10000)),
         );
       } catch { /* log write failure non-critical */ }
 
