@@ -117,8 +117,8 @@ export class DailyService {
     this.context.player.dailySignIn = { lastClaimTime: now, currentDay: nextDay };
 
     // Apply rewards
-    if (reward.salary > 0) this.context.economy.addSalary(reward.salary);
-    if (reward.cultivationExp > 0) this.context.cultivation.addExp(reward.cultivationExp);
+    if (reward.salary > 0) this.context.economy.changeSalary(reward.salary);
+    if (reward.cultivationExp > 0) this.context.cultivation.applyIdleExperience(reward.cultivationExp);
     if (reward.mind > 0) this.context.mind.change(reward.mind);
 
     this.context.events.emit('dailySignInClaimed', { day: nextDay, salary: reward.salary, cultivationExp: reward.cultivationExp, mind: reward.mind, grace: isGrace });

@@ -20,7 +20,7 @@
     "ai:integration-test": "tsx tools/orchestrator/src/integration-test.ts",
     "ai:live-smoke": "tsx tools/orchestrator/src/live-smoke.ts",
     "test": "tsc -p tsconfig.game.json --outDir tests/.compiled --noEmit false && node tests/run-all.cjs",
-    "build": "tsc -p tsconfig.game.json --noEmit",
+    "build": "npm run build:game && npm run build:orchestrator",
     "build:game": "tsc -p tsconfig.game.json --noEmit",
     "build:orchestrator": "tsc -p tools/orchestrator/tsconfig.json --noEmit",
     "build:all": "npm run build:game && npm run build:orchestrator"

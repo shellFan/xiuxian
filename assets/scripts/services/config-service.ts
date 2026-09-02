@@ -218,7 +218,7 @@ function validateDaily(daily: Record<string, unknown>): void {
     const item = raw as Record<string, unknown>;
     requireNumber(item.day, `daily.rewards[${index}].day`);
     const day = item.day as number;
-    if (!Number.isSafeInteger(day) || day < 1 || day > daily.cycleDays) fail(`daily.rewards[${index}].day must be between 1 and ${daily.cycleDays}`);
+    if (!Number.isSafeInteger(day) || day < 1 || day > (daily.cycleDays as number)) fail(`daily.rewards[${index}].day must be between 1 and ${daily.cycleDays}`);
     if (seenDays.has(day)) fail(`daily.rewards contains duplicate day ${day}`);
     seenDays.add(day);
     requireNumber(item.salary, `daily.rewards[${index}].salary`);

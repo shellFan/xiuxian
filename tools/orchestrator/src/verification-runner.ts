@@ -22,8 +22,44 @@ export interface VerificationResult {
 /** Allowed command prefixes for safety — only npm/node/npx/tsc */
 const ALLOWED_PREFIXES = ['npm', 'node', 'npx', 'tsc', 'yarn', 'pnpm'];
 
+/**
+ * Tokenize a command string properly, handling quoted arguments.
+ * "npm run build:orchestrator" → ["npm", "run", "build:orchestrator"]
+ * 'node "C:/Program Files/app.js"' → ["node", "C:/Program Files/app.js"]
+ */
+export function tokenizeCommand(cmd: string): string[] {
+  const tokens: string[] = [];
+  let current = '';
+  let inQuote = false;
+  let quoteChar = '';
+
+  for (let i = 0; i < cmd.length; i++) {
+    const ch = cmd[i];
+    if (inQuote) {
+      if (ch === quoteChar) {
+        inQuote = false;
+      } else {
+        current += ch;
+      }
+    } else if (ch === '"' || ch === "'") {
+      inQuote = true;
+      quoteChar = ch;
+    } else if (ch === ' ' || ch === '\t') {
+      if (current) {
+        tokens.push(current);
+        current = '';
+      }
+    } else {
+      current += ch;
+    }
+  }
+  if (current) tokens.push(current);
+  return tokens;
+}
+
 function isCommandSafe(cmd: string): boolean {
-  const base = cmd.split(/\s+/)[0].toLowerCase();
+  const tokens = tokenizeCommand(cmd);
+  const base = (tokens[0] || '').toLowerCase();
   // Check allowed prefixes
   if (ALLOWED_PREFIXES.some(p => base === p || base.endsWith(`/${p}`) || base.endsWith(`\\${p}`))) {
     return true;
@@ -61,7 +97,7 @@ export async function runVerification(
     } else {
       try {
         log(taskId, `Verification: running tests: ${testCommand}`);
-        const parts = testCommand.split(/\s+/);
+        const parts = tokenizeCommand(testCommand);
         const cmd = parts[0];
         const args = parts.slice(1);
         const result = await runCommand(cmd, args, taskId, signal);
@@ -89,7 +125,7 @@ export async function runVerification(
     } else {
       try {
         log(taskId, `Verification: running build: ${buildCommand}`);
-        const parts = buildCommand.split(/\s+/);
+        const parts = tokenizeCommand(buildCommand);
         const cmd = parts[0];
         const args = parts.slice(1);
         const result = await runCommand(cmd, args, taskId, signal);

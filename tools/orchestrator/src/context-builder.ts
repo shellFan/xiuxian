@@ -41,9 +41,10 @@ export function buildPlannerContext(phase: { currentPhase: number; status: strin
   // Phase state
   parts.push(`# Current Phase\nPhase: ${phase.currentPhase}\nStatus: ${phase.status}`);
 
-  // Recent reports (last 3)
+  // Recent reports — content already included by buildPlannerContextData (MEDIUM-02)
+  // recentReports now contains "filename + content" strings, not just filenames
   for (const report of recentReports.slice(-3)) {
-    parts.push(`# Report: ${report}\n${truncate(readFileSafe(path.join(dirs.reports, report)), 3000, 'report')}`);
+    parts.push(truncate(report, 3000, 'report'));
   }
 
   // Task status summary
