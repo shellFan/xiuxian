@@ -1,4 +1,4 @@
-import type { CareerConfig, CareerEventBundle, ConfigBundle, EconomyConfig, GameConfig, KpiBundle, OfficeBundle, PromotionBundle, SectBundle, TalentBundle, WorkerConfig } from '../model/config-types';
+import type { CareerConfig, CareerEventBundle, ConfigBundle, EconomyConfig, GameConfig, KpiBundle, OfficeBundle, PromotionBundle, SectBundle, TalentBundle, WorkerConfig, AchievementBundle, DailyBundle } from '../model/config-types';
 
 export class ConfigValidationError extends Error {
   public constructor(message: string) {
@@ -18,6 +18,8 @@ export class ConfigService {
   public readonly kpi: KpiBundle;
   public readonly office: OfficeBundle;
   public readonly promotion: PromotionBundle;
+  public readonly achievements: AchievementBundle;
+  public readonly daily: DailyBundle;
 
   private constructor(config: ConfigBundle) {
     this.worker = deepFreeze(config.worker);
@@ -30,6 +32,8 @@ export class ConfigService {
     this.kpi = deepFreeze(config.kpi ?? { levels: [] });
     this.office = deepFreeze(config.office ?? defaultOfficeConfig());
     this.promotion = deepFreeze(config.promotion ?? { options: [] });
+    this.achievements = deepFreeze(config.achievements ?? { achievements: [] });
+    this.daily = deepFreeze(config.daily ?? { rewards: [], cycleDays: 7, graceHours: 3 });
     Object.freeze(this);
   }
 
@@ -38,8 +42,8 @@ export class ConfigService {
     return new ConfigService(raw as ConfigBundle);
   }
 
-  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown, careerEvents?: unknown, kpi?: unknown, office?: unknown, promotion?: unknown): ConfigService {
-    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined, careerEvents: careerEvents as CareerEventBundle | undefined, kpi: kpi as KpiBundle | undefined, office: office as OfficeBundle | undefined, promotion: promotion as PromotionBundle | undefined });
+  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown, careerEvents?: unknown, kpi?: unknown, office?: unknown, promotion?: unknown, achievements?: unknown, daily?: unknown): ConfigService {
+    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined, careerEvents: careerEvents as CareerEventBundle | undefined, kpi: kpi as KpiBundle | undefined, office: office as OfficeBundle | undefined, promotion: promotion as PromotionBundle | undefined, achievements: achievements as AchievementBundle | undefined, daily: daily as DailyBundle | undefined });
   }
 }
 
@@ -59,6 +63,8 @@ function validateBundle(raw: unknown): asserts raw is ConfigBundle {
   if (bundle.kpi !== undefined) validateKpi(bundle.kpi as Record<string, unknown>);
   if (bundle.office !== undefined) validateOffice(bundle.office as Record<string, unknown>);
   if (bundle.promotion !== undefined) validatePromotion(bundle.promotion as Record<string, unknown>);
+  if (bundle.achievements !== undefined) validateAchievements(bundle.achievements as Record<string, unknown>);
+  if (bundle.daily !== undefined) validateDaily(bundle.daily as Record<string, unknown>);
 }
 
 const VALID_CAREER_EVENT_TYPES = ['POSITIVE', 'NEGATIVE', 'CHOICE', 'RARE', 'EASTER_EGG'];
@@ -198,6 +204,32 @@ function validateOffice(office: Record<string, unknown>): void {
   for (let career = 1; career <= 10; career += 1) if (!covered.has(career)) fail(`office.offices does not cover career level ${career}`);
 }
 
+function validateDaily(daily: Record<string, unknown>): void {
+  requireNumber(daily.cycleDays, 'daily.cycleDays');
+  requireNumber(daily.graceHours, 'daily.graceHours');
+  if (!Number.isSafeInteger(daily.cycleDays) || daily.cycleDays < 1) fail('daily.cycleDays must be a positive safe integer');
+  if (!Number.isSafeInteger(daily.graceHours) || daily.graceHours < 0 || daily.graceHours > 24) fail('daily.graceHours must be a safe integer between 0 and 24');
+  if (!Array.isArray(daily.rewards)) fail('daily.rewards must be an array');
+  const rewards = daily.rewards as unknown[];
+  if (rewards.length === 0) fail('daily.rewards must not be empty');
+  const seenDays = new Set<number>();
+  rewards.forEach((raw, index) => {
+    requireObject(raw, `daily.rewards[${index}]`);
+    const item = raw as Record<string, unknown>;
+    requireNumber(item.day, `daily.rewards[${index}].day`);
+    const day = item.day as number;
+    if (!Number.isSafeInteger(day) || day < 1 || day > daily.cycleDays) fail(`daily.rewards[${index}].day must be between 1 and ${daily.cycleDays}`);
+    if (seenDays.has(day)) fail(`daily.rewards contains duplicate day ${day}`);
+    seenDays.add(day);
+    requireNumber(item.salary, `daily.rewards[${index}].salary`);
+    requireNumber(item.cultivationExp, `daily.rewards[${index}].cultivationExp`);
+    requireNumber(item.mind, `daily.rewards[${index}].mind`);
+    if ((item.salary as number) < 0) fail(`daily.rewards[${index}].salary must be non-negative`);
+    if ((item.cultivationExp as number) < 0) fail(`daily.rewards[${index}].cultivationExp must be non-negative`);
+    if ((item.mind as number) < 0) fail(`daily.rewards[${index}].mind must be non-negative`);
+  });
+}
+
 function validatePromotion(promotion: Record<string, unknown>): void {
   if (!Array.isArray(promotion.options) || promotion.options.length < 3) fail('promotion.options must contain at least 3 options');
   const ids = new Set<string>();
@@ -209,6 +241,36 @@ function validatePromotion(promotion: Record<string, unknown>): void {
     ids.add(item.id as string);
     requireString(item.name, `promotion.options[${index}].name`);
     requireString(item.description, `promotion.options[${index}].description`);
+  });
+}
+
+const VALID_ACHIEVEMENT_CATEGORIES = ['MERGE', 'SALARY', 'CAREER', 'EVENT', 'PROMOTION', 'OFFICE', 'MIND', 'IDLE', 'SECT', 'TALENT', 'WORK'];
+const VALID_ACHIEVEMENT_CONDITION_TYPES = ['KPI', 'SALARY', 'CAREER_LEVEL', 'EVENT_TYPE', 'PROMOTION', 'OFFICE_LEVEL', 'MIND_FULL', 'IDLE_CLAIM', 'SECT_JOIN', 'TALENT_PICK', 'WORK_SECONDS'];
+
+function validateAchievements(achievements: Record<string, unknown>): void {
+  if (!Array.isArray(achievements.achievements)) fail('achievements.achievements must be an array');
+  const ids = new Set<string>();
+  (achievements.achievements as unknown[]).forEach((raw, index) => {
+    requireObject(raw, `achievements.achievements[${index}]`);
+    const item = raw as Record<string, unknown>;
+    requireString(item.id, `achievements.achievements[${index}].id`);
+    if (ids.has(item.id as string)) fail(`achievements.achievements contains duplicate id ${item.id}`);
+    ids.add(item.id as string);
+    requireString(item.name, `achievements.achievements[${index}].name`);
+    requireString(item.description, `achievements.achievements[${index}].description`);
+    if (typeof item.category !== 'string' || !VALID_ACHIEVEMENT_CATEGORIES.includes(item.category)) fail(`achievements.achievements[${index}].category is invalid`);
+    requireObject(item.condition, `achievements.achievements[${index}].condition`);
+    const condition = item.condition as Record<string, unknown>;
+    if (typeof condition.type !== 'string' || !VALID_ACHIEVEMENT_CONDITION_TYPES.includes(condition.type)) fail(`achievements.achievements[${index}].condition.type is invalid`);
+    if (condition.type === 'KPI') {
+      requireString(condition.kpiKey, `achievements.achievements[${index}].condition.kpiKey`);
+    }
+    if (condition.type === 'EVENT_TYPE') {
+      requireString(condition.eventType, `achievements.achievements[${index}].condition.eventType`);
+    }
+    if (condition.target !== undefined) {
+      requireNumber(condition.target, `achievements.achievements[${index}].condition.target`);
+    }
   });
 }
 

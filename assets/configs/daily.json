@@ -1,0 +1,13 @@
+{
+  "rewards": [
+    { "day": 1, "salary": 50, "cultivationExp": 0, "mind": 0 },
+    { "day": 2, "salary": 80, "cultivationExp": 10, "mind": 0 },
+    { "day": 3, "salary": 100, "cultivationExp": 20, "mind": 5 },
+    { "day": 4, "salary": 150, "cultivationExp": 30, "mind": 10 },
+    { "day": 5, "salary": 200, "cultivationExp": 50, "mind": 15 },
+    { "day": 6, "salary": 300, "cultivationExp": 80, "mind": 20 },
+    { "day": 7, "salary": 500, "cultivationExp": 150, "mind": 30 }
+  ],
+  "cycleDays": 7,
+  "graceHours": 3
+}

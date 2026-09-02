@@ -19,6 +19,7 @@ function testPhase2RefreshEventListIsExplicit(): void {
     'eventChanged',
     'promotionChanged',
     'offlineRewardChanged',
+    'achievementUnlocked',
   ];
   assert.deepEqual([...PHASE2_REFRESH_EVENTS].sort(), [...expected].sort());
 }

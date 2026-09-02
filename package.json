@@ -3,11 +3,19 @@
   "private": true,
   "version": "3.8.4",
   "scripts": {
+    "ai:start": "tsx tools/orchestrator/src/index.ts start",
+    "ai:once": "tsx tools/orchestrator/src/index.ts once",
+    "ai:plan": "tsx tools/orchestrator/src/index.ts plan",
+    "ai:status": "tsx tools/orchestrator/src/index.ts status",
+    "ai:doctor": "tsx tools/orchestrator/src/index.ts doctor",
+    "ai:resume": "tsx tools/orchestrator/src/index.ts resume",
+    "ai:stop": "tsx tools/orchestrator/src/index.ts stop",
+    "ai:gate": "tsx tools/orchestrator/src/index.ts gate",
+    "ai:approve-phase": "tsx tools/orchestrator/src/index.ts approve-phase",
     "ai:dev": "tsx tools/orchestrator/src/index.ts dev",
     "ai:task": "tsx tools/orchestrator/src/index.ts task",
     "ai:review": "tsx tools/orchestrator/src/index.ts review",
-    "ai:status": "tsx tools/orchestrator/src/index.ts status",
-    "ai:provider-check": "tsx tools/orchestrator/src/index.ts provider-check",
+    "ai:provider-check": "tsx tools/orchestrator/src/index.ts doctor --verbose",
     "ai:check": "tsx tools/orchestrator/src/index.ts check",
     "test": "tsc -p tsconfig.game.json --outDir tests/.compiled --noEmit false && node tests/run-all.cjs",
     "build": "tsc -p tsconfig.game.json --noEmit"
@@ -15,7 +23,8 @@
   "dependencies": {
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "openai": "^6.49.0"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",

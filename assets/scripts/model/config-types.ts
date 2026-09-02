@@ -57,6 +57,8 @@ export interface ConfigBundle {
   readonly kpi?: KpiBundle;
   readonly office?: OfficeBundle;
   readonly promotion?: PromotionBundle;
+  readonly achievements?: AchievementBundle;
+  readonly daily?: DailyBundle;
 }
 
 /**
@@ -96,3 +98,40 @@ export interface OfficeConfig {
   readonly maxCareerLevel: number;
 }
 export interface OfficeBundle { readonly offices: readonly OfficeConfig[]; }
+
+export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK';
+
+export type AchievementConditionType =
+  | 'KPI' | 'SALARY' | 'CAREER_LEVEL' | 'EVENT_TYPE'
+  | 'PROMOTION' | 'OFFICE_LEVEL' | 'MIND_FULL'
+  | 'IDLE_CLAIM' | 'SECT_JOIN' | 'TALENT_PICK' | 'WORK_SECONDS';
+
+export interface AchievementCondition {
+  readonly type: AchievementConditionType;
+  readonly kpiKey?: string;
+  readonly target?: number;
+  readonly eventType?: string;
+}
+
+export interface AchievementConfig {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly category: AchievementCategory;
+  readonly condition: AchievementCondition;
+}
+
+export interface AchievementBundle { readonly achievements: readonly AchievementConfig[]; }
+
+export interface DailyRewardConfig {
+  readonly day: number;
+  readonly salary: number;
+  readonly cultivationExp: number;
+  readonly mind: number;
+}
+
+export interface DailyBundle {
+  readonly rewards: readonly DailyRewardConfig[];
+  readonly cycleDays: number;
+  readonly graceHours: number;
+}

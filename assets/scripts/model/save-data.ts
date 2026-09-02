@@ -1,6 +1,13 @@
-export const CURRENT_SAVE_VERSION = 3;
+export const CURRENT_SAVE_VERSION = 4;
 
 export type WorkMode = 'WORK' | 'FISHING';
+
+export interface DailySignInState {
+  /** Timestamp (ms) of the last sign-in claim */
+  readonly lastClaimTime: number;
+  /** Current day in the 7-day cycle (1-based) */
+  readonly currentDay: number;
+}
 
 export interface WorkerSaveData {
   readonly id: string;
@@ -34,4 +41,6 @@ export interface GameSaveData {
   readonly mindRemainder?: number;
   readonly workMindRemainder?: number;
   readonly fishingMindRemainder?: number;
+  readonly unlockedAchievementIds?: readonly string[];
+  readonly dailySignIn?: DailySignInState | null;
 }

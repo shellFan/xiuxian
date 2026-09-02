@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -24,6 +24,8 @@ export interface PlayerDataOptions {
   readonly mindRemainder?: number;
   readonly workMindRemainder?: number;
   readonly fishingMindRemainder?: number;
+  readonly unlockedAchievementIds?: readonly string[];
+  readonly dailySignIn?: DailySignInState | null;
 }
 
 export class PlayerData {
@@ -56,6 +58,8 @@ export class PlayerData {
   public mindRemainder: number;
   public workMindRemainder: number;
   public fishingMindRemainder: number;
+  public unlockedAchievementIds: string[];
+  public dailySignIn: DailySignInState | null;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -81,6 +85,8 @@ export class PlayerData {
     this.mindRemainder = normalizeRemainder(options.mindRemainder);
     this.workMindRemainder = normalizeRemainder(options.workMindRemainder);
     this.fishingMindRemainder = normalizeRemainder(options.fishingMindRemainder);
+    this.unlockedAchievementIds = [...(options.unlockedAchievementIds ?? [])];
+    this.dailySignIn = options.dailySignIn ?? null;
   }
 
   public static createDefault(): PlayerData {
@@ -98,6 +104,8 @@ export class PlayerData {
       performance: this.performance, sectId: this.sectId, talentId: this.talentId, workMode: this.workMode,
       workSeconds: this.workSeconds, fishingSeconds: this.fishingSeconds, kpiProgress: { ...this.kpiProgress },
       promotionFailCount: this.promotionFailCount, officeLevel: this.officeLevel, lastIdleSettlementId: this.lastIdleSettlementId,
+      unlockedAchievementIds: [...this.unlockedAchievementIds],
+      dailySignIn: this.dailySignIn ? { ...this.dailySignIn } : null,
     };
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
     if (this.cultivationRemainder !== 0) Object.assign(data, { cultivationRemainder: this.cultivationRemainder });

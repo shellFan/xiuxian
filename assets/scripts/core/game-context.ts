@@ -32,6 +32,10 @@ import promotionConfig from '../../configs/promotion.json';
 import { OfficeService } from '../services/office-service';
 import { EffectService } from '../services/effect-service';
 import { CareerEventService } from '../services/career-event-service';
+import { AchievementService } from '../services/achievement-service';
+import { DailyService } from '../services/daily-service';
+import achievementsConfig from '../../configs/achievements.json';
+import dailyConfig from '../../configs/daily.json';
 
 export interface GameContextOptions {
   readonly board?: MergeBoard;
@@ -68,6 +72,8 @@ export class GameContext {
   public readonly kpi: KpiService;
   public readonly promotion: PromotionService;
   public readonly office: OfficeService;
+  public readonly achievements: AchievementService;
+  public readonly daily: DailyService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -95,7 +101,7 @@ export class GameContext {
       });
     }
     this.player = options.player ?? new PlayerData(saved);
-    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig,  gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig, kpiConfig, officeConfig, promotionConfig);
+    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig, kpiConfig, officeConfig, promotionConfig, achievementsConfig, dailyConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
     });
@@ -115,6 +121,8 @@ export class GameContext {
     this.kpi = new KpiService(this);
     this.promotion = new PromotionService(this, { randomProvider: options.randomProvider, rewardProvider: this.rewardProvider });
     this.office = new OfficeService(this);
+    this.achievements = new AchievementService(this, this.configService.achievements);
+    this.daily = new DailyService(this, this.configService.daily, { clock: options.clock });
   }
 
   public syncPlayerWorkers(): void {

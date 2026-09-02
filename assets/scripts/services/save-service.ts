@@ -88,6 +88,8 @@ function migrate(raw: unknown): GameSaveData {
     promotionFailCount: isNonNegativeSafeInteger(raw.promotionFailCount) ? raw.promotionFailCount : 0,
     officeLevel: isPositiveSafeInteger(raw.officeLevel) ? raw.officeLevel : 1,
     lastIdleSettlementId: typeof raw.lastIdleSettlementId === 'string' ? raw.lastIdleSettlementId : null,
+    unlockedAchievementIds: Array.isArray(raw.unlockedAchievementIds) ? (raw.unlockedAchievementIds as unknown[]).filter(isString) : [],
+    dailySignIn: isDailySignInState(raw.dailySignIn) ? { lastClaimTime: raw.dailySignIn.lastClaimTime, currentDay: raw.dailySignIn.currentDay } : null,
   };
   if (isNonNegativeSafeInteger(raw.salaryRemainder) && raw.salaryRemainder !== 0) dataWithRemainder(data, 'salaryRemainder', raw.salaryRemainder);
   if (isNonNegativeSafeInteger(raw.cultivationRemainder) && raw.cultivationRemainder !== 0) dataWithRemainder(data, 'cultivationRemainder', raw.cultivationRemainder);
@@ -105,7 +107,7 @@ function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultiva
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {
-  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress } };
+  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null };
 }
 
 function isWorker(value: unknown): value is WorkerSaveData {
@@ -122,6 +124,11 @@ function isNonNegativeSafeInteger(value: unknown): value is number {
   return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 }
 function isPositiveSafeInteger(value: unknown): value is number { return isNonNegativeSafeInteger(value) && value >= 1; }
+function isString(value: unknown): value is string { return typeof value === 'string'; }
+function isDailySignInState(value: unknown): value is import('../model/save-data').DailySignInState {
+  if (!isRecord(value)) return false;
+  return isNonNegativeSafeInteger(value.lastClaimTime) && isPositiveSafeInteger(value.currentDay);
+}
 function numericRecord(value: Record<string, unknown>): Record<string, number> {
   return Object.fromEntries(Object.entries(value).filter(([, item]) => isNonNegativeSafeInteger(item))) as Record<string, number>;
 }

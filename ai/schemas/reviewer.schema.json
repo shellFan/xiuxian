@@ -1,5 +1,23 @@
 {
-  "$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","additionalProperties":false,
+  "$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","additionalProperties":true,
   "required":["taskId","result","summary","blocker","high","medium","low","requiredFixes","tests","architecture","performance","security","outOfScopeFindings"],
-  "properties":{"taskId":{"type":"string","pattern":"^TASK-[0-9]+(?:-[A-Z0-9-]+)?$"},"result":{"enum":["PASS","REQUEST_CHANGES"]},"summary":{"type":"string"},"blocker":{"type":"array","items":{"type":"string"}},"high":{"type":"array","items":{"type":"string"}},"medium":{"type":"array","items":{"type":"string"}},"low":{"type":"array","items":{"type":"string"}},"requiredFixes":{"type":"array","items":{"type":"string"}},"tests":{"type":"object","required":["passed","details"],"properties":{"passed":{"type":"boolean"},"details":{"type":"string"}},"additionalProperties":false},"architecture":{"type":"string"},"performance":{"type":"string"},"security":{"type":"string"},"outOfScopeFindings":{"type":"array","items":{"type":"string"}}}
+  "properties":{
+    "taskId":{"type":"string","pattern":"^TASK-[0-9]+(?:-[A-Z0-9-]+)?$"},
+    "result":{"enum":["PASS","REQUEST_CHANGES"]},
+    "summary":{"type":"string"},
+    "blocker":{"type":"array","items":{"type":"string"}},
+    "high":{"type":"array","items":{"type":"string"}},
+    "medium":{"type":"array","items":{"type":"string"}},
+    "low":{"type":"array","items":{"type":"string"}},
+    "requiredFixes":{"type":"array","items":{"type":"string"}},
+    "tests":{"type":"object","required":["passed","details"],"properties":{"passed":{"type":"boolean"},"details":{"type":"string"}},"additionalProperties":false},
+    "architecture":{"type":"string"},
+    "performance":{"type":"string"},
+    "security":{"type":"string"},
+    "outOfScopeFindings":{"type":"array","items":{"type":"string"}},
+    "verdict":{"enum":["PASS","REQUEST_CHANGES","ESCALATE"],"description":"V2: Review verdict"},
+    "findings":{"type":"array","items":{"type":"object","required":["severity","file","title","detail"],"properties":{"severity":{"enum":["BLOCKER","HIGH","MEDIUM","LOW"]},"file":{"type":"string"},"line":{"type":"integer"},"title":{"type":"string"},"detail":{"type":"string"},"requiredFix":{"type":"string"}}},"description":"V2: Structured findings"},
+    "acceptance":{"type":"array","items":{"type":"string"},"description":"V2: Acceptance criteria status"},
+    "nextAction":{"enum":["MERGE","FIX","ESCALATE","MANUAL_REVIEW"],"description":"V2: Recommended next action"}
+  }
 }

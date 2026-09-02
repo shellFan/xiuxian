@@ -1,15 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "required": ["id","title","version","status","priority","createdBy","assignedTo","reviewer","goal","background","requirements","acceptanceCriteria","allowedPaths","forbiddenPaths","commands","constraints","references","maxReviewRounds"],
   "properties": {
     "id": {"type":"string","pattern":"^TASK-[0-9]+(?:-[A-Z0-9-]+)?$"}, "title":{"type":"string","minLength":1}, "version":{"type":"integer","minimum":1},
-    "status":{"enum":["PENDING","RUNNING","REVIEW","FIXING","DONE","FAILED","ESCALATED"]}, "priority":{"enum":["LOW","MEDIUM","HIGH","CRITICAL"]},
+    "status":{"enum":["PENDING","PLANNING","RUNNING","DEVELOPER_DONE","REVIEW","FIXING","PASS","DONE","FAILED","ESCALATED","MANUAL_GATE"]}, "priority":{"enum":["LOW","MEDIUM","HIGH","CRITICAL"]},
     "createdBy":{"type":"string"}, "assignedTo":{"type":"string","default":"hy3"}, "reviewer":{"type":"string","default":"codex-sol"},
     "goal":{"type":"string"}, "background":{"type":"string"}, "requirements":{"type":"array","items":{"type":"string"}}, "acceptanceCriteria":{"type":"array","items":{"type":"string"}},
     "allowedPaths":{"type":"array","items":{"type":"string"}}, "forbiddenPaths":{"type":"array","items":{"type":"string"}},
     "commands":{"type":"object","additionalProperties":false,"required":["install","build","test","lint"],"properties":{"install":{"type":"string"},"build":{"type":"string"},"test":{"type":"string"},"lint":{"type":"string"}}},
-    "constraints":{"type":"array","items":{"type":"string"}}, "references":{"type":"array","items":{"type":"string"}}, "maxReviewRounds":{"type":"integer","minimum":1,"maximum":10}
+    "constraints":{"type":"array","items":{"type":"string"}}, "references":{"type":"array","items":{"type":"string"}}, "maxReviewRounds":{"type":"integer","minimum":1,"maximum":10},
+    "phase":{"type":"integer","minimum":1,"description":"V2: Phase number this task belongs to"},
+    "goalMinutes":{"type":"integer","minimum":1,"description":"V2: Target duration in minutes"},
+    "stopConditions":{"type":"array","items":{"type":"string"},"description":"V2: Custom stop conditions"},
+    "gitPolicy":{"type":"object","additionalProperties":false,"properties":{"autoCommit":{"type":"boolean"},"autoPush":{"type":"boolean"},"requireCleanTree":{"type":"boolean"}},"description":"V2: Git policy overrides"}
   }
 }

@@ -29,6 +29,14 @@ export interface WorkModeChangedEvent { readonly mode: WorkMode; }
 export interface EventChangedEvent { readonly eventId: string | null; readonly pending: boolean; }
 export interface PromotionChangedEvent { readonly success: boolean; readonly careerLevel: number; }
 export interface OfflineRewardChangedEvent { readonly settlementId: string; readonly doubled: boolean; }
+export interface AchievementUnlockedEvent { readonly achievementId: string; }
+export interface DailySignInClaimedEvent {
+  readonly day: number;
+  readonly salary: number;
+  readonly cultivationExp: number;
+  readonly mind: number;
+  readonly grace: boolean;
+}
 
 export interface GameEvents extends Record<string, unknown> {
   readonly workerRecruited: WorkerRecruitedEvent;
@@ -47,6 +55,8 @@ export interface GameEvents extends Record<string, unknown> {
   readonly eventChanged: EventChangedEvent;
   readonly promotionChanged: PromotionChangedEvent;
   readonly offlineRewardChanged: OfflineRewardChangedEvent;
+  readonly achievementUnlocked: AchievementUnlockedEvent;
+  readonly dailySignInClaimed: DailySignInClaimedEvent;
 }
 
 /** Domain events that should refresh Phase 2 HUD. UI must not poll every frame. */
@@ -63,4 +73,5 @@ export const PHASE2_REFRESH_EVENTS = [
   'eventChanged',
   'promotionChanged',
   'offlineRewardChanged',
+  'achievementUnlocked',
 ] as const satisfies readonly (keyof GameEvents)[];

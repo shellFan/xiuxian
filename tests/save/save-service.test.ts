@@ -23,7 +23,7 @@ function testSavesAndRestoresPlayerAndWorkers(): void {
   assert.deepEqual(service.load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 80, maxWorkerLevel: 3, lastSaveTime: 123,
     workers: [{ id: 'worker-1', level: 2, row: 1, column: 3 }], cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100,
     performance: 0, sectId: null, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
-    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null });
+    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null, unlockedAchievementIds: [] });
 }
 
 function testSuccessfulSavesRecordMonotonicInjectedTime(): void {
@@ -78,7 +78,7 @@ function testMigratesOlderVersionAndDefaultsMissingFields(): void {
   assert.deepEqual(new SaveService(storage).load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 20, maxWorkerLevel: 1, lastSaveTime: 0,
     workers: [{ id: 'w', level: 1, row: 0, column: 0 }], cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100,
     performance: 0, sectId: null, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
-    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null });
+    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null, unlockedAchievementIds: [] });
 }
 
 function testPhaseTwoDefaultsSurvivePlayerRoundTrip(): void {
@@ -118,7 +118,7 @@ function testInvalidPlayerScalarsFallBackToSafeDefaults(): void {
     workers: [],
     cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100, performance: 0, sectId: null, talentId: null,
     workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0, kpiProgress: {}, promotionFailCount: 0, officeLevel: 1,
-    lastIdleSettlementId: null,
+    lastIdleSettlementId: null, unlockedAchievementIds: [],
   });
 }
 
