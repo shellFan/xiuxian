@@ -84,6 +84,12 @@ export class WorkService {
       this.context.player.salaryRemainder = salaryResult.remainder;
       this.context.player.cultivationRemainder = cultivationResult.remainder;
       this.context.player[mindRemainderKey] = mindResult.remainder;
+      // Update daily task progress for time-based tasks (absolute value from player state).
+      if (mode === 'WORK') {
+        this.context.dailyTasks.setProgress('WORK_10_MIN', nextSeconds);
+      } else {
+        this.context.dailyTasks.setProgress('FISH_3_MIN', nextSeconds);
+      }
       return { salary, cultivationExp, mind: actualMindDelta, elapsedSeconds, mode };
     } catch (error) {
       restorePlayer(this.context.player, previous);
@@ -132,4 +138,6 @@ function restorePlayer(player: GameContext['player'], data: ReturnType<GameConte
   player.mindRemainder = data.mindRemainder ?? 0;
   player.workMindRemainder = data.workMindRemainder ?? 0;
   player.fishingMindRemainder = data.fishingMindRemainder ?? 0;
+  player.dailyTasks = (data.dailyTasks ?? []).map((t) => ({ ...t }));
+  player.dailyTaskDay = data.dailyTaskDay ?? -1;
 }

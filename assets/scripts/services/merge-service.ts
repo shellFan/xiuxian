@@ -54,6 +54,7 @@ export class MergeService {
         cultivationReward = this.context.cultivation.grantMergeReward(mergeId, left.level, { persist: false });
         this.context.kpi?.recordMerge();
         this.context.kpi?.recordSalaryEarned(salaryReward);
+        this.context.dailyTasks.addProgress('MERGE_5', 1);
         this.context.saveService.save(this.context.player);
       } catch (error) {
         this.context.economy.rollbackMergeReward(mergeId, salaryReward ?? 0);

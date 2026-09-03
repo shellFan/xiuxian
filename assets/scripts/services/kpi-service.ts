@@ -118,5 +118,8 @@ export class KpiService {
     const current = this.context.player.kpiProgress[type] ?? 0;
     this.context.player.kpiProgress = { ...this.context.player.kpiProgress, [type]: current + amount };
     this.context.events.emit('kpiChanged', { careerLevel: this.context.player.careerLevel });
+    if (this.isCurrentKpiCompleted()) {
+      this.context.dailyTasks.addProgress('KPI_COMPLETE', 1);
+    }
   }
 }

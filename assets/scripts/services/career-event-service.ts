@@ -49,6 +49,7 @@ export class CareerEventService {
     this.context.kpi?.recordEventResolved(event.id);
     try {
       this.context.effects.apply(event.effects);
+      this.context.dailyTasks.addProgress('EVENT_3', 1);
       this.pending = undefined;
       this.context.events.emit('eventChanged', { eventId: event.id, pending: false });
     } catch (error) {
@@ -68,6 +69,7 @@ export class CareerEventService {
     this.context.kpi?.recordEventResolved(event.id);
     try {
       this.context.effects.apply(choice.effects);
+      this.context.dailyTasks.addProgress('EVENT_3', 1);
       this.pending = undefined;
       this.context.events.emit('eventChanged', { eventId: event.id, pending: false });
     } catch (error) {

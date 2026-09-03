@@ -120,6 +120,7 @@ export class PromotionService {
         this.retryRequired = false;
         // The ONLY persistence write for the whole promotion transaction.
         this.context.saveService.save(this.context.player);
+        this.context.dailyTasks.addProgress('PROMOTION_1', 1);
         this.context.events.emit('careerChanged', { careerLevel: this.context.player.careerLevel });
         this.context.events.emit('promotionChanged', { success: true, careerLevel: this.context.player.careerLevel });
       } else {
