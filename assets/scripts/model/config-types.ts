@@ -61,6 +61,7 @@ export interface ConfigBundle {
   readonly promotion?: PromotionBundle;
   readonly achievements?: AchievementBundle;
   readonly daily?: DailyBundle;
+  readonly dailyTasks?: DailyTaskBundle;
 }
 
 /**
@@ -137,4 +138,19 @@ export interface DailyBundle {
   readonly rewards: readonly DailyRewardConfig[];
   readonly cycleDays: number;
   readonly graceHours: number;
+}
+
+export type DailyTaskType = 'MERGE_5' | 'WORK_10_MIN' | 'FISH_3_MIN' | 'EVENT_3' | 'KPI_COMPLETE' | 'PROMOTION_1';
+
+export interface DailyTaskConfig {
+  readonly id: string;
+  readonly type: DailyTaskType;
+  readonly name: string;
+  readonly description: string;
+  readonly target: number;
+  readonly reward: import('./game-effect').GameEffect;
+}
+
+export interface DailyTaskBundle {
+  readonly tasks: readonly DailyTaskConfig[];
 }

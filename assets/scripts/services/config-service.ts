@@ -1,4 +1,4 @@
-import type { CareerConfig, CareerEventBundle, ConfigBundle, EconomyConfig, GameConfig, KpiBundle, OfficeBundle, PromotionBundle, SectBundle, TalentBundle, WorkerConfig, AchievementBundle, DailyBundle } from '../model/config-types';
+import type { CareerConfig, CareerEventBundle, ConfigBundle, EconomyConfig, GameConfig, KpiBundle, OfficeBundle, PromotionBundle, SectBundle, TalentBundle, WorkerConfig, AchievementBundle, DailyBundle, DailyTaskBundle } from '../model/config-types';
 
 export class ConfigValidationError extends Error {
   public constructor(message: string) {
@@ -20,6 +20,7 @@ export class ConfigService {
   public readonly promotion: PromotionBundle;
   public readonly achievements: AchievementBundle;
   public readonly daily: DailyBundle;
+  public readonly dailyTasks: DailyTaskBundle;
 
   private constructor(config: ConfigBundle) {
     this.worker = deepFreeze(config.worker);
@@ -34,6 +35,7 @@ export class ConfigService {
     this.promotion = deepFreeze(config.promotion ?? { options: [] });
     this.achievements = deepFreeze(config.achievements ?? { achievements: [] });
     this.daily = deepFreeze(config.daily ?? { rewards: [], cycleDays: 7, graceHours: 3 });
+    this.dailyTasks = deepFreeze(config.dailyTasks ?? { tasks: [] });
     Object.freeze(this);
   }
 
@@ -42,8 +44,8 @@ export class ConfigService {
     return new ConfigService(raw as ConfigBundle);
   }
 
-  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown, careerEvents?: unknown, kpi?: unknown, office?: unknown, promotion?: unknown, achievements?: unknown, daily?: unknown): ConfigService {
-    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined, careerEvents: careerEvents as CareerEventBundle | undefined, kpi: kpi as KpiBundle | undefined, office: office as OfficeBundle | undefined, promotion: promotion as PromotionBundle | undefined, achievements: achievements as AchievementBundle | undefined, daily: daily as DailyBundle | undefined });
+  public static loadFromJson(worker: unknown, economy: unknown, game: unknown, career?: unknown, sect?: unknown, talent?: unknown, careerEvents?: unknown, kpi?: unknown, office?: unknown, promotion?: unknown, achievements?: unknown, daily?: unknown, dailyTasks?: unknown): ConfigService {
+    return ConfigService.load({ worker, economy, game, career: career as CareerConfig | undefined, sect: sect as SectBundle | undefined, talent: talent as TalentBundle | undefined, careerEvents: careerEvents as CareerEventBundle | undefined, kpi: kpi as KpiBundle | undefined, office: office as OfficeBundle | undefined, promotion: promotion as PromotionBundle | undefined, achievements: achievements as AchievementBundle | undefined, daily: daily as DailyBundle | undefined, dailyTasks: dailyTasks as DailyTaskBundle | undefined });
   }
 }
 
@@ -65,6 +67,7 @@ function validateBundle(raw: unknown): asserts raw is ConfigBundle {
   if (bundle.promotion !== undefined) validatePromotion(bundle.promotion as Record<string, unknown>);
   if (bundle.achievements !== undefined) validateAchievements(bundle.achievements as Record<string, unknown>);
   if (bundle.daily !== undefined) validateDaily(bundle.daily as Record<string, unknown>);
+  if (bundle.dailyTasks !== undefined) validateDailyTasks(bundle.dailyTasks as Record<string, unknown>);
 }
 
 const VALID_CAREER_EVENT_TYPES = ['POSITIVE', 'NEGATIVE', 'CHOICE', 'RARE', 'EASTER_EGG'];
@@ -227,6 +230,28 @@ function validateDaily(daily: Record<string, unknown>): void {
     if ((item.salary as number) < 0) fail(`daily.rewards[${index}].salary must be non-negative`);
     if ((item.cultivationExp as number) < 0) fail(`daily.rewards[${index}].cultivationExp must be non-negative`);
     if ((item.mind as number) < 0) fail(`daily.rewards[${index}].mind must be non-negative`);
+  });
+}
+
+const VALID_DAILY_TASK_TYPES = ['MERGE_5', 'WORK_10_MIN', 'FISH_3_MIN', 'EVENT_3', 'KPI_COMPLETE', 'PROMOTION_1'];
+
+function validateDailyTasks(dailyTasks: Record<string, unknown>): void {
+  if (!Array.isArray(dailyTasks.tasks)) fail('dailyTasks.tasks must be an array');
+  const ids = new Set<string>();
+  const tasks = dailyTasks.tasks as unknown[];
+  tasks.forEach((raw, index) => {
+    requireObject(raw, `dailyTasks.tasks[${index}]`);
+    const task = raw as Record<string, unknown>;
+    requireString(task.id, `dailyTasks.tasks[${index}].id`);
+    if (ids.has(task.id as string)) fail(`dailyTasks.tasks contains duplicate id ${task.id}`);
+    ids.add(task.id as string);
+    requireString(task.name, `dailyTasks.tasks[${index}].name`);
+    requireString(task.description, `dailyTasks.tasks[${index}].description`);
+    if (typeof task.type !== 'string' || !VALID_DAILY_TASK_TYPES.includes(task.type)) fail(`dailyTasks.tasks[${index}].type is invalid`);
+    requireNumber(task.target, `dailyTasks.tasks[${index}].target`);
+    const target = task.target as number;
+    if (!Number.isSafeInteger(target) || target <= 0) fail(`dailyTasks.tasks[${index}].target must be a positive safe integer`);
+    validateGameEffect(task.reward, `dailyTasks.tasks[${index}].reward`);
   });
 }
 

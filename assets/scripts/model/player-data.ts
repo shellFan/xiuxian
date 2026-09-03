@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -27,6 +27,8 @@ export interface PlayerDataOptions {
   readonly unlockedAchievementIds?: readonly string[];
   readonly claimedAchievementIds?: readonly string[];
   readonly dailySignIn?: DailySignInState | null;
+  readonly dailyTasks?: readonly DailyTaskState[];
+  readonly dailyTaskDay?: number;
 }
 
 export class PlayerData {
@@ -62,6 +64,8 @@ export class PlayerData {
   public unlockedAchievementIds: string[];
   public claimedAchievementIds: string[];
   public dailySignIn: DailySignInState | null;
+  public dailyTasks: DailyTaskState[];
+  public dailyTaskDay: number;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -90,6 +94,8 @@ export class PlayerData {
     this.unlockedAchievementIds = [...(options.unlockedAchievementIds ?? [])];
     this.claimedAchievementIds = [...(options.claimedAchievementIds ?? [])];
     this.dailySignIn = options.dailySignIn ?? null;
+    this.dailyTasks = (options.dailyTasks ?? []).map((t) => ({ ...t }));
+    this.dailyTaskDay = options.dailyTaskDay ?? -1;
   }
 
   public static createDefault(): PlayerData {
@@ -110,6 +116,8 @@ export class PlayerData {
       unlockedAchievementIds: [...this.unlockedAchievementIds],
       claimedAchievementIds: [...this.claimedAchievementIds],
       dailySignIn: this.dailySignIn ? { ...this.dailySignIn } : null,
+      dailyTasks: this.dailyTasks.map((t) => ({ ...t })),
+      dailyTaskDay: this.dailyTaskDay,
     };
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
     if (this.cultivationRemainder !== 0) Object.assign(data, { cultivationRemainder: this.cultivationRemainder });

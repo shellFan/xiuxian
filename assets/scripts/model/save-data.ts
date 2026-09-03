@@ -9,6 +9,13 @@ export interface DailySignInState {
   readonly currentDay: number;
 }
 
+export interface DailyTaskState {
+  readonly taskId: string;
+  progress: number;
+  completed: boolean;
+  claimed: boolean;
+}
+
 export interface WorkerSaveData {
   readonly id: string;
   readonly level: number;
@@ -44,4 +51,6 @@ export interface GameSaveData {
   readonly unlockedAchievementIds?: readonly string[];
   readonly claimedAchievementIds?: readonly string[];
   readonly dailySignIn?: DailySignInState | null;
+  readonly dailyTasks?: readonly DailyTaskState[];
+  readonly dailyTaskDay?: number;
 }

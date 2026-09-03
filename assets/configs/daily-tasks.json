@@ -1,0 +1,52 @@
+{
+  "tasks": [
+    {
+      "id": "merge-5",
+      "type": "MERGE_5",
+      "name": "合成5次",
+      "description": "完成5次合成操作",
+      "target": 5,
+      "reward": { "salary": 100, "cultivation": 20 }
+    },
+    {
+      "id": "work-10-min",
+      "type": "WORK_10_MIN",
+      "name": "工作10分钟",
+      "description": "在工作模式下累计10分钟",
+      "target": 600,
+      "reward": { "salary": 150, "performance": 10 }
+    },
+    {
+      "id": "fish-3-min",
+      "type": "FISH_3_MIN",
+      "name": "摸鱼3分钟",
+      "description": "在摸鱼模式下累计3分钟",
+      "target": 180,
+      "reward": { "mind": 15 }
+    },
+    {
+      "id": "event-3",
+      "type": "EVENT_3",
+      "name": "处理3次事件",
+      "description": "处理3次职场事件",
+      "target": 3,
+      "reward": { "cultivation": 30, "mind": 10 }
+    },
+    {
+      "id": "kpi-complete",
+      "type": "KPI_COMPLETE",
+      "name": "完成KPI",
+      "description": "完成当前职级的KPI目标",
+      "target": 1,
+      "reward": { "salary": 200, "performance": 20 }
+    },
+    {
+      "id": "promotion-1",
+      "type": "PROMOTION_1",
+      "name": "晋升1次",
+      "description": "成功晋升1次",
+      "target": 1,
+      "reward": { "salary": 300, "cultivation": 50, "mind": 20 }
+    }
+  ]
+}

@@ -35,8 +35,10 @@ import { CareerEventService } from '../services/career-event-service';
 import { AchievementService } from '../services/achievement-service';
 import { DailyService } from '../services/daily-service';
 import { BuffService } from '../services/buff-service';
+import { DailyTaskService } from '../services/daily-task-service';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
+import dailyTasksConfig from '../../configs/daily-tasks.json';
 
 export interface GameContextOptions {
   readonly board?: MergeBoard;
@@ -76,6 +78,7 @@ export class GameContext {
   public readonly achievements: AchievementService;
   public readonly daily: DailyService;
   public readonly buffs: BuffService;
+  public readonly dailyTasks: DailyTaskService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -103,7 +106,7 @@ export class GameContext {
       });
     }
     this.player = options.player ?? new PlayerData(saved);
-    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig, kpiConfig, officeConfig, promotionConfig, achievementsConfig, dailyConfig);
+    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig, kpiConfig, officeConfig, promotionConfig, achievementsConfig, dailyConfig, dailyTasksConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
     });
@@ -126,6 +129,7 @@ export class GameContext {
     this.achievements = new AchievementService(this, this.configService.achievements);
     this.daily = new DailyService(this, this.configService.daily, { clock: options.clock });
     this.buffs = new BuffService({ clock: options.clock });
+    this.dailyTasks = new DailyTaskService(this, this.configService.dailyTasks, { clock: options.clock });
   }
 
   public syncPlayerWorkers(): void {
