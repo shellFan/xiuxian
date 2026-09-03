@@ -65,13 +65,17 @@ export class WorkService {
     const salaryRate = this.rateForBoard(this.salaryPerHour);
     const cultivationRate = this.rateForBoard(this.cultivationPerHour);
     const previous = this.context.player.toSaveData();
+    const salaryBuffMul = this.context.buffs.getMultiplier('WORK_SALARY_BOOST');
+    const cultivationBuffMul = this.context.buffs.getMultiplier('WORK_CULTIVATION_BOOST');
+    const careerMul = this.context.career.current();
     const salaryResult = accumulate(salaryRate, elapsedSeconds, multiplier, this.context.player.salaryRemainder, 7200);
     const cultivationResult = accumulate(cultivationRate, elapsedSeconds, multiplier, this.context.player.cultivationRemainder, 7200);
     const mindRemainderKey = mode === 'WORK' ? 'workMindRemainder' : 'fishingMindRemainder';
     const mindResult = accumulate(this.mindPerHour, elapsedSeconds, 1, this.context.player[mindRemainderKey], 3600);
-    const salary = salaryResult.reward;
-    const cultivationExp = cultivationResult.reward;
-    const mindDelta = mode === 'WORK' ? -mindResult.reward : mindResult.reward;
+    const salary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier);
+    const cultivationExp = Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier);
+    const mindBuffMul = mode === 'FISHING' ? this.context.buffs.getMultiplier('FISHING_MIND_BOOST') : 1;
+    const mindDelta = mode === 'WORK' ? -mindResult.reward : Math.floor(mindResult.reward * mindBuffMul);
     try {
       this.context.economy.applyIdleSalary(salary);
       this.context.cultivation.applyIdleExperience(cultivationExp);

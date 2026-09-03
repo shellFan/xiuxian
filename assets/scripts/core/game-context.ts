@@ -34,6 +34,7 @@ import { EffectService } from '../services/effect-service';
 import { CareerEventService } from '../services/career-event-service';
 import { AchievementService } from '../services/achievement-service';
 import { DailyService } from '../services/daily-service';
+import { BuffService } from '../services/buff-service';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
 
@@ -74,6 +75,7 @@ export class GameContext {
   public readonly office: OfficeService;
   public readonly achievements: AchievementService;
   public readonly daily: DailyService;
+  public readonly buffs: BuffService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -123,6 +125,7 @@ export class GameContext {
     this.office = new OfficeService(this);
     this.achievements = new AchievementService(this, this.configService.achievements);
     this.daily = new DailyService(this, this.configService.daily, { clock: options.clock });
+    this.buffs = new BuffService({ clock: options.clock });
   }
 
   public syncPlayerWorkers(): void {

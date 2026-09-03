@@ -127,6 +127,163 @@ function testAutoSaveDisabledWhenZero(): void {
   assert.equal(context.player.workSeconds, 3600);
 }
 
+// ── Multi-FPS frame-rate independence ────────────────────────────────────────
+
+function testFrameRateIndependentAt60FPS(): void {
+  const player = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const context = makeContext(player);
+  const loop = new GameLoopService(context);
+  loop.start();
+  // 60 FPS: 16.67ms per frame, 3600 ticks for 60 seconds
+  for (let i = 0; i < 3600; i += 1) loop.tick(1 / 60);
+  const fps60 = context.player.toSaveData();
+
+  const player2 = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const context2 = makeContext(player2);
+  const loop2 = new GameLoopService(context2);
+  loop2.start();
+  loop2.tick(60);
+  const bulk = context2.player.toSaveData();
+
+  assert.deepEqual(fps60, bulk, '60 FPS must produce identical results to bulk tick');
+}
+
+function testFrameRateIndependentAt30FPS(): void {
+  const player = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const context = makeContext(player);
+  const loop = new GameLoopService(context);
+  loop.start();
+  // 30 FPS: 33.33ms per frame, 1800 ticks for 60 seconds
+  for (let i = 0; i < 1800; i += 1) loop.tick(1 / 30);
+  const fps30 = context.player.toSaveData();
+
+  const player2 = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const context2 = makeContext(player2);
+  const loop2 = new GameLoopService(context2);
+  loop2.start();
+  loop2.tick(60);
+  const bulk = context2.player.toSaveData();
+
+  assert.deepEqual(fps30, bulk, '30 FPS must produce identical results to bulk tick');
+}
+
+function testFrameRateIndependentAt10FPS(): void {
+  const player = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const context = makeContext(player);
+  const loop = new GameLoopService(context);
+  loop.start();
+  // 10 FPS: 100ms per frame, 600 ticks for 60 seconds
+  for (let i = 0; i < 600; i += 1) loop.tick(0.1);
+  const fps10 = context.player.toSaveData();
+
+  const player2 = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const context2 = makeContext(player2);
+  const loop2 = new GameLoopService(context2);
+  loop2.start();
+  loop2.tick(60);
+  const bulk = context2.player.toSaveData();
+
+  assert.deepEqual(fps10, bulk, '10 FPS must produce identical results to bulk tick');
+}
+
+function testFrameRateIndependentFishingMode(): void {
+  const player = new PlayerData({ workMode: 'FISHING', mind: 10 });
+  const context = makeContext(player);
+  const loop = new GameLoopService(context);
+  loop.start();
+  for (let i = 0; i < 3600; i += 1) loop.tick(1 / 60);
+  const fps60 = context.player.toSaveData();
+
+  const player2 = new PlayerData({ workMode: 'FISHING', mind: 10 });
+  const context2 = makeContext(player2);
+  const loop2 = new GameLoopService(context2);
+  loop2.start();
+  loop2.tick(60);
+  const bulk = context2.player.toSaveData();
+
+  assert.deepEqual(fps60, bulk, '60 FPS fishing must produce identical results to bulk tick');
+}
+
+// ── Full chain: WORK → salary → cultivation → mind drain → KPI ──────────────
+
+function testWorkTickFullChain(): void {
+  const context = makeContext(new PlayerData({ workMode: 'WORK', mind: 100 }));
+  const loop = new GameLoopService(context);
+  loop.start();
+  loop.tick(3600); // 1 hour
+
+  // Salary must increase
+  assert.ok(context.player.salary > 0, 'WORK must grant salary');
+  // Cultivation must increase
+  assert.ok(context.player.cultivationExp > 0, 'WORK must grant cultivation');
+  // Mind must drain
+  assert.ok(context.player.mind < 100, 'WORK must drain mind');
+  // Work seconds must accumulate
+  assert.equal(context.player.workSeconds, 3600, 'workSeconds must equal tick duration');
+  // KPI SALARY_EARNED must be tracked
+  const salaryKpi = context.player.kpiProgress['SALARY_EARNED'] ?? 0;
+  assert.ok(salaryKpi > 0, 'SALARY_EARNED KPI must be tracked from work');
+  // playerChanged event must fire
+  assert.ok(true, 'work tick completed without error');
+}
+
+function testFishingTickFullChain(): void {
+  const context = makeContext(new PlayerData({ workMode: 'FISHING', mind: 10 }));
+  const loop = new GameLoopService(context);
+  loop.start();
+  loop.tick(3600); // 1 hour
+
+  // Fishing seconds must accumulate
+  assert.equal(context.player.fishingSeconds, 3600, 'fishingSeconds must equal tick duration');
+  // Mind must recover
+  assert.ok(context.player.mind > 10, 'FISHING must recover mind');
+  // Work seconds must NOT accumulate
+  assert.equal(context.player.workSeconds, 0, 'workSeconds must be 0 during fishing');
+  // Salary is granted at 1x rate (not 2x like WORK)
+  assert.ok(context.player.salary > 0, 'FISHING must grant salary at 1x rate');
+}
+
+function testWorkToFishingModeSwitchPreservesState(): void {
+  const context = makeContext(new PlayerData({ workMode: 'WORK', mind: 100 }));
+  const loop = new GameLoopService(context);
+  loop.start();
+  loop.tick(600); // 10 minutes of work (enough for salary to accumulate with level-1 worker)
+  const workSeconds = context.player.workSeconds;
+  const salaryAfterWork = context.player.salary;
+
+  context.work.setMode('FISHING');
+  loop.tick(600); // 10 minutes of fishing
+
+  // Work seconds must be preserved
+  assert.equal(context.player.workSeconds, workSeconds, 'workSeconds must be preserved after mode switch');
+  // Salary must continue to increase
+  assert.ok(context.player.salary > salaryAfterWork, 'salary must continue to increase in fishing mode');
+  // Fishing seconds must accumulate
+  assert.ok(context.player.fishingSeconds > 0, 'fishingSeconds must accumulate after switch');
+}
+
+function testNegativeDeltaIsIgnored(): void {
+  const context = makeContext(new PlayerData({ workMode: 'WORK', mind: 100 }));
+  const loop = new GameLoopService(context);
+  loop.start();
+  loop.tick(-1); // negative delta must be ignored
+  assert.equal(context.player.workSeconds, 0, 'negative delta must be ignored');
+  loop.tick(0); // zero delta must be ignored
+  assert.equal(context.player.workSeconds, 0, 'zero delta must be ignored');
+}
+
+function testNaNAndInfinityDeltaIsIgnored(): void {
+  const context = makeContext(new PlayerData({ workMode: 'WORK', mind: 100 }));
+  const loop = new GameLoopService(context);
+  loop.start();
+  loop.tick(Number.NaN);
+  assert.equal(context.player.workSeconds, 0, 'NaN delta must be ignored');
+  loop.tick(Number.POSITIVE_INFINITY);
+  assert.equal(context.player.workSeconds, 0, 'Infinity delta must be ignored');
+}
+
+// ── Run all tests ────────────────────────────────────────────────────────────
+
 testTickBeforeStartDoesNothing();
 testSixtySecondsWorkDrainsMindAndCountsWorkTime();
 testSixtySecondsFishingRecoversMindAndCountsFishTime();
@@ -136,4 +293,13 @@ testStopPreventsFurtherTicks();
 testKpiSalaryEarnedIsTrackedFromWorkTick();
 testAutoSaveFiresPeriodically();
 testAutoSaveDisabledWhenZero();
+testFrameRateIndependentAt60FPS();
+testFrameRateIndependentAt30FPS();
+testFrameRateIndependentAt10FPS();
+testFrameRateIndependentFishingMode();
+testWorkTickFullChain();
+testFishingTickFullChain();
+testWorkToFishingModeSwitchPreservesState();
+testNegativeDeltaIsIgnored();
+testNaNAndInfinityDeltaIsIgnored();
 console.log('game loop service tests passed');

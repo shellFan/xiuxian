@@ -70,8 +70,60 @@ function testFailedSaveRollsBackSettlement(): void {
   assert.equal(player.lastSaveTime, 1_000);
 }
 
+function testInfinityAndOverflowProtection(): void {
+  // Infinity clock should trigger anomaly
+  const clock = new FakeClock(Infinity);
+  const player = new PlayerData({ lastSaveTime: 1_000 });
+  const storage = new MemoryStorageAdapter();
+  const context = new GameContext({ player, saveService: new SaveService(storage, 'game-save', clock), storage });
+  const idle = new IdleService(context, { clock });
+  assert.equal(idle.settle('infinity').salary, 0, 'Infinity clock should yield zero salary');
+  assert.equal(idle.settle('infinity').cultivationExp, 0, 'Infinity clock should yield zero cultivation');
+
+  // NaN clock should trigger anomaly
+  const nanClock = new FakeClock(NaN);
+  const nanPlayer = new PlayerData({ lastSaveTime: 1_000 });
+  const nanStorage = new MemoryStorageAdapter();
+  const nanContext = new GameContext({ player: nanPlayer, saveService: new SaveService(nanStorage, 'game-save', nanClock), storage: nanStorage });
+  const nanIdle = new IdleService(nanContext, { clock: nanClock });
+  assert.equal(nanIdle.settle('nan').salary, 0, 'NaN clock should yield zero salary');
+}
+
+function testPreviewDoesNotGrantRewards(): void {
+  const { context, clock } = createContext();
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  const idle = new IdleService(context, { clock });
+  clock.advance(3600 * 1000);
+  const preview = idle.preview('preview-test');
+  assert.equal(preview.salary, 10, 'preview should show salary');
+  assert.equal(preview.cultivationExp, 5, 'preview should show cultivation');
+  assert.equal(context.player.salary, 0, 'preview should not grant salary');
+  assert.equal(context.player.cultivationExp, 0, 'preview should not grant cultivation');
+  // After preview, settle should still work
+  const result = idle.settle('preview-test');
+  assert.equal(result.salary, 10, 'settle after preview should grant salary');
+  assert.equal(context.player.salary, 10, 'salary should be granted after settle');
+}
+
+function testMultipleWorkersOnBoard(): void {
+  const { context, clock } = createContext();
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board.place(WorkerEntity.create(2), { row: 0, column: 1 });
+  context.board.place(WorkerEntity.create(3), { row: 1, column: 0 });
+  const idle = new IdleService(context, { clock });
+  clock.advance(3600 * 1000);
+  // salaryPerHour = [10, 20, 40, 80, 160, 320], so level 1+2+3 = 10+20+40 = 70
+  const result = idle.settle('multi-worker');
+  assert.equal(result.salary, 70, 'salary should sum all worker rates');
+  // cultivationPerHour = [5, 10, 20, 40, 80, 160], so level 1+2+3 = 5+10+20 = 35
+  assert.equal(result.cultivationExp, 35, 'cultivation should sum all worker rates');
+}
+
 testHourlyAndEightHourCap();
 testZeroNegativeAndClockRollbackEmitAnomaly();
 testSettlementIdPreventsDuplicateGrant();
 testFailedSaveRollsBackSettlement();
+testInfinityAndOverflowProtection();
+testPreviewDoesNotGrantRewards();
+testMultipleWorkersOnBoard();
 console.log('idle service tests passed');

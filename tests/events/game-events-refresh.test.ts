@@ -20,6 +20,12 @@ function testPhase2RefreshEventListIsExplicit(): void {
     'promotionChanged',
     'offlineRewardChanged',
     'achievementUnlocked',
+    'buffAdded',
+    'buffExpired',
+    'dailyTaskProgress',
+    'dailyTaskCompleted',
+    'dailyTaskClaimed',
+    'tutorialStepChanged',
   ];
   assert.deepEqual([...PHASE2_REFRESH_EVENTS].sort(), [...expected].sort());
 }

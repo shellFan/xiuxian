@@ -9,6 +9,8 @@ export interface CareerLevelConfig {
   readonly name: string;
   readonly realm: string;
   readonly requiredExp: number;
+  readonly salaryMultiplier: number;
+  readonly cultivationMultiplier: number;
 }
 export interface CareerConfig { readonly levels: readonly CareerLevelConfig[]; }
 export interface EconomyConfig {
@@ -119,6 +121,7 @@ export interface AchievementConfig {
   readonly description: string;
   readonly category: AchievementCategory;
   readonly condition: AchievementCondition;
+  readonly reward?: import('./game-effect').GameEffect;
 }
 
 export interface AchievementBundle { readonly achievements: readonly AchievementConfig[]; }

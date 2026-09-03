@@ -30,6 +30,7 @@ export interface EventChangedEvent { readonly eventId: string | null; readonly p
 export interface PromotionChangedEvent { readonly success: boolean; readonly careerLevel: number; }
 export interface OfflineRewardChangedEvent { readonly settlementId: string; readonly doubled: boolean; }
 export interface AchievementUnlockedEvent { readonly achievementId: string; }
+export interface AchievementClaimedEvent { readonly achievementId: string; }
 export interface DailySignInClaimedEvent {
   readonly day: number;
   readonly salary: number;
@@ -37,6 +38,12 @@ export interface DailySignInClaimedEvent {
   readonly mind: number;
   readonly grace: boolean;
 }
+export interface BuffAddedEvent { readonly buffId: string; readonly type: string; readonly multiplier: number; readonly durationSeconds: number; }
+export interface BuffExpiredEvent { readonly buffId: string; readonly type: string; }
+export interface DailyTaskProgressEvent { readonly taskId: string; readonly progress: number; readonly target: number; }
+export interface DailyTaskCompletedEvent { readonly taskId: string; }
+export interface DailyTaskClaimedEvent { readonly taskId: string; }
+export interface TutorialStepChangedEvent { readonly step: string; readonly completed: boolean; }
 
 export interface GameEvents extends Record<string, unknown> {
   readonly workerRecruited: WorkerRecruitedEvent;
@@ -56,7 +63,14 @@ export interface GameEvents extends Record<string, unknown> {
   readonly promotionChanged: PromotionChangedEvent;
   readonly offlineRewardChanged: OfflineRewardChangedEvent;
   readonly achievementUnlocked: AchievementUnlockedEvent;
+  readonly achievementClaimed: AchievementClaimedEvent;
   readonly dailySignInClaimed: DailySignInClaimedEvent;
+  readonly buffAdded: BuffAddedEvent;
+  readonly buffExpired: BuffExpiredEvent;
+  readonly dailyTaskProgress: DailyTaskProgressEvent;
+  readonly dailyTaskCompleted: DailyTaskCompletedEvent;
+  readonly dailyTaskClaimed: DailyTaskClaimedEvent;
+  readonly tutorialStepChanged: TutorialStepChangedEvent;
 }
 
 /** Domain events that should refresh Phase 2 HUD. UI must not poll every frame. */
@@ -74,4 +88,10 @@ export const PHASE2_REFRESH_EVENTS = [
   'promotionChanged',
   'offlineRewardChanged',
   'achievementUnlocked',
+  'buffAdded',
+  'buffExpired',
+  'dailyTaskProgress',
+  'dailyTaskCompleted',
+  'dailyTaskClaimed',
+  'tutorialStepChanged',
 ] as const satisfies readonly (keyof GameEvents)[];

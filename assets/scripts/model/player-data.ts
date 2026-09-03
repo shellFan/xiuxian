@@ -25,6 +25,7 @@ export interface PlayerDataOptions {
   readonly workMindRemainder?: number;
   readonly fishingMindRemainder?: number;
   readonly unlockedAchievementIds?: readonly string[];
+  readonly claimedAchievementIds?: readonly string[];
   readonly dailySignIn?: DailySignInState | null;
 }
 
@@ -59,6 +60,7 @@ export class PlayerData {
   public workMindRemainder: number;
   public fishingMindRemainder: number;
   public unlockedAchievementIds: string[];
+  public claimedAchievementIds: string[];
   public dailySignIn: DailySignInState | null;
 
   public constructor(options: PlayerDataOptions = {}) {
@@ -86,6 +88,7 @@ export class PlayerData {
     this.workMindRemainder = normalizeRemainder(options.workMindRemainder);
     this.fishingMindRemainder = normalizeRemainder(options.fishingMindRemainder);
     this.unlockedAchievementIds = [...(options.unlockedAchievementIds ?? [])];
+    this.claimedAchievementIds = [...(options.claimedAchievementIds ?? [])];
     this.dailySignIn = options.dailySignIn ?? null;
   }
 
@@ -105,6 +108,7 @@ export class PlayerData {
       workSeconds: this.workSeconds, fishingSeconds: this.fishingSeconds, kpiProgress: { ...this.kpiProgress },
       promotionFailCount: this.promotionFailCount, officeLevel: this.officeLevel, lastIdleSettlementId: this.lastIdleSettlementId,
       unlockedAchievementIds: [...this.unlockedAchievementIds],
+      claimedAchievementIds: [...this.claimedAchievementIds],
       dailySignIn: this.dailySignIn ? { ...this.dailySignIn } : null,
     };
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });

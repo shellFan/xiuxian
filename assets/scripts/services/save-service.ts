@@ -89,6 +89,7 @@ function migrate(raw: unknown): GameSaveData {
     officeLevel: isPositiveSafeInteger(raw.officeLevel) ? raw.officeLevel : 1,
     lastIdleSettlementId: typeof raw.lastIdleSettlementId === 'string' ? raw.lastIdleSettlementId : null,
     unlockedAchievementIds: Array.isArray(raw.unlockedAchievementIds) ? (raw.unlockedAchievementIds as unknown[]).filter(isString) : [],
+    claimedAchievementIds: Array.isArray(raw.claimedAchievementIds) ? (raw.claimedAchievementIds as unknown[]).filter(isString) : [],
     dailySignIn: isDailySignInState(raw.dailySignIn) ? { lastClaimTime: raw.dailySignIn.lastClaimTime, currentDay: raw.dailySignIn.currentDay } : null,
   };
   if (isNonNegativeSafeInteger(raw.salaryRemainder) && raw.salaryRemainder !== 0) dataWithRemainder(data, 'salaryRemainder', raw.salaryRemainder);
@@ -107,7 +108,7 @@ function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultiva
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {
-  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null };
+  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null };
 }
 
 function isWorker(value: unknown): value is WorkerSaveData {

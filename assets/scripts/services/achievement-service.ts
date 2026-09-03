@@ -1,8 +1,12 @@
 import type { GameContext } from '../core/game-context';
 import type { GameEvents } from '../core/game-events';
+import type { GameEffect } from '../model/game-effect';
 
 /** Achievement category for grouping in UI */
 export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK';
+
+/** Achievement status lifecycle */
+export type AchievementStatus = 'LOCKED' | 'COMPLETED' | 'CLAIMED';
 
 /** Condition types that map to game state checks */
 export type AchievementConditionType =
@@ -23,6 +27,7 @@ export interface AchievementConfig {
   readonly description: string;
   readonly category: AchievementCategory;
   readonly condition: AchievementCondition;
+  readonly reward?: GameEffect;
 }
 
 export interface AchievementBundle {
@@ -107,6 +112,37 @@ export class AchievementService {
     return this.context.player.unlockedAchievementIds.includes(id);
   }
 
+  /** Get the status of an achievement: LOCKED, COMPLETED, or CLAIMED. */
+  public getStatus(id: string): AchievementStatus {
+    if (this.context.player.claimedAchievementIds.includes(id)) return 'CLAIMED';
+    if (this.context.player.unlockedAchievementIds.includes(id)) return 'COMPLETED';
+    return 'LOCKED';
+  }
+
+  /**
+   * Claim the reward for a completed achievement.
+   * Applies the reward effects through EffectService and marks the achievement as claimed.
+   * Throws if the achievement is not in COMPLETED state.
+   */
+  public claim(id: string): void {
+    if (!this.idSet.has(id)) throw new Error(`Unknown achievement ${id}`);
+    const status = this.getStatus(id);
+    if (status === 'LOCKED') throw new Error(`Achievement ${id} is not yet completed`);
+    if (status === 'CLAIMED') throw new Error(`Achievement ${id} already claimed`);
+    const cfg = this.configs.find((c) => c.id === id);
+    if (!cfg) throw new Error(`Achievement config not found for ${id}`);
+    const previous = this.context.player.toSaveData();
+    try {
+      if (cfg.reward) this.context.effects.apply(cfg.reward);
+      this.context.player.claimedAchievementIds.push(id);
+      this.context.saveService.save(this.context.player);
+    } catch (error) {
+      restorePlayer(this.context.player, previous);
+      throw error;
+    }
+    this.context.events.emit('achievementClaimed', { achievementId: id });
+  }
+
   private isConditionMet(condition: AchievementCondition, player: import('../model/player-data').PlayerData): boolean {
     switch (condition.type) {
       case 'KPI': {
@@ -139,4 +175,12 @@ export class AchievementService {
         return false;
     }
   }
+}
+
+function restorePlayer(player: import('../model/player-data').PlayerData, data: import('../model/save-data').GameSaveData): void {
+  player.salary = data.salary;
+  player.cultivationExp = data.cultivationExp;
+  player.mind = data.mind;
+  player.performance = data.performance;
+  player.claimedAchievementIds = [...(data.claimedAchievementIds ?? [])];
 }

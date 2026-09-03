@@ -375,7 +375,7 @@ function deepFreeze<T>(value: T): T {
 }
 
 function defaultCareerConfig(): CareerConfig {
-  return { levels: Array.from({ length: 10 }, (_, index) => ({ level: index + 1, name: `职级${index + 1}`, realm: `境界${index + 1}`, requiredExp: index * 100 })) };
+  return { levels: Array.from({ length: 10 }, (_, index) => ({ level: index + 1, name: `职级${index + 1}`, realm: `境界${index + 1}`, requiredExp: index * 100, salaryMultiplier: 1, cultivationMultiplier: 1 })) };
 }
 
 function defaultSectConfig(): SectBundle {

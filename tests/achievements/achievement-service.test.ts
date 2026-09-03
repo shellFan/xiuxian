@@ -51,4 +51,65 @@ testFirstMergeUnlocksOnce();
 testSalaryAndRealmAchievements();
 testRareEventAchievement();
 testAchievementsPersistOnSave();
+
+// ── Claim tests ───────────────────────────────────────────────────────────
+
+function testClaimCompletedAchievement(): void {
+  const context = makeContext(new PlayerData({ kpiProgress: { MERGE_COUNT: 1 } }));
+  context.achievements.checkAll();
+  assert.equal(context.achievements.getStatus('FIRST_MERGE'), 'COMPLETED');
+  const salaryBefore = context.player.salary;
+  context.achievements.claim('FIRST_MERGE');
+  assert.equal(context.achievements.getStatus('FIRST_MERGE'), 'CLAIMED');
+  // FIRST_MERGE reward is { salary: 50 }
+  assert.equal(context.player.salary, salaryBefore + 50);
+}
+
+function testClaimLockedAchievementThrows(): void {
+  const context = makeContext();
+  assert.equal(context.achievements.getStatus('FIRST_MERGE'), 'LOCKED');
+  assert.throws(() => context.achievements.claim('FIRST_MERGE'), /not yet completed/);
+}
+
+function testClaimAlreadyClaimedThrows(): void {
+  const context = makeContext(new PlayerData({ kpiProgress: { MERGE_COUNT: 1 } }));
+  context.achievements.checkAll();
+  context.achievements.claim('FIRST_MERGE');
+  assert.throws(() => context.achievements.claim('FIRST_MERGE'), /already claimed/);
+}
+
+function testClaimUnknownAchievementThrows(): void {
+  const context = makeContext();
+  assert.throws(() => context.achievements.claim('NONEXISTENT'), /Unknown achievement/);
+}
+
+function testClaimNoRewardAchievement(): void {
+  // Some achievements have no reward — claim should still work
+  const context = makeContext();
+  context.player.sectId = 'PRIVATE';
+  context.achievements.checkAll();
+  assert.equal(context.achievements.getStatus('SECT_JOIN'), 'COMPLETED');
+  const salaryBefore = context.player.salary;
+  context.achievements.claim('SECT_JOIN');
+  assert.equal(context.achievements.getStatus('SECT_JOIN'), 'CLAIMED');
+  assert.equal(context.player.salary, salaryBefore, 'no reward should not change salary');
+}
+
+function testClaimedPersistOnSave(): void {
+  const storage = new MemoryStorageAdapter();
+  const context = new GameContext({ player: new PlayerData({ kpiProgress: { MERGE_COUNT: 1 } }), storage });
+  context.achievements.checkAll();
+  context.achievements.claim('FIRST_MERGE');
+  context.saveService.save(context.player);
+  const loaded = new GameContext({ storage });
+  assert.ok(loaded.player.claimedAchievementIds.includes('FIRST_MERGE'));
+}
+
+testClaimCompletedAchievement();
+testClaimLockedAchievementThrows();
+testClaimAlreadyClaimedThrows();
+testClaimUnknownAchievementThrows();
+testClaimNoRewardAchievement();
+testClaimedPersistOnSave();
+
 console.log('achievement service tests passed');
