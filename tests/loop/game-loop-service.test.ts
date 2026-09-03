@@ -87,10 +87,53 @@ function testStopPreventsFurtherTicks(): void {
   assert.equal(context.player.workSeconds, workSeconds);
 }
 
+function testKpiSalaryEarnedIsTrackedFromWorkTick(): void {
+  const context = makeContext(new PlayerData({ workMode: 'WORK', mind: 100 }));
+  const kpiBefore = context.player.kpiProgress['SALARY_EARNED'] ?? 0;
+  const loop = new GameLoopService(context);
+  loop.start();
+  loop.tick(3600); // 1 hour of work
+  const kpiAfter = context.player.kpiProgress['SALARY_EARNED'] ?? 0;
+  assert.ok(kpiAfter > kpiBefore, 'KPI SALARY_EARNED must increase from work ticks');
+}
+
+function testAutoSaveFiresPeriodically(): void {
+  const storage = new MemoryStorageAdapter();
+  const context = new GameContext({
+    player: new PlayerData({ workMode: 'WORK', mind: 100 }),
+    storage,
+    clock: new FakeClock(1_000),
+    careerEventClock: new FakeClock(1_000),
+    randomProvider: new SequenceRandomProvider([0, 0]),
+  });
+  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  const loop = new GameLoopService(context, { autoSaveIntervalSeconds: 10 });
+  loop.start();
+  // Before auto-save threshold, storage may be empty (no explicit save triggered)
+  loop.tick(5);
+  // After crossing the auto-save threshold, a save must have been written
+  loop.tick(10);
+  const saved = storage.getItem('game-save');
+  assert.ok(saved, 'auto-save must have fired and written to storage');
+  const parsed = JSON.parse(saved!);
+  assert.ok(typeof parsed.workSeconds === 'number', 'saved data must include workSeconds');
+}
+
+function testAutoSaveDisabledWhenZero(): void {
+  const context = makeContext(new PlayerData({ workMode: 'WORK', mind: 100 }));
+  const loop = new GameLoopService(context, { autoSaveIntervalSeconds: 0 });
+  loop.start();
+  loop.tick(3600); // 1 hour - should not crash even with auto-save disabled
+  assert.equal(context.player.workSeconds, 3600);
+}
+
 testTickBeforeStartDoesNothing();
 testSixtySecondsWorkDrainsMindAndCountsWorkTime();
 testSixtySecondsFishingRecoversMindAndCountsFishTime();
 testTickIsFrameRateIndependent();
 testPendingEventBlocksASecondEvent();
 testStopPreventsFurtherTicks();
+testKpiSalaryEarnedIsTrackedFromWorkTick();
+testAutoSaveFiresPeriodically();
+testAutoSaveDisabledWhenZero();
 console.log('game loop service tests passed');
