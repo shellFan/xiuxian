@@ -21,7 +21,7 @@
 ## Execution ledger
 
 - [x] A0: 附件需求审阅、隔离工作树确认、clean baseline、fetch、npm test（43 文件）。
-- [ ] A1: 主线差异证据与兼容分类；概率/资格/每日/成就展示规范。
+- [x] A1: c992534，独立Sol契约审查PASS；概率总权重0/首事件计时两处文字澄清已落实，最终Review复核。
 - [ ] B: Schema、语义检查、迁移预览及 mutation tests。
 - [ ] C: 本地化、每日元数据、教程、生产 manifests、资产规格。
 - [ ] D: Prefab/屏幕/状态/广告/新手体验/安全与发布清单。

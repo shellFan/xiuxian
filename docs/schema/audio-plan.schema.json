@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://xiuxian.local/schema/phase4/audio-plan.schema.json",
+  "title": "Phase 4 audio plan candidates",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "status", "runtimeEnabled", "limits", "cues"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "status": { "const": "PHASE4_CANDIDATE" },
+    "runtimeEnabled": { "const": false },
+    "limits": { "$ref": "#/$defs/limits" },
+    "cues": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/cue" } }
+  },
+  "$defs": {
+    "nonBlank": { "type": "string", "pattern": "\\S" },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxSfxVoices", "maxBgmVoices", "crossfadeMs"],
+      "properties": {
+        "maxSfxVoices": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "maxBgmVoices": { "type": "integer", "minimum": 1, "maximum": 1 },
+        "crossfadeMs": { "type": "integer", "minimum": 0, "maximum": 60000 }
+      }
+    },
+    "cue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "category", "usage", "trigger", "priority", "loop", "suggestedDurationMs", "assetStatus", "assetKey", "cooldownMs"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonBlank", "maxLength": 96, "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$" },
+        "category": { "enum": ["ui", "game", "events", "bgm"] },
+        "usage": { "$ref": "#/$defs/nonBlank", "maxLength": 200 },
+        "trigger": { "$ref": "#/$defs/nonBlank", "maxLength": 200 },
+        "priority": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "loop": { "type": "boolean" },
+        "suggestedDurationMs": { "type": "integer", "minimum": 1, "maximum": 3600000 },
+        "assetStatus": { "const": "PLANNED" },
+        "assetKey": { "$ref": "#/$defs/nonBlank", "maxLength": 200 },
+        "cooldownMs": { "type": "integer", "minimum": 0, "maximum": 3600000 }
+      }
+    }
+  }
+}

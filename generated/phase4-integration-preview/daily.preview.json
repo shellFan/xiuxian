@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "status": "PHASE4_PREVIEW",
+  "runtimeEnabled": false,
+  "activationStatus": "PREVIEW_ONLY",
+  "accepted": [],
+  "blocked": [
+    {
+      "id": "merge-5",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task merge-5 remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "work-10-min",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task work-10-min remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "fish-3-min",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task fish-3-min remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "event-3",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task event-3 remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "kpi-complete",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task kpi-complete remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "promotion-1",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task promotion-1 remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "merge-3-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task merge-3-p4 remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "work-5-min-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task work-5-min-p4 remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "fish-2-min-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task fish-2-min-p4 remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "event-2-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task event-2-p4 remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "kpi-check-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task kpi-check-p4 remains candidate-only until random pool selection is available"
+        }
+      ]
+    },
+    {
+      "id": "promotion-ready-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "issues": [
+        {
+          "code": "CAPABILITY_GAP",
+          "severity": "WARNING",
+          "message": "daily task promotion-ready-p4 remains candidate-only until random pool selection is available"
+        }
+      ]
+    }
+  ]
+}

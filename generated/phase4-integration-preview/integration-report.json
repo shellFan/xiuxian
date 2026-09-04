@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "status": "PHASE4_PREVIEW",
+  "runtimeEnabled": false,
+  "runtimeActivationReady": false,
+  "provenance": {
+    "candidateFiles": [
+      "assets/configs/phase4/office-events.json",
+      "assets/configs/phase4/achievements.json",
+      "assets/configs/phase4/daily-tasks.json",
+      "assets/configs/audio-plan.json",
+      "assets/configs/ui-theme.json"
+    ],
+    "sourceFiles": [
+      "assets/configs/career-events.json",
+      "assets/configs/achievements.json",
+      "assets/configs/daily-tasks.json"
+    ]
+  },
+  "findings": [
+    {
+      "code": "CONDITION_MISMATCH",
+      "severity": "WARNING",
+      "id": "FISH_30M",
+      "source": "assets/configs/phase4/achievements.json",
+      "message": "FISH_SECONDS for FISH_30M is blocked until AchievementService adds the condition capability"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "event-2-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task event-2-p4 remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "event-3",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task event-3 remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "fish-2-min-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task fish-2-min-p4 remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "fish-3-min",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task fish-3-min remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "kpi-check-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task kpi-check-p4 remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "kpi-complete",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task kpi-complete remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "merge-3-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task merge-3-p4 remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "merge-5",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task merge-5 remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "promotion-1",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task promotion-1 remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "promotion-ready-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task promotion-ready-p4 remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "work-10-min",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task work-10-min remains candidate-only until random pool selection is available"
+    },
+    {
+      "code": "CAPABILITY_GAP",
+      "severity": "WARNING",
+      "id": "work-5-min-p4",
+      "source": "assets/configs/phase4/daily-tasks.json",
+      "message": "daily task work-5-min-p4 remains candidate-only until random pool selection is available"
+    }
+  ],
+  "summary": {
+    "schemaValid": true,
+    "semanticValid": true,
+    "events": {
+      "accepted": 80,
+      "blocked": 0
+    },
+    "achievements": {
+      "accepted": 30,
+      "blocked": 1
+    },
+    "daily": {
+      "accepted": 0,
+      "blocked": 12
+    }
+  }
+}

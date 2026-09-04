@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://xiuxian.local/schema/phase4/office-events.schema.json",
+  "title": "Phase 4 office event candidates",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "status", "runtimeEnabled", "source", "events"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "status": { "const": "PHASE4_CANDIDATE" },
+    "runtimeEnabled": { "const": false },
+    "source": { "type": "string", "pattern": "\\S", "const": "assets/configs/career-events.json" },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/event" }
+    }
+  },
+  "$defs": {
+    "nonBlank": { "type": "string", "pattern": "\\S" },
+    "safeInteger": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "salary": { "$ref": "#/$defs/safeInteger" },
+        "performance": { "$ref": "#/$defs/safeInteger" },
+        "cultivation": { "$ref": "#/$defs/safeInteger" },
+        "mind": { "$ref": "#/$defs/safeInteger" }
+      }
+    },
+    "choice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "text", "effects"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonBlank", "maxLength": 64, "pattern": "^[A-Za-z0-9_-]+$" },
+        "text": { "$ref": "#/$defs/nonBlank", "maxLength": 64 },
+        "effects": { "$ref": "#/$defs/effect" }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "title", "description"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonBlank", "maxLength": 96, "pattern": "^[A-Za-z0-9_][A-Za-z0-9_-]*$" },
+        "type": { "enum": ["POSITIVE", "NEGATIVE", "CHOICE", "RARE", "EASTER_EGG"] },
+        "title": { "$ref": "#/$defs/nonBlank", "maxLength": 64 },
+        "description": { "$ref": "#/$defs/nonBlank", "maxLength": 200 },
+        "effects": { "$ref": "#/$defs/effect" },
+        "choices": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/choice" }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "CHOICE" } } },
+          "then": { "required": ["choices"], "not": { "required": ["effects"] } }
+        },
+        {
+          "if": { "properties": { "type": { "enum": ["POSITIVE", "NEGATIVE", "RARE", "EASTER_EGG"] } } },
+          "then": { "required": ["effects"], "not": { "required": ["choices"] } }
+        }
+      ]
+    }
+  }
+}

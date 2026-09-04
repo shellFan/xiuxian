@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://xiuxian.local/schema/phase4/achievements.schema.json",
+  "title": "Phase 4 achievement candidates",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "status", "runtimeEnabled", "achievements"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "status": { "const": "PHASE4_CANDIDATE" },
+    "runtimeEnabled": { "const": false },
+    "achievements": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/achievement" }
+    }
+  },
+  "$defs": {
+    "nonBlank": { "type": "string", "pattern": "\\S" },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "rewardAmount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "reward": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "salary": { "$ref": "#/$defs/rewardAmount" },
+        "performance": { "$ref": "#/$defs/rewardAmount" },
+        "cultivation": { "$ref": "#/$defs/rewardAmount" },
+        "mind": { "$ref": "#/$defs/rewardAmount" }
+      }
+    },
+    "condition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "kpiKey", "target"],
+          "properties": {
+            "type": { "const": "KPI" },
+            "kpiKey": { "enum": ["MERGE_COUNT"] },
+            "target": { "$ref": "#/$defs/positiveInteger" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "target"],
+          "properties": {
+            "type": { "enum": ["SALARY", "CAREER_LEVEL", "PROMOTION", "OFFICE_LEVEL", "IDLE_CLAIM", "WORK_SECONDS", "FISH_SECONDS"] },
+            "target": { "$ref": "#/$defs/positiveInteger" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "eventType"],
+          "properties": {
+            "type": { "const": "EVENT_TYPE" },
+            "eventType": { "enum": ["POSITIVE", "NEGATIVE", "CHOICE", "RARE", "EASTER_EGG"] }
+          }
+        },
+        { "type": "object", "additionalProperties": false, "required": ["type"], "properties": { "type": { "const": "MIND_FULL" } } },
+        { "type": "object", "additionalProperties": false, "required": ["type"], "properties": { "type": { "const": "SECT_JOIN" } } },
+        { "type": "object", "additionalProperties": false, "required": ["type"], "properties": { "type": { "const": "TALENT_PICK" } } }
+      ]
+    },
+    "achievement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sourceId", "name", "description", "displayCategory", "hidden", "condition", "reward", "integrationStatus"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonBlank", "maxLength": 96, "pattern": "^[A-Za-z0-9_][A-Za-z0-9_-]*$" },
+        "sourceId": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/nonBlank" }] },
+        "name": { "$ref": "#/$defs/nonBlank", "maxLength": 18 },
+        "description": { "$ref": "#/$defs/nonBlank", "maxLength": 100 },
+        "displayCategory": { "enum": ["成长", "合成", "职业", "摸鱼", "工作", "财富", "修仙", "事件", "隐藏"] },
+        "hidden": { "type": "boolean" },
+        "condition": { "$ref": "#/$defs/condition" },
+        "reward": { "$ref": "#/$defs/reward" },
+        "integrationStatus": { "enum": ["PRESENTATION_ONLY", "NEEDS_SERVICE_CAPABILITY"] }
+      }
+    }
+  }
+}
