@@ -2,6 +2,12 @@
 
 输入：12条候选模板 + daily-pool-metadata.json。状态仍NEEDS_SERVICE_CAPABILITY；当前主线全量生成6源任务，不能直接接12模板。任何任务不以看广告为完成条件。
 
+## UI文案键映射
+
+| 合同消息 | locale key | zh-CN |
+|---|---|---|
+| 候选不足时的安全降级提示 | `ui.dailyPool.fallback` | 其余任务待条件开放 |
+
 ## 选择算法（拟议，未实现DailyTaskService）
 
 每天默认5项，显式产品开关可6项；按UTC日（北京时间08:00）持久化抽取结果、生成时计数基线、版本与seed，重启/切页不重抽。优先检查snapshot和能力，再按family去重，无放回权重抽样。一个family只取一个模板；先抽family（各1票），再按metadata.weight抽难度模板，避免拥有更多模板的family天然更常见。

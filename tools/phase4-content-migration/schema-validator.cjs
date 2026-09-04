@@ -162,7 +162,9 @@ function addDuplicateIssues(items, key, kind, source, issues, options = {}) {
 }
 
 function mapById(items) {
-  return new Map(Array.isArray(items) ? items.filter((item) => item && typeof item.id === 'string').map((item) => [item.id, item]) : []);
+  return new Map(Array.isArray(items)
+    ? items.filter((item) => item && typeof item.id === 'string' && item.id.trim()).map((item) => [item.id, item])
+    : []);
 }
 
 function sourceTitleCollisions(items, sourceItems, titleKey, source, issues) {
@@ -184,6 +186,19 @@ function validateSourceCollection(items, sources, kind, sourcePath, issues) {
     issues.push(makeIssue('MISSING_FIELD', 'ERROR', null, sourcePath, `missing source ${kind} collection`));
     return new Map();
   }
+  sources.forEach((member, index) => {
+    if (!member || typeof member !== 'object' || Array.isArray(member)
+      || typeof member.id !== 'string' || !member.id.trim()) {
+      issues.push(makeIssue(
+        'MALFORMED_SOURCE_MEMBER',
+        'ERROR',
+        null,
+        sourcePath,
+        `source ${kind} collection member at index ${index} must have a nonblank string id`,
+        { index },
+      ));
+    }
+  });
   addDuplicateIssues(sources, 'id', `source ${kind}`, sourcePath, issues, { failClosed: true });
   const sourceById = mapById(sources);
   if (!Array.isArray(items)) {

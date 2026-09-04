@@ -2,6 +2,14 @@
 
 这是拟议UI状态机，不是新增RewardService。现有RewardProvider只有granted/cancelled/failed；loading/playing/confirming需要未来桥接，不能从动画推断已经发奖。每次请求绑定placement/entityId/requestId；结果归Session处理，页面销毁不撤销已发生的业务结算。
 
+## UI文案键映射
+
+| 合同消息 | locale key | zh-CN |
+|---|---|---|
+| loading：正在准备广告 | `ui.reward.loading` | 正在准备广告 |
+| cancelled：本次未获得广告奖励 | `ui.reward.cancelled` | 本次未获得广告奖励 |
+| daily limit reached：今日次数已用完 | `ui.reward.dailyLimitReached` | 今日次数已用完 |
+
 | 状态 | 玩家看到 | 可操作 | 退出条件 |
 |---|---|---|---|
 | available | “看广告 + 实际奖励”，正常路径同等清晰 | 主动请求/关闭/正常玩 | 服务接受请求→loading |

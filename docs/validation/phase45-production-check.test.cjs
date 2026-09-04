@@ -95,8 +95,24 @@ test('tutorial cannot block input while waiting for promotion', () => {
 });
 test('production locale requires every page and action key', () => {
   assert.equal(typeof api.validateUiKeys,'function');
-  for(const key of ['ui.page.offlineReward','ui.action.openKpi','ui.reward.pending','ui.settings.reducedMotion']) {
+  for(const key of ['ui.page.offlineReward','ui.action.openKpi','ui.reward.pending','ui.settings.reducedMotion',
+    'ui.reward.loading','ui.reward.cancelled','ui.reward.dailyLimitReached','ui.dailyPool.fallback']) {
     const p=api.loadProduction();delete p.locale[key];
     assert.throws(()=>api.validateUiKeys(p.locale), /missing locale key/);
   }
+});
+
+test('production locale matches the explicit Phase4.5 UX contract mappings', () => {
+  const locale = api.loadProduction().locale;
+  assert.deepEqual({
+    'ui.reward.loading': locale['ui.reward.loading'],
+    'ui.reward.cancelled': locale['ui.reward.cancelled'],
+    'ui.reward.dailyLimitReached': locale['ui.reward.dailyLimitReached'],
+    'ui.dailyPool.fallback': locale['ui.dailyPool.fallback'],
+  }, {
+    'ui.reward.loading': '正在准备广告',
+    'ui.reward.cancelled': '本次未获得广告奖励',
+    'ui.reward.dailyLimitReached': '今日次数已用完',
+    'ui.dailyPool.fallback': '其余任务待条件开放',
+  });
 });

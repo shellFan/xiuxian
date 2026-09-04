@@ -109,7 +109,8 @@ function validateUiKeys(locale) {
     'ui.action':'recruit work fish openKpi openTasks openAchievements openSettings openCareer openSect openEvents moveOrMerge claim goComplete preparePromotion startPromotion tryAgain defer dismiss confirm cancel back close retry explain viewRules chooseCompany viewBonus offlineCollect offlineDouble adWatch adNoThanks skipTutorial learnLater copyDiagnostics help privacy toggleBgm toggleSfx toggleReducedMotion more',
     'ui.resource':'salary performance cultivation mind kpi',
     'ui.state':'loading restoring ready empty error busy disabled inProgress completed claimed locked available maxed pending processing failed',
-    'ui.reward':'ready inProgress playing granting claimed failed unavailable normal doubled pending noReward',
+    'ui.reward':'ready inProgress playing granting claimed failed unavailable normal doubled pending noReward loading cancelled dailyLimitReached',
+    'ui.dailyPool':'fallback',
     'ui.settings':'title sound bgm sfx reducedMotion version saveState enabled disabled saveFailed unavailable',
     'system':'configLoadFailed saveLoadFailed saveWriteFailed saveFailed networkUnavailable providerUnavailable recruitFailed mergeRejected invalidTarget eventChoiceFailed promotionUnavailable promotionResultUnknown promotionRetryRequired claimFailed rewardAdUnavailable rewardGrantPending rewardGrantFailed dailyRefreshFailed achievementHidden tutorialTargetMissing unsupportedViewport audioUnavailable',
   };

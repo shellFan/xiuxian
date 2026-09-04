@@ -248,6 +248,42 @@ test('malformed null source elements produce structured errors without aggregate
   assert.ok(preview.report.findings.some(issue => issue.severity === 'ERROR'));
 });
 
+test('appended malformed source members fail closed per domain without blocking unaffected domains', () => {
+  const { createPreview } = require('./preview.cjs');
+  const baseline = createPreview(loadToolPack());
+  const cases = [
+    ['sourceEvents', 'events', 'event', 'assets/configs/career-events.json'],
+    ['sourceAchievements', 'achievements', 'achievement', 'assets/configs/achievements.json'],
+    ['sourceDaily', 'daily', 'daily task', 'assets/configs/daily-tasks.json'],
+  ];
+  const malformedMembers = [null, {}, { id: 42 }, { id: '' }, { id: '   ' }];
+
+  for (const [sourceKey, domain, kind, sourcePath] of cases) {
+    for (const malformed of malformedMembers) {
+      const pack = loadToolPack();
+      pack[sourceKey].push(malformed);
+      const preview = createPreview(pack);
+      const errors = preview.report.findings.filter((issue) => issue.code === 'MALFORMED_SOURCE_MEMBER');
+
+      assert.equal(preview.report.summary.semanticValid, false, `${sourceKey} should be semantically invalid`);
+      assert.equal(errors.length, 1, `${sourceKey} should report one malformed member`);
+      assert.deepEqual(errors[0], {
+        code: 'MALFORMED_SOURCE_MEMBER',
+        severity: 'ERROR',
+        id: null,
+        source: sourcePath,
+        message: `source ${kind} collection member at index ${pack[sourceKey].length - 1} must have a nonblank string id`,
+        index: pack[sourceKey].length - 1,
+      });
+      assert.match(errors[0].message, /nonblank string id/);
+      assert.equal(preview[domain].accepted.length, 0, `${domain} should be blocked`);
+      for (const unaffected of ['events', 'achievements', 'daily'].filter((name) => name !== domain)) {
+        assert.deepEqual(preview[unaffected], baseline[unaffected], `${unaffected} should remain unaffected`);
+      }
+    }
+  }
+});
+
 test('preview writer permits only the fixed destination and rejects symlink destinations', () => {
   const { writePreviewFiles } = require('./preview.cjs');
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'phase4-preview-'));
