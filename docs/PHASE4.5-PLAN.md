@@ -22,9 +22,9 @@
 
 - [x] A0: 附件需求审阅、隔离工作树确认、clean baseline、fetch、npm test（43 文件）。
 - [x] A1: c992534，独立Sol契约审查PASS；概率总权重0/首事件计时两处文字澄清已落实，最终Review复核。
-- [ ] B: Schema、语义检查、迁移预览及 mutation tests。
-- [ ] C: 本地化、每日元数据、教程、生产 manifests、资产规格。
-- [ ] D: Prefab/屏幕/状态/广告/新手体验/安全与发布清单。
+- [x] B: 4fc6845；Luna交付，14工具测试+36内容/生产测试PASS，等待独立整包审查。
+- [x] C: cfe3a89；49美术/25音频/15动画/460文案键，生产16测试PASS，等待独立整包审查。
+- [x] D: 77f425f；25Prefab/15页面/10类状态与发布清单，等待独立整包审查。
 - [ ] E: 分片审查、全量验证、merge-tree、合并清单、独立 Sol 最终 Review。
 - [ ] F: 精确路径提交、push phase4-ui-content、远程 SHA 确认、STOP。
 
