@@ -31,11 +31,21 @@ export class PlatformLifecycle {
   private readonly resumeListeners = new Set<LifecycleCallback>();
   private readonly saveStateListeners = new Set<SaveStateCallback>();
   private readonly restoreStateListeners = new Set<RestoreStateCallback>();
+  private readonly hideCallbacks = new Set<LifecycleCallback>();
+  private readonly showCallbacks = new Set<LifecycleCallback>();
   private hidden = false;
   private paused = false;
+  private platformHideWired = false;
+  private platformShowWired = false;
 
   public constructor(private readonly platform: PlatformService) {
-    // Wire platform show/hide to our lifecycle
+    // Wire platform show/hide to our lifecycle once
+    this.platform.onHide(() => {
+      this.hidden = true;
+      this.emitHide();
+      this.emitSaveState();
+    });
+
     this.platform.onShow(() => {
       this.hidden = false;
       if (this.paused) {
@@ -43,11 +53,6 @@ export class PlatformLifecycle {
         this.emitResume();
       }
       this.emitRestoreState();
-    });
-
-    this.platform.onHide(() => {
-      this.hidden = true;
-      this.emitSaveState();
     });
   }
 
@@ -59,14 +64,14 @@ export class PlatformLifecycle {
 
   /** Register a callback for when the platform goes to background. */
   public onHide(callback: LifecycleCallback): () => void {
-    this.platform.onHide(callback);
-    return () => { /* platform onHide doesn't support removal, but we track ours */ };
+    this.hideCallbacks.add(callback);
+    return () => { this.hideCallbacks.delete(callback); };
   }
 
   /** Register a callback for when the platform returns to foreground. */
   public onShow(callback: LifecycleCallback): () => void {
-    this.platform.onShow(callback);
-    return () => { /* platform onShow doesn't support removal */ };
+    this.showCallbacks.add(callback);
+    return () => { this.showCallbacks.delete(callback); };
   }
 
   /** Register a callback for game pause (low-priority suspension). */
@@ -115,6 +120,8 @@ export class PlatformLifecycle {
     this.resumeListeners.clear();
     this.saveStateListeners.clear();
     this.restoreStateListeners.clear();
+    this.hideCallbacks.clear();
+    this.showCallbacks.clear();
   }
 
   private emitPause(): void {
@@ -125,6 +132,18 @@ export class PlatformLifecycle {
 
   private emitResume(): void {
     for (const cb of this.resumeListeners) {
+      try { cb(); } catch { /* listener errors must not propagate */ }
+    }
+  }
+
+  private emitHide(): void {
+    for (const cb of this.hideCallbacks) {
+      try { cb(); } catch { /* listener errors must not propagate */ }
+    }
+  }
+
+  private emitShow(): void {
+    for (const cb of this.showCallbacks) {
       try { cb(); } catch { /* listener errors must not propagate */ }
     }
   }

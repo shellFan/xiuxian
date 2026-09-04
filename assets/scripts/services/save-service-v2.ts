@@ -99,21 +99,21 @@ export class SaveServiceV2 {
       throw new Error(`Save validation failed: ${validation.errors.join(', ')}`);
     }
 
-    // 2. Write
+    // 2. Backup current primary BEFORE writing (so backup always has last known-good)
+    if (this.enableBackup) {
+      this.backupCurrent();
+    }
+
+    // 3. Write
     const json = JSON.stringify(data);
     this.storage.setItem(this.saveKey, json);
 
-    // 3. Verify
+    // 4. Verify
     const verifyRaw = this.storage.getItem(this.saveKey);
     if (verifyRaw !== json) {
       // Verification failed — restore from backup
       this.restoreFromBackup();
       throw new Error('Save verification failed: written data does not match');
-    }
-
-    // 4. Backup after successful write (so backup always has last known-good)
-    if (this.enableBackup) {
-      this.storage.setItem(this.backupKey, json);
     }
 
     this.latestSnapshot = cloneSaveData(data);

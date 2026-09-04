@@ -32,7 +32,7 @@ export type AnalyticsEventType =
 
 export interface AnalyticsEvent {
   readonly type: AnalyticsEventType;
-  readonly params?: Readonly<Record<string, string | number | boolean>>;
+  readonly params?: Readonly<Record<string, unknown>>;
   readonly timestamp: number;
 }
 
@@ -75,12 +75,13 @@ export class AnalyticsService {
    * Track an analytics event.
    * Silently drops if consent is not given.
    */
-  public track(type: AnalyticsEventType, params?: Record<string, string | number | boolean>): void {
+  public track(type: AnalyticsEventType, params?: Record<string, unknown>): void {
     if (!this.consentEnabled) return;
 
+    const sanitized = params ? sanitizeAnalyticsParams(params) : undefined;
     const event: AnalyticsEvent = {
       type,
-      params: params ? Object.freeze({ ...params }) : undefined,
+      params: sanitized ? Object.freeze(sanitized) : undefined,
       timestamp: Date.now(),
     };
 
@@ -148,6 +149,7 @@ export const PRIVACY_RESTRICTED_FIELDS: readonly string[] = [
   'name',
   'phone',
   'phoneNumber',
+  'mobile',
   'wechatId',
   'openId',
   'unionId',
@@ -162,18 +164,32 @@ export const PRIVACY_RESTRICTED_FIELDS: readonly string[] = [
 ];
 
 /**
- * Strip privacy-restricted fields from analytics params.
- * Returns a sanitized copy.
+ * Recursively strip privacy-restricted fields from analytics params.
+ * Handles nested objects and arrays. Returns a sanitized deep copy.
  */
 export function sanitizeAnalyticsParams(
-  params: Record<string, string | number | boolean>
-): Record<string, string | number | boolean> {
+  params: Record<string, unknown>,
+): Record<string, unknown> {
   const restricted = new Set(PRIVACY_RESTRICTED_FIELDS);
-  const result: Record<string, string | number | boolean> = {};
-  for (const [key, value] of Object.entries(params)) {
-    if (!restricted.has(key)) {
-      result[key] = value;
-    }
+  return sanitizeObject(params, restricted) as Record<string, unknown>;
+}
+
+function sanitizeObject(value: unknown, restricted: Set<string>): unknown {
+  if (value === null || value === undefined) return value;
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return value;
   }
-  return result;
+  if (Array.isArray(value)) {
+    return value.map(item => sanitizeObject(item, restricted));
+  }
+  if (typeof value === 'object') {
+    const result: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+      if (!restricted.has(key)) {
+        result[key] = sanitizeObject(val, restricted);
+      }
+    }
+    return result;
+  }
+  return value;
 }

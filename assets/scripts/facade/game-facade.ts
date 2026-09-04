@@ -23,11 +23,13 @@ import { GameSnapshot, createSnapshot, snapshotEqual } from './game-snapshot';
 import { type UiEventCategory, type UiEvent, resolveCategory } from './ui-event-types';
 import { type RewardType, type RewardResult } from '../services/reward-provider';
 import type { WorkMode } from '../model/save-data';
+import { DebugProtection, type DebugProtectionOptions } from '../services/debug-protection';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
   readonly rewardProvider?: RewardProvider;
   readonly autoSaveIntervalSeconds?: number;
+  readonly debugProtection?: DebugProtectionOptions;
 }
 
 export type UiEventListener = (event: UiEvent) => void;
@@ -38,6 +40,7 @@ export class GameFacade {
   public readonly rewardService: RewardService;
   public readonly platform: PlatformService;
   public readonly lifecycle: PlatformLifecycle;
+  public readonly debugProtection: DebugProtection;
 
   private readonly uiListeners = new Map<UiEventCategory, Set<UiEventListener>>();
   private lastSnapshot: GameSnapshot | null = null;
@@ -54,6 +57,7 @@ export class GameFacade {
       (category, source, detail) => this.emitUiEvent(category, source, detail),
     );
     this.lifecycle = new PlatformLifecycle(this.platform);
+    this.debugProtection = new DebugProtection(options.debugProtection);
 
     // Bridge domain events to UI event stream
     this.bridgeDomainEvents();
@@ -95,8 +99,8 @@ export class GameFacade {
       promotionFailCount: p.promotionFailCount,
       unlockedAchievementIds: Object.freeze([...p.unlockedAchievementIds]),
       claimedAchievementIds: Object.freeze([...p.claimedAchievementIds]),
-      dailySignIn: p.dailySignIn ? { ...p.dailySignIn } : null,
-      dailyTasks: Object.freeze([...p.dailyTasks.map(t => ({ ...t }))]),
+      dailySignIn: p.dailySignIn ? Object.freeze({ ...p.dailySignIn }) : null,
+      dailyTasks: Object.freeze([...p.dailyTasks.map(t => Object.freeze({ ...t }))]),
       dailyTaskDay: p.dailyTaskDay,
       tutorialStep: p.tutorialStep,
       tutorialCompleted: p.tutorialCompleted,
@@ -139,8 +143,11 @@ export class GameFacade {
     this.context.events.emit('gameSaved', { reason: 'idle' });
   }
 
-  /** Clear save data (dev/debug only). */
+  /** Clear save data (dev/debug only). Throws in production. */
   public clearSave(): void {
+    if (this.debugProtection && !this.debugProtection.isAllowed()) {
+      throw new Error('GameFacade: clearSave is not available in production');
+    }
     this.context.saveService.clearSave();
   }
 

@@ -22,6 +22,7 @@ export type RewardStateListener = (state: RewardState, type: RewardType, result?
 export class RewardService {
   private state: RewardState = 'IDLE';
   private currentType: RewardType | null = null;
+  private requestGeneration = 0;
   private callbackFired = false;
   private readonly stateListeners = new Set<RewardStateListener>();
   private readonly eventPublisher?: (category: UiEventCategory, source: string, detail?: unknown) => void;
@@ -45,7 +46,10 @@ export class RewardService {
   /**
    * Request a reward of the given type.
    * Throws if a request is already in progress (IDLE guard).
-   * The onComplete callback is guaranteed to be called at most once.
+   * The onComplete callback is guaranteed to be called at most once per request.
+   * Uses both a per-request callbackFired guard AND a generation counter to
+   * prevent double-grant from duplicate callbacks and stale callbacks from
+   * previous requests after a new request has started.
    */
   public request(type: RewardType, onComplete: (result: RewardResult) => void): void {
     if (this.state !== 'IDLE') {
@@ -55,12 +59,17 @@ export class RewardService {
     this.state = 'REQUESTING';
     this.currentType = type;
     this.callbackFired = false;
+    const generation = ++this.requestGeneration;
     this.notifyListeners('REQUESTING', type);
     this.eventPublisher?.('REWARD_REQUESTED', 'rewardService', { type });
 
     this.provider.requestReward(type, (result) => {
+      // Double-callback guard: ignore duplicate invocation within same request
       if (this.callbackFired) {
-        // Double-callback guard: ignore duplicate invocation
+        return;
+      }
+      // Generation guard: ignore stale callbacks from previous requests
+      if (generation !== this.requestGeneration) {
         return;
       }
       this.callbackFired = true;
@@ -76,7 +85,7 @@ export class RewardService {
 
       // Reset to IDLE after a microtask to allow UI to read the terminal state
       queueMicrotask(() => {
-        if (this.state !== 'IDLE') {
+        if (generation === this.requestGeneration && this.state !== 'IDLE') {
           this.state = 'IDLE';
           this.currentType = null;
         }
@@ -102,6 +111,7 @@ export class RewardService {
   public reset(): void {
     this.state = 'IDLE';
     this.currentType = null;
+    this.requestGeneration++; // Invalidate any pending callback
     this.callbackFired = false;
   }
 

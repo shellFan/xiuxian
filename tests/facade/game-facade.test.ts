@@ -457,21 +457,35 @@ test('SaveServiceV2: backup and restore', () => {
   const storage = new MemoryStorageAdapter();
   const service = new SaveServiceV2(storage);
   const player = PlayerData.createDefault();
+  // First save: no previous data to backup, so backup is empty
   player.salary = 100;
+  service.save(player);
+  assert.strictEqual(service.hasBackup(), false);
+  // Second save: backup gets the first save's data
+  player.salary = 200;
   service.save(player);
   assert.strictEqual(service.hasBackup(), true);
   assert.strictEqual(service.restoreFromBackup(), true);
+  // After restore, primary should have the first save's data
+  const loaded = service.load();
+  assert.strictEqual(loaded.salary, 100);
 });
 
 test('SaveServiceV2: corruption recovery falls back to backup', () => {
   const storage = new MemoryStorageAdapter();
   const service = new SaveServiceV2(storage);
   const player = PlayerData.createDefault();
+  // Save A: salary=100 (no backup yet)
+  player.salary = 100;
+  service.save(player);
+  // Save B: salary=300 (backup now has salary=100)
   player.salary = 300;
   service.save(player);
+  // Corrupt primary storage
   storage.setItem('game-save', '{invalid json');
+  // Load should fall back to backup (salary=100, the last known-good before save B)
   const loaded = service.load();
-  assert.strictEqual(loaded.salary, 300);
+  assert.strictEqual(loaded.salary, 100);
 });
 
 test('validateSaveData: detects invalid data', () => {

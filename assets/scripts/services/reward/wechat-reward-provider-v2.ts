@@ -17,6 +17,7 @@ interface WxRewardedVideoAd {
   onClose(callback: (res: { isEnded: boolean }) => void): void;
   offClose(callback: (res: { isEnded: boolean }) => void): void;
   onError(callback: (err: { errCode: number; errMsg: string }) => void): void;
+  offError(callback: (err: { errCode: number; errMsg: string }) => void): void;
   destroy(): void;
 }
 
@@ -41,6 +42,7 @@ export class WechatRewardProviderV2 implements RewardProvider {
   private ad: WxRewardedVideoAd | null = null;
   private adState: AdState = 'UNINITIALIZED';
   private pendingCallback: ((result: RewardResult) => void) | null = null;
+  private errorHandler: ((err: { errCode: number; errMsg: string }) => void) | null = null;
   private readonly fallback = new MockRewardProvider(this.config.fallbackRecoveryAmount ?? 50);
 
   public constructor(private readonly config: WechatRewardConfig) {}
@@ -65,7 +67,7 @@ export class WechatRewardProviderV2 implements RewardProvider {
 
     try {
       this.ad = wx.createRewardedVideoAd({ adUnitId: this.config.adUnitId });
-      this.ad.onError((err) => {
+      this.errorHandler = (err) => {
         // Ad load error — if we're waiting for a show, deliver failure
         if (this.adState === 'SHOWING' && this.pendingCallback) {
           const cb = this.pendingCallback;
@@ -73,7 +75,8 @@ export class WechatRewardProviderV2 implements RewardProvider {
           this.adState = 'READY';
           cb({ status: 'failed', reason: `Ad error: ${err.errCode}` });
         }
-      });
+      };
+      this.ad.onError(this.errorHandler);
       this.adState = 'READY';
     } catch {
       this.adState = 'DISPOSED';
@@ -135,12 +138,22 @@ export class WechatRewardProviderV2 implements RewardProvider {
 
   /** Destroy the ad instance and release resources. */
   public dispose(): void {
+    // Clear pending callback first to prevent any late callbacks
+    if (this.pendingCallback) {
+      const cb = this.pendingCallback;
+      this.pendingCallback = null;
+      cb({ status: 'failed', reason: 'Provider disposed' });
+    }
     if (this.ad) {
+      // Remove error handler before destroying
+      if (this.errorHandler) {
+        try { this.ad.offError(this.errorHandler); } catch { /* ignore */ }
+        this.errorHandler = null;
+      }
       try { this.ad.destroy(); } catch { /* ignore */ }
       this.ad = null;
     }
     this.adState = 'DISPOSED';
-    this.pendingCallback = null;
   }
 
   /** Current ad state for diagnostics. */
