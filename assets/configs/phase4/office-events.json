@@ -347,22 +347,22 @@
     {
       "id": "EVENT_P4_017",
       "type": "NEGATIVE",
-      "title": "Cursor补全走神",
-      "description": "Cursor 补全把旧接口带进新模块，你花掉半个上午给它擦尾巴。",
+      "title": "补全助手走神",
+      "description": "补全助手把旧接口带进新模块，你花掉半个上午清理兼容问题。",
       "effects": { "performance": -3, "mind": -5, "cultivation": -2 }
     },
     {
       "id": "EVENT_P4_018",
       "type": "NEGATIVE",
-      "title": "Codex理解偏航",
-      "description": "Codex 把需求里的例外当成主流程，评审桌上多了一轮返工。",
+      "title": "代码助手理解偏航",
+      "description": "代码助手把需求里的例外当成主流程，评审桌上多了一轮返工。",
       "effects": { "performance": -4, "mind": -5, "cultivation": -3 }
     },
     {
       "id": "EVENT_P4_019",
       "type": "NEGATIVE",
-      "title": "ChatGPT幻觉",
-      "description": "ChatGPT 给出的接口名并不存在，你在文档和仓库之间来回考古。",
+      "title": "聊天助手编出接口",
+      "description": "聊天助手给出的接口名并不存在，你在文档和仓库之间来回考古。",
       "effects": { "performance": -3, "mind": -6 }
     },
     {

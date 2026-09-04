@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "status": "PHASE4_CANDIDATE",
+  "runtimeEnabled": false,
+  "steps": [
+    {
+      "id": "FIRST_RECRUIT",
+      "title": "先招一只牛马",
+      "body": "点击招募，放入第一只牛马。",
+      "highlightTarget": "recruitButton",
+      "pointerPosition": "above",
+      "allowSkip": false,
+      "blockInput": true,
+      "completionHint": "完成首次招募"
+    },
+    {
+      "id": "SECOND_RECRUIT",
+      "title": "再招一只",
+      "body": "再招一只牛马，准备合成。",
+      "highlightTarget": "recruitButton",
+      "pointerPosition": "above",
+      "allowSkip": true,
+      "blockInput": true,
+      "completionHint": "完成第二次招募"
+    },
+    {
+      "id": "FIRST_MERGE",
+      "title": "合成同级牛马",
+      "body": "把两只同级牛马拖到一起。",
+      "highlightTarget": "mergeBoard",
+      "pointerPosition": "right",
+      "allowSkip": true,
+      "blockInput": true,
+      "completionHint": "完成首次合成"
+    },
+    {
+      "id": "START_WORK",
+      "title": "开始上班",
+      "body": "点击工作并积累工作时间。",
+      "highlightTarget": "workModeToggle",
+      "pointerPosition": "above",
+      "allowSkip": true,
+      "blockInput": true,
+      "completionHint": "累计工作秒数大于0"
+    },
+    {
+      "id": "CHECK_KPI",
+      "title": "查看KPI",
+      "body": "手动打开KPI卷宗，看看下一步目标。",
+      "highlightTarget": "kpiWidget",
+      "pointerPosition": "below",
+      "allowSkip": true,
+      "blockInput": true,
+      "completionHint": "手动打开当前KPI"
+    },
+    {
+      "id": "FIRST_PROMOTION",
+      "title": "准备晋升",
+      "body": "条件达成后手动打开答辩，完成第一次晋升。",
+      "highlightTarget": "promotionButton",
+      "pointerPosition": "left",
+      "allowSkip": true,
+      "blockInput": false,
+      "completionHint": "完成首次晋升"
+    }
+  ]
+}
