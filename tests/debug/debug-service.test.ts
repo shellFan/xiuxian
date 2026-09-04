@@ -211,7 +211,7 @@ function testTriggerEvent(): void {
   // Should not throw even if no pending event
   context.debug.triggerEvent();
   // Event should be emitted
-  const events: Array<{ eventId: string; pending: boolean }> = [];
+  const events: Array<{ eventId: string | null; pending: boolean }> = [];
   context.events.on('eventChanged', (e) => events.push(e));
   context.debug.triggerEvent();
   assert.equal(events.length, 1);
