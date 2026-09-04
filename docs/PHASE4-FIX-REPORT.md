@@ -1,6 +1,6 @@
 # Phase 4 review fix report
 
-分支：`phase4-ui-content`  
+分支：`phase4-ui-content`
 范围：仅按 `docs/PHASE4-REVIEW-FIX-BRIEF.md` 处理 R1–R6；未修改 Service、主线、源游戏配置或 root 报告；未 commit/push。
 
 ## 回归测试 RED
