@@ -52,3 +52,9 @@
 - 已更新主线兼容/冲突/清单，明确Facade/Snapshot/Settings/Audio/Formatter已存在但适配不完整；不声称本分支测试覆盖远程新代码。
 
 最终兼容文档复审：同一独立Sol核对新08173b4的12兼容主题/9实现及4份更新文档，PASS，B0/H0/M0；原30项覆盖和两项整改闭环继续成立。详见PHASE4.5-FINAL-REVIEW.md。不会将候选准备PASS写成主线功能PASS。
+
+## Publication evidence
+
+- 交付checkpoint c6369fc04ce2e696a4c5756bce8e4e6a3615932a已成功push到origin/phase4-ui-content，exit0；随后ls-remote返回完全相同SHA。
+- Git默认TLS后端两次连接失败后，仅该次命令切换Windows schannel并沿用已验证代理/HTTP1.1，成功；未关闭证书校验，未修改全局Git配置。
+- 本完成记录是checkpoint之后的纯文档提交；将同样推送并在最终交接核对最新远程SHA。没有merge/force push/Phase5动作，也没有写入主线工作树。

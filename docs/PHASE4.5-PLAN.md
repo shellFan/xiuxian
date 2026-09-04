@@ -26,7 +26,7 @@
 - [x] C: cfe3a89+1162ed2；49美术/25音频/15动画/464文案键，生产17测试PASS，独立Sol审查PASS。
 - [x] D: 77f425f；25Prefab/15页面/10类状态与发布清单，独立Sol审查PASS。
 - [x] E: 全量验证/merge-tree/合并清单/独立Sol最终Review PASS；发布前远程更新至08173b4，兼容文档重新核对并获Sol PASS；B0/H0/M0仅指候选交付包。
-- [ ] F: 精确路径提交、push phase4-ui-content、远程 SHA 确认、STOP。
+- [x] F: 精确路径提交并push phase4-ui-content；远程ls-remote已核对交付checkpoint c6369fc04ce2e696a4c5756bce8e4e6a3615932a。本完成记录再提交/推送后核对最终HEAD，最终SHA见会话交接；不merge，STOP。
 
 ## Task B: validation and preview
 
