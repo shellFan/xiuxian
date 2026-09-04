@@ -56,6 +56,12 @@ export class SaveService {
 
   public autoSave(player: PlayerData): void { this.save(player); }
 
+  /** Clear the save data from storage (dev/debug only). */
+  public clearSave(): void {
+    this.storage.removeItem(this.key);
+    this.latestSnapshot = null;
+  }
+
   private commitLoaded(data: GameSaveData): GameSaveData {
     this.latestSnapshot = cloneSaveData(data);
     return cloneSaveData(data);
@@ -93,6 +99,8 @@ function migrate(raw: unknown): GameSaveData {
     dailySignIn: isDailySignInState(raw.dailySignIn) ? { lastClaimTime: raw.dailySignIn.lastClaimTime, currentDay: raw.dailySignIn.currentDay } : null,
     dailyTasks: Array.isArray(raw.dailyTasks) ? raw.dailyTasks.filter(isDailyTaskState) : [],
     dailyTaskDay: typeof raw.dailyTaskDay === 'number' && Number.isSafeInteger(raw.dailyTaskDay) && raw.dailyTaskDay >= -1 ? raw.dailyTaskDay : -1,
+    tutorialStep: typeof raw.tutorialStep === 'string' ? raw.tutorialStep : 'FIRST_RECRUIT',
+    tutorialCompleted: typeof raw.tutorialCompleted === 'boolean' ? raw.tutorialCompleted : false,
   };
   if (isNonNegativeSafeInteger(raw.salaryRemainder) && raw.salaryRemainder !== 0) dataWithRemainder(data, 'salaryRemainder', raw.salaryRemainder);
   if (isNonNegativeSafeInteger(raw.cultivationRemainder) && raw.cultivationRemainder !== 0) dataWithRemainder(data, 'cultivationRemainder', raw.cultivationRemainder);
@@ -110,7 +118,7 @@ function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultiva
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {
-  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1 };
+  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'FIRST_RECRUIT', tutorialCompleted: data.tutorialCompleted ?? false };
 }
 
 function isWorker(value: unknown): value is WorkerSaveData {

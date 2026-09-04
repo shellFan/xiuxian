@@ -215,4 +215,6 @@ function restorePlayer(player: import('../model/player-data').PlayerData, data: 
   player.dailySignIn = data.dailySignIn ? { ...data.dailySignIn } : null;
   player.dailyTasks = (data.dailyTasks ?? []).map((t) => ({ ...t }));
   player.dailyTaskDay = data.dailyTaskDay ?? -1;
+  player.tutorialStep = data.tutorialStep ?? 'FIRST_RECRUIT';
+  player.tutorialCompleted = data.tutorialCompleted ?? false;
 }

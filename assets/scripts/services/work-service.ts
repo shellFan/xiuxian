@@ -140,4 +140,6 @@ function restorePlayer(player: GameContext['player'], data: ReturnType<GameConte
   player.fishingMindRemainder = data.fishingMindRemainder ?? 0;
   player.dailyTasks = (data.dailyTasks ?? []).map((t) => ({ ...t }));
   player.dailyTaskDay = data.dailyTaskDay ?? -1;
+  player.tutorialStep = data.tutorialStep ?? 'FIRST_RECRUIT';
+  player.tutorialCompleted = data.tutorialCompleted ?? false;
 }

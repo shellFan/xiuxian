@@ -29,6 +29,8 @@ export interface PlayerDataOptions {
   readonly dailySignIn?: DailySignInState | null;
   readonly dailyTasks?: readonly DailyTaskState[];
   readonly dailyTaskDay?: number;
+  readonly tutorialStep?: string;
+  readonly tutorialCompleted?: boolean;
 }
 
 export class PlayerData {
@@ -66,6 +68,8 @@ export class PlayerData {
   public dailySignIn: DailySignInState | null;
   public dailyTasks: DailyTaskState[];
   public dailyTaskDay: number;
+  public tutorialStep: string;
+  public tutorialCompleted: boolean;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -96,6 +100,8 @@ export class PlayerData {
     this.dailySignIn = options.dailySignIn ?? null;
     this.dailyTasks = (options.dailyTasks ?? []).map((t) => ({ ...t }));
     this.dailyTaskDay = options.dailyTaskDay ?? -1;
+    this.tutorialStep = options.tutorialStep ?? 'FIRST_RECRUIT';
+    this.tutorialCompleted = options.tutorialCompleted ?? false;
   }
 
   public static createDefault(): PlayerData {
@@ -118,6 +124,8 @@ export class PlayerData {
       dailySignIn: this.dailySignIn ? { ...this.dailySignIn } : null,
       dailyTasks: this.dailyTasks.map((t) => ({ ...t })),
       dailyTaskDay: this.dailyTaskDay,
+      tutorialStep: this.tutorialStep,
+      tutorialCompleted: this.tutorialCompleted,
     };
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
     if (this.cultivationRemainder !== 0) Object.assign(data, { cultivationRemainder: this.cultivationRemainder });

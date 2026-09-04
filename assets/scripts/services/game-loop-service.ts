@@ -85,7 +85,14 @@ export class GameLoopService {
       }
     }
 
-    // 7. Auto-save periodically
+    // 7. Tutorial auto-advance check
+    try {
+      this.context.tutorial.checkAutoAdvance();
+    } catch {
+      // Tutorial check failure must not crash the game loop
+    }
+
+    // 8. Auto-save periodically
     if (this.autoSaveIntervalSeconds > 0) {
       this.autoSaveAccumulatedSeconds += seconds;
       if (this.autoSaveAccumulatedSeconds >= this.autoSaveIntervalSeconds) {

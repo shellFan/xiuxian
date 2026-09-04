@@ -214,4 +214,6 @@ function restorePlayer(player: GameContext['player'], data: GameSaveData): void 
   player.mindRemainder = data.mindRemainder ?? 0;
   player.workMindRemainder = data.workMindRemainder ?? 0;
   player.fishingMindRemainder = data.fishingMindRemainder ?? 0;
+  player.tutorialStep = data.tutorialStep ?? 'FIRST_RECRUIT';
+  player.tutorialCompleted = data.tutorialCompleted ?? false;
 }

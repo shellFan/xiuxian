@@ -53,4 +53,6 @@ export interface GameSaveData {
   readonly dailySignIn?: DailySignInState | null;
   readonly dailyTasks?: readonly DailyTaskState[];
   readonly dailyTaskDay?: number;
+  readonly tutorialStep?: string;
+  readonly tutorialCompleted?: boolean;
 }
