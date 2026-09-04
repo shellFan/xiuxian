@@ -21,3 +21,8 @@ tests/.compiled/
 /local/
 /profiles/
 .creator/
+/build/
+/dist/
+
+# Cocos .meta files MUST be tracked (required for scene/prefab references)
+!assets/**/*.meta

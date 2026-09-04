@@ -24,6 +24,8 @@ import { type UiEventCategory, type UiEvent, resolveCategory } from './ui-event-
 import { type RewardType, type RewardResult } from '../services/reward-provider';
 import type { WorkMode } from '../model/save-data';
 import { DebugProtection, type DebugProtectionOptions } from '../services/debug-protection';
+import { type RecruitmentResult, type RecruitmentSuccess, type RecruitmentFailure } from '../services/recruitment-service';
+import { WorkerEntity } from '../model/worker-entity';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -125,6 +127,22 @@ export class GameFacade {
     this.context.player.workMode = mode;
     this.context.events.emit('workModeChanged', { mode });
     this.context.saveService.save(this.context.player);
+  }
+
+  /** Recruit a new worker (level 1) to the merge board. Returns the result. */
+  public recruit(): RecruitmentResult {
+    const position = this.context.board.findEmptyPosition();
+    if (!position) {
+      return { success: false, message: '工位满了' } as RecruitmentFailure;
+    }
+    const worker = WorkerEntity.create(1);
+    this.context.board.place(worker, position);
+    this.context.syncPlayerWorkers();
+    this.context.player.maxWorkerLevel = Math.max(this.context.player.maxWorkerLevel, worker.level);
+    this.context.events.emit('workerRecruited', { worker, position });
+    this.context.saveService.save(this.context.player);
+    this.context.events.emit('gameSaved', { reason: 'recruitment' });
+    return { success: true, worker, position } as RecruitmentSuccess;
   }
 
   /** Request a rewarded ad (delegates to RewardService state machine). */

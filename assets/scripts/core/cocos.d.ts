@@ -18,9 +18,11 @@ declare module 'cc' {
 
   export class Component {
     protected onLoad(): void;
+    protected start(): void;
     protected onDestroy(): void;
     public readonly node: Node;
     protected update(dt: number): void;
+    public destroy(): void;
   }
 
   type ClassDecorator = <T extends new (...args: never[]) => object>(constructor: T) => T;
@@ -41,5 +43,13 @@ declare module 'cc' {
       setItem(key: string, value: string): void;
       removeItem(key: string): void;
     };
+  };
+
+  /** Cocos game-level visibility events and lifecycle. */
+  export const game: {
+    readonly EVENT_HIDE: string;
+    readonly EVENT_SHOW: string;
+    on(event: string, callback: (...args: unknown[]) => void, target?: unknown): void;
+    off(event: string, callback: (...args: unknown[]) => void, target?: unknown): void;
   };
 }
