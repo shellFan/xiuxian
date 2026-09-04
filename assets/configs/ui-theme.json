@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "status": "PHASE4_CANDIDATE",
+  "runtimeEnabled": false,
+  "designSize": { "width": 750, "height": 1334, "unit": "logical_px" },
+  "colors": {
+    "ink": "#202C35", "muted": "#52616B", "paper": "#FFF5DF", "surface": "#FFFDF7",
+    "outline": "#33464E", "primary": "#176F68", "onPrimary": "#FFFFFF",
+    "secondary": "#E7F0E8", "danger": "#A7343A", "onDanger": "#FFFFFF",
+    "reward": "#F3C45C", "onReward": "#332918", "disabled": "#D9DDDA",
+    "onDisabled": "#53605A", "salary": "#946000", "cultivation": "#674C9B",
+    "mind": "#176F68", "performance": "#9D4832", "mask": "#101B26B3",
+    "focus": "#235BC6", "rare": "#72449A", "egg": "#A04573"
+  },
+  "spacing": { "xs": 8, "sm": 12, "md": 16, "lg": 24, "xl": 32, "xxl": 48 },
+  "radius": { "small": 8, "card": 16, "panel": 24, "pill": 44 },
+  "fontScale": { "caption": 24, "body": 28, "button": 30, "subtitle": 32, "title": 40, "hero": 48 },
+  "panelPadding": { "compact": 16, "normal": 24, "dialog": 32 },
+  "buttonHeight": { "compact": 88, "normal": 96, "hero": 104 },
+  "iconSize": { "inline": 32, "normal": 48, "navigation": 56, "hero": 88 },
+  "dialogWidth": { "preferred": 654, "minOuterMargin": 32, "maxHeightRatio": 0.82 },
+  "safeArea": { "minTopPadding": 16, "minBottomPadding": 16, "minSidePadding": 24, "capsuleGap": 16 },
+  "animationDuration": { "press": 80, "release": 120, "modalIn": 180, "modalOut": 140, "toastIn": 120, "toastHold": 1800, "number": 240, "merge": 320, "promotion": 900 },
+  "motion": { "reducedScale": 1, "pressedScale": 0.96, "maxConcurrentEffects": 3, "maxParticlesPerBurst": 12 },
+  "layers": { "office": 0, "board": 10, "hud": 20, "navigation": 30, "modalMask": 40, "modal": 50, "tutorial": 60, "toast": 70 },
+  "resourceIds": { "salary": "工资/灵石", "performance": "绩效", "cultivation": "修为", "mind": "道心" }
+}
