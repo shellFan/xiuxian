@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "status": "PHASE4_CANDIDATE",
+  "runtimeEnabled": false,
+  "selection": {
+    "status": "NEEDS_SERVICE_CAPABILITY",
+    "perDay": 5,
+    "policy": "one template per type; exclude unavailable promotion; cap aggregate rewards before activation"
+  },
+  "tasks": [
+    {
+      "id": "merge-5",
+      "type": "MERGE_5",
+      "name": "五次合成，手感开机",
+      "description": "完成 5 次合成操作，给今天的修行开个头。",
+      "target": 5,
+      "reward": { "salary": 100, "cultivation": 20 }
+    },
+    {
+      "id": "work-10-min",
+      "type": "WORK_10_MIN",
+      "name": "十分钟专注，先别开群",
+      "description": "在工作模式下累计专注 10 分钟。",
+      "target": 600,
+      "reward": { "salary": 150, "performance": 10 }
+    },
+    {
+      "id": "fish-3-min",
+      "type": "FISH_3_MIN",
+      "name": "摸鱼三分钟，道心续命",
+      "description": "在摸鱼模式下累计放空 3 分钟。",
+      "target": 180,
+      "reward": { "mind": 15 }
+    },
+    {
+      "id": "event-3",
+      "type": "EVENT_3",
+      "name": "三次事件，见招拆招",
+      "description": "处理 3 次职场事件，见招拆招。",
+      "target": 3,
+      "reward": { "cultivation": 30, "mind": 10 }
+    },
+    {
+      "id": "kpi-complete",
+      "type": "KPI_COMPLETE",
+      "name": "KPI过关，今天不背锅",
+      "description": "完成当前职级的 KPI 目标。",
+      "target": 1,
+      "reward": { "salary": 200, "performance": 20 }
+    },
+    {
+      "id": "promotion-1",
+      "type": "PROMOTION_1",
+      "name": "升一级，工牌发光",
+      "description": "成功晋升 1 次，把职级向前推一步。",
+      "target": 1,
+      "reward": { "salary": 300, "cultivation": 50, "mind": 20 }
+    },
+    {
+      "id": "merge-3-p4",
+      "sourceId": "merge-5",
+      "type": "MERGE_5",
+      "name": "三次合成，热身不渡劫",
+      "description": "完成 3 次合成操作，适合忙碌的一天。",
+      "target": 3,
+      "reward": { "salary": 60, "cultivation": 10 }
+    },
+    {
+      "id": "work-5-min-p4",
+      "sourceId": "work-10-min",
+      "type": "WORK_10_MIN",
+      "name": "五分钟专注，先关弹窗",
+      "description": "在工作模式下累计专注 5 分钟，先完成一小段。",
+      "target": 300,
+      "reward": { "salary": 80, "performance": 5 }
+    },
+    {
+      "id": "fish-2-min-p4",
+      "sourceId": "fish-3-min",
+      "type": "FISH_3_MIN",
+      "name": "摸鱼两分钟，喘口气",
+      "description": "在摸鱼模式下累计放空 2 分钟，给道心留口气。",
+      "target": 120,
+      "reward": { "mind": 8 }
+    },
+    {
+      "id": "event-2-p4",
+      "sourceId": "event-3",
+      "type": "EVENT_3",
+      "name": "两次事件，先稳住",
+      "description": "处理 2 次职场事件，保持今日节奏。",
+      "target": 2,
+      "reward": { "cultivation": 15, "mind": 5 }
+    },
+    {
+      "id": "kpi-check-p4",
+      "sourceId": "kpi-complete",
+      "type": "KPI_COMPLETE",
+      "name": "KPI过关，先收工",
+      "description": "完成当前职级的 KPI 目标，达成即可结算。",
+      "target": 1,
+      "reward": { "salary": 100, "performance": 10 }
+    },
+    {
+      "id": "promotion-ready-p4",
+      "sourceId": "promotion-1",
+      "type": "PROMOTION_1",
+      "name": "升一次，先截图",
+      "description": "成功晋升 1 次，领取一份轻量冲刺奖励。",
+      "target": 1,
+      "reward": { "salary": 150, "cultivation": 20, "mind": 10 }
+    }
+  ]
+}

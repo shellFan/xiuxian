@@ -1,0 +1,610 @@
+{
+  "schemaVersion": 1,
+  "status": "PHASE4_CANDIDATE",
+  "runtimeEnabled": false,
+  "source": "assets/configs/career-events.json",
+  "events": [
+    {
+      "id": "EVENT_BOSS_PROMISE",
+      "type": "CHOICE",
+      "title": "老板画饼",
+      "description": "老板端着枸杞茶拍你肩膀：“好好干，等公司上市，你们都是元老，期权拿到手软。”",
+      "choices": [
+        { "id": "BELIEVE", "text": "相信老板的饼", "effects": { "cultivation": 15, "mind": -8 } },
+        { "id": "NOD", "text": "熟练点头敷衍", "effects": { "cultivation": 5, "mind": 3 } }
+      ]
+    },
+    {
+      "id": "EVENT_REQUIREMENT_CHANGED",
+      "type": "NEGATIVE",
+      "title": "需求又改了",
+      "description": "产品经理第 7 次甩来原型图：“就改一点点，不影响你进度吧？”修仙进度被迫回退。",
+      "effects": { "performance": -5, "mind": -10, "cultivation": -5 }
+    },
+    {
+      "id": "EVENT_P0_INCIDENT",
+      "type": "NEGATIVE",
+      "title": "P0事故",
+      "description": "凌晨告警炸了，核心链路雪崩。你顶着黑眼圈抢修，保住修为，但心境受损。",
+      "effects": { "salary": 20, "performance": 5, "cultivation": 10, "mind": -15 }
+    },
+    {
+      "id": "EVENT_PRODUCTION_EXPLODED",
+      "type": "NEGATIVE",
+      "title": "线上炸了",
+      "description": "线上服务全线飘红，用户投诉刷屏。你疯狂回滚，修为小涨，道心大跌。",
+      "effects": { "cultivation": 8, "mind": -12, "performance": 3 }
+    },
+    {
+      "id": "EVENT_COLLEAGUE_RESIGNS",
+      "type": "NEGATIVE",
+      "title": "同事跑路",
+      "description": "隔壁老王提桶跑路，他的活全堆到你头上。修为没涨，心境先崩。",
+      "effects": { "performance": -8, "mind": -8, "cultivation": -3 }
+    },
+    {
+      "id": "EVENT_BOSS_RESIGNS",
+      "type": "RARE",
+      "title": "老板跑路",
+      "description": "老板连夜卷款跑路，公司群一夜解散。你懵了，好在修为还在。",
+      "effects": { "mind": -20, "performance": -5, "cultivation": -5 }
+    },
+    {
+      "id": "EVENT_SUDDEN_TEAM_BUILDING",
+      "type": "CHOICE",
+      "title": "突然团建",
+      "description": "周五下午突然通知团建，不去扣绩效。你去还是不去？",
+      "choices": [
+        { "id": "JOIN", "text": "积极参加", "effects": { "mind": 8, "performance": 3 } },
+        { "id": "SLACK", "text": "摸鱼划水", "effects": { "mind": 3, "performance": -2 } }
+      ]
+    },
+    {
+      "id": "EVENT_MANDATORY_WEEKLY_REPORT",
+      "type": "NEGATIVE",
+      "title": "强制周报",
+      "description": "周报模板又加三页，还强制抄送全员。你的修行时间被无情挤占。",
+      "effects": { "mind": -6, "cultivation": -4 }
+    },
+    {
+      "id": "EVENT_PERFORMANCE_325",
+      "type": "NEGATIVE",
+      "title": "绩效3.25",
+      "description": "绩效评级出来了，你喜提 3.25。晋升无望，年终打折。",
+      "effects": { "performance": -15, "mind": -10, "salary": -10 }
+    },
+    {
+      "id": "EVENT_YEAR_END_BONUS_CANCELLED",
+      "type": "NEGATIVE",
+      "title": "年终奖取消",
+      "description": "年会抽奖一等奖是“感谢信”，年终奖因“业绩承压”取消。",
+      "effects": { "salary": -30, "mind": -15 }
+    },
+    {
+      "id": "EVENT_FINANCING_SUCCESS",
+      "type": "POSITIVE",
+      "title": "融资成功",
+      "description": "公司官宣完成 C 轮融资，估值翻倍，期权终于有点盼头。",
+      "effects": { "salary": 20, "mind": 10, "performance": 5 }
+    },
+    {
+      "id": "EVENT_COMPANY_IPO",
+      "type": "RARE",
+      "title": "公司上市",
+      "description": "敲钟了！公司股票代码亮起，元老们的期权一夜纸面富贵。道心大悦。",
+      "effects": { "salary": 50, "mind": 20, "performance": 10, "cultivation": 20 }
+    },
+    {
+      "id": "EVENT_PARACHUTED_LEADER",
+      "type": "CHOICE",
+      "title": "空降领导",
+      "description": "总部空降一位 VP，第一把火就烧向你负责的项目。你如何应对？",
+      "choices": [
+        { "id": "REPORT", "text": "主动汇报", "effects": { "performance": 5, "mind": -3 } },
+        { "id": "OBSERVE", "text": "低调观察", "effects": { "mind": 2, "cultivation": 3 } }
+      ]
+    },
+    {
+      "id": "EVENT_BOSS_RELATIVE",
+      "type": "CHOICE",
+      "title": "老板亲戚入职",
+      "description": "老板的远房表弟空降你们组，活不干、脾气大。你咋处？",
+      "choices": [
+        { "id": "MENTOR", "text": "佛系带飞", "effects": { "mind": -5, "performance": 5 } },
+        { "id": "DISTANCE", "text": "划清界限", "effects": { "mind": 3, "performance": -3 } }
+      ]
+    },
+    {
+      "id": "EVENT_DEPARTMENT_LAYOFF",
+      "type": "NEGATIVE",
+      "title": "部门裁员",
+      "description": "一封全员邮件宣布裁员 30%，幸存者背负双倍 KPI。你暂时留下，但道心受损。",
+      "effects": { "performance": -10, "mind": -12, "cultivation": -5 }
+    },
+    {
+      "id": "EVENT_AGE_35_OPTIMIZATION",
+      "type": "NEGATIVE",
+      "title": "35岁优化",
+      "description": "“人到中年，性价比不足。”HR 谈话暗示你已进入优化名单。",
+      "effects": { "mind": -18, "performance": -8, "salary": -15 }
+    },
+    {
+      "id": "EVENT_HR_MEETING",
+      "type": "CHOICE",
+      "title": "HR约谈",
+      "description": "HR 约你“聊聊职业规划”，咖啡香里藏着刀。你如何接招？",
+      "choices": [
+        { "id": "OPEN", "text": "坦诚相待", "effects": { "mind": -3, "performance": 3 } },
+        { "id": "FORMAL", "text": "官话敷衍", "effects": { "mind": 2, "performance": -2 } }
+      ]
+    },
+    {
+      "id": "EVENT_MIDNIGHT_CALL",
+      "type": "NEGATIVE",
+      "title": "凌晨电话",
+      "description": "凌晨两点，运维电话炸醒你：“线上又挂了，快来！”道心当场裂开。",
+      "effects": { "mind": -14, "cultivation": 5, "performance": 4 }
+    },
+    {
+      "id": "EVENT_WEEKEND_RELEASE",
+      "type": "CHOICE",
+      "title": "周末上线",
+      "description": "版本必须周末上线，你被安排值班。去现场还是远程摸鱼？",
+      "choices": [
+        { "id": "ONSITE", "text": "现场值守", "effects": { "performance": 6, "mind": -6, "salary": 8 } },
+        { "id": "REMOTE", "text": "远程待命", "effects": { "mind": -2, "performance": 2 } }
+      ]
+    },
+    {
+      "id": "EVENT_CLIENT_CHANGES_REQUIREMENT",
+      "type": "NEGATIVE",
+      "title": "客户临时改需求",
+      "description": "交付前夜，客户发来语音：“这个需求我们想改一下。”你的修为回退。",
+      "effects": { "performance": -6, "mind": -8, "cultivation": -4 }
+    },
+    {
+      "id": "EVENT_PROJECT_DELAYED",
+      "type": "NEGATIVE",
+      "title": "项目延期",
+      "description": "联调不顺，里程碑再次延期。KPI 进度条纹丝不动，你有些焦虑。",
+      "effects": { "mind": -7, "performance": -4, "cultivation": -3 }
+    },
+    {
+      "id": "EVENT_PM_MISSING",
+      "type": "NEGATIVE",
+      "title": "产品经理失踪",
+      "description": "需求评审日，产品经理人间蒸发。需求黑洞让你空耗修行时光。",
+      "effects": { "mind": -5, "cultivation": -5 }
+    },
+    {
+      "id": "EVENT_SERVER_CRASHED",
+      "type": "NEGATIVE",
+      "title": "服务器炸了",
+      "description": "机房空调故障，服务器集体宕机。你手忙脚乱重启，道心受损但修为小涨。",
+      "effects": { "cultivation": 6, "mind": -10, "performance": 2 }
+    },
+    {
+      "id": "EVENT_SLOW_QUERY",
+      "type": "NEGATIVE",
+      "title": "数据库慢查询",
+      "description": "一条没走索引的 SQL 把数据库 CPU 打满，接口全部超时。你优化了它。",
+      "effects": { "cultivation": 7, "mind": -5, "performance": 3 }
+    },
+    {
+      "id": "EVENT_EMERGENCY_ROLLBACK",
+      "type": "NEGATIVE",
+      "title": "线上紧急回滚",
+      "description": "新版本引入致命 bug，你秒级回滚救场。惊魂未定，道心下挫。",
+      "effects": { "mind": -9, "cultivation": 5, "performance": 4 }
+    },
+    {
+      "id": "EVENT_COLLEAGUE_LEAVE",
+      "type": "POSITIVE",
+      "title": "同事请假",
+      "description": "同事休年假，分给你那部分活儿也一起暂停。你难得清闲，偷得半日修行。",
+      "effects": { "mind": 8, "cultivation": 4 }
+    },
+    {
+      "id": "EVENT_AFTERNOON_TEA",
+      "type": "POSITIVE",
+      "title": "下午茶",
+      "description": "行政小姐姐推来一车奶茶点心，全场欢呼。一口下肚，道心回满。",
+      "effects": { "mind": 12, "performance": 2 }
+    },
+    {
+      "id": "EVENT_LEADER_BUSINESS_TRIP",
+      "type": "POSITIVE",
+      "title": "领导出差",
+      "description": "直属领导飞去总部开会，一周没人盯着你。自由的气息让道心舒展。",
+      "effects": { "mind": 10, "cultivation": 5 }
+    },
+    {
+      "id": "EVENT_PROJECT_BONUS",
+      "type": "POSITIVE",
+      "title": "项目奖金",
+      "description": "项目顺利交付，老板一高兴发了专项奖金。钱包和绩效双丰收。",
+      "effects": { "salary": 30, "performance": 8 }
+    },
+    {
+      "id": "EVENT_LEAVE_EARLY",
+      "type": "EASTER_EGG",
+      "title": "提前下班",
+      "description": "奇迹发生了——今天竟然没人找你，你准点溜了！夕阳很美，道心大悦。",
+      "effects": { "mind": 15, "cultivation": 5 }
+    },
+    {
+      "id": "EVENT_P4_001",
+      "type": "POSITIVE",
+      "title": "AI先写自我介绍",
+      "description": "你让 AI 起草重复代码，它先给自己写了段自我介绍；删掉后，样板终于像样。",
+      "effects": { "cultivation": 8, "mind": 4 }
+    },
+    {
+      "id": "EVENT_P4_002",
+      "type": "POSITIVE",
+      "title": "补全爆出测试数据",
+      "description": "Cursor 补全自动长出一串测试数据，你负责删掉它爱写的注释，顺手把代码收拾清爽。",
+      "effects": { "performance": 3, "mind": 3 }
+    },
+    {
+      "id": "EVENT_P4_003",
+      "type": "POSITIVE",
+      "title": "Codex列边界",
+      "description": "你让 Codex 先列边界条件，异常终于没被塞进“以后再说”。",
+      "effects": { "cultivation": 7, "performance": 4 }
+    },
+    {
+      "id": "EVENT_P4_004",
+      "type": "POSITIVE",
+      "title": "报错翻译成人话",
+      "description": "你让 ChatGPT 把报错换成白话，最后答案藏在第一行日志里。",
+      "effects": { "cultivation": 6, "mind": 4 }
+    },
+    {
+      "id": "EVENT_P4_005",
+      "type": "POSITIVE",
+      "title": "Redis缓存懂事",
+      "description": "Redis 缓存恰好命中，接口延迟短得像领导承诺的“简单同步”。",
+      "effects": { "performance": 4, "mind": 5 }
+    },
+    {
+      "id": "EVENT_P4_006",
+      "type": "POSITIVE",
+      "title": "猎头主动来信",
+      "description": "午休收到猎头消息，岗位说明像替你写的；你先关掉当前 bug，再回信。",
+      "effects": { "cultivation": 8, "performance": 4 }
+    },
+    {
+      "id": "EVENT_P4_007",
+      "type": "POSITIVE",
+      "title": "Docker构建没加班",
+      "description": "Docker 构建一次过，你怀疑流水线没睡醒；同事提醒：先别把这事写进周报。",
+      "effects": { "performance": 3, "mind": 4 }
+    },
+    {
+      "id": "EVENT_P4_008",
+      "type": "POSITIVE",
+      "title": "Nginx今天懂事",
+      "description": "Nginx 配置接住流量，监控曲线平得像不敢发言的工作群。",
+      "effects": { "salary": 8, "performance": 4 }
+    },
+    {
+      "id": "EVENT_P4_009",
+      "type": "POSITIVE",
+      "title": "设计师说可以",
+      "description": "设计稿评审只听到一句“可以”，你把这句录进心法，防止下次失传。",
+      "effects": { "performance": 4, "mind": 5 }
+    },
+    {
+      "id": "EVENT_P4_010",
+      "type": "POSITIVE",
+      "title": "测试录屏带复现",
+      "description": "测试录屏附上复现步骤，开发终于不用修炼读心术，问题很快有了落脚点。",
+      "effects": { "performance": 5, "mind": 4 }
+    },
+    {
+      "id": "EVENT_P4_011",
+      "type": "POSITIVE",
+      "title": "工牌自动归位",
+      "description": "你找了一上午的工牌自己出现在键盘旁，像是完成了一次低阶寻物术。",
+      "effects": { "mind": 7, "cultivation": 4 }
+    },
+    {
+      "id": "EVENT_P4_012",
+      "type": "POSITIVE",
+      "title": "食堂阿姨多打菜",
+      "description": "你只说了声谢谢，食堂阿姨多添一勺菜，午间修行立刻有了底气。",
+      "effects": { "mind": 6 }
+    },
+    {
+      "id": "EVENT_P4_013",
+      "type": "POSITIVE",
+      "title": "咖啡机吐灵丹",
+      "description": "卡住的咖啡机吐出第一杯，上午的困意像被临时批准的灵丹收走。",
+      "effects": { "mind": 5, "cultivation": 3 }
+    },
+    {
+      "id": "EVENT_P4_014",
+      "type": "POSITIVE",
+      "title": "抽屉自带备用笔",
+      "description": "你翻开抽屉就摸到备用笔，签字、画线、装作有准备一次完成。",
+      "effects": { "mind": 6, "performance": 2 }
+    },
+    {
+      "id": "EVENT_P4_015",
+      "type": "POSITIVE",
+      "title": "需求边界写清",
+      "description": "需求评审把边界写到最后一行，设计、开发和 QA 终于共享同一张地图。",
+      "effects": { "performance": 4, "cultivation": 5 }
+    },
+    {
+      "id": "EVENT_P4_016",
+      "type": "NEGATIVE",
+      "title": "AI生成地雷",
+      "description": "AI 编程助手写出一段看似漂亮的边界逻辑，测试一跑全是坑。",
+      "effects": { "performance": -4, "mind": -6, "cultivation": -3 }
+    },
+    {
+      "id": "EVENT_P4_017",
+      "type": "NEGATIVE",
+      "title": "Cursor补全走神",
+      "description": "Cursor 补全把旧接口带进新模块，你花掉半个上午给它擦尾巴。",
+      "effects": { "performance": -3, "mind": -5, "cultivation": -2 }
+    },
+    {
+      "id": "EVENT_P4_018",
+      "type": "NEGATIVE",
+      "title": "Codex理解偏航",
+      "description": "Codex 把需求里的例外当成主流程，评审桌上多了一轮返工。",
+      "effects": { "performance": -4, "mind": -5, "cultivation": -3 }
+    },
+    {
+      "id": "EVENT_P4_019",
+      "type": "NEGATIVE",
+      "title": "ChatGPT幻觉",
+      "description": "ChatGPT 给出的接口名并不存在，你在文档和仓库之间来回考古。",
+      "effects": { "performance": -3, "mind": -6 }
+    },
+    {
+      "id": "EVENT_P4_020",
+      "type": "NEGATIVE",
+      "title": "Redis键过期",
+      "description": "Redis 关键缓存提前过期，回源请求挤在一起，午饭前又添一项排查。",
+      "effects": { "performance": -4, "mind": -6 }
+    },
+    {
+      "id": "EVENT_P4_021",
+      "type": "NEGATIVE",
+      "title": "MySQL锁等待",
+      "description": "MySQL 锁等待拖住一批请求，你盯着事务日志等它松口。",
+      "effects": { "performance": -4, "mind": -5, "cultivation": -2 }
+    },
+    {
+      "id": "EVENT_P4_022",
+      "type": "NEGATIVE",
+      "title": "Docker磁盘告急",
+      "description": "Docker 旧镜像堆满磁盘，构建任务排队到下班铃响。",
+      "effects": { "performance": -3, "mind": -6, "cultivation": -2 }
+    },
+    {
+      "id": "EVENT_P4_023",
+      "type": "NEGATIVE",
+      "title": "Nginx配置漏项",
+      "description": "Nginx 配置漏了一个转发项，灰度流量绕了远路才抵达服务。",
+      "effects": { "performance": -4, "mind": -5 }
+    },
+    {
+      "id": "EVENT_P4_024",
+      "type": "NEGATIVE",
+      "title": "设计稿缺标注",
+      "description": "设计稿少了关键状态标注，开发、设计和 QA 现场各自猜了一遍。",
+      "effects": { "performance": -3, "mind": -6 }
+    },
+    {
+      "id": "EVENT_P4_025",
+      "type": "NEGATIVE",
+      "title": "QA回归加班",
+      "description": "QA 回归在最后一条用例发现问题，发布窗口被迫向后挪。",
+      "effects": { "performance": -5, "mind": -7, "cultivation": -3 }
+    },
+    {
+      "id": "EVENT_P4_026",
+      "type": "NEGATIVE",
+      "title": "会议拉到天黑",
+      "description": "会议从同步变成发散，投影关掉时大家还没有统一结论。",
+      "effects": { "mind": -8, "cultivation": -4 }
+    },
+    {
+      "id": "EVENT_P4_027",
+      "type": "NEGATIVE",
+      "title": "需求没有验收口径",
+      "description": "需求上线前才发现没有验收口径，返工把原本的空档填满。",
+      "effects": { "performance": -4, "mind": -6, "cultivation": -3 }
+    },
+    {
+      "id": "EVENT_P4_028",
+      "type": "NEGATIVE",
+      "title": "外卖洒了",
+      "description": "午餐送到时汤汁洒了一半，你用纸巾完成了今日第一场应急演练。",
+      "effects": { "mind": -6, "salary": -5 }
+    },
+    {
+      "id": "EVENT_P4_029",
+      "type": "NEGATIVE",
+      "title": "工位空调失控",
+      "description": "工位空调忽冷忽热，专注力跟着温度计一起上下波动。",
+      "effects": { "mind": -7, "performance": -2 }
+    },
+    {
+      "id": "EVENT_P4_030",
+      "type": "NEGATIVE",
+      "title": "线上日志迷路",
+      "description": "日志字段在多个版本里各说各话，你翻了几轮才拼出请求路径。",
+      "effects": { "cultivation": -4, "mind": -5, "performance": -3 }
+    },
+    {
+      "id": "EVENT_P4_031",
+      "type": "NEGATIVE",
+      "title": "测试数据串台",
+      "description": "测试数据混进了另一条用例，QA 和开发先花时间确认谁动了现场。",
+      "effects": { "performance": -4, "mind": -6 }
+    },
+    {
+      "id": "EVENT_P4_032",
+      "type": "CHOICE",
+      "title": "AI方案评审",
+      "description": "团队要不要把 AI 草案带进本期？你得在速度和可控之间选一边。",
+      "choices": [
+        { "id": "PILOT", "text": "小范围试跑", "effects": { "cultivation": 6, "performance": 3, "mind": -3 } },
+        { "id": "HOLD", "text": "先做人工版", "effects": { "performance": 2, "mind": 4, "cultivation": -2 } }
+      ]
+    },
+    {
+      "id": "EVENT_P4_033",
+      "type": "CHOICE",
+      "title": "Cursor权限申请",
+      "description": "Cursor 试用额度要走审批，你是先等权限，还是先用手边工具开工？",
+      "choices": [
+        { "id": "APPLY", "text": "走流程申请", "effects": { "performance": 4, "mind": -3 } },
+        { "id": "START", "text": "先手动开工", "effects": { "cultivation": 4, "mind": 3, "performance": -2 } }
+      ]
+    },
+    {
+      "id": "EVENT_P4_034",
+      "type": "CHOICE",
+      "title": "Codex改代码",
+      "description": "Codex 提议直接改一处重复逻辑，你决定要效率还是保留逐行把关。",
+      "choices": [
+        { "id": "REVIEW", "text": "小步审阅", "effects": { "performance": 3, "cultivation": 5, "mind": -2 } },
+        { "id": "MANUAL", "text": "自己重写", "effects": { "mind": 4, "performance": -2, "cultivation": 2 } }
+      ]
+    },
+    {
+      "id": "EVENT_P4_035",
+      "type": "CHOICE",
+      "title": "ChatGPT写周报",
+      "description": "周报截止前，你可以让 ChatGPT 起草，也可以自己把细节写得更稳。",
+      "choices": [
+        { "id": "DRAFT", "text": "先让它起草", "effects": { "mind": 4, "performance": 2, "cultivation": -2 } },
+        { "id": "WRITE", "text": "自己整理", "effects": { "performance": 4, "mind": -3, "cultivation": 3 } }
+      ]
+    },
+    {
+      "id": "EVENT_P4_036",
+      "type": "CHOICE",
+      "title": "Redis冷热取舍",
+      "description": "Redis 内存告急，热点数据和完整数据只能优先保一边。",
+      "choices": [
+        { "id": "HOT", "text": "只留热点", "effects": { "performance": 4, "mind": -4, "cultivation": 2 } },
+        { "id": "FULL", "text": "保留全量", "effects": { "cultivation": 5, "mind": 3, "performance": -3 } }
+      ]
+    },
+    {
+      "id": "EVENT_P4_037",
+      "type": "CHOICE",
+      "title": "MySQL索引取舍",
+      "description": "MySQL 查询变慢，你可以加索引提速，也可以先整理写入路径。",
+      "choices": [
+        { "id": "INDEX", "text": "先加索引", "effects": { "performance": 4, "mind": -3, "salary": 6 } },
+        { "id": "WRITE", "text": "先理写入", "effects": { "cultivation": 5, "mind": 3, "performance": -2 } }
+      ]
+    },
+    {
+      "id": "EVENT_P4_038",
+      "type": "CHOICE",
+      "title": "Docker发布取舍",
+      "description": "Docker 发布镜像还差一次检查，你要赶窗口还是延后确认兼容性。",
+      "choices": [
+        { "id": "SHIP", "text": "赶上窗口", "effects": { "salary": 8, "performance": 4, "mind": -5 } },
+        { "id": "CHECK", "text": "延后检查", "effects": { "cultivation": 5, "mind": 3, "performance": -3 } }
+      ]
+    },
+    {
+      "id": "EVENT_P4_039",
+      "type": "CHOICE",
+      "title": "会议要不要加人",
+      "description": "会议议题卡在接口边界，你可以邀请更多人，或让小组先把分歧收窄。",
+      "choices": [
+        { "id": "INVITE", "text": "邀请相关人", "effects": { "performance": 4, "mind": -4 } },
+        { "id": "NARROW", "text": "小组先收敛", "effects": { "mind": 4, "cultivation": 3, "performance": -2 } }
+      ]
+    },
+    {
+      "id": "EVENT_P4_040",
+      "type": "RARE",
+      "title": "全链路自愈",
+      "description": "一串异常刚冒头，监控、回滚和通知按顺序完成，大家只来得及互道晚安。",
+      "effects": { "salary": 35, "performance": 7, "cultivation": 12, "mind": 10 }
+    },
+    {
+      "id": "EVENT_P4_041",
+      "type": "RARE",
+      "title": "老板学会Git",
+      "description": "老板在群里发来 Git 操作成功截图，还说以后按提交记录说话；全组安静三秒后鼓掌。",
+      "effects": { "salary": 20, "performance": 6, "cultivation": 10, "mind": 12 }
+    },
+    {
+      "id": "EVENT_P4_042",
+      "type": "EASTER_EGG",
+      "title": "测试报告全绿",
+      "description": "测试报告每一行都变成绿色，QA 反复确认后只说：这次真的没有但是。",
+      "effects": { "mind": 15, "cultivation": 6 }
+    },
+    {
+      "id": "EVENT_P4_043",
+      "type": "EASTER_EGG",
+      "title": "需求自己收敛",
+      "description": "产品发来最终版需求，前后两页内容完全一致。评审群里只剩一个“收到”。",
+      "effects": { "performance": 8, "mind": 12 }
+    },
+    {
+      "id": "EVENT_P4_044",
+      "type": "EASTER_EGG",
+      "title": "外卖准点到",
+      "description": "外卖在你放下鼠标的瞬间送达，汤汁完整，餐具齐全，骑手还说了声慢用。",
+      "effects": { "mind": 14, "salary": 5 }
+    },
+    {
+      "id": "EVENT_P4_045",
+      "type": "EASTER_EGG",
+      "title": "代码一次上线",
+      "description": "代码第一次部署就通过全部检查，发布群安静得像没有人加班。",
+      "effects": { "performance": 8, "cultivation": 15, "mind": 10 }
+    },
+    {
+      "id": "EVENT_P4_046",
+      "type": "EASTER_EGG",
+      "title": "电脑更新不重启",
+      "description": "系统更新在你离开工位时完成，回来时窗口、文档和心情都保持原样。",
+      "effects": { "mind": 15, "cultivation": 8 }
+    },
+    {
+      "id": "EVENT_P4_047",
+      "type": "EASTER_EGG",
+      "title": "咖啡永不见底",
+      "description": "你按下咖啡机按钮，杯子满了；再按一次，备用杯也刚好出现。",
+      "effects": { "mind": 12, "cultivation": 7 }
+    },
+    {
+      "id": "EVENT_P4_048",
+      "type": "EASTER_EGG",
+      "title": "甲方秒回通过",
+      "description": "你发出交付邮件，甲方立刻回复“通过”，没有新增附件，也没有语音。",
+      "effects": { "salary": 40, "performance": 8, "mind": 13 }
+    },
+    {
+      "id": "EVENT_P4_049",
+      "type": "EASTER_EGG",
+      "title": "报销到账",
+      "description": "你刚想起那张报销单，到账提醒已经先到；财务群罕见地没有补材料。",
+      "effects": { "mind": 13, "cultivation": 6 }
+    },
+    {
+      "id": "EVENT_P4_050",
+      "type": "EASTER_EGG",
+      "title": "交接文档齐全",
+      "description": "你接手项目时，交接文档、账号清单和历史决策都在，连“问前任”都省了。",
+      "effects": { "mind": 15, "cultivation": 5 }
+    }
+  ]
+}
