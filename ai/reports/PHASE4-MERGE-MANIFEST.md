@@ -1,6 +1,6 @@
 # Phase4 Merge Manifest
 
-覆盖整个 phase4-ui-content 相对共同祖先 b9a1eb77e33424f39545baa1b05e1a4179025fd8 的交付（含Phase4与4.5），不是仅本轮新增文件。主线固定30bb6dc7ffd41ad1ec1d10c96aeac89d37d99b17；最终冲突预演见同目录报告。
+覆盖整个 phase4-ui-content 相对共同祖先 b9a1eb77e33424f39545baa1b05e1a4179025fd8 的交付（含Phase4与4.5），不是仅本轮新增文件。主线最终固定08173b404ce9dbf7b5d2264c98cfbc61844028ac；最终冲突预演见同目录报告。
 
 SAFE TO MERGE只说明不会自动改业务/加载候选，不代表产品已批准上线。分支没有修改GameEvents或任何runtime Service/ViewModel；主线核心文件不应从本分支旧版本复制覆盖。
 

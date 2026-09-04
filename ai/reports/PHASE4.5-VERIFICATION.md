@@ -41,4 +41,14 @@
 
 冲突预演：再次fetch主线仍30bb6dc；对4fc6845运行merge-tree，exit0/tree360a9d5，无冲突，HEAD/index不变。详见PHASE4-MERGE-CONFLICT-PREVIEW.md。
 
-最终审查与发布SHA另行追加，未完成前不提前记录成功。
+## Final review fixes and fresh verification
+
+- 首轮独立Sol REQUEST_CHANGES：B0/H0/M2。Luna对两项定点整改，commit1162ed2。
+- 子任务RED证据：追加非法source测试14PASS/1FAIL；文案键测试15PASS/2FAIL。GREEN为15工具+17生产用例。
+- 根代理重新执行20旧内容+17生产+15工具共52用例：exit0；content checker与npm run build均exit0。Luna重新执行npm test：43文件PASS。
+- 修复后迁移工具exit0，预览仍activationReady=false且生成内容无变化；97JSON再次parse PASS；locale464keys。
+- 原Sol复审M1/M2：PASS，B0/H0/M0，范围到1162ed2；新远程API需另审兼容文档。
+- 发布前fetch发现主线08173b4，19新文件；source1162ed2/target08173b4再次merge-tree：exit0/tree52e55fdb1b9ebcc0ca319a33edbd1d2c33056925。保护路径与工作树未变。
+- 已更新主线兼容/冲突/清单，明确Facade/Snapshot/Settings/Audio/Formatter已存在但适配不完整；不声称本分支测试覆盖远程新代码。
+
+最终兼容文档复审：同一独立Sol核对新08173b4的12兼容主题/9实现及4份更新文档，PASS，B0/H0/M0；原30项覆盖和两项整改闭环继续成立。详见PHASE4.5-FINAL-REVIEW.md。不会将候选准备PASS写成主线功能PASS。
