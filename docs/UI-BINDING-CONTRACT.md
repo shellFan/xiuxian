@@ -91,6 +91,7 @@ type UiCommand =
   | { type: 'RESOLVE_EVENT'; eventId: string; choiceId?: string }
   | { type: 'PROMOTE'; optionId: string }
   | { type: 'CLAIM_ACHIEVEMENT'|'CLAIM_DAILY'; id: string }
+  | { type: 'CLAIM_OFFLINE_NORMAL'; settlementId: string }
   | { type: 'REQUEST_REWARD'; placement: string; entityId: string };
 type UiSnapshot = { readonly hud: MainHUDViewModel; readonly career: CareerViewModel;
   readonly kpi: KpiViewModel; readonly achievements: AchievementViewModel;
@@ -103,6 +104,8 @@ interface UiSessionPort {
   >;
 }
 ```
+
+离线普通领取命令 `{ type: 'CLAIM_OFFLINE_NORMAL'; settlementId }` 只在该结算尚未 settled 时映射到 `context.offline.claimNormal`；若已 settled，UI 仅 dismiss，不产生新 grant。广告路径仍使用 `REQUEST_REWARD`，且必须是 `placement: 'OFFLINE_DOUBLE'`、`entityId: settlementId`，映射到 `claimDouble`。1 倍与 2 倍互斥，不能先领普通收益再补差额；不得增加 Service 或通用动态 dispatch。
 
 这些命名为Phase4命名空间，不与已有同名CareerViewModel混导。生产 Adapter 只能把 intent 转现有 API；未知 placement/type 拒绝，不能动态调用任意服务方法。commandId 不等于业务凭证，最终幂等仍由对应服务负责。
 

@@ -15,7 +15,7 @@
 | npm test（基线与交付各一次） | exit0，43 test files | 现有游戏回归；含Phase3 integration 18 passed/0 failed |
 | npm run build | exit0 | game与orchestrator TypeScript；不是Cocos Editor构建 |
 | npm run ai:check | exit0，12 passed/0 failed | 集成检查程序自身结论；见下面限制 |
-| node --test docs/validation/phase4-content-check.test.cjs | exit0，17/17 | 候选检查器正负用例；内存故障注入，不改磁盘数据 |
+| node --test docs/validation/phase4-content-check.test.cjs | 首轮17/17；整改后exit0，20/20 | 候选检查器正负用例；内存故障注入，不改磁盘数据 |
 | node docs/validation/phase4-content-check.cjs | exit0 | 80事件/10彩蛋、31成就/6隐藏、12每日、25音频计划、15核心文档、源数据不变 |
 | git diff --cached --check | exit0 | whitespace；LF转CRLF提示为Git本机配置提示，不修改全局配置 |
 
@@ -44,3 +44,13 @@ root阅读全部50条新事件及31成就/12每日，检查重复、效果对应
 - 正式广告SDK、平台政策、发布包体剔除DEV内容没有验收。
 
 这些是后续接入/人工测试项，不是本轮通过静态检查就能宣称完成的项目。
+
+## 独立审查整改后的验证
+
+2026-09-04 06:18 UTC附近重新执行：npm test exit0（43文件）、npm run build exit0（两个tsc）、ai:check exit0（12/12，仍含-4058限制）、checker exit0、checker tests20/20、git diff --check exit0。新增3条回归先RED（20测试17通过3失败），后GREEN，具体证据见PHASE4-FIX-REPORT.md。
+
+本轮新增成就sourceId别名漏洞、普通离线command遗漏、安全区坐标重复padding、报销工资效果、token引用与12每日精确计数已整改；等待Sol对新快照复审。原43文件回归不是候选内容运行验收，20个新增检查器测试才验证候选结构及防错。
+
+## Git传输诊断
+
+普通Git远端查询发生TLS错误；只读trace表明Git实际走本地7898 SOCKS代理，而环境HTTPS_PROXY是本地7897 HTTP代理，curl访问同一Git smart-HTTP端点为200。只对该仓库本次命令设置url-scoped proxy为环境HTTPS_PROXY后，ls-remote exit0，确认远端尚无phase4-ui-content分支。没有关闭TLS校验、没有更改全局Git/系统代理、没有读取凭据。最终push采用同样单次覆盖并核对远端SHA。

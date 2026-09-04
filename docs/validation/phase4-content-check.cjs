@@ -91,6 +91,7 @@ function validatePack(pack) {
   for (const category of ['成长','合成','职业','摸鱼','工作','财富','修仙','事件','隐藏']) {
     assert.ok(achievements.some(a => a.displayCategory === category), `achievement category ${category}`);
   }
+  const sourceAchievementIds = new Set(pack.sourceAchievements.map(src => src.id));
   for (const src of pack.sourceAchievements) {
     const item = achievements.find(a => a.id === src.id);
     assert.ok(item, `source achievement missing ${src.id}`);
@@ -102,14 +103,22 @@ function validatePack(pack) {
   for (const a of achievements) {
     text(a.name, 'achievement name', 18); text(a.description, 'achievement description', 100);
     assert.equal(typeof a.hidden, 'boolean'); effect(a.reward, a.id);
-    if (a.sourceId === null) {
+    if (sourceAchievementIds.has(a.id)) {
+      const src = pack.sourceAchievements.find(item => item.id === a.id);
+      assert.equal(a.sourceId, a.id, 'source achievement id');
+      assert.deepEqual(a.condition, src.condition, 'source achievement condition');
+      assert.deepEqual(a.reward, src.reward ?? {}, 'source achievement reward');
+      assert.equal(a.integrationStatus, 'PRESENTATION_ONLY', 'source achievement status');
+    } else {
+      assert.equal(a.sourceId, null, 'source achievement id');
       assert.equal(a.integrationStatus, 'NEEDS_SERVICE_CAPABILITY');
       assert.deepEqual(a.condition, { type: 'FISH_SECONDS', target: 1800 });
       effect(a.reward, a.id, { salary: 30, performance: 5, cultivation: 15, mind: 10 });
-    } else assert.ok(pack.sourceAchievements.some(src => src.id === a.sourceId), 'unknown source achievement');
+    }
   }
   const daily = pack.daily.tasks;
-  assert.ok(Array.isArray(daily) && daily.length >= 10 && daily.length <= 15, 'daily count');
+  assert.ok(Array.isArray(daily), 'daily count');
+  assert.equal(daily.length, 12, 'daily count');
   unique(daily, 'id', 'daily id'); unique(daily, 'name', 'daily name');
   assert.ok([5, 6].includes(pack.daily.selection.perDay), 'perDay');
   assert.equal(pack.daily.selection.status, 'NEEDS_SERVICE_CAPABILITY');
@@ -148,6 +157,18 @@ function walk(directory) {
     return entry.isDirectory() ? walk(target) : [target];
   });
 }
+function validateTokenReferences(markdown, theme) {
+  const references = [...markdown.matchAll(/token:([A-Za-z0-9_.]+)/g)];
+  for (const [, tokenPath] of references) {
+    let current = theme;
+    for (const segment of tokenPath.split('.')) {
+      assert.ok(current && typeof current === 'object'
+        && Object.prototype.hasOwnProperty.call(current, segment), `invalid token reference token:${tokenPath}`);
+      current = current[segment];
+    }
+  }
+  return references.length;
+}
 function validateRepository() {
   for (const file of walk(path.join(ROOT, 'assets/configs')).filter(f => f.endsWith('.json'))) JSON.parse(fs.readFileSync(file,'utf8'));
   for (const name of DOCS) assert.ok(fs.statSync(path.join(ROOT, 'docs', `${name}.md`)).size > 200, `doc ${name}`);
@@ -156,6 +177,7 @@ function validateRepository() {
     assert.ok(theme[key] && Object.values(theme[key]).every(n => Number.isFinite(n) && n > 0), `theme ${key}`);
   }
   assert.equal(theme.runtimeEnabled, false); assert.ok(Math.min(...Object.values(theme.buttonHeight)) >= 88);
+  validateTokenReferences(fs.readFileSync(path.join(ROOT, 'docs/UI-DESIGN-SYSTEM.md'), 'utf8'), theme);
   assert.equal(readJson('assets/configs/ui-mock-data.json').status, 'DEV_ONLY');
   assert.equal(readJson('assets/configs/ui-mock-data.json').runtimeEnabled, false);
   const audio = readJson('assets/configs/audio-plan.json');
@@ -179,7 +201,7 @@ function validateRepository() {
   }
   return { json: 'PASS', documents: DOCS.length, audioCues: audio.cues.length, baseline: BASE };
 }
-module.exports = { loadPack, validatePack, validateRepository };
+module.exports = { loadPack, validatePack, validateRepository, validateTokenReferences };
 if (require.main === module) {
   console.log(JSON.stringify({ status:'PASS', ...validatePack(loadPack()), ...validateRepository() }, null, 2));
 }

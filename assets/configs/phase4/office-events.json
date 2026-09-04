@@ -597,7 +597,7 @@
       "type": "EASTER_EGG",
       "title": "报销到账",
       "description": "你刚想起那张报销单，到账提醒已经先到；财务群罕见地没有补材料。",
-      "effects": { "mind": 13, "cultivation": 6 }
+      "effects": { "salary": 40, "mind": 13 }
     },
     {
       "id": "EVENT_P4_050",

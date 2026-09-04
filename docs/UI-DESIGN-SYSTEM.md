@@ -8,53 +8,57 @@
 
 ## 主 HUD 施工坐标
 
-设计基准 750×1334；下表坐标原点是**安全内容矩形左上角**，y 向下，基准安全内容高 1334。实际 Canvas 坐标由锚点换算，禁止混用世界坐标。
+设计基准 750×1334；下表使用**完整设计视口坐标**，原点为左上角，基准为零硬件 inset 的 750×1334 视口，不是已经加过 padding 的内容原点。平台安全区先按宽度 scale 换成逻辑 inset，再与最小 padding 合并：`L=max(insetLeft,24)`、`R=750-max(insetRight,24)`、`T=max(insetTop,16)`、`B=H-max(insetBottom,16)`，可用宽度为 `R-L`。表中的基准 `x=24` 正好是基准 `L`；不要再次叠加最小侧边距，也不要把这些公式应用两次。
 
 | 区域 | x / y / w / h | 内容与层级 |
 |---|---|---|
-| 顶部身份条 | 24 / 16 / 702 / 88 | 左职业徽章；右工资；避让微信胶囊区域 |
-| 资源条 | 24 / 112 / 702 / 80 | 绩效、修为、道心；正文28，紧凑24 |
-| KPI 卷宗 | 24 / 204 / 702 / 64 | 已完成项数/总项数；热区y=192、高88，不与资源条重叠 |
-| 办公室舞台 | 24 / 280 / 702 / 104 | 远景墙面、窗、工位气氛；无主操作 |
-| 合成盘 | 63 / 400 / 624 / 624 | 4×4，每格144，间距16；尺寸总计624 |
-| 舞台右快捷行 | 438、534、630 / 288 / 各88 / 88 | 任务/成就/设置可视图标48；实际触摸框88 |
-| 工作/摸鱼 | 24 / 1056 / 300 / 96 | 双态控制，显示当前生效态；点击禁用直到响应 |
-| 招募 | 348 / 1056 / 378 / 96 | 主 CTA，显示真实价格与满盘禁用原因 |
-| 底栏 | 24 / 1190 / 702 / 112 | 牛马/职业/宗门/事件四等分，标签24 |
+| 顶部身份条 | `L / 16+(T-16) / (R-L) / 88` | 左职业徽章；右工资；避让微信胶囊区域 |
+| 资源条 | `L / 112+(T-16) / (R-L) / 80` | 绩效、修为、道心；正文28，紧凑24 |
+| KPI 卷宗 | `L / 204+(T-16) / (R-L) / 64` | 已完成项数/总项数；热区 y=192+(T-16)、高88，不与资源条重叠 |
+| 办公室舞台 | `L / 280+(T-16) / (R-L) / 104` | 远景墙面、窗、工位气氛；无主操作 |
+| 合成盘 | `(L+R-side)/2 / boardY / side / side` | `side=min(624,R-L)`；4×4，格与间距同 scale，保持正方形 |
+| 舞台右快捷行 | `R-288、R-192、R-96 / 288+(T-16) / 各88 / 88` | 任务/成就/设置可视图标48；实际触摸框88 |
+| 工作/摸鱼 | `L / actionY / 300*(R-L)/702 / 96` | 双态控制，显示当前生效态；点击禁用直到响应 |
+| 招募 | `L+324*(R-L)/702 / actionY / 378*(R-L)/702 / 96` | 主 CTA，显示真实价格与满盘禁用原因 |
+| 底栏 | `L / B-16-112 / (R-L) / 112` | 牛马/职业/宗门/事件四等分，标签24 |
 
-快捷入口保留右侧视觉归属，但放在棋盘上方的舞台行，避免4×4盘与88热区竞争。750基准固定采用该布局，不另建侧列。舞台装饰不接收触摸；快捷间隔8，最后入口右边718，不越出内容区。
+水平 band 统一使用 `x=L`、`width=R-L`。工作/摸鱼与招募保留基准内比：左控件宽 `300*(R-L)/702`，招募 x 为 `L+324*(R-L)/702`、宽为 `378*(R-L)/702`，间隔随宽度缩放；过窄时改为纵向堆叠。底栏始终四等分。快捷入口保留右侧视觉归属，固定锚在棋盘上方；不挤压88触摸区，若 `R-L<288` 就折叠为「更多」，不得溢出。顶部各行按 `y+(T-16)` 平移。
+
+基准数值样例：无硬件 inset 时 `L=24/R=726`，可用宽702，full bands 为 `[24,726]`，棋盘为 `[63,687]`；左 inset80、右 inset0 时 `L=80/R=726`，可用宽646，full bands 为 `[80,726]`，棋盘为 `[91,715]`。基准 `T=16/B=1318` 时 `navY=1190`、`actionY=1056`、`boardY=400`。这里的 `boardY=actionY-32-side`；长屏增加办公空间而不拉伸人物或棋盘。对非基准屏先定义 `H=viewportHeight/scale`，再按通用公式 `navY=B-16-112`、`actionY=navY-38-96`、`boardY=actionY-32-side` 计算。
 
 层级：office → board → hud/navigation → mask → modal → tutorial → toast。拖拽浮层在 board 内最上，不可越过 Modal。Toast 不遮主按钮。
 
 ## 安全区与长屏
 
-1. 待接入的Platform UI Adapter需返回屏幕尺寸、安全矩形、胶囊矩形（同一物理坐标）。当前PlatformSystemInfo只有screenWidth/Height，无安全区/胶囊；此能力需Platform Owner补充，不能声称已有。Presenter一次换算为设计单位 `scale=viewportWidth/750`，insetLogical=insetPhysical/scale；按方向变更重新算，不每帧轮询。
+1. 待接入的Platform UI Adapter需返回屏幕尺寸、安全矩形、胶囊矩形（同一物理坐标）。当前PlatformSystemInfo只有screenWidth/Height，无安全区/胶囊；此能力需Platform Owner补充，不能声称已有。Presenter一次换算为设计单位 `scale=viewportWidth/750`，`insetLogical=insetPhysical/scale`；按方向变更重新算，不每帧轮询。换算后只由上述 `L/R/T/B` 生成完整视口坐标。
 2. 内容矩形使用真实安全区 inset 与 token 最小 padding 的较大值，不能再重复减平台已经扣除的 inset。胶囊单独碰撞避让；身份行空间不足移工资到下一行，不用空字符串裁掉数值。
 3. 16:9（750×1334）紧凑布局；19.5:9（750×1625）、20:9（750×1667）增加舞台与上下留白，不拉伸牛马或棋盘；底栏锚定安全底边。
-4. 实际安全内容高不足1334时，先压缩装饰舞台与纵向空白，再把次级入口折叠到「更多」，棋盘等比缩放但格触摸尺寸不低88。仍不足则主内容可纵向滚动，拖动开始时锁滚动；HUD/底栏固定。
+4. 实际安全内容高不足1334时，先压缩装饰舞台与纵向空白，再把次级入口折叠到「更多」，棋盘等比缩放但格触摸尺寸不低88。仍不足则主内容可纵向滚动，拖动开始时锁滚动；HUD/底栏固定。若顶部、棋盘与行动区碰撞，遵循 compact/scroll fallback；更多高度扩展办公空间，不扩展人物。若视口窄到会产生负宽度或负坐标，停止预览并报 unsupported viewport error，不渲染无效几何。
 5. 导航底部留 `max(homeInset,16)`；顶部不压状态栏。无平台数据时保守16/24 padding，胶囊区域禁放按钮，待数据返回重排。
 6. 字体放大到1.3倍时，弹窗内容滚动、按钮区固定；长标签换行最多两行，资源缩写可点开完整值。字符不能被强行横向压缩。
 
 ## 组件规则
 
+文档显式引用语法为 `token:<JSON路径>`，例如 `token:buttonHeight.normal` 或 `token:colors.primary`。
+
 | 组件 | Token / 内容 | 行为 |
 |---|---|---|
-| Primary Button | primary/onPrimary，height.normal，fontScale.button | 一屏一个突出主动作；提交期间 loading |
-| Secondary Button | secondary/ink，outline | 普通返回、稍后、取消；不伪装禁用 |
-| Danger Button | danger/onDanger | 危险操作 ConfirmModal 后执行；结果未明不重复 |
-| Reward Button | reward/onReward + 播放图标 | 文案“看广告 ×2”等；rewarded态“已领取” |
-| Disabled Button | disabled/onDisabled | 不收触摸；旁边显示原因，不能只降低透明度 |
-| Card | surface、radius.card、padding.normal | 信息与单项操作；选中加描边与勾 |
-| Panel | paper、radius.panel、padding.normal | 页内分组，不滥用多层嵌套 |
-| Modal | surface、radius.panel、padding.dialog | 共用容器，见下；内容可滚动 |
-| Toast | ink/onPrimary、fontScale.body | 一次最多1条，合并相同提示，最多排3条 |
-| Tooltip | paper/ink，max宽420 | 点开、点外关闭；不能承载唯一必要信息 |
-| Badge | secondary/ink、pill | 数字99+封顶，含可读语义，不只红点 |
-| ProgressBar | secondary轨、primary填 | 视觉clamp到0–100%，文字保留真实进度 |
-| ResourceBar | 资源icon + 数值 + 单位 | 短数主显，点开精确值；不实时闪烁 |
-| Tab | 选中primary下划线+文字 | 切换保留本页滚动；loading不清空旧数据 |
-| BottomNavigation | 4等分，icon.navigation | 同时最多1选中；点当前Tab回顶不重建状态 |
-| 列表项 | padding.normal，min高112 | 左图标中两行右按钮；长列表虚拟化 |
+| Primary Button | `token:colors.primary`/`token:colors.onPrimary`，`token:buttonHeight.normal`，`token:fontScale.button` | 一屏一个突出主动作；提交期间 loading |
+| Secondary Button | `token:colors.secondary`/`token:colors.ink`，`token:colors.outline` | 普通返回、稍后、取消；不伪装禁用 |
+| Danger Button | `token:colors.danger`/`token:colors.onDanger` | 危险操作 ConfirmModal 后执行；结果未明不重复 |
+| Reward Button | `token:colors.reward`/`token:colors.onReward` + 播放图标 | 文案“看广告 ×2”等；rewarded态“已领取” |
+| Disabled Button | `token:colors.disabled`/`token:colors.onDisabled` | 不收触摸；旁边显示原因，不能只降低透明度 |
+| Card | `token:colors.surface`、`token:radius.card`、`token:panelPadding.normal` | 信息与单项操作；选中加描边与勾 |
+| Panel | `token:colors.paper`、`token:radius.panel`、`token:panelPadding.normal` | 页内分组，不滥用多层嵌套 |
+| Modal | `token:colors.surface`、`token:radius.panel`、`token:panelPadding.dialog` | 共用容器，见下；内容可滚动 |
+| Toast | `token:colors.ink`/`token:colors.onPrimary`、`token:fontScale.body` | 一次最多1条，合并相同提示，最多排3条 |
+| Tooltip | `token:colors.paper`/`token:colors.ink`，max宽420 | 点开、点外关闭；不能承载唯一必要信息 |
+| Badge | `token:colors.secondary`/`token:colors.ink`、`token:radius.pill` | 数字99+封顶，含可读语义，不只红点 |
+| ProgressBar | `token:colors.secondary`轨、`token:colors.primary`填 | 视觉clamp到0–100%，文字保留真实进度 |
+| ResourceBar | 资源icon + 数值 + 单位；资源色使用 `token:colors.salary`、`token:colors.performance`、`token:colors.cultivation`、`token:colors.mind` | 短数主显，点开精确值；不实时闪烁 |
+| Tab | 选中 `token:colors.primary` 下划线+文字 | 切换保留本页滚动；loading不清空旧数据 |
+| BottomNavigation | 4等分，`token:iconSize.navigation` | 同时最多1选中；点当前Tab回顶不重建状态 |
+| 列表项 | `token:panelPadding.normal`，min高112 | 左图标中两行右按钮；长列表虚拟化 |
 | 空状态 | 88图标+短句+一个行动 | 区分真的无内容与加载失败 |
 
 ## 按钮状态与点击契约
