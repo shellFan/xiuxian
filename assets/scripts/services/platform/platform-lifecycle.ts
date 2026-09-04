@@ -35,8 +35,6 @@ export class PlatformLifecycle {
   private readonly showCallbacks = new Set<LifecycleCallback>();
   private hidden = false;
   private paused = false;
-  private platformHideWired = false;
-  private platformShowWired = false;
 
   public constructor(private readonly platform: PlatformService) {
     // Wire platform show/hide to our lifecycle once
@@ -48,6 +46,7 @@ export class PlatformLifecycle {
 
     this.platform.onShow(() => {
       this.hidden = false;
+      this.emitShow();
       if (this.paused) {
         this.paused = false;
         this.emitResume();
