@@ -28,31 +28,31 @@
 
 ## Task 1 — 产品与 UI 规范（root）
 
-- [ ] 创建 `docs/UI-IA.md`：15 页面，每页完整目的/入口/退出/信息/主次按钮/状态/空/错/动画/广告。
-- [ ] 创建 `docs/UI-DESIGN-SYSTEM.md`、`assets/configs/ui-theme.json`、`assets/configs/ui-mock-data.json`：主 HUD 布局、组件/按钮/Modal 状态机、安全区、长屏、DEV_ONLY 示例。
-- [ ] 创建 `docs/COCOS-PREFAB-ARCHITECTURE.md`、`docs/UI-BINDING-CONTRACT.md`：全部指定 Prefab 的节点/属性/事件/复用映射，六个 VM 的类型、生命周期及错误处理。
-- [ ] 核查 27 部分要求逐一有文件落点，JSON 能解析，文档中候选与已实现不混淆。
+- [x] 创建 `docs/UI-IA.md`：15 页面，每页完整目的/入口/退出/信息/主次按钮/状态/空/错/动画/广告。
+- [x] 创建 `docs/UI-DESIGN-SYSTEM.md`、`assets/configs/ui-theme.json`、`assets/configs/ui-mock-data.json`：主 HUD 布局、组件/按钮/Modal 状态机、安全区、长屏、DEV_ONLY 示例。
+- [x] 创建 `docs/COCOS-PREFAB-ARCHITECTURE.md`、`docs/UI-BINDING-CONTRACT.md`：全部指定 Prefab 的节点/属性/事件/复用映射，六个 VM 的类型、生命周期及错误处理。
+- [x] 核查 27 部分要求逐一有文件落点，JSON 能解析，文档中候选与已实现不混淆。
 
 ## Task 2 — 候选内容（Luna bounded batch，可用时）
 
 Requirements are in `docs/PHASE4-CONTENT-BRIEF.md`.
 
-- [ ] 读取现有三套内容及 Effect 类型，记录不变的源 ID。
-- [ ] 创建 `assets/configs/phase4/office-events.json`、`achievements.json`、`daily-tasks.json`，完成去重、字段检查和逐条语义检查。
-- [ ] 创建 `docs/CONTENT-INTEGRATION.md`：源配置映射、接入门槛、概率分母、奖励预算、现有能力缺口。
-- [ ] root 独立检查每条文案、选择的收益代价和奖励预算；不以数量合格代替审查。
+- [x] 读取现有三套内容及 Effect 类型，记录不变的源 ID。
+- [x] 创建 `assets/configs/phase4/office-events.json`、`achievements.json`、`daily-tasks.json`，完成去重、字段检查和逐条语义检查。
+- [x] 创建 `docs/CONTENT-INTEGRATION.md`：源配置映射、接入门槛、概率分母、奖励预算、现有能力缺口。
+- [x] root 独立检查每条文案、选择的收益代价和奖励预算；不以数量合格代替审查。
 
 ## Task 3 — 视觉与接入（root）
 
-- [ ] 创建 `CHARACTER-VISUAL-GUIDE.md`、`CULTIVATION-VISUAL-GUIDE.md`、`OFFICE-SCENE-GUIDE.md`：10职业、4境界、7办公室层级。
-- [ ] 创建 `ANIMATION-GUIDE.md`、`AUDIO-GUIDE.md`、`assets/configs/audio-plan.json`：触发、时长、优先级、取消/静音/限流。
-- [ ] 创建 `IAA-DESIGN.md`、`NUMBER-FORMAT.md`、`BALANCE-PRESENTATION.md`、`ASSET-STRUCTURE.md`、`ART-GENERATION-PROMPTS.md`：7广告位、统一展示、真实源数值、资源命名、统一风格可复制生图提示。
+- [x] 创建 `CHARACTER-VISUAL-GUIDE.md`、`CULTIVATION-VISUAL-GUIDE.md`、`OFFICE-SCENE-GUIDE.md`：10职业、4境界、7办公室层级。
+- [x] 创建 `ANIMATION-GUIDE.md`、`AUDIO-GUIDE.md`、`assets/configs/audio-plan.json`：触发、时长、优先级、取消/静音/限流。
+- [x] 创建 `IAA-DESIGN.md`、`NUMBER-FORMAT.md`、`BALANCE-PRESENTATION.md`、`ASSET-STRUCTURE.md`、`ART-GENERATION-PROMPTS.md`：7广告位、统一展示、真实源数值、资源命名、统一风格可复制生图提示。
 
 ## Task 4 — 验证与交付
 
-- [ ] 在 `docs/validation/phase4-content-check.cjs` 提供无依赖检查器：数量、去重、选项、Effect、隐藏/每日分类、源数据不可变、候选未被业务加载、文档存在与 token 引用、JSON 合法。
-- [ ] 运行 `node docs/validation/phase4-content-check.cjs`，故意破坏内存 fixture 验证检查器能拒绝重复 ID/非法 Effect/不足数量，然后恢复合法输入 PASS。
-- [ ] 运行 `npm test`、`npm run build`、`npm run ai:check`、`git diff --check`；仅静态验证，不称 Cocos Editor 验证。
-- [ ] 独立 review：需求覆盖与内容质量双判断，重要问题修完复审。
-- [ ] 输出并显式追踪 `ai/reports/PHASE4-UI-CONTENT-REPORT.md`；限定文件 stage/commit；push 仅 `phase4-ui-content`，验证远端 SHA。
-- [ ] 最终报告写明 UI 代码未新增、Prefab/资源/广告尚待接入、Cocos 与手机验证必需；然后停止。
+- [x] 在 `docs/validation/phase4-content-check.cjs` 提供无依赖检查器：数量、去重、选项、Effect、隐藏/每日分类、源数据不可变、候选未被业务加载、文档存在与 token 引用、JSON 合法。
+- [x] 运行 `node docs/validation/phase4-content-check.cjs`，故意破坏内存 fixture 验证检查器能拒绝重复 ID/非法 Effect/不足数量，然后恢复合法输入 PASS。
+- [x] 运行 `npm test`、`npm run build`、`npm run ai:check`、`git diff --check`；仅静态验证，不称 Cocos Editor 验证。
+- [x] 独立 review：需求覆盖与内容质量双判断，重要问题修完复审。
+- [x] 输出并显式追踪 `ai/reports/PHASE4-UI-CONTENT-REPORT.md`；限定文件 stage/commit；push 仅 `phase4-ui-content`，验证远端 SHA。
+- [x] 最终报告写明 UI 代码未新增、Prefab/资源/广告尚待接入、Cocos 与手机验证必需；然后停止。

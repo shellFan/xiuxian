@@ -24,3 +24,19 @@ Reviewer定向检查了成就别名漏洞、每日预算、现有服务事实，
 ## Fix / re-review
 
 Root fixes specified in PHASE4-REVIEW-FIX-BRIEF.md; Luna correction packet owns only named docs/config/checker. All six corrections implemented; regression tests added first (17 pass / 3 expected fail), then20/20 pass. Root independently re-ran all43 game test files, build and candidate checks successfully. See PHASE4-FIX-REPORT.md and PHASE4-VERIFICATION.md. Awaiting fresh Sol review. No push until review issues resolved.
+
+## Round 2 — final decision
+
+Same requested Sol reviewer route, read-only re-review of `0a1dfcf1ba7a78f3e4adc6503a2fe44380d9249d` → `2c472a96aba94e29a0a3b5f5d05bd396bf46ee88`.
+
+**PASS. Spec compliance: PASS. Quality: PASS. BLOCKER 0 / HIGH 0 / MEDIUM 0 / LOW 0.** All R1–R6 resolved; no new findings. The preceding pending line records the pre-review checkpoint, superseded by this decision.
+
+- R1: verified base/asymmetric inset80 and1625/1667 logical heights; full viewport semantics and formulas consistent.
+- R2: ordinary offline command carries settlementId and maps claimNormal with settled dismissal; 1x/2x remain mutually exclusive.
+- R3: reviewer independently rejected FISH alias and arbitrary new-id alias attacks.
+- R4: salary40/mind13 matches reimbursement narrative and stays inside egg cap.
+- R5: reviewer checked41 valid token references; missing and inherited-property paths rejected.
+- R6: reviewer independently removed one daily template and confirmed rejection.
+- Report explicitly tracked. Runtime code, services, scenes, prefabs and source configs unchanged. This approval is for specifications/candidate data, not Editor, device, real UI or ad deployment.
+
+Reviewer did not repeat full tests or mutate anything. Root is authorized to publish only phase4-ui-content, preserving this worktree and leaving merge to the user.

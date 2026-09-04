@@ -49,7 +49,7 @@ root阅读全部50条新事件及31成就/12每日，检查重复、效果对应
 
 2026-09-04 06:18 UTC附近重新执行：npm test exit0（43文件）、npm run build exit0（两个tsc）、ai:check exit0（12/12，仍含-4058限制）、checker exit0、checker tests20/20、git diff --check exit0。新增3条回归先RED（20测试17通过3失败），后GREEN，具体证据见PHASE4-FIX-REPORT.md。
 
-本轮新增成就sourceId别名漏洞、普通离线command遗漏、安全区坐标重复padding、报销工资效果、token引用与12每日精确计数已整改；等待Sol对新快照复审。原43文件回归不是候选内容运行验收，20个新增检查器测试才验证候选结构及防错。
+本轮新增成就sourceId别名漏洞、普通离线command遗漏、安全区坐标重复padding、报销工资效果、token引用与12每日精确计数已整改；Sol对2c472a9快照复审PASS，未解决问题各等级均0。原43文件回归不是候选内容运行验收，20个新增检查器测试才验证候选结构及防错。整改报告首次stage发现一处Markdown行末空白，已另提交2c472a9修正并重跑全分支diff --check通过，不改写历史。
 
 ## Git传输诊断
 
