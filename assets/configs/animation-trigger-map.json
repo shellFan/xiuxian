@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "status": "PHASE4_CANDIDATE",
+  "runtimeEnabled": false,
+  "mappings": [
+    {
+      "id": "button_press_release",
+      "sourceEvent": null,
+      "sourceKind": "UI_INTENT",
+      "condition": "pointer press or release on an enabled button",
+      "animation": "scale 1→0.96→1; reduced-motion opacity/state fallback",
+      "target": "button visual root",
+      "audioId": "ui_click",
+      "integrationStatus": "ADAPTER_REQUIRED"
+    },
+    {
+      "id": "number_bounce",
+      "sourceEvent": null,
+      "sourceKind": "SNAPSHOT_TRANSITION",
+      "condition": "displayed numeric value changes; coalesce to final value",
+      "animation": "number tween over 240ms",
+      "target": "HUD resource value",
+      "audioId": null,
+      "integrationStatus": "ADAPTER_REQUIRED"
+    },
+    {
+      "id": "salary_gain",
+      "sourceEvent": "salaryChanged",
+      "sourceKind": "GAME_EVENT",
+      "condition": "salaryChanged.amount>0",
+      "animation": "up to three coin sprites to salary HUD anchor over 280ms",
+      "target": "salary counter",
+      "audioId": "game_salary",
+      "integrationStatus": "COMPATIBLE"
+    },
+    {
+      "id": "cultivation_gain",
+      "sourceEvent": null,
+      "sourceKind": "SNAPSHOT_TRANSITION",
+      "condition": "cultivation increases in the next authoritative snapshot (positive delta)",
+      "animation": "one cultivation wisp to cultivation HUD anchor over 280ms",
+      "target": "cultivation counter",
+      "audioId": "game_cultivation",
+      "integrationStatus": "ADAPTER_REQUIRED"
+    },
+    {
+      "id": "mind_decrease",
+      "sourceEvent": "mindChanged",
+      "sourceKind": "GAME_EVENT",
+      "condition": "mindChanged.delta<0",
+      "animation": "icon light scale-down and signed delta over 180ms",
+      "target": "mind bar",
+      "audioId": "ui_fail",
+      "integrationStatus": "COMPATIBLE"
+    },
+    {
+      "id": "worker_merge",
+      "sourceEvent": "mergeCompleted",
+      "sourceKind": "GAME_EVENT",
+      "condition": "mergeCompleted.second is the authoritative target position",
+      "animation": "source converges to target over 320ms; snap to returned worker",
+      "target": "merge board target slot",
+      "audioId": "game_merge",
+      "integrationStatus": "COMPATIBLE"
+    },
+    {
+      "id": "worker_level_up",
+      "sourceEvent": "mergeCompleted",
+      "sourceKind": "SNAPSHOT_TRANSITION",
+      "condition": "returned worker level is higher than the previous target worker",
+      "animation": "worker badge flip over 400ms",
+      "target": "worker card at target slot",
+      "audioId": null,
+      "integrationStatus": "ADAPTER_REQUIRED"
+    },
+    {
+      "id": "promotion_trial",
+      "sourceEvent": "promotionChanged",
+      "sourceKind": "GAME_EVENT",
+      "condition": "promotionChanged.success routes true to game_promotion and false to game_promotion_fail; result remains service-authoritative",
+      "animation": "promotion scroll/seal/halo over 900ms; skip only visual",
+      "target": "promotion modal result",
+      "audioId": null,
+      "integrationStatus": "COMPATIBLE"
+    },
+    {
+      "id": "kpi_complete",
+      "sourceEvent": "kpiChanged",
+      "sourceKind": "SNAPSHOT_TRANSITION",
+      "condition": "completed KPI count rises on the next snapshot (rising-edge only)",
+      "animation": "matching KPI bar check/seal over 280ms",
+      "target": "KPI item",
+      "audioId": "ui_success",
+      "integrationStatus": "ADAPTER_REQUIRED"
+    },
+    {
+      "id": "achievement_complete",
+      "sourceEvent": "achievementUnlocked",
+      "sourceKind": "GAME_EVENT",
+      "condition": "achievementId is newly unlocked; legacy emitter AchievementUnlocked must bridge to declared achievementUnlocked; aggregate same-frame unlocks",
+      "animation": "corner achievement toast over 280ms with 1600ms hold",
+      "target": "achievement toast",
+      "audioId": "game_achievement",
+      "integrationStatus": "ADAPTER_REQUIRED"
+    },
+    {
+      "id": "office_event",
+      "sourceEvent": "eventChanged",
+      "sourceKind": "GAME_EVENT",
+      "condition": "eventChanged.pending is true and eventId is present",
+      "animation": "office event modal in 180ms/out 140ms",
+      "target": "OfficeEventModal",
+      "audioId": "ui_open",
+      "integrationStatus": "COMPATIBLE"
+    },
+    {
+      "id": "offline_reward",
+      "sourceEvent": "idleSettled",
+      "sourceKind": "GAME_EVENT",
+      "condition": "idleSettled preview is available and has not been visually settled; salaryChanged owns actual income sound",
+      "animation": "salary strip expands over 180ms then numbers animate over 240ms",
+      "target": "OfflineRewardModal",
+      "audioId": null,
+      "integrationStatus": "ADAPTER_REQUIRED"
+    },
+    {
+      "id": "ad_reward",
+      "sourceEvent": null,
+      "sourceKind": "SNAPSHOT_TRANSITION",
+      "condition": "confirmed granted transaction for any of the 7 reward placements; offline double updates offlineRewardChanged after grant",
+      "animation": "reward button confirmation over 300ms; never mark claimed before grant",
+      "target": "RewardButton and reward modal",
+      "audioId": "ui_success",
+      "integrationStatus": "ADAPTER_REQUIRED"
+    },
+    {
+      "id": "rare_event",
+      "sourceEvent": "eventChanged",
+      "sourceKind": "SNAPSHOT_TRANSITION",
+      "condition": "pending event resolves to category RARE",
+      "animation": "one violet edge sweep over 420ms",
+      "target": "OfficeEventModal",
+      "audioId": "bgm_rare_event",
+      "integrationStatus": "ADAPTER_REQUIRED"
+    },
+    {
+      "id": "egg_event",
+      "sourceEvent": "eventChanged",
+      "sourceKind": "SNAPSHOT_TRANSITION",
+      "condition": "pending event resolves to category EASTER_EGG",
+      "animation": "small colorful note and at most eight paper pieces over 500ms",
+      "target": "OfficeEventModal",
+      "audioId": "events_meeting",
+      "integrationStatus": "ADAPTER_REQUIRED"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://xiuxian.local/schema/phase4/ui-theme.schema.json",
+  "title": "Phase 4 UI theme candidates",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "status", "runtimeEnabled", "designSize", "colors", "spacing", "radius", "fontScale", "panelPadding", "buttonHeight", "iconSize", "dialogWidth", "safeArea", "animationDuration", "motion", "layers", "resourceIds"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "status": { "const": "PHASE4_CANDIDATE" },
+    "runtimeEnabled": { "const": false },
+    "designSize": {
+      "type": "object", "additionalProperties": false, "required": ["width", "height", "unit"],
+      "properties": { "width": { "$ref": "#/$defs/positiveNumber" }, "height": { "$ref": "#/$defs/positiveNumber" }, "unit": { "const": "logical_px" } }
+    },
+    "colors": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ink", "muted", "paper", "surface", "outline", "primary", "onPrimary", "secondary", "danger", "onDanger", "reward", "onReward", "disabled", "onDisabled", "salary", "cultivation", "mind", "performance", "mask", "focus", "rare", "egg"],
+      "properties": {
+        "ink": { "$ref": "#/$defs/color" }, "muted": { "$ref": "#/$defs/color" }, "paper": { "$ref": "#/$defs/color" }, "surface": { "$ref": "#/$defs/color" },
+        "outline": { "$ref": "#/$defs/color" }, "primary": { "$ref": "#/$defs/color" }, "onPrimary": { "$ref": "#/$defs/color" }, "secondary": { "$ref": "#/$defs/color" },
+        "danger": { "$ref": "#/$defs/color" }, "onDanger": { "$ref": "#/$defs/color" }, "reward": { "$ref": "#/$defs/color" }, "onReward": { "$ref": "#/$defs/color" },
+        "disabled": { "$ref": "#/$defs/color" }, "onDisabled": { "$ref": "#/$defs/color" }, "salary": { "$ref": "#/$defs/color" }, "cultivation": { "$ref": "#/$defs/color" },
+        "mind": { "$ref": "#/$defs/color" }, "performance": { "$ref": "#/$defs/color" }, "mask": { "$ref": "#/$defs/color" }, "focus": { "$ref": "#/$defs/color" },
+        "rare": { "$ref": "#/$defs/color" }, "egg": { "$ref": "#/$defs/color" }
+      }
+    },
+    "spacing": { "$ref": "#/$defs/spacing" },
+    "radius": { "$ref": "#/$defs/radius" },
+    "fontScale": { "$ref": "#/$defs/fontScale" },
+    "panelPadding": { "$ref": "#/$defs/panelPadding" },
+    "buttonHeight": { "$ref": "#/$defs/buttonHeight" },
+    "iconSize": { "$ref": "#/$defs/iconSize" },
+    "dialogWidth": { "$ref": "#/$defs/dialogWidth" },
+    "safeArea": { "$ref": "#/$defs/safeArea" },
+    "animationDuration": { "$ref": "#/$defs/animationDuration" },
+    "motion": {
+      "type": "object", "additionalProperties": false, "required": ["reducedScale", "pressedScale", "maxConcurrentEffects", "maxParticlesPerBurst"],
+      "properties": { "reducedScale": { "type": "number", "minimum": 0, "maximum": 1 }, "pressedScale": { "type": "number", "minimum": 0, "maximum": 1 }, "maxConcurrentEffects": { "type": "integer", "minimum": 1, "maximum": 32 }, "maxParticlesPerBurst": { "type": "integer", "minimum": 1, "maximum": 256 } }
+    },
+    "layers": {
+      "type": "object", "additionalProperties": false, "required": ["office", "board", "hud", "navigation", "modalMask", "modal", "tutorial", "toast"],
+      "properties": { "office": { "type": "integer", "minimum": 0, "maximum": 1000 }, "board": { "type": "integer", "minimum": 0, "maximum": 1000 }, "hud": { "type": "integer", "minimum": 0, "maximum": 1000 }, "navigation": { "type": "integer", "minimum": 0, "maximum": 1000 }, "modalMask": { "type": "integer", "minimum": 0, "maximum": 1000 }, "modal": { "type": "integer", "minimum": 0, "maximum": 1000 }, "tutorial": { "type": "integer", "minimum": 0, "maximum": 1000 }, "toast": { "type": "integer", "minimum": 0, "maximum": 1000 } }
+    },
+    "resourceIds": {
+      "type": "object", "additionalProperties": false, "required": ["salary", "performance", "cultivation", "mind"],
+      "properties": { "salary": { "$ref": "#/$defs/nonBlank" }, "performance": { "$ref": "#/$defs/nonBlank" }, "cultivation": { "$ref": "#/$defs/nonBlank" }, "mind": { "$ref": "#/$defs/nonBlank" } }
+    }
+  },
+  "$defs": {
+    "nonBlank": { "type": "string", "pattern": "\\S", "maxLength": 200 },
+    "positiveNumber": { "type": "number", "exclusiveMinimum": 0, "maximum": 1000000 },
+    "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?$" },
+    "spacing": { "type": "object", "additionalProperties": false, "required": ["xs", "sm", "md", "lg", "xl", "xxl"], "properties": { "xs": { "$ref": "#/$defs/positiveNumber" }, "sm": { "$ref": "#/$defs/positiveNumber" }, "md": { "$ref": "#/$defs/positiveNumber" }, "lg": { "$ref": "#/$defs/positiveNumber" }, "xl": { "$ref": "#/$defs/positiveNumber" }, "xxl": { "$ref": "#/$defs/positiveNumber" } } },
+    "radius": { "type": "object", "additionalProperties": false, "required": ["small", "card", "panel", "pill"], "properties": { "small": { "$ref": "#/$defs/positiveNumber" }, "card": { "$ref": "#/$defs/positiveNumber" }, "panel": { "$ref": "#/$defs/positiveNumber" }, "pill": { "$ref": "#/$defs/positiveNumber" } } },
+    "fontScale": { "type": "object", "additionalProperties": false, "required": ["caption", "body", "button", "subtitle", "title", "hero"], "properties": { "caption": { "$ref": "#/$defs/positiveNumber" }, "body": { "$ref": "#/$defs/positiveNumber" }, "button": { "$ref": "#/$defs/positiveNumber" }, "subtitle": { "$ref": "#/$defs/positiveNumber" }, "title": { "$ref": "#/$defs/positiveNumber" }, "hero": { "$ref": "#/$defs/positiveNumber" } } },
+    "panelPadding": { "type": "object", "additionalProperties": false, "required": ["compact", "normal", "dialog"], "properties": { "compact": { "$ref": "#/$defs/positiveNumber" }, "normal": { "$ref": "#/$defs/positiveNumber" }, "dialog": { "$ref": "#/$defs/positiveNumber" } } },
+    "buttonHeight": { "type": "object", "additionalProperties": false, "required": ["compact", "normal", "hero"], "properties": { "compact": { "$ref": "#/$defs/positiveNumber" }, "normal": { "$ref": "#/$defs/positiveNumber" }, "hero": { "$ref": "#/$defs/positiveNumber" } } },
+    "iconSize": { "type": "object", "additionalProperties": false, "required": ["inline", "normal", "navigation", "hero"], "properties": { "inline": { "$ref": "#/$defs/positiveNumber" }, "normal": { "$ref": "#/$defs/positiveNumber" }, "navigation": { "$ref": "#/$defs/positiveNumber" }, "hero": { "$ref": "#/$defs/positiveNumber" } } },
+    "dialogWidth": { "type": "object", "additionalProperties": false, "required": ["preferred", "minOuterMargin", "maxHeightRatio"], "properties": { "preferred": { "$ref": "#/$defs/positiveNumber" }, "minOuterMargin": { "$ref": "#/$defs/positiveNumber" }, "maxHeightRatio": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 } } },
+    "safeArea": { "type": "object", "additionalProperties": false, "required": ["minTopPadding", "minBottomPadding", "minSidePadding", "capsuleGap"], "properties": { "minTopPadding": { "$ref": "#/$defs/positiveNumber" }, "minBottomPadding": { "$ref": "#/$defs/positiveNumber" }, "minSidePadding": { "$ref": "#/$defs/positiveNumber" }, "capsuleGap": { "$ref": "#/$defs/positiveNumber" } } },
+    "animationDuration": { "type": "object", "additionalProperties": false, "required": ["press", "release", "modalIn", "modalOut", "toastIn", "toastHold", "number", "merge", "promotion"], "properties": { "press": { "$ref": "#/$defs/positiveNumber" }, "release": { "$ref": "#/$defs/positiveNumber" }, "modalIn": { "$ref": "#/$defs/positiveNumber" }, "modalOut": { "$ref": "#/$defs/positiveNumber" }, "toastIn": { "$ref": "#/$defs/positiveNumber" }, "toastHold": { "$ref": "#/$defs/positiveNumber" }, "number": { "$ref": "#/$defs/positiveNumber" }, "merge": { "$ref": "#/$defs/positiveNumber" }, "promotion": { "$ref": "#/$defs/positiveNumber" } } }
+  }
+}

@@ -1,0 +1,889 @@
+{
+  "schemaVersion": 1,
+  "status": "PHASE4_CANDIDATE",
+  "runtimeEnabled": false,
+  "assets": [
+    {
+      "id": "career_01_portrait",
+      "category": "career_portrait",
+      "filename": "career_01_portrait.png",
+      "priority": "P0",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "career_early",
+      "usage": "career level 1 portrait; visual art tier only, source career title remains authoritative",
+      "promptId": "P02",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "career_02_portrait",
+      "category": "career_portrait",
+      "filename": "career_02_portrait.png",
+      "priority": "P0",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "career_early",
+      "usage": "career level 2 portrait; visual art tier only, source career title remains authoritative",
+      "promptId": "P03",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "career_03_portrait",
+      "category": "career_portrait",
+      "filename": "career_03_portrait.png",
+      "priority": "P0",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "career_early",
+      "usage": "career level 3 portrait; visual art tier only, source career title remains authoritative",
+      "promptId": "P04",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "career_04_portrait",
+      "category": "career_portrait",
+      "filename": "career_04_portrait.png",
+      "priority": "P1",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "career_mid",
+      "usage": "career level 4 portrait; visual art tier only, source career title remains authoritative",
+      "promptId": "P05",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "career_05_portrait",
+      "category": "career_portrait",
+      "filename": "career_05_portrait.png",
+      "priority": "P1",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "career_mid",
+      "usage": "career level 5 portrait; visual art tier only, source career title remains authoritative",
+      "promptId": "P06",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "career_06_portrait",
+      "category": "career_portrait",
+      "filename": "career_06_portrait.png",
+      "priority": "P1",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "career_mid",
+      "usage": "career level 6 portrait; visual art tier only, source career title remains authoritative",
+      "promptId": "P07",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "career_07_portrait",
+      "category": "career_portrait",
+      "filename": "career_07_portrait.png",
+      "priority": "P1",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "career_mid",
+      "usage": "career level 7 portrait; visual art tier only, source career title remains authoritative",
+      "promptId": "P08",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "career_08_portrait",
+      "category": "career_portrait",
+      "filename": "career_08_portrait.png",
+      "priority": "P1",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "career_high",
+      "usage": "career level 8 portrait; visual art tier only, source career title remains authoritative",
+      "promptId": "P09",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "career_09_portrait",
+      "category": "career_portrait",
+      "filename": "career_09_portrait.png",
+      "priority": "P1",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "career_high",
+      "usage": "career level 9 portrait; visual art tier only, source career title remains authoritative",
+      "promptId": "P10",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "career_10_portrait",
+      "category": "career_portrait",
+      "filename": "career_10_portrait.png",
+      "priority": "P1",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "career_high",
+      "usage": "career level 10 portrait; visual art tier only, source career title remains authoritative",
+      "promptId": "P11",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "realm_qi_badge",
+      "category": "realm_badge",
+      "filename": "realm_qi_badge.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "career_early",
+      "usage": "练气境徽章；独立徽章，不把career level当worker level",
+      "promptId": "P16",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "realm_foundation_badge",
+      "category": "realm_badge",
+      "filename": "realm_foundation_badge.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "career_early",
+      "usage": "筑基境徽章；独立徽章，不把career level当worker level",
+      "promptId": "P16",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "realm_golden_core_badge",
+      "category": "realm_badge",
+      "filename": "realm_golden_core_badge.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "career_early",
+      "usage": "金丹境徽章；独立徽章，不把career level当worker level",
+      "promptId": "P16",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "realm_nascent_spirit_badge",
+      "category": "realm_badge",
+      "filename": "realm_nascent_spirit_badge.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "career_early",
+      "usage": "元婴境徽章；独立徽章，不把career level当worker level",
+      "promptId": "P16",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "office_background_01",
+      "category": "background",
+      "filename": "office_background_01.png",
+      "priority": "P0",
+      "size": {
+        "width": 750,
+        "height": 1667
+      },
+      "aspectRatio": "750:1667",
+      "transparent": false,
+      "atlasGroup": "office",
+      "usage": "办公室场景1；standalone streaming，保护750×1334裁切",
+      "promptId": "P12",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "office_background_02",
+      "category": "background",
+      "filename": "office_background_02.png",
+      "priority": "P0",
+      "size": {
+        "width": 750,
+        "height": 1667
+      },
+      "aspectRatio": "750:1667",
+      "transparent": false,
+      "atlasGroup": "office",
+      "usage": "办公室场景2；standalone streaming，保护750×1334裁切",
+      "promptId": "P12",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "office_background_03",
+      "category": "background",
+      "filename": "office_background_03.png",
+      "priority": "P1",
+      "size": {
+        "width": 750,
+        "height": 1667
+      },
+      "aspectRatio": "750:1667",
+      "transparent": false,
+      "atlasGroup": "office",
+      "usage": "办公室场景3；standalone streaming，保护750×1334裁切",
+      "promptId": "P12",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "office_background_04",
+      "category": "background",
+      "filename": "office_background_04.png",
+      "priority": "P1",
+      "size": {
+        "width": 750,
+        "height": 1667
+      },
+      "aspectRatio": "750:1667",
+      "transparent": false,
+      "atlasGroup": "office",
+      "usage": "办公室场景4；standalone streaming，保护750×1334裁切",
+      "promptId": "P12",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "office_background_05",
+      "category": "background",
+      "filename": "office_background_05.png",
+      "priority": "P1",
+      "size": {
+        "width": 750,
+        "height": 1667
+      },
+      "aspectRatio": "750:1667",
+      "transparent": false,
+      "atlasGroup": "office",
+      "usage": "办公室场景5；standalone streaming，保护750×1334裁切",
+      "promptId": "P12",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "office_background_06",
+      "category": "background",
+      "filename": "office_background_06.png",
+      "priority": "P1",
+      "size": {
+        "width": 750,
+        "height": 1667
+      },
+      "aspectRatio": "750:1667",
+      "transparent": false,
+      "atlasGroup": "office",
+      "usage": "办公室场景6；standalone streaming，保护750×1334裁切",
+      "promptId": "P12",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "office_background_07",
+      "category": "background",
+      "filename": "office_background_07.png",
+      "priority": "P1",
+      "size": {
+        "width": 750,
+        "height": 1667
+      },
+      "aspectRatio": "750:1667",
+      "transparent": false,
+      "atlasGroup": "office",
+      "usage": "办公室场景7；standalone streaming，保护750×1334裁切",
+      "promptId": "P12",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "worker_level_1",
+      "category": "worker_portrait",
+      "filename": "worker_level_1.png",
+      "priority": "P0",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "office",
+      "usage": "合成Worker.level=1的独立外观；不是career artCareerTier",
+      "promptId": "P01",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "worker_level_2",
+      "category": "worker_portrait",
+      "filename": "worker_level_2.png",
+      "priority": "P0",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "office",
+      "usage": "合成Worker.level=2的独立外观；不是career artCareerTier",
+      "promptId": "P01",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "worker_level_3",
+      "category": "worker_portrait",
+      "filename": "worker_level_3.png",
+      "priority": "P0",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "office",
+      "usage": "合成Worker.level=3的独立外观；不是career artCareerTier",
+      "promptId": "P01",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "worker_level_4",
+      "category": "worker_portrait",
+      "filename": "worker_level_4.png",
+      "priority": "P0",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "office",
+      "usage": "合成Worker.level=4的独立外观；不是career artCareerTier",
+      "promptId": "P01",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "salary_icon",
+      "category": "resource_icon",
+      "filename": "salary_icon.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "ui_common",
+      "usage": "工资/灵石资源图标；标签由UI绘制",
+      "promptId": "P19",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "cultivation_icon",
+      "category": "resource_icon",
+      "filename": "cultivation_icon.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "ui_common",
+      "usage": "修为资源图标；标签由UI绘制",
+      "promptId": "P20",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "mind_icon",
+      "category": "resource_icon",
+      "filename": "mind_icon.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "ui_common",
+      "usage": "道心资源图标；标签由UI绘制",
+      "promptId": "P21",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "kpi_icon",
+      "category": "resource_icon",
+      "filename": "kpi_icon.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "ui_common",
+      "usage": "KPI资源图标；标签由UI绘制",
+      "promptId": "P22",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "event_positive_icon",
+      "category": "event_category_icon",
+      "filename": "event_positive_icon.png",
+      "priority": "P1",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "events",
+      "usage": "正向事件分类图标；无可读文字",
+      "promptId": "P18",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "event_negative_icon",
+      "category": "event_category_icon",
+      "filename": "event_negative_icon.png",
+      "priority": "P1",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "events",
+      "usage": "负向事件分类图标；无可读文字",
+      "promptId": "P18",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "event_choice_icon",
+      "category": "event_category_icon",
+      "filename": "event_choice_icon.png",
+      "priority": "P1",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "events",
+      "usage": "选择事件分类图标；无可读文字",
+      "promptId": "P18",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "event_rare_icon",
+      "category": "event_category_icon",
+      "filename": "event_rare_icon.png",
+      "priority": "P1",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "events",
+      "usage": "稀有事件分类图标；无可读文字",
+      "promptId": "P18",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "event_easter_egg_icon",
+      "category": "event_category_icon",
+      "filename": "event_easter_egg_icon.png",
+      "priority": "P1",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "events",
+      "usage": "彩蛋事件分类图标；无可读文字",
+      "promptId": "P18",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "event_vignette",
+      "category": "event_illustration",
+      "filename": "event_vignette.png",
+      "priority": "P1",
+      "size": {
+        "width": 512,
+        "height": 320
+      },
+      "aspectRatio": "512:320",
+      "transparent": true,
+      "atlasGroup": "events",
+      "usage": "办公室事件小插画；复用P18的正向、负向、选择、稀有和彩蛋处理",
+      "promptId": "P18",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "achievement_icon_set",
+      "category": "achievement_icon",
+      "filename": "achievement_icon_set.png",
+      "priority": "P1",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "achievements",
+      "usage": "一个通用成就图标候选；不是多图集合或折叠图集，其他主题需独立manifest条目和文件名；锁定成就使用脱敏占位",
+      "promptId": "P17",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "daily_task_icon_set",
+      "category": "daily_icon",
+      "filename": "daily_task_icon_set.png",
+      "priority": "P1",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "achievements",
+      "usage": "一个通用每日任务图标候选；不是多图集合或折叠图集，其他主题需独立manifest条目和文件名；不内嵌进度或奖励文字",
+      "promptId": "P17",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "achievement_locked_placeholder",
+      "category": "achievement_locked_placeholder",
+      "filename": "achievement_locked_placeholder.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "achievements",
+      "usage": "锁定成就统一占位；不得泄露标题、条件、奖励或主题",
+      "promptId": "P17",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "primary_button",
+      "category": "button",
+      "filename": "primary_button.png",
+      "priority": "P0",
+      "size": {
+        "width": 384,
+        "height": 128
+      },
+      "aspectRatio": "384:128",
+      "transparent": true,
+      "atlasGroup": "ui_common",
+      "usage": "主行动九宫格按钮；文字由UI绘制",
+      "promptId": "P13",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "reward_button",
+      "category": "button",
+      "filename": "reward_button.png",
+      "priority": "P0",
+      "size": {
+        "width": 384,
+        "height": 128
+      },
+      "aspectRatio": "384:128",
+      "transparent": true,
+      "atlasGroup": "ui_common",
+      "usage": "奖励广告按钮；只用于明确奖励文案",
+      "promptId": "P14",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "common_panel",
+      "category": "panel",
+      "filename": "common_panel.png",
+      "priority": "P0",
+      "size": {
+        "width": 768,
+        "height": 768
+      },
+      "aspectRatio": "768:768",
+      "transparent": true,
+      "atlasGroup": "ui_common",
+      "usage": "页内米纸面板；九宫格",
+      "promptId": "P15",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "common_modal",
+      "category": "modal",
+      "filename": "common_modal.png",
+      "priority": "P0",
+      "size": {
+        "width": 768,
+        "height": 768
+      },
+      "aspectRatio": "768:768",
+      "transparent": true,
+      "atlasGroup": "ui_common",
+      "usage": "CommonModal容器；文字和操作外置",
+      "promptId": "P15",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "secondary_button",
+      "category": "button",
+      "filename": "secondary_button.png",
+      "priority": "P1",
+      "size": {
+        "width": 384,
+        "height": 128
+      },
+      "aspectRatio": "384:128",
+      "transparent": true,
+      "atlasGroup": "ui_common",
+      "usage": "次要操作按钮；与主按钮同几何，文字由UI绘制",
+      "promptId": "P13",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "merge_effect_frame_01",
+      "category": "merge_effect",
+      "filename": "merge_effect_frame_01.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "effects",
+      "usage": "sequenceId=merge_effect_frames；第1/4帧；中心锚点固定，业务成功后播放",
+      "promptId": "P23",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "merge_effect_frame_02",
+      "category": "merge_effect",
+      "filename": "merge_effect_frame_02.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "effects",
+      "usage": "sequenceId=merge_effect_frames；第2/4帧；中心锚点固定，业务成功后播放",
+      "promptId": "P23",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "merge_effect_frame_03",
+      "category": "merge_effect",
+      "filename": "merge_effect_frame_03.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "effects",
+      "usage": "sequenceId=merge_effect_frames；第3/4帧；中心锚点固定，业务成功后播放",
+      "promptId": "P23",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "merge_effect_frame_04",
+      "category": "merge_effect",
+      "filename": "merge_effect_frame_04.png",
+      "priority": "P0",
+      "size": {
+        "width": 256,
+        "height": 256
+      },
+      "aspectRatio": "256:256",
+      "transparent": true,
+      "atlasGroup": "effects",
+      "usage": "sequenceId=merge_effect_frames；第4/4帧；中心锚点固定，业务成功后播放",
+      "promptId": "P23",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "promotion_effect",
+      "category": "promotion_effect",
+      "filename": "promotion_effect.png",
+      "priority": "P0",
+      "size": {
+        "width": 512,
+        "height": 512
+      },
+      "aspectRatio": "512:512",
+      "transparent": true,
+      "atlasGroup": "effects",
+      "usage": "晋升卷轴/印章/徽章特效候选；不执行晋升",
+      "promptId": "P16",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    },
+    {
+      "id": "tutorial_pointer",
+      "category": "tutorial_pointer",
+      "filename": "tutorial_pointer.png",
+      "priority": "P0",
+      "size": {
+        "width": 128,
+        "height": 128
+      },
+      "aspectRatio": "128:128",
+      "transparent": true,
+      "atlasGroup": "ui_common",
+      "usage": "新手指针；目标缺失时由契约关闭遮罩并恢复页面",
+      "promptId": "P24",
+      "status": "PLANNED",
+      "mustReview": true,
+      "targetPhase": "PHASE4_INTEGRATION"
+    }
+  ]
+}

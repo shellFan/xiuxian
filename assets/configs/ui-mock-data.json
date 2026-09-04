@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "status": "DEV_ONLY",
+  "runtimeEnabled": false,
+  "usage": "Isolated Cocos preview fixture. Never persist or inject into production GameContext.",
+  "scenarios": [
+    { "id": "new_player", "careerName": "练气职员", "artCareerTier": 1, "salary": 120, "performance": 0, "cultivation": 0, "mind": 100, "maxMind": 100, "workMode": "WORK", "boardLevels": [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "kpi": { "completed": 0, "total": 3 }, "viewport": { "width": 750, "height": 1334 } },
+    { "id": "busy_office", "careerName": "金丹主管", "artCareerTier": 3, "salary": 12500, "performance": 90, "cultivation": 450, "mind": 27, "maxMind": 100, "workMode": "FISHING", "boardLevels": [1,2,3,0,2,2,1,0,3,1,1,0,0,0,0,0], "kpi": { "completed": 2, "total": 3 }, "viewport": { "width": 750, "height": 1625 } },
+    { "id": "full_board", "careerName": "元婴主管", "artCareerTier": 4, "salary": 1200000, "performance": 160, "cultivation": 900, "mind": 100, "maxMind": 100, "workMode": "WORK", "boardLevels": [1,2,3,4,2,3,4,5,3,4,5,1,4,5,1,2], "kpi": { "completed": 3, "total": 3 }, "viewport": { "width": 750, "height": 1667 } },
+    { "id": "recoverable_error", "state": "ERROR", "message": "工位信号不稳，请重试。", "retryEnabled": true },
+    { "id": "no_rewards", "state": "EMPTY", "achievementIds": [], "dailyTaskIds": [], "message": "今日清单已收工。" }
+  ]
+}

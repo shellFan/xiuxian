@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "status": "PHASE4_CANDIDATE",
+  "runtimeEnabled": false,
+  "perDay": 5,
+  "maxPerDay": 6,
+  "rewardBudget": {
+    "salary": 750,
+    "cultivation": 100,
+    "performance": 30,
+    "mind": 45
+  },
+  "tasks": [
+    {
+      "id": "merge-5",
+      "family": "MERGE",
+      "difficulty": "NORMAL",
+      "weight": 3,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "salary": 100,
+        "cultivation": 20
+      },
+      "requiresCapability": [
+        "mergeCompleted"
+      ]
+    },
+    {
+      "id": "work-10-min",
+      "family": "WORK",
+      "difficulty": "NORMAL",
+      "weight": 3,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "salary": 150,
+        "performance": 10
+      },
+      "requiresCapability": [
+        "workModeChanged"
+      ]
+    },
+    {
+      "id": "fish-3-min",
+      "family": "FISH",
+      "difficulty": "NORMAL",
+      "weight": 3,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "mind": 15
+      },
+      "requiresCapability": [
+        "fishingSeconds"
+      ]
+    },
+    {
+      "id": "event-3",
+      "family": "EVENT",
+      "difficulty": "NORMAL",
+      "weight": 3,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "cultivation": 30,
+        "mind": 10
+      },
+      "requiresCapability": [
+        "eventChanged"
+      ]
+    },
+    {
+      "id": "kpi-complete",
+      "family": "KPI",
+      "difficulty": "HARD",
+      "weight": 3,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "salary": 200,
+        "performance": 20
+      },
+      "requiresCapability": [
+        "kpiChanged"
+      ]
+    },
+    {
+      "id": "promotion-1",
+      "family": "PROMOTION",
+      "difficulty": "HARD",
+      "weight": 2,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "salary": 300,
+        "cultivation": 50,
+        "mind": 20
+      },
+      "requiresCapability": [
+        "promotion.canPromote"
+      ]
+    },
+    {
+      "id": "merge-3-p4",
+      "family": "MERGE",
+      "difficulty": "EASY",
+      "weight": 1,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "salary": 60,
+        "cultivation": 10
+      },
+      "requiresCapability": [
+        "mergeCompleted"
+      ]
+    },
+    {
+      "id": "work-5-min-p4",
+      "family": "WORK",
+      "difficulty": "EASY",
+      "weight": 1,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "salary": 80,
+        "performance": 5
+      },
+      "requiresCapability": [
+        "workModeChanged"
+      ]
+    },
+    {
+      "id": "fish-2-min-p4",
+      "family": "FISH",
+      "difficulty": "EASY",
+      "weight": 1,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "mind": 8
+      },
+      "requiresCapability": [
+        "fishingSeconds"
+      ]
+    },
+    {
+      "id": "event-2-p4",
+      "family": "EVENT",
+      "difficulty": "EASY",
+      "weight": 1,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "cultivation": 15,
+        "mind": 5
+      },
+      "requiresCapability": [
+        "eventChanged"
+      ]
+    },
+    {
+      "id": "kpi-check-p4",
+      "family": "KPI",
+      "difficulty": "EASY",
+      "weight": 1,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "salary": 100,
+        "performance": 10
+      },
+      "requiresCapability": [
+        "kpiChanged"
+      ]
+    },
+    {
+      "id": "promotion-ready-p4",
+      "family": "PROMOTION",
+      "difficulty": "EASY",
+      "weight": 1,
+      "minCareerLevel": 1,
+      "rewardBudget": {
+        "salary": 150,
+        "cultivation": 20,
+        "mind": 10
+      },
+      "requiresCapability": [
+        "promotion.canPromote"
+      ]
+    }
+  ]
+}
