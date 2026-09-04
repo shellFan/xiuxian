@@ -52,6 +52,10 @@ export class CareerEventService {
       this.context.dailyTasks.addProgress('EVENT_3', 1);
       this.pending = undefined;
       this.context.events.emit('eventChanged', { eventId: event.id, pending: false });
+      // Notify achievement system about event type (RARE, EASTER_EGG, etc.)
+      if (event.type) {
+        this.context.achievements.notifyEventType(event.type);
+      }
     } catch (error) {
       this.context.player.kpiProgress = kpiProgressBefore;
       throw error;
@@ -72,6 +76,10 @@ export class CareerEventService {
       this.context.dailyTasks.addProgress('EVENT_3', 1);
       this.pending = undefined;
       this.context.events.emit('eventChanged', { eventId: event.id, pending: false });
+      // Notify achievement system about event type (RARE, EASTER_EGG, etc.)
+      if (event.type) {
+        this.context.achievements.notifyEventType(event.type);
+      }
     } catch (error) {
       this.context.player.kpiProgress = kpiProgressBefore;
       throw error;
