@@ -26,6 +26,13 @@ import type { WorkMode } from '../model/save-data';
 import { DebugProtection, type DebugProtectionOptions } from '../services/debug-protection';
 import { type RecruitmentResult, type RecruitmentSuccess, type RecruitmentFailure } from '../services/recruitment-service';
 import { WorkerEntity } from '../model/worker-entity';
+import type { CareerEventConfig, TalentConfig, SectConfig, PromotionOption } from '../model/config-types';
+import type { KpiView } from '../services/kpi-service';
+import type { AchievementConfig, AchievementStatus } from '../services/achievement-service';
+import type { DailyTaskProgress } from '../services/daily-task-service';
+import type { TutorialStep } from '../services/tutorial-service';
+import type { IdleSettlementResult } from '../services/idle-service';
+import type { PromotionCheck } from '../services/promotion-service';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -118,6 +125,146 @@ export class GameFacade {
   public hasChanged(): boolean {
     const current = this.snapshot();
     return this.lastSnapshot ? !snapshotEqual(this.lastSnapshot, current) : true;
+  }
+
+  // ── Query API (UI projection) ────────────────────────────────────────────
+  //
+  // UI components MUST use these methods instead of accessing facade.context
+  // directly. This keeps the UI layer decoupled from GameContext internals.
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /** Current career level info. */
+  public queryCareer() { return this.context.career.current(); }
+
+  /** Current sect info. */
+  public querySect() { return this.context.sect.current(); }
+
+  /** Talent config by ID. */
+  public queryTalent(id: string | null) {
+    return id ? this.context.configService.talent.talents.find(t => t.id === id) : undefined;
+  }
+
+  /** All available sects. */
+  public querySects() { return this.context.configService.sect.sects; }
+
+  /** Board info: capacity, isFull, cells, etc. */
+  public queryBoard() {
+    const board = this.context.board;
+    return {
+      rows: board.rows,
+      columns: board.columns,
+      capacity: board.capacity,
+      isFull: board.isFull,
+      occupiedCount: board.occupiedCount,
+      maxWorkerLevel: board.maxWorkerLevel,
+      cells: board.cells,
+    };
+  }
+
+  /** KPI view for current career level. */
+  public queryKpi(): KpiView { return this.context.kpi.getView(); }
+
+  /** Promotion eligibility check. */
+  public queryPromotionCheck(): PromotionCheck { return this.context.promotion.canPromote(); }
+
+  /** Promotion probability. */
+  public queryPromotionProbability(): number { return this.context.promotion.getProbability(); }
+
+  /** Whether promotion needs retry. */
+  public queryPromotionNeedsRetry(): boolean { return this.context.promotion.needsRetry(); }
+
+  /** Promotion options from config. */
+  public queryPromotionOptions(): readonly PromotionOption[] { return this.context.configService.promotion.options; }
+
+  /** Office name for current level. */
+  public queryOfficeName(): string { return this.context.office.getOfficeName(); }
+
+  /** Current pending career event, if any. */
+  public queryCurrentEvent(): CareerEventConfig | undefined { return this.context.careerEvents.current(); }
+
+  /** Achievement configs. */
+  public queryAchievementConfigs(): readonly AchievementConfig[] { return this.context.achievements.getConfigs(); }
+
+  /** Achievement status by ID. */
+  public queryAchievementStatus(id: string): AchievementStatus { return this.context.achievements.getStatus(id); }
+
+  /** Daily task progress. */
+  public queryDailyTaskProgress(): DailyTaskProgress[] { return this.context.dailyTasks.getProgress(); }
+
+  /** Offline reward preview. */
+  public queryOfflinePreview(settlementId: string): IdleSettlementResult { return this.context.offline.preview(settlementId); }
+
+  /** Whether an offline settlement has been claimed. */
+  public queryOfflineIsSettled(settlementId: string): boolean { return this.context.offline.isSettled(settlementId); }
+
+  /** Tutorial current state. */
+  public queryTutorial() {
+    const tutorial = this.context.tutorial;
+    return {
+      currentStep: tutorial.currentStep(),
+      isCompleted: tutorial.isCompleted(),
+      steps: tutorial.getSteps(),
+      stepIndex: tutorial.currentStepIndex(),
+    };
+  }
+
+  /** Resolve a career event choice. */
+  public resolveEventChoice(eventId: string, choiceId: string): void {
+    this.context.careerEvents.choose(eventId, choiceId);
+  }
+
+  /** Resolve a non-choice event. */
+  public resolveEvent(eventId: string): void {
+    this.context.careerEvents.resolve(eventId);
+  }
+
+  /** Attempt promotion with a specific option. */
+  public promote(optionId: string): { success: boolean; reason?: string; newLevel?: number } {
+    const check = this.context.promotion.canPromote();
+    if (!check.allowed) return { success: false, reason: check.reason };
+    const result = this.context.promotion.promote(optionId);
+    return {
+      success: result.success,
+      reason: result.success ? undefined : '概率不足',
+      newLevel: result.newCareerLevel,
+    };
+  }
+
+  /** Claim an achievement reward. */
+  public claimAchievement(id: string): void {
+    this.context.achievements.claim(id);
+  }
+
+  /** Claim a daily task reward. */
+  public claimDailyTask(taskId: string): void {
+    this.context.dailyTasks.claim(taskId);
+  }
+
+  /** Claim offline reward (normal 1x). */
+  public claimOfflineReward(settlementId: string): IdleSettlementResult {
+    return this.context.offline.claimNormal(settlementId);
+  }
+
+  /** Claim offline reward (double via ad). */
+  public claimOfflineDouble(settlementId: string, onResult: (success: boolean) => void): void {
+    this.context.offline.claimDouble(settlementId, onResult);
+  }
+
+  /** Advance tutorial to next step. */
+  public advanceTutorial(): void {
+    this.context.tutorial.advance();
+  }
+
+  /** Skip tutorial entirely. */
+  public skipTutorial(): void {
+    this.context.tutorial.complete();
+  }
+
+  /** Toggle work mode between WORK and FISHING. */
+  public toggleWorkMode(): void {
+    const current = this.context.player.workMode;
+    const next: WorkMode = current === 'WORK' ? 'FISHING' : 'WORK';
+    this.changeWorkMode(next);
   }
 
   // ── Commands ──────────────────────────────────────────────────────────────

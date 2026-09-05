@@ -3,7 +3,7 @@
  *
  * UI components MUST NOT hold mutable references to GameContext, PlayerData,
  * or services. They read from ViewModels produced by builder functions that
- * derive data exclusively from GameFacade.
+ * derive data exclusively from GameFacade (via snapshot() + query API).
  *
  * Each ViewModel is a frozen, point-in-time snapshot. Re-build when the
  * facade's UI event stream signals a change.
@@ -230,17 +230,18 @@ export function mindStatusText(mind: number, maxMind: number): string {
 }
 
 // ── Builder functions ───────────────────────────────────────────────────────
+//
+// All builders use ONLY facade.snapshot() + facade.query*() methods.
+// They NEVER access facade.context directly.
 
 /** Build MainHUDViewModel from GameFacade. */
 export function buildMainHUDViewModel(facade: GameFacade): MainHUDViewModel {
-  const ctx = facade.context;
   const snap = facade.snapshot();
-  const career = ctx.career.current();
-  const sect = ctx.sect.current();
-  const talent = snap.talentId
-    ? ctx.configService.talent.talents.find((t) => t.id === snap.talentId)
-    : undefined;
-  const kpiView = ctx.kpi.getView();
+  const career = facade.queryCareer();
+  const sect = facade.querySect();
+  const talent = facade.queryTalent(snap.talentId);
+  const kpiView = facade.queryKpi();
+  const board = facade.queryBoard();
 
   return Object.freeze({
     careerLevel: snap.careerLevel,
@@ -259,17 +260,17 @@ export function buildMainHUDViewModel(facade: GameFacade): MainHUDViewModel {
     kpiTotal: kpiView.items.length,
     kpiAllCompleted: kpiView.allCompleted,
     workerCount: snap.workerCount,
-    boardCapacity: ctx.board.capacity,
-    boardIsFull: ctx.board.isFull,
+    boardCapacity: board.capacity,
+    boardIsFull: board.isFull,
     sectName: sect ? sect.name : '未选择宗门',
     talentName: talent ? talent.name : '未觉醒天赋',
-    officeName: ctx.office.getOfficeName(),
+    officeName: facade.queryOfficeName(),
   });
 }
 
 /** Build MergeBoardViewModel from GameFacade. */
 export function buildMergeBoardViewModel(facade: GameFacade): MergeBoardViewModel {
-  const board = facade.context.board;
+  const board = facade.queryBoard();
   const cells: MergeCellViewModel[] = board.cells.map((cell) => {
     const occupant = cell.occupant;
     return Object.freeze({
@@ -293,14 +294,11 @@ export function buildMergeBoardViewModel(facade: GameFacade): MergeBoardViewMode
 
 /** Build CareerViewModel from GameFacade. */
 export function buildCareerViewModel(facade: GameFacade): CareerViewModel {
-  const ctx = facade.context;
   const snap = facade.snapshot();
-  const career = ctx.career.current();
-  const sect = ctx.sect.current();
-  const talent = snap.talentId
-    ? ctx.configService.talent.talents.find((t) => t.id === snap.talentId)
-    : undefined;
-  const check = ctx.promotion.canPromote();
+  const career = facade.queryCareer();
+  const sect = facade.querySect();
+  const talent = facade.queryTalent(snap.talentId);
+  const check = facade.queryPromotionCheck();
 
   return Object.freeze({
     careerLevel: snap.careerLevel,
@@ -316,7 +314,7 @@ export function buildCareerViewModel(facade: GameFacade): CareerViewModel {
     sectName: sect ? sect.name : '未选择宗门',
     talentName: talent ? talent.name : '未觉醒天赋',
     workMode: snap.workMode,
-    officeName: ctx.office.getOfficeName(),
+    officeName: facade.queryOfficeName(),
     canPromote: check.allowed,
     promotionReason: check.reason,
   });
@@ -324,7 +322,7 @@ export function buildCareerViewModel(facade: GameFacade): CareerViewModel {
 
 /** Build KpiViewModel from GameFacade. */
 export function buildKpiViewModel(facade: GameFacade): KpiViewModel {
-  const kpiView = facade.context.kpi.getView();
+  const kpiView = facade.queryKpi();
   const items: KpiItemViewModel[] = kpiView.items.map((item) =>
     Object.freeze({
       type: item.type,
@@ -346,16 +344,15 @@ export function buildKpiViewModel(facade: GameFacade): KpiViewModel {
 
 /** Build PromotionViewModel from GameFacade. */
 export function buildPromotionViewModel(facade: GameFacade): PromotionViewModel {
-  const ctx = facade.context;
-  const check = ctx.promotion.canPromote();
+  const check = facade.queryPromotionCheck();
 
   return Object.freeze({
     allowed: check.allowed,
     reason: check.reason,
-    probability: ctx.promotion.getProbability(),
-    needsRetry: ctx.promotion.needsRetry(),
+    probability: facade.queryPromotionProbability(),
+    needsRetry: facade.queryPromotionNeedsRetry(),
     options: Object.freeze(
-      ctx.configService.promotion.options.map((o) =>
+      facade.queryPromotionOptions().map((o) =>
         Object.freeze({ id: o.id, name: o.name, description: o.description }),
       ),
     ),
@@ -364,7 +361,7 @@ export function buildPromotionViewModel(facade: GameFacade): PromotionViewModel 
 
 /** Build EventViewModel from GameFacade. */
 export function buildEventViewModel(facade: GameFacade): EventViewModel {
-  const event = facade.context.careerEvents.current();
+  const event = facade.queryCurrentEvent();
   if (!event) {
     return Object.freeze({
       pending: false, id: '', title: '', description: '', type: '',
@@ -385,12 +382,11 @@ export function buildEventViewModel(facade: GameFacade): EventViewModel {
 
 /** Build AchievementViewModel from GameFacade. */
 export function buildAchievementViewModel(facade: GameFacade): AchievementViewModel {
-  const ctx = facade.context;
-  const configs = ctx.achievements.getConfigs();
+  const configs = facade.queryAchievementConfigs();
   const categories = [...new Set(configs.map((c) => c.category))];
 
   const items: AchievementItemViewModel[] = configs.map((cfg) => {
-    const status = ctx.achievements.getStatus(cfg.id);
+    const status = facade.queryAchievementStatus(cfg.id);
     // Hidden achievements: LOCKED and condition type is EVENT_TYPE (not discoverable by normal play)
     const isHidden = status === 'LOCKED' && cfg.condition.type === 'EVENT_TYPE';
     return Object.freeze({
@@ -414,8 +410,8 @@ export function buildAchievementViewModel(facade: GameFacade): AchievementViewMo
 
 /** Build DailyTaskViewModel from GameFacade. */
 export function buildDailyTaskViewModel(facade: GameFacade): DailyTaskViewModel {
-  const ctx = facade.context;
-  const progress = ctx.dailyTasks.getProgress();
+  const progress = facade.queryDailyTaskProgress();
+  const snap = facade.snapshot();
 
   const tasks: DailyTaskItemViewModel[] = progress.map((t: DailyTaskProgress) =>
     Object.freeze({
@@ -435,15 +431,14 @@ export function buildDailyTaskViewModel(facade: GameFacade): DailyTaskViewModel 
     completedCount: tasks.filter((t) => t.completed).length,
     claimedCount: tasks.filter((t) => t.claimed).length,
     totalCount: tasks.length,
-    dayIndex: ctx.player.dailyTaskDay,
+    dayIndex: snap.dailyTaskDay,
   });
 }
 
 /** Build OfflineRewardViewModel from GameFacade. */
 export function buildOfflineRewardViewModel(facade: GameFacade, settlementId: string): OfflineRewardViewModel {
-  const ctx = facade.context;
-  const preview = ctx.offline.preview(settlementId);
-  const isSettled = ctx.offline.isSettled(settlementId);
+  const preview = facade.queryOfflinePreview(settlementId);
+  const isSettled = facade.queryOfflineIsSettled(settlementId);
 
   if (!preview || preview.duplicate) {
     return Object.freeze({
@@ -493,36 +488,33 @@ export function buildSettingsViewModel(facade: GameFacade, settingsService: Sett
 
 /** Build TutorialViewModel from GameFacade. */
 export function buildTutorialViewModel(facade: GameFacade): TutorialViewModel {
-  const tutorial = facade.context.tutorial;
-  const currentStep = tutorial.currentStep();
-  const steps = tutorial.getSteps();
-  const stepIndex = tutorial.currentStepIndex();
+  const tutorial = facade.queryTutorial();
 
   return Object.freeze({
-    currentStep,
-    isCompleted: tutorial.isCompleted(),
-    stepIndex,
-    totalSteps: steps.length,
-    steps: Object.freeze([...steps]),
+    currentStep: tutorial.currentStep,
+    isCompleted: tutorial.isCompleted,
+    stepIndex: tutorial.stepIndex,
+    totalSteps: tutorial.steps.length,
+    steps: Object.freeze([...tutorial.steps]),
   });
 }
 
 /** Build SectViewModel from GameFacade. */
 export function buildSectViewModel(facade: GameFacade): SectViewModel {
-  const ctx = facade.context;
-  const currentSect = ctx.sect.current();
-  const allSects = ctx.configService.sect.sects;
+  const snap = facade.snapshot();
+  const currentSect = facade.querySect();
+  const allSects = facade.querySects();
 
   const sects = allSects.map((s) =>
     Object.freeze({
       id: s.id,
       name: s.name,
-      selected: ctx.player.sectId === s.id,
+      selected: snap.sectId === s.id,
     }),
   );
 
   return Object.freeze({
-    currentSectId: ctx.player.sectId,
+    currentSectId: snap.sectId,
     currentSectName: currentSect ? currentSect.name : '散修',
     sects: Object.freeze(sects),
   });

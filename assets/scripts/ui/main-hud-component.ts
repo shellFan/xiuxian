@@ -259,9 +259,8 @@ export class MainHudComponent extends Component {
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   private readonly onWorkModeToggle = (): void => {
-    if (!this.facade || !this.viewModel) return;
-    const newMode = this.viewModel.workMode === 'WORK' ? 'FISHING' : 'WORK';
-    this.facade.changeWorkMode(newMode);
+    if (!this.facade) return;
+    this.facade.toggleWorkMode();
   };
 
   // ── Helpers ───────────────────────────────────────────────────────────────

@@ -23,7 +23,8 @@
     "build": "npm run build:game && npm run build:orchestrator",
     "build:game": "tsc -p tsconfig.game.json --noEmit",
     "build:orchestrator": "tsc -p tools/orchestrator/tsconfig.json --noEmit",
-    "build:all": "npm run build:game && npm run build:orchestrator"
+    "build:all": "npm run build:game && npm run build:orchestrator",
+    "phase5:check": "tsc -p tsconfig.game.json --noEmit && node tests/.compiled/tests/phase5/event-runtime-adapter.test.js && node tests/.compiled/tests/phase5/reward-ad-policy.test.js && node tests/.compiled/tests/phase5/phase5-integration.test.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",

@@ -136,10 +136,10 @@ export class CareerPanelComponent extends Component {
 
   private readonly onPromote = (): void => {
     if (!this.facade || !this.viewModel?.canPromote) return;
-    // Get the first available promotion option
-    const options = this.facade.context.configService.promotion.options;
+    // Get promotion options via facade query API
+    const options = this.facade.queryPromotionOptions();
     if (options.length > 0) {
-      this.facade.context.promotion.promote(options[0].id);
+      this.facade.promote(options[0].id);
     }
   };
 
