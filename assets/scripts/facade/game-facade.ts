@@ -35,6 +35,10 @@ import type { IdleSettlementResult } from '../services/idle-service';
 import type { PromotionCheck } from '../services/promotion-service';
 import type { CultivationClickResult } from '../services/cultivation-service';
 import type { TaskStartResult, TaskClaimResult, TaskConfig } from '../services/task-service';
+import type { IdleEfficiencyBreakdown } from '../services/idle-efficiency-service';
+import type { LeaderboardView } from '../services/leaderboard-service';
+import type { FriendsView } from '../services/friends-service';
+import type { AdPlacement, RewardedAdResult } from '../services/rewarded-ad-service';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -121,6 +125,12 @@ export class GameFacade {
       spiritStones: p.spiritStones,
       lastCultivateTime: p.lastCultivateTime,
       activeTasks: Object.freeze([...p.activeTasks.map(t => Object.freeze({ ...t }))]),
+      salaryEfficiency: this.context.idleEfficiency.getSalaryEfficiency(),
+      performanceEfficiency: this.context.idleEfficiency.getPerformanceEfficiency(),
+      mindRecoveryEfficiency: this.context.idleEfficiency.getMindRecoveryEfficiency(),
+      cultivationEfficiency: this.context.idleEfficiency.getCultivationEfficiency(),
+      isWorkIncomeStopped: this.context.idleEfficiency.isWorkIncomeStopped(),
+      isFishingMode: this.context.idleEfficiency.isFishingMode(),
     });
     this.lastSnapshot = snap;
     return snap;
@@ -265,6 +275,103 @@ export class GameFacade {
   /** Tick tasks (called by game loop). Returns IDs of newly completed tasks. */
   public tickTasks() {
     return this.context.tasks.tick();
+  }
+
+  // ── Idle Efficiency API ──────────────────────────────────────────────────
+
+  /** Get the current idle efficiency breakdown. */
+  public queryIdleEfficiency(): IdleEfficiencyBreakdown {
+    return this.context.idleEfficiency.getBreakdown();
+  }
+
+  /** Get the current salary efficiency multiplier. */
+  public querySalaryEfficiency(): number {
+    return this.context.idleEfficiency.getSalaryEfficiency();
+  }
+
+  /** Get the current mind recovery efficiency multiplier. */
+  public queryMindRecoveryEfficiency(): number {
+    return this.context.idleEfficiency.getMindRecoveryEfficiency();
+  }
+
+  /** Whether work income is stopped (mind = 0). */
+  public queryIsWorkIncomeStopped(): boolean {
+    return this.context.idleEfficiency.isWorkIncomeStopped();
+  }
+
+  // ── Leaderboard API ──────────────────────────────────────────────────────
+
+  /** Get the current leaderboard view. */
+  public queryLeaderboard(): LeaderboardView {
+    return this.context.leaderboard.getLeaderboard();
+  }
+
+  /** Get top N leaderboard entries. */
+  public queryLeaderboardTopN(n: number) {
+    return this.context.leaderboard.getTopN(n);
+  }
+
+  /** Get leaderboard entries around the player. */
+  public queryLeaderboardAroundPlayer(radius = 5) {
+    return this.context.leaderboard.getAroundPlayer(radius);
+  }
+
+  // ── Friends API ──────────────────────────────────────────────────────────
+
+  /** Get the current friends view. */
+  public queryFriends(): FriendsView {
+    return this.context.friends.getFriends();
+  }
+
+  /** Send a gift to a friend. */
+  public sendFriendGift(friendId: string): boolean {
+    return this.context.friends.sendGift(friendId);
+  }
+
+  /** Claim a gift from a friend. Returns reward amount. */
+  public claimFriendGift(friendId: string): number {
+    return this.context.friends.claimGift(friendId);
+  }
+
+  /** Claim all pending friend gifts. Returns total reward. */
+  public claimAllFriendGifts(): number {
+    return this.context.friends.claimAllGifts();
+  }
+
+  // ── Rewarded Ad API ──────────────────────────────────────────────────────
+
+  /** Whether a rewarded ad can be shown for the given placement. */
+  public canShowRewardedAd(placement: AdPlacement): boolean {
+    return this.context.rewardedAd.canShow(placement);
+  }
+
+  /** Get remaining cooldown seconds for a rewarded ad placement. */
+  public queryRewardedAdCooldown(placement: AdPlacement): number {
+    return this.context.rewardedAd.getCooldownRemaining(placement);
+  }
+
+  /** Show a rewarded ad (async mock). Returns false if ad cannot be shown. */
+  public showRewardedAd(
+    placement: AdPlacement,
+    rewardType: RewardType,
+    onComplete: (result: RewardedAdResult) => void,
+  ): boolean {
+    return this.context.rewardedAd.show(placement, rewardType, onComplete);
+  }
+
+  /** Show a rewarded ad synchronously (for testing). */
+  public showRewardedAdSync(placement: AdPlacement, rewardType: RewardType): RewardedAdResult {
+    return this.context.rewardedAd.showSync(placement, rewardType);
+  }
+
+  /** Cancel the current ad watch. */
+  public cancelRewardedAd(): void {
+    this.context.rewardedAd.cancel();
+  }
+
+  /** Whether an ad is currently being watched. */
+  public isRewardedAdWatching(): boolean {
+    return this.context.rewardedAd.isWatching();
   }
 
   /** Resolve a career event choice. */

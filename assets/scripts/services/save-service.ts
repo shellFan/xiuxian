@@ -101,6 +101,9 @@ function migrate(raw: unknown): GameSaveData {
     dailyTaskDay: typeof raw.dailyTaskDay === 'number' && Number.isSafeInteger(raw.dailyTaskDay) && raw.dailyTaskDay >= -1 ? raw.dailyTaskDay : -1,
     tutorialStep: typeof raw.tutorialStep === 'string' ? raw.tutorialStep : 'FIRST_RECRUIT',
     tutorialCompleted: typeof raw.tutorialCompleted === 'boolean' ? raw.tutorialCompleted : false,
+    spiritStones: isNonNegativeSafeInteger(raw.spiritStones) ? raw.spiritStones : 0,
+    lastCultivateTime: isNonNegativeSafeInteger(raw.lastCultivateTime) ? raw.lastCultivateTime : 0,
+    activeTasks: Array.isArray(raw.activeTasks) ? raw.activeTasks.filter(isActiveTaskState) : [],
   };
   if (isNonNegativeSafeInteger(raw.salaryRemainder) && raw.salaryRemainder !== 0) dataWithRemainder(data, 'salaryRemainder', raw.salaryRemainder);
   if (isNonNegativeSafeInteger(raw.cultivationRemainder) && raw.cultivationRemainder !== 0) dataWithRemainder(data, 'cultivationRemainder', raw.cultivationRemainder);
@@ -118,7 +121,7 @@ function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultiva
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {
-  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'FIRST_RECRUIT', tutorialCompleted: data.tutorialCompleted ?? false };
+  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'FIRST_RECRUIT', tutorialCompleted: data.tutorialCompleted ?? false, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })) };
 }
 
 function isWorker(value: unknown): value is WorkerSaveData {
@@ -144,6 +147,20 @@ function isDailyTaskState(value: unknown): value is import('../model/save-data')
   if (!isRecord(value)) return false;
   return typeof value.taskId === 'string'
     && isNonNegativeSafeInteger(value.progress)
+    && typeof value.completed === 'boolean'
+    && typeof value.claimed === 'boolean';
+}
+function isActiveTaskState(value: unknown): value is import('../model/save-data').ActiveTaskState {
+  if (!isRecord(value)) return false;
+  return typeof value.taskId === 'string'
+    && typeof value.taskType === 'string'
+    && typeof value.name === 'string'
+    && typeof value.description === 'string'
+    && isNonNegativeSafeInteger(value.durationSeconds)
+    && isNonNegativeSafeInteger(value.startedAt)
+    && isNonNegativeSafeInteger(value.rewardSalary)
+    && isNonNegativeSafeInteger(value.rewardCultivation)
+    && isNonNegativeSafeInteger(value.rewardSpiritStones)
     && typeof value.completed === 'boolean'
     && typeof value.claimed === 'boolean';
 }

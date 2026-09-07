@@ -96,7 +96,7 @@ function testIdleBoundariesZeroEightHourCap(): void {
   assert.equal(exact.cultivationExp, 40);
   assert.equal(exact.capped, false);
   // re-settling the same id after no time passes is a duplicate (no re-grant)
-  assert.deepEqual(eight.context.idle.settle('eight'), { salary: 0, cultivationExp: 0, elapsedSeconds: 0, capped: false, duplicate: true });
+  assert.deepEqual(eight.context.idle.settle('eight'), { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, duplicate: true });
 
   // 12h total -> capped at 8h (elapsedSeconds stays 28800)
   const twelve = makeContext();

@@ -27,7 +27,7 @@ function testOneHour(): void {
   const clock = new FakeClock(1_000);
   const { offline } = makeContext(clock);
   clock.advance(3_600 * 1000);
-  assert.deepEqual(offline.preview('one'), { salary: 10, cultivationExp: 5, elapsedSeconds: 3600, capped: false, duplicate: false });
+  assert.deepEqual(offline.preview('one'), { salary: 10, cultivationExp: 5, spiritStones: 6, elapsedSeconds: 3600, capped: false, duplicate: false });
 }
 
 function testEightHourCap(): void {

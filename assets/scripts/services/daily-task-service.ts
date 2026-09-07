@@ -217,4 +217,7 @@ function restorePlayer(player: import('../model/player-data').PlayerData, data: 
   player.dailyTaskDay = data.dailyTaskDay ?? -1;
   player.tutorialStep = data.tutorialStep ?? 'FIRST_RECRUIT';
   player.tutorialCompleted = data.tutorialCompleted ?? false;
+  player.spiritStones = data.spiritStones ?? 0;
+  player.lastCultivateTime = data.lastCultivateTime ?? 0;
+  player.activeTasks = (data.activeTasks ?? []).map((t) => ({ ...t }));
 }

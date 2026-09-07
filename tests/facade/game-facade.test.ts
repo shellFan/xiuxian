@@ -20,53 +20,41 @@ import { DebugProtection } from '../../assets/scripts/services/debug-protection'
 import { SaveServiceV2, validateSaveData } from '../../assets/scripts/services/save-service-v2';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { PlayerData } from '../../assets/scripts/model/player-data';
-import type { DailyTaskState } from '../../assets/scripts/model/save-data';
+import type { DailyTaskState, ActiveTaskState } from '../../assets/scripts/model/save-data';
 
 // ── GameSnapshot ────────────────────────────────────────────────────────────
 
+const SNAPSHOT_BASE = {
+  salary: 100, cultivationExp: 50, careerLevel: 1, mind: 80, maxMind: 100,
+  performance: 0, workMode: 'FISHING' as const, workSeconds: 0, fishingSeconds: 0,
+  officeLevel: 1, sectId: null, talentId: null, maxWorkerLevel: 0,
+  promotionFailCount: 0, unlockedAchievementIds: [] as readonly string[],
+  claimedAchievementIds: [] as readonly string[], dailySignIn: null,
+  dailyTasks: [] as readonly DailyTaskState[], dailyTaskDay: -1,
+  tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, lastSaveTime: 0,
+  workerCount: 0, mindStatus: 'NORMAL' as const,
+  spiritStones: 0, lastCultivateTime: 0,
+  activeTasks: [] as readonly ActiveTaskState[],
+  salaryEfficiency: 1.0, performanceEfficiency: 1.0,
+  mindRecoveryEfficiency: 1.0, cultivationEfficiency: 1.0,
+  isWorkIncomeStopped: false, isFishingMode: true,
+};
+
 test('GameSnapshot: createSnapshot returns frozen object', () => {
-  const snap = createSnapshot({
-    salary: 100, cultivationExp: 50, careerLevel: 1, mind: 80, maxMind: 100,
-    performance: 0, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
-    officeLevel: 1, sectId: null, talentId: null, maxWorkerLevel: 0,
-    promotionFailCount: 0, unlockedAchievementIds: [], claimedAchievementIds: [],
-    dailySignIn: null, dailyTasks: [], dailyTaskDay: -1,
-    tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, lastSaveTime: 0,
-    workerCount: 0, mindStatus: 'NORMAL',
-  });
+  const snap = createSnapshot({ ...SNAPSHOT_BASE });
   assert.strictEqual(snap.salary, 100);
   assert.strictEqual(Object.isFrozen(snap), true);
 });
 
 test('GameSnapshot: snapshotEqual returns true for identical snapshots', () => {
-  const fields = {
-    salary: 100, cultivationExp: 50, careerLevel: 1, mind: 80, maxMind: 100,
-    performance: 0, workMode: 'FISHING' as const, workSeconds: 0, fishingSeconds: 0,
-    officeLevel: 1, sectId: null, talentId: null, maxWorkerLevel: 0,
-    promotionFailCount: 0, unlockedAchievementIds: [] as readonly string[],
-    claimedAchievementIds: [] as readonly string[], dailySignIn: null,
-    dailyTasks: [] as readonly DailyTaskState[], dailyTaskDay: -1,
-    tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, lastSaveTime: 0,
-    workerCount: 0, mindStatus: 'NORMAL' as const,
-  };
-  const a = createSnapshot(fields);
-  const b = createSnapshot(fields);
+  const a = createSnapshot({ ...SNAPSHOT_BASE });
+  const b = createSnapshot({ ...SNAPSHOT_BASE });
   assert.strictEqual(snapshotEqual(a, b), true);
 });
 
 test('GameSnapshot: snapshotEqual returns false for different snapshots', () => {
-  const base = {
-    salary: 100, cultivationExp: 50, careerLevel: 1, mind: 80, maxMind: 100,
-    performance: 0, workMode: 'FISHING' as const, workSeconds: 0, fishingSeconds: 0,
-    officeLevel: 1, sectId: null, talentId: null, maxWorkerLevel: 0,
-    promotionFailCount: 0, unlockedAchievementIds: [] as readonly string[],
-    claimedAchievementIds: [] as readonly string[], dailySignIn: null,
-    dailyTasks: [] as readonly DailyTaskState[], dailyTaskDay: -1,
-    tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, lastSaveTime: 0,
-    workerCount: 0, mindStatus: 'NORMAL' as const,
-  };
-  const a = createSnapshot(base);
-  const b = createSnapshot({ ...base, salary: 200 });
+  const a = createSnapshot({ ...SNAPSHOT_BASE });
+  const b = createSnapshot({ ...SNAPSHOT_BASE, salary: 200 });
   assert.strictEqual(snapshotEqual(a, b), false);
 });
 
@@ -439,7 +427,7 @@ test('SaveServiceV2: load returns default when empty', () => {
   const storage = new MemoryStorageAdapter();
   const service = new SaveServiceV2(storage);
   const data = service.load();
-  assert.strictEqual(data.saveVersion, 4);
+  assert.strictEqual(data.saveVersion, 5);
   assert.strictEqual(data.salary, 0);
 });
 

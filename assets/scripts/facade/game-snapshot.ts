@@ -38,6 +38,13 @@ export interface GameSnapshot {
   readonly spiritStones: number;
   readonly lastCultivateTime: number;
   readonly activeTasks: readonly ActiveTaskState[];
+  // ── WEB V1 idle efficiency fields ──
+  readonly salaryEfficiency: number;
+  readonly performanceEfficiency: number;
+  readonly mindRecoveryEfficiency: number;
+  readonly cultivationEfficiency: number;
+  readonly isWorkIncomeStopped: boolean;
+  readonly isFishingMode: boolean;
 }
 
 /** Build a snapshot from raw player data fields. */
@@ -74,7 +81,13 @@ export function snapshotEqual(a: GameSnapshot, b: GameSnapshot): boolean {
     a.workerCount !== b.workerCount ||
     a.mindStatus !== b.mindStatus ||
     a.spiritStones !== b.spiritStones ||
-    a.lastCultivateTime !== b.lastCultivateTime
+    a.lastCultivateTime !== b.lastCultivateTime ||
+    a.salaryEfficiency !== b.salaryEfficiency ||
+    a.performanceEfficiency !== b.performanceEfficiency ||
+    a.mindRecoveryEfficiency !== b.mindRecoveryEfficiency ||
+    a.cultivationEfficiency !== b.cultivationEfficiency ||
+    a.isWorkIncomeStopped !== b.isWorkIncomeStopped ||
+    a.isFishingMode !== b.isFishingMode
   ) {
     return false;
   }

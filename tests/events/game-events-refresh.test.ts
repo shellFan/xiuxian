@@ -26,6 +26,11 @@ function testPhase2RefreshEventListIsExplicit(): void {
     'dailyTaskCompleted',
     'dailyTaskClaimed',
     'tutorialStepChanged',
+    'cultivationClicked',
+    'taskStarted',
+    'taskCompleted',
+    'taskClaimed',
+    'spiritStonesChanged',
   ];
   assert.deepEqual([...PHASE2_REFRESH_EVENTS].sort(), [...expected].sort());
 }

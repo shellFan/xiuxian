@@ -39,6 +39,10 @@ import { DailyTaskService } from '../services/daily-task-service';
 import { TutorialService } from '../services/tutorial-service';
 import { DebugService } from '../services/debug-service';
 import { TaskService } from '../services/task-service';
+import { RewardedAdService } from '../services/rewarded-ad-service';
+import { IdleEfficiencyService } from '../services/idle-efficiency-service';
+import { LeaderboardService } from '../services/leaderboard-service';
+import { FriendsService } from '../services/friends-service';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
 import dailyTasksConfig from '../../configs/daily-tasks.json';
@@ -85,6 +89,10 @@ export class GameContext {
   public readonly tutorial: TutorialService;
   public readonly debug: DebugService;
   public readonly tasks: TaskService;
+  public readonly rewardedAd: RewardedAdService;
+  public readonly idleEfficiency: IdleEfficiencyService;
+  public readonly leaderboard: LeaderboardService;
+  public readonly friends: FriendsService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -139,6 +147,10 @@ export class GameContext {
     this.tutorial = new TutorialService(this);
     this.debug = new DebugService(this, options.randomProvider);
     this.tasks = new TaskService(this, { clock: options.clock });
+    this.rewardedAd = new RewardedAdService({ clock: options.clock });
+    this.idleEfficiency = new IdleEfficiencyService(this);
+    this.leaderboard = new LeaderboardService(this);
+    this.friends = new FriendsService(this);
   }
 
   public syncPlayerWorkers(): void {

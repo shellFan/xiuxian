@@ -14,7 +14,11 @@ import type { AchievementStatus, AchievementCategory } from '../services/achieve
 import type { DailyTaskProgress } from '../services/daily-task-service';
 import type { TutorialStep } from '../services/tutorial-service';
 import type { SettingsService } from '../services/settings-service';
-import type { WorkMode } from '../model/save-data';
+import { CURRENT_SAVE_VERSION, type WorkMode } from '../model/save-data';
+import type { IdleEfficiencyBreakdown } from '../services/idle-efficiency-service';
+import type { LeaderboardEntry } from '../services/leaderboard-service';
+import type { FriendEntry } from '../services/friends-service';
+import type { AdPlacement } from '../services/rewarded-ad-service';
 
 // ── Main HUD ────────────────────────────────────────────────────────────────
 
@@ -211,6 +215,100 @@ export interface SectViewModel {
     readonly name: string;
     readonly selected: boolean;
   }>;
+}
+
+// ── Cultivation (WEB V1) ────────────────────────────────────────────────────
+
+export interface CultivationViewModel {
+  readonly cultivationExp: number;
+  readonly cultivationRequired: number;
+  readonly cultivationProgress: number; // 0.0 to 1.0
+  readonly cooldownRemaining: number; // seconds
+  readonly mindEfficiency: number; // 0.0 to 1.0
+  readonly cultivationEfficiency: number; // 0.0 to 1.0
+  readonly mindStatusText: string;
+  readonly canCultivate: boolean;
+}
+
+// ── Task (WEB V1) ───────────────────────────────────────────────────────────
+
+export interface TaskItemViewModel {
+  readonly taskId: string;
+  readonly configId: string;
+  readonly type: 'DAILY' | 'WORK' | 'CULTIVATION' | 'EVENT';
+  readonly name: string;
+  readonly description: string;
+  readonly durationSeconds: number;
+  readonly remainingSeconds: number;
+  readonly progress: number; // 0.0 to 1.0
+  readonly completed: boolean;
+  readonly claimed: boolean;
+  readonly rewards: ReadonlyArray<{ readonly type: string; readonly amount: number }>;
+}
+
+export interface TaskViewModel {
+  readonly activeTasks: readonly TaskItemViewModel[];
+  readonly availableConfigs: readonly TaskConfigViewModel[];
+  readonly activeCount: number;
+  readonly maxConcurrent: number;
+  readonly canStartMore: boolean;
+}
+
+export interface TaskConfigViewModel {
+  readonly configId: string;
+  readonly type: 'DAILY' | 'WORK' | 'CULTIVATION' | 'EVENT';
+  readonly name: string;
+  readonly description: string;
+  readonly durationSeconds: number;
+  readonly rewards: ReadonlyArray<{ readonly type: string; readonly amount: number }>;
+}
+
+// ── Idle Efficiency (WEB V1) ────────────────────────────────────────────────
+
+export interface IdleViewModel {
+  readonly workMode: WorkMode;
+  readonly isFishingMode: boolean;
+  readonly salaryEfficiency: number;
+  readonly performanceEfficiency: number;
+  readonly mindRecoveryEfficiency: number;
+  readonly cultivationEfficiency: number;
+  readonly isWorkIncomeStopped: boolean;
+  readonly mindRatio: number;
+  readonly mindStatusText: string;
+  readonly sectModifier: number;
+  readonly overallEfficiency: number;
+  readonly breakdown: IdleEfficiencyBreakdown;
+}
+
+// ── Leaderboard (WEB V1) ────────────────────────────────────────────────────
+
+export interface LeaderboardViewModel {
+  readonly entries: readonly LeaderboardEntry[];
+  readonly playerRank: number;
+  readonly totalEntries: number;
+  readonly lastUpdated: number;
+  readonly top3: readonly LeaderboardEntry[];
+  readonly aroundPlayer: readonly LeaderboardEntry[];
+}
+
+// ── Friends (WEB V1) ────────────────────────────────────────────────────────
+
+export interface FriendsViewModel {
+  readonly friends: readonly FriendEntry[];
+  readonly totalFriends: number;
+  readonly onlineCount: number;
+  readonly giftsToSend: number;
+  readonly giftsToClaim: number;
+}
+
+// ── Rewarded Ad (WEB V1) ────────────────────────────────────────────────────
+
+export interface RewardedAdViewModel {
+  readonly isWatching: boolean;
+  readonly adsThisHour: number;
+  readonly maxAdsPerHour: number;
+  readonly placementCooldowns: ReadonlyArray<{ readonly placement: AdPlacement; readonly remaining: number }>;
+  readonly canShowPlacements: ReadonlyArray<AdPlacement>;
 }
 
 // ── Mind status text helper ─────────────────────────────────────────────────
@@ -481,7 +579,7 @@ export function buildSettingsViewModel(facade: GameFacade, settingsService: Sett
     performanceMode: settings.performanceMode,
     language: settings.language,
     analyticsConsent: settings.analyticsConsent,
-    saveVersion: 4, // CURRENT_SAVE_VERSION
+    saveVersion: CURRENT_SAVE_VERSION,
     lastSaveTime: snap.lastSaveTime,
   });
 }
@@ -517,5 +615,151 @@ export function buildSectViewModel(facade: GameFacade): SectViewModel {
     currentSectId: snap.sectId,
     currentSectName: currentSect ? currentSect.name : '散修',
     sects: Object.freeze(sects),
+  });
+}
+
+// ── WEB V1 Builder functions ────────────────────────────────────────────────
+
+/** Build CultivationViewModel from GameFacade. */
+export function buildCultivationViewModel(facade: GameFacade): CultivationViewModel {
+  const snap = facade.snapshot();
+  const career = facade.queryCareer();
+  const cooldown = facade.queryCultivationCooldown();
+  const mindEff = facade.queryMindEfficiency();
+  const cultivationEff = snap.cultivationEfficiency;
+
+  return Object.freeze({
+    cultivationExp: snap.cultivationExp,
+    cultivationRequired: career.requiredExp,
+    cultivationProgress: career.requiredExp > 0 ? Math.min(1, snap.cultivationExp / career.requiredExp) : 0,
+    cooldownRemaining: cooldown,
+    mindEfficiency: mindEff,
+    cultivationEfficiency: cultivationEff,
+    mindStatusText: mindStatusText(snap.mind, snap.maxMind),
+    canCultivate: cooldown <= 0 && snap.mind > 0,
+  });
+}
+
+/** Build TaskViewModel from GameFacade. */
+export function buildTaskViewModel(facade: GameFacade): TaskViewModel {
+  const snap = facade.snapshot();
+  const configs = facade.queryTaskConfigs();
+  const activeTasks = snap.activeTasks;
+  const MAX_CONCURRENT = 3;
+
+  const taskItems: TaskItemViewModel[] = activeTasks.map((t) => {
+    const remaining = facade.queryTaskRemaining(t.taskId);
+    const duration = t.durationSeconds;
+    const progress = duration > 0 ? Math.min(1, (duration - remaining) / duration) : 0;
+    return Object.freeze({
+      taskId: t.taskId,
+      configId: t.taskId, // taskId serves as configId reference
+      type: t.taskType,
+      name: t.name,
+      description: t.description,
+      durationSeconds: duration,
+      remainingSeconds: remaining,
+      progress,
+      completed: t.completed,
+      claimed: t.claimed,
+      rewards: Object.freeze([
+        ...(t.rewardSalary > 0 ? [Object.freeze({ type: 'salary', amount: t.rewardSalary })] : []),
+        ...(t.rewardCultivation > 0 ? [Object.freeze({ type: 'cultivation', amount: t.rewardCultivation })] : []),
+        ...(t.rewardSpiritStones > 0 ? [Object.freeze({ type: 'spiritStones', amount: t.rewardSpiritStones })] : []),
+      ]),
+    });
+  });
+
+  const availableConfigs: TaskConfigViewModel[] = configs.map((c) =>
+    Object.freeze({
+      configId: c.id,
+      type: c.type,
+      name: c.name,
+      description: c.description,
+      durationSeconds: c.durationSeconds,
+      rewards: Object.freeze([
+        ...(c.rewardSalary > 0 ? [Object.freeze({ type: 'salary', amount: c.rewardSalary })] : []),
+        ...(c.rewardCultivation > 0 ? [Object.freeze({ type: 'cultivation', amount: c.rewardCultivation })] : []),
+        ...(c.rewardSpiritStones > 0 ? [Object.freeze({ type: 'spiritStones', amount: c.rewardSpiritStones })] : []),
+      ]),
+    }),
+  );
+
+  return Object.freeze({
+    activeTasks: Object.freeze(taskItems),
+    availableConfigs: Object.freeze(availableConfigs),
+    activeCount: activeTasks.length,
+    maxConcurrent: MAX_CONCURRENT,
+    canStartMore: activeTasks.length < MAX_CONCURRENT,
+  });
+}
+
+/** Build IdleViewModel from GameFacade. */
+export function buildIdleViewModel(facade: GameFacade): IdleViewModel {
+  const snap = facade.snapshot();
+  const breakdown = facade.queryIdleEfficiency();
+
+  return Object.freeze({
+    workMode: snap.workMode,
+    isFishingMode: snap.isFishingMode,
+    salaryEfficiency: snap.salaryEfficiency,
+    performanceEfficiency: snap.performanceEfficiency,
+    mindRecoveryEfficiency: snap.mindRecoveryEfficiency,
+    cultivationEfficiency: snap.cultivationEfficiency,
+    isWorkIncomeStopped: snap.isWorkIncomeStopped,
+    mindRatio: breakdown.mindRatio,
+    mindStatusText: breakdown.statusText,
+    sectModifier: breakdown.sectModifier,
+    overallEfficiency: breakdown.overall,
+    breakdown: Object.freeze({ ...breakdown }),
+  });
+}
+
+/** Build LeaderboardViewModel from GameFacade. */
+export function buildLeaderboardViewModel(facade: GameFacade): LeaderboardViewModel {
+  const view = facade.queryLeaderboard();
+
+  return Object.freeze({
+    entries: view.entries,
+    playerRank: view.playerRank,
+    totalEntries: view.totalEntries,
+    lastUpdated: view.lastUpdated,
+    top3: Object.freeze(view.entries.slice(0, 3)),
+    aroundPlayer: Object.freeze([...facade.queryLeaderboardAroundPlayer(5)]),
+  });
+}
+
+/** Build FriendsViewModel from GameFacade. */
+export function buildFriendsViewModel(facade: GameFacade): FriendsViewModel {
+  const view = facade.queryFriends();
+
+  return Object.freeze({
+    friends: view.friends,
+    totalFriends: view.totalFriends,
+    onlineCount: view.onlineCount,
+    giftsToSend: view.giftsToSend,
+    giftsToClaim: view.giftsToClaim,
+  });
+}
+
+/** Build RewardedAdViewModel from GameFacade. */
+export function buildRewardedAdViewModel(facade: GameFacade): RewardedAdViewModel {
+  const PLACEMENTS: AdPlacement[] = [
+    'TASK_SPEEDUP', 'TASK_DOUBLE_REWARD', 'OFFLINE_DOUBLE',
+    'MIND_RECOVERY', 'PROMOTION_RETRY', 'CULTIVATION_BOOST', 'MERGE_HINT',
+  ];
+
+  const placementCooldowns = PLACEMENTS.map((p) =>
+    Object.freeze({ placement: p, remaining: facade.queryRewardedAdCooldown(p) }),
+  );
+
+  const canShowPlacements = PLACEMENTS.filter((p) => facade.canShowRewardedAd(p));
+
+  return Object.freeze({
+    isWatching: facade.isRewardedAdWatching(),
+    adsThisHour: 0, // facade doesn't expose this directly yet
+    maxAdsPerHour: 10,
+    placementCooldowns: Object.freeze(placementCooldowns),
+    canShowPlacements: Object.freeze(canShowPlacements),
   });
 }

@@ -21,16 +21,16 @@ function testHourlyAndEightHourCap(): void {
   const idle = new IdleService(context, { clock });
 
   clock.set(1_000 + 60 * 60 * 1_000);
-  assert.deepEqual(idle.settle('one-hour'), { salary: 10, cultivationExp: 5, elapsedSeconds: 3600, capped: false, duplicate: false });
+  assert.deepEqual(idle.settle('one-hour'), { salary: 10, cultivationExp: 5, spiritStones: 6, elapsedSeconds: 3600, capped: false, duplicate: false });
   clock.set(1_000 + 12 * 60 * 60 * 1_000);
-  assert.deepEqual(idle.settle('twelve-hour'), { salary: 80, cultivationExp: 40, elapsedSeconds: 28800, capped: true, duplicate: false });
-  assert.deepEqual(idle.settle('after-cap'), { salary: 0, cultivationExp: 0, elapsedSeconds: 0, capped: false, duplicate: false });
+  assert.deepEqual(idle.settle('twelve-hour'), { salary: 80, cultivationExp: 40, spiritStones: 48, elapsedSeconds: 28800, capped: true, duplicate: false });
+  assert.deepEqual(idle.settle('after-cap'), { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, duplicate: false });
 
   const exact = createContext();
   exact.context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
   const exactIdle = new IdleService(exact.context, { clock: exact.clock });
   exact.clock.set(1_000 + 8 * 60 * 60 * 1_000);
-  assert.deepEqual(exactIdle.settle('eight-hour'), { salary: 80, cultivationExp: 40, elapsedSeconds: 28800, capped: false, duplicate: false });
+  assert.deepEqual(exactIdle.settle('eight-hour'), { salary: 80, cultivationExp: 40, spiritStones: 48, elapsedSeconds: 28800, capped: false, duplicate: false });
 }
 
 function testZeroNegativeAndClockRollbackEmitAnomaly(): void {
@@ -52,7 +52,7 @@ function testSettlementIdPreventsDuplicateGrant(): void {
   const idle = new IdleService(context, { clock });
   clock.advance(3600 * 1000);
   assert.equal(idle.settle('same').salary, 10);
-  assert.deepEqual(idle.settle('same'), { salary: 0, cultivationExp: 0, elapsedSeconds: 0, capped: false, duplicate: true });
+  assert.deepEqual(idle.settle('same'), { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, duplicate: true });
   assert.equal(context.player.salary, 10);
 }
 
