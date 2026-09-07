@@ -1,25 +1,23 @@
 /**
- * TutorialOverlayComponent — Phase 5 tutorial highlight/pointer/mask overlay.
+ * TutorialOverlayComponent — WEB V1 new-player onboarding overlay.
  *
- * Renders a semi-transparent mask with a "hole" cutout highlighting the
- * target node for the current tutorial step. Shows a pointer arrow and
- * instruction text. Supports "Next" and "Skip" actions.
+ * Shows step-by-step guidance for the first 6 tutorial steps:
+ *   FIRST_RECRUIT → SECOND_RECRUIT → FIRST_MERGE → START_WORK → CHECK_KPI → FIRST_PROMOTION
  *
- * 6-step tutorial flow:
- *   1. FIRST_RECRUIT  → highlight recruit button
- *   2. SECOND_RECRUIT → highlight recruit button again
- *   3. FIRST_MERGE    → highlight merge board cell
- *   4. START_WORK     → highlight work mode toggle
- *   5. CHECK_KPI      → highlight KPI panel
- *   6. FIRST_PROMOTION → highlight promote button
+ * Subscribes to TUTORIAL_CHANGED events and auto-updates.
+ * Player can advance (confirm) or skip the tutorial entirely.
  */
 
 import { _decorator, Component } from 'cc';
 import * as Cocos from 'cc';
+import { CocosBootstrapComponent } from '../core/cocos-bootstrap-component';
 import { SceneBindingComponent } from './scene-binding-component';
+import {
+  buildTutorialViewModel,
+  type TutorialViewModel,
+} from './view-models';
 import type { GameFacade } from '../facade/game-facade';
 import type { TutorialStep } from '../services/tutorial-service';
-import type { UiEventCategory } from '../facade/ui-event-types';
 
 const { ccclass } = _decorator;
 const property = (value: unknown): any => {
@@ -29,97 +27,76 @@ const property = (value: unknown): any => {
 const resolveCocosType = (name: string): unknown =>
   (Cocos as unknown as Record<string, unknown>)[name] ?? `cc.${name}`;
 
-// ── Cocos Node Interfaces ───────────────────────────────────────────────────
-
-interface TextLike { string: string; }
+interface TextLike { string: string; active?: boolean; }
 interface ButtonLike {
   on?: (event: string, callback: () => void, target?: unknown) => void;
   off?: (event: string, callback: () => void, target?: unknown) => void;
   interactable?: boolean;
 }
-interface SceneNodeLike {
-  name?: string;
-  children?: readonly SceneNodeLike[];
-  parent?: SceneNodeLike;
+interface NodeLike {
   active?: boolean;
-  getChildByName?: (name: string) => SceneNodeLike | null;
+  name?: string;
+  children?: readonly NodeLike[];
+  getChildByName?: (name: string) => NodeLike | null;
   getComponent?: (type: unknown) => unknown;
-  setPosition?: (pos: { x: number; y: number; z?: number }) => void;
 }
 
-// ── Step configuration ──────────────────────────────────────────────────────
+// ── Step descriptions ───────────────────────────────────────────────────────
 
-interface TutorialStepConfig {
-  readonly targetNodeName: string;
-  readonly instruction: string;
-  readonly pointerDirection: 'up' | 'down' | 'left' | 'right';
-}
-
-const STEP_CONFIGS: Record<TutorialStep, TutorialStepConfig> = {
+const STEP_INFO: Record<TutorialStep | 'NONE', { title: string; hint: string }> = {
   FIRST_RECRUIT: {
-    targetNodeName: 'RecruitButton',
-    instruction: '点击招募按钮，雇佣你的第一个牛马！',
-    pointerDirection: 'down',
+    title: '招募第一位员工',
+    hint: '点击空位招募你的第一位员工吧！',
   },
   SECOND_RECRUIT: {
-    targetNodeName: 'RecruitButton',
-    instruction: '再招募一个牛马，准备合成！',
-    pointerDirection: 'down',
+    title: '招募第二位员工',
+    hint: '继续招募，让团队壮大起来！',
   },
   FIRST_MERGE: {
-    targetNodeName: 'MergeBoard',
-    instruction: '拖拽一个牛马到另一个相同等级的牛马上，完成合成！',
-    pointerDirection: 'up',
+    title: '首次合成升级',
+    hint: '将两个相同等级的员工拖拽到一起，合成更高级的员工！',
   },
   START_WORK: {
-    targetNodeName: 'WorkModeButton',
-    instruction: '点击切换到认真上班模式！',
-    pointerDirection: 'down',
+    title: '开始工作',
+    hint: '点击"工作"按钮，开始赚取灵石！',
   },
   CHECK_KPI: {
-    targetNodeName: 'KpiPanel',
-    instruction: '查看你的KPI进度，了解晋升条件！',
-    pointerDirection: 'up',
+    title: '查看KPI',
+    hint: '打开KPI面板，查看你的绩效目标！',
   },
   FIRST_PROMOTION: {
-    targetNodeName: 'PromoteButton',
-    instruction: 'KPI已达标，尝试渡劫晋升！',
-    pointerDirection: 'down',
+    title: '首次晋升',
+    hint: '前往晋升页面，尝试渡劫晋升！',
+  },
+  NONE: {
+    title: '教程完成',
+    hint: '恭喜！你已经掌握了基本操作，继续探索吧！',
   },
 };
-
-// ── Refresh categories ──────────────────────────────────────────────────────
-
-const TUTORIAL_REFRESH_CATEGORIES: readonly UiEventCategory[] = [
-  'TUTORIAL_CHANGED',
-  'STATE_CHANGED',
-];
-
-// ── Component ────────────────────────────────────────────────────────────────
 
 @ccclass('TutorialOverlay')
 export class TutorialOverlayComponent extends Component {
   // ── Scene-bound properties ────────────────────────────────────────────────
 
-  /** The mask overlay node (full-screen semi-transparent) */
+  /** Overlay root (toggle visibility) */
   @property(resolveCocosType('Node'))
-  public maskNode?: SceneNodeLike;
+  public overlayNode?: NodeLike;
 
-  /** The highlight cutout node (positioned over target) */
-  @property(resolveCocosType('Node'))
-  public highlightNode?: SceneNodeLike;
-
-  /** Instruction text label */
+  /** Step title label */
   @property(resolveCocosType('Label'))
-  public instructionLabel?: TextLike;
+  public titleLabel?: TextLike;
 
-  /** Step indicator label (e.g., "3/6") */
+  /** Step hint label */
   @property(resolveCocosType('Label'))
-  public stepLabel?: TextLike;
+  public hintLabel?: TextLike;
 
-  /** Next button */
+  /** Progress label (e.g. "2/6") */
+  @property(resolveCocosType('Label'))
+  public progressLabel?: TextLike;
+
+  /** Advance / confirm button */
   @property(resolveCocosType('Button'))
-  public nextButton?: ButtonLike;
+  public advanceButton?: ButtonLike;
 
   /** Skip button */
   @property(resolveCocosType('Button'))
@@ -128,27 +105,28 @@ export class TutorialOverlayComponent extends Component {
   // ── Internal state ────────────────────────────────────────────────────────
 
   private facade: GameFacade | null = null;
-  private currentStep: TutorialStep | 'NONE' = 'NONE';
-  private stepIndex = -1;
-  private totalSteps = 6;
-  private unsubs: Array<() => void> = [];
+  private viewModel: TutorialViewModel | null = null;
   private disposed = false;
+  private unsub: (() => void) | null = null;
 
   // ── Cocos Lifecycle ───────────────────────────────────────────────────────
 
   protected onLoad(): void {
-    const binding = SceneBindingComponent.instance;
-    if (!binding) {
-      throw new Error('TutorialOverlayComponent requires SceneBindingComponent');
+    const bootstrap = CocosBootstrapComponent.instance;
+    if (!bootstrap?.facade) {
+      throw new Error('TutorialOverlayComponent requires CocosBootstrapComponent with facade');
     }
-    this.facade = binding.getFacade();
+    this.facade = bootstrap.facade;
 
     // Bind buttons
-    this.nextButton?.on?.('click', this.onNext, this);
+    this.advanceButton?.on?.('click', this.onAdvance, this);
     this.skipButton?.on?.('click', this.onSkip, this);
 
     // Subscribe to tutorial events
-    this.subscribeEvents();
+    const unsub = this.facade.onUiEvent('TUTORIAL_CHANGED', () => {
+      if (!this.disposed) this.refresh();
+    });
+    this.unsub = unsub;
 
     // Initial render
     this.refresh();
@@ -156,134 +134,77 @@ export class TutorialOverlayComponent extends Component {
 
   protected onDestroy(): void {
     this.disposed = true;
-    for (const unsub of this.unsubs) unsub();
-    this.unsubs.length = 0;
-    this.nextButton?.off?.('click', this.onNext, this);
+    this.advanceButton?.off?.('click', this.onAdvance, this);
     this.skipButton?.off?.('click', this.onSkip, this);
+    if (this.unsub) {
+      this.unsub();
+      this.unsub = null;
+    }
     this.facade = null;
   }
 
-  // ── Public API ────────────────────────────────────────────────────────────
+  // ── Refresh ───────────────────────────────────────────────────────────────
 
-  /** Get current tutorial step. */
-  public getCurrentStep(): TutorialStep | 'NONE' {
-    return this.currentStep;
-  }
-
-  /** Force refresh from facade state. */
   public refresh(): void {
     if (!this.facade || this.disposed) return;
-    const tutorial = this.facade.queryTutorial();
-    this.currentStep = tutorial.currentStep;
-    this.stepIndex = tutorial.stepIndex;
-    this.totalSteps = tutorial.steps.length;
-
-    if (tutorial.isCompleted || this.currentStep === 'NONE') {
-      this.hideOverlay();
-      return;
-    }
-
-    this.renderStep(this.currentStep);
-    this.showOverlay();
+    this.viewModel = buildTutorialViewModel(this.facade);
+    this.render();
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  private renderStep(step: TutorialStep): void {
-    const config = STEP_CONFIGS[step];
-    if (!config) {
-      this.hideOverlay();
+  private render(): void {
+    if (!this.viewModel) return;
+    const vm = this.viewModel;
+
+    // Hide overlay when tutorial is completed
+    if (vm.isCompleted) {
+      this.hide();
       return;
     }
 
-    // Update instruction text
-    this.setText(this.instructionLabel, config.instruction);
+    this.show();
 
-    // Update step indicator
-    this.setText(this.stepLabel, `${this.stepIndex + 1}/${this.totalSteps}`);
+    // Step info
+    const info = STEP_INFO[vm.currentStep] ?? STEP_INFO.NONE;
+    if (this.titleLabel) this.titleLabel.string = info.title;
+    if (this.hintLabel) this.hintLabel.string = info.hint;
 
-    // Position highlight over target node
-    this.positionHighlight(config.targetNodeName);
-  }
-
-  private positionHighlight(targetNodeName: string): void {
-    // Find the target node in the scene hierarchy
-    const targetNode = this.findNodeByName(targetNodeName);
-    if (targetNode && this.highlightNode) {
-      // Position highlight over the target
-      const pos = (targetNode as any).position;
-      if (pos) {
-        this.highlightNode.setPosition?.({ x: pos.x, y: pos.y, z: 0 });
-      }
-      this.highlightNode.active = true;
-    } else if (this.highlightNode) {
-      // Target not found — center the highlight
-      this.highlightNode.setPosition?.({ x: 375, y: 667, z: 0 });
-      this.highlightNode.active = true;
+    // Progress
+    if (this.progressLabel) {
+      this.progressLabel.string = `${vm.stepIndex + 1}/${vm.totalSteps}`;
     }
   }
 
-  // ── Event Subscription ────────────────────────────────────────────────────
+  // ── Actions ───────────────────────────────────────────────────────────────
 
-  private subscribeEvents(): void {
-    if (!this.facade) return;
-    for (const category of TUTORIAL_REFRESH_CATEGORIES) {
-      const unsub = this.facade.onUiEvent(category, () => {
-        if (!this.disposed) this.refresh();
-      });
-      this.unsubs.push(unsub);
-    }
-  }
-
-  // ── Handlers ──────────────────────────────────────────────────────────────
-
-  private readonly onNext = (): void => {
-    if (!this.facade) return;
+  private onAdvance(): void {
+    if (!this.facade || this.disposed) return;
     this.facade.advanceTutorial();
-  };
+    SceneBindingComponent.instance?.showToast('教程步骤完成！', 'SUCCESS');
+  }
 
-  private readonly onSkip = (): void => {
-    if (!this.facade) return;
+  private onSkip(): void {
+    if (!this.facade || this.disposed) return;
+    SceneBindingComponent.instance?.showModal({
+      entityId: 'tutorial-skip',
+      type: 'CONFIRM',
+      payload: { message: '确定跳过新手教程？' },
+      dismissible: true,
+    });
+    // The modal will call back; we also skip directly as a fallback
     this.facade.skipTutorial();
-  };
-
-  // ── Overlay Visibility ────────────────────────────────────────────────────
-
-  private showOverlay(): void {
-    if (this.maskNode) this.maskNode.active = true;
-    this.node && ((this.node as any).active = true);
+    this.hide();
+    SceneBindingComponent.instance?.showToast('已跳过教程', 'INFO');
   }
 
-  private hideOverlay(): void {
-    if (this.maskNode) this.maskNode.active = false;
-    if (this.highlightNode) this.highlightNode.active = false;
-    this.node && ((this.node as any).active = false);
+  // ── Visibility ────────────────────────────────────────────────────────────
+
+  private show(): void {
+    if (this.overlayNode) this.overlayNode.active = true;
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  private findNodeByName(name: string): SceneNodeLike | null {
-    // Walk up to scene root and search
-    let current: SceneNodeLike | undefined = this.node as any;
-    while ((current as any)?.parent) {
-      current = (current as any).parent;
-    }
-    return this.findInChildren(current, name);
-  }
-
-  private findInChildren(node: SceneNodeLike | undefined, name: string): SceneNodeLike | null {
-    if (!node) return null;
-    if (node.name === name) return node;
-    if (node.children) {
-      for (const child of node.children) {
-        const found = this.findInChildren(child, name);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
-  private setText(label: TextLike | undefined, text: string): void {
-    if (label) label.string = text;
+  private hide(): void {
+    if (this.overlayNode) this.overlayNode.active = false;
   }
 }

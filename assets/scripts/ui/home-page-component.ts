@@ -37,6 +37,13 @@ import type { NavTab } from './bottom-nav-component';
 import { BottomNavComponent } from './bottom-nav-component';
 import { CultivationPanelComponent } from './cultivation-panel-component';
 import { IdleStatusPanelComponent } from './idle-status-panel-component';
+import { TaskPageComponent } from './task-page-component';
+import { PromotionPageComponent } from './promotion-page-component';
+import { CraftPageComponent } from './craft-page-component';
+import { MorePageComponent } from './more-page-component';
+import { FloatingRewardComponent } from './floating-reward-component';
+import { TutorialOverlayComponent } from './tutorial-overlay-component';
+import { DebugPanelComponent } from './debug-panel-component';
 
 const { ccclass } = _decorator;
 const property = (value: unknown): any => {
@@ -93,6 +100,34 @@ export class HomePageComponent extends Component {
   /** Idle status panel component */
   @property(IdleStatusPanelComponent)
   public idleStatusPanel?: IdleStatusPanelComponent;
+
+  /** Task page component */
+  @property(TaskPageComponent)
+  public taskPage?: TaskPageComponent;
+
+  /** Promotion page component */
+  @property(PromotionPageComponent)
+  public promotionPage?: PromotionPageComponent;
+
+  /** Craft page component */
+  @property(CraftPageComponent)
+  public craftPage?: CraftPageComponent;
+
+  /** More page component */
+  @property(MorePageComponent)
+  public morePage?: MorePageComponent;
+
+  /** Floating reward feedback component */
+  @property(FloatingRewardComponent)
+  public floatingReward?: FloatingRewardComponent;
+
+  /** Tutorial overlay component */
+  @property(TutorialOverlayComponent)
+  public tutorialOverlay?: TutorialOverlayComponent;
+
+  /** Debug panel component */
+  @property(DebugPanelComponent)
+  public debugPanel?: DebugPanelComponent;
 
   /** Container node for page content areas */
   @property(resolveCocosType('Node'))
@@ -157,8 +192,38 @@ export class HomePageComponent extends Component {
     this.idleStatusPanel?.refresh();
     this.bottomNav?.refresh();
 
+    // Refresh active page component
+    this.refreshActivePage();
+
+    // Floating reward is event-driven (no refresh needed)
+    this.tutorialOverlay?.refresh();
+
     // Update page visibility
     this.updatePageVisibility();
+  }
+
+  // ── Active Page Refresh ────────────────────────────────────────────────────
+
+  /** Refresh only the currently active page component. */
+  private refreshActivePage(): void {
+    switch (this.currentTab) {
+      case 'HOME':
+        this.cultivationPanel?.refresh();
+        this.idleStatusPanel?.refresh();
+        break;
+      case 'TASKS':
+        this.taskPage?.refresh();
+        break;
+      case 'CRAFT':
+        // Craft page is a placeholder (no refresh needed)
+        break;
+      case 'PROMOTION':
+        this.promotionPage?.refresh();
+        break;
+      case 'MORE':
+        this.morePage?.refresh();
+        break;
+    }
   }
 
   // ── Tab Change Handling ───────────────────────────────────────────────────
@@ -169,9 +234,23 @@ export class HomePageComponent extends Component {
     this.updatePageVisibility();
 
     // Refresh relevant child when switching to its tab
-    if (tab === 'HOME') {
-      this.cultivationPanel?.refresh();
-      this.idleStatusPanel?.refresh();
+    switch (tab) {
+      case 'HOME':
+        this.cultivationPanel?.refresh();
+        this.idleStatusPanel?.refresh();
+        break;
+      case 'TASKS':
+        this.taskPage?.refresh();
+        break;
+      case 'CRAFT':
+        // Craft page is a placeholder (no refresh needed)
+        break;
+      case 'PROMOTION':
+        this.promotionPage?.refresh();
+        break;
+      case 'MORE':
+        this.morePage?.refresh();
+        break;
     }
   }
 
