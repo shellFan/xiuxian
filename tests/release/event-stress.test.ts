@@ -31,7 +31,7 @@ function makeEvents(count: number, typePrefix = 'POSITIVE'): CareerEventConfig[]
     type: typePrefix as CareerEventConfig['type'],
     title: `Event ${i}`,
     description: `Description ${i}`,
-    effects: { salary: { add: 10 } },
+    effects: { salary: 10 },
   }));
 }
 
@@ -93,8 +93,8 @@ test('Event Stress: same event cannot appear within cooldown', () => {
   const clock = new FakeClock(0);
   const random = new FixedRandomProvider(0.5);
   const events: CareerEventConfig[] = [
-    { id: 'E1', type: 'POSITIVE', title: 'E1', description: 'E1', effects: { salary: { add: 10 } } },
-    { id: 'E2', type: 'POSITIVE', title: 'E2', description: 'E2', effects: { salary: { add: 20 } } },
+    { id: 'E1', type: 'POSITIVE', title: 'E1', description: 'E1', effects: { salary: 10 } },
+    { id: 'E2', type: 'POSITIVE', title: 'E2', description: 'E2', effects: { salary: 20 } },
   ];
   const adapter = new EventRuntimeAdapter(events, {
     clock,
@@ -126,9 +126,9 @@ test('Event Stress: 2 consecutive negatives suppress further negatives', () => {
   const clock = new FakeClock(0);
   const random = new FixedRandomProvider(0.5);
   const events: CareerEventConfig[] = [
-    { id: 'NEG1', type: 'NEGATIVE', title: 'N1', description: 'N1', effects: { salary: { add: -10 } } },
-    { id: 'NEG2', type: 'NEGATIVE', title: 'N2', description: 'N2', effects: { salary: { add: -20 } } },
-    { id: 'POS1', type: 'POSITIVE', title: 'P1', description: 'P1', effects: { salary: { add: 10 } } },
+    { id: 'NEG1', type: 'NEGATIVE', title: 'N1', description: 'N1', effects: { salary: -10 } },
+    { id: 'NEG2', type: 'NEGATIVE', title: 'N2', description: 'N2', effects: { salary: -20 } },
+    { id: 'POS1', type: 'POSITIVE', title: 'P1', description: 'P1', effects: { salary: 10 } },
   ];
   const adapter = new EventRuntimeAdapter(events, {
     clock,
@@ -159,8 +159,8 @@ test('Event Stress: easter egg can only appear once per save', () => {
   const clock = new FakeClock(0);
   const random = new FixedRandomProvider(0.5);
   const events: CareerEventConfig[] = [
-    { id: 'EGG1', type: 'EASTER_EGG', title: 'Egg', description: 'Egg', effects: { salary: { add: 100 } } },
-    { id: 'POS1', type: 'POSITIVE', title: 'P1', description: 'P1', effects: { salary: { add: 10 } } },
+    { id: 'EGG1', type: 'EASTER_EGG', title: 'Egg', description: 'Egg', effects: { salary: 100 } },
+    { id: 'POS1', type: 'POSITIVE', title: 'P1', description: 'P1', effects: { salary: 10 } },
   ];
   const adapter = new EventRuntimeAdapter(events, { clock, randomProvider: random });
 
@@ -286,7 +286,7 @@ test('Event Stress: poll returns undefined when no events are eligible', () => {
   const clock = new FakeClock(0);
   const random = new FixedRandomProvider(0.5);
   const events: CareerEventConfig[] = [
-    { id: 'HIGH1', type: 'POSITIVE', title: 'H1', description: 'H1', effects: { salary: { add: 10 } } },
+    { id: 'HIGH1', type: 'POSITIVE', title: 'H1', description: 'H1', effects: { salary: 10 } },
   ];
   const adapter = new EventRuntimeAdapter(events, {
     clock,

@@ -39,7 +39,7 @@ test('Reward Abuse: cannot request reward while another is in progress', () => {
 
   // Complete the first request
   assert.ok(pendingCallback !== null, 'Should have pending callback');
-  pendingCallback!({ status: 'granted' });
+  (pendingCallback as (result: RewardResult) => void)({ status: 'granted' });
 
   // Now should be able to request again (after microtask reset)
   // Need to wait for microtask
