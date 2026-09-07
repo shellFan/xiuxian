@@ -1,7 +1,7 @@
 {
   "name": "niuma-xiuxian-ai-infrastructure",
   "private": true,
-  "version": "3.8.4",
+  "version": "1.0.0-rc.1",
   "scripts": {
     "ai:start": "tsx tools/orchestrator/src/index.ts start",
     "ai:once": "tsx tools/orchestrator/src/index.ts once",
@@ -24,7 +24,8 @@
     "build:game": "tsc -p tsconfig.game.json --noEmit",
     "build:orchestrator": "tsc -p tools/orchestrator/tsconfig.json --noEmit",
     "build:all": "npm run build:game && npm run build:orchestrator",
-    "phase5:check": "tsc -p tsconfig.game.json --noEmit && node tests/.compiled/tests/phase5/event-runtime-adapter.test.js && node tests/.compiled/tests/phase5/reward-ad-policy.test.js && node tests/.compiled/tests/phase5/phase5-integration.test.js"
+    "phase5:check": "tsc -p tsconfig.game.json --noEmit && node tests/.compiled/tests/phase5/event-runtime-adapter.test.js && node tests/.compiled/tests/phase5/reward-ad-policy.test.js && node tests/.compiled/tests/phase5/phase5-integration.test.js",
+    "release:check": "tsc -p tsconfig.game.json --noEmit && node tests/run-all.cjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",

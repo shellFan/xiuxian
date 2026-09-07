@@ -440,7 +440,7 @@ export function buildOfflineRewardViewModel(facade: GameFacade, settlementId: st
   const preview = facade.queryOfflinePreview(settlementId);
   const isSettled = facade.queryOfflineIsSettled(settlementId);
 
-  if (!preview || preview.duplicate) {
+  if (!preview || preview.duplicate || preview.elapsedSeconds <= 0) {
     return Object.freeze({
       hasReward: false,
       settlementId,
@@ -451,7 +451,7 @@ export function buildOfflineRewardViewModel(facade: GameFacade, settlementId: st
       totalSalary: 0,
       totalCultivation: 0,
       totalMind: 0,
-      isSettled: false,
+      isSettled,
     });
   }
 

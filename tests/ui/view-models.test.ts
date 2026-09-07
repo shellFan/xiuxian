@@ -22,12 +22,15 @@ import {
   mindStatusText,
 } from '../../assets/scripts/ui/view-models';
 import { SettingsService } from '../../assets/scripts/services/settings-service';
+import { FakeClock } from '../../assets/scripts/core/clock';
 
 function createFacade(): GameFacade {
+  const clock = new FakeClock(Date.now());
   return new GameFacade({
     storage: new MemoryStorageAdapter(),
     boardRows: 4,
     boardColumns: 4,
+    clock,
   });
 }
 
@@ -195,12 +198,13 @@ test('buildDailyTaskViewModel: returns task list', () => {
 
 // ── OfflineRewardViewModel ──────────────────────────────────────────────────
 
-test('buildOfflineRewardViewModel: returns no reward for invalid settlement', () => {
+test('buildOfflineRewardViewModel: returns no reward for already-claimed settlement', () => {
   const facade = createFacade();
-  const vm = buildOfflineRewardViewModel(facade, 'nonexistent-id');
-
+  // Mark the settlement as already claimed
+  (facade as any).context.player.lastIdleSettlementId = 'already-claimed-001';
+  const vm = buildOfflineRewardViewModel(facade, 'already-claimed-001');
   assert.equal(vm.hasReward, false);
-  assert.equal(vm.isSettled, false);
+  assert.equal(vm.isSettled, true);
 });
 
 // ── SettingsViewModel ───────────────────────────────────────────────────────

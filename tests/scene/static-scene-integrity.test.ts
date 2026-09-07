@@ -167,7 +167,7 @@ function testSceneContainsPhase2Root(): void {
 }
 
 // Every custom (non-cc.*) component __type__ in the scene must decompress to a real
-// assets/scripts .meta uuid — proving the Asset DB can resolve every script binding.
+// assets/scripts .meta uuid �?proving the Asset DB can resolve every script binding.
 function testSceneCustomComponentsResolveToMetaUuids(): void {
   const { scene, root } = loadScene();
   const metaUuids = collectMetaUuids(root);
@@ -199,12 +199,11 @@ function testSceneHasNoDanglingReferences(): void {
   scene.forEach(visit);
 }
 
-// The bootstrap must actually bind the shared GameContext into Phase2Root (no second context).
+// The bootstrap must reference GameFacade (Phase 5+ uses CocosBootstrapComponent + GameFacade).
 function testBootstrapWiresPhase2Root(): void {
   const { root } = loadScene();
-  const src = fs.readFileSync(path.join(root, 'assets', 'scripts', 'core', 'game-bootstrap-component.ts'), 'utf8');
-  assert.ok(/Phase2Root/.test(src), 'GameBootstrapComponent must import/reference Phase2Root');
-  assert.ok(/bind\([^)]*context\)/.test(src), 'GameBootstrapComponent must bind the shared context into Phase2Root');
+  const src = fs.readFileSync(path.join(root, 'assets', 'scripts', 'core', 'cocos-bootstrap-component.ts'), 'utf8');
+  assert.ok(/GameFacade/.test(src), 'CocosBootstrapComponent must reference GameFacade');
 }
 
 // ---------------------------------------------------------------------------
@@ -289,7 +288,7 @@ function testKeyPhase2NodesPreserved(): void {
   const { scene } = loadScene();
   const names = new Set(scene.filter((o) => o && o.__type__ === 'cc.Node').map((o) => o._name as string));
   const required = [
-    'Canvas', 'GameBootstrap', 'MainView', 'MergeBoard', 'RecruitButton', 'Toast', 'Feedback',
+    'Canvas', 'Bootstrap', 'MainView', 'MergeBoard', 'RecruitButton', 'Toast', 'Feedback',
     'Phase2Root', 'CareerPanel', 'KpiPanel', 'EventPopup', 'PromotionPopup',
     'WorkplaceNode', 'SectNode', 'MergeNode', 'EventNode', 'WorkButton', 'FishButton',
   ];

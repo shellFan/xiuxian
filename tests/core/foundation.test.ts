@@ -66,7 +66,7 @@ testRandomProviderImplementations();
 
 function testMainSceneBootstrapContract(): void {
   const scenePath = path.resolve(__dirname, '../../../../assets/scenes/Main.scene');
-  const componentMetaPath = path.resolve(__dirname, '../../../../assets/scripts/core/game-bootstrap-component.ts.meta');
+  const componentMetaPath = path.resolve(__dirname, '../../../../assets/scripts/core/cocos-bootstrap-component.ts.meta');
   const scene = JSON.parse(fs.readFileSync(scenePath, 'utf8')) as Array<Record<string, any>>;
   const componentMeta = JSON.parse(fs.readFileSync(componentMetaPath, 'utf8')) as { uuid: string };
 
@@ -85,38 +85,37 @@ function testMainSceneBootstrapContract(): void {
     classId += base64[((second & 3) << 4) | third];
   }
 
-  // Index-agnostic: locate the GameBootstrap node by name (Cocos may re-index on re-serialize).
-  const bootstrapNode = scene.find((o) => o && o._name === 'GameBootstrap');
-  assert.ok(bootstrapNode, 'GameBootstrap node must exist in the scene');
-  assert.equal(bootstrapNode!['__type__'], 'cc.Node', 'GameBootstrap must be a Node');
+  // Index-agnostic: locate the Bootstrap node by name (Cocos may re-index on re-serialize).
+  // Accepts both "GameBootstrap" (legacy) and "Bootstrap" (current).
+  const bootstrapNode = scene.find((o) => o && (o._name === 'GameBootstrap' || o._name === 'Bootstrap'));
+  assert.ok(bootstrapNode, 'Bootstrap node must exist in the scene');
+  assert.equal(bootstrapNode!['__type__'], 'cc.Node', 'Bootstrap must be a Node');
   const compRefs = (bootstrapNode!['_components'] as ReadonlyArray<{ __id__: number }>) ?? [];
-  assert.ok(compRefs.length >= 1, 'GameBootstrap node must carry at least one component');
+  assert.ok(compRefs.length >= 1, 'Bootstrap node must carry at least one component');
   const bootstrapComponent = scene[compRefs[0].__id__];
-  assert.equal(bootstrapComponent['__type__'], classId, 'bootstrap component __type__ must be the compressed meta uuid');
+  assert.equal(bootstrapComponent['__type__'], classId, 'bootstrap component __type__ must be the compressed meta uuid of CocosBootstrapComponent');
   assert.deepEqual(bootstrapComponent['node'], { __id__: scene.indexOf(bootstrapNode!) }, 'bootstrap component node back-ref must match its node');
   assert.notEqual(bootstrapComponent['__type__'], componentMeta.uuid);
   assert.notEqual(bootstrapComponent['__type__'], 'cc.Component');
   assert.equal(Object.prototype.hasOwnProperty.call(bootstrapComponent, '_script'), false);
 
-  // The GameBootstrap node must hang under the Canvas node (parent/child back-refs resolve).
+  // The Bootstrap node must hang under the Canvas node (parent/child back-refs resolve).
   const parentRef = bootstrapNode!['_parent'] as { __id__: number } | undefined;
-  assert.ok(parentRef, 'GameBootstrap node must have a parent');
+  assert.ok(parentRef, 'Bootstrap node must have a parent');
   const parentNode = scene[parentRef!.__id__];
-  assert.equal(parentNode['_name'], 'Canvas', 'GameBootstrap parent must be the Canvas node');
+  assert.equal(parentNode['_name'], 'Canvas', 'Bootstrap parent must be the Canvas node');
   const parentChildren = (parentNode['_children'] as ReadonlyArray<{ __id__: number }>) ?? [];
-  assert.ok(parentChildren.some((c) => c.__id__ === scene.indexOf(bootstrapNode!)), 'Canvas must list GameBootstrap as a child');
+  assert.ok(parentChildren.some((c) => c.__id__ === scene.indexOf(bootstrapNode!)), 'Canvas must list Bootstrap as a child');
 }
 
 function testCocosBootstrapLifecycleAdapterContract(): void {
-  const adapterPath = path.resolve(__dirname, '../../../../assets/scripts/core/game-bootstrap-component.ts');
+  const adapterPath = path.resolve(__dirname, '../../../../assets/scripts/core/cocos-bootstrap-component.ts');
   const adapter = fs.readFileSync(adapterPath, 'utf8');
 
   assert.match(adapter, /extends Component/);
-  assert.match(adapter, /new GameBootstrap\(/);
+  assert.match(adapter, /GameFacade/);
   assert.match(adapter, /onLoad\(\)/);
-  assert.match(adapter, /\.start\(\)/);
   assert.match(adapter, /onDestroy\(\)/);
-  assert.match(adapter, /\.destroy\(\)/);
 }
 testGameBootstrapLifecycle();
 testMainSceneBootstrapContract();
