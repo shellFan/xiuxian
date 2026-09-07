@@ -25,7 +25,8 @@
     "build:orchestrator": "tsc -p tools/orchestrator/tsconfig.json --noEmit",
     "build:all": "npm run build:game && npm run build:orchestrator",
     "phase5:check": "tsc -p tsconfig.game.json --noEmit && node tests/.compiled/tests/phase5/event-runtime-adapter.test.js && node tests/.compiled/tests/phase5/reward-ad-policy.test.js && node tests/.compiled/tests/phase5/phase5-integration.test.js",
-    "release:check": "tsc -p tsconfig.game.json --noEmit && node tests/run-all.cjs"
+    "release:check": "tsc -p tsconfig.game.json --noEmit && node tests/run-all.cjs",
+    "web-v1:check": "node scripts/check-web-v1-scene.cjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",
