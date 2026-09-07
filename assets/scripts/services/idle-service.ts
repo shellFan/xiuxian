@@ -7,30 +7,35 @@ export interface IdleServiceOptions {
   readonly maxOfflineSeconds?: number;
   readonly salaryPerHour?: number | readonly number[];
   readonly cultivationPerHour?: number | readonly number[];
+  readonly spiritStonesPerHour?: number;
 }
 
 export interface IdleSettlementResult {
   readonly salary: number;
   readonly cultivationExp: number;
+  readonly spiritStones: number;
   readonly elapsedSeconds: number;
   readonly capped: boolean;
   readonly duplicate: boolean;
 }
 
-const ZERO_RESULT: IdleSettlementResult = { salary: 0, cultivationExp: 0, elapsedSeconds: 0, capped: false, duplicate: false };
+const ZERO_RESULT: IdleSettlementResult = { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, duplicate: false };
 
 export class IdleService {
   private readonly clock: Clock;
   private readonly maxOfflineSeconds: number;
   private readonly salaryPerHour: readonly number[];
   private readonly cultivationPerHour: readonly number[];
+  private readonly spiritStonesPerHour: number;
 
   public constructor(private readonly context: GameContext, options: IdleServiceOptions = {}) {
     this.clock = options.clock ?? DEFAULT_CLOCK;
     this.maxOfflineSeconds = options.maxOfflineSeconds ?? idleConfig.maxOfflineSeconds;
     this.salaryPerHour = normalizeRates(options.salaryPerHour ?? idleConfig.salaryPerHour, 'salary');
     this.cultivationPerHour = normalizeRates(options.cultivationPerHour ?? idleConfig.cultivationPerHour, 'cultivation');
+    this.spiritStonesPerHour = options.spiritStonesPerHour ?? 6;
     if (!Number.isSafeInteger(this.maxOfflineSeconds) || this.maxOfflineSeconds <= 0) throw new Error('Invalid idle duration');
+    if (!Number.isFinite(this.spiritStonesPerHour) || this.spiritStonesPerHour < 0) throw new Error('Invalid spirit stones rate');
   }
 
   public settle(settlementId: string): IdleSettlementResult {
@@ -41,23 +46,28 @@ export class IdleService {
       this.context.events.emit('clockAnomaly', { code: 'CLOCK_ANOMALY', now: eligible.now, lastSaveTime: this.context.player.lastSaveTime });
       return ZERO_RESULT;
     }
-    const { salary, cultivationExp, elapsedSeconds, capped, now } = eligible;
+    const { salary, cultivationExp, spiritStones, elapsedSeconds, capped, now } = eligible;
     const previous = {
       salary: this.context.player.salary,
       cultivationExp: this.context.player.cultivationExp,
+      spiritStones: this.context.player.spiritStones,
       lastSaveTime: this.context.player.lastSaveTime,
       lastIdleSettlementId: this.context.player.lastIdleSettlementId,
     };
     let salaryApplied = false;
     let cultivationApplied = false;
+    let spiritStonesApplied = false;
     try {
       this.context.economy.applyIdleSalary(salary);
       salaryApplied = true;
       this.context.cultivation.applyIdleExperience(cultivationExp);
       cultivationApplied = true;
-      if (!Number.isSafeInteger(this.context.player.salary) || !Number.isSafeInteger(this.context.player.cultivationExp)) throw new Error('Invalid idle reward');
+      this.context.player.spiritStones += spiritStones;
+      spiritStonesApplied = true;
+      if (!Number.isSafeInteger(this.context.player.salary) || !Number.isSafeInteger(this.context.player.cultivationExp) || !Number.isSafeInteger(this.context.player.spiritStones)) throw new Error('Invalid idle reward');
       this.context.saveService.saveIdleSettlement(this.context.player, settlementId, now);
     } catch (error) {
+      if (spiritStonesApplied) this.context.player.spiritStones = previous.spiritStones;
       if (cultivationApplied) this.context.cultivation.rollbackIdleExperience(cultivationExp);
       if (salaryApplied) this.context.economy.rollbackIdleSalary(salary);
       this.context.player.lastSaveTime = previous.lastSaveTime;
@@ -66,11 +76,12 @@ export class IdleService {
     }
     try {
       if (salary > 0) this.context.events.emit('salaryChanged', { amount: salary, total: this.context.player.salary });
-      this.context.events.emit('idleSettled', { settlementId, salary, cultivationExp, elapsedSeconds, capped });
+      if (spiritStones > 0) this.context.events.emit('spiritStonesChanged', { amount: spiritStones, total: this.context.player.spiritStones });
+      this.context.events.emit('idleSettled', { settlementId, salary, cultivationExp, spiritStones, elapsedSeconds, capped });
       this.context.events.emit('offlineRewardChanged', { settlementId, doubled: false });
       this.context.events.emit('gameSaved', { reason: 'idle' });
     } catch { /* UI feedback cannot undo a committed transaction. */ }
-    return { salary, cultivationExp, elapsedSeconds, capped, duplicate: false };
+    return { salary, cultivationExp, spiritStones, elapsedSeconds, capped, duplicate: false };
   }
 
   /** Returns the would-be settlement amounts without granting or persisting (used by the offline popup preview). */
@@ -79,7 +90,7 @@ export class IdleService {
     if (this.context.player.lastIdleSettlementId === settlementId) return { ...ZERO_RESULT, duplicate: true };
     const eligible = this.computeEligible();
     if (eligible.anomaly) return ZERO_RESULT;
-    return { salary: eligible.salary, cultivationExp: eligible.cultivationExp, elapsedSeconds: eligible.elapsedSeconds, capped: eligible.capped, duplicate: false };
+    return { salary: eligible.salary, cultivationExp: eligible.cultivationExp, spiritStones: eligible.spiritStones, elapsedSeconds: eligible.elapsedSeconds, capped: eligible.capped, duplicate: false };
   }
 
   /** Persists the settlement id (marks the offline reward as claimed) without granting a reward. */
@@ -88,18 +99,19 @@ export class IdleService {
     this.context.saveService.saveIdleSettlement(this.context.player, settlementId, this.clock.now());
   }
 
-  private computeEligible(): { salary: number; cultivationExp: number; elapsedSeconds: number; capped: boolean; anomaly: boolean; now: number } {
+  private computeEligible(): { salary: number; cultivationExp: number; spiritStones: number; elapsedSeconds: number; capped: boolean; anomaly: boolean; now: number } {
     const now = this.clock.now();
     const deltaMilliseconds = now - this.context.player.lastSaveTime;
     if (!Number.isFinite(now) || !Number.isFinite(deltaMilliseconds) || deltaMilliseconds <= 0) {
-      return { salary: 0, cultivationExp: 0, elapsedSeconds: 0, capped: false, anomaly: true, now };
+      return { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, anomaly: true, now };
     }
     const rawSeconds = deltaMilliseconds / 1000;
     const elapsedSeconds = Math.min(rawSeconds, this.maxOfflineSeconds);
     const capped = rawSeconds > this.maxOfflineSeconds;
     const salary = Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600);
     const cultivationExp = Math.floor(this.rateForBoard(this.cultivationPerHour) * elapsedSeconds / 3600);
-    return { salary, cultivationExp, elapsedSeconds, capped, anomaly: false, now };
+    const spiritStones = Math.floor(this.spiritStonesPerHour * elapsedSeconds / 3600);
+    return { salary, cultivationExp, spiritStones, elapsedSeconds, capped, anomaly: false, now };
   }
 
   private rateForBoard(rates: readonly number[]): number {

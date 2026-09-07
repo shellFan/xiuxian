@@ -7,7 +7,7 @@
  * sees a consistent point-in-time view.
  */
 
-import type { WorkMode, DailySignInState, DailyTaskState } from '../model/save-data';
+import type { WorkMode, DailySignInState, DailyTaskState, ActiveTaskState } from '../model/save-data';
 
 /** Readonly snapshot of all player-visible state. Frozen after creation. */
 export interface GameSnapshot {
@@ -35,6 +35,9 @@ export interface GameSnapshot {
   readonly lastSaveTime: number;
   readonly workerCount: number;
   readonly mindStatus: 'NORMAL' | 'BREAKDOWN';
+  readonly spiritStones: number;
+  readonly lastCultivateTime: number;
+  readonly activeTasks: readonly ActiveTaskState[];
 }
 
 /** Build a snapshot from raw player data fields. */
@@ -69,7 +72,9 @@ export function snapshotEqual(a: GameSnapshot, b: GameSnapshot): boolean {
     a.tutorialCompleted !== b.tutorialCompleted ||
     a.lastSaveTime !== b.lastSaveTime ||
     a.workerCount !== b.workerCount ||
-    a.mindStatus !== b.mindStatus
+    a.mindStatus !== b.mindStatus ||
+    a.spiritStones !== b.spiritStones ||
+    a.lastCultivateTime !== b.lastCultivateTime
   ) {
     return false;
   }
@@ -77,5 +82,6 @@ export function snapshotEqual(a: GameSnapshot, b: GameSnapshot): boolean {
   if (a.unlockedAchievementIds.length !== b.unlockedAchievementIds.length) return false;
   if (a.claimedAchievementIds.length !== b.claimedAchievementIds.length) return false;
   if (a.dailyTasks.length !== b.dailyTasks.length) return false;
+  if (a.activeTasks.length !== b.activeTasks.length) return false;
   return true;
 }

@@ -33,6 +33,8 @@ import type { DailyTaskProgress } from '../services/daily-task-service';
 import type { TutorialStep } from '../services/tutorial-service';
 import type { IdleSettlementResult } from '../services/idle-service';
 import type { PromotionCheck } from '../services/promotion-service';
+import type { CultivationClickResult } from '../services/cultivation-service';
+import type { TaskStartResult, TaskClaimResult, TaskConfig } from '../services/task-service';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -116,6 +118,9 @@ export class GameFacade {
       lastSaveTime: p.lastSaveTime,
       workerCount: p.workers.length,
       mindStatus: p.mind <= 0 ? 'BREAKDOWN' : 'NORMAL',
+      spiritStones: p.spiritStones,
+      lastCultivateTime: p.lastCultivateTime,
+      activeTasks: Object.freeze([...p.activeTasks.map(t => Object.freeze({ ...t }))]),
     });
     this.lastSnapshot = snap;
     return snap;
@@ -206,6 +211,60 @@ export class GameFacade {
       steps: tutorial.getSteps(),
       stepIndex: tutorial.currentStepIndex(),
     };
+  }
+
+  // ── Cultivation API ──────────────────────────────────────────────────────
+
+  /** Click cultivation: grants cultivation exp with cooldown and mind efficiency. */
+  public cultivate(): CultivationClickResult {
+    return this.context.cultivation.cultivate();
+  }
+
+  /** Get remaining cooldown seconds for cultivation click. */
+  public queryCultivationCooldown(): number {
+    return this.context.cultivation.getCooldownRemaining();
+  }
+
+  /** Get mind efficiency multiplier (0.2 to 1.0). */
+  public queryMindEfficiency(): number {
+    return this.context.cultivation.getMindEfficiency();
+  }
+
+  // ── Task API ─────────────────────────────────────────────────────────────
+
+  /** Get all available task configs. */
+  public queryTaskConfigs(): readonly TaskConfig[] {
+    return this.context.tasks.getConfigs();
+  }
+
+  /** Get task configs filtered by type. */
+  public queryTaskConfigsByType(type: 'DAILY' | 'WORK' | 'CULTIVATION' | 'EVENT'): readonly TaskConfig[] {
+    return this.context.tasks.getConfigsByType(type);
+  }
+
+  /** Get all active tasks. */
+  public queryActiveTasks() {
+    return this.context.tasks.getActiveTasks();
+  }
+
+  /** Get remaining seconds for a task. */
+  public queryTaskRemaining(taskId: string): number {
+    return this.context.tasks.getRemainingSeconds(taskId);
+  }
+
+  /** Start a task by config ID. */
+  public startTask(configId: string): TaskStartResult {
+    return this.context.tasks.startTask(configId);
+  }
+
+  /** Claim a completed task's rewards. */
+  public claimTask(taskId: string): TaskClaimResult {
+    return this.context.tasks.claimTask(taskId);
+  }
+
+  /** Tick tasks (called by game loop). Returns IDs of newly completed tasks. */
+  public tickTasks() {
+    return this.context.tasks.tick();
   }
 
   /** Resolve a career event choice. */
@@ -387,6 +446,8 @@ export class GameFacade {
       'workerRecruited', 'gameSaved', 'recruitmentFailed', 'mergeCompleted',
       'salaryChanged', 'idleSettled', 'clockAnomaly', 'offlineRewardChanged',
       'dailySignInClaimed', 'buffAdded', 'buffExpired', 'dailyTaskClaimed',
+      'cultivationClicked', 'taskStarted', 'taskCompleted', 'taskClaimed',
+      'spiritStonesChanged',
     ];
 
     for (const eventName of allEvents) {

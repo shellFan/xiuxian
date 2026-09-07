@@ -1,4 +1,4 @@
-export const CURRENT_SAVE_VERSION = 4;
+export const CURRENT_SAVE_VERSION = 5;
 
 export type WorkMode = 'WORK' | 'FISHING';
 
@@ -12,6 +12,24 @@ export interface DailySignInState {
 export interface DailyTaskState {
   readonly taskId: string;
   progress: number;
+  completed: boolean;
+  claimed: boolean;
+}
+
+/** Task type for the core gameplay task system. */
+export type TaskType = 'DAILY' | 'WORK' | 'CULTIVATION' | 'EVENT';
+
+/** A single active task tracked by the TaskService. */
+export interface ActiveTaskState {
+  readonly taskId: string;
+  readonly taskType: TaskType;
+  readonly name: string;
+  readonly description: string;
+  readonly durationSeconds: number;
+  readonly startedAt: number;
+  readonly rewardSalary: number;
+  readonly rewardCultivation: number;
+  readonly rewardSpiritStones: number;
   completed: boolean;
   claimed: boolean;
 }
@@ -55,4 +73,7 @@ export interface GameSaveData {
   readonly dailyTaskDay?: number;
   readonly tutorialStep?: string;
   readonly tutorialCompleted?: boolean;
+  readonly spiritStones?: number;
+  readonly lastCultivateTime?: number;
+  readonly activeTasks?: readonly ActiveTaskState[];
 }

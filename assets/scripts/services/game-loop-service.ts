@@ -69,10 +69,17 @@ export class GameLoopService {
       this.context.events.emit('mindChanged', { delta: workResult.mind, total: this.context.player.mind });
     }
 
-    // 5. Poll for career events
+    // 5. Tick active tasks (check for completions)
+    try {
+      this.context.tasks.tick();
+    } catch {
+      // Task tick failure must not crash the game loop
+    }
+
+    // 6. Poll for career events
     this.context.careerEvents.poll();
 
-    // 6. Achievement check (periodic)
+    // 7. Achievement check (periodic)
     if (this.achievementCheckIntervalSeconds > 0) {
       this.achievementAccumulatedSeconds += seconds;
       if (this.achievementAccumulatedSeconds >= this.achievementCheckIntervalSeconds) {
@@ -85,21 +92,21 @@ export class GameLoopService {
       }
     }
 
-    // 7. Daily task refresh (detect day rollover and regenerate tasks)
+    // 8. Daily task refresh (detect day rollover and regenerate tasks)
     try {
       this.context.dailyTasks.refresh();
     } catch {
       // Daily task refresh failure must not crash the game loop
     }
 
-    // 8. Tutorial auto-advance check
+    // 9. Tutorial auto-advance check
     try {
       this.context.tutorial.checkAutoAdvance();
     } catch {
       // Tutorial check failure must not crash the game loop
     }
 
-    // 9. Auto-save periodically
+    // 10. Auto-save periodically
     if (this.autoSaveIntervalSeconds > 0) {
       this.autoSaveAccumulatedSeconds += seconds;
       if (this.autoSaveAccumulatedSeconds >= this.autoSaveIntervalSeconds) {

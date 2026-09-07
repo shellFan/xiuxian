@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -31,6 +31,9 @@ export interface PlayerDataOptions {
   readonly dailyTaskDay?: number;
   readonly tutorialStep?: string;
   readonly tutorialCompleted?: boolean;
+  readonly spiritStones?: number;
+  readonly lastCultivateTime?: number;
+  readonly activeTasks?: readonly ActiveTaskState[];
 }
 
 export class PlayerData {
@@ -70,6 +73,9 @@ export class PlayerData {
   public dailyTaskDay: number;
   public tutorialStep: string;
   public tutorialCompleted: boolean;
+  public spiritStones: number;
+  public lastCultivateTime: number;
+  public activeTasks: ActiveTaskState[];
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -102,6 +108,9 @@ export class PlayerData {
     this.dailyTaskDay = options.dailyTaskDay ?? -1;
     this.tutorialStep = options.tutorialStep ?? 'FIRST_RECRUIT';
     this.tutorialCompleted = options.tutorialCompleted ?? false;
+    this.spiritStones = options.spiritStones ?? 0;
+    this.lastCultivateTime = options.lastCultivateTime ?? 0;
+    this.activeTasks = (options.activeTasks ?? []).map((t) => ({ ...t }));
   }
 
   public static createDefault(): PlayerData {
@@ -126,6 +135,9 @@ export class PlayerData {
       dailyTaskDay: this.dailyTaskDay,
       tutorialStep: this.tutorialStep,
       tutorialCompleted: this.tutorialCompleted,
+      spiritStones: this.spiritStones,
+      lastCultivateTime: this.lastCultivateTime,
+      activeTasks: this.activeTasks.map((t) => ({ ...t })),
     };
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
     if (this.cultivationRemainder !== 0) Object.assign(data, { cultivationRemainder: this.cultivationRemainder });

@@ -66,6 +66,7 @@ export class OfflineRewardService {
       try {
         if (base.salary > 0) this.context.economy.applyIdleSalary(base.salary * 2);
         if (base.cultivationExp > 0) this.context.cultivation.applyIdleExperience(base.cultivationExp * 2);
+        if (base.spiritStones > 0) this.context.economy.addSpiritStones(base.spiritStones * 2);
         if (!Number.isSafeInteger(this.context.player.salary) || !Number.isSafeInteger(this.context.player.cultivationExp)) {
           throw new Error('Invalid offline reward');
         }
@@ -84,6 +85,7 @@ export class OfflineRewardService {
           settlementId,
           salary: base.salary * 2,
           cultivationExp: base.cultivationExp * 2,
+          spiritStones: base.spiritStones * 2,
           elapsedSeconds: base.elapsedSeconds,
           capped: base.capped,
         });
@@ -100,6 +102,7 @@ export class OfflineRewardService {
     const player = this.context.player;
     player.salary = data.salary;
     player.cultivationExp = data.cultivationExp;
+    if (data.spiritStones !== undefined) player.spiritStones = data.spiritStones;
     player.lastSaveTime = data.lastSaveTime;
     player.lastIdleSettlementId = data.lastIdleSettlementId;
   }

@@ -1,6 +1,6 @@
 import type { BoardPosition } from '../game/merge/merge-types';
 import type { WorkerEntity } from '../model/worker-entity';
-import type { WorkMode } from '../model/save-data';
+import type { WorkMode, TaskType } from '../model/save-data';
 
 export interface WorkerRecruitedEvent {
   readonly worker: WorkerEntity;
@@ -18,7 +18,7 @@ export interface MergeCompletedEvent {
   readonly cultivationReward: number;
 }
 export interface SalaryChangedEvent { readonly amount: number; readonly total: number; }
-export interface IdleSettledEvent { readonly settlementId: string; readonly salary: number; readonly cultivationExp: number; readonly elapsedSeconds: number; readonly capped: boolean; }
+export interface IdleSettledEvent { readonly settlementId: string; readonly salary: number; readonly cultivationExp: number; readonly spiritStones: number; readonly elapsedSeconds: number; readonly capped: boolean; }
 export interface ClockAnomalyEvent { readonly code: 'CLOCK_ANOMALY'; readonly now: number; readonly lastSaveTime: number; }
 export interface Phase2RefreshEvent { readonly reason: 'merge' | 'promotion' | 'event' | 'idle' | 'manual'; }
 export interface PlayerChangedEvent { readonly reason: string; readonly mode?: WorkMode; }
@@ -44,6 +44,11 @@ export interface DailyTaskProgressEvent { readonly taskId: string; readonly prog
 export interface DailyTaskCompletedEvent { readonly taskId: string; }
 export interface DailyTaskClaimedEvent { readonly taskId: string; }
 export interface TutorialStepChangedEvent { readonly step: string; readonly completed: boolean; }
+export interface CultivationClickedEvent { readonly cultivationExp: number; readonly totalExp: number; readonly cooldownSeconds: number; readonly mindEfficiency: number; }
+export interface TaskStartedEvent { readonly taskId: string; readonly taskType: TaskType; readonly durationSeconds: number; }
+export interface TaskCompletedEvent { readonly taskId: string; readonly taskType: TaskType; }
+export interface TaskClaimedEvent { readonly taskId: string; readonly taskType: TaskType; readonly salary: number; readonly cultivationExp: number; readonly spiritStones: number; }
+export interface SpiritStonesChangedEvent { readonly amount: number; readonly total: number; }
 
 export interface GameEvents extends Record<string, unknown> {
   readonly workerRecruited: WorkerRecruitedEvent;
@@ -71,6 +76,11 @@ export interface GameEvents extends Record<string, unknown> {
   readonly dailyTaskCompleted: DailyTaskCompletedEvent;
   readonly dailyTaskClaimed: DailyTaskClaimedEvent;
   readonly tutorialStepChanged: TutorialStepChangedEvent;
+  readonly cultivationClicked: CultivationClickedEvent;
+  readonly taskStarted: TaskStartedEvent;
+  readonly taskCompleted: TaskCompletedEvent;
+  readonly taskClaimed: TaskClaimedEvent;
+  readonly spiritStonesChanged: SpiritStonesChangedEvent;
 }
 
 /** Domain events that should refresh Phase 2 HUD. UI must not poll every frame. */
@@ -94,4 +104,9 @@ export const PHASE2_REFRESH_EVENTS = [
   'dailyTaskCompleted',
   'dailyTaskClaimed',
   'tutorialStepChanged',
+  'cultivationClicked',
+  'taskStarted',
+  'taskCompleted',
+  'taskClaimed',
+  'spiritStonesChanged',
 ] as const satisfies readonly (keyof GameEvents)[];

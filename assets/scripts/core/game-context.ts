@@ -38,6 +38,7 @@ import { BuffService } from '../services/buff-service';
 import { DailyTaskService } from '../services/daily-task-service';
 import { TutorialService } from '../services/tutorial-service';
 import { DebugService } from '../services/debug-service';
+import { TaskService } from '../services/task-service';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
 import dailyTasksConfig from '../../configs/daily-tasks.json';
@@ -83,6 +84,7 @@ export class GameContext {
   public readonly dailyTasks: DailyTaskService;
   public readonly tutorial: TutorialService;
   public readonly debug: DebugService;
+  public readonly tasks: TaskService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -136,6 +138,7 @@ export class GameContext {
     this.dailyTasks = new DailyTaskService(this, this.configService.dailyTasks, { clock: options.clock });
     this.tutorial = new TutorialService(this);
     this.debug = new DebugService(this, options.randomProvider);
+    this.tasks = new TaskService(this, { clock: options.clock });
   }
 
   public syncPlayerWorkers(): void {

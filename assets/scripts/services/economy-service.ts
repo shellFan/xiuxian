@@ -57,6 +57,22 @@ export class EconomyService {
     this.context.player.salary = total;
   }
 
+  /** Add spirit stones (灵石) to the player. */
+  public addSpiritStones(amount: number): void {
+    validateRewardAmount(amount, 'spiritStones');
+    const total = this.context.player.spiritStones + amount;
+    if (!Number.isSafeInteger(total)) throw new Error('Invalid spirit stones change');
+    this.context.player.spiritStones = total;
+  }
+
+  /** Spend spirit stones (灵石) from the player. Throws if insufficient. */
+  public spendSpiritStones(amount: number): void {
+    validateRewardAmount(amount, 'spiritStones');
+    const total = this.context.player.spiritStones - amount;
+    if (!Number.isSafeInteger(total) || total < 0) throw new Error('Insufficient spirit stones');
+    this.context.player.spiritStones = total;
+  }
+
   public grantMergeReward(mergeId: string, mergeLevel: number, options: RewardGrantOptions = {}): number {
     if (typeof mergeId !== 'string' || mergeId.trim() === '' || !Number.isInteger(mergeLevel) || mergeLevel < 1 || mergeLevel > 5) {
       throw new Error('Invalid merge reward');
