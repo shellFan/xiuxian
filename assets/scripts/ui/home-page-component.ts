@@ -5,7 +5,7 @@
  *   - MainHudComponent (top HUD: identity, resources, KPI)
  *   - CultivationPanelComponent (cultivation button + cooldown)
  *   - IdleStatusPanelComponent (idle efficiency display)
- *   - BottomNavComponent (7-tab navigation)
+ *   - BottomNavComponent (5-tab navigation)
  *
  * Listens to BottomNavComponent tab changes and shows/hides
  * page content nodes accordingly.
@@ -23,7 +23,7 @@
  *   │   [Page Content Area]              │ ← switchable pages
  *   │                                     │
  *   │ ┌─ BottomNav ───────────────────┐  │
- *   │ │ [首页][修炼][任务][合成][排行][好友][更多] │
+ *   │ │ [首页][任务][合成][晋升][更多] │  │
  *   │ └────────────────────────────────┘  │
  *   └─────────────────────────────────────┘
  */
@@ -61,11 +61,9 @@ interface NodeLike {
 /** Maps NavTab values to child node names that should be shown/hidden. */
 const PAGE_NODE_MAP: Record<NavTab, string> = {
   HOME: 'HomePageContent',
-  CULTIVATE: 'CultivatePageContent',
   TASKS: 'TasksPageContent',
-  MERGE: 'MergePageContent',
-  RANK: 'RankPageContent',
-  FRIENDS: 'FriendsPageContent',
+  CRAFT: 'CraftPageContent',
+  PROMOTION: 'PromotionPageContent',
   MORE: 'MorePageContent',
 };
 

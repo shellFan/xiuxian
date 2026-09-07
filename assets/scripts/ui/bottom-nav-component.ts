@@ -1,21 +1,19 @@
 /**
- * BottomNavComponent — WEB V1 bottom navigation bar with 7 tabs.
+ * BottomNavComponent — WEB V1 bottom navigation bar with 5 tabs.
  *
- * Provides tab switching between the 7 main pages:
- *   1. 首页 (Home)     — Main gameplay page
- *   2. 修炼 (Cultivate) — Cultivation page
- *   3. 任务 (Tasks)    — Task management page
- *   4. 合成 (Merge)    — Merge board page
- *   5. 排行 (Rank)     — Leaderboard page
- *   6. 好友 (Friends)  — Friends page
- *   7. 更多 (More)     — Settings/achievements page
+ * Provides tab switching between the 5 main pages:
+ *   1. 首页 (Home)      — Main gameplay page
+ *   2. 任务 (Tasks)     — Task management page
+ *   3. 合成 (Craft)     — Item crafting page (pills, techniques, artifacts, materials)
+ *   4. 晋升 (Promotion) — Career promotion page
+ *   5. 更多 (More)      — Settings/achievements page
  *
  * Emits tab change events that parent components can listen to
  * for page switching. Supports badge indicators for notifications.
  *
- * Layout (750×1334 design):
+ * Layout (720×1280 design):
  *   ┌─────────────────────────────────────┐
- *   │ [首页] [修炼] [任务] [合成] [排行] [好友] [更多] │
+ *   │ [首页] [任务] [合成] [晋升] [更多] │
  *   └─────────────────────────────────────┘
  */
 
@@ -35,29 +33,25 @@ const resolveCocosType = (name: string): unknown =>
 
 // ── Tab Definition ───────────────────────────────────────────────────────────
 
-export type NavTab = 'HOME' | 'CULTIVATE' | 'TASKS' | 'MERGE' | 'RANK' | 'FRIENDS' | 'MORE';
+export type NavTab = 'HOME' | 'TASKS' | 'CRAFT' | 'PROMOTION' | 'MORE';
 
 const NAV_TABS: readonly NavTab[] = [
-  'HOME', 'CULTIVATE', 'TASKS', 'MERGE', 'RANK', 'FRIENDS', 'MORE',
+  'HOME', 'TASKS', 'CRAFT', 'PROMOTION', 'MORE',
 ];
 
 const TAB_LABELS: Record<NavTab, string> = {
   HOME: '首页',
-  CULTIVATE: '修炼',
   TASKS: '任务',
-  MERGE: '合成',
-  RANK: '排行',
-  FRIENDS: '好友',
+  CRAFT: '合成',
+  PROMOTION: '晋升',
   MORE: '更多',
 };
 
 const TAB_ICONS: Record<NavTab, string> = {
   HOME: '🏠',
-  CULTIVATE: '⚡',
   TASKS: '📋',
-  MERGE: '🔮',
-  RANK: '🏆',
-  FRIENDS: '👥',
+  CRAFT: '🔮',
+  PROMOTION: '📈',
   MORE: '⚙️',
 };
 
@@ -93,11 +87,11 @@ const NAV_REFRESH_CATEGORIES: readonly UiEventCategory[] = [
 export class BottomNavComponent extends Component {
   // ── Scene-bound properties (set in Cocos Editor) ──────────────────────────
 
-  /** Tab button nodes (7 buttons in order: HOME, CULTIVATE, TASKS, MERGE, RANK, FRIENDS, MORE) */
+  /** Tab button nodes (5 buttons in order: HOME, TASKS, CRAFT, PROMOTION, MORE) */
   @property([resolveCocosType('Button')])
   public tabButtons: ButtonLike[] = [];
 
-  /** Tab label nodes (7 labels in same order) */
+  /** Tab label nodes (5 labels in same order) */
   @property([resolveCocosType('Label')])
   public tabLabels: TextLike[] = [];
 
@@ -108,14 +102,6 @@ export class BottomNavComponent extends Component {
   /** Badge label for tasks tab */
   @property(resolveCocosType('Label'))
   public tasksBadgeLabel?: TextLike;
-
-  /** Badge node for friends tab (shows unclaimed gifts) */
-  @property(resolveCocosType('Node'))
-  public friendsBadge?: NodeLike;
-
-  /** Badge label for friends tab */
-  @property(resolveCocosType('Label'))
-  public friendsBadgeLabel?: TextLike;
 
   // ── Internal state ────────────────────────────────────────────────────────
 
@@ -215,15 +201,7 @@ export class BottomNavComponent extends Component {
       this.tasksBadgeLabel.string = unclaimedTasks > 99 ? '99+' : String(unclaimedTasks);
     }
 
-    // Friends badge: show count of unclaimed gifts
-    const friendsView = this.facade.queryFriends();
-    const unclaimedGifts = friendsView.giftsToClaim;
-    if (this.friendsBadge) {
-      this.friendsBadge.active = unclaimedGifts > 0;
-    }
-    if (this.friendsBadgeLabel && unclaimedGifts > 0) {
-      this.friendsBadgeLabel.string = unclaimedGifts > 99 ? '99+' : String(unclaimedGifts);
-    }
+    // Note: Friends badge removed in WEB V1 (5-tab layout)
   }
 
   // ── Event Subscription ────────────────────────────────────────────────────

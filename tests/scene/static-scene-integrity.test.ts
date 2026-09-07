@@ -119,10 +119,10 @@ function componentOnNode(scene: SceneObject[], node: SceneObject): SceneObject |
 }
 
 // ---------------------------------------------------------------------------
-// Scene integrity: Phase 2 HUD must be real nodes in the Cocos scene graph,
+// Scene integrity: WEB V1 root must be real nodes in the Cocos scene graph,
 // and every custom script component must resolve to a real .meta asset uuid.
 // ---------------------------------------------------------------------------
-function testSceneContainsPhase2Root(): void {
+function testSceneContainsWebV1Root(): void {
   const { scene, root } = loadScene();
   const classToCompressed = buildClassToCompressed(root);
   const expect = (cls: string): string => {
@@ -131,41 +131,45 @@ function testSceneContainsPhase2Root(): void {
     return c!;
   };
 
-  const mainView = findNodeByName(scene, 'MainView');
-  assert.ok(mainView, 'MainView node must exist');
-  assert.ok(mainView!._children, 'MainView must have children');
-  const phase2Ref = (mainView!._children ?? []).find((c) => scene[c.__id__] && scene[c.__id__]._name === 'Phase2Root');
-  assert.ok(phase2Ref, 'MainView must contain a Phase2Root child node');
-  const phase2Node = scene[phase2Ref!.__id__];
-  assert.equal(phase2Node._name, 'Phase2Root');
+  // SafeAreaRoot must exist and carry HomePageComponent
+  const safeArea = findNodeByName(scene, 'SafeAreaRoot');
+  assert.ok(safeArea, 'SafeAreaRoot node must exist');
+  assert.ok(safeArea!._children, 'SafeAreaRoot must have children');
 
-  const phase2Comp = componentOnNode(scene, phase2Node);
-  assert.ok(phase2Comp, 'Phase2Root node must carry a component');
-  assert.equal(phase2Comp!.__type__, expect('Phase2Root'), 'component must be the Phase2Root script (uuid)');
+  // Verify HomePageComponent is on SafeAreaRoot
+  const safeAreaComps = (safeArea!._components ?? []).map((c) => scene[c.__id__]);
+  const homePageComp = safeAreaComps.find((c) => c.__type__ === expect('HomePage'));
+  assert.ok(homePageComp, 'SafeAreaRoot must carry HomePageComponent');
 
-  for (const key of ['careerPanel', 'kpiPanel', 'eventPopup', 'promotionPopup'] as const) {
-    const ref = phase2Comp![key] as { __id__: number } | undefined;
-    assert.ok(ref, `Phase2Root.${key} must be wired`);
-    const panelComp = scene[ref!.__id__];
-    assert.ok(panelComp, `Phase2Root.${key} must resolve to an object`);
-    const expected = key === 'careerPanel' ? 'CareerPanel' : key === 'kpiPanel' ? 'KpiPanel'
-      : key === 'eventPopup' ? 'EventPopup' : 'PromotionPopup';
-    assert.equal(panelComp.__type__, expect(expected), `Phase2Root.${key} must be ${expected} (uuid)`);
+  // Verify key WEB V1 child nodes exist under SafeAreaRoot
+  const childNames = (safeArea!._children ?? []).map((c) => scene[c.__id__]._name);
+  const requiredChildren = ['TopHeader', 'ResourceBar', 'CharacterArea', 'IdleIncomePanel',
+    'PrimaryActions', 'BottomNavigation', 'PageContainer'];
+  for (const name of requiredChildren) {
+    assert.ok(childNames.includes(name), `SafeAreaRoot must contain ${name} child node`);
   }
 
-  for (const key of ['workplaceTab', 'sectTab', 'mergeTab', 'eventTab', 'workButton', 'fishButton'] as const) {
-    const ref = phase2Comp![key] as { __id__: number } | undefined;
-    assert.ok(ref, `Phase2Root.${key} must be wired`);
-    assert.equal(scene[ref!.__id__].__type__, 'cc.Button', `Phase2Root.${key} must be a Button`);
-  }
+  // TopHeader must carry MainHudComponent
+  const topHeader = findNodeByName(scene, 'TopHeader');
+  assert.ok(topHeader, 'TopHeader node must exist');
+  const topHeaderComps = (topHeader!._components ?? []).map((c) => scene[c.__id__]);
+  const mainHudComp = topHeaderComps.find((c) => c.__type__ === expect('MainHud'));
+  assert.ok(mainHudComp, 'TopHeader must carry MainHudComponent');
 
-  for (const key of ['workplaceNode', 'sectNode', 'mergeNode', 'eventNode'] as const) {
-    const ref = phase2Comp![key] as { __id__: number } | undefined;
-    assert.ok(ref, `Phase2Root.${key} must be wired`);
-    assert.equal(scene[ref!.__id__].__type__, 'cc.Node', `Phase2Root.${key} must be a Node`);
-  }
+  // BottomNavigation must carry BottomNavComponent
+  const bottomNav = findNodeByName(scene, 'BottomNavigation');
+  assert.ok(bottomNav, 'BottomNavigation node must exist');
+  const bottomNavComps = (bottomNav!._components ?? []).map((c) => scene[c.__id__]);
+  const bottomNavComp = bottomNavComps.find((c) => c.__type__ === expect('BottomNav'));
+  assert.ok(bottomNavComp, 'BottomNavigation must carry BottomNavComponent');
+
+  // IdleIncomePanel must carry IdleStatusPanelComponent
+  const idlePanel = findNodeByName(scene, 'IdleIncomePanel');
+  assert.ok(idlePanel, 'IdleIncomePanel node must exist');
+  const idleComps = (idlePanel!._components ?? []).map((c) => scene[c.__id__]);
+  const idleComp = idleComps.find((c) => c.__type__ === expect('IdleStatusPanel'));
+  assert.ok(idleComp, 'IdleIncomePanel must carry IdleStatusPanelComponent');
 }
-
 // Every custom (non-cc.*) component __type__ in the scene must decompress to a real
 // assets/scripts .meta uuid �?proving the Asset DB can resolve every script binding.
 function testSceneCustomComponentsResolveToMetaUuids(): void {
@@ -180,7 +184,7 @@ function testSceneCustomComponentsResolveToMetaUuids(): void {
     const decoded = decompressUuid(o.__type__);
     assert.ok(metaUuids.has(decoded), `custom component __type__ ${o.__type__} must resolve to a real .meta uuid (${decoded})`);
   }
-  assert.ok(customCount >= 11, `scene must bind at least the 11 known Phase 2 scripts (found ${customCount})`);
+  assert.ok(customCount >= 6, `scene must bind at least the 6 known WEB V1 scripts (found ${customCount})`);
 }
 
 // Every __id__ reference in the scene must point at a real object (no dangling refs).
@@ -199,8 +203,8 @@ function testSceneHasNoDanglingReferences(): void {
   scene.forEach(visit);
 }
 
-// The bootstrap must reference GameFacade (Phase 5+ uses CocosBootstrapComponent + GameFacade).
-function testBootstrapWiresPhase2Root(): void {
+// The bootstrap must reference GameFacade (CocosBootstrapComponent + GameFacade).
+function testBootstrapWiresGameFacade(): void {
   const { root } = loadScene();
   const src = fs.readFileSync(path.join(root, 'assets', 'scripts', 'core', 'cocos-bootstrap-component.ts'), 'utf8');
   assert.ok(/GameFacade/.test(src), 'CocosBootstrapComponent must reference GameFacade');
@@ -283,29 +287,38 @@ function testSceneReferenceGraphConsistent(): void {
   }
 }
 
-// STEP 7: every required Phase 2 node must survive any scene rebuild.
-function testKeyPhase2NodesPreserved(): void {
+// STEP 7: every required WEB V1 node must survive any scene rebuild.
+function testKeyWebV1NodesPreserved(): void {
   const { scene } = loadScene();
   const names = new Set(scene.filter((o) => o && o.__type__ === 'cc.Node').map((o) => o._name as string));
   const required = [
-    'Canvas', 'Bootstrap', 'MainView', 'MergeBoard', 'RecruitButton', 'Toast', 'Feedback',
-    'Phase2Root', 'CareerPanel', 'KpiPanel', 'EventPopup', 'PromotionPopup',
-    'WorkplaceNode', 'SectNode', 'MergeNode', 'EventNode', 'WorkButton', 'FishButton',
+    'Canvas', 'Bootstrap', 'SafeAreaRoot', 'TopHeader', 'ResourceBar', 'CharacterArea',
+    'IdleIncomePanel', 'PrimaryActions', 'BottomNavigation', 'PageContainer',
+    'ModalLayer', 'ToastLayer', 'TutorialLayer',
   ];
   for (const n of required) {
-    assert.ok(names.has(n), `required Phase 2 node "${n}" must be present in Main.scene`);
+    assert.ok(names.has(n), `required WEB V1 node "${n}" must be present in Main.scene`);
   }
-  for (const tab of ['Tab_work', 'Tab_sect', 'Tab_merge', 'Tab_event']) {
+  // Bottom navigation tabs
+  for (const tab of ['TabHome', 'TabTasks', 'TabCraft', 'TabPromotion', 'TabMore']) {
     assert.ok(names.has(tab), `bottom tab "${tab}" must be present in Main.scene`);
+  }
+  // Primary action buttons
+  for (const btn of ['CultivateButton', 'WorkButton', 'FishButton']) {
+    assert.ok(names.has(btn), `action button "${btn}" must be present in Main.scene`);
+  }
+  // Page content containers
+  for (const page of ['HomePageContent', 'TasksPageContent', 'CraftPageContent', 'PromotionPageContent', 'MorePageContent']) {
+    assert.ok(names.has(page), `page container "${page}" must be present in Main.scene`);
   }
 }
 
 testSceneMetaIsSceneAsset();
 testSceneAssetEnvelope();
-testSceneContainsPhase2Root();
+testSceneContainsWebV1Root();
 testSceneCustomComponentsResolveToMetaUuids();
 testSceneHasNoDanglingReferences();
 testSceneReferenceGraphConsistent();
-testKeyPhase2NodesPreserved();
-testBootstrapWiresPhase2Root();
+testKeyWebV1NodesPreserved();
+testBootstrapWiresGameFacade();
 console.log('static scene integrity tests passed');
