@@ -5,7 +5,7 @@
  * Players can craft items if they meet the requirements (career level,
  * cultivation, spirit stones, and craft count limits).
  *
- * Layout (750×1334 design):
+ * Layout (1280×720 PC Desktop):
  *   ┌─────────────────────────────────────┐
  *   │ 炼制                                │
  *   │ 修为: 1500  灵石: 30  总炼制: 3     │

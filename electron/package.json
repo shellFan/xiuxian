@@ -1,0 +1,54 @@
+{
+  "name": "niuma-xiuxian-pc-v1",
+  "version": "1.0.0",
+  "description": "牛马修仙传 - PC Desktop V1",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:dev": "electron . --dev",
+    "build:exe": "electron-builder --win --x64",
+    "build:exe:portable": "electron-builder --win portable --x64"
+  },
+  "author": "Niuma Studio",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-packager": "^17.1.2"
+  },
+  "build": {
+    "appId": "com.niuma.xiuxian.pc-v1",
+    "productName": "牛马修仙传",
+    "directories": {
+      "output": "../dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      {
+        "from": "../build/web-desktop",
+        "to": "build/web-desktop",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "../build/web-desktop/favicon.ico"
+    },
+    "portable": {
+      "artifactName": "牛马修仙传-PC-V1.exe"
+    },
+    "asar": true,
+    "compression": "maximum"
+  }
+}

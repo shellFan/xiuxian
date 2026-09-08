@@ -10,22 +10,20 @@
  * Listens to BottomNavComponent tab changes and shows/hides
  * page content nodes accordingly.
  *
- * Layout (750×1334 design):
- *   ┌─────────────────────────────────────┐
- *   │ [MainHudComponent]                  │ ← top HUD
- *   │ ┌─ Cultivation Panel ────────────┐  │
- *   │ │ 修炼进度  [修炼按钮]           │  │ ← cultivation
- *   │ └────────────────────────────────┘  │
- *   │ ┌─ Idle Status Panel ───────────┐  │
- *   │ │ 模式/效率/道心状态            │  │ ← idle status
- *   │ └────────────────────────────────┘  │
- *   │                                     │
- *   │   [Page Content Area]              │ ← switchable pages
- *   │                                     │
- *   │ ┌─ BottomNav ───────────────────┐  │
- *   │ │ [首页][任务][合成][晋升][更多] │  │
- *   │ └────────────────────────────────┘  │
- *   └─────────────────────────────────────┘
+ * Layout (1280×720 PC Desktop):
+ *   ┌─────────────────────────────────────────────────────────────────────┐
+ *   │ [MainHudComponent]  修为:1500  灵石:30  工资:80  道心:55/100     │ ← top HUD
+ *   │ ┌─ Left Panel ──────────┐ ┌─ Right Panel ─────────────────────┐   │
+ *   │ │ [Cultivation Panel]   │ │ [Page Content Area]              │   │
+ *   │ │ 修炼进度  [修炼按钮]   │ │  (HOME/TASKS/CRAFT/PROMOTION/)  │   │
+ *   │ │ [Idle Status Panel]   │ │                                  │   │
+ *   │ │ 模式/效率/道心状态    │ │                                  │   │
+ *   │ │ [Quick Actions]       │ │                                  │   │
+ *   │ └───────────────────────┘ └──────────────────────────────────┘   │
+ *   │ ┌─ BottomNav ─────────────────────────────────────────────────┐   │
+ *   │ │ [首页]  [任务]  [合成]  [晋升]  [更多]                       │   │
+ *   │ └──────────────────────────────────────────────────────────────┘   │
+ *   └─────────────────────────────────────────────────────────────────────┘
  */
 
 import { _decorator, Component } from 'cc';
@@ -215,7 +213,7 @@ export class HomePageComponent extends Component {
         this.taskPage?.refresh();
         break;
       case 'CRAFT':
-        // Craft page is a placeholder (no refresh needed)
+        this.craftPage?.refresh();
         break;
       case 'PROMOTION':
         this.promotionPage?.refresh();
@@ -243,7 +241,7 @@ export class HomePageComponent extends Component {
         this.taskPage?.refresh();
         break;
       case 'CRAFT':
-        // Craft page is a placeholder (no refresh needed)
+        this.craftPage?.refresh();
         break;
       case 'PROMOTION':
         this.promotionPage?.refresh();
