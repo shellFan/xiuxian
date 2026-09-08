@@ -2,6 +2,7 @@ import type { BoardPosition } from '../game/merge/merge-types';
 import type { WorkerEntity } from '../model/worker-entity';
 import type { WorkMode, TaskType } from '../model/save-data';
 
+/** @deprecated No merge board in PC V1. */
 export interface WorkerRecruitedEvent {
   readonly worker: WorkerEntity;
   readonly position: BoardPosition;
@@ -9,7 +10,9 @@ export interface WorkerRecruitedEvent {
 export interface GameSavedEvent {
   readonly reason: 'recruitment' | 'merge' | 'economy' | 'idle';
 }
+/** @deprecated No merge board in PC V1. */
 export interface RecruitmentFailedEvent { readonly message: string; }
+/** @deprecated No merge board in PC V1. */
 export interface MergeCompletedEvent {
   readonly first: BoardPosition;
   readonly second: BoardPosition;
@@ -49,11 +52,15 @@ export interface TaskStartedEvent { readonly taskId: string; readonly taskType: 
 export interface TaskCompletedEvent { readonly taskId: string; readonly taskType: TaskType; }
 export interface TaskClaimedEvent { readonly taskId: string; readonly taskType: TaskType; readonly salary: number; readonly cultivationExp: number; readonly spiritStones: number; }
 export interface SpiritStonesChangedEvent { readonly amount: number; readonly total: number; }
+export interface ItemCraftedEvent { readonly recipeId: string; readonly recipeName: string; }
 
 export interface GameEvents extends Record<string, unknown> {
+  /** @deprecated No merge board in PC V1. */
   readonly workerRecruited: WorkerRecruitedEvent;
   readonly gameSaved: GameSavedEvent;
+  /** @deprecated No merge board in PC V1. */
   readonly recruitmentFailed: RecruitmentFailedEvent;
+  /** @deprecated No merge board in PC V1. */
   readonly mergeCompleted: MergeCompletedEvent;
   readonly salaryChanged: SalaryChangedEvent;
   readonly idleSettled: IdleSettledEvent;
@@ -81,11 +88,11 @@ export interface GameEvents extends Record<string, unknown> {
   readonly taskCompleted: TaskCompletedEvent;
   readonly taskClaimed: TaskClaimedEvent;
   readonly spiritStonesChanged: SpiritStonesChangedEvent;
+  readonly itemCrafted: ItemCraftedEvent;
 }
 
 /** Domain events that should refresh Phase 2 HUD. UI must not poll every frame. */
 export const PHASE2_REFRESH_EVENTS = [
-  'mergeCompleted',
   'salaryChanged',
   'idleSettled',
   'phase2Refresh',
@@ -109,4 +116,5 @@ export const PHASE2_REFRESH_EVENTS = [
   'taskCompleted',
   'taskClaimed',
   'spiritStonesChanged',
+  'itemCrafted',
 ] as const satisfies readonly (keyof GameEvents)[];

@@ -18,7 +18,7 @@ function testLoadsValidatedConfig(): void {
   const service = ConfigService.load(validConfig);
   assert.deepEqual(service.worker.levels, validConfig.worker.levels);
   assert.deepEqual(service.economy.mergeRewards, [10, 20, 40, 80, 160]);
-  assert.deepEqual(service.game.board, { columns: 4, rows: 4 });
+  assert.deepEqual(service.game.board!, { columns: 4, rows: 4 });
 }
 function testRejectsMissingConfig(): void {
   assert.throws(() => ConfigService.load({ ...validConfig, economy: undefined as never }),

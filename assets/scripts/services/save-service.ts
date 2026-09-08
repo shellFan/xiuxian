@@ -104,6 +104,7 @@ function migrate(raw: unknown): GameSaveData {
     spiritStones: isNonNegativeSafeInteger(raw.spiritStones) ? raw.spiritStones : 0,
     lastCultivateTime: isNonNegativeSafeInteger(raw.lastCultivateTime) ? raw.lastCultivateTime : 0,
     activeTasks: Array.isArray(raw.activeTasks) ? raw.activeTasks.filter(isActiveTaskState) : [],
+    craftedItemIds: Array.isArray(raw.craftedItemIds) ? (raw.craftedItemIds as unknown[]).filter(isString) : [],
   };
   if (isNonNegativeSafeInteger(raw.salaryRemainder) && raw.salaryRemainder !== 0) dataWithRemainder(data, 'salaryRemainder', raw.salaryRemainder);
   if (isNonNegativeSafeInteger(raw.cultivationRemainder) && raw.cultivationRemainder !== 0) dataWithRemainder(data, 'cultivationRemainder', raw.cultivationRemainder);

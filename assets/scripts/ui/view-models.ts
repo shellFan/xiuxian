@@ -57,7 +57,7 @@ export interface MergeCellViewModel {
   readonly workerLevel: number | null;
 }
 
-/** 4×4 merge board grid state. */
+/** @deprecated 4×4 merge board grid state. PC V1 does not use the board. */
 export interface MergeBoardViewModel {
   readonly rows: number;
   readonly columns: number;
@@ -311,6 +311,29 @@ export interface RewardedAdViewModel {
   readonly canShowPlacements: ReadonlyArray<AdPlacement>;
 }
 
+// ── Craft (PC V1) ───────────────────────────────────────────────────────────
+
+export interface CraftRecipeViewModel {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly costCultivation: number;
+  readonly costSpiritStones: number;
+  readonly effect: Readonly<Record<string, number>>;
+  readonly unlockCareerLevel: number;
+  readonly maxCraftCount: number;
+  readonly craftedCount: number;
+  readonly canCraft: boolean;
+  readonly reason: string;
+}
+
+export interface CraftViewModel {
+  readonly recipes: readonly CraftRecipeViewModel[];
+  readonly totalCrafted: number;
+  readonly playerCultivation: number;
+  readonly playerSpiritStones: number;
+}
+
 // ── Mind status text helper ─────────────────────────────────────────────────
 
 /**
@@ -358,17 +381,27 @@ export function buildMainHUDViewModel(facade: GameFacade): MainHUDViewModel {
     kpiTotal: kpiView.items.length,
     kpiAllCompleted: kpiView.allCompleted,
     workerCount: snap.workerCount,
-    boardCapacity: board.capacity,
-    boardIsFull: board.isFull,
+    boardCapacity: board?.capacity ?? 0,
+    boardIsFull: board?.isFull ?? false,
     sectName: sect ? sect.name : '未选择宗门',
     talentName: talent ? talent.name : '未觉醒天赋',
     officeName: facade.queryOfficeName(),
   });
 }
 
-/** Build MergeBoardViewModel from GameFacade. */
+/** Build MergeBoardViewModel from GameFacade. @deprecated PC V1 does not use MergeBoard. */
 export function buildMergeBoardViewModel(facade: GameFacade): MergeBoardViewModel {
   const board = facade.queryBoard();
+  if (!board) {
+    return Object.freeze({
+      rows: 0,
+      columns: 0,
+      cells: [],
+      maxWorkerLevel: 0,
+      isFull: false,
+      workerCount: 0,
+    });
+  }
   const cells: MergeCellViewModel[] = board.cells.map((cell) => {
     const occupant = cell.occupant;
     return Object.freeze({
@@ -761,5 +794,41 @@ export function buildRewardedAdViewModel(facade: GameFacade): RewardedAdViewMode
     maxAdsPerHour: 10,
     placementCooldowns: Object.freeze(placementCooldowns),
     canShowPlacements: Object.freeze(canShowPlacements),
+  });
+}
+
+// ── Craft Builder (PC V1) ───────────────────────────────────────────────────
+
+/** Build CraftViewModel from GameFacade. */
+export function buildCraftViewModel(facade: GameFacade): CraftViewModel {
+  const snap = facade.snapshot();
+  const recipes = facade.queryCraftRecipes();
+  const allRecipes = facade.queryAllCraftRecipes();
+
+  const recipeViewModels: CraftRecipeViewModel[] = allRecipes.map((recipe) => {
+    const check = facade.queryCanCraft(recipe.id);
+    const craftedCount = facade.queryCraftedCount(recipe.id);
+    const isAvailable = recipes.some((r) => r.id === recipe.id);
+
+    return Object.freeze({
+      id: recipe.id,
+      name: recipe.name,
+      description: recipe.description,
+      costCultivation: recipe.costCultivation,
+      costSpiritStones: recipe.costSpiritStones,
+      effect: Object.freeze({ ...recipe.effect }),
+      unlockCareerLevel: recipe.unlockCareerLevel,
+      maxCraftCount: recipe.maxCraftCount,
+      craftedCount,
+      canCraft: isAvailable && check.canCraft,
+      reason: !isAvailable ? '职级不足' : (check.reason ?? ''),
+    });
+  });
+
+  return Object.freeze({
+    recipes: Object.freeze(recipeViewModels),
+    totalCrafted: facade.queryTotalCraftedCount(),
+    playerCultivation: snap.cultivationExp,
+    playerSpiritStones: snap.spiritStones,
   });
 }

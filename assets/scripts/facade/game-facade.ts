@@ -39,6 +39,7 @@ import type { IdleEfficiencyBreakdown } from '../services/idle-efficiency-servic
 import type { LeaderboardView } from '../services/leaderboard-service';
 import type { FriendsView } from '../services/friends-service';
 import type { AdPlacement, RewardedAdResult } from '../services/rewarded-ad-service';
+import type { CraftResult } from '../services/craft-service';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -63,7 +64,9 @@ export class GameFacade {
 
   public constructor(options: GameFacadeOptions = {}) {
     this.platform = createPlatformService(options.platformKind ?? 'mock');
-    this.context = new GameContext(options);
+    // PC V1: Force board to null unless explicitly provided (merge board is deprecated)
+    const contextOptions = { ...options, board: options.board !== undefined ? options.board : null };
+    this.context = new GameContext(contextOptions);
     this.gameLoop = new GameLoopService(this.context, {
       autoSaveIntervalSeconds: options.autoSaveIntervalSeconds,
     });
@@ -120,7 +123,7 @@ export class GameFacade {
       tutorialStep: p.tutorialStep,
       tutorialCompleted: p.tutorialCompleted,
       lastSaveTime: p.lastSaveTime,
-      workerCount: p.workers.length,
+      workerCount: this.context.board ? this.context.board.occupiedCount : 0,
       mindStatus: p.mind <= 0 ? 'BREAKDOWN' : 'NORMAL',
       spiritStones: p.spiritStones,
       lastCultivateTime: p.lastCultivateTime,
@@ -162,8 +165,9 @@ export class GameFacade {
   /** All available sects. */
   public querySects() { return this.context.configService.sect.sects; }
 
-  /** Board info: capacity, isFull, cells, etc. */
+  /** Board info: capacity, isFull, cells, etc. @deprecated No merge board in PC V1. */
   public queryBoard() {
+    if (!this.context.board) return null;
     const board = this.context.board;
     return {
       rows: board.rows,
@@ -374,6 +378,42 @@ export class GameFacade {
     return this.context.rewardedAd.isWatching();
   }
 
+  // ── Craft API (PC V1) ────────────────────────────────────────────────────
+
+  /** Query all available craft recipes (filtered by career level). */
+  public queryCraftRecipes() {
+    return this.context.craft.getAvailableRecipes();
+  }
+
+  /** Query all craft recipes (unfiltered). */
+  public queryAllCraftRecipes() {
+    return this.context.craft.allRecipes;
+  }
+
+  /** Check if a recipe can be crafted. */
+  public queryCanCraft(recipeId: string) {
+    return this.context.craft.canCraft(recipeId);
+  }
+
+  /** Craft an item. Returns result with success/failure info. */
+  public craft(recipeId: string): CraftResult {
+    const result = this.context.craft.craft(recipeId);
+    if (result.success) {
+      this.context.saveService.save(this.context.player);
+    }
+    return result;
+  }
+
+  /** Get the number of times a recipe has been crafted. */
+  public queryCraftedCount(recipeId: string): number {
+    return this.context.craft.getCraftedCount(recipeId);
+  }
+
+  /** Get total number of items crafted across all recipes. */
+  public queryTotalCraftedCount(): number {
+    return this.context.craft.getTotalCraftedCount();
+  }
+
   /** Resolve a career event choice. */
   public resolveEventChoice(eventId: string, choiceId: string): void {
     this.context.careerEvents.choose(eventId, choiceId);
@@ -442,8 +482,11 @@ export class GameFacade {
     this.context.saveService.save(this.context.player);
   }
 
-  /** Recruit a new worker (level 1) to the merge board. Returns the result. */
+  /** Recruit a new worker (level 1) to the merge board. @deprecated No merge board in PC V1. */
   public recruit(): RecruitmentResult {
+    if (!this.context.board) {
+      return { success: false, message: '工位满了' } as RecruitmentFailure;
+    }
     const position = this.context.board.findEmptyPosition();
     if (!position) {
       return { success: false, message: '工位满了' } as RecruitmentFailure;
@@ -550,8 +593,7 @@ export class GameFacade {
   private bridgeDomainEvents(): void {
     const allEvents: ReadonlyArray<keyof GameEvents> = [
       ...PHASE2_REFRESH_EVENTS,
-      'workerRecruited', 'gameSaved', 'recruitmentFailed', 'mergeCompleted',
-      'salaryChanged', 'idleSettled', 'clockAnomaly', 'offlineRewardChanged',
+      'gameSaved', 'salaryChanged', 'idleSettled', 'clockAnomaly', 'offlineRewardChanged',
       'dailySignInClaimed', 'buffAdded', 'buffExpired', 'dailyTaskClaimed',
       'cultivationClicked', 'taskStarted', 'taskCompleted', 'taskClaimed',
       'spiritStonesChanged',

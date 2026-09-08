@@ -2,6 +2,7 @@ import type { GameContext } from '../core/game-context';
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
 
 export interface CultivationServiceOptions {
+  /** @deprecated Merge rewards are no longer used in PC V1. */
   readonly mergeRewards?: readonly number[];
   readonly cultivationClickReward?: number;
   readonly cultivationCooldownSeconds?: number;
@@ -26,6 +27,7 @@ const DEFAULT_CLICK_REWARD = 5;
 const DEFAULT_COOLDOWN_SECONDS = 3;
 
 export class CultivationService {
+  /** @deprecated Merge rewards are no longer used in PC V1. Kept for backward compat. */
   public readonly mergeRewards: readonly number[];
   private readonly grantedMergeRewards = new Set<string>();
   private readonly cultivationClickReward: number;
@@ -34,9 +36,6 @@ export class CultivationService {
 
   public constructor(private readonly context: GameContext, options: CultivationServiceOptions = {}) {
     this.mergeRewards = Object.freeze([...(options.mergeRewards ?? context.configService.economy.cultivationRewards ?? [5, 10, 20, 40, 80])]);
-    if (this.mergeRewards.length !== 5 || this.mergeRewards.some((reward) => !Number.isSafeInteger(reward) || reward < 0)) {
-      throw new Error('Invalid cultivation merge rewards');
-    }
     this.cultivationClickReward = options.cultivationClickReward ?? DEFAULT_CLICK_REWARD;
     this.cultivationCooldownSeconds = options.cultivationCooldownSeconds ?? DEFAULT_COOLDOWN_SECONDS;
     this.clock = options.clock ?? DEFAULT_CLOCK;

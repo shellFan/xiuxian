@@ -1,0 +1,308 @@
+TAP version 13
+# Subtest: E2E: new save creation produces valid default state
+ok 1 - E2E: new save creation produces valid default state
+  ---
+  duration_ms: 4.4785
+  ...
+# Subtest: E2E: recruit workers fills the board
+not ok 2 - E2E: recruit workers fills the board
+  ---
+  duration_ms: 0.7856
+  location: 'd:\\git\\fan\\xiuxian\\tests\\.compiled\\tests\\release\\e2e-game-flow.test.js:149:25'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of null (reading 'capacity')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:153:44)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: E2E: merge same-level workers upgrades them
+not ok 3 - E2E: merge same-level workers upgrades them
+  ---
+  duration_ms: 1.0368
+  location: 'd:\\git\\fan\\xiuxian\\tests\\.compiled\\tests\\release\\e2e-game-flow.test.js:161:25'
+  failureType: 'testCodeFailure'
+  error: 'MergeService requires a non-null board — deprecated in PC V1'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    new MergeService (d:\git\fan\xiuxian\tests\.compiled\assets\scripts\services\merge-service.js:11:19)
+    TestContext.<anonymous> (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:163:19)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: E2E: work tick accumulates salary and cultivation
+ok 4 - E2E: work tick accumulates salary and cultivation
+  ---
+  duration_ms: 6.2513
+  ...
+# Subtest: E2E: toggleWorkMode switches between WORK and FISHING
+ok 5 - E2E: toggleWorkMode switches between WORK and FISHING
+  ---
+  duration_ms: 0.4257
+  ...
+# Subtest: E2E: KPI progress tracks merge count, work seconds, cultivation
+not ok 6 - E2E: KPI progress tracks merge count, work seconds, cultivation
+  ---
+  duration_ms: 0.3095
+  location: 'd:\\git\\fan\\xiuxian\\tests\\.compiled\\tests\\release\\e2e-game-flow.test.js:208:25'
+  failureType: 'testCodeFailure'
+  error: 'MergeService requires a non-null board — deprecated in PC V1'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    new MergeService (d:\git\fan\xiuxian\tests\.compiled\assets\scripts\services\merge-service.js:11:19)
+    TestContext.<anonymous> (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:211:19)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: E2E: daily tasks are generated and progress tracked
+ok 7 - E2E: daily tasks are generated and progress tracked
+  ---
+  duration_ms: 0.3631
+  ...
+# Subtest: E2E: career event system can be queried
+ok 8 - E2E: career event system can be queried
+  ---
+  duration_ms: 0.2595
+  ...
+# Subtest: E2E: achievement system tracks career level achievements
+ok 9 - E2E: achievement system tracks career level achievements
+  ---
+  duration_ms: 0.6271
+  ...
+# Subtest: E2E: office level derives from career level
+ok 10 - E2E: office level derives from career level
+  ---
+  duration_ms: 0.5616
+  ...
+# Subtest: E2E: promotion check validates KPI and cultivation requirements
+ok 11 - E2E: promotion check validates KPI and cultivation requirements
+  ---
+  duration_ms: 0.5071
+  ...
+# Subtest: E2E: successful promotion advances career level and resets KPI
+ok 12 - E2E: successful promotion advances career level and resets KPI
+  ---
+  duration_ms: 0.6573
+  ...
+# Subtest: E2E: save and load preserves game state
+not ok 13 - E2E: save and load preserves game state
+  ---
+  duration_ms: 0.7129
+  location: 'd:\\git\\fan\\xiuxian\\tests\\.compiled\\tests\\release\\e2e-game-flow.test.js:312:25'
+  failureType: 'testCodeFailure'
+  error: 'Saved should have workers'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:325:22)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: E2E: offline reward settlement grants salary and cultivation
+ok 14 - E2E: offline reward settlement grants salary and cultivation
+  ---
+  duration_ms: 1.6337
+  ...
+# Subtest: E2E: complete promotion path from Level 1 to Level 10
+ok 15 - E2E: complete promotion path from Level 1 to Level 10
+  ---
+  duration_ms: 1.1298
+  ...
+# Subtest: E2E: no NaN, Infinity, or negative resources after extensive operations
+not ok 16 - E2E: no NaN, Infinity, or negative resources after extensive operations
+  ---
+  duration_ms: 0.8368
+  location: 'd:\\git\\fan\\xiuxian\\tests\\.compiled\\tests\\release\\e2e-game-flow.test.js:401:25'
+  failureType: 'testCodeFailure'
+  error: 'MergeService requires a non-null board — deprecated in PC V1'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    new MergeService (d:\git\fan\xiuxian\tests\.compiled\assets\scripts\services\merge-service.js:11:19)
+    TestContext.<anonymous> (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:404:19)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: E2E: workers are not lost during save/load cycle
+not ok 17 - E2E: workers are not lost during save/load cycle
+  ---
+  duration_ms: 0.6474
+  location: 'd:\\git\\fan\\xiuxian\\tests\\.compiled\\tests\\release\\e2e-game-flow.test.js:441:25'
+  failureType: 'testCodeFailure'
+  error: 'Recruit #1 should succeed'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    recruitN (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:66:26)
+    TestContext.<anonymous> (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:444:5)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: E2E: game loop does not enter infinite loop with large delta
+ok 18 - E2E: game loop does not enter infinite loop with large delta
+  ---
+  duration_ms: 18.4939
+  ...
+# Subtest: E2E: all 10 career levels have correct names and realms
+ok 19 - E2E: all 10 career levels have correct names and realms
+  ---
+  duration_ms: 0.6417
+  ...
+# Subtest: E2E: office levels correctly map to career levels
+ok 20 - E2E: office levels correctly map to career levels
+  ---
+  duration_ms: 0.3745
+  ...
+# Subtest: E2E: promotion failure penalizes mind and requires retry
+ok 21 - E2E: promotion failure penalizes mind and requires retry
+  ---
+  duration_ms: 0.3479
+  ...
+# Subtest: E2E: full lifecycle from new game to save/load/continue
+not ok 22 - E2E: full lifecycle from new game to save/load/continue
+  ---
+  duration_ms: 0.5363
+  location: 'd:\\git\\fan\\xiuxian\\tests\\.compiled\\tests\\release\\e2e-game-flow.test.js:533:25'
+  failureType: 'testCodeFailure'
+  error: 'MergeService requires a non-null board — deprecated in PC V1'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    new MergeService (d:\git\fan\xiuxian\tests\.compiled\assets\scripts\services\merge-service.js:11:19)
+    TestContext.<anonymous> (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:547:19)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: E2E: career level salary multiplier increases with level
+ok 23 - E2E: career level salary multiplier increases with level
+  ---
+  duration_ms: 0.2785
+  ...
+# Subtest: E2E: career level cultivation multiplier increases with level
+ok 24 - E2E: career level cultivation multiplier increases with level
+  ---
+  duration_ms: 1.2612
+  ...
+# Subtest: E2E: KPI targets increase across career levels
+ok 25 - E2E: KPI targets increase across career levels
+  ---
+  duration_ms: 0.5081
+  ...
+# Subtest: E2E: board rejects recruits when full
+not ok 26 - E2E: board rejects recruits when full
+  ---
+  duration_ms: 0.3262
+  location: 'd:\\git\\fan\\xiuxian\\tests\\.compiled\\tests\\release\\e2e-game-flow.test.js:616:25'
+  failureType: 'testCodeFailure'
+  error: 'Recruit #1 should succeed'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    recruitN (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:66:26)
+    TestContext.<anonymous> (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:619:5)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: E2E: merge rejects workers of different levels
+not ok 27 - E2E: merge rejects workers of different levels
+  ---
+  duration_ms: 0.2585
+  location: 'd:\\git\\fan\\xiuxian\\tests\\.compiled\\tests\\release\\e2e-game-flow.test.js:626:25'
+  failureType: 'testCodeFailure'
+  error: 'MergeService requires a non-null board — deprecated in PC V1'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    new MergeService (d:\git\fan\xiuxian\tests\.compiled\assets\scripts\services\merge-service.js:11:19)
+    TestContext.<anonymous> (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:628:19)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: E2E: career level chain 1-10 has no gaps
+ok 28 - E2E: career level chain 1-10 has no gaps
+  ---
+  duration_ms: 0.3762
+  ...
+# Subtest: E2E: WORK mode gives higher salary than FISHING mode
+ok 29 - E2E: WORK mode gives higher salary than FISHING mode
+  ---
+  duration_ms: 3.0117
+  ...
+# Subtest: E2E: snapshot reflects current player state consistently
+not ok 30 - E2E: snapshot reflects current player state consistently
+  ---
+  duration_ms: 0.9539
+  location: 'd:\\git\\fan\\xiuxian\\tests\\.compiled\\tests\\release\\e2e-game-flow.test.js:684:25'
+  failureType: 'testCodeFailure'
+  error: |-
+    Snapshot worker count should match
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (d:\git\fan\xiuxian\tests\.compiled\tests\release\e2e-game-flow.test.js:692:22)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 20
+# fail 10
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 72.226

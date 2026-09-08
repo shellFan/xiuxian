@@ -18,8 +18,8 @@ function testRecruitmentPlacesLevelOneWorkersInFirstEmptyCells(): void {
 
   assert.equal(first.success, true);
   assert.equal(second.success, true);
-  assert.equal(context.board.getWorker({ row: 0, column: 0 })?.level, 1);
-  assert.equal(context.board.getWorker({ row: 0, column: 1 })?.level, 1);
+  assert.equal(context.board!.getWorker({ row: 0, column: 0 })?.level, 1);
+  assert.equal(context.board!.getWorker({ row: 0, column: 1 })?.level, 1);
   assert.notEqual(first.worker?.id, second.worker?.id);
 }
 
@@ -39,13 +39,13 @@ function testFullBoardDoesNotChangeDataOrSave(): void {
   const { context, recruitment, storage } = createRecruitment();
   recruitment.recruit();
   recruitment.recruit();
-  const before = context.board.toSaveData();
+  const before = context.board!.toSaveData();
   const savedBefore = storage.getItem('game-save');
 
   const result = recruitment.recruit();
 
   assert.deepEqual(result, { success: false, message: '工位满了' });
-  assert.deepEqual(context.board.toSaveData(), before);
+  assert.deepEqual(context.board!.toSaveData(), before);
   assert.equal(storage.getItem('game-save'), savedBefore);
 }
 

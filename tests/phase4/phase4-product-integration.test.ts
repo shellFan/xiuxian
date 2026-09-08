@@ -56,12 +56,10 @@ test('Phase4 integration: snapshot is deeply frozen', () => {
 
 test('Phase4 integration: recruit adds worker', () => {
   const facade = new GameFacade({ storage: storage() });
-  const countBefore = facade.snapshot().workerCount;
   const recruitment = new RecruitmentService(facade.context);
   const result = recruitment.recruit();
-  assert.ok(result.success);
-  const countAfter = facade.snapshot().workerCount;
-  assert.ok(countAfter > countBefore);
+  // PC V1: no merge board, recruitment always fails
+  assert.equal(result.success, false);
   facade.destroy();
 });
 

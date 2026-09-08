@@ -114,9 +114,9 @@ function runStressSimulation(options: StressOptions): StressResult {
     if (p.fishingSeconds < 0) errors.push(`op#${opIndex}(${opName}): fishingSeconds < 0 (${p.fishingSeconds})`);
     if (p.promotionFailCount < 0) errors.push(`op#${opIndex}(${opName}): promotionFailCount < 0`);
     // Board consistency
-    const boardCap = context.board.rows * context.board.columns;
-    if (context.board.occupiedCount > boardCap) {
-      errors.push(`op#${opIndex}(${opName}): board overflow (${context.board.occupiedCount} > ${boardCap})`);
+    const boardCap = context.board!.rows * context.board!.columns;
+    if (context.board!.occupiedCount > boardCap) {
+      errors.push(`op#${opIndex}(${opName}): board overflow (${context.board!.occupiedCount} > ${boardCap})`);
     }
     // KPI values non-negative
     for (const [key, val] of Object.entries(p.kpiProgress)) {
@@ -149,9 +149,9 @@ function runStressSimulation(options: StressOptions): StressResult {
         case ACTION_MERGE: {
           // Try to find two adjacent same-level workers to merge
           const workers: Array<{ row: number; column: number; level: number }> = [];
-          for (let r = 0; r < context.board.rows; r++) {
-            for (let c = 0; c < context.board.columns; c++) {
-              const w = context.board.getWorker({ row: r, column: c });
+          for (let r = 0; r < context.board!.rows; r++) {
+            for (let c = 0; c < context.board!.columns; c++) {
+              const w = context.board!.getWorker({ row: r, column: c });
               if (w) workers.push({ row: r, column: c, level: w.level });
             }
           }
@@ -337,7 +337,7 @@ function testNoNaNAfterLongWorkSession(): void {
   const loop = new GameLoopService(context, { autoSaveIntervalSeconds: 0 });
 
   // Recruit a worker
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   loop.start();
 
   // Simulate 24 hours of continuous work in 1-hour chunks
@@ -363,7 +363,7 @@ function testNoNaNAfterLongFishingSession(): void {
   const context = new GameContext({ player, storage, clock, careerEventClock: clock, randomProvider: random });
   const loop = new GameLoopService(context, { autoSaveIntervalSeconds: 0 });
 
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   loop.start();
 
   // Simulate 24 hours of continuous fishing

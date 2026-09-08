@@ -2,6 +2,7 @@ import type { GameContext } from '../core/game-context';
 
 
 export interface EconomyServiceOptions {
+  /** @deprecated Merge rewards are no longer used in PC V1. */
   readonly mergeRewards?: readonly number[];
 }
 
@@ -10,14 +11,12 @@ export interface RewardGrantOptions {
 }
 
 export class EconomyService {
+  /** @deprecated Merge rewards are no longer used in PC V1. Kept for backward compat. */
   public readonly mergeRewards: readonly number[];
   private readonly grantedMergeRewards = new Set<string>();
 
   public constructor(private readonly context: GameContext, options: EconomyServiceOptions = {}) {
     this.mergeRewards = Object.freeze([...(options.mergeRewards ?? context.configService.economy.mergeRewards)]);
-    if (this.mergeRewards.length !== 5 || this.mergeRewards.some((reward) => !Number.isInteger(reward) || reward < 0)) {
-      throw new Error('Invalid economy merge rewards');
-    }
   }
 
   public changeSalary(amount: number): void {
@@ -73,12 +72,13 @@ export class EconomyService {
     this.context.player.spiritStones = total;
   }
 
+  /** @deprecated Merge rewards are no longer used in PC V1. Kept for backward compat. */
   public grantMergeReward(mergeId: string, mergeLevel: number, options: RewardGrantOptions = {}): number {
-    if (typeof mergeId !== 'string' || mergeId.trim() === '' || !Number.isInteger(mergeLevel) || mergeLevel < 1 || mergeLevel > 5) {
+    if (typeof mergeId !== 'string' || mergeId.trim() === '' || !Number.isInteger(mergeLevel) || mergeLevel < 1 || mergeLevel > this.mergeRewards.length) {
       throw new Error('Invalid merge reward');
     }
     if (this.grantedMergeRewards.has(mergeId)) return 0;
-    const reward = this.mergeRewards[mergeLevel - 1];
+    const reward = this.mergeRewards[mergeLevel - 1] ?? 0;
     this.grantedMergeRewards.add(mergeId);
     const previousSalary = this.context.player.salary;
     try {
@@ -101,6 +101,7 @@ export class EconomyService {
     return reward;
   }
 
+  /** @deprecated Merge rewards are no longer used in PC V1. Kept for backward compat. */
   public rollbackMergeReward(mergeId: string, reward: number): void {
     if (this.grantedMergeRewards.delete(mergeId)) this.context.player.salary -= reward;
   }

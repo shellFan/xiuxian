@@ -12,7 +12,7 @@ function makeContext(clock: FakeClock, reward?: RewardProvider): { context: Game
   const storage = new MemoryStorageAdapter();
   const player = new PlayerData({ lastSaveTime: clock.now() });
   const context = new GameContext({ player, storage, clock, rewardProvider: reward });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   return { context, offline: context.offline };
 }
 
@@ -159,7 +159,7 @@ function testSaveFailureRollsBackDouble(): void {
   const clock = new FakeClock(1_000);
   const player = new PlayerData({ lastSaveTime: clock.now() });
   const context = new GameContext({ player, storage: throwingStorage, clock });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   clock.advance(3_600 * 1000);
   assert.throws(() => context.offline.claimDouble('s', () => undefined), /quota exceeded/);
   assert.equal(player.salary, 0);
@@ -217,7 +217,7 @@ function testSaveFailureAllowsRetrySameSettlement(): void {
   const clock = new FakeClock(1_000);
   const player = new PlayerData({ lastSaveTime: clock.now() });
   const context = new GameContext({ player, storage: flakyStorage, clock });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   clock.advance(3_600 * 1000);
   assert.throws(() => context.offline.claimDouble('s1', () => undefined), /quota exceeded/);
   assert.equal(player.salary, 0, 'rolled back after save failure');

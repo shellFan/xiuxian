@@ -41,7 +41,7 @@ function makeContext(options: PlayerDataOptions = {}, random?: RandomProvider, c
 function testGameLoopStepOrder(): void {
   const { context, player, clock } = makeContext();
   // Place a worker so work ticks produce salary
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   player.workMode = 'WORK';
 
   // Use 3600s tick interval so 1 step = 1 hour → salary > 0
@@ -73,14 +73,14 @@ function testGameLoopStepOrder(): void {
   assert.ok(pcIdx < gsIdx, 'playerChanged must fire before gameSaved');
 }
 
-/** Tutorial auto-advance: FIRST_RECRUIT → SECOND_RECRUIT when board has 1+ workers */
+/** Tutorial auto-advance: FIRST_RECRUIT → SECOND_RECRUIT when career level >= 1 */
 function testTutorialAutoAdvanceOnRecruit(): void {
   const { context, player } = makeContext();
   assert.equal(player.tutorialStep, 'FIRST_RECRUIT');
   assert.equal(player.tutorialCompleted, false);
 
-  // Place first worker → FIRST_RECRUIT auto-advances
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  // PC V1: FIRST_RECRUIT auto-advances when careerLevel >= 1
+  player.careerLevel = 1;
   const advanced = context.tutorial.checkAutoAdvance();
   assert.equal(advanced, true);
   assert.equal(player.tutorialStep, 'SECOND_RECRUIT');
@@ -91,18 +91,18 @@ function testTutorialFullSequence(): void {
   const { context, player } = makeContext();
   const steps: TutorialStep[] = ['FIRST_RECRUIT', 'SECOND_RECRUIT', 'FIRST_MERGE', 'START_WORK', 'CHECK_KPI', 'FIRST_PROMOTION'];
 
-  // Step 1: FIRST_RECRUIT — place 1 worker
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  // Step 1: FIRST_RECRUIT — PC V1: careerLevel >= 1 (no merge board)
+  player.careerLevel = 1;
   assert.equal(context.tutorial.checkAutoAdvance(), true);
   assert.equal(player.tutorialStep, 'SECOND_RECRUIT');
 
-  // Step 2: SECOND_RECRUIT — place 2nd worker
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 1 });
+  // Step 2: SECOND_RECRUIT — PC V1: workSeconds > 0
+  player.workSeconds = 1;
   assert.equal(context.tutorial.checkAutoAdvance(), true);
   assert.equal(player.tutorialStep, 'FIRST_MERGE');
 
-  // Step 3: FIRST_MERGE — maxWorkerLevel >= 2
-  player.maxWorkerLevel = 2;
+  // Step 3: FIRST_MERGE — PC V1: cultivationExp >= 10
+  player.cultivationExp = 10;
   assert.equal(context.tutorial.checkAutoAdvance(), true);
   assert.equal(player.tutorialStep, 'START_WORK');
 
@@ -173,7 +173,7 @@ function testAchievementIntegrationWithSalary(): void {
 /** BuffService: active buff multiplier applies to work tick */
 function testBuffWorkIntegration(): void {
   const { context, player, clock } = makeContext();
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   player.workMode = 'WORK';
 
   // Add a salary boost buff

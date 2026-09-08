@@ -116,11 +116,14 @@ export class TutorialService {
     const player = this.context.player;
     switch (step) {
       case 'FIRST_RECRUIT':
-        return this.context.board.occupiedCount >= 1;
+        // PC V1: no merge board — auto-advance or check career level
+        return player.careerLevel >= 1;
       case 'SECOND_RECRUIT':
-        return this.context.board.occupiedCount >= 2;
+        // PC V1: no merge board — check work seconds instead
+        return player.workSeconds > 0 || player.fishingSeconds > 0;
       case 'FIRST_MERGE':
-        return player.maxWorkerLevel >= 2;
+        // PC V1: no merge board — check cultivation exp instead
+        return player.cultivationExp >= 10;
       case 'START_WORK':
         return player.workMode === 'WORK' && player.workSeconds > 0;
       case 'CHECK_KPI':

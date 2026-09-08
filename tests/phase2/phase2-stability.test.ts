@@ -84,12 +84,12 @@ function testSaveRoundTripPreservesPhaseTwoFields(): void {
 function testIdleBoundariesZeroEightHourCap(): void {
   // zero elapsed -> no reward, no settlement recorded
   const zero = makeContext();
-  zero.context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  zero.context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   assert.equal(zero.context.idle.settle('zero').salary, 0);
 
   // exactly 8h -> full reward, not capped
   const eight = makeContext();
-  eight.context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  eight.context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   eight.clock.set(1_000 + 8 * 60 * 60 * 1_000);
   const exact = eight.context.idle.settle('eight');
   assert.equal(exact.salary, 80);
@@ -100,7 +100,7 @@ function testIdleBoundariesZeroEightHourCap(): void {
 
   // 12h total -> capped at 8h (elapsedSeconds stays 28800)
   const twelve = makeContext();
-  twelve.context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  twelve.context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   twelve.clock.set(1_000 + 12 * 60 * 60 * 1_000);
   const over = twelve.context.idle.settle('twelve');
   assert.equal(over.salary, 80, 'capped at 8h (28800s)');
@@ -326,7 +326,7 @@ function testOfficeSyncMirrorsCareer(): void {
 // ---------------------------------------------------------------------------
 function makeOfflineContext(): { context: GameContext; player: PlayerData; clock: FakeClock } {
   const { context, player, clock } = makeContext({ salary: 0, cultivationExp: 0, lastSaveTime: 1_000 });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   clock.set(1_000 + 3600 * 1000); // 1h elapsed -> base 10 salary / 5 cultivation
   return { context, player, clock };
 }
@@ -376,7 +376,7 @@ function testOfflineDoubleDuplicateCallbackIgnored(): void {
     }
   }
   const ctx = new GameContext({ player: context.player, storage: new MemoryStorageAdapter(), clock: new FakeClock(1_000 + 3600 * 1000), rewardProvider: new DoubleCallbackProvider() });
-  ctx.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  ctx.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   ctx.offline.claimDouble('sid-1', () => { calls += 1; });
   assert.equal(calls, 1, 'only one callback despite duplicate provider invocation');
 }
@@ -389,7 +389,7 @@ function testOfflineDoubleSaveFailureRollsBack(): void {
   };
   const player = new PlayerData({ salary: 0, cultivationExp: 0, lastSaveTime: 1_000 });
   const context = new GameContext({ player, storage: throwingStorage, clock: new FakeClock(1_000 + 3600 * 1000), rewardProvider: new MockRewardProvider() });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   assert.throws(() => context.offline.claimDouble('sid-1', () => undefined), /quota exceeded/);
   assert.equal(player.salary, 0, 'salary rolled back on save failure');
   assert.equal(player.cultivationExp, 0);

@@ -66,12 +66,15 @@ export class MainView extends Component {
     this.context = context;
     this.recruitment = new RecruitmentService(context);
     this.merge = new MergeService(context);
-    this.drag = new DragController({
-      getWorker: (position) => context.board.getWorker(position),
-      maxWorkerLevel: context.board.maxWorkerLevel,
-      onMove: (from, to) => { context.board.move(from, to); context.syncPlayerWorkers(); context.saveService.save(context.player); this.refresh(); },
-      onMerge: (from, to) => { this.merge?.merge(from, to); this.drag?.completeMerge(); this.refresh(); },
-    });
+    const board = context.board;
+    if (board) {
+      this.drag = new DragController({
+        getWorker: (position) => board.getWorker(position),
+        maxWorkerLevel: board.maxWorkerLevel,
+        onMove: (from, to) => { board.move(from, to); context.syncPlayerWorkers(); context.saveService.save(context.player); this.refresh(); },
+        onMerge: (from, to) => { this.merge?.merge(from, to); this.drag?.completeMerge(); this.refresh(); },
+      });
+    }
     context.events.on('workerRecruited', this.refreshFromEvent);
     context.events.on('mergeCompleted', this.onMergeCompleted);
     context.events.on('salaryChanged', this.onSalaryChanged);
@@ -112,20 +115,23 @@ export class MainView extends Component {
   public refresh(updateLevelBaseline = true): void {
     const context = this.context;
     if (!context) return;
+    // @deprecated maxWorkerLevel is a board/merge field; PC V1 should derive rank from careerLevel
     const rank = context.configService.worker.levels.find((level) => level.level === context.player.maxWorkerLevel) ?? context.configService.worker.levels[0];
     this.setText(this.rankLabel, `当前职级：${rank.name}`);
     this.setText(this.salaryLabel, `工资：${context.player.salary}`);
     this.setText(this.titleLabel, '牛马修仙传');
-    this.boardSnapshot = context.board.cells.map((cell) => {
+    const board = context.board;
+    this.boardSnapshot = board ? board.cells.map((cell) => {
       const worker = cell.occupant;
       return worker ? { id: worker.id, level: worker.level, displayText: WorkerView.format(worker), position: { row: cell.row, column: cell.column } } : undefined;
-    });
+    }) : [];
     this.workerViews.forEach((view, index) => {
       const card = this.boardSnapshot[index];
       if (this.boardView) view.setBoardPosition(card?.position ?? { row: Math.floor(index / this.boardView.rows), column: index % this.boardView.columns });
       if (card) view.refresh(card);
       else view.clear();
     });
+    // @deprecated maxWorkerLevel is a board/merge field
     if (updateLevelBaseline) this.lastDisplayedMaxWorkerLevel = context.player.maxWorkerLevel;
   }
 

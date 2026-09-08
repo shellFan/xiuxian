@@ -7,7 +7,6 @@ import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adap
 
 function testPhase2RefreshEventListIsExplicit(): void {
   const expected = [
-    'mergeCompleted',
     'salaryChanged',
     'idleSettled',
     'phase2Refresh',
@@ -31,6 +30,7 @@ function testPhase2RefreshEventListIsExplicit(): void {
     'taskCompleted',
     'taskClaimed',
     'spiritStonesChanged',
+    'itemCrafted',
   ];
   assert.deepEqual([...PHASE2_REFRESH_EVENTS].sort(), [...expected].sort());
 }

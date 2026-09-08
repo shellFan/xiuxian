@@ -23,6 +23,7 @@ export interface GameSnapshot {
   readonly officeLevel: number;
   readonly sectId: string | null;
   readonly talentId: string | null;
+  /** @deprecated Board/merge system. PC V1 does not use workers on a grid. */
   readonly maxWorkerLevel: number;
   readonly promotionFailCount: number;
   readonly unlockedAchievementIds: readonly string[];
@@ -33,6 +34,7 @@ export interface GameSnapshot {
   readonly tutorialStep: string;
   readonly tutorialCompleted: boolean;
   readonly lastSaveTime: number;
+  /** @deprecated Board/merge system. PC V1 does not use workers on a grid. */
   readonly workerCount: number;
   readonly mindStatus: 'NORMAL' | 'BREAKDOWN';
   readonly spiritStones: number;

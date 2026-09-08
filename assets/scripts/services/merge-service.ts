@@ -1,4 +1,5 @@
 import type { BoardPosition } from '../game/merge/merge-types';
+import type { MergeBoard } from '../game/merge/merge-board';
 import { WorkerEntity } from '../model/worker-entity';
 import type { GameContext } from '../core/game-context';
 
@@ -18,8 +19,12 @@ export type MergeResult = MergeSuccess | MergeFailure;
 
 export class MergeService {
   private locked = false;
+  /** @deprecated PC V1 does not use MergeBoard. This service requires a non-null board. */
   public constructor(private readonly context: GameContext) {
-    if (context.economy.mergeRewards.length < Math.min(this.context.board.maxWorkerLevel, 6) - 1 ||
+    if (!context.board) {
+      throw new Error('MergeService requires a non-null board — deprecated in PC V1');
+    }
+    if (context.economy.mergeRewards.length < Math.min(context.board.maxWorkerLevel, 6) - 1 ||
       context.economy.mergeRewards.some((reward) => !Number.isInteger(reward) || reward < 0)) {
       throw new Error('Merge rewards must cover every merge level and be non-negative');
     }
@@ -27,16 +32,18 @@ export class MergeService {
 
   public merge(first: BoardPosition, second: BoardPosition): MergeResult {
     if (this.locked) return { success: false, message: '合成进行中' };
-    const left = this.context.board.getWorker(first);
-    const right = this.context.board.getWorker(second);
+    const board = this.context.board;
+    if (!board) return { success: false, message: '工位不足' };
+    const left = board.getWorker(first);
+    const right = board.getWorker(second);
     if (!left || !right) return { success: false, message: '工位不足' };
     if (left.level !== right.level) return { success: false, message: '只能合成同级牛马' };
-    if (left.level >= 6 || left.level >= this.context.board.maxWorkerLevel) {
+    if (left.level >= 6 || left.level >= board.maxWorkerLevel) {
       return { success: false, message: '最高等级为Lv6' };
     }
 
     this.locked = true;
-    const boardBefore = this.context.board.toSaveData();
+    const boardBefore = board.toSaveData();
     const workersBefore = this.context.player.workers.map((worker) => ({ ...worker }));
     const salaryBefore = this.context.player.salary;
     const maxWorkerLevelBefore = this.context.player.maxWorkerLevel;
@@ -44,7 +51,7 @@ export class MergeService {
     const mergeId = [left.id, right.id].sort().join(':');
 
     try {
-      const worker = this.context.board.merge(first, second);
+      const worker = board.merge(first, second);
       this.context.syncPlayerWorkers();
       this.context.player.maxWorkerLevel = Math.max(this.context.player.maxWorkerLevel, worker.level);
       let salaryReward = 0;
@@ -74,16 +81,18 @@ export class MergeService {
   }
 
   private restore(
-    boardData: ReturnType<GameContext['board']['toSaveData']>,
+    boardData: ReturnType<MergeBoard['toSaveData']>,
     workers: typeof this.context.player.workers,
     salary: number,
     maxWorkerLevel: number,
   ): void {
-    for (const cell of this.context.board.cells) {
-      this.context.board.remove(cell);
+    const board = this.context.board;
+    if (!board) return;
+    for (const cell of board.cells) {
+      board.remove(cell);
     }
     for (const savedWorker of boardData) {
-      this.context.board.place(WorkerEntity.fromSaveData(savedWorker), savedWorker);
+      board.place(WorkerEntity.fromSaveData(savedWorker), savedWorker);
     }
     this.context.player.workers = workers.map((worker) => ({ ...worker }));
     this.context.player.salary = salary;

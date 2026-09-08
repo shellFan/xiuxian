@@ -3,7 +3,8 @@ import { CultivationService } from '../services/cultivation-service';
 import { EventBus } from './event-bus';
 import { GameConfig } from './game-config';
 import type { GameEvents } from './game-events';
-import { MergeBoard } from '../game/merge/merge-board';
+import type { MergeBoard } from '../game/merge/merge-board';
+import { MergeBoard as MergeBoardClass } from '../game/merge/merge-board';
 import { PlayerData } from '../model/player-data';
 import { SaveService } from '../services/save-service';
 import { ConfigService } from '../services/config-service';
@@ -43,16 +44,21 @@ import { RewardedAdService } from '../services/rewarded-ad-service';
 import { IdleEfficiencyService } from '../services/idle-efficiency-service';
 import { LeaderboardService } from '../services/leaderboard-service';
 import { FriendsService } from '../services/friends-service';
+import { CraftService } from '../services/craft-service';
+import craftConfig from '../../configs/craft.json';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
 import dailyTasksConfig from '../../configs/daily-tasks.json';
 
 export interface GameContextOptions {
-  readonly board?: MergeBoard;
+  /** @deprecated PC V1 should pass `null` to disable merge board. Defaults to 4×4 for backward compatibility. */
+  readonly board?: MergeBoard | null;
   readonly player?: PlayerData;
   readonly saveService?: SaveService;
   readonly storage?: StorageAdapter;
+  /** @deprecated Board dimensions are no longer used in PC V1. */
   readonly boardRows?: number;
+  /** @deprecated Board dimensions are no longer used in PC V1. */
   readonly boardColumns?: number;
   readonly economyRewards?: readonly number[];
   readonly cultivationRewards?: readonly number[];
@@ -64,7 +70,8 @@ export interface GameContextOptions {
 }
 
 export class GameContext {
-  public readonly board: MergeBoard;
+  /** @deprecated PC V1 should pass `board: null` instead. */
+  public readonly board: MergeBoard | null;
   public readonly player: PlayerData;
   public readonly saveService: SaveService;
   public readonly events = new EventBus<GameEvents>();
@@ -93,33 +100,36 @@ export class GameContext {
   public readonly idleEfficiency: IdleEfficiencyService;
   public readonly leaderboard: LeaderboardService;
   public readonly friends: FriendsService;
+  public readonly craft: CraftService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
 
   public constructor(options: GameContextOptions = {}) {
     this.saveService = options.saveService ?? new SaveService(options.storage ?? new LocalStorageAdapter(), undefined, options.clock ?? DEFAULT_CLOCK);
-    let saved = options.player || options.board ? undefined : this.saveService.load();
-    if (saved && !options.board) {
-      try {
-        this.board = MergeBoard.fromSaveData(saved.workers, {
-          rows: options.boardRows ?? GameConfig.boardRows,
-          columns: options.boardColumns ?? GameConfig.boardColumns,
-        });
-      } catch {
-        saved = PlayerData.createDefault().toSaveData();
-        this.board = new MergeBoard({
-          rows: options.boardRows ?? GameConfig.boardRows,
-          columns: options.boardColumns ?? GameConfig.boardColumns,
-        });
-      }
+    let saved = options.player ? undefined : this.saveService.load();
+    // Board defaults to a standard 4×4 grid for backward compatibility.
+    // PC V1 production code should pass `board: null` to disable the merge board.
+    if (options.board !== undefined) {
+      this.board = options.board;
+    } else if (options.boardRows && options.boardColumns) {
+      this.board = new MergeBoardClass({ rows: options.boardRows, columns: options.boardColumns });
     } else {
-      this.board = options.board ?? new MergeBoard({
-        rows: options.boardRows ?? GameConfig.boardRows,
-        columns: options.boardColumns ?? GameConfig.boardColumns,
-      });
+      this.board = new MergeBoardClass();
     }
     this.player = options.player ?? new PlayerData(saved);
+    // Restore workers onto the board if board exists and player has saved workers.
+    // Invalid worker data (duplicates, out-of-bounds, etc.) causes the entire save to be
+    // rejected — the player resets to defaults as a safety measure against corruption.
+    if (this.board && this.player.workers.length > 0) {
+      try {
+        this.board = MergeBoardClass.fromSaveData(this.player.workers, { rows: this.board.rows, columns: this.board.columns });
+      } catch {
+        // Corrupted worker data — reset to new player defaults
+        this.board = new MergeBoardClass({ rows: this.board.rows, columns: this.board.columns });
+        this.player = new PlayerData();
+      }
+    }
     this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig, kpiConfig, officeConfig, promotionConfig, achievementsConfig, dailyConfig, dailyTasksConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
@@ -151,9 +161,13 @@ export class GameContext {
     this.idleEfficiency = new IdleEfficiencyService(this);
     this.leaderboard = new LeaderboardService(this);
     this.friends = new FriendsService(this);
+    this.craft = new CraftService(this, craftConfig as import('../services/craft-service').CraftConfig);
   }
 
+  /** @deprecated No longer used in PC V1 — board is null by default. */
   public syncPlayerWorkers(): void {
-    this.player.workers = this.board.toSaveData();
+    if (this.board) {
+      this.player.workers = this.board.toSaveData();
+    }
   }
 }

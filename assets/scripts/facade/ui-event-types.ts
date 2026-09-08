@@ -67,6 +67,7 @@ const EVENT_CATEGORY_MAP: Readonly<Record<string, UiEventCategory>> = {
   offlineRewardChanged: 'OFFLINE_REWARD',
   clockAnomaly: 'ERROR_OCCURRED',
   phase2Refresh: 'STATE_CHANGED',
+  itemCrafted: 'RESOURCE_CHANGED',
 };
 
 /**

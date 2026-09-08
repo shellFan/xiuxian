@@ -37,8 +37,8 @@ function testLoadsLevelOneRequirements(): void {
 function testMergeIncrementsCounter(): void {
   const context = createContext();
   const merge = new MergeService(context);
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 1 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 1 });
   const result = merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
   assert.equal(result.success, true);
   assert.equal(context.player.kpiProgress.MERGE_COUNT, 1);
@@ -48,8 +48,8 @@ function testMergeIncrementsCounter(): void {
 function testFailedMergeDoesNotIncrement(): void {
   const context = createContext();
   const merge = new MergeService(context);
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  context.board.place(WorkerEntity.create(2), { row: 0, column: 1 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(2), { row: 0, column: 1 });
   const result = merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
   assert.equal(result.success, false);
   assert.equal(context.player.kpiProgress.MERGE_COUNT ?? 0, 0);
@@ -128,8 +128,8 @@ function testRepeatEventsDoNotDoubleCount(): void {
 function testSaveAndLoadRestoresProgress(): void {
   const storage = new MemoryStorageAdapter();
   const context = new GameContext({ saveService: new SaveService(storage), boardRows: 1, boardColumns: 3 });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 1 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 1 });
   const merge = new MergeService(context);
   merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
 
@@ -190,8 +190,8 @@ function testSaveFailureRollsBackKpi(): void {
     boardColumns: 3,
   });
   const merge = new MergeService(context);
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 1 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 1 });
   assert.throws(() => merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 }), /quota exceeded/);
   assert.equal(context.player.kpiProgress.MERGE_COUNT ?? 0, 0);
 }

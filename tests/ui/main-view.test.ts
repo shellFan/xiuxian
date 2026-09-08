@@ -106,11 +106,11 @@ test('MainView onLoad uses the GameBootstrapComponent business context', () => {
   assert.equal(main.context, bootstrap.context);
   assert.equal(main.context.saveService, bootstrap.context.saveService);
   assert.equal(main.context.economy, bootstrap.context.economy);
-  assert.equal(main.context.board, bootstrap.context.board);
+  assert.equal(main.context.board!, bootstrap.context.board!);
   assert.equal(main.context.events, bootstrap.context.events);
   main.recruit();
   assert.equal(bootstrap.context.player.workers.length, 1);
-  assert.equal(bootstrap.context.board.getWorker({ row: 0, column: 0 })?.level, 1);
+  assert.equal(bootstrap.context.board!.getWorker({ row: 0, column: 0 })?.level, 1);
 });
 
 test('refreshes labels and worker cards from the authoritative GameContext', () => {
@@ -212,10 +212,10 @@ test('full board recruitment shows a Toast instead of mutating the board', () =>
   main.toastView = toast;
   main.attachContext(context);
   main.recruit();
-  const before = context.board.toSaveData();
+  const before = context.board!.toSaveData();
   const result = main.recruit();
   assert.equal(result?.success, false);
-  assert.deepEqual(context.board.toSaveData(), before);
+  assert.deepEqual(context.board!.toSaveData(), before);
   assert.equal(label.string, '工位满了');
 });
 
@@ -301,7 +301,7 @@ test('scene assembly binds every worker view and clears an empty cell', () => {
   main.bindWorkerViews(views);
   button.listeners.get('click')!();
   assert.equal(views[0].node.active, true);
-  context.board.move({ row: 0, column: 0 }, { row: 0, column: 1 });
+  context.board!.move({ row: 0, column: 0 }, { row: 0, column: 1 });
   context.syncPlayerWorkers();
   main.refresh();
   assert.equal(views[0].node.active, true);
@@ -332,17 +332,17 @@ test('refresh restores unique fixed cell centers after recruit, move, merge, and
   assert.equal(new Set(positions()).size, 16);
 
   const drag = main.getDragController();
-  assert.equal(drag.begin(context.board.getWorker({ row: 0, column: 0 })!.id, { row: 0, column: 0 }), true);
+  assert.equal(drag.begin(context.board!.getWorker({ row: 0, column: 0 })!.id, { row: 0, column: 0 }), true);
   assert.equal(drag.drop({ row: 0, column: 2 }), 'move');
   assert.equal(new Set(positions()).size, 16);
 
   main.recruit();
-  assert.equal(drag.begin(context.board.getWorker({ row: 0, column: 0 })!.id, { row: 0, column: 0 }), true);
+  assert.equal(drag.begin(context.board!.getWorker({ row: 0, column: 0 })!.id, { row: 0, column: 0 }), true);
   assert.equal(drag.drop({ row: 0, column: 2 }), 'merge');
   assert.equal(new Set(positions()).size, 16);
 
   assert.equal(drag.begin('missing-worker', { row: 0, column: 0 }), false);
-  assert.equal(drag.begin(context.board.getWorker({ row: 0, column: 2 })!.id, { row: 0, column: 2 }), true);
+  assert.equal(drag.begin(context.board!.getWorker({ row: 0, column: 2 })!.id, { row: 0, column: 2 }), true);
   assert.equal(drag.cancel(), 'restore');
   assert.equal(new Set(positions()).size, 16);
 });

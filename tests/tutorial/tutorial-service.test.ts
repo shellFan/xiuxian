@@ -2,12 +2,9 @@ import assert from 'node:assert/strict';
 
 import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData } from '../../assets/scripts/model/player-data';
-import { WorkerEntity } from '../../assets/scripts/model/worker-entity';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { SequenceRandomProvider } from '../../assets/scripts/core/random-provider';
-import { RecruitmentService } from '../../assets/scripts/services/recruitment-service';
-import { MergeService } from '../../assets/scripts/services/merge-service';
 import { GameLoopService } from '../../assets/scripts/services/game-loop-service';
 
 function makeContext(player?: PlayerData): GameContext {
@@ -93,40 +90,43 @@ function testAdvanceAfterCompleteIsNoOp(): void {
   assert.equal(context.tutorial.currentStep(), 'NONE');
 }
 
-// ── Test: Auto-advance FIRST_RECRUIT when worker on board ────────────────────
+// ── Test: Auto-advance FIRST_RECRUIT when careerLevel >= 1 (PC V1) ────────────
 
 function testAutoAdvanceFirstRecruit(): void {
+  // PC V1: FIRST_RECRUIT condition is careerLevel >= 1 (not board placement).
+  // Default player starts at careerLevel=1, so condition is immediately met.
   const context = makeContext();
   assert.equal(context.tutorial.currentStep(), 'FIRST_RECRUIT');
-  assert.equal(context.tutorial.isConditionMet('FIRST_RECRUIT'), false);
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
   assert.equal(context.tutorial.isConditionMet('FIRST_RECRUIT'), true);
   const advanced = context.tutorial.checkAutoAdvance();
   assert.equal(advanced, true);
   assert.equal(context.tutorial.currentStep(), 'SECOND_RECRUIT');
 }
 
-// ── Test: Auto-advance SECOND_RECRUIT when 2 workers on board ────────────────
+// ── Test: Auto-advance SECOND_RECRUIT when workSeconds > 0 (PC V1) ────────────
 
 function testAutoAdvanceSecondRecruit(): void {
   const context = makeContext();
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 1 });
-  // Should auto-advance through FIRST_RECRUIT and SECOND_RECRUIT
+  // PC V1: SECOND_RECRUIT condition is workSeconds > 0 (not 2 workers on board)
+  context.player.careerLevel = 1; // meet FIRST_RECRUIT condition
   context.tutorial.checkAutoAdvance(); // FIRST_RECRUIT → SECOND_RECRUIT
   assert.equal(context.tutorial.currentStep(), 'SECOND_RECRUIT');
+  assert.equal(context.tutorial.isConditionMet('SECOND_RECRUIT'), false);
+  context.player.workSeconds = 1;
+  assert.equal(context.tutorial.isConditionMet('SECOND_RECRUIT'), true);
   const advanced = context.tutorial.checkAutoAdvance();
   assert.equal(advanced, true);
   assert.equal(context.tutorial.currentStep(), 'FIRST_MERGE');
 }
 
-// ── Test: Auto-advance FIRST_MERGE when maxWorkerLevel >= 2 ──────────────────
+// ── Test: Auto-advance FIRST_MERGE when cultivationExp >= 10 (PC V1) ──────────
 
 function testAutoAdvanceFirstMerge(): void {
   const context = makeContext();
   context.player.tutorialStep = 'FIRST_MERGE';
   assert.equal(context.tutorial.isConditionMet('FIRST_MERGE'), false);
-  context.player.maxWorkerLevel = 2;
+  // PC V1: FIRST_MERGE condition is cultivationExp >= 10 (not maxWorkerLevel >= 2)
+  context.player.cultivationExp = 10;
   assert.equal(context.tutorial.isConditionMet('FIRST_MERGE'), true);
   const advanced = context.tutorial.checkAutoAdvance();
   assert.equal(advanced, true);
@@ -183,7 +183,7 @@ function testAutoAdvanceFirstPromotion(): void {
   assert.equal(context.tutorial.currentStep(), 'NONE');
 }
 
-// ── Test: Full tutorial flow via game loop ───────────────────────────────────
+// ── Test: Full tutorial flow via game loop (PC V1) ───────────────────────────
 
 function testFullTutorialFlowViaGameLoop(): void {
   const clock = new FakeClock(1_000);
@@ -196,24 +196,21 @@ function testFullTutorialFlowViaGameLoop(): void {
     careerEventClock: clock,
     randomProvider: random,
   });
-  const recruitment = new RecruitmentService(context);
-  const merge = new MergeService(context);
   const loop = new GameLoopService(context, { autoSaveIntervalSeconds: 0 });
 
-  // Step 1: FIRST_RECRUIT
+  // Step 1: FIRST_RECRUIT — PC V1: careerLevel >= 1
   assert.equal(context.tutorial.currentStep(), 'FIRST_RECRUIT');
-  recruitment.recruit();
+  context.player.careerLevel = 1;
   context.tutorial.checkAutoAdvance();
   assert.equal(context.tutorial.currentStep(), 'SECOND_RECRUIT');
 
-  // Step 2: SECOND_RECRUIT
-  recruitment.recruit();
+  // Step 2: SECOND_RECRUIT — PC V1: workSeconds > 0
+  context.player.workSeconds = 1;
   context.tutorial.checkAutoAdvance();
   assert.equal(context.tutorial.currentStep(), 'FIRST_MERGE');
 
-  // Step 3: FIRST_MERGE
-  const mergeResult = merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
-  assert.equal(mergeResult.success, true);
+  // Step 3: FIRST_MERGE — PC V1: cultivationExp >= 10
+  context.player.cultivationExp = 10;
   context.tutorial.checkAutoAdvance();
   assert.equal(context.tutorial.currentStep(), 'START_WORK');
 

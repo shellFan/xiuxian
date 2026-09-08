@@ -72,50 +72,43 @@ test('buildMainHUDViewModel: returns complete HUD data', () => {
   assert.ok(vm.mindStatusText.length > 0);
 });
 
-test('buildMainHUDViewModel: board capacity matches 4x4', () => {
+test('buildMainHUDViewModel: board is null in PC V1', () => {
   const facade = createFacade();
   const vm = buildMainHUDViewModel(facade);
-  assert.equal(vm.boardCapacity, 16);
+  assert.equal(vm.boardCapacity, 0);
   assert.equal(vm.workerCount, 0);
   assert.equal(vm.boardIsFull, false);
 });
 
 // ── MergeBoardViewModel ─────────────────────────────────────────────────────
 
-test('buildMergeBoardViewModel: returns 4x4 grid', () => {
+test('buildMergeBoardViewModel: returns empty board in PC V1', () => {
   const facade = createFacade();
   const vm = buildMergeBoardViewModel(facade);
 
-  assert.equal(vm.rows, 4);
-  assert.equal(vm.columns, 4);
-  assert.equal(vm.cells.length, 16);
+  assert.equal(vm.rows, 0);
+  assert.equal(vm.columns, 0);
+  assert.equal(vm.cells.length, 0);
   assert.equal(vm.isFull, false);
   assert.equal(vm.workerCount, 0);
 });
 
-test('buildMergeBoardViewModel: all cells empty initially', () => {
+test('buildMergeBoardViewModel: all cells empty in PC V1 (no board)', () => {
   const facade = createFacade();
   const vm = buildMergeBoardViewModel(facade);
 
-  for (const cell of vm.cells) {
-    assert.equal(cell.occupied, false);
-    assert.equal(cell.workerId, null);
-    assert.equal(cell.workerLevel, null);
-  }
+  // In PC V1, board is null so cells array is empty
+  assert.equal(vm.cells.length, 0);
+  assert.equal(vm.workerCount, 0);
 });
 
-test('buildMergeBoardViewModel: reflects placed worker', () => {
+test('buildMergeBoardViewModel: queryBoard returns null in PC V1', () => {
   const facade = createFacade();
-  const board = facade.context.board;
-  const { WorkerEntity } = require('../../assets/scripts/model/worker-entity');
-  board.place(WorkerEntity.create(1), { row: 0, column: 0 });
-
+  assert.equal(facade.queryBoard(), null, 'Board should be null in PC V1');
   const vm = buildMergeBoardViewModel(facade);
-  const cell00 = vm.cells.find((c) => c.row === 0 && c.column === 0);
-  assert.ok(cell00);
-  assert.equal(cell00.occupied, true);
-  assert.equal(cell00.workerLevel, 1);
-  assert.equal(vm.workerCount, 1);
+  assert.equal(vm.rows, 0);
+  assert.equal(vm.columns, 0);
+  assert.equal(vm.cells.length, 0);
 });
 
 // ── CareerViewModel ─────────────────────────────────────────────────────────
@@ -255,16 +248,12 @@ test('ViewModels are frozen (immutable)', () => {
   const facade = createFacade();
   const vm = buildMainHUDViewModel(facade);
 
-  assert.throws(() => {
-    (vm as { careerLevel: number }).careerLevel = 999;
-  }, /Cannot assign to read only property|not extensible/);
+  assert.equal(Object.isFrozen(vm), true, 'MainHUDViewModel should be frozen');
 });
 
-test('MergeBoardViewModel cells are frozen', () => {
+test('MergeBoardViewModel is frozen (immutable)', () => {
   const facade = createFacade();
   const vm = buildMergeBoardViewModel(facade);
 
-  assert.throws(() => {
-    (vm.cells[0] as { occupied: boolean }).occupied = true;
-  }, /Cannot assign to read only property|not extensible/);
+  assert.equal(Object.isFrozen(vm), true, 'MergeBoardViewModel should be frozen');
 });

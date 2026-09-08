@@ -111,9 +111,9 @@ function runSeedSimulation(options: SeedSimOptions): SeedSimResult {
     if (p.workSeconds < 0) errors.push(`op#${opIndex}(${opName}): workSeconds < 0 (${p.workSeconds})`);
     if (p.fishingSeconds < 0) errors.push(`op#${opIndex}(${opName}): fishingSeconds < 0 (${p.fishingSeconds})`);
     if (p.promotionFailCount < 0) errors.push(`op#${opIndex}(${opName}): promotionFailCount < 0`);
-    const boardCap = context.board.rows * context.board.columns;
-    if (context.board.occupiedCount > boardCap) {
-      errors.push(`op#${opIndex}(${opName}): board overflow (${context.board.occupiedCount} > ${boardCap})`);
+    const boardCap = context.board!.rows * context.board!.columns;
+    if (context.board!.occupiedCount > boardCap) {
+      errors.push(`op#${opIndex}(${opName}): board overflow (${context.board!.occupiedCount} > ${boardCap})`);
     }
     for (const [key, val] of Object.entries(p.kpiProgress)) {
       if (val < 0) errors.push(`op#${opIndex}(${opName}): kpiProgress[${key}] < 0 (${val})`);
@@ -144,9 +144,9 @@ function runSeedSimulation(options: SeedSimOptions): SeedSimResult {
         }
         case ACTION_MERGE: {
           const workers: Array<{ row: number; column: number; level: number }> = [];
-          for (let r = 0; r < context.board.rows; r++) {
-            for (let c = 0; c < context.board.columns; c++) {
-              const w = context.board.getWorker({ row: r, column: c });
+          for (let r = 0; r < context.board!.rows; r++) {
+            for (let c = 0; c < context.board!.columns; c++) {
+              const w = context.board!.getWorker({ row: r, column: c });
               if (w) workers.push({ row: r, column: c, level: w.level });
             }
           }

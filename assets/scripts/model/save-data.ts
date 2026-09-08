@@ -34,6 +34,7 @@ export interface ActiveTaskState {
   claimed: boolean;
 }
 
+/** @deprecated Board/merge system worker data. PC V1 does not use workers on a grid. */
 export interface WorkerSaveData {
   readonly id: string;
   readonly level: number;
@@ -44,8 +45,10 @@ export interface WorkerSaveData {
 export interface GameSaveData {
   readonly saveVersion: number;
   readonly salary: number;
+  /** @deprecated Board/merge system. PC V1 does not use workers on a grid. */
   readonly maxWorkerLevel: number;
   readonly lastSaveTime: number;
+  /** @deprecated Board/merge system. PC V1 does not use workers on a grid. */
   readonly workers: readonly WorkerSaveData[];
   readonly cultivationExp: number;
   readonly careerLevel: number;
@@ -76,4 +79,5 @@ export interface GameSaveData {
   readonly spiritStones?: number;
   readonly lastCultivateTime?: number;
   readonly activeTasks?: readonly ActiveTaskState[];
+  readonly craftedItemIds?: readonly string[];
 }

@@ -54,9 +54,9 @@ function makeSimulation(options: SimulationOptions = {}) {
 /** Place N level-1 workers on the board starting from (0,0). */
 function placeWorkers(context: GameContext, count: number): void {
   let placed = 0;
-  for (let row = 0; row < context.board.rows && placed < count; row += 1) {
-    for (let col = 0; col < context.board.columns && placed < count; col += 1) {
-      context.board.place(WorkerEntity.create(1), { row, column: col });
+  for (let row = 0; row < context.board!.rows && placed < count; row += 1) {
+    for (let col = 0; col < context.board!.columns && placed < count; col += 1) {
+      context.board!.place(WorkerEntity.create(1), { row, column: col });
       placed += 1;
     }
   }
@@ -66,12 +66,12 @@ function placeWorkers(context: GameContext, count: number): void {
 
 function testRecruitmentAddsWorkerToBoard(): void {
   const { context, recruitment } = makeSimulation();
-  assert.equal(context.board.occupiedCount, 0, 'board should start empty');
-  const result = context.board.findEmptyPosition();
+  assert.equal(context.board!.occupiedCount, 0, 'board should start empty');
+  const result = context.board!.findEmptyPosition();
   assert.ok(result, 'board should have empty positions');
   const recruitResult = recruitment.recruit();
   assert.equal(recruitResult.success, true, 'recruitment should succeed');
-  assert.equal(context.board.occupiedCount, 1, 'board should have 1 worker after recruitment');
+  assert.equal(context.board!.occupiedCount, 1, 'board should have 1 worker after recruitment');
 }
 
 // ── Test: Merge → Salary + Cultivation + KPI ────────────────────────────────
@@ -79,8 +79,8 @@ function testRecruitmentAddsWorkerToBoard(): void {
 function testMergeGrantsRewardsAndKpi(): void {
   const { context, merge } = makeSimulation({ player: makePlayer() });
   // Place 2 level-1 workers adjacent for merging
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 1 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 1 });
   const salaryBefore = context.player.salary;
   const cultivationBefore = context.player.cultivationExp;
   const mergeKpiBefore = context.player.kpiProgress['MERGE_COUNT'] ?? 0;
@@ -293,14 +293,14 @@ function testFullCoreLoopIntegration(): void {
   // 1. Recruit workers
   recruitment.recruit();
   recruitment.recruit();
-  assert.equal(context.board.occupiedCount, 2, 'should have 2 workers after recruitment');
+  assert.equal(context.board!.occupiedCount, 2, 'should have 2 workers after recruitment');
 
   // 2. Merge workers
   const mergeResult = merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
   assert.equal(mergeResult.success, true, 'merge should succeed');
 
   // 3. Place more workers and work
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   loop.start();
   loop.tick(3600); // 1 hour of work
   assert.ok(context.player.salary > 0, 'should earn salary from work');

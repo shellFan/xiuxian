@@ -64,24 +64,24 @@ function testNewPlayerRecruitMerge(): void {
   const { context, recruitment, merge } = makeContext();
 
   // New player: empty board, level 1
-  assert.equal(context.board.occupiedCount, 0, 'board should start empty');
+  assert.equal(context.board!.occupiedCount, 0, 'board should start empty');
   assert.equal(context.player.careerLevel, 1, 'career level should start at 1');
   assert.equal(context.player.salary, 0, 'salary should start at 0');
 
   // Recruit first worker
   const r1 = recruitment.recruit();
   assert.equal(r1.success, true, 'first recruitment should succeed');
-  assert.equal(context.board.occupiedCount, 1, 'board should have 1 worker');
+  assert.equal(context.board!.occupiedCount, 1, 'board should have 1 worker');
 
   // Recruit second worker
   const r2 = recruitment.recruit();
   assert.equal(r2.success, true, 'second recruitment should succeed');
-  assert.equal(context.board.occupiedCount, 2, 'board should have 2 workers');
+  assert.equal(context.board!.occupiedCount, 2, 'board should have 2 workers');
 
   // Merge the two level-1 workers
   const mergeResult = merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
   assert.equal(mergeResult.success, true, 'merge should succeed');
-  assert.equal(context.board.occupiedCount, 1, 'board should have 1 worker after merge');
+  assert.equal(context.board!.occupiedCount, 1, 'board should have 1 worker after merge');
   assert.ok(context.player.salary > 0, 'salary should increase from merge');
   assert.ok(context.player.cultivationExp > 0, 'cultivation should increase from merge');
   assert.ok((context.player.kpiProgress['MERGE_COUNT'] ?? 0) >= 1, 'MERGE_COUNT KPI should increment');
@@ -93,7 +93,7 @@ function testNewPlayerRecruitMerge(): void {
 
 function testWorkSalaryCultivationKpi(): void {
   const { context, loop } = makeContext({ player: makePlayer({ workMode: 'WORK', mind: 100 }) });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
 
   const salaryBefore = context.player.salary;
   const cultivationBefore = context.player.cultivationExp;
@@ -115,7 +115,7 @@ function testWorkSalaryCultivationKpi(): void {
 
 function testBuffInCoreCalculationChain(): void {
   const { context, loop } = makeContext({ player: makePlayer({ workMode: 'WORK', mind: 100, maxMind: 200 }) });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
 
   loop.start();
   loop.tick(3600); // 1 hour baseline — level-1 worker: 10/hour × 3600s × 2 / 7200 = 10
@@ -169,7 +169,7 @@ function testCareerEventAchievementIntegration(): void {
 function testDailySignInAndTaskProgress(): void {
   const clock = new FakeClock(1_000);
   const { context, loop } = makeContext({ clock, player: makePlayer({ workMode: 'WORK', mind: 100 }) });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
 
   // Daily sign-in
   assert.ok(context.daily.canClaim(), 'should be able to claim daily sign-in');
@@ -259,7 +259,7 @@ function testSaveOfflineLoadContinue(): void {
   const loop = new GameLoopService(context, { autoSaveIntervalSeconds: 0 });
 
   // Place a worker and work
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   loop.start();
   loop.tick(3600); // 1 hour of work
   clock.advance(3_600_000);
@@ -308,12 +308,12 @@ function testCompleteGameplayFlow(): void {
 
   // ── Phase A: New Player ──
   assert.equal(context.player.careerLevel, 1, 'new player starts at level 1');
-  assert.equal(context.board.occupiedCount, 0, 'board starts empty');
+  assert.equal(context.board!.occupiedCount, 0, 'board starts empty');
 
   // ── Phase B: Recruit ×2 ──
   recruitment.recruit();
   recruitment.recruit();
-  assert.equal(context.board.occupiedCount, 2, '2 workers after recruitment');
+  assert.equal(context.board!.occupiedCount, 2, '2 workers after recruitment');
 
   // ── Phase C: Merge ──
   merge.merge({ row: 0, column: 0 }, { row: 0, column: 1 });
@@ -321,7 +321,7 @@ function testCompleteGameplayFlow(): void {
   assert.ok((context.player.kpiProgress['MERGE_COUNT'] ?? 0) >= 1, 'MERGE_COUNT incremented');
 
   // ── Phase D: Work → Salary → Cultivation ──
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   loop.start();
   loop.tick(3600); // 1 hour
   clock.advance(3_600_000);

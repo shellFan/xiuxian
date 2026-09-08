@@ -34,11 +34,8 @@ test('GameFacade.queryCareer returns career info', () => {
 test('GameFacade.queryBoard returns board info', () => {
   const facade = createTestFacade();
   const board = facade.queryBoard();
-  assert.ok(board);
-  assert.strictEqual(board.rows, 4);
-  assert.strictEqual(board.columns, 4);
-  assert.strictEqual(board.capacity, 16);
-  assert.ok(typeof board.isFull === 'boolean');
+  // PC V1: no merge board, queryBoard returns null
+  assert.strictEqual(board, null);
 });
 
 test('GameFacade.queryKpi returns KPI view', () => {
@@ -162,20 +159,14 @@ test('GameFacade.toggleWorkMode switches work mode', () => {
 
 test('GameFacade.recruit adds worker to board', () => {
   const facade = createTestFacade();
-  const before = facade.queryBoard().occupiedCount;
+  // PC V1: no merge board, recruit always fails
   const result = facade.recruit();
-  assert.strictEqual(result.success, true);
-  const after = facade.queryBoard().occupiedCount;
-  assert.strictEqual(after, before + 1);
+  assert.strictEqual(result.success, false);
 });
 
 test('GameFacade.recruit fails when board is full', () => {
   const facade = createTestFacade();
-  // Fill the board
-  for (let i = 0; i < 16; i++) {
-    facade.recruit();
-  }
-  assert.strictEqual(facade.queryBoard().isFull, true);
+  // PC V1: no merge board, recruit always fails (same as above)
   const result = facade.recruit();
   assert.strictEqual(result.success, false);
 });

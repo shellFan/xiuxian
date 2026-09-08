@@ -115,7 +115,13 @@ export class IdleService {
   }
 
   private rateForBoard(rates: readonly number[]): number {
-    return this.context.board.cells.reduce((total, cell) => total + (cell.occupant ? rates[cell.occupant.level - 1] ?? 0 : 0), 0);
+    if (this.context.board) {
+      return this.context.board.cells.reduce((total, cell) => total + (cell.occupant ? rates[cell.occupant.level - 1] ?? 0 : 0), 0);
+    }
+    // PC V1: career-level-based rate when no merge board
+    const careerLevel = this.context.player.careerLevel;
+    const levelIndex = Math.min(careerLevel - 1, rates.length - 1);
+    return rates[levelIndex] ?? rates[0] ?? 0;
   }
 }
 

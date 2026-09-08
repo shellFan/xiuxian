@@ -24,7 +24,7 @@ function testCareerDoesNotReuseWorkerLevel(): void {
   assert.equal(careerService.promote(), true);
   assert.equal(player.careerLevel, 3);
   assert.equal(player.maxWorkerLevel, 6);
-  assert.equal(context.board.maxWorkerLevel, 6);
+  assert.equal(context.board!.maxWorkerLevel, 6);
 }
 function testCareerPromotionRequiresConfiguredExp(): void {
   const player = new PlayerData({ careerLevel: 1, performance: 99 });

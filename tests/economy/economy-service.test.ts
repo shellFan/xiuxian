@@ -74,8 +74,8 @@ function testMergeUsesEconomyConfigurationAndService(): void {
   const merge = new MergeService(context);
   const first = { row: 0, column: 0 };
   const second = { row: 0, column: 1 };
-  context.board.place(WorkerEntity.create(1), first);
-  context.board.place(WorkerEntity.create(1), second);
+  context.board!.place(WorkerEntity.create(1), first);
+  context.board!.place(WorkerEntity.create(1), second);
 
   const result = merge.merge(first, second);
 

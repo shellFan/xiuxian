@@ -17,7 +17,7 @@ function createContext(player = new PlayerData({ lastSaveTime: 1_000 })): { cont
 
 function testHourlyAndEightHourCap(): void {
   const { context, clock } = createContext();
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   const idle = new IdleService(context, { clock });
 
   clock.set(1_000 + 60 * 60 * 1_000);
@@ -27,7 +27,7 @@ function testHourlyAndEightHourCap(): void {
   assert.deepEqual(idle.settle('after-cap'), { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, duplicate: false });
 
   const exact = createContext();
-  exact.context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  exact.context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   const exactIdle = new IdleService(exact.context, { clock: exact.clock });
   exact.clock.set(1_000 + 8 * 60 * 60 * 1_000);
   assert.deepEqual(exactIdle.settle('eight-hour'), { salary: 80, cultivationExp: 40, spiritStones: 48, elapsedSeconds: 28800, capped: false, duplicate: false });
@@ -48,7 +48,7 @@ function testZeroNegativeAndClockRollbackEmitAnomaly(): void {
 
 function testSettlementIdPreventsDuplicateGrant(): void {
   const { context, clock } = createContext();
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   const idle = new IdleService(context, { clock });
   clock.advance(3600 * 1000);
   assert.equal(idle.settle('same').salary, 10);
@@ -91,7 +91,7 @@ function testInfinityAndOverflowProtection(): void {
 
 function testPreviewDoesNotGrantRewards(): void {
   const { context, clock } = createContext();
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   const idle = new IdleService(context, { clock });
   clock.advance(3600 * 1000);
   const preview = idle.preview('preview-test');
@@ -107,9 +107,9 @@ function testPreviewDoesNotGrantRewards(): void {
 
 function testMultipleWorkersOnBoard(): void {
   const { context, clock } = createContext();
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  context.board.place(WorkerEntity.create(2), { row: 0, column: 1 });
-  context.board.place(WorkerEntity.create(3), { row: 1, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(2), { row: 0, column: 1 });
+  context.board!.place(WorkerEntity.create(3), { row: 1, column: 0 });
   const idle = new IdleService(context, { clock });
   clock.advance(3600 * 1000);
   // salaryPerHour = [10, 20, 40, 80, 160, 320], so level 1+2+3 = 10+20+40 = 70

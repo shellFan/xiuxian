@@ -193,6 +193,7 @@ function contextOptions(context: GameContext): readonly { readonly id: string; r
 
 function restorePlayer(player: GameContext['player'], data: GameSaveData): void {
   player.salary = data.salary;
+  // @deprecated Board/merge field kept for save/load backward compat
   player.maxWorkerLevel = data.maxWorkerLevel;
   player.careerLevel = data.careerLevel;
   player.maxMind = data.maxMind;

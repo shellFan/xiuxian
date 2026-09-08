@@ -86,6 +86,7 @@ export class UIUpdateStrategy {
       prev.performance !== curr.performance;
     const mind = prev.mind !== curr.mind || prev.maxMind !== curr.maxMind || prev.mindStatus !== curr.mindStatus;
     const workMode = prev.workMode !== curr.workMode;
+    // @deprecated Board/merge diff — PC V1 does not use workers on a grid
     const board = prev.workerCount !== curr.workerCount || prev.maxWorkerLevel !== curr.maxWorkerLevel;
     const kpi = false; // KPI is derived from GameContext, not snapshot
     const achievement =

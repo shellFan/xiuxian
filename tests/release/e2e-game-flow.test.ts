@@ -67,37 +67,7 @@ function assertSafeResource(value: number, label: string): void {
   assert.ok(value >= 0, `${label} must be non-negative, got ${value}`);
 }
 
-/** Recruit N workers onto the board. */
-function recruitN(facade: GameFacade, count: number): void {
-  for (let i = 0; i < count; i++) {
-    const result = facade.recruit();
-    assert.ok(result.success, `Recruit #${i + 1} should succeed`);
-  }
-}
-
-/** Perform merges on the board to accumulate merge count. Returns total merges done. */
-function doMerges(facade: GameFacade, targetCount: number): number {
-  const merge = new MergeService(facade.context);
-  let done = 0;
-  // Recruit pairs and merge them until we reach the target count.
-  while (done < targetCount) {
-    // Recruit two level-1 workers
-    const r1 = facade.recruit();
-    const r2 = facade.recruit();
-    if (!r1.success || !r2.success) break;
-    const p1 = r1.position!;
-    const p2 = r2.position!;
-    if (!facade.context.board.canMerge(p1, p2)) break;
-    const result = merge.merge(p1, p2);
-    if (result.success) {
-      done++;
-      facade.context.syncPlayerWorkers();
-    } else {
-      break;
-    }
-  }
-  return done;
-}
+// PC V1: recruitN and doMerges helpers removed — board/merge unavailable
 
 /** Set player state to meet KPI and cultivation requirements for promotion from current level. */
 function prepareForPromotion(facade: GameFacade, clock: FakeClock): void {
@@ -160,44 +130,32 @@ test('E2E: new save creation produces valid default state', () => {
 });
 
 // ── 2. Recruit Workers ───────────────────────────────────────────────────────
+// PC V1: Board removed — recruit always fails, no worker placement
 
-test('E2E: recruit workers fills the board', () => {
+test('E2E: recruit fails gracefully in PC V1 (no board)', () => {
   const { facade } = createTestSetup();
-  const boardInfo = facade.queryBoard();
 
-  // Board is 4x4 = 16 slots
-  assert.strictEqual(boardInfo.capacity, 16, 'Default board capacity is 16');
+  // queryBoard returns null in PC V1
+  assert.strictEqual(facade.queryBoard(), null, 'Board should be null in PC V1');
 
-  // Recruit 4 workers
-  recruitN(facade, 4);
-  const snap = facade.snapshot();
-  assert.strictEqual(snap.workerCount, 4, 'Should have 4 workers after 4 recruits');
-  assert.strictEqual(snap.maxWorkerLevel, 1, 'All recruited workers are level 1');
+  // recruit always fails in PC V1
+  const result = facade.recruit();
+  assert.strictEqual(result.success, false, 'Recruit should fail in PC V1');
+  assert.ok(result.message, 'Should provide a failure message');
 });
 
 // ── 3. Merge Workers ─────────────────────────────────────────────────────────
+// PC V1: MergeService requires board — deprecated in PC V1
 
-test('E2E: merge same-level workers upgrades them', () => {
+test('E2E: MergeService throws in PC V1 (no board)', () => {
   const { facade } = createTestSetup();
-  const merge = new MergeService(facade.context);
 
-  // Recruit two workers
-  const r1 = facade.recruit();
-  const r2 = facade.recruit();
-  assert.ok(r1.success && r2.success, 'Both recruits should succeed');
-
-  // Merge them
-  const result = merge.merge(r1.position!, r2.position!);
-  assert.ok(result.success, 'Merge should succeed');
-  assert.strictEqual(result.worker.level, 2, 'Merged worker should be level 2');
-  assert.ok(result.salaryReward > 0, 'Merge should grant salary reward');
-  assert.ok(result.cultivationReward > 0, 'Merge should grant cultivation reward');
-
-  // Verify KPI merge count incremented
-  const kpi = facade.queryKpi();
-  const mergeItem = kpi.items.find(i => i.type === 'MERGE_COUNT');
-  assert.ok(mergeItem, 'KPI should have MERGE_COUNT item');
-  assert.ok(mergeItem!.progress >= 1, 'Merge count should be at least 1');
+  // MergeService constructor should throw because board is null
+  assert.throws(
+    () => new MergeService(facade.context),
+    /deprecated in PC V1/,
+    'MergeService should throw in PC V1',
+  );
 });
 
 // ── 4. Salary Accumulation via Tick ──────────────────────────────────────────
@@ -241,12 +199,8 @@ test('E2E: toggleWorkMode switches between WORK and FISHING', () => {
 test('E2E: KPI progress tracks merge count, work seconds, cultivation', () => {
   const { facade, clock } = createTestSetup();
 
-  // Place workers and do a merge
-  const merge = new MergeService(facade.context);
-  const r1 = facade.recruit();
-  const r2 = facade.recruit();
-  if (!r1.success || !r2.success) return;
-  merge.merge(r1.position, r2.position);
+  // PC V1: Set KPI counters directly (no board/merge available)
+  facade.context.player.kpiProgress = { MERGE_COUNT: 1, SALARY_EARNED: 0, EVENT_RESOLVED: 0 };
 
   // Set work seconds and cultivation directly
   facade.context.player.workSeconds = 300;
@@ -379,10 +333,10 @@ test('E2E: successful promotion advances career level and resets KPI', () => {
 test('E2E: save and load preserves game state', () => {
   const { facade, storage } = createTestSetup();
 
-  // Modify state
-  facade.recruit();
+  // PC V1: Modify state without recruit (no board)
   facade.context.player.salary = 500;
   facade.context.player.cultivationExp = 200;
+  facade.context.player.workSeconds = 600;
   facade.save();
 
   // Verify storage has data
@@ -391,7 +345,6 @@ test('E2E: save and load preserves game state', () => {
   const saved = JSON.parse(raw!);
   assert.strictEqual(saved.salary, 500, 'Saved salary should be 500');
   assert.strictEqual(saved.cultivationExp, 200, 'Saved cultivation should be 200');
-  assert.ok(saved.workers.length > 0, 'Saved should have workers');
 
   // Load into a new facade
   const clock2 = new FakeClock(0);
@@ -399,7 +352,7 @@ test('E2E: save and load preserves game state', () => {
   const snap2 = facade2.snapshot();
   assert.strictEqual(snap2.salary, 500, 'Loaded salary should be 500');
   assert.strictEqual(snap2.cultivationExp, 200, 'Loaded cultivation should be 200');
-  assert.strictEqual(snap2.workerCount, 1, 'Loaded should have 1 worker');
+  assert.strictEqual(snap2.workSeconds, 600, 'Loaded work seconds should be 600');
 });
 
 // ── 14. Offline Rewards ──────────────────────────────────────────────────────
@@ -489,16 +442,7 @@ test('E2E: complete promotion path from Level 1 to Level 10', () => {
 test('E2E: no NaN, Infinity, or negative resources after extensive operations', () => {
   const { facade, clock } = createTestSetup();
 
-  // Recruit and merge multiple times
-  const merge = new MergeService(facade.context);
-  for (let i = 0; i < 8; i++) {
-    const r1 = facade.recruit();
-    const r2 = facade.recruit();
-    if (r1.success && r2.success && facade.context.board.canMerge(r1.position!, r2.position!)) {
-      merge.merge(r1.position!, r2.position!);
-    }
-  }
-
+  // PC V1: No board/merge — use work mode and direct state manipulation instead
   // Work for a while
   facade.changeWorkMode('WORK');
   facade.start();
@@ -510,6 +454,11 @@ test('E2E: no NaN, Infinity, or negative resources after extensive operations', 
   facade.start();
   facade.tick(120);
   facade.gameLoop.stop();
+
+  // Directly manipulate some state to stress-test
+  facade.context.player.salary += 1000;
+  facade.context.player.cultivationExp += 500;
+  facade.context.player.performance += 5;
 
   // Check all resources
   const p = facade.context.player;
@@ -532,22 +481,28 @@ test('E2E: no NaN, Infinity, or negative resources after extensive operations', 
 });
 
 // ── 17. Worker Integrity (No Worker Loss) ────────────────────────────────────
+// PC V1: No board/workers — test save/load integrity with other state
 
-test('E2E: workers are not lost during save/load cycle', () => {
+test('E2E: save/load cycle preserves player state in PC V1', () => {
   const { facade, storage, clock } = createTestSetup();
 
-  // Recruit 5 workers
-  recruitN(facade, 5);
-  const beforeSave = facade.snapshot().workerCount;
-  assert.strictEqual(beforeSave, 5, 'Should have 5 workers before save');
+  // Modify state directly (no board/workers in PC V1)
+  facade.context.player.salary = 999;
+  facade.context.player.cultivationExp = 1234;
+  facade.context.player.workSeconds = 500;
+  const beforeSave = facade.snapshot();
+  assert.strictEqual(beforeSave.salary, 999, 'Salary should be 999 before save');
+  assert.strictEqual(beforeSave.cultivationExp, 1234, 'Cultivation should be 1234 before save');
 
   // Save
   facade.save();
 
   // Load into new facade
   const facade2 = new GameFacade({ storage, clock, debugProtection: { isProduction: false } });
-  const afterLoad = facade2.snapshot().workerCount;
-  assert.strictEqual(afterLoad, 5, 'Should have 5 workers after load');
+  const afterLoad = facade2.snapshot();
+  assert.strictEqual(afterLoad.salary, 999, 'Salary should be 999 after load');
+  assert.strictEqual(afterLoad.cultivationExp, 1234, 'Cultivation should be 1234 after load');
+  assert.strictEqual(afterLoad.workSeconds, 500, 'Work seconds should be 500 after load');
 });
 
 // ── 18. No Infinite Loop in Game Loop ────────────────────────────────────────
@@ -660,23 +615,7 @@ test('E2E: full lifecycle from new game to save/load/continue', () => {
     debugProtection: { isProduction: false },
   });
 
-  // Phase 1: Play - recruit, merge, work
-  facade.recruit();
-  facade.recruit();
-  const merge = new MergeService(facade.context);
-  const r1 = facade.context.board.findEmptyPosition();
-  // Find two workers to merge
-  const workers = facade.context.board.cells.filter(c => c.occupant).map(c => ({ row: c.row, column: c.column }));
-  if (workers.length >= 2) {
-    const w1 = workers[0];
-    const w2 = workers[1];
-    const left = facade.context.board.getWorker(w1);
-    const right = facade.context.board.getWorker(w2);
-    if (left && right && left.level === right.level && facade.context.board.canMerge(w1, w2)) {
-      merge.merge(w1, w2);
-    }
-  }
-
+  // PC V1: Phase 1 — Play with work mode (no board/merge)
   facade.changeWorkMode('WORK');
   facade.start();
   facade.tick(60);
@@ -690,9 +629,14 @@ test('E2E: full lifecycle from new game to save/load/continue', () => {
   const snap2 = facade2.snapshot();
 
   // Phase 4: Continue playing
-  assert.ok(snap2.salary > 0 || snap2.workerCount > 0, 'Should have progress from previous session');
-  facade2.recruit();
-  assert.ok(facade2.snapshot().workerCount >= snap2.workerCount, 'Should be able to continue after load');
+  assert.ok(snap2.salary > 0 || snap2.workSeconds > 0, 'Should have progress from previous session');
+
+  // Continue working
+  facade2.changeWorkMode('WORK');
+  facade2.start();
+  facade2.tick(60);
+  facade2.gameLoop.stop();
+  assert.ok(facade2.snapshot().workSeconds > snap2.workSeconds, 'Should be able to continue after load');
 
   // Verify no corruption
   const p2 = facade2.context.player;
@@ -748,43 +692,32 @@ test('E2E: KPI targets increase across career levels', () => {
 });
 
 // ── 26. Board Cannot Overfill ────────────────────────────────────────────────
+// PC V1: Board removed — recruit always fails regardless
 
-test('E2E: board rejects recruits when full', () => {
+test('E2E: recruit always fails in PC V1 (no board capacity)', () => {
   const { facade } = createTestSetup();
 
-  // Fill the 4x4 board
-  recruitN(facade, 16);
-  assert.strictEqual(facade.snapshot().workerCount, 16, 'Board should have 16 workers');
-
-  // Next recruit should fail
+  // In PC V1, recruit always fails because there is no board
   const result = facade.recruit();
-  assert.strictEqual(result.success, false, 'Recruit should fail when board is full');
+  assert.strictEqual(result.success, false, 'Recruit should always fail in PC V1');
+  assert.strictEqual(facade.snapshot().workerCount, 0, 'Worker count should remain 0');
 });
 
 // ── 27. Merge Rejects Different-Level Workers ────────────────────────────────
+// PC V1: MergeService requires board — deprecated in PC V1
 
-test('E2E: merge rejects workers of different levels', () => {
+test('E2E: MergeService unavailable in PC V1 (no merge feature)', () => {
   const { facade } = createTestSetup();
-  const merge = new MergeService(facade.context);
 
-  // Create a level-2 worker by merging two level-1s
-  const r1 = facade.recruit();
-  const r2 = facade.recruit();
-  if (!r1.success || !r2.success) return;
-  merge.merge(r1.position, r2.position);
-
-  // Recruit a new level-1 worker
-  const r3 = facade.recruit();
-  if (!r3.success) return;
-
-  // Try to merge level-2 with level-1 (should fail)
-  const level2Pos = facade.context.board.cells.find(c => c.occupant && c.occupant.level === 2);
-  assert.ok(level2Pos, 'Should have a level-2 worker');
-  const canMerge = facade.context.board.canMerge(
-    { row: level2Pos!.row, column: level2Pos!.column },
-    r3.position,
+  // MergeService should throw in PC V1
+  assert.throws(
+    () => new MergeService(facade.context),
+    /deprecated in PC V1/,
+    'MergeService should throw in PC V1',
   );
-  assert.strictEqual(canMerge, false, 'Should not be able to merge different-level workers');
+
+  // Board should be null
+  assert.strictEqual(facade.queryBoard(), null, 'Board should be null in PC V1');
 });
 
 // ── 28. Promotion Path Integrity: No Broken Chain ────────────────────────────
@@ -838,14 +771,16 @@ test('E2E: WORK mode gives higher salary than FISHING mode', () => {
 test('E2E: snapshot reflects current player state consistently', () => {
   const { facade } = createTestSetup();
 
-  facade.recruit();
+  // PC V1: No recruit — modify state directly
   facade.context.player.salary = 123;
   facade.context.player.cultivationExp = 456;
+  facade.context.player.workSeconds = 789;
 
   const snap = facade.snapshot();
   assert.strictEqual(snap.salary, 123, 'Snapshot salary should match player');
   assert.strictEqual(snap.cultivationExp, 456, 'Snapshot cultivation should match player');
-  assert.strictEqual(snap.workerCount, 1, 'Snapshot worker count should match');
+  assert.strictEqual(snap.workSeconds, 789, 'Snapshot work seconds should match player');
+  assert.strictEqual(snap.workerCount, 0, 'PC V1: worker count should be 0');
   assert.strictEqual(snap.careerLevel, 1, 'Snapshot career level should match');
   assert.ok(Object.isFrozen(snap), 'Snapshot should be frozen');
 });

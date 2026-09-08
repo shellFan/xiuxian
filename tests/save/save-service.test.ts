@@ -23,7 +23,7 @@ function testSavesAndRestoresPlayerAndWorkers(): void {
   assert.deepEqual(service.load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 80, maxWorkerLevel: 3, lastSaveTime: 123,
     workers: [{ id: 'worker-1', level: 2, row: 1, column: 3 }], cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100,
     performance: 0, sectId: null, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
-    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [] });
+    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [], craftedItemIds: [] });
 }
 
 function testSuccessfulSavesRecordMonotonicInjectedTime(): void {
@@ -78,7 +78,7 @@ function testMigratesOlderVersionAndDefaultsMissingFields(): void {
   assert.deepEqual(new SaveService(storage).load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 20, maxWorkerLevel: 1, lastSaveTime: 0,
     workers: [{ id: 'w', level: 1, row: 0, column: 0 }], cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100,
     performance: 0, sectId: null, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
-    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [] });
+    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [], craftedItemIds: [] });
 }
 
 function testPhaseTwoDefaultsSurvivePlayerRoundTrip(): void {
@@ -118,7 +118,7 @@ function testInvalidPlayerScalarsFallBackToSafeDefaults(): void {
     workers: [],
     cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100, performance: 0, sectId: null, talentId: null,
     workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0, kpiProgress: {}, promotionFailCount: 0, officeLevel: 1,
-    lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: []
+    lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [], craftedItemIds: []
   });
 }
 
@@ -153,8 +153,8 @@ function testGameContextRestoresSavedPlayerAndBoard(): void {
 
   assert.equal(context.player.salary, 80);
   assert.equal(context.player.maxWorkerLevel, 2);
-  assert.equal(context.board.getWorker({ row: 0, column: 1 })?.id, 'worker-restore');
-  assert.equal(context.board.getWorker({ row: 0, column: 1 })?.level, 2);
+  assert.equal(context.board!.getWorker({ row: 0, column: 1 })?.id, 'worker-restore');
+  assert.equal(context.board!.getWorker({ row: 0, column: 1 })?.level, 2);
 }
 
 function testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer(): void {
@@ -172,7 +172,7 @@ function testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer(): void {
     const context = new GameContext({ saveService: new SaveService(storage), boardRows: 1, boardColumns: 2 });
     assert.equal(context.player.salary, 0);
     assert.equal(context.player.maxWorkerLevel, 0);
-    assert.equal(context.board.occupiedCount, 0);
+    assert.equal(context.board!.occupiedCount, 0);
   }
 }
 

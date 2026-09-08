@@ -16,7 +16,7 @@ function makeContext(player: PlayerData, clock = new FakeClock(1_000), random = 
     careerEventClock: clock,
     randomProvider: random,
   });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   return context;
 }
 
@@ -106,7 +106,7 @@ function testAutoSaveFiresPeriodically(): void {
     careerEventClock: new FakeClock(1_000),
     randomProvider: new SequenceRandomProvider([0, 0]),
   });
-  context.board.place(WorkerEntity.create(1), { row: 0, column: 0 });
+  context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   const loop = new GameLoopService(context, { autoSaveIntervalSeconds: 10 });
   loop.start();
   // Before auto-save threshold, storage may be empty (no explicit save triggered)

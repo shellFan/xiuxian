@@ -98,7 +98,13 @@ export class WorkService {
   }
 
   private rateForBoard(rates: readonly number[]): number {
-    return this.context.board.cells.reduce((total, cell) => total + (cell.occupant ? rates[cell.occupant.level - 1] ?? 0 : 0), 0);
+    if (this.context.board) {
+      return this.context.board.cells.reduce((total, cell) => total + (cell.occupant ? rates[cell.occupant.level - 1] ?? 0 : 0), 0);
+    }
+    // PC V1: career-level-based rate when no merge board
+    const careerLevel = this.context.player.careerLevel;
+    const levelIndex = Math.min(careerLevel - 1, rates.length - 1);
+    return rates[levelIndex] ?? rates[0] ?? 0;
   }
 }
 
@@ -115,8 +121,7 @@ function accumulate(rate: number, seconds: number, multiplier: number, remainder
 }
 
 function restorePlayer(player: GameContext['player'], data: ReturnType<GameContext['player']['toSaveData']>): void {
-  player.maxWorkerLevel = data.maxWorkerLevel;
-  player.workers = data.workers.map((worker) => ({ ...worker }));
+  // maxWorkerLevel and workers are deprecated in PC V1 — skip restoration
   player.careerLevel = data.careerLevel;
   player.maxMind = data.maxMind;
   player.performance = data.performance;
@@ -145,4 +150,8 @@ function restorePlayer(player: GameContext['player'], data: ReturnType<GameConte
   player.spiritStones = data.spiritStones ?? 0;
   player.lastCultivateTime = data.lastCultivateTime ?? 0;
   player.activeTasks = (data.activeTasks ?? []).map((t) => ({ ...t }));
+  player.craftedItemIds = [...(data.craftedItemIds ?? [])];
+  player.unlockedAchievementIds = [...(data.unlockedAchievementIds ?? [])];
+  player.claimedAchievementIds = [...(data.claimedAchievementIds ?? [])];
+  player.dailySignIn = data.dailySignIn ? { ...data.dailySignIn } : null;
 }

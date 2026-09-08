@@ -1,0 +1,1553 @@
+
+> niuma-xiuxian-ai-infrastructure@1.0.0-rc.1 test
+> tsc -p tsconfig.game.json --outDir tests/.compiled --noEmit false && node tests/run-all.cjs
+
+achievement service tests passed
+board tests passed
+buff service tests passed
+career tests passed
+config tests passed
+progression config tests passed
+foundation tests passed
+✔ CraftService: allRecipes returns all recipes
+✔ CraftService: getAvailableRecipes filters by career level
+✔ CraftService: getAvailableRecipes at level 2 returns all
+✔ CraftService: canCraft returns true when conditions met
+✔ CraftService: canCraft returns false for unknown recipe
+✔ CraftService: canCraft returns false when career level too low
+✔ CraftService: canCraft returns false when cultivation insufficient
+✔ CraftService: canCraft returns false when spirit stones insufficient
+✔ CraftService: canCraft returns false when max craft count reached
+✔ CraftService: canCraft returns true when under max craft count
+✔ CraftService: craft deducts resources and applies effect
+✔ CraftService: craft fails when cannot craft
+✔ CraftService: craft with spirit stone cost
+✔ CraftService: craft emits itemCrafted event
+✔ CraftService: getCraftedCount returns correct counts
+✔ CraftService: getTotalCraftedCount returns total
+✔ CraftService: craft increments crafted count
+✔ CraftService: limited recipe respects max craft count
+✔ CraftService: empty config works correctly
+✔ CraftService: no config defaults to empty recipes
+craft service tests passed
+  ✓ cultivate click grants base +5 exp with full mind
+  ✓ cultivate click respects 3-second cooldown
+  ✓ mind efficiency scales from 20% to 100%
+  ✓ low mind reduces cultivation reward
+  ✓ cultivate updates lastCultivateTime
+  ✓ cultivate emits cultivationClicked event
+  ✓ cultivate rollback on save failure
+  ✓ getCooldownRemaining reports correct seconds
+cultivation flow tests passed
+cultivation service tests passed
+  ✓ idle preview includes spirit stones
+  ✓ idle settlement grants spirit stones
+  ✓ spirit stones accumulate over time
+  ✓ idleSettled event includes spiritStones
+  ✓ EconomyService addSpiritStones/spendSpiritStones work
+  ✓ spendSpiritStones throws when insufficient
+  ✓ offline reward normal claim includes spirit stones
+  ✓ zero idle time yields zero spirit stones
+  ✓ spirit stones are integer (no fractional)
+idle progression tests passed
+  ✓ canPromote returns READY when requirements met
+  ✓ canPromote blocks at max level
+  ✓ canPromote blocks when KPI incomplete
+  ✓ canPromote blocks when cultivation is zero (KPI CULTIVATION not met)
+  ✓ getProbability base is 70% with normal mind
+  ✓ getProbability +10% when mind>=80
+  ✓ getProbability -20% when mind<30
+  ✓ getProbability +8% for 关系户 talent
+  ✓ successful promotion advances career level
+  ✓ failed promotion penalizes mind
+  ✓ clampProbability clamps between 5 and 95
+  ✓ cultivation overflow on successful promotion
+  ✓ promotion resets KPI
+promotion flow tests passed
+  ✓ start task successfully
+  ✓ cannot start unknown task
+  ✓ cannot start duplicate task
+  ✓ max 3 concurrent tasks enforced
+  ✓ tick marks tasks as completed when duration elapses
+  ✓ cannot claim incomplete task
+  ✓ claim completed task grants rewards
+  ✓ cannot claim already-claimed task
+  ✓ mind efficiency modifies cultivation reward on claim
+  ✓ cleanup claimed tasks removes them from active list
+  ✓ task events fire correctly
+  ✓ getRemainingSeconds reports correctly
+  ✓ getConfigsByType filters correctly
+task flow tests passed
+daily task service tests passed
+debug service tests passed
+TAP version 13
+# Subtest: moves a worker to an empty target and returns to idle
+ok 1 - moves a worker to an empty target and returns to idle
+  ---
+  duration_ms: 1.5275
+  ...
+# Subtest: restores a worker for an out-of-bounds or different-level target
+ok 2 - restores a worker for an out-of-bounds or different-level target
+  ---
+  duration_ms: 0.172
+  ...
+# Subtest: locks input while merging and handles an occupied target after the lock clears
+ok 3 - locks input while merging and handles an occupied target after the lock clears
+  ---
+  duration_ms: 0.1819
+  ...
+# Subtest: rejects a worker whose node/session became invalid
+ok 4 - rejects a worker whose node/session became invalid
+  ---
+  duration_ms: 0.1025
+  ...
+# Subtest: does not report success or remain locked when callbacks are unavailable
+ok 5 - does not report success or remain locked when callbacks are unavailable
+  ---
+  duration_ms: 0.1301
+  ...
+# Subtest: clears its lock when worker lookup or merge callback throws
+ok 6 - clears its lock when worker lookup or merge callback throws
+  ---
+  duration_ms: 0.1581
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17.0366
+TAP version 13
+# Subtest: uses transformed UI coordinates and parent-local worker positions
+ok 1 - uses transformed UI coordinates and parent-local worker positions
+  ---
+  duration_ms: 3.0085
+  ...
+# Subtest: cancels by touch id even after the worker node becomes invalid
+ok 2 - cancels by touch id even after the worker node becomes invalid
+  ---
+  duration_ms: 0.4006
+  ...
+# Subtest: restores the cached worker-parent source point when the board becomes invalid
+ok 3 - restores the cached worker-parent source point when the board becomes invalid
+  ---
+  duration_ms: 0.2563
+  ...
+# Subtest: converts UI location through the actual worker parent container
+ok 4 - converts UI location through the actual worker parent container
+  ---
+  duration_ms: 0.2151
+  ...
+# Subtest: clears the active touch after a throwing restore and ignores secondary touches
+ok 5 - clears the active touch after a throwing restore and ignores secondary touches
+  ---
+  duration_ms: 0.3021
+  ...
+# Subtest: touch-start retries after board coordinate conversion failure
+ok 6 - touch-start retries after board coordinate conversion failure
+  ---
+  duration_ms: 0.9933
+  ...
+# Subtest: touch-start retries after worker-parent coordinate conversion failure
+ok 7 - touch-start retries after worker-parent coordinate conversion failure
+  ---
+  duration_ms: 0.2922
+  ...
+# Subtest: unbind cancels and restores a started worker
+ok 8 - unbind cancels and restores a started worker
+  ---
+  duration_ms: 0.293
+  ...
+# Subtest: passive worker unbind does not cancel another worker session
+ok 9 - passive worker unbind does not cancel another worker session
+  ---
+  duration_ms: 0.7053
+  ...
+# Subtest: onDestroy during merge does not restore or clear the merge lock
+ok 10 - onDestroy during merge does not restore or clear the merge lock
+  ---
+  duration_ms: 0.4263
+  ...
+# Subtest: restores the actual node position when released on its original cell
+ok 11 - restores the actual node position when released on its original cell
+  ---
+  duration_ms: 0.3143
+  ...
+# Subtest: restores the actual node position for an out-of-bounds drop
+ok 12 - restores the actual node position for an out-of-bounds drop
+  ---
+  duration_ms: 0.1584
+  ...
+# Subtest: restores the actual node position for a different-level target
+ok 13 - restores the actual node position for a different-level target
+  ---
+  duration_ms: 0.1457
+  ...
+# Subtest: restores the actual node position when the target becomes occupied during drag
+ok 14 - restores the actual node position when the target becomes occupied during drag
+  ---
+  duration_ms: 0.2075
+  ...
+# Subtest: restores the actual node position when merge callback throws
+ok 15 - restores the actual node position when merge callback throws
+  ---
+  duration_ms: 0.7664
+  ...
+# Subtest: onDestroy restores an active drag and unregisters every touch event
+ok 16 - onDestroy restores an active drag and unregisters every touch event
+  ---
+  duration_ms: 0.2437
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23.0661
+economy service tests passed
+effect service tests passed
+career event scheduler tests passed
+career event tests passed
+game events refresh tests passed
+TAP version 13
+# Subtest: GameSnapshot: createSnapshot returns frozen object
+ok 1 - GameSnapshot: createSnapshot returns frozen object
+  ---
+  duration_ms: 1.4982
+  ...
+# Subtest: GameSnapshot: snapshotEqual returns true for identical snapshots
+ok 2 - GameSnapshot: snapshotEqual returns true for identical snapshots
+  ---
+  duration_ms: 0.2177
+  ...
+# Subtest: GameSnapshot: snapshotEqual returns false for different snapshots
+ok 3 - GameSnapshot: snapshotEqual returns false for different snapshots
+  ---
+  duration_ms: 0.0893
+  ...
+# Subtest: resolveCategory: maps known events correctly
+ok 4 - resolveCategory: maps known events correctly
+  ---
+  duration_ms: 0.0897
+  ...
+# Subtest: resolveCategory: returns STATE_CHANGED for unknown events
+ok 5 - resolveCategory: returns STATE_CHANGED for unknown events
+  ---
+  duration_ms: 0.069
+  ...
+# Subtest: ALL_UI_CATEGORIES has 16 categories
+ok 6 - ALL_UI_CATEGORIES has 16 categories
+  ---
+  duration_ms: 0.0566
+  ...
+# Subtest: RewardService: state machine transitions correctly
+ok 7 - RewardService: state machine transitions correctly
+  ---
+  duration_ms: 0.2673
+  ...
+# Subtest: RewardService: double callback protection
+ok 8 - RewardService: double callback protection
+  ---
+  duration_ms: 0.1151
+  ...
+# Subtest: RewardService: dispose clears listeners
+ok 9 - RewardService: dispose clears listeners
+  ---
+  duration_ms: 0.1558
+  ...
+# Subtest: RewardService: reset returns to IDLE
+ok 10 - RewardService: reset returns to IDLE
+  ---
+  duration_ms: 0.1348
+  ...
+# Subtest: PlatformLifecycle: pause/resume lifecycle
+ok 11 - PlatformLifecycle: pause/resume lifecycle
+  ---
+  duration_ms: 0.212
+  ...
+# Subtest: PlatformLifecycle: double pause is idempotent
+ok 12 - PlatformLifecycle: double pause is idempotent
+  ---
+  duration_ms: 0.0782
+  ...
+# Subtest: PlatformLifecycle: dispose clears listeners
+ok 13 - PlatformLifecycle: dispose clears listeners
+  ---
+  duration_ms: 0.0717
+  ...
+# Subtest: SettingsService: loads defaults when no saved data
+ok 14 - SettingsService: loads defaults when no saved data
+  ---
+  duration_ms: 0.2033
+  ...
+# Subtest: SettingsService: set and persist
+ok 15 - SettingsService: set and persist
+  ---
+  duration_ms: 0.1218
+  ...
+# Subtest: SettingsService: resetToDefaults
+ok 16 - SettingsService: resetToDefaults
+  ---
+  duration_ms: 0.141
+  ...
+# Subtest: AudioService: respects music enabled flag
+ok 17 - AudioService: respects music enabled flag
+  ---
+  duration_ms: 0.1521
+  ...
+# Subtest: AudioService: respects sfx enabled flag
+ok 18 - AudioService: respects sfx enabled flag
+  ---
+  duration_ms: 0.1756
+  ...
+# Subtest: AudioService: dispose stops bgm
+ok 19 - AudioService: dispose stops bgm
+  ---
+  duration_ms: 0.107
+  ...
+# Subtest: ErrorBoundary: handles and classifies errors
+ok 20 - ErrorBoundary: handles and classifies errors
+  ---
+  duration_ms: 0.1917
+  ...
+# Subtest: ErrorBoundary: try returns null on error
+ok 21 - ErrorBoundary: try returns null on error
+  ---
+  duration_ms: 0.0972
+  ...
+# Subtest: ErrorBoundary: try returns result on success
+ok 22 - ErrorBoundary: try returns result on success
+  ---
+  duration_ms: 0.0561
+  ...
+# Subtest: ErrorBoundary: hasFatalError
+ok 23 - ErrorBoundary: hasFatalError
+  ---
+  duration_ms: 1.9895
+  ...
+# Subtest: classifyError: classifies storage errors
+ok 24 - classifyError: classifies storage errors
+  ---
+  duration_ms: 0.1388
+  ...
+# Subtest: validateConfigBundle: passes for empty config
+ok 25 - validateConfigBundle: passes for empty config
+  ---
+  duration_ms: 0.1006
+  ...
+# Subtest: validateConfigBundle: detects duplicate worker IDs
+ok 26 - validateConfigBundle: detects duplicate worker IDs
+  ---
+  duration_ms: 0.1613
+  ...
+# Subtest: validateConfigBundle: detects negative salary
+ok 27 - validateConfigBundle: detects negative salary
+  ---
+  duration_ms: 0.0615
+  ...
+# Subtest: NumberFormatter: zh-CN format
+ok 28 - NumberFormatter: zh-CN format
+  ---
+  duration_ms: 0.2036
+  ...
+# Subtest: NumberFormatter: en-US format
+ok 29 - NumberFormatter: en-US format
+  ---
+  duration_ms: 0.0838
+  ...
+# Subtest: NumberFormatter: formatPercent
+ok 30 - NumberFormatter: formatPercent
+  ---
+  duration_ms: 0.0713
+  ...
+# Subtest: NumberFormatter: formatDuration
+ok 31 - NumberFormatter: formatDuration
+  ---
+  duration_ms: 0.0755
+  ...
+# Subtest: NumberFormatter: formatSalary
+ok 32 - NumberFormatter: formatSalary
+  ---
+  duration_ms: 0.1053
+  ...
+# Subtest: PerformanceGuard: detects worker count overflow
+ok 33 - PerformanceGuard: detects worker count overflow
+  ---
+  duration_ms: 0.196
+  ...
+# Subtest: PerformanceGuard: disabled guard produces no warnings
+ok 34 - PerformanceGuard: disabled guard produces no warnings
+  ---
+  duration_ms: 0.0691
+  ...
+# Subtest: LeakProtection: disposes subscriptions
+ok 35 - LeakProtection: disposes subscriptions
+  ---
+  duration_ms: 0.2547
+  ...
+# Subtest: LeakProtection: throws after dispose
+ok 36 - LeakProtection: throws after dispose
+  ---
+  duration_ms: 0.3497
+  ...
+# Subtest: LifecycleGuard: prevents double start
+ok 37 - LifecycleGuard: prevents double start
+  ---
+  duration_ms: 0.5317
+  ...
+# Subtest: AnalyticsService: drops events without consent
+ok 38 - AnalyticsService: drops events without consent
+  ---
+  duration_ms: 0.1972
+  ...
+# Subtest: AnalyticsService: tracks events with consent
+ok 39 - AnalyticsService: tracks events with consent
+  ---
+  duration_ms: 0.1246
+  ...
+# Subtest: sanitizeAnalyticsParams: strips restricted fields
+ok 40 - sanitizeAnalyticsParams: strips restricted fields
+  ---
+  duration_ms: 0.1464
+  ...
+# Subtest: DebugProtection: blocks in production
+ok 41 - DebugProtection: blocks in production
+  ---
+  duration_ms: 0.312
+  ...
+# Subtest: DebugProtection: allows in development
+ok 42 - DebugProtection: allows in development
+  ---
+  duration_ms: 0.4185
+  ...
+# Subtest: SaveServiceV2: load returns default when empty
+ok 43 - SaveServiceV2: load returns default when empty
+  ---
+  duration_ms: 0.4797
+  ...
+# Subtest: SaveServiceV2: save and load roundtrip
+ok 44 - SaveServiceV2: save and load roundtrip
+  ---
+  duration_ms: 0.9753
+  ...
+# Subtest: SaveServiceV2: backup and restore
+ok 45 - SaveServiceV2: backup and restore
+  ---
+  duration_ms: 0.3794
+  ...
+# Subtest: SaveServiceV2: corruption recovery falls back to backup
+ok 46 - SaveServiceV2: corruption recovery falls back to backup
+  ---
+  duration_ms: 0.2161
+  ...
+# Subtest: validateSaveData: detects invalid data
+ok 47 - validateSaveData: detects invalid data
+  ---
+  duration_ms: 0.0947
+  ...
+# Subtest: GameFacade: creates and starts correctly
+ok 48 - GameFacade: creates and starts correctly
+  ---
+  duration_ms: 2.9324
+  ...
+# Subtest: GameFacade: snapshot returns valid data
+ok 49 - GameFacade: snapshot returns valid data
+  ---
+  duration_ms: 1.0089
+  ...
+# Subtest: GameFacade: onUiEvent subscription works
+ok 50 - GameFacade: onUiEvent subscription works
+  ---
+  duration_ms: 0.5991
+  ...
+# Subtest: GameFacade: destroy is idempotent
+ok 51 - GameFacade: destroy is idempotent
+  ---
+  duration_ms: 0.3098
+  ...
+1..51
+# tests 51
+# suites 0
+# pass 51
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 37.1024
+idle service tests passed
+kpi service tests passed
+core loop simulation tests passed
+game loop service tests passed
+4-Seed Simulation tests (seeds 1/42/2026/999999 × 1000 ops):
+  Seed 1: 1000 ops, career=6, salary=5289, cultivation=55, achievements=14
+  Seed 42: 1000 ops, career=2, salary=5024, cultivation=2186, achievements=11
+  Seed 2026: 1000 ops, career=5, salary=4159, cultivation=648, achievements=13
+  Seed 999999: 1000 ops, career=1, salary=3964, cultivation=1858, achievements=8
+4-seed simulation tests passed
+Stress simulation tests (4 seeds × 1200 ops):
+  Seed 42: 1200 ops, career=5, salary=7109, cultivation=1568
+  Seed 123: 1200 ops, career=2, salary=12254, cultivation=3333
+  Seed 789: 1200 ops, career=5, salary=8972, cultivation=1727
+  Seed 2026: 1200 ops, career=5, salary=7106, cultivation=1171
+  Save/load round-trip: all fields present and valid
+  24h continuous work: no NaN or negative values
+  24h continuous fishing: no NaN or negative values
+stress simulation tests passed
+merge service tests passed
+mind service tests passed
+office service tests passed
+offline reward service tests passed
+phase 2 stability and regression tests passed
+Phase 3 Gameplay Integration tests:
+  ✓ new player → recruit ×2 → merge
+  ✓ work → salary → cultivation → mind drain → KPI tracking
+  ✓ BuffService in core calculation chain (salary boost)
+  ✓ career event resolved: EVENT_AGE_35_OPTIMIZATION (type=NEGATIVE), achievements before=0, after=0
+  ✓ daily sign-in + daily task progress via GameLoop
+  ✓ KPI completion → promotion → career level up → office sync
+  ✓ achievement unlock → check → claim
+  ✓ save → offline → load → offline reward → continue playing
+  ✓ COMPLETE gameplay flow: new player → recruit ×2 → merge → work → salary → cultivation → KPI → event → achievement → daily → promotion → save → offline → offline reward → continue
+phase3 gameplay integration tests passed
+Phase 3 integration tests: 18 passed, 0 failed
+TAP version 13
+# Subtest: Lifecycle stress: 100 rounds init/start/pause/resume/dispose
+ok 1 - Lifecycle stress: 100 rounds init/start/pause/resume/dispose
+  ---
+  duration_ms: 17.6707
+  ...
+# Subtest: Lifecycle stress: listener count stable across cycles
+ok 2 - Lifecycle stress: listener count stable across cycles
+  ---
+  duration_ms: 0.6769
+  ...
+# Subtest: Lifecycle stress: PlatformLifecycle dispose clears all listeners
+ok 3 - Lifecycle stress: PlatformLifecycle dispose clears all listeners
+  ---
+  duration_ms: 0.2382
+  ...
+# Subtest: Lifecycle stress: no duplicate autosave on repeated hide
+ok 4 - Lifecycle stress: no duplicate autosave on repeated hide
+  ---
+  duration_ms: 9.4075
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 38.2794
+TAP version 13
+# Subtest: Phase4 integration: init creates valid facade
+ok 1 - Phase4 integration: init creates valid facade
+  ---
+  duration_ms: 3.2454
+  ...
+# Subtest: Phase4 integration: new save persists through load
+ok 2 - Phase4 integration: new save persists through load
+  ---
+  duration_ms: 1.62
+  ...
+# Subtest: Phase4 integration: snapshot is deeply frozen
+ok 3 - Phase4 integration: snapshot is deeply frozen
+  ---
+  duration_ms: 0.6587
+  ...
+# Subtest: Phase4 integration: recruit adds worker
+ok 4 - Phase4 integration: recruit adds worker
+  ---
+  duration_ms: 0.876
+  ...
+# Subtest: Phase4 integration: work mode change
+ok 5 - Phase4 integration: work mode change
+  ---
+  duration_ms: 0.5834
+  ...
+# Subtest: Phase4 integration: KPI tracking works
+ok 6 - Phase4 integration: KPI tracking works
+  ---
+  duration_ms: 0.682
+  ...
+# Subtest: Phase4 integration: UI event stream works
+ok 7 - Phase4 integration: UI event stream works
+  ---
+  duration_ms: 0.4198
+  ...
+# Subtest: Phase4 integration: reward request through facade
+ok 8 - Phase4 integration: reward request through facade
+  ---
+  duration_ms: 0.7463
+  ...
+# Subtest: Phase4 integration: settings persist
+ok 9 - Phase4 integration: settings persist
+  ---
+  duration_ms: 0.2541
+  ...
+# Subtest: Phase4 integration: save V2 backup preserves previous state
+ok 10 - Phase4 integration: save V2 backup preserves previous state
+  ---
+  duration_ms: 0.5076
+  ...
+# Subtest: Phase4 integration: pause and resume
+ok 11 - Phase4 integration: pause and resume
+  ---
+  duration_ms: 0.1892
+  ...
+# Subtest: Phase4 integration: offline reward calculation
+ok 12 - Phase4 integration: offline reward calculation
+  ---
+  duration_ms: 0.4187
+  ...
+# Subtest: Phase4 integration: dispose and restart
+ok 13 - Phase4 integration: dispose and restart
+  ---
+  duration_ms: 0.5311
+  ...
+# Subtest: Phase4 integration: error boundary catches and classifies
+ok 14 - Phase4 integration: error boundary catches and classifies
+  ---
+  duration_ms: 0.2537
+  ...
+# Subtest: Phase4 integration: analytics strips PII recursively
+ok 15 - Phase4 integration: analytics strips PII recursively
+  ---
+  duration_ms: 1.0265
+  ...
+# Subtest: Phase4 integration: debug protection blocks in production
+ok 16 - Phase4 integration: debug protection blocks in production
+  ---
+  duration_ms: 0.5228
+  ...
+# Subtest: Phase4 integration: number formatter zh-CN
+ok 17 - Phase4 integration: number formatter zh-CN
+  ---
+  duration_ms: 0.345
+  ...
+# Subtest: Phase4 integration: leak protection tracks and disposes
+ok 18 - Phase4 integration: leak protection tracks and disposes
+  ---
+  duration_ms: 0.3197
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 27.0187
+TAP version 13
+# Subtest: Platform hide: onHide and onSaveState each fire once
+ok 1 - Platform hide: onHide and onSaveState each fire once
+  ---
+  duration_ms: 1.0828
+  ...
+# Subtest: Platform show: onShow and onRestoreState each fire once
+ok 2 - Platform show: onShow and onRestoreState each fire once
+  ---
+  duration_ms: 0.2109
+  ...
+# Subtest: Unsubscribe onShow: callback does not fire after unsubscribe
+ok 3 - Unsubscribe onShow: callback does not fire after unsubscribe
+  ---
+  duration_ms: 0.1089
+  ...
+# Subtest: Unsubscribe onHide: callback does not fire after unsubscribe
+ok 4 - Unsubscribe onHide: callback does not fire after unsubscribe
+  ---
+  duration_ms: 0.1017
+  ...
+# Subtest: 100 hide/show cycles: exactly 100 onHide and 100 onShow callbacks
+ok 5 - 100 hide/show cycles: exactly 100 onHide and 100 onShow callbacks
+  ---
+  duration_ms: 0.6447
+  ...
+# Subtest: Dispose: business listeners do not fire after dispose
+ok 6 - Dispose: business listeners do not fire after dispose
+  ---
+  duration_ms: 0.219
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 11.5362
+TAP version 13
+# Subtest: Reward abuse: double callback grants only once
+ok 1 - Reward abuse: double callback grants only once
+  ---
+  duration_ms: 0.9369
+  ...
+# Subtest: Reward abuse: triple callback grants only once
+ok 2 - Reward abuse: triple callback grants only once
+  ---
+  duration_ms: 0.1124
+  ...
+# Subtest: Reward abuse: concurrent request throws
+ok 3 - Reward abuse: concurrent request throws
+  ---
+  duration_ms: 0.4829
+  ...
+# Subtest: Reward abuse: can request again after cancel
+ok 4 - Reward abuse: can request again after cancel
+  ---
+  duration_ms: 0.143
+  ...
+# Subtest: Reward abuse: can request again after failure
+ok 5 - Reward abuse: can request again after failure
+  ---
+  duration_ms: 0.1663
+  ...
+# Subtest: Reward abuse: provider throw does not crash service
+ok 6 - Reward abuse: provider throw does not crash service
+  ---
+  duration_ms: 0.1176
+  ...
+# Subtest: Reward abuse: callback after dispose is ignored
+ok 7 - Reward abuse: callback after dispose is ignored
+  ---
+  duration_ms: 0.1153
+  ...
+# Subtest: Reward abuse: stale callback from previous request is ignored
+ok 8 - Reward abuse: stale callback from previous request is ignored
+  ---
+  duration_ms: 0.1382
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 27.688
+TAP version 13
+# Subtest: category lottery: roll < 10 selects EASTER_EGG
+ok 1 - category lottery: roll < 10 selects EASTER_EGG
+  ---
+  duration_ms: 1.8584
+  ...
+# Subtest: category lottery: roll 10..109 selects RARE
+ok 2 - category lottery: roll 10..109 selects RARE
+  ---
+  duration_ms: 0.2146
+  ...
+# Subtest: category lottery: roll >= 110 selects NORMAL
+ok 3 - category lottery: roll >= 110 selects NORMAL
+  ---
+  duration_ms: 0.2131
+  ...
+# Subtest: normal pool: career 1-2 favors POSITIVE
+ok 4 - normal pool: career 1-2 favors POSITIVE
+  ---
+  duration_ms: 0.1811
+  ...
+# Subtest: low mind protection: NEGATIVE weight = 0 when mind/maxMind < 0.3
+ok 5 - low mind protection: NEGATIVE weight = 0 when mind/maxMind < 0.3
+  ---
+  duration_ms: 0.1556
+  ...
+# Subtest: negative streak protection: 2 consecutive negatives → NEGATIVE weight = 0
+ok 6 - negative streak protection: 2 consecutive negatives → NEGATIVE weight = 0
+  ---
+  duration_ms: 0.1879
+  ...
+# Subtest: cooldown: same event tracked in lastShownAtById
+ok 7 - cooldown: same event tracked in lastShownAtById
+  ---
+  duration_ms: 0.2397
+  ...
+# Subtest: recent history: last 5 event IDs tracked, oldest removed on 6th
+ok 8 - recent history: last 5 event IDs tracked, oldest removed on 6th
+  ---
+  duration_ms: 0.1182
+  ...
+# Subtest: EASTER_EGG: oncePerSave prevents same egg twice
+ok 9 - EASTER_EGG: oncePerSave prevents same egg twice
+  ---
+  duration_ms: 0.1731
+  ...
+# Subtest: EASTER_EGG: daily limit of 1
+ok 10 - EASTER_EGG: daily limit of 1
+  ---
+  duration_ms: 0.1652
+  ...
+# Subtest: eligibility: minCareerLevel filters out events
+ok 11 - eligibility: minCareerLevel filters out events
+  ---
+  duration_ms: 0.1801
+  ...
+# Subtest: eligibility: requiresWorkMode filters correctly
+ok 12 - eligibility: requiresWorkMode filters correctly
+  ---
+  duration_ms: 0.1325
+  ...
+# Subtest: empty pool: no events returns undefined
+ok 13 - empty pool: no events returns undefined
+  ---
+  duration_ms: 0.0761
+  ...
+# Subtest: no RARE events: RARE roll returns undefined (no reroll)
+ok 14 - no RARE events: RARE roll returns undefined (no reroll)
+  ---
+  duration_ms: 0.1294
+  ...
+# Subtest: resetForNewSave clears all state
+ok 15 - resetForNewSave clears all state
+  ---
+  duration_ms: 0.1032
+  ...
+# Subtest: KPI near completion boosts CHOICE weight
+ok 16 - KPI near completion boosts CHOICE weight
+  ---
+  duration_ms: 0.7825
+  ...
+# Subtest: fishing mode boosts POSITIVE and reduces NEGATIVE
+ok 17 - fishing mode boosts POSITIVE and reduces NEGATIVE
+  ---
+  duration_ms: 0.1453
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 18.3609
+TAP version 13
+# Subtest: GameFacade.queryCareer returns career info
+ok 1 - GameFacade.queryCareer returns career info
+  ---
+  duration_ms: 3.6801
+  ...
+# Subtest: GameFacade.queryBoard returns board info
+ok 2 - GameFacade.queryBoard returns board info
+  ---
+  duration_ms: 1.4209
+  ...
+# Subtest: GameFacade.queryKpi returns KPI view
+ok 3 - GameFacade.queryKpi returns KPI view
+  ---
+  duration_ms: 0.8259
+  ...
+# Subtest: GameFacade.queryPromotionCheck returns check result
+ok 4 - GameFacade.queryPromotionCheck returns check result
+  ---
+  duration_ms: 0.5375
+  ...
+# Subtest: GameFacade.queryTutorial returns tutorial state
+ok 5 - GameFacade.queryTutorial returns tutorial state
+  ---
+  duration_ms: 0.8327
+  ...
+# Subtest: GameFacade.queryAchievementConfigs returns configs
+ok 6 - GameFacade.queryAchievementConfigs returns configs
+  ---
+  duration_ms: 0.8104
+  ...
+# Subtest: GameFacade.queryDailyTaskProgress returns progress
+ok 7 - GameFacade.queryDailyTaskProgress returns progress
+  ---
+  duration_ms: 0.532
+  ...
+# Subtest: GameFacade.querySects returns sect configs
+ok 8 - GameFacade.querySects returns sect configs
+  ---
+  duration_ms: 0.287
+  ...
+# Subtest: GameFacade.queryOfficeName returns office name
+ok 9 - GameFacade.queryOfficeName returns office name
+  ---
+  duration_ms: 1.0295
+  ...
+# Subtest: buildMainHUDViewModel returns complete view model
+ok 10 - buildMainHUDViewModel returns complete view model
+  ---
+  duration_ms: 0.9032
+  ...
+# Subtest: buildMergeBoardViewModel returns board view model
+ok 11 - buildMergeBoardViewModel returns board view model
+  ---
+  duration_ms: 0.4197
+  ...
+# Subtest: buildCareerViewModel returns career view model
+ok 12 - buildCareerViewModel returns career view model
+  ---
+  duration_ms: 0.3603
+  ...
+# Subtest: buildKpiViewModel returns KPI view model
+ok 13 - buildKpiViewModel returns KPI view model
+  ---
+  duration_ms: 0.7583
+  ...
+# Subtest: buildPromotionViewModel returns promotion view model
+ok 14 - buildPromotionViewModel returns promotion view model
+  ---
+  duration_ms: 0.6112
+  ...
+# Subtest: buildTutorialViewModel returns tutorial view model
+ok 15 - buildTutorialViewModel returns tutorial view model
+  ---
+  duration_ms: 0.5255
+  ...
+# Subtest: buildSectViewModel returns sect view model
+ok 16 - buildSectViewModel returns sect view model
+  ---
+  duration_ms: 0.4767
+  ...
+# Subtest: GameFacade.toggleWorkMode switches work mode
+ok 17 - GameFacade.toggleWorkMode switches work mode
+  ---
+  duration_ms: 0.7167
+  ...
+# Subtest: GameFacade.recruit adds worker to board
+ok 18 - GameFacade.recruit adds worker to board
+  ---
+  duration_ms: 0.6934
+  ...
+# Subtest: GameFacade.recruit fails when board is full
+ok 19 - GameFacade.recruit fails when board is full
+  ---
+  duration_ms: 0.2479
+  ...
+# Subtest: GameFacade.onUiEvent receives events after commands
+ok 20 - GameFacade.onUiEvent receives events after commands
+  ---
+  duration_ms: 0.3486
+  ...
+# Subtest: GameFacade.onUiEvent unsubscribe stops events
+ok 21 - GameFacade.onUiEvent unsubscribe stops events
+  ---
+  duration_ms: 0.2839
+  ...
+# Subtest: resolveCategory maps known events correctly
+ok 22 - resolveCategory maps known events correctly
+  ---
+  duration_ms: 0.0974
+  ...
+# Subtest: resolveCategory returns STATE_CHANGED for unknown events
+ok 23 - resolveCategory returns STATE_CHANGED for unknown events
+  ---
+  duration_ms: 0.0614
+  ...
+# Subtest: ALL_UI_CATEGORIES has 16 categories
+ok 24 - ALL_UI_CATEGORIES has 16 categories
+  ---
+  duration_ms: 0.0486
+  ...
+# Subtest: ModalManager: enqueue opens modal immediately when no active modal
+ok 25 - ModalManager: enqueue opens modal immediately when no active modal
+  ---
+  duration_ms: 0.1803
+  ...
+# Subtest: ModalManager: de-duplicates by entityId
+ok 26 - ModalManager: de-duplicates by entityId
+  ---
+  duration_ms: 0.32
+  ...
+# Subtest: ModalManager: close opens next queued modal
+ok 27 - ModalManager: close opens next queued modal
+  ---
+  duration_ms: 0.2249
+  ...
+# Subtest: ModalManager: priority insertion works
+ok 28 - ModalManager: priority insertion works
+  ---
+  duration_ms: 0.1184
+  ...
+# Subtest: ModalManager: max queue size enforced
+ok 29 - ModalManager: max queue size enforced
+  ---
+  duration_ms: 0.0972
+  ...
+# Subtest: ModalManager: submit transitions to SUBMITTING
+ok 30 - ModalManager: submit transitions to SUBMITTING
+  ---
+  duration_ms: 0.1508
+  ...
+# Subtest: ModalManager: complete transitions from SUBMITTING to next
+ok 31 - ModalManager: complete transitions from SUBMITTING to next
+  ---
+  duration_ms: 0.1034
+  ...
+# Subtest: ToastManager: show creates active toast
+ok 32 - ToastManager: show creates active toast
+  ---
+  duration_ms: 0.6494
+  ...
+# Subtest: ToastManager: merge identical messages within cooldown
+ok 33 - ToastManager: merge identical messages within cooldown
+  ---
+  duration_ms: 0.1896
+  ...
+# Subtest: ToastManager: max queue size drops excess
+ok 34 - ToastManager: max queue size drops excess
+  ---
+  duration_ms: 0.1224
+  ...
+# Subtest: GameFacade.snapshot returns immutable snapshot
+ok 35 - GameFacade.snapshot returns immutable snapshot
+  ---
+  duration_ms: 0.2662
+  ...
+# Subtest: GameFacade.hasChanged detects state changes
+ok 36 - GameFacade.hasChanged detects state changes
+  ---
+  duration_ms: 0.2621
+  ...
+# Subtest: RewardAdPolicy: full session lifecycle
+ok 37 - RewardAdPolicy: full session lifecycle
+  ---
+  duration_ms: 1.0725
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 37
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 47.0429
+TAP version 13
+# Subtest: RewardAdPolicy: initial state allows ad
+ok 1 - RewardAdPolicy: initial state allows ad
+  ---
+  duration_ms: 1.9245
+  ...
+# Subtest: RewardAdPolicy: isAllowed returns true initially
+ok 2 - RewardAdPolicy: isAllowed returns true initially
+  ---
+  duration_ms: 0.1118
+  ...
+# Subtest: RewardAdPolicy: enforces session limit
+ok 3 - RewardAdPolicy: enforces session limit
+  ---
+  duration_ms: 0.1724
+  ...
+# Subtest: RewardAdPolicy: resetSession clears session count
+ok 4 - RewardAdPolicy: resetSession clears session count
+  ---
+  duration_ms: 0.6688
+  ...
+# Subtest: RewardAdPolicy: enforces daily limit
+ok 5 - RewardAdPolicy: enforces daily limit
+  ---
+  duration_ms: 0.1375
+  ...
+# Subtest: RewardAdPolicy: daily count resets on new day
+ok 6 - RewardAdPolicy: daily count resets on new day
+  ---
+  duration_ms: 0.1208
+  ...
+# Subtest: RewardAdPolicy: enforces minimum interval
+ok 7 - RewardAdPolicy: enforces minimum interval
+  ---
+  duration_ms: 0.1399
+  ...
+# Subtest: RewardAdPolicy: enforces cancel cooldown
+ok 8 - RewardAdPolicy: enforces cancel cooldown
+  ---
+  duration_ms: 0.0978
+  ...
+# Subtest: RewardAdPolicy: enforces failure cooldown
+ok 9 - RewardAdPolicy: enforces failure cooldown
+  ---
+  duration_ms: 0.1837
+  ...
+# Subtest: RewardAdPolicy: getState returns current state
+ok 10 - RewardAdPolicy: getState returns current state
+  ---
+  duration_ms: 0.1782
+  ...
+# Subtest: RewardAdPolicy: getRemainingSessionAds returns correct count
+ok 11 - RewardAdPolicy: getRemainingSessionAds returns correct count
+  ---
+  duration_ms: 0.1095
+  ...
+# Subtest: RewardAdPolicy: getRemainingDailyAds returns correct count
+ok 12 - RewardAdPolicy: getRemainingDailyAds returns correct count
+  ---
+  duration_ms: 0.0869
+  ...
+# Subtest: RewardAdPolicy: session limit takes priority over daily limit
+ok 13 - RewardAdPolicy: session limit takes priority over daily limit
+  ---
+  duration_ms: 0.0783
+  ...
+# Subtest: RewardAdPolicy: failure cooldown does not block after expiry
+ok 14 - RewardAdPolicy: failure cooldown does not block after expiry
+  ---
+  duration_ms: 0.1331
+  ...
+# Subtest: RewardAdPolicy: recordShown increments both session and daily count
+ok 15 - RewardAdPolicy: recordShown increments both session and daily count
+  ---
+  duration_ms: 0.0827
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 20.589
+platform service tests passed
+promotion service tests passed
+recruitment tests passed
+TAP version 13
+# Subtest: Config: all JSON config files are valid JSON
+ok 1 - Config: all JSON config files are valid JSON
+  ---
+  duration_ms: 4.2433
+  ...
+# Subtest: Config: idle.json has valid structure
+ok 2 - Config: idle.json has valid structure
+  ---
+  duration_ms: 0.2819
+  ...
+# Subtest: Config: career.json has valid structure
+ok 3 - Config: career.json has valid structure
+  ---
+  duration_ms: 0.3076
+  ...
+# Subtest: Config: PRODUCTION_CONFIG is production-safe
+ok 4 - Config: PRODUCTION_CONFIG is production-safe
+  ---
+  duration_ms: 0.1329
+  ...
+# Subtest: Config: DEVELOPMENT_CONFIG has debug enabled
+ok 5 - Config: DEVELOPMENT_CONFIG has debug enabled
+  ---
+  duration_ms: 0.0825
+  ...
+# Subtest: Config: STAGING_CONFIG has both debug and analytics
+ok 6 - Config: STAGING_CONFIG has both debug and analytics
+  ---
+  duration_ms: 0.062
+  ...
+# Subtest: Config: resolveReleaseConfig returns valid config
+ok 7 - Config: resolveReleaseConfig returns valid config
+  ---
+  duration_ms: 0.1188
+  ...
+# Subtest: Config: isProduction and isAdAvailable work correctly
+ok 8 - Config: isProduction and isAdAvailable work correctly
+  ---
+  duration_ms: 0.1785
+  ...
+# Subtest: Config: IAA policy values are within acceptable ranges
+ok 9 - Config: IAA policy values are within acceptable ranges
+  ---
+  duration_ms: 0.1219
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16.752
+TAP version 13
+# Subtest: E2E: new save creation produces valid default state
+ok 1 - E2E: new save creation produces valid default state
+  ---
+  duration_ms: 3.8225
+  ...
+# Subtest: E2E: recruit fails gracefully in PC V1 (no board)
+ok 2 - E2E: recruit fails gracefully in PC V1 (no board)
+  ---
+  duration_ms: 0.554
+  ...
+# Subtest: E2E: MergeService throws in PC V1 (no board)
+ok 3 - E2E: MergeService throws in PC V1 (no board)
+  ---
+  duration_ms: 1.2807
+  ...
+# Subtest: E2E: work tick accumulates salary and cultivation
+ok 4 - E2E: work tick accumulates salary and cultivation
+  ---
+  duration_ms: 4.9489
+  ...
+# Subtest: E2E: toggleWorkMode switches between WORK and FISHING
+ok 5 - E2E: toggleWorkMode switches between WORK and FISHING
+  ---
+  duration_ms: 0.4399
+  ...
+# Subtest: E2E: KPI progress tracks merge count, work seconds, cultivation
+ok 6 - E2E: KPI progress tracks merge count, work seconds, cultivation
+  ---
+  duration_ms: 0.3796
+  ...
+# Subtest: E2E: daily tasks are generated and progress tracked
+ok 7 - E2E: daily tasks are generated and progress tracked
+  ---
+  duration_ms: 0.3618
+  ...
+# Subtest: E2E: career event system can be queried
+ok 8 - E2E: career event system can be queried
+  ---
+  duration_ms: 0.258
+  ...
+# Subtest: E2E: achievement system tracks career level achievements
+ok 9 - E2E: achievement system tracks career level achievements
+  ---
+  duration_ms: 0.5516
+  ...
+# Subtest: E2E: office level derives from career level
+ok 10 - E2E: office level derives from career level
+  ---
+  duration_ms: 0.7528
+  ...
+# Subtest: E2E: promotion check validates KPI and cultivation requirements
+ok 11 - E2E: promotion check validates KPI and cultivation requirements
+  ---
+  duration_ms: 1.2245
+  ...
+# Subtest: E2E: successful promotion advances career level and resets KPI
+ok 12 - E2E: successful promotion advances career level and resets KPI
+  ---
+  duration_ms: 1.3442
+  ...
+# Subtest: E2E: save and load preserves game state
+ok 13 - E2E: save and load preserves game state
+  ---
+  duration_ms: 1.1025
+  ...
+# Subtest: E2E: offline reward settlement grants salary and cultivation
+ok 14 - E2E: offline reward settlement grants salary and cultivation
+  ---
+  duration_ms: 0.6722
+  ...
+# Subtest: E2E: complete promotion path from Level 1 to Level 10
+ok 15 - E2E: complete promotion path from Level 1 to Level 10
+  ---
+  duration_ms: 0.7426
+  ...
+# Subtest: E2E: no NaN, Infinity, or negative resources after extensive operations
+ok 16 - E2E: no NaN, Infinity, or negative resources after extensive operations
+  ---
+  duration_ms: 1.8497
+  ...
+# Subtest: E2E: save/load cycle preserves player state in PC V1
+ok 17 - E2E: save/load cycle preserves player state in PC V1
+  ---
+  duration_ms: 0.9344
+  ...
+# Subtest: E2E: game loop does not enter infinite loop with large delta
+ok 18 - E2E: game loop does not enter infinite loop with large delta
+  ---
+  duration_ms: 16.3061
+  ...
+# Subtest: E2E: all 10 career levels have correct names and realms
+ok 19 - E2E: all 10 career levels have correct names and realms
+  ---
+  duration_ms: 1.3107
+  ...
+# Subtest: E2E: office levels correctly map to career levels
+ok 20 - E2E: office levels correctly map to career levels
+  ---
+  duration_ms: 0.7287
+  ...
+# Subtest: E2E: promotion failure penalizes mind and requires retry
+ok 21 - E2E: promotion failure penalizes mind and requires retry
+  ---
+  duration_ms: 0.4391
+  ...
+# Subtest: E2E: full lifecycle from new game to save/load/continue
+ok 22 - E2E: full lifecycle from new game to save/load/continue
+  ---
+  duration_ms: 1.2779
+  ...
+# Subtest: E2E: career level salary multiplier increases with level
+ok 23 - E2E: career level salary multiplier increases with level
+  ---
+  duration_ms: 0.611
+  ...
+# Subtest: E2E: career level cultivation multiplier increases with level
+ok 24 - E2E: career level cultivation multiplier increases with level
+  ---
+  duration_ms: 0.4294
+  ...
+# Subtest: E2E: KPI targets increase across career levels
+ok 25 - E2E: KPI targets increase across career levels
+  ---
+  duration_ms: 0.2067
+  ...
+# Subtest: E2E: recruit always fails in PC V1 (no board capacity)
+ok 26 - E2E: recruit always fails in PC V1 (no board capacity)
+  ---
+  duration_ms: 0.1771
+  ...
+# Subtest: E2E: MergeService unavailable in PC V1 (no merge feature)
+ok 27 - E2E: MergeService unavailable in PC V1 (no merge feature)
+  ---
+  duration_ms: 0.183
+  ...
+# Subtest: E2E: career level chain 1-10 has no gaps
+ok 28 - E2E: career level chain 1-10 has no gaps
+  ---
+  duration_ms: 0.2629
+  ...
+# Subtest: E2E: WORK mode gives higher salary than FISHING mode
+ok 29 - E2E: WORK mode gives higher salary than FISHING mode
+  ---
+  duration_ms: 2.5165
+  ...
+# Subtest: E2E: snapshot reflects current player state consistently
+ok 30 - E2E: snapshot reflects current player state consistently
+  ---
+  duration_ms: 0.4521
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 65.4536
+TAP version 13
+# Subtest: Event Stress: 100 rapid event resolutions without corruption
+ok 1 - Event Stress: 100 rapid event resolutions without corruption
+  ---
+  duration_ms: 2.7178
+  ...
+# Subtest: Event Stress: same event cannot appear within cooldown
+ok 2 - Event Stress: same event cannot appear within cooldown
+  ---
+  duration_ms: 0.174
+  ...
+# Subtest: Event Stress: 2 consecutive negatives suppress further negatives
+ok 3 - Event Stress: 2 consecutive negatives suppress further negatives
+  ---
+  duration_ms: 0.1141
+  ...
+# Subtest: Event Stress: easter egg can only appear once per save
+ok 4 - Event Stress: easter egg can only appear once per save
+  ---
+  duration_ms: 0.1449
+  ...
+# Subtest: Event Stress: last 5 event IDs are excluded from next poll
+ok 5 - Event Stress: last 5 event IDs are excluded from next poll
+  ---
+  duration_ms: 0.2027
+  ...
+# Subtest: Event Stress: resolve with wrong event ID throws
+ok 6 - Event Stress: resolve with wrong event ID throws
+  ---
+  duration_ms: 3.4071
+  ...
+# Subtest: Event Stress: scheduler pause/resume/destroy behavior
+ok 7 - Event Stress: scheduler pause/resume/destroy behavior
+  ---
+  duration_ms: 0.2382
+  ...
+# Subtest: Event Stress: poll returns undefined when no events are eligible
+ok 8 - Event Stress: poll returns undefined when no events are eligible
+  ---
+  duration_ms: 0.165
+  ...
+# Subtest: Event Stress: rapid polls without recordShown do not corrupt state
+ok 9 - Event Stress: rapid polls without recordShown do not corrupt state
+  ---
+  duration_ms: 0.4261
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16.905
+TAP version 13
+# Subtest: Lifecycle: 100 rapid hide/show cycles preserve game state
+ok 1 - Lifecycle: 100 rapid hide/show cycles preserve game state
+  ---
+  duration_ms: 11.0015
+  ...
+# Subtest: Lifecycle: callbacks fire in correct order on hide/show
+ok 2 - Lifecycle: callbacks fire in correct order on hide/show
+  ---
+  duration_ms: 0.6612
+  ...
+# Subtest: Lifecycle: save-on-hide preserves data integrity
+ok 3 - Lifecycle: save-on-hide preserves data integrity
+  ---
+  duration_ms: 5.2735
+  ...
+# Subtest: Lifecycle: pause/resume does not corrupt game loop
+ok 4 - Lifecycle: pause/resume does not corrupt game loop
+  ---
+  duration_ms: 4.567
+  ...
+# Subtest: Lifecycle: no double-counting on rapid hide/show transitions
+ok 5 - Lifecycle: no double-counting on rapid hide/show transitions
+  ---
+  duration_ms: 9.8365
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 41.6575
+TAP version 13
+# Subtest: Reward Abuse: cannot request reward while another is in progress
+ok 1 - Reward Abuse: cannot request reward while another is in progress
+  ---
+  duration_ms: 1.4008
+  ...
+# Subtest: Reward Abuse: session limit blocks further ad requests
+ok 2 - Reward Abuse: session limit blocks further ad requests
+  ---
+  duration_ms: 0.9998
+  ...
+# Subtest: Reward Abuse: daily limit blocks further ad requests
+ok 3 - Reward Abuse: daily limit blocks further ad requests
+  ---
+  duration_ms: 0.1934
+  ...
+# Subtest: Reward Abuse: minimum interval between ads enforced
+ok 4 - Reward Abuse: minimum interval between ads enforced
+  ---
+  duration_ms: 0.1192
+  ...
+# Subtest: Reward Abuse: cancel cooldown enforced
+ok 5 - Reward Abuse: cancel cooldown enforced
+  ---
+  duration_ms: 0.1207
+  ...
+# Subtest: Reward Abuse: failure cooldown enforced
+ok 6 - Reward Abuse: failure cooldown enforced
+  ---
+  duration_ms: 0.153
+  ...
+# Subtest: Reward Abuse: double-callback from provider does not double-grant
+ok 7 - Reward Abuse: double-callback from provider does not double-grant
+  ---
+  duration_ms: 0.1343
+  ...
+# Subtest: Reward Abuse: session reset allows new ads
+ok 8 - Reward Abuse: session reset allows new ads
+  ---
+  duration_ms: 0.1054
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13.8489
+TAP version 13
+# Subtest: Save Stress: 1000 save/load cycles preserve data consistency
+ok 1 - Save Stress: 1000 save/load cycles preserve data consistency
+  ---
+  duration_ms: 88.3477
+  ...
+# Subtest: Save Stress: backup recovers when primary save is corrupted
+ok 2 - Save Stress: backup recovers when primary save is corrupted
+  ---
+  duration_ms: 0.9741
+  ...
+# Subtest: Save Stress: safe default when both primary and backup are corrupted
+ok 3 - Save Stress: safe default when both primary and backup are corrupted
+  ---
+  duration_ms: 0.527
+  ...
+# Subtest: Save Stress: no NaN or Infinity after 1000 cycles
+ok 4 - Save Stress: no NaN or Infinity after 1000 cycles
+  ---
+  duration_ms: 57.3249
+  ...
+# Subtest: Save Stress: save/load preserves state across promotions
+ok 5 - Save Stress: save/load preserves state across promotions
+  ---
+  duration_ms: 1.1842
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 156.2396
+TAP version 13
+# Subtest: Simulation: 100 seeds complete without errors
+ok 1 - Simulation: 100 seeds complete without errors
+  ---
+  duration_ms: 38.1025
+  ...
+# Subtest: Simulation: no NaN or Infinity in final state across 100 seeds
+ok 2 - Simulation: no NaN or Infinity in final state across 100 seeds
+  ---
+  duration_ms: 21.5291
+  ...
+# Subtest: Simulation: salary and cultivation are always non-negative
+ok 3 - Simulation: salary and cultivation are always non-negative
+  ---
+  duration_ms: 19.746
+  ...
+# Subtest: Simulation: career level starts at 1 and never decreases
+ok 4 - Simulation: career level starts at 1 and never decreases
+  ---
+  duration_ms: 18.869
+  ...
+# Subtest: Simulation: mind and maxMind are always positive
+ok 5 - Simulation: mind and maxMind are always positive
+  ---
+  duration_ms: 17.0914
+  ...
+# Subtest: Simulation: workers count is always non-negative
+ok 6 - Simulation: workers count is always non-negative
+  ---
+  duration_ms: 19.2812
+  ...
+# Subtest: Simulation: save/reload preserves salary and cultivation across 100 seeds
+ok 7 - Simulation: save/reload preserves salary and cultivation across 100 seeds
+  ---
+  duration_ms: 78.5692
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 223.3245
+reward provider tests passed
+reward result tests passed

@@ -193,8 +193,10 @@ export class DailyTaskService {
 
 function restorePlayer(player: import('../model/player-data').PlayerData, data: import('../model/save-data').GameSaveData): void {
   player.salary = data.salary;
+  // @deprecated Board/merge fields kept for save/load backward compat
   player.maxWorkerLevel = data.maxWorkerLevel;
   player.lastSaveTime = data.lastSaveTime;
+  // @deprecated Board/merge fields kept for save/load backward compat
   player.workers = data.workers.map((w) => ({ ...w }));
   player.cultivationExp = data.cultivationExp;
   player.careerLevel = data.careerLevel;

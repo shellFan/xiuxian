@@ -130,7 +130,7 @@ export class DebugService {
 
   // ── Board / Workers ────────────────────────────────────────────────────────
 
-  /** Set max worker level directly. */
+  /** @deprecated Board/merge system. PC V1 does not use workers on a grid. */
   public setMaxWorkerLevel(level: number): void {
     if (!Number.isFinite(level) || !Number.isInteger(level) || level < 1) {
       throw new Error('Invalid worker level');

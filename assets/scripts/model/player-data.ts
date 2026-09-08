@@ -2,9 +2,11 @@ import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type Work
 
 export interface PlayerDataOptions {
   readonly salary?: number;
+  /** @deprecated Board/merge system. PC V1 does not use workers on a grid. */
   readonly maxWorkerLevel?: number;
-  readonly lastSaveTime?: number;
+  /** @deprecated Board/merge system. PC V1 does not use workers on a grid. */
   readonly workers?: readonly WorkerSaveData[];
+  readonly lastSaveTime?: number;
   readonly cultivationExp?: number;
   readonly careerLevel?: number;
   readonly mind?: number;
@@ -34,12 +36,21 @@ export interface PlayerDataOptions {
   readonly spiritStones?: number;
   readonly lastCultivateTime?: number;
   readonly activeTasks?: readonly ActiveTaskState[];
+  readonly craftedItemIds?: readonly string[];
 }
 
 export class PlayerData {
   public salary: number;
+  /**
+   * @deprecated Board/merge system field. PC V1 does not use workers on a grid.
+   * Kept for save/load backward compatibility only.
+   */
   public maxWorkerLevel: number;
   public lastSaveTime: number;
+  /**
+   * @deprecated Board/merge system field. PC V1 does not use workers on a grid.
+   * Kept for save/load backward compatibility only.
+   */
   public workers: WorkerSaveData[];
   public cultivationExp: number;
   public careerLevel: number;
@@ -76,6 +87,8 @@ export class PlayerData {
   public spiritStones: number;
   public lastCultivateTime: number;
   public activeTasks: ActiveTaskState[];
+  /** Crafted item recipe IDs (PC V1 craft system). */
+  public craftedItemIds: string[];
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -111,6 +124,7 @@ export class PlayerData {
     this.spiritStones = options.spiritStones ?? 0;
     this.lastCultivateTime = options.lastCultivateTime ?? 0;
     this.activeTasks = (options.activeTasks ?? []).map((t) => ({ ...t }));
+    this.craftedItemIds = [...(options.craftedItemIds ?? [])];
   }
 
   public static createDefault(): PlayerData {
@@ -138,6 +152,7 @@ export class PlayerData {
       spiritStones: this.spiritStones,
       lastCultivateTime: this.lastCultivateTime,
       activeTasks: this.activeTasks.map((t) => ({ ...t })),
+      craftedItemIds: [...this.craftedItemIds],
     };
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
     if (this.cultivationRemainder !== 0) Object.assign(data, { cultivationRemainder: this.cultivationRemainder });
