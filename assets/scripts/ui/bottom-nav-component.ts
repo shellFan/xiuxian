@@ -33,10 +33,10 @@ const resolveCocosType = (name: string): unknown =>
 
 // ── Tab Definition ───────────────────────────────────────────────────────────
 
-export type NavTab = 'HOME' | 'TASKS' | 'CRAFT' | 'PROMOTION' | 'MORE';
+export type NavTab = 'HOME' | 'TASKS' | 'CRAFT' | 'PROMOTION' | 'SECT' | 'LEADERBOARD' | 'FRIENDS' | 'ACHIEVEMENTS' | 'SETTINGS';
 
 const NAV_TABS: readonly NavTab[] = [
-  'HOME', 'TASKS', 'CRAFT', 'PROMOTION', 'MORE',
+  'HOME', 'TASKS', 'CRAFT', 'PROMOTION', 'SECT', 'LEADERBOARD', 'FRIENDS', 'ACHIEVEMENTS', 'SETTINGS',
 ];
 
 const TAB_LABELS: Record<NavTab, string> = {
@@ -44,7 +44,11 @@ const TAB_LABELS: Record<NavTab, string> = {
   TASKS: '任务',
   CRAFT: '合成',
   PROMOTION: '晋升',
-  MORE: '更多',
+  SECT: '宗门',
+  LEADERBOARD: '排行',
+  FRIENDS: '好友',
+  ACHIEVEMENTS: '成就',
+  SETTINGS: '设置',
 };
 
 const TAB_ICONS: Record<NavTab, string> = {
@@ -52,7 +56,11 @@ const TAB_ICONS: Record<NavTab, string> = {
   TASKS: '📋',
   CRAFT: '🔮',
   PROMOTION: '📈',
-  MORE: '⚙️',
+  SECT: '⛩️',
+  LEADERBOARD: '🏆',
+  FRIENDS: '👥',
+  ACHIEVEMENTS: '🎖️',
+  SETTINGS: '⚙️',
 };
 
 // ── Cocos Node Interfaces ────────────────────────────────────────────────────
@@ -87,11 +95,11 @@ const NAV_REFRESH_CATEGORIES: readonly UiEventCategory[] = [
 export class BottomNavComponent extends Component {
   // ── Scene-bound properties (set in Cocos Editor) ──────────────────────────
 
-  /** Tab button nodes (5 buttons in order: HOME, TASKS, CRAFT, PROMOTION, MORE) */
+  /** Tab button nodes (9 buttons: HOME, TASKS, CRAFT, PROMOTION, SECT, LEADERBOARD, FRIENDS, ACHIEVEMENTS, SETTINGS) */
   @property([resolveCocosType('Button')])
   public tabButtons: ButtonLike[] = [];
 
-  /** Tab label nodes (5 labels in same order) */
+  /** Tab label nodes (9 labels in same order) */
   @property([resolveCocosType('Label')])
   public tabLabels: TextLike[] = [];
 

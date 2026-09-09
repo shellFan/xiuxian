@@ -38,7 +38,11 @@ import { IdleStatusPanelComponent } from './idle-status-panel-component';
 import { TaskPageComponent } from './task-page-component';
 import { PromotionPageComponent } from './promotion-page-component';
 import { CraftPageComponent } from './craft-page-component';
-import { MorePageComponent } from './more-page-component';
+import { SectPageComponent } from './sect-page-component';
+import { LeaderboardPageComponent } from './leaderboard-page-component';
+import { FriendsPageComponent } from './friends-page-component';
+import { AchievementsPageComponent } from './achievements-page-component';
+import { SettingsPageComponent } from './settings-page-component';
 import { FloatingRewardComponent } from './floating-reward-component';
 import { TutorialOverlayComponent } from './tutorial-overlay-component';
 import { DebugPanelComponent } from './debug-panel-component';
@@ -69,7 +73,11 @@ const PAGE_NODE_MAP: Record<NavTab, string> = {
   TASKS: 'TasksPageContent',
   CRAFT: 'CraftPageContent',
   PROMOTION: 'PromotionPageContent',
-  MORE: 'MorePageContent',
+  SECT: 'SectPageContent',
+  LEADERBOARD: 'LeaderboardPageContent',
+  FRIENDS: 'FriendsPageContent',
+  ACHIEVEMENTS: 'AchievementsPageContent',
+  SETTINGS: 'SettingsPageContent',
 };
 
 // ── Refresh categories ───────────────────────────────────────────────────────
@@ -111,9 +119,25 @@ export class HomePageComponent extends Component {
   @property(CraftPageComponent)
   public craftPage?: CraftPageComponent;
 
-  /** More page component */
-  @property(MorePageComponent)
-  public morePage?: MorePageComponent;
+  /** Sect page component */
+  @property(SectPageComponent)
+  public sectPage?: SectPageComponent;
+
+  /** Leaderboard page component */
+  @property(LeaderboardPageComponent)
+  public leaderboardPage?: LeaderboardPageComponent;
+
+  /** Friends page component */
+  @property(FriendsPageComponent)
+  public friendsPage?: FriendsPageComponent;
+
+  /** Achievements page component */
+  @property(AchievementsPageComponent)
+  public achievementsPage?: AchievementsPageComponent;
+
+  /** Settings page component */
+  @property(SettingsPageComponent)
+  public settingsPage?: SettingsPageComponent;
 
   /** Floating reward feedback component */
   @property(FloatingRewardComponent)
@@ -218,8 +242,20 @@ export class HomePageComponent extends Component {
       case 'PROMOTION':
         this.promotionPage?.refresh();
         break;
-      case 'MORE':
-        this.morePage?.refresh();
+      case 'SECT':
+        this.sectPage?.refresh();
+        break;
+      case 'LEADERBOARD':
+        this.leaderboardPage?.refresh();
+        break;
+      case 'FRIENDS':
+        this.friendsPage?.refresh();
+        break;
+      case 'ACHIEVEMENTS':
+        this.achievementsPage?.refresh();
+        break;
+      case 'SETTINGS':
+        this.settingsPage?.refresh();
         break;
     }
   }
@@ -246,8 +282,20 @@ export class HomePageComponent extends Component {
       case 'PROMOTION':
         this.promotionPage?.refresh();
         break;
-      case 'MORE':
-        this.morePage?.refresh();
+      case 'SECT':
+        this.sectPage?.refresh();
+        break;
+      case 'LEADERBOARD':
+        this.leaderboardPage?.refresh();
+        break;
+      case 'FRIENDS':
+        this.friendsPage?.refresh();
+        break;
+      case 'ACHIEVEMENTS':
+        this.achievementsPage?.refresh();
+        break;
+      case 'SETTINGS':
+        this.settingsPage?.refresh();
         break;
     }
   }

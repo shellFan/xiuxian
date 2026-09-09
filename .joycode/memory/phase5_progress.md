@@ -1,9 +1,7 @@
 ---
 name: phase5-progress
-description: 'Phase 5 Cocos Integration — all 9 deferred items delivered, 69/69 tests pass'
+description: PC V1 Desktop Build complete - EXE at dist/牛马修仙传-win32-x64/
 type: project
 ---
 
-Phase 5 COMPLETE. Branch: phase5-cocos-integration.
-Delivered: Facade Query API, UI boundary fix, SceneBindingComponent, CommonModalComponent, TutorialOverlayComponent, RewardAdPolicy, EventRuntimeAdapter, Platform Factory (SafeArea+unsubscribe), phase5:check script.
-Tests: 37+15+17=69 pass. Pre-existing: foundation.test.ts UUID mismatch (not Phase 5).
+PC V1 OVERNIGHT COMPLETE (commit 37358bd). Windows EXE: dist/牛马修仙传-win32-x64/牛马修仙传.exe (176MB). Main.scene 1280x720 horizontal. Electron 28.3.3 wrapper. 70/70 tests + 100-seed sim pass. Build: Cocos CLI → Web Desktop → Electron → electron-packager → EXE. Known: GPU cache warning harmless, electron-builder network issue used packager fallback.

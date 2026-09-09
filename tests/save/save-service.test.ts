@@ -22,7 +22,7 @@ function testSavesAndRestoresPlayerAndWorkers(): void {
   service.save(player);
   assert.deepEqual(service.load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 80, maxWorkerLevel: 3, lastSaveTime: 123,
     workers: [{ id: 'worker-1', level: 2, row: 1, column: 3 }], cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100,
-    performance: 0, sectId: null, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
+    performance: 0, sectId: null, lastSectSwitchTime: 0, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
     kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [], craftedItemIds: [] });
 }
 
@@ -77,7 +77,7 @@ function testMigratesOlderVersionAndDefaultsMissingFields(): void {
   storage.setItem('game-save', JSON.stringify({ saveVersion: 1, salary: 20, workers: [{ id: 'w', level: 1, row: 0, column: 0 }] }));
   assert.deepEqual(new SaveService(storage).load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 20, maxWorkerLevel: 1, lastSaveTime: 0,
     workers: [{ id: 'w', level: 1, row: 0, column: 0 }], cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100,
-    performance: 0, sectId: null, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
+    performance: 0, sectId: null, lastSectSwitchTime: 0, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
     kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [], craftedItemIds: [] });
 }
 
@@ -116,7 +116,7 @@ function testInvalidPlayerScalarsFallBackToSafeDefaults(): void {
     maxWorkerLevel: 0,
     lastSaveTime: 0,
     workers: [],
-    cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100, performance: 0, sectId: null, talentId: null,
+    cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100, performance: 0, sectId: null, lastSectSwitchTime: 0, talentId: null,
     workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0, kpiProgress: {}, promotionFailCount: 0, officeLevel: 1,
     lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [], craftedItemIds: []
   });

@@ -26,7 +26,13 @@
     "build:all": "npm run build:game && npm run build:orchestrator",
     "phase5:check": "tsc -p tsconfig.game.json --noEmit && node tests/.compiled/tests/phase5/event-runtime-adapter.test.js && node tests/.compiled/tests/phase5/reward-ad-policy.test.js && node tests/.compiled/tests/phase5/phase5-integration.test.js",
     "release:check": "tsc -p tsconfig.game.json --noEmit && node tests/run-all.cjs",
-    "web-v1:check": "node scripts/check-web-v1-scene.cjs"
+    "web-v1:check": "node scripts/check-web-v1-scene.cjs",
+    "pc:dev": "cd desktop && npm run dev",
+    "pc:start": "cd desktop && npm start",
+    "pc:build": "CocosCreator.exe --project . --build \"platform=web-desktop;debug=false\"",
+    "pc:copy": "cd desktop && npm run build:copy",
+    "pc:pack": "cd desktop && npm run pack",
+    "pc:pack:portable": "cd desktop && npm run pack:portable"
   },
   "dependencies": {
     "ajv": "^8.17.1",

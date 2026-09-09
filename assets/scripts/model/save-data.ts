@@ -56,6 +56,7 @@ export interface GameSaveData {
   readonly maxMind: number;
   readonly performance: number;
   readonly sectId: string | null;
+  readonly lastSectSwitchTime?: number;
   readonly talentId: string | null;
   readonly workMode: WorkMode;
   readonly workSeconds: number;

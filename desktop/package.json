@@ -1,0 +1,19 @@
+{
+  "name": "xiuxian-desktop",
+  "version": "1.0.0",
+  "description": "牛马修仙传 - PC Desktop Edition",
+  "main": "main.cjs",
+  "scripts": {
+    "dev": "electron . --dev",
+    "start": "electron .",
+    "pack": "electron-packager . 牛马修仙传 --platform=win32 --arch=x64 --overwrite --out=../dist --icon=assets/icon.ico --asar",
+    "pack:portable": "electron-packager . 牛马修仙传 --platform=win32 --arch=x64 --overwrite --out=../dist --icon=assets/icon.ico --asar --portable",
+    "build:copy": "node -e \"const fs=require('fs'),p=require('path');const src=p.join(__dirname,'..','build','web-desktop');const dst=p.join(__dirname,'build','web-desktop');if(fs.existsSync(src)){fs.cpSync(src,dst,{recursive:true});console.log('Copied web-desktop build')}else{console.error('Run Cocos build first: npm run pc:build');process.exit(1)}\"",
+    "prepack": "npm run build:copy"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-packager": "^17.1.2"
+  }
+}

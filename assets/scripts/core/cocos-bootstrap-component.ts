@@ -15,7 +15,8 @@
 
 import { _decorator, Component, sys, game } from 'cc';
 import { GameFacade } from '../facade/game-facade';
-import { LocalStorageAdapter, MemoryStorageAdapter } from '../services/storage-adapter';
+import { ElectronStorageAdapter } from '../services/electron-storage-adapter';
+import { LocalStorageAdapter, MemoryStorageAdapter, type StorageAdapter } from '../services/storage-adapter';
 import { AudioService } from '../services/audio-service';
 import { CocosAudioBackend } from '../services/cocos-audio-backend';
 import { SafeAreaService } from '../services/safe-area-service';
@@ -68,10 +69,16 @@ export class CocosBootstrapComponent extends Component {
     }
     CocosBootstrapComponent._instance = this;
 
-    // Create storage adapter — prefer Cocos persistent storage, fallback to memory
-    const storage = sys.localStorage
-      ? new LocalStorageAdapter(sys.localStorage)
-      : new MemoryStorageAdapter();
+    // Create storage adapter — Electron file storage > Cocos localStorage > in-memory
+    let storage: StorageAdapter;
+    const isElectron = typeof window !== 'undefined' && (window as unknown as { electronAPI?: unknown }).electronAPI;
+    if (isElectron) {
+      storage = new ElectronStorageAdapter();
+    } else if (sys.localStorage) {
+      storage = new LocalStorageAdapter(sys.localStorage);
+    } else {
+      storage = new MemoryStorageAdapter();
+    }
 
     // Initialize GameFacade as the single business entry point
     this._facade = new GameFacade({ storage });
@@ -90,6 +97,9 @@ export class CocosBootstrapComponent extends Component {
 
     // Wire audio service lifecycle (pause/resume BGM)
     this.wireAudioLifecycle();
+
+    // Wire Electron save signals (minimize/close/autosave → facade.save())
+    this.wireElectronSaveSignals();
   }
 
   protected start(): void {
@@ -166,6 +176,30 @@ export class CocosBootstrapComponent extends Component {
       if (this._audioService && this._lastBgmId) {
         this._audioService.playBgm(this._lastBgmId);
         this._lastBgmId = null;
+      }
+    });
+  }
+
+  // ── Electron Save Signals ────────────────────────────────────────────────
+
+  /**
+   * Wire Electron save signals to GameFacade.save().
+   * When Electron sends 'game:save-requested' (on minimize, close, autosave),
+   * the game saves its state via the ElectronStorageAdapter.
+   */
+  private wireElectronSaveSignals(): void {
+    if (typeof window === 'undefined') return;
+    const electronAPI = (window as unknown as { electronAPI?: { onSaveRequested?: (cb: (data: { reason: string }) => void) => void } }).electronAPI;
+    if (!electronAPI?.onSaveRequested) return;
+
+    electronAPI.onSaveRequested((data: { reason: string }) => {
+      if (this._facade && !this._facade['disposed']) {
+        try {
+          this._facade.save();
+          console.log(`[ElectronBridge] Game saved (reason: ${data.reason})`);
+        } catch (e) {
+          console.error('[ElectronBridge] Save failed:', e);
+        }
       }
     });
   }

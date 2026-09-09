@@ -489,7 +489,7 @@ test('validateSaveData: detects invalid data', () => {
 // ── GameFacade Integration ──────────────────────────────────────────────────
 
 test('GameFacade: creates and starts correctly', () => {
-  const facade = new GameFacade({ storage: new MemoryStorageAdapter() });
+  const facade = new GameFacade({ storage: new MemoryStorageAdapter(), modeSwitchCooldownMs: 0 });
   assert.ok(facade.context !== undefined);
   assert.ok(facade.gameLoop !== undefined);
   assert.ok(facade.rewardService !== undefined);
@@ -499,7 +499,7 @@ test('GameFacade: creates and starts correctly', () => {
 });
 
 test('GameFacade: snapshot returns valid data', () => {
-  const facade = new GameFacade({ storage: new MemoryStorageAdapter() });
+  const facade = new GameFacade({ storage: new MemoryStorageAdapter(), modeSwitchCooldownMs: 0 });
   const snap = facade.snapshot();
   assert.strictEqual(snap.salary, 0);
   assert.strictEqual(snap.careerLevel, 1);
@@ -509,7 +509,7 @@ test('GameFacade: snapshot returns valid data', () => {
 });
 
 test('GameFacade: onUiEvent subscription works', () => {
-  const facade = new GameFacade({ storage: new MemoryStorageAdapter() });
+  const facade = new GameFacade({ storage: new MemoryStorageAdapter(), modeSwitchCooldownMs: 0 });
   let received = false;
   const unsub = facade.onUiEvent('RESOURCE_CHANGED', () => { received = true; });
   facade.context.events.emit('salaryChanged', { amount: 10, total: 10 });
@@ -519,7 +519,7 @@ test('GameFacade: onUiEvent subscription works', () => {
 });
 
 test('GameFacade: destroy is idempotent', () => {
-  const facade = new GameFacade({ storage: new MemoryStorageAdapter() });
+  const facade = new GameFacade({ storage: new MemoryStorageAdapter(), modeSwitchCooldownMs: 0 });
   facade.destroy();
   facade.destroy();
 });

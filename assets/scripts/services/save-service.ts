@@ -86,6 +86,7 @@ function migrate(raw: unknown): GameSaveData {
     maxMind: isPositiveSafeInteger(raw.maxMind) ? raw.maxMind : 100,
     performance: isNonNegativeSafeInteger(raw.performance) ? raw.performance : 0,
     sectId: typeof raw.sectId === 'string' ? raw.sectId : null,
+    lastSectSwitchTime: isNonNegativeSafeInteger(raw.lastSectSwitchTime) ? raw.lastSectSwitchTime : 0,
     talentId: typeof raw.talentId === 'string' ? raw.talentId : null,
     workMode: raw.workMode === 'WORK' ? 'WORK' : 'FISHING',
     workSeconds: isNonNegativeSafeInteger(raw.workSeconds) ? raw.workSeconds : 0,

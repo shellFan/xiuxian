@@ -1,1 +1,1 @@
-- [phase5-progress](phase5_progress.md) — Phase 5 Cocos Integration — all 9 deferred items delivered, 69/69 tests pass
+- [phase5-progress](phase5_progress.md) — PC V1 Desktop Build complete - EXE at dist/牛马修仙传-win32-x64/

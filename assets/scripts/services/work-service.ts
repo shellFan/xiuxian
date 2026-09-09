@@ -154,4 +154,5 @@ function restorePlayer(player: GameContext['player'], data: ReturnType<GameConte
   player.unlockedAchievementIds = [...(data.unlockedAchievementIds ?? [])];
   player.claimedAchievementIds = [...(data.claimedAchievementIds ?? [])];
   player.dailySignIn = data.dailySignIn ? { ...data.dailySignIn } : null;
+  player.lastSectSwitchTime = data.lastSectSwitchTime ?? 0;
 }

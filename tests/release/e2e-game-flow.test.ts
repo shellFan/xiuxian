@@ -57,6 +57,7 @@ function createTestSetup(playerOverrides: Partial<PlayerDataOptions> = {}): Test
     clock,
     randomProvider: new FixedRandomProvider(0.01), // very low roll → promotion always succeeds
     debugProtection: { isProduction: false },
+    modeSwitchCooldownMs: 0,
   });
   return { facade, clock, storage };
 }
@@ -348,7 +349,7 @@ test('E2E: save and load preserves game state', () => {
 
   // Load into a new facade
   const clock2 = new FakeClock(0);
-  const facade2 = new GameFacade({ storage, clock: clock2, debugProtection: { isProduction: false } });
+  const facade2 = new GameFacade({ storage, clock: clock2, debugProtection: { isProduction: false }, modeSwitchCooldownMs: 0 });
   const snap2 = facade2.snapshot();
   assert.strictEqual(snap2.salary, 500, 'Loaded salary should be 500');
   assert.strictEqual(snap2.cultivationExp, 200, 'Loaded cultivation should be 200');
@@ -361,7 +362,7 @@ test('E2E: offline reward settlement grants salary and cultivation', () => {
   const clock = new FakeClock(0);
   const storage = new MemoryStorageAdapter();
   const player = new PlayerData({ careerLevel: 1, lastSaveTime: 0, mind: 100, maxMind: 100 });
-  const facade = new GameFacade({ player, storage, clock, debugProtection: { isProduction: false } });
+  const facade = new GameFacade({ player, storage, clock, debugProtection: { isProduction: false }, modeSwitchCooldownMs: 0 });
 
   // Place a worker for idle calculation
   facade.recruit();
@@ -398,6 +399,7 @@ test('E2E: complete promotion path from Level 1 to Level 10', () => {
     clock,
     randomProvider: new FixedRandomProvider(0.01),
     debugProtection: { isProduction: false },
+    modeSwitchCooldownMs: 0,
   });
 
   for (let level = 1; level <= 9; level++) {
@@ -580,6 +582,7 @@ test('E2E: promotion failure penalizes mind and requires retry', () => {
     clock,
     randomProvider: new FixedRandomProvider(0.99), // high roll → failure
     debugProtection: { isProduction: false },
+    modeSwitchCooldownMs: 0,
   });
 
   prepareForPromotion(facade, clock);
@@ -613,6 +616,7 @@ test('E2E: full lifecycle from new game to save/load/continue', () => {
     clock,
     randomProvider: new FixedRandomProvider(0.01),
     debugProtection: { isProduction: false },
+    modeSwitchCooldownMs: 0,
   });
 
   // PC V1: Phase 1 — Play with work mode (no board/merge)
@@ -744,7 +748,7 @@ test('E2E: WORK mode gives higher salary than FISHING mode', () => {
   const clock1 = new FakeClock(0);
   const storage1 = new MemoryStorageAdapter();
   const p1 = new PlayerData({ careerLevel: 1, mind: 100, maxMind: 100, lastSaveTime: 0, workMode: 'WORK' });
-  const f1 = new GameFacade({ player: p1, storage: storage1, clock: clock1, debugProtection: { isProduction: false } });
+  const f1 = new GameFacade({ player: p1, storage: storage1, clock: clock1, debugProtection: { isProduction: false }, modeSwitchCooldownMs: 0 });
   f1.recruit(); // Place worker for salary rate
   f1.start();
   // 720s: WORK salary = floor(10 * 720 * 2 / 7200) = 2
@@ -755,7 +759,7 @@ test('E2E: WORK mode gives higher salary than FISHING mode', () => {
   const clock2 = new FakeClock(0);
   const storage2 = new MemoryStorageAdapter();
   const p2 = new PlayerData({ careerLevel: 1, mind: 100, maxMind: 100, lastSaveTime: 0, workMode: 'FISHING' });
-  const f2 = new GameFacade({ player: p2, storage: storage2, clock: clock2, debugProtection: { isProduction: false } });
+  const f2 = new GameFacade({ player: p2, storage: storage2, clock: clock2, debugProtection: { isProduction: false }, modeSwitchCooldownMs: 0 });
   f2.recruit();
   f2.start();
   // 720s: FISHING salary = floor(10 * 720 * 1 / 7200) = 1

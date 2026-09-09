@@ -89,6 +89,7 @@ export interface GameEvents extends Record<string, unknown> {
   readonly taskClaimed: TaskClaimedEvent;
   readonly spiritStonesChanged: SpiritStonesChangedEvent;
   readonly itemCrafted: ItemCraftedEvent;
+  readonly sectChanged: { readonly sectId: string };
 }
 
 /** Domain events that should refresh Phase 2 HUD. UI must not poll every frame. */

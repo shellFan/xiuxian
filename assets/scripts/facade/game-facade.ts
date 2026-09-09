@@ -46,6 +46,8 @@ export interface GameFacadeOptions extends GameContextOptions {
   readonly rewardProvider?: RewardProvider;
   readonly autoSaveIntervalSeconds?: number;
   readonly debugProtection?: DebugProtectionOptions;
+  /** Cooldown in milliseconds for work mode switching. Default 5000. Set 0 to disable. */
+  readonly modeSwitchCooldownMs?: number;
 }
 
 export type UiEventListener = (event: UiEvent) => void;
@@ -61,6 +63,10 @@ export class GameFacade {
   private readonly uiListeners = new Map<UiEventCategory, Set<UiEventListener>>();
   private lastSnapshot: GameSnapshot | null = null;
   private disposed = false;
+  /** Timestamp (ms) when work mode was last changed. */
+  private lastModeChangeTime = 0;
+  /** Cooldown in milliseconds for work mode switching. */
+  private readonly modeSwitchCooldownMs: number;
 
   public constructor(options: GameFacadeOptions = {}) {
     this.platform = createPlatformService(options.platformKind ?? 'mock');
@@ -76,6 +82,7 @@ export class GameFacade {
     );
     this.lifecycle = new PlatformLifecycle(this.platform);
     this.debugProtection = new DebugProtection(options.debugProtection);
+    this.modeSwitchCooldownMs = options.modeSwitchCooldownMs ?? 5000;
 
     // Bridge domain events to UI event stream
     this.bridgeDomainEvents();
@@ -164,6 +171,38 @@ export class GameFacade {
 
   /** All available sects. */
   public querySects() { return this.context.configService.sect.sects; }
+
+  /** Change/choose sect. First choice is free, subsequent changes have 24h cooldown. */
+  public changeSect(sectId: string): { success: boolean; reason?: string } {
+    const current = this.context.player.sectId;
+    if (current === sectId) return { success: false, reason: '已经是该宗门' };
+
+    // First choice — use choose()
+    if (current === null || current === undefined) {
+      try {
+        this.context.sect.choose(sectId as import('../model/config-types').SectId);
+        this.context.events.emit('sectChanged', { sectId });
+        return { success: true };
+      } catch (e: unknown) {
+        return { success: false, reason: e instanceof Error ? e.message : '加入宗门失败' };
+      }
+    }
+
+    // Subsequent switch — check cooldown
+    const lastSwitch = this.context.player.lastSectSwitchTime ?? 0;
+    const cooldownMs = 24 * 60 * 60 * 1000; // 24 hours
+    const remaining = cooldownMs - (Date.now() - lastSwitch);
+    if (remaining > 0) {
+      return { success: false, reason: `宗门切换冷却中(${Math.ceil(remaining / 3600000)}小时)` };
+    }
+
+    // Switch sect
+    this.context.player.sectId = sectId;
+    this.context.player.lastSectSwitchTime = Date.now();
+    this.context.saveService.save(this.context.player);
+    this.context.events.emit('sectChanged', { sectId });
+    return { success: true };
+  }
 
   /** Board info: capacity, isFull, cells, etc. @deprecated No merge board in PC V1. */
   public queryBoard() {
@@ -466,20 +505,37 @@ export class GameFacade {
     this.context.tutorial.complete();
   }
 
-  /** Toggle work mode between WORK and FISHING. */
-  public toggleWorkMode(): void {
+  /** Toggle work mode between WORK and FISHING. Returns false if on cooldown. */
+  public toggleWorkMode(): { success: boolean; reason?: string } {
     const current = this.context.player.workMode;
     const next: WorkMode = current === 'WORK' ? 'FISHING' : 'WORK';
-    this.changeWorkMode(next);
+    return this.changeWorkMode(next);
   }
 
   // ── Commands ──────────────────────────────────────────────────────────────
 
-  /** Change work mode (WORK / FISHING). */
-  public changeWorkMode(mode: WorkMode): void {
+  /** Change work mode (WORK / FISHING). Returns result with cooldown info. */
+  public changeWorkMode(mode: WorkMode): { success: boolean; reason?: string } {
+    if (this.context.player.workMode === mode) {
+      return { success: false, reason: '已经是该模式' };
+    }
+    const now = Date.now();
+    const remaining = this.modeSwitchCooldownMs - (now - this.lastModeChangeTime);
+    if (remaining > 0) {
+      return { success: false, reason: `模式切换冷却中(${Math.ceil(remaining / 1000)}秒)` };
+    }
     this.context.player.workMode = mode;
+    this.lastModeChangeTime = now;
     this.context.events.emit('workModeChanged', { mode });
     this.context.saveService.save(this.context.player);
+    return { success: true };
+  }
+
+  /** Get remaining cooldown seconds for work mode switch. */
+  public queryWorkModeCooldown(): number {
+    const elapsed = Date.now() - this.lastModeChangeTime;
+    const remaining = this.modeSwitchCooldownMs - elapsed;
+    return Math.max(0, remaining / 1000);
   }
 
   /** Recruit a new worker (level 1) to the merge board. @deprecated No merge board in PC V1. */
