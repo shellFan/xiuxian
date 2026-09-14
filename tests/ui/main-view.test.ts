@@ -255,9 +255,9 @@ test('Main.scene has a consistent WEB V1 node/component reference graph', () => 
   // SafeAreaRoot must carry the current GameUIController component.
   const safeArea = nodes.find((node) => node._name === 'SafeAreaRoot')!;
   assert.ok(safeArea, 'SafeAreaRoot must exist');
-  const homePageCompressed = classToCompressed.get('GameUIController')!;
+  const gameUiCompressed = classToCompressed.get('GameUIController')!;
   const safeAreaComps = (safeArea._components ?? []).map((c: any) => ref(c));
-  assert.ok(safeAreaComps.some((c: any) => c.__type__ === homePageCompressed), 'SafeAreaRoot must carry GameUIController');
+  assert.ok(safeAreaComps.some((c: any) => c.__type__ === gameUiCompressed), 'SafeAreaRoot must carry GameUIController');
   // TopHeader must carry MainHud component.
   const topHeader = nodes.find((node) => node._name === 'TopHeader')!;
   assert.ok(topHeader, 'TopHeader must exist');
@@ -293,20 +293,22 @@ test('Main.scene exposes the playable home and indexed board cell contract', () 
     assert.ok(found, `scene must declare node ${name}`);
     return found!;
   };
-  const childNames = (node: { object: Record<string, any> }) =>
-    new Set((node.object._children ?? []).map((ref: { __id__: number }) => scene[ref.__id__]?._name));
+  const childNodeNamed = (parent: { object: Record<string, any>; index: number }, name: string) => {
+    const found = (parent.object._children ?? [])
+      .map((ref: { __id__: number }) => ({ object: scene[ref.__id__], index: ref.__id__ }))
+      .find(({ object }: { object: Record<string, any>; index: number }) => object?._name === name && object.__type__ === 'cc.Node');
+    assert.ok(found, `${name} must be a direct child of ${parent.object._name}`);
+    return found!;
+  };
   const safeArea = nodeNamed('SafeAreaRoot');
   const home = nodeNamed('HomePageContent');
   const pageContainer = nodeNamed('PageContainer');
-  const craft = nodeNamed('CraftPageContent');
-  assert.deepEqual(craft.object._parent, { __id__: pageContainer.index },
-    'CraftPageContent must be a direct child of PageContainer');
-  assert.ok(childNames(craft).has('MergeBoardRoot'));
-  assert.ok(childNames(craft).has('RecruitButton'));
-  const board = nodeNamed('MergeBoardRoot');
+  const craft = childNodeNamed(pageContainer, 'CraftPageContent');
+  const board = childNodeNamed(craft, 'MergeBoardRoot');
+  childNodeNamed(craft, 'RecruitButton');
   for (let cell = 0; cell < 16; cell++) {
     const name = `BoardCell${cell.toString().padStart(2, '0')}`;
-    assert.ok(childNames(board).has(name), `MergeBoardRoot must contain ${name}`);
+    childNodeNamed(board, name);
   }
   assert.equal(home.object._active, true, 'HomePageContent must be visible at startup');
   assert.equal(craft.object._active, false, 'CraftPageContent must be hidden at startup');

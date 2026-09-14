@@ -324,16 +324,18 @@ function testPlayableHomeAndBoardContract(): void {
     assert.ok(found, `Main.scene must contain node ${name}`);
     return found!;
   };
-  const childNodes = (parent: { object: SceneObject; index: number }): Set<string> => {
-    return new Set((parent.object._children ?? []).map((ref) => scene[ref.__id__]?._name as string));
+  const childNodeNamed = (parent: { object: SceneObject; index: number }, name: string): { object: SceneObject; index: number } => {
+    const found = (parent.object._children ?? [])
+      .map((ref) => ({ object: scene[ref.__id__], index: ref.__id__ }))
+      .find(({ object }) => object?._name === name && object.__type__ === 'cc.Node');
+    assert.ok(found, `${name} must be a direct child of ${parent.object._name}`);
+    return found!;
   };
 
   const safeArea = nodeNamed('SafeAreaRoot');
   const home = nodeNamed('HomePageContent');
   const pageContainer = nodeNamed('PageContainer');
-  const craft = nodeNamed('CraftPageContent');
-  assert.deepEqual(craft.object._parent, { __id__: pageContainer.index },
-    'CraftPageContent must be a direct child of PageContainer');
+  const craft = childNodeNamed(pageContainer, 'CraftPageContent');
 
   const bootstrapType = classToCompressed.get('CocosBootstrapComponent');
   assert.ok(bootstrapType, 'CocosBootstrapComponent must have a generated .meta uuid');
@@ -341,13 +343,10 @@ function testPlayableHomeAndBoardContract(): void {
   assert.equal(bootstrapComponents.length, 1, 'exactly one CocosBootstrapComponent must exist in Main.scene');
   assert.deepEqual(bootstrapComponents[0].node, { __id__: safeArea.index }, 'CocosBootstrapComponent must be mounted on SafeAreaRoot');
 
-  assert.ok(childNodes(craft).has('MergeBoardRoot'), 'CraftPageContent must contain MergeBoardRoot');
-  assert.ok(childNodes(craft).has('RecruitButton'), 'CraftPageContent must contain RecruitButton');
-  const board = nodeNamed('MergeBoardRoot');
-  const boardChildren = childNodes(board);
+  const board = childNodeNamed(craft, 'MergeBoardRoot');
+  childNodeNamed(craft, 'RecruitButton');
   for (let cell = 0; cell < 16; cell++) {
-    assert.ok(boardChildren.has(`BoardCell${cell.toString().padStart(2, '0')}`),
-      `MergeBoardRoot must contain BoardCell${cell.toString().padStart(2, '0')}`);
+    childNodeNamed(board, `BoardCell${cell.toString().padStart(2, '0')}`);
   }
   assert.equal(home.object._active, true, 'HomePageContent must be visible at startup');
   assert.equal(craft.object._active, false, 'CraftPageContent must be hidden at startup');

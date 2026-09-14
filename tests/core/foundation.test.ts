@@ -109,21 +109,21 @@ function testMainSceneBootstrapContract(): void {
     assert.ok(node, `${name} must exist as a cc.Node`);
     return node!;
   };
-  const childNames = (node: Record<string, any>) => new Set(
-    ((node['_children'] as ReadonlyArray<{ __id__: number }>) ?? []).map((ref) => scene[ref.__id__]?.['_name']),
-  );
+  const childNodeNamed = (parent: Record<string, any>, name: string) => {
+    const found = (((parent['_children'] as ReadonlyArray<{ __id__: number }>) ?? [])
+      .map((ref) => ({ object: scene[ref.__id__], index: ref.__id__ }))
+      .find(({ object }) => object?.['_name'] === name && object?.['__type__'] === 'cc.Node'));
+    assert.ok(found, `${name} must be a direct child of ${parent['_name']}`);
+    return found!.object;
+  };
   const home = nodeNamed('HomePageContent');
   const pageContainer = nodeNamed('PageContainer');
-  const craft = nodeNamed('CraftPageContent');
-  assert.deepEqual(craft['_parent'], { __id__: scene.indexOf(pageContainer) },
-    'CraftPageContent must be a direct child of PageContainer');
-  assert.ok(childNames(craft).has('MergeBoardRoot'), 'CraftPageContent must contain MergeBoardRoot');
-  assert.ok(childNames(craft).has('RecruitButton'), 'CraftPageContent must contain RecruitButton');
-  const board = nodeNamed('MergeBoardRoot');
-  const boardChildren = childNames(board);
+  const craft = childNodeNamed(pageContainer, 'CraftPageContent');
+  const board = childNodeNamed(craft, 'MergeBoardRoot');
+  childNodeNamed(craft, 'RecruitButton');
   for (let cell = 0; cell < 16; cell++) {
     const name = `BoardCell${cell.toString().padStart(2, '0')}`;
-    assert.ok(boardChildren.has(name), `MergeBoardRoot must contain ${name}`);
+    childNodeNamed(board, name);
   }
   assert.equal(home['_active'], true, 'HomePageContent must be visible at startup');
   assert.equal(craft['_active'], false, 'CraftPageContent must be hidden at startup');
