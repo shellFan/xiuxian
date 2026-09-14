@@ -230,12 +230,12 @@ test('WorkerView exposes a model-driven card presentation without owning game st
 
 test('Main.scene declares the core WEB V1 nodes and view components', () => {
   const scene = JSON.parse(fs.readFileSync('assets/scenes/Main.scene', 'utf8')) as Array<Record<string, any>>;
-  for (const name of ['Bootstrap', 'SafeAreaRoot', 'TopHeader', 'ResourceBar', 'CharacterArea', 'IdleIncomePanel', 'PrimaryActions', 'BottomNavigation', 'PageContainer', 'ModalLayer', 'ToastLayer', 'TutorialLayer']) {
+  for (const name of ['SafeAreaRoot', 'TopHeader', 'ResourceBar', 'CharacterArea', 'IdleIncomePanel', 'PrimaryActions', 'BottomNavigation', 'PageContainer', 'ModalLayer', 'ToastLayer', 'TutorialLayer']) {
     assert.ok(scene.some((o) => o && o._name === name), `scene must declare node ${name}`);
   }
   // Custom script components must be addressed by their compressed .meta uuid (not a class name).
   const classToCompressed = buildClassToCompressed();
-  for (const cls of ['CocosBootstrapComponent', 'HomePage', 'MainHud', 'BottomNav', 'IdleStatusPanel']) {
+  for (const cls of ['CocosBootstrapComponent', 'GameUIController', 'MainHud', 'BottomNav', 'IdleStatusPanel']) {
     assert.ok(classToCompressed.has(cls), `class ${cls} must have a generated .meta uuid`);
     const compressed = classToCompressed.get(cls)!;
     assert.ok(scene.some((o: any) => o && o.__type__ === compressed), `scene must reference ${cls} by its compressed uuid ${compressed}`);
@@ -252,12 +252,12 @@ test('Main.scene has a consistent WEB V1 node/component reference graph', () => 
     for (const componentRef of node._components ?? []) assert.equal(ref(componentRef).node.__id__, scene.indexOf(node));
   }
   const classToCompressed = buildClassToCompressed();
-  // SafeAreaRoot must carry HomePage component.
+  // SafeAreaRoot must carry the current GameUIController component.
   const safeArea = nodes.find((node) => node._name === 'SafeAreaRoot')!;
   assert.ok(safeArea, 'SafeAreaRoot must exist');
-  const homePageCompressed = classToCompressed.get('HomePage')!;
+  const homePageCompressed = classToCompressed.get('GameUIController')!;
   const safeAreaComps = (safeArea._components ?? []).map((c: any) => ref(c));
-  assert.ok(safeAreaComps.some((c: any) => c.__type__ === homePageCompressed), 'SafeAreaRoot must carry HomePage component');
+  assert.ok(safeAreaComps.some((c: any) => c.__type__ === homePageCompressed), 'SafeAreaRoot must carry GameUIController');
   // TopHeader must carry MainHud component.
   const topHeader = nodes.find((node) => node._name === 'TopHeader')!;
   assert.ok(topHeader, 'TopHeader must exist');
@@ -276,12 +276,43 @@ test('Main.scene has a consistent WEB V1 node/component reference graph', () => 
   const idleCompressed = classToCompressed.get('IdleStatusPanel')!;
   const idleComps = (idlePanel._components ?? []).map((c: any) => ref(c));
   assert.ok(idleComps.some((c: any) => c.__type__ === idleCompressed), 'IdleIncomePanel must carry IdleStatusPanel component');
-  // Bootstrap must carry CocosBootstrap component.
-  const bootstrap = nodes.find((node) => node._name === 'Bootstrap')!;
-  assert.ok(bootstrap, 'Bootstrap must exist');
+  // SafeAreaRoot is the single composition root and carries CocosBootstrap.
+  const bootstrap = nodes.find((node) => node._name === 'SafeAreaRoot')!;
+  assert.ok(bootstrap, 'SafeAreaRoot must exist');
   const cocosCompressed = classToCompressed.get('CocosBootstrapComponent')!;
   const bootstrapComps = (bootstrap._components ?? []).map((c: any) => ref(c));
-  assert.ok(bootstrapComps.some((c: any) => c.__type__ === cocosCompressed), 'Bootstrap must carry CocosBootstrapComponent');
+  assert.ok(bootstrapComps.some((c: any) => c.__type__ === cocosCompressed), 'SafeAreaRoot must carry CocosBootstrapComponent');
+  assert.equal(nodes.some((node) => node._name === 'Bootstrap' || node._name === 'GameBootstrap'), false, 'duplicate Bootstrap node must not exist');
+});
+
+test('Main.scene exposes the playable home and indexed board cell contract', () => {
+  const scene = JSON.parse(fs.readFileSync('assets/scenes/Main.scene', 'utf8')) as Array<Record<string, any>>;
+  const nodes = scene.map((object, index) => ({ object, index })).filter(({ object }) => object?.__type__ === 'cc.Node');
+  const nodeNamed = (name: string) => {
+    const found = nodes.find(({ object }) => object._name === name);
+    assert.ok(found, `scene must declare node ${name}`);
+    return found!;
+  };
+  const childNames = (node: { object: Record<string, any> }) =>
+    new Set((node.object._children ?? []).map((ref: { __id__: number }) => scene[ref.__id__]?._name));
+  const safeArea = nodeNamed('SafeAreaRoot');
+  const home = nodeNamed('HomePageContent');
+  const craft = nodeNamed('CraftPageContent');
+  assert.ok(childNames(craft).has('MergeBoardRoot'));
+  assert.ok(childNames(craft).has('RecruitButton'));
+  const board = nodeNamed('MergeBoardRoot');
+  for (let cell = 0; cell < 16; cell++) {
+    const name = `BoardCell${cell.toString().padStart(2, '0')}`;
+    assert.ok(childNames(board).has(name), `MergeBoardRoot must contain ${name}`);
+  }
+  assert.equal(home.object._active, true, 'HomePageContent must be visible at startup');
+  assert.equal(craft.object._active, false, 'CraftPageContent must be hidden at startup');
+  const classToCompressed = buildClassToCompressed();
+  const bootstrapType = classToCompressed.get('CocosBootstrapComponent');
+  assert.ok(bootstrapType);
+  const bootstrapComponents = scene.filter((object) => object?.__type__ === bootstrapType);
+  assert.equal(bootstrapComponents.length, 1, 'scene must contain exactly one CocosBootstrapComponent');
+  assert.deepEqual(bootstrapComponents[0].node, { __id__: safeArea.index });
 });
 
 test('scene assembly binds every worker view and clears an empty cell', () => {

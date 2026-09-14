@@ -131,15 +131,15 @@ function testSceneContainsWebV1Root(): void {
     return c!;
   };
 
-  // SafeAreaRoot must exist and carry HomePageComponent
+  // SafeAreaRoot must exist and carry the current page composition controller.
   const safeArea = findNodeByName(scene, 'SafeAreaRoot');
   assert.ok(safeArea, 'SafeAreaRoot node must exist');
   assert.ok(safeArea!._children, 'SafeAreaRoot must have children');
 
-  // Verify HomePageComponent is on SafeAreaRoot
+  // Verify GameUIController is on SafeAreaRoot.
   const safeAreaComps = (safeArea!._components ?? []).map((c) => scene[c.__id__]);
-  const homePageComp = safeAreaComps.find((c) => c.__type__ === expect('HomePage'));
-  assert.ok(homePageComp, 'SafeAreaRoot must carry HomePageComponent');
+  const gameUiComp = safeAreaComps.find((c) => c.__type__ === expect('GameUIController'));
+  assert.ok(gameUiComp, 'SafeAreaRoot must carry GameUIController');
 
   // Verify key WEB V1 child nodes exist under SafeAreaRoot
   const childNames = (safeArea!._children ?? []).map((c) => scene[c.__id__]._name);
@@ -184,7 +184,7 @@ function testSceneCustomComponentsResolveToMetaUuids(): void {
     const decoded = decompressUuid(o.__type__);
     assert.ok(metaUuids.has(decoded), `custom component __type__ ${o.__type__} must resolve to a real .meta uuid (${decoded})`);
   }
-  assert.ok(customCount >= 6, `scene must bind at least the 6 known WEB V1 scripts (found ${customCount})`);
+  assert.ok(customCount >= 5, `scene must bind the current WEB V1 scripts (found ${customCount})`);
 }
 
 // Every __id__ reference in the scene must point at a real object (no dangling refs).
@@ -292,7 +292,7 @@ function testKeyWebV1NodesPreserved(): void {
   const { scene } = loadScene();
   const names = new Set(scene.filter((o) => o && o.__type__ === 'cc.Node').map((o) => o._name as string));
   const required = [
-    'Canvas', 'Bootstrap', 'SafeAreaRoot', 'TopHeader', 'ResourceBar', 'CharacterArea',
+    'Canvas', 'SafeAreaRoot', 'TopHeader', 'ResourceBar', 'CharacterArea',
     'IdleIncomePanel', 'PrimaryActions', 'BottomNavigation', 'PageContainer',
     'ModalLayer', 'ToastLayer', 'TutorialLayer',
   ];
@@ -313,6 +313,43 @@ function testKeyWebV1NodesPreserved(): void {
   }
 }
 
+function testPlayableHomeAndBoardContract(): void {
+  const { scene, root } = loadScene();
+  const classToCompressed = buildClassToCompressed(root);
+  const sceneNodes = scene
+    .map((object, index) => ({ object, index }))
+    .filter(({ object }) => object && object.__type__ === 'cc.Node');
+  const nodeNamed = (name: string): { object: SceneObject; index: number } => {
+    const found = sceneNodes.find(({ object }) => object._name === name);
+    assert.ok(found, `Main.scene must contain node ${name}`);
+    return found!;
+  };
+  const childNodes = (parent: { object: SceneObject; index: number }): Set<string> => {
+    return new Set((parent.object._children ?? []).map((ref) => scene[ref.__id__]?._name as string));
+  };
+
+  const safeArea = nodeNamed('SafeAreaRoot');
+  const home = nodeNamed('HomePageContent');
+  const craft = nodeNamed('CraftPageContent');
+
+  const bootstrapType = classToCompressed.get('CocosBootstrapComponent');
+  assert.ok(bootstrapType, 'CocosBootstrapComponent must have a generated .meta uuid');
+  const bootstrapComponents = scene.filter((object) => object.__type__ === bootstrapType);
+  assert.equal(bootstrapComponents.length, 1, 'exactly one CocosBootstrapComponent must exist in Main.scene');
+  assert.deepEqual(bootstrapComponents[0].node, { __id__: safeArea.index }, 'CocosBootstrapComponent must be mounted on SafeAreaRoot');
+
+  assert.ok(childNodes(craft).has('MergeBoardRoot'), 'CraftPageContent must contain MergeBoardRoot');
+  assert.ok(childNodes(craft).has('RecruitButton'), 'CraftPageContent must contain RecruitButton');
+  const board = nodeNamed('MergeBoardRoot');
+  const boardChildren = childNodes(board);
+  for (let cell = 0; cell < 16; cell++) {
+    assert.ok(boardChildren.has(`BoardCell${cell.toString().padStart(2, '0')}`),
+      `MergeBoardRoot must contain BoardCell${cell.toString().padStart(2, '0')}`);
+  }
+  assert.equal(home.object._active, true, 'HomePageContent must be visible at startup');
+  assert.equal(craft.object._active, false, 'CraftPageContent must be hidden at startup');
+}
+
 testSceneMetaIsSceneAsset();
 testSceneAssetEnvelope();
 testSceneContainsWebV1Root();
@@ -320,5 +357,6 @@ testSceneCustomComponentsResolveToMetaUuids();
 testSceneHasNoDanglingReferences();
 testSceneReferenceGraphConsistent();
 testKeyWebV1NodesPreserved();
+testPlayableHomeAndBoardContract();
 testBootstrapWiresGameFacade();
 console.log('static scene integrity tests passed');

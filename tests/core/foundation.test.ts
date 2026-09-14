@@ -85,27 +85,54 @@ function testMainSceneBootstrapContract(): void {
     classId += base64[((second & 3) << 4) | third];
   }
 
-  // Index-agnostic: locate the Bootstrap node by name (Cocos may re-index on re-serialize).
-  // Accepts both "GameBootstrap" (legacy) and "Bootstrap" (current).
-  const bootstrapNode = scene.find((o) => o && (o._name === 'GameBootstrap' || o._name === 'Bootstrap'));
-  assert.ok(bootstrapNode, 'Bootstrap node must exist in the scene');
-  assert.equal(bootstrapNode!['__type__'], 'cc.Node', 'Bootstrap must be a Node');
+  // SafeAreaRoot is the single Cocos composition root.
+  const bootstrapNode = scene.find((o) => o && o._name === 'SafeAreaRoot');
+  assert.ok(bootstrapNode, 'SafeAreaRoot composition root must exist in the scene');
+  assert.equal(bootstrapNode!['__type__'], 'cc.Node', 'SafeAreaRoot must be a Node');
   const compRefs = (bootstrapNode!['_components'] as ReadonlyArray<{ __id__: number }>) ?? [];
-  assert.ok(compRefs.length >= 1, 'Bootstrap node must carry at least one component');
-  const bootstrapComponent = scene[compRefs[0].__id__];
+  assert.ok(compRefs.length >= 1, 'SafeAreaRoot must carry at least one component');
+  const bootstrapComponent = compRefs.map((ref) => scene[ref.__id__]).find((component) => component['__type__'] === classId);
+  assert.ok(bootstrapComponent, 'SafeAreaRoot must carry CocosBootstrapComponent');
   assert.equal(bootstrapComponent['__type__'], classId, 'bootstrap component __type__ must be the compressed meta uuid of CocosBootstrapComponent');
   assert.deepEqual(bootstrapComponent['node'], { __id__: scene.indexOf(bootstrapNode!) }, 'bootstrap component node back-ref must match its node');
   assert.notEqual(bootstrapComponent['__type__'], componentMeta.uuid);
   assert.notEqual(bootstrapComponent['__type__'], 'cc.Component');
   assert.equal(Object.prototype.hasOwnProperty.call(bootstrapComponent, '_script'), false);
 
-  // The Bootstrap node must hang under the Canvas node (parent/child back-refs resolve).
+  const bootstrapComponents = scene.filter((o) => o && o['__type__'] === classId);
+  assert.equal(bootstrapComponents.length, 1, 'Main.scene must contain exactly one CocosBootstrapComponent');
+  assert.deepEqual(bootstrapComponents[0]['node'], { __id__: scene.indexOf(bootstrapNode!) },
+    'the sole CocosBootstrapComponent must be mounted on SafeAreaRoot');
+
+  const nodeNamed = (name: string) => {
+    const node = scene.find((o) => o && o['_name'] === name && o['__type__'] === 'cc.Node');
+    assert.ok(node, `${name} must exist as a cc.Node`);
+    return node!;
+  };
+  const childNames = (node: Record<string, any>) => new Set(
+    ((node['_children'] as ReadonlyArray<{ __id__: number }>) ?? []).map((ref) => scene[ref.__id__]?.['_name']),
+  );
+  const home = nodeNamed('HomePageContent');
+  const craft = nodeNamed('CraftPageContent');
+  assert.ok(childNames(craft).has('MergeBoardRoot'), 'CraftPageContent must contain MergeBoardRoot');
+  assert.ok(childNames(craft).has('RecruitButton'), 'CraftPageContent must contain RecruitButton');
+  const board = nodeNamed('MergeBoardRoot');
+  const boardChildren = childNames(board);
+  for (let cell = 0; cell < 16; cell++) {
+    const name = `BoardCell${cell.toString().padStart(2, '0')}`;
+    assert.ok(boardChildren.has(name), `MergeBoardRoot must contain ${name}`);
+  }
+  assert.equal(home['_active'], true, 'HomePageContent must be visible at startup');
+  assert.equal(craft['_active'], false, 'CraftPageContent must be hidden at startup');
+
+  // The composition root must hang under the Canvas node (parent/child back-refs resolve).
   const parentRef = bootstrapNode!['_parent'] as { __id__: number } | undefined;
-  assert.ok(parentRef, 'Bootstrap node must have a parent');
+  assert.ok(parentRef, 'SafeAreaRoot must have a parent');
   const parentNode = scene[parentRef!.__id__];
-  assert.equal(parentNode['_name'], 'Canvas', 'Bootstrap parent must be the Canvas node');
+  assert.equal(parentNode['_name'], 'Canvas', 'SafeAreaRoot parent must be the Canvas node');
   const parentChildren = (parentNode['_children'] as ReadonlyArray<{ __id__: number }>) ?? [];
-  assert.ok(parentChildren.some((c) => c.__id__ === scene.indexOf(bootstrapNode!)), 'Canvas must list Bootstrap as a child');
+  assert.ok(parentChildren.some((c) => c.__id__ === scene.indexOf(bootstrapNode!)), 'Canvas must list SafeAreaRoot as a child');
+  assert.equal(scene.some((o) => o && o.__type__ === 'cc.Node' && (o._name === 'Bootstrap' || o._name === 'GameBootstrap')), false, 'duplicate Bootstrap node must not exist');
 }
 
 function testCocosBootstrapLifecycleAdapterContract(): void {
