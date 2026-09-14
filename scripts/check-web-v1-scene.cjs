@@ -43,11 +43,10 @@ const REQUIRED_PAGES = [
 // ── Forbidden legacy nodes (must NOT exist) ────────────────────────────────
 const FORBIDDEN_NODES = [
   'MergeBoard',
-  'BoardCell00',
-  'BoardCell01',
-  'BoardCell15',
-  'RecruitButton',
 ];
+
+const CRAFT_CHILDREN = ['CraftHeader', 'RecruitButton', 'MergeBoardRoot'];
+const BOARD_CELLS = Array.from({ length: 16 }, (_, i) => `BoardCell${i.toString().padStart(2, '0')}`);
 
 // ── Forbidden legacy text (must NOT appear in any Label _string) ───────────
 const FORBIDDEN_TEXTS = [
@@ -103,6 +102,15 @@ function findAllLabels(arr) {
     .map(obj => obj._string);
 }
 
+function getComponentTypes(arr, nodeIndex) {
+  const node = arr[nodeIndex];
+  return (node?._components || []).map(ref => arr[ref.__id__]?.__type__).filter(Boolean);
+}
+
+function hasDirectChild(arr, parentIndex, childName) {
+  return getChildrenIds(arr, parentIndex).some(id => arr[id]?.__type__ === 'cc.Node' && arr[id]._name === childName);
+}
+
 // ── Main ────────────────────────────────────────────────────────────────────
 
 function main() {
@@ -153,7 +161,59 @@ function main() {
     errors.push('PageContainer node not found');
   }
 
-  // ── Check 4: BottomNavigation must have tab buttons ─────────────────────
+  // ── Check 5: Craft page must contain the real board layout ─────────────
+  const craftIdx = findNodeByName(scene, 'CraftPageContent');
+  if (craftIdx >= 0) {
+    for (const child of CRAFT_CHILDREN) {
+      if (hasDirectChild(scene, craftIdx, child)) {
+        console.log(`✅ CraftPageContent child: ${child}`);
+      } else {
+        errors.push(`CraftPageContent missing required child: ${child}`);
+      }
+    }
+
+    const boardIdx = findNodeByName(scene, 'MergeBoardRoot');
+    if (boardIdx >= 0) {
+      for (const cell of BOARD_CELLS) {
+        const cellIdx = findNodeByName(scene, cell);
+        if (cellIdx < 0 || !hasDirectChild(scene, boardIdx, cell)) {
+          errors.push(`MergeBoardRoot missing required child: ${cell}`);
+          continue;
+        }
+        const componentTypes = getComponentTypes(scene, cellIdx);
+        if (!componentTypes.includes('cc.UITransform')) {
+          errors.push(`${cell} must have a cc.UITransform`);
+        }
+        if (!componentTypes.includes('cc.Button')) {
+          errors.push(`${cell} must have a visible cc.Button background`);
+        }
+        const labelNode = getChildrenIds(scene, cellIdx)
+          .map(id => ({ id, object: scene[id] }))
+          .find(({ object }) => object?.__type__ === 'cc.Node' &&
+            getComponentTypes(scene, object ? scene.indexOf(object) : -1).includes('cc.Label'));
+        if (!labelNode) {
+          errors.push(`${cell} must have a child node with a cc.Label`);
+        }
+      }
+      console.log(`✅ MergeBoardRoot has ${BOARD_CELLS.length} named cells with UITransform/background/label checks`);
+    }
+  } else {
+    errors.push('CraftPageContent node not found');
+  }
+
+  const homeIdx = findNodeByName(scene, 'HomePageContent');
+  if (homeIdx >= 0 && scene[homeIdx]._active === true) {
+    console.log('✅ HomePageContent active at startup');
+  } else {
+    errors.push('HomePageContent must be active at startup');
+  }
+  if (craftIdx >= 0 && scene[craftIdx]._active === false) {
+    console.log('✅ CraftPageContent inactive at startup');
+  } else {
+    errors.push('CraftPageContent must be inactive at startup');
+  }
+
+  // ── Check 6: BottomNavigation must have tab buttons ─────────────────────
   const bottomNavIdx = findNodeByName(scene, 'BottomNavigation');
   if (bottomNavIdx >= 0) {
     const navChildIds = getChildrenIds(scene, bottomNavIdx);
@@ -170,7 +230,7 @@ function main() {
     errors.push('BottomNavigation node not found');
   }
 
-  // ── Check 5: PrimaryActions must have action buttons ────────────────────
+  // ── Check 7: PrimaryActions must have action buttons ────────────────────
   const actionsIdx = findNodeByName(scene, 'PrimaryActions');
   if (actionsIdx >= 0) {
     const actionChildIds = getChildrenIds(scene, actionsIdx);
@@ -187,7 +247,7 @@ function main() {
     errors.push('PrimaryActions node not found');
   }
 
-  // ── Check 6: Forbidden legacy nodes must NOT exist ──────────────────────
+  // ── Check 8: Forbidden legacy nodes must NOT exist ──────────────────────
   const allNodes = findAllNodes(scene);
   const allNodeNames = allNodes.map(n => n.name);
 
@@ -199,7 +259,7 @@ function main() {
     }
   }
 
-  // ── Check 7: Forbidden legacy text must NOT appear ──────────────────────
+  // ── Check 9: Forbidden legacy text must NOT appear ──────────────────────
   const allLabels = findAllLabels(scene);
   for (const forbiddenText of FORBIDDEN_TEXTS) {
     const found = allLabels.filter(label => label.includes(forbiddenText));
@@ -210,18 +270,18 @@ function main() {
     }
   }
 
-  // ── Check 8: Canvas must have correct design resolution ─────────────────
+  // ── Check 10: Canvas must have correct design resolution ────────────────
   const canvasComp = scene.find(obj => obj.__type__ === 'cc.Canvas');
   if (canvasComp) {
     const res = canvasComp._designResolution;
-    if (res && res.width === 720 && res.height === 1280) {
+    if (res && res.width === 1280 && res.height === 720) {
       console.log(`✅ Canvas design resolution: ${res.width}×${res.height}`);
     } else {
-      warnings.push(`Canvas design resolution is ${res?.width}×${res?.height}, expected 720×1280`);
+      warnings.push(`Canvas design resolution is ${res?.width}×${res?.height}, expected 1280×720`);
     }
   }
 
-  // ── Check 9: CocosBootstrapComponent must be mounted ────────────────────
+  // ── Check 11: CocosBootstrapComponent must be mounted ───────────────────
   const bootstrapComps = scene.filter(obj =>
     obj.__type__ && typeof obj.__type__ === 'string' && obj.__type__.length > 20 && obj.__type__ !== 'cc.Node' && obj.__type__ !== 'cc.UITransform'
   );

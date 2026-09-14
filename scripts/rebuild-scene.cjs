@@ -23,6 +23,7 @@ const COMP = {
   BottomNav:      'da3fcfyx6JLHYeswXCeDyes',
   CultivationPanel: '8ae9eRPyPVFhr092cMGFsVN',
   IdleStatusPanel:  '613d7WuT+pBKIO67VQl4S9O',
+  GameUIController: '516528SB9RKXrAoWRItq8An',
 };
 
 // ── Scene Builder ──────────────────────────────────────────────────────────
@@ -68,7 +69,7 @@ class SceneBuilder {
       _objFlags: 0,
       _parent: this.ref(parentId),
       _children: childIds.map(id => this.ref(id)),
-      _active: true,
+      _active: opts.active !== undefined ? opts.active : true,
       _components: componentIds.map(id => this.ref(id)),
       _lpos: opts.lpos || this.vec3(0, 0, 0),
       _lrot: this.quat(),
@@ -246,9 +247,9 @@ class SceneBuilder {
       __type__: 'cc.Canvas',
       node: this.ref(nodeIdx),
       _enabled: true,
-      _designResolution: this.size(720, 1280),
-      _fitHeight: true,
-      _fitWidth: false,
+      _designResolution: this.size(1280, 720),
+      _fitHeight: false,
+      _fitWidth: true,
       _cameraComponent: this.ref(cameraIdx),
       _alignCanvasWithScreen: true,
     });
@@ -300,28 +301,27 @@ function buildScene() {
 
   // --- Background node ---
   const bgIdx = b.addNode('Background', -1, [], [], { lpos: b.vec3(0, 0, 0) });
-  const bgUtIdx = b.addUITransform(bgIdx, 720, 1280);
+  const bgUtIdx = b.addUITransform(bgIdx, 1280, 720);
   const bgWidgetIdx = b.addWidgetStretch(bgIdx);
 
   // --- TopHeader node (with MainHudComponent) ---
   const topHeaderIdx = b.addNode('TopHeader', -1, [], []);
   const topHeaderHudIdx = b.addCustomComponent(topHeaderIdx, COMP.MainHud);
-  const topHeaderUtIdx = b.addUITransform(topHeaderIdx, 720, 100);
+  const topHeaderUtIdx = b.addUITransform(topHeaderIdx, 1280, 50);
   const topHeaderWidgetIdx = b.addWidget(topHeaderIdx, { alignFlags: 9, top: 0, horizontalCenter: 0 }); // top + h-center
-
   // --- ResourceBar node ---
   const resBarIdx = b.addNode('ResourceBar', -1, [], []);
-  const resBarUtIdx = b.addUITransform(resBarIdx, 720, 50);
-  const resBarWidgetIdx = b.addWidget(resBarIdx, { alignFlags: 9, top: 100, horizontalCenter: 0 });
+  const resBarUtIdx = b.addUITransform(resBarIdx, 1280, 40);
+  const resBarWidgetIdx = b.addWidget(resBarIdx, { alignFlags: 9, top: 50, horizontalCenter: 0 });
 
   // --- CharacterArea node ---
   const charAreaIdx = b.addNode('CharacterArea', -1, [], []);
-  const charAreaUtIdx = b.addUITransform(charAreaIdx, 720, 300);
+  const charAreaUtIdx = b.addUITransform(charAreaIdx, 1280, 200);
 
   // --- IdleIncomePanel node (with IdleStatusPanelComponent) ---
   const idleIdx = b.addNode('IdleIncomePanel', -1, [], []);
   const idleCompIdx = b.addCustomComponent(idleIdx, COMP.IdleStatusPanel);
-  const idleUtIdx = b.addUITransform(idleIdx, 720, 120);
+  const idleUtIdx = b.addUITransform(idleIdx, 1280, 80);
 
   // --- PrimaryActions node with 3 buttons ---
   // CultivateButton
@@ -346,7 +346,7 @@ function buildScene() {
   const actionsIdx = b.addNode('PrimaryActions', -1,
     [cultBtnIdx, workBtnIdx, fishBtnIdx],
     []);
-  const actionsUtIdx = b.addUITransform(actionsIdx, 660, 80);
+  const actionsUtIdx = b.addUITransform(actionsIdx, 1280, 80);
   const actionsWidgetIdx = b.addWidget(actionsIdx, { alignFlags: 12, bottom: 180, horizontalCenter: 0 }); // bottom + h-center
 
   // --- BottomNavigation node with 5 tabs ---
@@ -369,7 +369,7 @@ function buildScene() {
 
   const bottomNavIdx = b.addNode('BottomNavigation', -1, tabNodeIds, []);
   const bottomNavCompIdx = b.addCustomComponent(bottomNavIdx, COMP.BottomNav);
-  const bottomNavUtIdx = b.addUITransform(bottomNavIdx, 720, 80);
+  const bottomNavUtIdx = b.addUITransform(bottomNavIdx, 1280, 60);
   const bottomNavWidgetIdx = b.addWidget(bottomNavIdx, { alignFlags: 12, bottom: 0, horizontalCenter: 0 }); // bottom + h-center
 
   // --- PageContainer node with 5 pages ---
@@ -382,19 +382,68 @@ function buildScene() {
   ];
 
   const pageNodeIds = [];
+  const craftNodeIds = [];
+  const craftBoardCellIds = [];
   for (const pageName of pageDefs) {
-    const pageIdx = b.addNode(pageName, -1, [], []);
-    b.addUITransform(pageIdx, 720, 800);
+    const pageChildren = [];
+    if (pageName === 'CraftPageContent') {
+      // CraftHeader
+      const craftHeaderIdx = b.addNode('CraftHeader', -1, [], [], { lpos: b.vec3(0, 210, 0) });
+      b.addUITransform(craftHeaderIdx, 1280, 60);
+      b.addLabel(craftHeaderIdx, '合成工坊', 30, { color: b.color(40, 40, 40, 255) });
+      pageChildren.push(craftHeaderIdx);
+      craftNodeIds.push(craftHeaderIdx);
+
+      // RecruitButton
+      const recruitButtonIdx = b.addNode('RecruitButton', -1, [], [], { lpos: b.vec3(470, 210, 0) });
+      b.addUITransform(recruitButtonIdx, 180, 56);
+      b.addButton(recruitButtonIdx);
+      b.addLabel(recruitButtonIdx, '招聘', 24);
+      pageChildren.push(recruitButtonIdx);
+      craftNodeIds.push(recruitButtonIdx);
+
+      // Board cells are built before their parent so the parent can reference
+      // the complete 4×4 child list in one pass.
+      for (let cell = 0; cell < 16; cell += 1) {
+        const row = Math.floor(cell / 4);
+        const column = cell % 4;
+        const cellName = `BoardCell${cell.toString().padStart(2, '0')}`;
+        const cellIdx = b.addNode(cellName, -1, [], [], {
+          lpos: b.vec3((column - 1.5) * 124, (1.5 - row) * 94, 0),
+        });
+        b.addUITransform(cellIdx, 112, 82);
+        b.addButton(cellIdx);
+
+        const labelNodeIdx = b.addNode(`${cellName}Label`, -1, [], [], { lpos: b.vec3(0, 0, 0) });
+        b.addUITransform(labelNodeIdx, 112, 82);
+        b.addLabel(labelNodeIdx, '空', 22, { color: b.color(80, 80, 80, 255) });
+
+        b.objects[cellIdx]._children = [b.ref(labelNodeIdx)];
+        craftBoardCellIds.push(cellIdx);
+        craftNodeIds.push(cellIdx, labelNodeIdx);
+      }
+
+      const boardIdx = b.addNode('MergeBoardRoot', -1, craftBoardCellIds, [], { lpos: b.vec3(0, -20, 0) });
+      b.addUITransform(boardIdx, 520, 400);
+      pageChildren.push(boardIdx);
+      craftNodeIds.push(boardIdx);
+    }
+
+    const pageIdx = b.addNode(pageName, -1, pageChildren, [], {
+      active: pageName === 'HomePageContent',
+    });
+    b.addUITransform(pageIdx, 1280, 520);
     pageNodeIds.push(pageIdx);
+    if (pageName === 'CraftPageContent') craftNodeIds.push(pageIdx);
   }
 
   const pageContIdx = b.addNode('PageContainer', -1, pageNodeIds, []);
-  const pageContUtIdx = b.addUITransform(pageContIdx, 720, 800);
-  const pageContWidgetIdx = b.addWidget(pageContIdx, { alignFlags: 12, bottom: 80, top: 470, horizontalCenter: 0 });
+  const pageContUtIdx = b.addUITransform(pageContIdx, 1280, 520);
+  const pageContWidgetIdx = b.addWidget(pageContIdx, { alignFlags: 12, bottom: 60, top: 90, horizontalCenter: 0 });
 
   // --- ModalLayer node ---
   const modalIdx = b.addNode('ModalLayer', -1, [], []);
-  const modalUtIdx = b.addUITransform(modalIdx, 750, 1334);
+  const modalUtIdx = b.addUITransform(modalIdx, 1280, 720);
   const modalWidgetIdx = b.addWidgetStretch(modalIdx);
 
   // --- ToastLayer node ---
@@ -404,7 +453,7 @@ function buildScene() {
 
   // --- TutorialLayer node ---
   const tutorIdx = b.addNode('TutorialLayer', -1, [], []);
-  const tutorUtIdx = b.addUITransform(tutorIdx, 750, 1334);
+  const tutorUtIdx = b.addUITransform(tutorIdx, 1280, 720);
   const tutorWidgetIdx = b.addWidgetStretch(tutorIdx);
 
   // ── SafeAreaRoot node ─────────────────────────────────────────────────
@@ -412,15 +461,9 @@ function buildScene() {
     [bgIdx, topHeaderIdx, resBarIdx, charAreaIdx, idleIdx, actionsIdx, bottomNavIdx, pageContIdx, modalIdx, toastIdx, tutorIdx],
     []);
   const safeAreaBootIdx = b.addCustomComponent(safeAreaIdx, COMP.CocosBootstrap);
-  const safeAreaUtIdx = b.addUITransform(safeAreaIdx, 720, 1280);
+  const safeAreaUtIdx = b.addUITransform(safeAreaIdx, 1280, 720);
   const safeAreaWidgetIdx = b.addWidgetStretch(safeAreaIdx);
-  const safeAreaHomeIdx = b.addCustomComponent(safeAreaIdx, COMP.HomePage);
-
-  // ── Bootstrap node (required by test contract) ───────────────────────
-  const bootstrapIdx = b.addNode('Bootstrap', -1, [], []);
-  const bootstrapCompIdx = b.addCustomComponent(bootstrapIdx, COMP.CocosBootstrap);
-  const bootstrapUtIdx = b.addUITransform(bootstrapIdx, 720, 1280);
-  const bootstrapWidgetIdx = b.addWidgetStretch(bootstrapIdx);
+  const safeAreaHomeIdx = b.addCustomComponent(safeAreaIdx, COMP.GameUIController);
 
   // ── UICamera_Canvas node ──────────────────────────────────────────────
   const uiCamIdx = b.addNode('UICamera_Canvas', -1, [], [], { layer: 524288, id: '2dPXj+bLtNnLNQh3db5lcx' });
@@ -428,10 +471,10 @@ function buildScene() {
 
   // ── Canvas node ───────────────────────────────────────────────────────
   const canvasIdx = b.addNode('Canvas', -1,
-    [bootstrapIdx, safeAreaIdx, uiCamIdx],
+    [safeAreaIdx, uiCamIdx],
     [], { layer: 524288 });
   const canvasCompIdx = b.addCanvas(canvasIdx, uiCamCompIdx);
-  const canvasUtIdx = b.addUITransform(canvasIdx, 720, 1280);
+  const canvasUtIdx = b.addUITransform(canvasIdx, 1280, 720);
   const canvasWidgetIdx = b.addWidgetStretch(canvasIdx);
 
   // ── PrefabInfo ────────────────────────────────────────────────────────
@@ -450,9 +493,6 @@ function buildScene() {
 
   // Canvas._parent -> Scene
   b.objects[canvasIdx]._parent = b.ref(sceneIdx);
-
-  // Bootstrap._parent -> Canvas
-  b.objects[bootstrapIdx]._parent = b.ref(canvasIdx);
 
   // SafeAreaRoot._parent -> Canvas
   b.objects[safeAreaIdx]._parent = b.ref(canvasIdx);
@@ -491,6 +531,22 @@ function buildScene() {
     b.objects[pageIdx]._parent = b.ref(pageContIdx);
   }
 
+  // Fix Craft page subtree parents
+  const craftPageIdx = pageNodeIds[pageDefs.indexOf('CraftPageContent')];
+  const craftHeaderIdx = craftNodeIds.find(id => b.objects[id]._name === 'CraftHeader');
+  const recruitButtonIdx = craftNodeIds.find(id => b.objects[id]._name === 'RecruitButton');
+  const boardIdx = craftNodeIds.find(id => b.objects[id]._name === 'MergeBoardRoot');
+  if (craftHeaderIdx !== undefined) b.objects[craftHeaderIdx]._parent = b.ref(craftPageIdx);
+  if (recruitButtonIdx !== undefined) b.objects[recruitButtonIdx]._parent = b.ref(craftPageIdx);
+  if (boardIdx !== undefined) {
+    b.objects[boardIdx]._parent = b.ref(craftPageIdx);
+    for (const cellIdx of craftBoardCellIds) {
+      b.objects[cellIdx]._parent = b.ref(boardIdx);
+      const labelIdx = b.objects[cellIdx]._children[0].__id__;
+      b.objects[labelIdx]._parent = b.ref(cellIdx);
+    }
+  }
+
   return b.build();
 }
 
@@ -517,8 +573,9 @@ function main() {
 
   // Verify required nodes exist
   const nodeNames = scene.filter(o => o.__type__ === 'cc.Node').map(o => o._name);
-  const required = ['Bootstrap', 'SafeAreaRoot', 'TopHeader', 'ResourceBar', 'CharacterArea', 'IdleIncomePanel',
-    'PrimaryActions', 'BottomNavigation', 'PageContainer', 'ModalLayer', 'ToastLayer', 'TutorialLayer'];
+  const required = ['SafeAreaRoot', 'TopHeader', 'ResourceBar', 'CharacterArea', 'IdleIncomePanel',
+    'PrimaryActions', 'BottomNavigation', 'PageContainer', 'ModalLayer', 'ToastLayer', 'TutorialLayer',
+    'CraftHeader', 'RecruitButton', 'MergeBoardRoot', ...Array.from({ length: 16 }, (_, i) => `BoardCell${i.toString().padStart(2, '0')}`)];
   const missing = required.filter(n => !nodeNames.includes(n));
   if (missing.length > 0) {
     console.error(`❌ Missing required nodes: ${missing.join(', ')}`);
@@ -527,7 +584,7 @@ function main() {
   console.log(`✅ All ${required.length} required nodes present`);
 
   // Verify no forbidden nodes
-  const forbidden = ['MergeBoard', 'BoardCell00', 'BoardCell01', 'BoardCell15', 'RecruitButton'];
+  const forbidden = ['MergeBoard'];
   const found = forbidden.filter(n => nodeNames.includes(n));
   if (found.length > 0) {
     console.error(`❌ Forbidden nodes found: ${found.join(', ')}`);
