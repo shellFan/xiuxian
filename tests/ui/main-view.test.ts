@@ -297,7 +297,10 @@ test('Main.scene exposes the playable home and indexed board cell contract', () 
     new Set((node.object._children ?? []).map((ref: { __id__: number }) => scene[ref.__id__]?._name));
   const safeArea = nodeNamed('SafeAreaRoot');
   const home = nodeNamed('HomePageContent');
+  const pageContainer = nodeNamed('PageContainer');
   const craft = nodeNamed('CraftPageContent');
+  assert.deepEqual(craft.object._parent, { __id__: pageContainer.index },
+    'CraftPageContent must be a direct child of PageContainer');
   assert.ok(childNames(craft).has('MergeBoardRoot'));
   assert.ok(childNames(craft).has('RecruitButton'));
   const board = nodeNamed('MergeBoardRoot');

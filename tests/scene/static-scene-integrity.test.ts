@@ -330,7 +330,10 @@ function testPlayableHomeAndBoardContract(): void {
 
   const safeArea = nodeNamed('SafeAreaRoot');
   const home = nodeNamed('HomePageContent');
+  const pageContainer = nodeNamed('PageContainer');
   const craft = nodeNamed('CraftPageContent');
+  assert.deepEqual(craft.object._parent, { __id__: pageContainer.index },
+    'CraftPageContent must be a direct child of PageContainer');
 
   const bootstrapType = classToCompressed.get('CocosBootstrapComponent');
   assert.ok(bootstrapType, 'CocosBootstrapComponent must have a generated .meta uuid');

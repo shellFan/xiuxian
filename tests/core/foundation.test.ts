@@ -113,7 +113,10 @@ function testMainSceneBootstrapContract(): void {
     ((node['_children'] as ReadonlyArray<{ __id__: number }>) ?? []).map((ref) => scene[ref.__id__]?.['_name']),
   );
   const home = nodeNamed('HomePageContent');
+  const pageContainer = nodeNamed('PageContainer');
   const craft = nodeNamed('CraftPageContent');
+  assert.deepEqual(craft['_parent'], { __id__: scene.indexOf(pageContainer) },
+    'CraftPageContent must be a direct child of PageContainer');
   assert.ok(childNames(craft).has('MergeBoardRoot'), 'CraftPageContent must contain MergeBoardRoot');
   assert.ok(childNames(craft).has('RecruitButton'), 'CraftPageContent must contain RecruitButton');
   const board = nodeNamed('MergeBoardRoot');
