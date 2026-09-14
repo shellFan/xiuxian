@@ -47,6 +47,8 @@ const FORBIDDEN_NODES = [
 
 const CRAFT_CHILDREN = ['CraftHeader', 'RecruitButton', 'MergeBoardRoot'];
 const BOARD_CELLS = Array.from({ length: 16 }, (_, i) => `BoardCell${i.toString().padStart(2, '0')}`);
+const COCOS_BOOTSTRAP_TYPE = 'b3150HobX9BGZZPA8DLrkXL';
+const RENDER_COMPONENT_TYPES = ['cc.Sprite', 'cc.Graphics'];
 
 // ── Forbidden legacy text (must NOT appear in any Label _string) ───────────
 const FORBIDDEN_TEXTS = [
@@ -184,8 +186,25 @@ function main() {
         if (!componentTypes.includes('cc.UITransform')) {
           errors.push(`${cell} must have a cc.UITransform`);
         }
-        if (!componentTypes.includes('cc.Button')) {
-          errors.push(`${cell} must have a visible cc.Button background`);
+        if (!RENDER_COMPONENT_TYPES.some(type => componentTypes.includes(type))) {
+          errors.push(`${cell} must have a cc.Sprite or cc.Graphics renderer`);
+        }
+        const button = (scene[cellIdx]._components || [])
+          .map(ref => scene[ref.__id__])
+          .find(component => component?.__type__ === 'cc.Button');
+        if (!button) {
+          errors.push(`${cell} must have a cc.Button interaction component`);
+        } else if (!button._target || typeof button._target.__id__ !== 'number' ||
+          scene[button._target.__id__]?.__type__ !== 'cc.Node') {
+          errors.push(`${cell} cc.Button must target a valid cc.Node`);
+        } else {
+          const targetTypes = getComponentTypes(scene, button._target.__id__);
+          if (!button._enabled || !button._interactable) {
+            errors.push(`${cell} cc.Button must be enabled and interactable`);
+          }
+          if (!RENDER_COMPONENT_TYPES.some(type => targetTypes.includes(type))) {
+            errors.push(`${cell} cc.Button target must carry the renderer`);
+          }
         }
         const labelNode = getChildrenIds(scene, cellIdx)
           .map(id => ({ id, object: scene[id] }))
@@ -195,7 +214,7 @@ function main() {
           errors.push(`${cell} must have a child node with a cc.Label`);
         }
       }
-      console.log(`✅ MergeBoardRoot has ${BOARD_CELLS.length} named cells with UITransform/background/label checks`);
+      console.log(`✅ MergeBoardRoot has ${BOARD_CELLS.length} named cells with UITransform/renderer/Button/label checks`);
     }
   } else {
     errors.push('CraftPageContent node not found');
@@ -281,20 +300,25 @@ function main() {
     }
   }
 
-  // ── Check 11: CocosBootstrapComponent must be mounted ───────────────────
-  const bootstrapComps = scene.filter(obj =>
-    obj.__type__ && typeof obj.__type__ === 'string' && obj.__type__.length > 20 && obj.__type__ !== 'cc.Node' && obj.__type__ !== 'cc.UITransform'
-  );
-  const hasBootstrap = bootstrapComps.some(comp => {
-    const nodeRef = comp.node;
-    if (!nodeRef || !nodeRef.__id__) return false;
-    const node = scene[nodeRef.__id__];
-    return node && node._name === 'SafeAreaRoot';
-  });
-  if (hasBootstrap || safeAreaIdx >= 0) {
-    console.log('✅ CocosBootstrapComponent likely mounted on SafeAreaRoot');
+  // ── Check 11: exactly one CocosBootstrapComponent on SafeAreaRoot ───────
+  const bootstrapComps = scene.filter(obj => obj.__type__ === COCOS_BOOTSTRAP_TYPE);
+  if (bootstrapComps.length !== 1) {
+    errors.push(`expected exactly one CocosBootstrapComponent, found ${bootstrapComps.length}`);
   } else {
-    warnings.push('CocosBootstrapComponent may not be mounted on SafeAreaRoot');
+    const bootstrapNodeRef = bootstrapComps[0].node;
+    const bootstrapNode = bootstrapNodeRef && scene[bootstrapNodeRef.__id__];
+    if (!bootstrapNode || bootstrapNode.__type__ !== 'cc.Node' || bootstrapNode._name !== 'SafeAreaRoot') {
+      errors.push('CocosBootstrapComponent must be mounted on SafeAreaRoot');
+    }
+  }
+  const bootstrapAttachedNodes = scene
+    .map((object, index) => ({ object, index }))
+    .filter(({ object }) => object?.__type__ === 'cc.Node' &&
+      (object._components || []).some(ref => scene[ref.__id__]?.__type__ === COCOS_BOOTSTRAP_TYPE));
+  if (bootstrapAttachedNodes.length !== 1 || bootstrapAttachedNodes[0].object._name !== 'SafeAreaRoot') {
+    errors.push('no node other than SafeAreaRoot may carry CocosBootstrapComponent');
+  } else {
+    console.log('✅ exactly one CocosBootstrapComponent mounted on SafeAreaRoot');
   }
 
   // ── Summary ─────────────────────────────────────────────────────────────

@@ -202,8 +202,30 @@ class SceneBuilder {
       _disabledColor: this.color(124, 124, 124, 255),
       _duration: 0.1,
       _zoomScale: 1.2,
-      _target: null,
+      _target: Number.isInteger(opts.target) ? this.ref(opts.target) : null,
       _id: '',
+    });
+    this._linkComponent(nodeIdx, idx);
+    return idx;
+  }
+
+  /** Add a cc.Graphics renderer with a filled cell background. */
+  addGraphicsBackground(nodeIdx, opts = {}) {
+    const idx = this.push({
+      __type__: 'cc.Graphics',
+      node: this.ref(nodeIdx),
+      _enabled: true,
+      __prefab: null,
+      _customMaterial: null,
+      _srcBlendFactor: 2,
+      _dstBlendFactor: 4,
+      _color: this.color(255, 255, 255, 255),
+      _lineWidth: opts.lineWidth || 2,
+      _lineJoin: 2,
+      _lineCap: 0,
+      _miterLimit: 10,
+      _strokeColor: opts.strokeColor || this.color(120, 120, 120, 255),
+      _fillColor: opts.fillColor || this.color(235, 235, 235, 255),
     });
     this._linkComponent(nodeIdx, idx);
     return idx;
@@ -412,7 +434,8 @@ function buildScene() {
           lpos: b.vec3((column - 1.5) * 124, (1.5 - row) * 94, 0),
         });
         b.addUITransform(cellIdx, 112, 82);
-        b.addButton(cellIdx);
+        b.addGraphicsBackground(cellIdx);
+        b.addButton(cellIdx, { target: cellIdx });
 
         const labelNodeIdx = b.addNode(`${cellName}Label`, -1, [], [], { lpos: b.vec3(0, 0, 0) });
         b.addUITransform(labelNodeIdx, 112, 82);
