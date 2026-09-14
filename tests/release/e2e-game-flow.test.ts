@@ -58,6 +58,7 @@ function createTestSetup(playerOverrides: Partial<PlayerDataOptions> = {}): Test
     randomProvider: new FixedRandomProvider(0.01), // very low roll → promotion always succeeds
     debugProtection: { isProduction: false },
     modeSwitchCooldownMs: 0,
+    board: null,
   });
   return { facade, clock, storage };
 }

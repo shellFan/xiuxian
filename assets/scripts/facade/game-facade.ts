@@ -24,8 +24,7 @@ import { type UiEventCategory, type UiEvent, resolveCategory } from './ui-event-
 import { type RewardType, type RewardResult } from '../services/reward-provider';
 import type { WorkMode } from '../model/save-data';
 import { DebugProtection, type DebugProtectionOptions } from '../services/debug-protection';
-import { type RecruitmentResult, type RecruitmentSuccess, type RecruitmentFailure } from '../services/recruitment-service';
-import { WorkerEntity } from '../model/worker-entity';
+import { type RecruitmentResult } from '../services/recruitment-service';
 import type { CareerEventConfig, TalentConfig, SectConfig, PromotionOption } from '../model/config-types';
 import type { KpiView } from '../services/kpi-service';
 import type { AchievementConfig, AchievementStatus } from '../services/achievement-service';
@@ -40,6 +39,9 @@ import type { LeaderboardView } from '../services/leaderboard-service';
 import type { FriendsView } from '../services/friends-service';
 import type { AdPlacement, RewardedAdResult } from '../services/rewarded-ad-service';
 import type { CraftResult } from '../services/craft-service';
+import { RecruitmentService } from '../services/recruitment-service';
+import { MergeService, type MergeResult } from '../services/merge-service';
+import type { BoardPosition } from '../game/merge/merge-types';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -51,6 +53,11 @@ export interface GameFacadeOptions extends GameContextOptions {
 }
 
 export type UiEventListener = (event: UiEvent) => void;
+
+export interface MoveResult {
+  readonly success: boolean;
+  readonly message?: string;
+}
 
 export class GameFacade {
   public readonly context: GameContext;
@@ -67,12 +74,14 @@ export class GameFacade {
   private lastModeChangeTime = 0;
   /** Cooldown in milliseconds for work mode switching. */
   private readonly modeSwitchCooldownMs: number;
+  private readonly recruitmentService: RecruitmentService;
+  private readonly mergeService: MergeService | null;
 
   public constructor(options: GameFacadeOptions = {}) {
     this.platform = createPlatformService(options.platformKind ?? 'mock');
-    // PC V1: Force board to null unless explicitly provided (merge board is deprecated)
-    const contextOptions = { ...options, board: options.board !== undefined ? options.board : null };
-    this.context = new GameContext(contextOptions);
+    this.context = new GameContext(options);
+    this.recruitmentService = new RecruitmentService(this.context);
+    this.mergeService = this.context.board ? new MergeService(this.context) : null;
     this.gameLoop = new GameLoopService(this.context, {
       autoSaveIntervalSeconds: options.autoSaveIntervalSeconds,
     });
@@ -538,23 +547,29 @@ export class GameFacade {
     return Math.max(0, remaining / 1000);
   }
 
-  /** Recruit a new worker (level 1) to the merge board. @deprecated No merge board in PC V1. */
+  /** Recruit a new worker (level 1) to the first empty merge-board cell. */
   public recruit(): RecruitmentResult {
-    if (!this.context.board) {
-      return { success: false, message: '工位满了' } as RecruitmentFailure;
+    return this.recruitmentService.recruit();
+  }
+
+  /** Move a worker to an empty board cell and persist the successful move. */
+  public move(from: BoardPosition, to: BoardPosition): MoveResult {
+    const board = this.context.board;
+    if (!board) return { success: false, message: '工位不足' };
+    try {
+      board.move(from, to);
+      this.context.syncPlayerWorkers();
+      this.context.saveService.save(this.context.player);
+      return { success: true };
+    } catch (error: unknown) {
+      return { success: false, message: error instanceof Error ? error.message : '移动失败' };
     }
-    const position = this.context.board.findEmptyPosition();
-    if (!position) {
-      return { success: false, message: '工位满了' } as RecruitmentFailure;
-    }
-    const worker = WorkerEntity.create(1);
-    this.context.board.place(worker, position);
-    this.context.syncPlayerWorkers();
-    this.context.player.maxWorkerLevel = Math.max(this.context.player.maxWorkerLevel, worker.level);
-    this.context.events.emit('workerRecruited', { worker, position });
-    this.context.saveService.save(this.context.player);
-    this.context.events.emit('gameSaved', { reason: 'recruitment' });
-    return { success: true, worker, position } as RecruitmentSuccess;
+  }
+
+  /** Merge equal-level workers, delegating all business rules to MergeService. */
+  public merge(first: BoardPosition, second: BoardPosition): MergeResult {
+    if (!this.mergeService) return { success: false, message: '工位不足' };
+    return this.mergeService.merge(first, second);
   }
 
   /** Request a rewarded ad (delegates to RewardService state machine). */

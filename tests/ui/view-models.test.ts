@@ -28,8 +28,7 @@ function createFacade(): GameFacade {
   const clock = new FakeClock(Date.now());
   return new GameFacade({
     storage: new MemoryStorageAdapter(),
-    boardRows: 4,
-    boardColumns: 4,
+    board: null,
     clock,
   });
 }

@@ -18,7 +18,7 @@ import type { DailyTaskState } from '../../assets/scripts/model/save-data';
 // ── Facade Factory ──────────────────────────────────────────────────────────
 
 function createTestFacade(): GameFacade {
-  return new GameFacade({ storage: new MemoryStorageAdapter() });
+  return new GameFacade({ storage: new MemoryStorageAdapter(), board: null });
 }
 
 // ── Facade Query API ────────────────────────────────────────────────────────

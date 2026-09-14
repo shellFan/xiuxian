@@ -8,8 +8,9 @@ const property = (value: unknown): any => { const decorator = _decorator as unkn
 const resolveCocosType = (name: string): unknown => (Cocos as unknown as Record<string, unknown>)[name] ?? `cc.${name}`;
 export interface TouchLike { getID?: () => number; getUILocation?: () => PointLike; getLocation?: () => PointLike; }
 interface TransformLike { convertToNodeSpaceAR?: (point: { x: number; y: number; z: number }) => PointLike; }
-interface DragNodeLike { readonly isValid?: boolean; active?: boolean; readonly position?: PointLike; readonly parent?: { getComponent?: (type: typeof UITransform) => TransformLike | null }; getComponent?: (type: unknown) => unknown; on?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; off?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; setPosition?: (position: PointLike & { readonly z: number }) => void; }
+interface DragNodeLike { readonly isValid?: boolean; active?: boolean; readonly position?: PointLike; readonly children?: readonly DragNodeLike[]; readonly parent?: { getComponent?: (type: typeof UITransform) => TransformLike | null }; getComponent?: (type: unknown) => unknown; on?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; off?: (event: string, listener: (event: TouchLike) => void, target?: unknown) => void; setPosition?: (position: PointLike & { readonly z: number }) => void; }
 interface TextLike { string: string; }
+interface TweenLike { to?: (duration: number, properties: { position: PointLike & { readonly z: number } }) => TweenLike; call?: (callback: () => void) => TweenLike; start?: () => void; }
 @ccclass('WorkerView')
 export class WorkerView extends Component {
   @property(resolveCocosType('Label'))
@@ -45,10 +46,29 @@ export class WorkerView extends Component {
   public onDestroy(): void { this.unbind(); }
   public isNodeValid(): boolean { return this.dragNode?.isValid !== false; }
   public setBoardPosition(position: { readonly row: number; readonly column: number }): void { if (!this.boardView?.isNodeValid() || !this.isNodeValid()) return; const point = this.boardView.boardPositionToScreenPoint(position); const local = this.screenToWorkerParentPoint(point); if (local) this.setNodePoint(local); }
+  public animateTo(position: { readonly row: number; readonly column: number }, onComplete: () => void, durationSeconds = 0.32): void {
+    if (!this.boardView?.isNodeValid() || !this.isNodeValid()) { onComplete(); return; }
+    const point = this.boardView.boardPositionToScreenPoint(position);
+    const local = this.screenToWorkerParentPoint(point);
+    const tweenFactory = (Cocos as unknown as { tween?: (target: object) => TweenLike }).tween;
+    const sequence = local && tweenFactory ? tweenFactory(this.dragNode as object)?.to?.(durationSeconds, { position: { ...local, z: 0 } })?.call?.(onComplete) : undefined;
+    if (sequence?.start) sequence.start();
+    else { if (local) this.setNodePoint(local); onComplete(); }
+  }
   private screenToWorkerParentPoint(point: PointLike): PointLike | undefined { const transform = this.dragNode?.parent?.getComponent?.(UITransform); return transform?.convertToNodeSpaceAR?.({ ...point, z: 0 }) ?? this.boardView?.screenToWorkerParentPoint(point) ?? point; }
   private restoreSourcePosition(source = this.controller?.sourcePosition, local = this.sourceLocalPosition): void { if (local) this.setNodePoint(local); else if (source) this.setBoardPosition(source); }
   private setNodePoint(point: PointLike): void { if (this.isNodeValid()) this.dragNode?.setPosition?.({ x: point.x, y: point.y, z: 0 }); }
-  private resolveDisplayLabel(): TextLike | undefined { if (this.displayLabel) return this.displayLabel; const label = this.dragNode?.getComponent?.((Cocos as unknown as Record<string, unknown>).Label ?? 'Label'); return label as TextLike | undefined; }
+  private resolveDisplayLabel(): TextLike | undefined {
+    if (this.displayLabel) return this.displayLabel;
+    const labelType = (Cocos as unknown as Record<string, unknown>).Label ?? 'Label';
+    const label = this.dragNode?.getComponent?.(labelType) as TextLike | null | undefined;
+    if (label && typeof label.string === 'string') return label;
+    for (const child of this.dragNode?.children ?? []) {
+      const childLabel = child.getComponent?.(labelType) as TextLike | null | undefined;
+      if (childLabel && typeof childLabel.string === 'string') return childLabel;
+    }
+    return undefined;
+  }
   private cancelActiveDrag(): void { try { const source = this.controller?.sourcePosition; this.controller?.cancel(); this.restoreSourcePosition(source); } catch { /* invalid visual nodes cannot be restored */ } finally { this.activeTouchId = undefined; this.ownsSession = false; } }
   private point(event: TouchLike): PointLike | undefined { return event.getUILocation?.() ?? event.getLocation?.(); }
   private touchId(event: TouchLike): number | undefined { const id = event.getID?.(); return typeof id === 'number' && Number.isFinite(id) ? id : undefined; }
