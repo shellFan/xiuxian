@@ -49,6 +49,7 @@ const CRAFT_CHILDREN = ['CraftHeader', 'RecruitButton', 'MergeBoardRoot'];
 const BOARD_CELLS = Array.from({ length: 16 }, (_, i) => `BoardCell${i.toString().padStart(2, '0')}`);
 const COCOS_BOOTSTRAP_TYPE = 'b3150HobX9BGZZPA8DLrkXL';
 const RENDER_COMPONENT_TYPES = ['cc.Sprite', 'cc.Graphics'];
+const BOARD_CELL_RENDERER_TYPE = 'a1b2cPU5fZHqJGyw9Tl9qe4';
 
 // ── Forbidden legacy text (must NOT appear in any Label _string) ───────────
 const FORBIDDEN_TEXTS = [
@@ -188,6 +189,9 @@ function main() {
         }
         if (!RENDER_COMPONENT_TYPES.some(type => componentTypes.includes(type))) {
           errors.push(`${cell} must have a cc.Sprite or cc.Graphics renderer`);
+        }
+        if (!componentTypes.includes(BOARD_CELL_RENDERER_TYPE)) {
+          errors.push(`${cell} must have BoardCellRenderer to draw its Graphics geometry`);
         }
         const button = (scene[cellIdx]._components || [])
           .map(ref => scene[ref.__id__])

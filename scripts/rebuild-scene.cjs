@@ -24,6 +24,7 @@ const COMP = {
   CultivationPanel: '8ae9eRPyPVFhr092cMGFsVN',
   IdleStatusPanel:  '613d7WuT+pBKIO67VQl4S9O',
   GameUIController: '516528SB9RKXrAoWRItq8An',
+  BoardCellRenderer: 'a1b2cPU5fZHqJGyw9Tl9qe4',
 };
 
 // ── Scene Builder ──────────────────────────────────────────────────────────
@@ -436,6 +437,7 @@ function buildScene() {
         b.addUITransform(cellIdx, 112, 82);
         b.addGraphicsBackground(cellIdx);
         b.addButton(cellIdx, { target: cellIdx });
+        b.addCustomComponent(cellIdx, COMP.BoardCellRenderer);
 
         const labelNodeIdx = b.addNode(`${cellName}Label`, -1, [], [], { lpos: b.vec3(0, 0, 0) });
         b.addUITransform(labelNodeIdx, 112, 82);
