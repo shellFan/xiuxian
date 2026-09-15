@@ -109,6 +109,7 @@ export class GameUIController extends Component {
 
   private safeAreaRoot: NodeLike | null = null;
   private topHeader: NodeLike | null = null;
+  private characterArea: NodeLike | null = null;
   private idleIncomePanel: NodeLike | null = null;
   private primaryActions: NodeLike | null = null;
   private bottomNavigation: NodeLike | null = null;
@@ -116,6 +117,12 @@ export class GameUIController extends Component {
   private craftPageContent: NodeLike | null = null;
   private craftRecipeList: NodeLike | null = null;
   private mergeBoardRoot: NodeLike | null = null;
+
+  private careerSummaryLabel: TextLike | null = null;
+  private resourceSummaryLabel: TextLike | null = null;
+  private characterNameLabel: TextLike | null = null;
+  private characterStatusLabel: TextLike | null = null;
+  private workStatusLabel: TextLike | null = null;
 
   // Button references
   private cultivateButton: ButtonLike | null = null;
@@ -181,6 +188,11 @@ export class GameUIController extends Component {
     this.mergeBoardRoot = null;
     this.craftPageContent = null;
     this.craftRecipeList = null;
+    this.careerSummaryLabel = null;
+    this.resourceSummaryLabel = null;
+    this.characterNameLabel = null;
+    this.characterStatusLabel = null;
+    this.workStatusLabel = null;
     this.facade = null;
   }
 
@@ -196,6 +208,16 @@ export class GameUIController extends Component {
     this.primaryActions = this.findChild(this.safeAreaRoot, 'PrimaryActions');
     this.bottomNavigation = this.findChild(this.safeAreaRoot, 'BottomNavigation');
     this.pageContainer = this.findChild(this.safeAreaRoot, 'PageContainer');
+
+    this.careerSummaryLabel = this.findLabel(this.findChild(this.topHeader, 'CareerSummaryLabel'));
+    const resourceBar = this.findChild(this.safeAreaRoot, 'ResourceBar');
+    this.resourceSummaryLabel = this.findLabel(resourceBar?.getChildByName?.('ResourceSummaryLabel') ?? null);
+    const characterArea = this.findChild(this.safeAreaRoot, 'CharacterArea');
+    this.characterNameLabel = this.findLabel(characterArea?.getChildByName?.('CharacterNameLabel') ?? null);
+    this.characterStatusLabel = this.findLabel(characterArea?.getChildByName?.('CharacterStatusLabel') ?? null);
+    const idlePanel = this.findChild(this.safeAreaRoot, 'IdleIncomePanel');
+    this.characterArea = this.findChild(this.safeAreaRoot, 'CharacterArea');
+    this.workStatusLabel = this.findLabel(idlePanel?.getChildByName?.('WorkStatusLabel') ?? null);
 
     this.craftPageContent = this.findChild(this.pageContainer, 'CraftPageContent');
 
@@ -368,10 +390,27 @@ export class GameUIController extends Component {
 
     // Update button labels based on state
     this.updateButtonLabels(hudVm, cultVm, idleVm);
+    this.refreshHomePresentation(hudVm, idleVm);
 
     // Update tab highlight
     this.updateTabHighlight();
     this.refreshCraftPage();
+  }
+
+  private refreshHomePresentation(hudVm: MainHUDViewModel, idleVm: IdleViewModel): void {
+    if (!this.facade) return;
+    const snapshot = this.facade.snapshot();
+    this.setText(this.careerSummaryLabel, `${hudVm.realm} · ${hudVm.careerName}`);
+    this.setText(
+      this.resourceSummaryLabel,
+      `工资 ${formatNumber(hudVm.salary)}  ·  灵石 ${formatNumber(snapshot.spiritStones)}  ·  修为 ${formatNumber(hudVm.cultivationExp)}/${formatNumber(hudVm.cultivationRequired)}  ·  道心 ${formatNumber(hudVm.mind)}/${formatNumber(hudVm.maxMind)}`,
+    );
+    this.setText(this.characterNameLabel, `${hudVm.careerName} · ${hudVm.realm}`);
+    this.setText(this.characterStatusLabel, `${hudVm.sectName} · ${hudVm.officeName} · ${hudVm.talentName}`);
+    this.setText(
+      this.workStatusLabel,
+      `${idleVm.isFishingMode ? '带薪摸鱼' : '认真上班'}  ·  工资 ×${idleVm.salaryEfficiency.toFixed(1)}  ·  绩效 ×${idleVm.performanceEfficiency.toFixed(1)}  ·  道心恢复 ×${idleVm.mindRecoveryEfficiency.toFixed(1)}`,
+    );
   }
 
   /** Force-refresh a component that is already mounted on a node. */
@@ -394,7 +433,7 @@ export class GameUIController extends Component {
     if (this.primaryActions) {
       const cultivateNode = this.findChild(this.primaryActions, 'CultivateButton');
       if (cultivateNode) {
-        const label = this.getLabelComponent(cultivateNode);
+        const label = this.findLabel(cultivateNode);
         if (label) {
           if (cultVm.cooldownRemaining > 0) {
             label.string = `修炼 (${formatDuration(cultVm.cooldownRemaining)})`;
@@ -413,8 +452,8 @@ export class GameUIController extends Component {
       // Update WorkButton/FishButton labels based on mode
       const workNode = this.findChild(this.primaryActions, 'WorkButton');
       const fishNode = this.findChild(this.primaryActions, 'FishButton');
-      const workLabel = workNode ? this.getLabelComponent(workNode) : null;
-      const fishLabel = fishNode ? this.getLabelComponent(fishNode) : null;
+      const workLabel = this.findLabel(workNode);
+      const fishLabel = this.findLabel(fishNode);
 
       if (workLabel) {
         workLabel.string = idleVm.isFishingMode ? '打工' : '打工 ✓';
@@ -448,6 +487,10 @@ export class GameUIController extends Component {
     for (const [tab, node] of this.pageNodes) {
       node.active = tab === this.currentTab;
     }
+    const home = this.currentTab === 'HOME';
+    if (this.characterArea) this.characterArea.active = home;
+    if (this.idleIncomePanel) this.idleIncomePanel.active = home;
+    if (this.primaryActions) this.primaryActions.active = home;
   }
 
   // ── Click Handlers ────────────────────────────────────────────────────────
@@ -516,13 +559,11 @@ export class GameUIController extends Component {
   }
 
   private findLabel(node: NodeLike | null): TextLike | null {
-    const direct = this.getLabelComponent(node);
-    if (direct) return direct;
     for (const child of node?.children ?? []) {
       const label = this.findLabel(child);
       if (label) return label;
     }
-    return null;
+    return this.getLabelComponent(node);
   }
 
   private bindCraftButton(button: ButtonLike, recipeId: string): void {
@@ -538,6 +579,10 @@ export class GameUIController extends Component {
       button.off?.('click', handler, this);
     }
     this.craftButtons.clear();
+  }
+
+  private setText(label: TextLike | null, value: string): void {
+    if (label) label.string = value;
   }
 }
 

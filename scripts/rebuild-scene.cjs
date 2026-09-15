@@ -16,8 +16,11 @@ const path = require('path');
 const SCENE_PATH = path.join(__dirname, '..', 'assets', 'scenes', 'Main.scene');
 const DESIGN_WIDTH = 1280;
 const DESIGN_HEIGHT = 720;
-const PAGE_TOP_INSET = 384;
-const PAGE_BOTTOM_INSET = 202;
+// The shared resource strip ends at roughly 122px and the bottom chrome
+// begins at 652px. Pages occupy that full middle band; home-only panels are
+// toggled by GameUIController so craft/tasks never compete for the same space.
+const PAGE_TOP_INSET = 140;
+const PAGE_BOTTOM_INSET = 90;
 const PAGE_CONTAINER_HEIGHT = DESIGN_HEIGHT - PAGE_TOP_INSET - PAGE_BOTTOM_INSET;
 
 // ── Compressed UUIDs for custom components ─────────────────────────────────
@@ -533,13 +536,11 @@ function buildScene() {
         });
         b.addPanel(rowIdx, 1000, 52, { fillColor: paper, strokeColor: b.color(194, 172, 137, 255) });
         b.addButton(rowIdx);
-        // Keep a direct Label for the established row contract and render a
-        // child label so Button state cannot obscure the recipe text.
-        b.addLabel(rowIdx, '配方 · 材料 · 产物 · 合成', 20, { color: b.color(40, 40, 40, 0) });
-        const rowTextIdx = b.addTextNode(`${rowName}Text`, '配方 · 材料 · 产物 · 合成', 1000, 52, { fontSize: 20, color: ink });
-        b.objects[rowIdx]._children = [b.ref(rowTextIdx)];
+        // Keep the visible label on the row itself. GameUIController resolves
+        // and updates this exact Label; do not add a stale placeholder child.
+        b.addLabel(rowIdx, '配方 · 材料 · 产物 · 合成', 20, { color: ink });
         recipeRowIds.push(rowIdx);
-        craftNodeIds.push(rowIdx, rowTextIdx);
+        craftNodeIds.push(rowIdx);
       }
       const recipeListIdx = b.addNode('CraftRecipeList', -1, recipeRowIds, [], { lpos: b.vec3(0, -44, 0) });
       b.addUITransform(recipeListIdx, 1040, 360);
@@ -547,17 +548,7 @@ function buildScene() {
       craftNodeIds.push(recipeListIdx);
     }
 
-    if (pageName === 'HomePageContent') {
-      const homeTitleIdx = b.addTextNode('HomeTitleLabel', '今日修行计划', 620, 48, {
-        lpos: b.vec3(0, 24, 0), fontSize: 32, color: ink,
-      });
-      const homeSubtitleIdx = b.addTextNode('HomeSubtitleLabel', '修炼、打工与摸鱼，选择你的今日节奏', 760, 36, {
-        lpos: b.vec3(0, -22, 0), fontSize: 19, color: b.color(92, 86, 75, 255),
-      });
-      const homeRuleIdx = b.addNode('HomeRule', -1, [], [], { lpos: b.vec3(0, -52, 0) });
-      b.addPanel(homeRuleIdx, 860, 3, { fillColor: b.color(194, 172, 137, 255), strokeColor: b.color(194, 172, 137, 255), lineWidth: 1 });
-      pageChildren.push(homeTitleIdx, homeSubtitleIdx, homeRuleIdx);
-    } else if (pageName !== 'CraftPageContent') {
+    if (pageName !== 'HomePageContent' && pageName !== 'CraftPageContent') {
       const pageTitle = pageName.replace('PageContent', '');
       const pageTitleIdx = b.addTextNode(`${pageName}TitleLabel`, pageTitle, 600, 48, {
         lpos: b.vec3(0, 120, 0), fontSize: 28, color: ink,

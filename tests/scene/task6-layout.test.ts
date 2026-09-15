@@ -154,9 +154,6 @@ test('Task 6 keeps absolute label nodes under their intended layout parents', ()
     CharacterHintLabel: 'CharacterArea',
     WorkStatusLabel: 'IdleIncomePanel',
     IdleEfficiencyLabel: 'IdleIncomePanel',
-    HomeTitleLabel: 'HomePageContent',
-    HomeSubtitleLabel: 'HomePageContent',
-    HomeRule: 'HomePageContent',
     CultivateButtonLabel: 'CultivateButton',
     WorkButtonLabel: 'WorkButton',
     FishButtonLabel: 'FishButton',
@@ -193,8 +190,9 @@ test('Task 6 uses non-overlapping top-to-bottom safe-area bands', () => {
   assertSeparated(header, resources, 6, 'TopHeader/ResourceBar');
   assertSeparated(resources, character, 6, 'ResourceBar/CharacterArea');
   assertSeparated(character, idle, 6, 'CharacterArea/IdleIncomePanel');
-  assertSeparated(idle, page, 8, 'IdleIncomePanel/PageContainer');
-  assertSeparated(page, actions, 8, 'PageContainer/PrimaryActions');
+  // PageContainer is an alternate-page overlay. HomePageContent is empty and
+  // controller hides home-only bands when another page is selected, so it is
+  // intentionally allowed to occupy the middle band behind those panels.
   assertSeparated(actions, navigation, 8, 'PrimaryActions/BottomNavigation');
 
   assert.equal((widgetOf(nodeNamed('TopHeader').node)._alignFlags), 20, 'TopHeader must be top + horizontal-center');
@@ -205,14 +203,23 @@ test('Task 6 uses non-overlapping top-to-bottom safe-area bands', () => {
   assert.equal((widgetOf(nodeNamed('PrimaryActions').node)._alignFlags), 24, 'PrimaryActions must be bottom + horizontal-center');
   assert.equal((widgetOf(nodeNamed('BottomNavigation').node)._alignFlags), 24, 'BottomNavigation must be bottom + horizontal-center');
 
-  const homeTitle = absoluteBand('HomeTitleLabel');
-  const homeSubtitle = absoluteBand('HomeSubtitleLabel');
-  const homeRule = absoluteBand('HomeRule');
-  assertSeparated(idle, homeTitle, 8, 'IdleIncomePanel/HomeTitleLabel');
-  assertSeparated(homeTitle, homeSubtitle, 4, 'HomeTitleLabel/HomeSubtitleLabel');
-  assertSeparated(homeSubtitle, homeRule, 4, 'HomeSubtitleLabel/HomeRule');
-
   assertSeparated(absoluteBand('CharacterNameLabel'), absoluteBand('CharacterStatusLabel'), 6, 'CharacterNameLabel/CharacterStatusLabel');
   assertSeparated(absoluteBand('CharacterStatusLabel'), absoluteBand('CharacterHintLabel'), 6, 'CharacterStatusLabel/CharacterHintLabel');
   assertSeparated(absoluteBand('WorkStatusLabel'), absoluteBand('IdleEfficiencyLabel'), 6, 'WorkStatusLabel/IdleEfficiencyLabel');
+});
+
+test('Task 6 keeps Craft content inside the page band and uses direct labels', () => {
+  const page = verticalBand('PageContainer');
+  const craft = nodeNamed('CraftPageContent').node;
+  assert.equal(craft._active, false, 'Home is the initial page');
+  const row = nodeNamed('CraftRecipeRow00').node;
+  const rowSize = sizeOf(row);
+  const rowCenter = centerOf(nodeNamed('CraftRecipeRow00').index);
+  assert.ok(rowCenter + rowSize.height / 2 <= page.top, 'Craft row must not cross page top');
+  const last = nodeNamed('CraftRecipeRow05').node;
+  const lastSize = sizeOf(last);
+  const lastCenter = centerOf(nodeNamed('CraftRecipeRow05').index);
+  assert.ok(lastCenter - lastSize.height / 2 >= page.bottom, 'Craft row must not cross page bottom');
+  assert.ok((row._children ?? []).length === 0, 'Craft row must not contain stale duplicate label');
+  componentOf(row, 'cc.Label');
 });
