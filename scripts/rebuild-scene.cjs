@@ -109,9 +109,9 @@ class SceneBuilder {
   }
 
   /** Add cc.Widget with full stretch (left + right + top + bottom). */
-  // Cocos Creator 3.x AlignFlags: LEFT=1, RIGHT=2, H_CENTER=4,
-  // TOP=8, BOTTOM=16, V_CENTER=32.
-  addWidgetStretch(nodeIdx, alignFlags = 27) {
+  // Cocos Creator 3.8 AlignFlags: TOP=1, MID=2, BOT=4, LEFT=8,
+  // CENTER=16, RIGHT=32.
+  addWidgetStretch(nodeIdx, alignFlags = 45) {
     const idx = this.push({
       __type__: 'cc.Widget',
       _objFlags: 0,
@@ -377,7 +377,7 @@ function buildScene() {
   const topHeaderHudIdx = b.addCustomComponent(topHeaderIdx, COMP.MainHud);
   b.addGraphicsBackground(topHeaderIdx, { fillColor: chrome, strokeColor: chromeSoft });
   b.addUITransform(topHeaderIdx, 1220, 58);
-  const topHeaderWidgetIdx = b.addWidget(topHeaderIdx, { alignFlags: 12, top: 0, horizontalCenter: 0 }); // top + h-center
+  const topHeaderWidgetIdx = b.addWidget(topHeaderIdx, { alignFlags: 17, top: 0, horizontalCenter: 0 }); // top + h-center
 
   // --- ResourceBar node ---
   const resourceSummaryIdx = b.addTextNode('ResourceSummaryLabel', '工资 0  ·  灵石 0  ·  修为 0/100  ·  道心 100/100', 1080, 42, {
@@ -385,7 +385,7 @@ function buildScene() {
   });
   const resBarIdx = b.addNode('ResourceBar', -1, [resourceSummaryIdx], []);
   b.addPanel(resBarIdx, 1140, 58, { fillColor: paperSoft, strokeColor: b.color(194, 172, 137, 255) });
-  const resBarWidgetIdx = b.addWidget(resBarIdx, { alignFlags: 12, top: 64, horizontalCenter: 0 });
+  const resBarWidgetIdx = b.addWidget(resBarIdx, { alignFlags: 17, top: 64, horizontalCenter: 0 });
 
   // --- CharacterArea node ---
   const characterIconIdx = b.addTextNode('CharacterIconLabel', '🐮', 100, 110, {
@@ -402,7 +402,7 @@ function buildScene() {
   });
   const charAreaIdx = b.addNode('CharacterArea', -1, [characterIconIdx, characterNameIdx, characterStatusIdx, characterHintIdx], []);
   b.addPanel(charAreaIdx, 1120, 160, { fillColor: paper, strokeColor: b.color(194, 172, 137, 255) });
-  const charAreaWidgetIdx = b.addWidget(charAreaIdx, { alignFlags: 12, top: 130, horizontalCenter: 0 });
+  const charAreaWidgetIdx = b.addWidget(charAreaIdx, { alignFlags: 17, top: 130, horizontalCenter: 0 });
 
   // --- IdleIncomePanel node (with IdleStatusPanelComponent) ---
   const workStatusIdx = b.addTextNode('WorkStatusLabel', '带薪摸鱼  ·  工资 ×0.6  ·  绩效 ×0.7  ·  道心恢复 ×3.0', 1000, 38, {
@@ -414,7 +414,7 @@ function buildScene() {
   const idleIdx = b.addNode('IdleIncomePanel', -1, [workStatusIdx, idleEfficiencyIdx], []);
   const idleCompIdx = b.addCustomComponent(idleIdx, COMP.IdleStatusPanel);
   b.addPanel(idleIdx, 1080, 78, { fillColor: paperSoft, strokeColor: b.color(194, 172, 137, 255) });
-  const idleWidgetIdx = b.addWidget(idleIdx, { alignFlags: 12, top: 298, horizontalCenter: 0 });
+  const idleWidgetIdx = b.addWidget(idleIdx, { alignFlags: 17, top: 298, horizontalCenter: 0 });
 
   // --- PrimaryActions node with 3 buttons ---
   // CultivateButton
@@ -569,7 +569,7 @@ function buildScene() {
   const pageContIdx = b.addNode('PageContainer', -1, pageNodeIds, []);
   const pageContUtIdx = b.addUITransform(pageContIdx, DESIGN_WIDTH, PAGE_CONTAINER_HEIGHT);
   const pageContWidgetIdx = b.addWidget(pageContIdx, {
-    alignFlags: 28,
+    alignFlags: 21,
     bottom: PAGE_BOTTOM_INSET,
     top: PAGE_TOP_INSET,
     horizontalCenter: 0,

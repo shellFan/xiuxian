@@ -49,15 +49,15 @@ function verticalBand(name: string): { top: number; bottom: number } {
   const top = widget._top as number;
   const bottom = widget._bottom as number;
 
-  if ((flags & 8) !== 0 && (flags & 16) === 0) {
+  if ((flags & 1) !== 0 && (flags & 4) === 0) {
     const center = 360 - top - size.height / 2;
     return { top: center + size.height / 2, bottom: center - size.height / 2 };
   }
-  if ((flags & 16) !== 0 && (flags & 8) === 0) {
+  if ((flags & 4) !== 0 && (flags & 1) === 0) {
     const center = -360 + bottom + size.height / 2;
     return { top: center + size.height / 2, bottom: center - size.height / 2 };
   }
-  if ((flags & 8) !== 0 && (flags & 16) !== 0) {
+  if ((flags & 1) !== 0 && (flags & 4) !== 0) {
     return { top: 360 - top, bottom: -360 + bottom };
   }
   throw new Error(`${name} does not declare a supported vertical Widget band`);
@@ -176,9 +176,9 @@ test('Task 6 uses non-overlapping top-to-bottom safe-area bands', () => {
   const canvas = nodeNamed('Canvas').node;
   const safeArea = nodeNamed('SafeAreaRoot').node;
   const background = nodeNamed('Background').node;
-  assert.equal(widgetOf(canvas)._alignFlags, 27, 'Canvas must stretch with left/right/top/bottom');
-  assert.equal(widgetOf(safeArea)._alignFlags, 27, 'SafeAreaRoot must stretch with left/right/top/bottom');
-  assert.equal(widgetOf(background)._alignFlags, 27, 'Background must stretch with left/right/top/bottom');
+  assert.equal(widgetOf(canvas)._alignFlags, 45, 'Canvas must stretch with left/right/top/bottom');
+  assert.equal(widgetOf(safeArea)._alignFlags, 45, 'SafeAreaRoot must stretch with left/right/top/bottom');
+  assert.equal(widgetOf(background)._alignFlags, 45, 'Background must stretch with left/right/top/bottom');
 
   const header = verticalBand('TopHeader');
   const resources = verticalBand('ResourceBar');
@@ -196,11 +196,11 @@ test('Task 6 uses non-overlapping top-to-bottom safe-area bands', () => {
   // intentionally allowed to occupy the middle band behind those panels.
   assertSeparated(actions, navigation, 8, 'PrimaryActions/BottomNavigation');
 
-  assert.equal((widgetOf(nodeNamed('TopHeader').node)._alignFlags), 12, 'TopHeader must be top + horizontal-center');
-  assert.equal((widgetOf(nodeNamed('ResourceBar').node)._alignFlags), 12, 'ResourceBar must be top + horizontal-center');
-  assert.equal((widgetOf(nodeNamed('CharacterArea').node)._alignFlags), 12, 'CharacterArea must be top + horizontal-center');
-  assert.equal((widgetOf(nodeNamed('IdleIncomePanel').node)._alignFlags), 12, 'IdleIncomePanel must be top + horizontal-center');
-  assert.equal((widgetOf(nodeNamed('PageContainer').node)._alignFlags), 28, 'PageContainer must be top + bottom + horizontal-center');
+  assert.equal((widgetOf(nodeNamed('TopHeader').node)._alignFlags), 17, 'TopHeader must be top + horizontal-center');
+  assert.equal((widgetOf(nodeNamed('ResourceBar').node)._alignFlags), 17, 'ResourceBar must be top + horizontal-center');
+  assert.equal((widgetOf(nodeNamed('CharacterArea').node)._alignFlags), 17, 'CharacterArea must be top + horizontal-center');
+  assert.equal((widgetOf(nodeNamed('IdleIncomePanel').node)._alignFlags), 17, 'IdleIncomePanel must be top + horizontal-center');
+  assert.equal((widgetOf(nodeNamed('PageContainer').node)._alignFlags), 21, 'PageContainer must be top + bottom + horizontal-center');
   assert.equal((widgetOf(nodeNamed('PrimaryActions').node)._alignFlags), 20, 'PrimaryActions must be bottom + horizontal-center');
   assert.equal((widgetOf(nodeNamed('BottomNavigation').node)._alignFlags), 20, 'BottomNavigation must be bottom + horizontal-center');
 
