@@ -40,14 +40,11 @@
 
 import { _decorator, Component } from 'cc';
 import { CocosBootstrapComponent } from '../core/cocos-bootstrap-component';
-import { DragController } from '../game/drag-controller';
-import type { BoardPosition } from '../game/merge/merge-types';
 import type { GameFacade } from '../facade/game-facade';
 import type { UiEventCategory } from '../facade/ui-event-types';
 import type { MainHUDViewModel, CultivationViewModel, IdleViewModel } from './view-models';
-import { buildMainHUDViewModel, buildCultivationViewModel, buildIdleViewModel, buildMergeBoardViewModel } from './view-models';
+import { buildMainHUDViewModel, buildCultivationViewModel, buildIdleViewModel, buildCraftViewModel } from './view-models';
 import { formatNumber, formatDuration } from './number-formatter';
-import { MergeBoardView } from './merge-board-view';
 
 const { ccclass } = _decorator;
 
@@ -114,14 +111,12 @@ export class GameUIController extends Component {
   private pageContainer: NodeLike | null = null;
   private craftPageContent: NodeLike | null = null;
   private mergeBoardRoot: NodeLike | null = null;
-  private mergeBoardView: MergeBoardView | null = null;
-  private dragController: DragController | null = null;
 
   // Button references
   private cultivateButton: ButtonLike | null = null;
   private workButton: ButtonLike | null = null;
   private fishButton: ButtonLike | null = null;
-  private recruitButton: ButtonLike | null = null;
+  private craftButtons = new Map<ButtonLike, () => void>();
 
   // Tab button references
   private tabButtons: Map<PcTab, ButtonLike> = new Map();
@@ -178,8 +173,6 @@ export class GameUIController extends Component {
     this.unsubscribeEvents();
     this.unbindButtons();
     this.unbindTabs();
-    this.dragController = null;
-    this.mergeBoardView = null;
     this.mergeBoardRoot = null;
     this.craftPageContent = null;
     this.facade = null;
@@ -256,14 +249,16 @@ export class GameUIController extends Component {
     this.cultivateButton?.on?.('click', this.onCultivateClick, this);
     this.workButton?.on?.('click', this.onWorkClick, this);
     this.fishButton?.on?.('click', this.onFishClick, this);
-    this.recruitButton?.on?.('click', this.onRecruitClick, this);
   }
 
   private unbindButtons(): void {
     this.cultivateButton?.off?.('click', this.onCultivateClick, this);
     this.workButton?.off?.('click', this.onWorkClick, this);
     this.fishButton?.off?.('click', this.onFishClick, this);
-    this.recruitButton?.off?.('click', this.onRecruitClick, this);
+    for (const [button, handler] of this.craftButtons) {
+      button.off?.('click', handler, this);
+    }
+    this.craftButtons.clear();
   }
 
   // ── Tab Wiring ────────────────────────────────────────────────────────────
@@ -300,45 +295,48 @@ export class GameUIController extends Component {
 
   // ── Refresh ───────────────────────────────────────────────────────────────
 
-  /** Bind the real Craft page board and connect drag/drop to the facade. */
+  /** Bind the craft presentation to the existing visual slot layout. */
   public bindCraftPage(): void {
-    if (!this.facade) return;
     this.craftPageContent ??= this.findChild(this.pageContainer, 'CraftPageContent');
-    this.recruitButton = this.getButtonComponent(this.findChild(this.craftPageContent, 'RecruitButton'));
     this.mergeBoardRoot = this.findChild(this.craftPageContent, 'MergeBoardRoot');
-    if (!this.mergeBoardRoot) return;
-
-    this.mergeBoardView = this.getOrAddComponent(this.mergeBoardRoot, MergeBoardView);
-    if (!this.mergeBoardView) return;
-
-    this.mergeBoardView.bindCells();
-    this.dragController = new DragController({
-      getWorker: (position) => this.workerAt(position),
-      maxWorkerLevel: this.facade.queryBoard()?.maxWorkerLevel,
-      onMove: (from, to) => {
-        const result = this.facade?.move(from, to);
-        if (!result?.success) throw new Error(result?.message ?? '移动失败');
-        this.refreshBoard();
-      },
-      onMerge: (from, to) => {
-        const result = this.facade?.merge(from, to);
-        if (!result?.success) throw new Error(result?.message ?? '合成失败');
-        const view = this.mergeBoardView;
-        if (!view) return;
-        view.animateMerge(from, to, () => {
-          this.refreshBoard();
-          this.dragController?.completeMerge();
-        });
-      },
-    });
-    this.mergeBoardView.bindDragController(this.dragController);
-    this.refreshBoard();
+    const legacyRecruitButton = this.findChild(this.craftPageContent, 'RecruitButton');
+    // The scene node is retained for the scene contract, but is not a craft action.
+    if (legacyRecruitButton) legacyRecruitButton.active = false;
+    this.refreshCraftPage();
   }
 
-  /** Render all sixteen board cells from the current facade snapshot. */
-  public refreshBoard(): void {
-    if (!this.facade || !this.mergeBoardView) return;
-    this.mergeBoardView.render(buildMergeBoardViewModel(this.facade));
+  /** Render recipe materials, products, status and action affordances. */
+  public refreshCraftPage(): void {
+    if (!this.facade || !this.mergeBoardRoot) return;
+
+    const viewModel = buildCraftViewModel(this.facade);
+    for (let index = 0; index < 16; index += 1) {
+      const node = this.findChild(this.mergeBoardRoot, `BoardCell${index.toString().padStart(2, '0')}`);
+      if (!node) continue;
+
+      const recipe = viewModel.recipes[index];
+      const label = this.findLabel(node);
+      const button = this.getButtonComponent(node);
+      if (!recipe) {
+        if (label) label.string = '暂无配方';
+        if (button) button.interactable = false;
+        continue;
+      }
+
+      if (label) {
+        const materials = [
+          recipe.costCultivation > 0 ? `修为 ${formatNumber(recipe.costCultivation)}` : '',
+          recipe.costSpiritStones > 0 ? `灵石 ${formatNumber(recipe.costSpiritStones)}` : '',
+        ].filter(Boolean).join(' / ') || '免费';
+        const action = recipe.canCraft ? '合成' : (recipe.reason || '不可用');
+        label.string = `${recipe.name}\n材料: ${materials}\n产物: ${describeCraftEffect(recipe.effect)}\n[${action}]`;
+      }
+
+      if (button) {
+        button.interactable = recipe.canCraft;
+        this.bindCraftButton(button, recipe.id);
+      }
+    }
   }
 
   private refreshAll(): void {
@@ -361,7 +359,7 @@ export class GameUIController extends Component {
 
     // Update tab highlight
     this.updateTabHighlight();
-
+    this.refreshCraftPage();
   }
 
   /** Force-refresh a component that is already mounted on a node. */
@@ -442,10 +440,10 @@ export class GameUIController extends Component {
 
   // ── Click Handlers ────────────────────────────────────────────────────────
 
-  public readonly onRecruitClick = (): void => {
+  public readonly onCraftClick = (recipeId: string): void => {
     if (!this.facade) return;
-    const result = this.facade.recruit();
-    if (result.success) this.refreshBoard();
+    const result = this.facade.craft(recipeId);
+    if (result.success) this.refreshAll();
   };
 
   private readonly onCultivateClick = (): void => {
@@ -505,20 +503,34 @@ export class GameUIController extends Component {
     }
   }
 
-  private getOrAddComponent<T>(node: NodeLike, type: new (...args: never[]) => T): T | null {
-    try {
-      const existing = node.getComponent?.(type) as T | null | undefined;
-      if (existing) return existing;
-      return node.addComponent?.(type) as T | null ?? null;
-    } catch {
-      return null;
+  private findLabel(node: NodeLike | null): TextLike | null {
+    const direct = this.getLabelComponent(node);
+    if (direct) return direct;
+    for (const child of node?.children ?? []) {
+      const label = this.findLabel(child);
+      if (label) return label;
     }
+    return null;
   }
 
-  private workerAt(position: BoardPosition): { id: string; level: number } | undefined {
-    const cell = this.facade?.queryBoard()?.cells.find((candidate) =>
-      candidate.row === position.row && candidate.column === position.column);
-    const worker = cell?.occupant;
-    return worker ? { id: worker.id, level: worker.level } : undefined;
+  private bindCraftButton(button: ButtonLike, recipeId: string): void {
+    const previous = this.craftButtons.get(button);
+    if (previous) button.off?.('click', previous, this);
+    const handler = () => this.onCraftClick(recipeId);
+    button.on?.('click', handler, this);
+    this.craftButtons.set(button, handler);
   }
+}
+
+function describeCraftEffect(effect: Readonly<Record<string, number>>): string {
+  const labels: Record<string, string> = {
+    cultivationExp: '修为',
+    spiritStones: '灵石',
+    salary: '工资',
+    mindValue: '道心',
+    kpi: '绩效',
+  };
+  return Object.entries(effect)
+    .map(([key, value]) => `${labels[key] ?? key}${value >= 0 ? '+' : ''}${formatNumber(value)}`)
+    .join(' ') || '无';
 }

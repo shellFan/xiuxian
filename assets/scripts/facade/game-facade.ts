@@ -79,7 +79,11 @@ export class GameFacade {
 
   public constructor(options: GameFacadeOptions = {}) {
     this.platform = createPlatformService(options.platformKind ?? 'mock');
-    this.context = new GameContext(options);
+    // PC V1 does not render the board. Keep the real board domain available
+    // when explicitly injected, while preserving the board-less default used
+    // by the designed UI path.
+    const contextOptions = { ...options, board: options.board !== undefined ? options.board : null };
+    this.context = new GameContext(contextOptions);
     this.recruitmentService = new RecruitmentService(this.context);
     this.mergeService = this.context.board ? new MergeService(this.context) : null;
     this.gameLoop = new GameLoopService(this.context, {
