@@ -8,7 +8,104 @@ import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adap
 
 const root = process.cwd();
 const controllerSource = fs.readFileSync(path.join(root, 'assets/scripts/ui/game-ui-controller.ts'), 'utf8');
+const controllerMetaSource = fs.readFileSync(path.join(root, 'assets/scripts/ui/game-ui-controller.ts.meta'), 'utf8');
 const sceneSource = fs.readFileSync(path.join(root, 'assets/scenes/Main.scene'), 'utf8');
+
+class FakeButton {
+  public interactable = true;
+  private readonly handlers = new Map<string, Set<() => void>>();
+
+  public on(event: string, callback: () => void): void {
+    const callbacks = this.handlers.get(event) ?? new Set<() => void>();
+    callbacks.add(callback);
+    this.handlers.set(event, callbacks);
+  }
+
+  public off(event: string, callback: () => void): void {
+    this.handlers.get(event)?.delete(callback);
+  }
+
+  public click(): void {
+    for (const callback of this.handlers.get('click') ?? []) callback();
+  }
+}
+
+class FakeNode {
+  public active = true;
+
+  public constructor(
+    public readonly name: string,
+    private readonly components: ReadonlyMap<string, unknown> = new Map(),
+    public readonly children: readonly FakeNode[] = [],
+  ) {}
+
+  public getChildByName(name: string): FakeNode | null {
+    return this.children.find((child) => child.name === name) ?? null;
+  }
+
+  public getComponent(type: unknown): unknown {
+    return this.components.get(String(type)) ?? null;
+  }
+}
+
+class FakeLabel {
+  public string = '';
+}
+
+interface ModuleLoader {
+  _load(request: string, parent: unknown, isMain: boolean): unknown;
+}
+
+function loadGameUiController(facade: GameFacade): { new(): unknown } {
+  const moduleLoader = require('node:module') as ModuleLoader;
+  const originalLoad = moduleLoader._load;
+  moduleLoader._load = (request, parent, isMain) => {
+    if (request === 'cc') {
+      class FakeComponent {
+        public node!: FakeNode;
+      }
+      return {
+        Component: FakeComponent,
+        _decorator: { ccclass: () => (target: unknown) => target },
+      };
+    }
+    if (request.endsWith('/cocos-bootstrap-component')) {
+      return { CocosBootstrapComponent: { instance: { facade } } };
+    }
+    return originalLoad(request, parent, isMain);
+  };
+
+  try {
+    return require('../../assets/scripts/ui/game-ui-controller').GameUIController as { new(): unknown };
+  } finally {
+    moduleLoader._load = originalLoad;
+  }
+}
+
+function createCraftScene(): { root: FakeNode; button: FakeButton; label: FakeLabel } {
+  let craftButton!: FakeButton;
+  let craftLabel!: FakeLabel;
+  const cells = Array.from({ length: 16 }, (_, index) => {
+    const button = new FakeButton();
+    const label = new FakeLabel();
+    if (index === 0) {
+      craftButton = button;
+      craftLabel = label;
+    }
+    return new FakeNode(`BoardCell${index.toString().padStart(2, '0')}`, new Map<string, unknown>([
+      ['cc.Button', button],
+      ['cc.Label', label],
+    ]));
+  });
+  const mergeBoardRoot = new FakeNode('MergeBoardRoot', new Map(), cells);
+  const craftPage = new FakeNode('CraftPageContent', new Map(), [mergeBoardRoot]);
+  const pageContainer = new FakeNode('PageContainer', new Map(), [craftPage]);
+  return {
+    root: new FakeNode('SafeAreaRoot', new Map(), [pageContainer]),
+    button: craftButton,
+    label: craftLabel,
+  };
+}
 
 function testControllerBindsTheCraftPresentationToTheRealFacade(): void {
   assert.match(controllerSource, /bindCraftPage\s*\(/);
@@ -23,6 +120,8 @@ function testControllerBindsTheCraftPresentationToTheRealFacade(): void {
 }
 
 function testControllerResolvesVisualCraftLayoutNodes(): void {
+  assert.match(controllerMetaSource, /"uuid": "51652f12-07d4-4a5e-b028-59122dabc027"/);
+  assert.match(sceneSource, /"__type__": "516528SB9RKXrAoWRItq8An"/);
   for (const nodeName of ['CraftPageContent', 'RecruitButton', 'MergeBoardRoot']) {
     assert.match(controllerSource, new RegExp(nodeName));
     assert.match(sceneSource, new RegExp(`"_name": "${nodeName}"`));
@@ -51,7 +150,32 @@ function testRealFacadeCraftsAndPersistsTheDisplayedRecipe(): void {
   assert.deepEqual(saved.craftedItemIds, [recipe.id]);
 }
 
+function testBoundCraftButtonUsesRealFacadeAndRefreshesPresentation(): void {
+  const storage = new MemoryStorageAdapter();
+  const facade = new GameFacade({ storage, board: null });
+  const recipe = buildCraftViewModel(facade).recipes.find((candidate) => candidate.id === 'pill_lingshen');
+  assert.ok(recipe, 'the entry-level craft recipe should be available');
+  facade.context.player.cultivationExp = recipe.costCultivation;
+  facade.context.player.spiritStones = recipe.costSpiritStones;
+
+  const scene = createCraftScene();
+  const GameUIController = loadGameUiController(facade);
+  const controller = new GameUIController() as { node: FakeNode; onLoad(): void };
+  controller.node = scene.root;
+  controller.onLoad();
+
+  assert.match(scene.label.string, /\[合成\]/);
+  scene.button.click();
+
+  assert.equal(facade.queryCraftedCount(recipe.id), 1);
+  const saved = JSON.parse(storage.getItem('game-save') ?? '{}') as { craftedItemIds?: string[] };
+  assert.deepEqual(saved.craftedItemIds, [recipe.id]);
+  assert.match(scene.label.string, /\[修为不足\]/);
+  assert.equal(scene.button.interactable, false);
+}
+
 testControllerBindsTheCraftPresentationToTheRealFacade();
 testControllerResolvesVisualCraftLayoutNodes();
 testRealFacadeCraftsAndPersistsTheDisplayedRecipe();
+testBoundCraftButtonUsesRealFacadeAndRefreshesPresentation();
 console.log('game UI controller tests passed');
