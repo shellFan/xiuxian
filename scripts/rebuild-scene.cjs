@@ -109,7 +109,9 @@ class SceneBuilder {
   }
 
   /** Add cc.Widget with full stretch (left + right + top + bottom). */
-  addWidgetStretch(nodeIdx, alignFlags = 15) {
+  // Cocos Creator 3.x AlignFlags: LEFT=1, RIGHT=2, H_CENTER=4,
+  // TOP=8, BOTTOM=16, V_CENTER=32.
+  addWidgetStretch(nodeIdx, alignFlags = 27) {
     const idx = this.push({
       __type__: 'cc.Widget',
       _objFlags: 0,
@@ -375,7 +377,7 @@ function buildScene() {
   const topHeaderHudIdx = b.addCustomComponent(topHeaderIdx, COMP.MainHud);
   b.addGraphicsBackground(topHeaderIdx, { fillColor: chrome, strokeColor: chromeSoft });
   b.addUITransform(topHeaderIdx, 1220, 58);
-  const topHeaderWidgetIdx = b.addWidget(topHeaderIdx, { alignFlags: 20, top: 0, horizontalCenter: 0 }); // top + h-center
+  const topHeaderWidgetIdx = b.addWidget(topHeaderIdx, { alignFlags: 12, top: 0, horizontalCenter: 0 }); // top + h-center
 
   // --- ResourceBar node ---
   const resourceSummaryIdx = b.addTextNode('ResourceSummaryLabel', '工资 0  ·  灵石 0  ·  修为 0/100  ·  道心 100/100', 1080, 42, {
@@ -383,7 +385,7 @@ function buildScene() {
   });
   const resBarIdx = b.addNode('ResourceBar', -1, [resourceSummaryIdx], []);
   b.addPanel(resBarIdx, 1140, 58, { fillColor: paperSoft, strokeColor: b.color(194, 172, 137, 255) });
-  const resBarWidgetIdx = b.addWidget(resBarIdx, { alignFlags: 20, top: 64, horizontalCenter: 0 });
+  const resBarWidgetIdx = b.addWidget(resBarIdx, { alignFlags: 12, top: 64, horizontalCenter: 0 });
 
   // --- CharacterArea node ---
   const characterIconIdx = b.addTextNode('CharacterIconLabel', '🐮', 100, 110, {
@@ -400,7 +402,7 @@ function buildScene() {
   });
   const charAreaIdx = b.addNode('CharacterArea', -1, [characterIconIdx, characterNameIdx, characterStatusIdx, characterHintIdx], []);
   b.addPanel(charAreaIdx, 1120, 160, { fillColor: paper, strokeColor: b.color(194, 172, 137, 255) });
-  const charAreaWidgetIdx = b.addWidget(charAreaIdx, { alignFlags: 20, top: 130, horizontalCenter: 0 });
+  const charAreaWidgetIdx = b.addWidget(charAreaIdx, { alignFlags: 12, top: 130, horizontalCenter: 0 });
 
   // --- IdleIncomePanel node (with IdleStatusPanelComponent) ---
   const workStatusIdx = b.addTextNode('WorkStatusLabel', '带薪摸鱼  ·  工资 ×0.6  ·  绩效 ×0.7  ·  道心恢复 ×3.0', 1000, 38, {
@@ -412,7 +414,7 @@ function buildScene() {
   const idleIdx = b.addNode('IdleIncomePanel', -1, [workStatusIdx, idleEfficiencyIdx], []);
   const idleCompIdx = b.addCustomComponent(idleIdx, COMP.IdleStatusPanel);
   b.addPanel(idleIdx, 1080, 78, { fillColor: paperSoft, strokeColor: b.color(194, 172, 137, 255) });
-  const idleWidgetIdx = b.addWidget(idleIdx, { alignFlags: 20, top: 298, horizontalCenter: 0 });
+  const idleWidgetIdx = b.addWidget(idleIdx, { alignFlags: 12, top: 298, horizontalCenter: 0 });
 
   // --- PrimaryActions node with 3 buttons ---
   // CultivateButton
@@ -441,7 +443,7 @@ function buildScene() {
     [cultBtnIdx, workBtnIdx, fishBtnIdx],
     []);
   b.addPanel(actionsIdx, 1140, 82, { fillColor: chrome, strokeColor: chromeSoft });
-  const actionsWidgetIdx = b.addWidget(actionsIdx, { alignFlags: 24, bottom: 112, horizontalCenter: 0 }); // bottom + h-center
+  const actionsWidgetIdx = b.addWidget(actionsIdx, { alignFlags: 20, bottom: 112, horizontalCenter: 0 }); // bottom + h-center
 
   // --- BottomNavigation node with 5 tabs ---
   const tabDefs = [
@@ -466,7 +468,7 @@ function buildScene() {
   const bottomNavIdx = b.addNode('BottomNavigation', -1, tabNodeIds, []);
   const bottomNavCompIdx = b.addCustomComponent(bottomNavIdx, COMP.BottomNav);
   b.addPanel(bottomNavIdx, 1220, 68, { fillColor: chrome, strokeColor: chromeSoft });
-  const bottomNavWidgetIdx = b.addWidget(bottomNavIdx, { alignFlags: 24, bottom: 0, horizontalCenter: 0 }); // bottom + h-center
+  const bottomNavWidgetIdx = b.addWidget(bottomNavIdx, { alignFlags: 20, bottom: 0, horizontalCenter: 0 }); // bottom + h-center
 
   // --- PageContainer node with 5 pages ---
   const pageDefs = [
@@ -581,7 +583,7 @@ function buildScene() {
   // --- ToastLayer node ---
   const toastIdx = b.addNode('ToastLayer', -1, [], []);
   const toastUtIdx = b.addUITransform(toastIdx, 720, 200);
-  const toastWidgetIdx = b.addWidget(toastIdx, { alignFlags: 8, bottom: 100, horizontalCenter: 0 }); // bottom + h-center
+  const toastWidgetIdx = b.addWidget(toastIdx, { alignFlags: 20, bottom: 100, horizontalCenter: 0 }); // bottom + h-center
 
   // --- TutorialLayer node ---
   const tutorIdx = b.addNode('TutorialLayer', -1, [], []);
