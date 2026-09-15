@@ -31,6 +31,8 @@
  *   │   ├── HomePageContent
  *   │   ├── TasksPageContent
  *   │   ├── CraftPageContent
+ *   │   │   ├── CraftRecipeList
+ *   │   │   │   └── CraftRecipeRow00 ... CraftRecipeRow05
  *   │   ├── PromotionPageContent
  *   │   └── MorePageContent
  *   ├── ModalLayer
@@ -97,6 +99,8 @@ const REFRESH_CATEGORIES: readonly UiEventCategory[] = [
   'BUFF_CHANGED',
 ];
 
+const MAX_CRAFT_RECIPE_ROWS = 6;
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 @ccclass('GameUIController')
@@ -110,6 +114,7 @@ export class GameUIController extends Component {
   private bottomNavigation: NodeLike | null = null;
   private pageContainer: NodeLike | null = null;
   private craftPageContent: NodeLike | null = null;
+  private craftRecipeList: NodeLike | null = null;
   private mergeBoardRoot: NodeLike | null = null;
 
   // Button references
@@ -175,6 +180,7 @@ export class GameUIController extends Component {
     this.unbindTabs();
     this.mergeBoardRoot = null;
     this.craftPageContent = null;
+    this.craftRecipeList = null;
     this.facade = null;
   }
 
@@ -240,6 +246,7 @@ export class GameUIController extends Component {
       tabButtons: this.tabButtons.size,
       pageNodes: this.pageNodes.size,
       craftPageContent: !!this.craftPageContent,
+      craftRecipeList: !!this.craftRecipeList,
     });
   }
 
@@ -298,38 +305,43 @@ export class GameUIController extends Component {
   /** Bind the craft presentation to the existing visual slot layout. */
   public bindCraftPage(): void {
     this.craftPageContent ??= this.findChild(this.pageContainer, 'CraftPageContent');
+    this.craftRecipeList = this.findChild(this.craftPageContent, 'CraftRecipeList');
     this.mergeBoardRoot = this.findChild(this.craftPageContent, 'MergeBoardRoot');
     const legacyRecruitButton = this.findChild(this.craftPageContent, 'RecruitButton');
     // The scene node is retained for the scene contract, but is not a craft action.
     if (legacyRecruitButton) legacyRecruitButton.active = false;
+    // The board remains available to later phases but is not part of PC V1 craft presentation.
+    if (this.mergeBoardRoot) this.mergeBoardRoot.active = false;
     this.refreshCraftPage();
   }
 
   /** Render recipe materials, products, status and action affordances. */
   public refreshCraftPage(): void {
-    if (!this.facade || !this.mergeBoardRoot) return;
+    if (!this.facade || !this.craftRecipeList) return;
 
     const viewModel = buildCraftViewModel(this.facade);
-    for (let index = 0; index < 16; index += 1) {
-      const node = this.findChild(this.mergeBoardRoot, `BoardCell${index.toString().padStart(2, '0')}`);
+    this.clearCraftButtons();
+    for (let index = 0; index < MAX_CRAFT_RECIPE_ROWS; index += 1) {
+      const node = this.findChild(this.craftRecipeList, `CraftRecipeRow${index.toString().padStart(2, '0')}`);
       if (!node) continue;
 
       const recipe = viewModel.recipes[index];
       const label = this.findLabel(node);
       const button = this.getButtonComponent(node);
       if (!recipe) {
-        if (label) label.string = '暂无配方';
+        node.active = false;
         if (button) button.interactable = false;
         continue;
       }
 
+      node.active = true;
       if (label) {
         const materials = [
           recipe.costCultivation > 0 ? `修为 ${formatNumber(recipe.costCultivation)}` : '',
           recipe.costSpiritStones > 0 ? `灵石 ${formatNumber(recipe.costSpiritStones)}` : '',
         ].filter(Boolean).join(' / ') || '免费';
         const action = recipe.canCraft ? '合成' : (recipe.reason || '不可用');
-        label.string = `${recipe.name}\n材料: ${materials}\n产物: ${describeCraftEffect(recipe.effect)}\n[${action}]`;
+        label.string = `${recipe.name}  |  材料: ${materials}  |  产物: ${describeCraftEffect(recipe.effect)}  |  [${action}]`;
       }
 
       if (button) {
@@ -520,14 +532,24 @@ export class GameUIController extends Component {
     button.on?.('click', handler, this);
     this.craftButtons.set(button, handler);
   }
+
+  private clearCraftButtons(): void {
+    for (const [button, handler] of this.craftButtons) {
+      button.off?.('click', handler, this);
+    }
+    this.craftButtons.clear();
+  }
 }
 
 function describeCraftEffect(effect: Readonly<Record<string, number>>): string {
   const labels: Record<string, string> = {
+    cultivation: '修为',
     cultivationExp: '修为',
     spiritStones: '灵石',
     salary: '工资',
+    mind: '道心',
     mindValue: '道心',
+    performance: '绩效',
     kpi: '绩效',
   };
   return Object.entries(effect)
