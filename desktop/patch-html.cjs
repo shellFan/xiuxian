@@ -18,17 +18,8 @@ const path = require('path');
 const buildDir = process.argv[2] || path.join(__dirname, 'build', 'web-desktop');
 const htmlPath = path.join(buildDir, 'index.html');
 const cssPath = path.join(buildDir, 'style.css');
-const pcPatchPath = path.join(buildDir, 'pc-patch.js');
 const GAME_WIDTH = 1280;
 const GAME_HEIGHT = 720;
-
-// The runtime class is registered as CocosBootstrapComponent. Older generated
-// patch files used the shorter name and could never resolve the real facade.
-if (fs.existsSync(pcPatchPath)) {
-  const pcPatch = fs.readFileSync(pcPatchPath, 'utf-8');
-  const normalized = pcPatch.replace(/CocosBootstrap(?!Component)/g, 'CocosBootstrapComponent');
-  if (normalized !== pcPatch) fs.writeFileSync(pcPatchPath, normalized, 'utf-8');
-}
 
 // ── Patch index.html ────────────────────────────────────────────────────────
 if (fs.existsSync(htmlPath)) {
@@ -58,6 +49,11 @@ if (fs.existsSync(htmlPath)) {
     '<div id="GameDiv">'
   );
 
+  // Older local builds carried a runtime injection script that is not part of
+  // the source tree. Remove stale references so copied builds are
+  // self-contained and rely on the scene's GameUIController.
+  html = html.replace(/\s*<script[^>]+src=["']pc-patch\.js["'][^>]*><\/script>/gi, '');
+
   // Keep the HTML canvas intrinsic size aligned with Main.scene's 1280×720 design.
   html = html.replace(
     /<canvas\b[^>]*\bid="GameCanvas"[^>]*>/,
@@ -80,14 +76,6 @@ if (fs.existsSync(htmlPath)) {
     html = html.replace(
       '</head>',
       '  <meta name="viewport" content="width=1280,initial-scale=1">\n</head>'
-    );
-  }
-
-  // Inject pc-patch.js for runtime UI wiring (after System.import block)
-  if (!html.includes('pc-patch.js')) {
-    html = html.replace(
-      '</body>',
-      '  <script src="pc-patch.js" charset="utf-8"></script>\n</body>'
     );
   }
 

@@ -127,6 +127,7 @@ test('Task 6 keeps the generator and pc copy/patch chain on 1280x720', () => {
   };
   assert.match(desktopPackage.scripts?.['build:copy'] ?? '', /cpSync/);
   assert.match(desktopPackage.scripts?.['build:copy'] ?? '', /patch-html\.cjs/);
+  assert.doesNotMatch(fs.readFileSync('desktop/patch-html.cjs', 'utf8'), /pc-patch\.js/);
 
   const tempBuild = fs.mkdtempSync(path.join(os.tmpdir(), 'task6-layout-'));
   try {
