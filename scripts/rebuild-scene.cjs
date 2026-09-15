@@ -352,8 +352,9 @@ function buildScene() {
 
   // ── Build SafeAreaRoot subtree first (bottom-up) ─────────────────────
 
-  const chrome = b.color(38, 57, 65, 255);
-  const chromeSoft = b.color(58, 78, 82, 255);
+  const chrome = b.color(27, 48, 82, 255);
+  const chromeSoft = b.color(48, 75, 116, 255);
+  const chromeHighlight = b.color(72, 101, 148, 255);
   const paper = b.color(244, 237, 220, 255);
   const paperSoft = b.color(233, 224, 204, 255);
   const ink = b.color(40, 40, 40, 255);
@@ -368,24 +369,44 @@ function buildScene() {
 
   // --- TopHeader node (with MainHudComponent) ---
   const brandLabelIdx = b.addTextNode('BrandLabel', '牛马修仙传', 300, 50, {
-    lpos: b.vec3(-430, 0, 0), fontSize: 28, color: white,
+    lpos: b.vec3(-430, 14, 0), fontSize: 28, color: white,
+  });
+  const brandTaglineIdx = b.addTextNode('BrandTaglineLabel', '上班也是渡劫', 300, 24, {
+    lpos: b.vec3(-430, -26, 0), fontSize: 16, color: b.color(195, 211, 235, 255),
   });
   const careerSummaryIdx = b.addTextNode('CareerSummaryLabel', '练气境 · 练气职员', 360, 42, {
     lpos: b.vec3(330, 0, 0), fontSize: 20, color: white,
   });
-  const topHeaderIdx = b.addNode('TopHeader', -1, [brandLabelIdx, careerSummaryIdx], []);
+  const topHeaderIdx = b.addNode('TopHeader', -1, [brandLabelIdx, brandTaglineIdx, careerSummaryIdx], []);
   const topHeaderHudIdx = b.addCustomComponent(topHeaderIdx, COMP.MainHud);
-  b.addGraphicsBackground(topHeaderIdx, { fillColor: chrome, strokeColor: chromeSoft });
-  b.addUITransform(topHeaderIdx, 1220, 58);
+  b.addGraphicsBackground(topHeaderIdx, { fillColor: chrome, strokeColor: chromeHighlight });
+  b.addUITransform(topHeaderIdx, 1220, 76);
   const topHeaderWidgetIdx = b.addWidget(topHeaderIdx, { alignFlags: 17, top: 0, horizontalCenter: 0 }); // top + h-center
 
-  // --- ResourceBar node ---
-  const resourceSummaryIdx = b.addTextNode('ResourceSummaryLabel', '工资 0  ·  灵石 0  ·  修为 0/100  ·  道心 100/100', 1080, 42, {
-    fontSize: 20, color: ink,
+  // --- ResourceBar node with four independently readable resource chips ---
+  // Keep the old summary slot for controller and scene compatibility. The
+  // visible values are rendered by the four named chips below.
+  const resourceSummaryIdx = b.addTextNode('ResourceSummaryLabel', '资源概览', 1080, 20, {
+    lpos: b.vec3(0, -30, 0), fontSize: 14, color: b.color(92, 86, 75, 255),
   });
-  const resBarIdx = b.addNode('ResourceBar', -1, [resourceSummaryIdx], []);
-  b.addPanel(resBarIdx, 1140, 58, { fillColor: paperSoft, strokeColor: b.color(194, 172, 137, 255) });
-  const resBarWidgetIdx = b.addWidget(resBarIdx, { alignFlags: 17, top: 64, horizontalCenter: 0 });
+  b.objects[resourceSummaryIdx]._active = false;
+  const resourceDefs = [
+    { name: 'ResourceCultivationChip', label: 'CultivationResourceLabel', text: '修为\n0/100', x: -405, fill: b.color(130, 174, 211, 255), stroke: b.color(77, 122, 163, 255) },
+    { name: 'ResourceSalaryChip', label: 'SalaryResourceLabel', text: '工资\n0', x: -135, fill: b.color(224, 184, 116, 255), stroke: b.color(175, 127, 66, 255) },
+    { name: 'ResourcePerformanceChip', label: 'PerformanceResourceLabel', text: '绩效\n0', x: 135, fill: b.color(142, 190, 158, 255), stroke: b.color(83, 133, 101, 255) },
+    { name: 'ResourceMindChip', label: 'MindResourceLabel', text: '道心\n100/100', x: 405, fill: b.color(196, 151, 190, 255), stroke: b.color(145, 101, 139, 255) },
+  ];
+  const resourceChipIds = resourceDefs.map((resource) => {
+    const labelIdx = b.addTextNode(resource.label, resource.text, 248, 58, {
+      lpos: b.vec3(0, 0, 0), fontSize: 19, color: white,
+    });
+    const chipIdx = b.addNode(resource.name, -1, [labelIdx], [], { lpos: b.vec3(resource.x, 0, 0) });
+    b.addPanel(chipIdx, 248, 58, { fillColor: resource.fill, strokeColor: resource.stroke, lineWidth: 2 });
+    return chipIdx;
+  });
+  const resBarIdx = b.addNode('ResourceBar', -1, [resourceSummaryIdx, ...resourceChipIds], []);
+  b.addPanel(resBarIdx, 1140, 76, { fillColor: paperSoft, strokeColor: b.color(194, 172, 137, 255) });
+  const resBarWidgetIdx = b.addWidget(resBarIdx, { alignFlags: 17, top: 84, horizontalCenter: 0 });
 
   // --- CharacterArea node ---
   const characterIconIdx = b.addTextNode('CharacterIconLabel', '🐮', 100, 110, {
@@ -402,7 +423,7 @@ function buildScene() {
   });
   const charAreaIdx = b.addNode('CharacterArea', -1, [characterIconIdx, characterNameIdx, characterStatusIdx, characterHintIdx], []);
   b.addPanel(charAreaIdx, 1120, 160, { fillColor: paper, strokeColor: b.color(194, 172, 137, 255) });
-  const charAreaWidgetIdx = b.addWidget(charAreaIdx, { alignFlags: 17, top: 130, horizontalCenter: 0 });
+  const charAreaWidgetIdx = b.addWidget(charAreaIdx, { alignFlags: 17, top: 166, horizontalCenter: 0 });
 
   // --- IdleIncomePanel node (with IdleStatusPanelComponent) ---
   const workStatusIdx = b.addTextNode('WorkStatusLabel', '带薪摸鱼  ·  工资 ×0.6  ·  绩效 ×0.7  ·  道心恢复 ×3.0', 1000, 38, {
@@ -414,28 +435,28 @@ function buildScene() {
   const idleIdx = b.addNode('IdleIncomePanel', -1, [workStatusIdx, idleEfficiencyIdx], []);
   const idleCompIdx = b.addCustomComponent(idleIdx, COMP.IdleStatusPanel);
   b.addPanel(idleIdx, 1080, 78, { fillColor: paperSoft, strokeColor: b.color(194, 172, 137, 255) });
-  const idleWidgetIdx = b.addWidget(idleIdx, { alignFlags: 17, top: 298, horizontalCenter: 0 });
+  const idleWidgetIdx = b.addWidget(idleIdx, { alignFlags: 17, top: 334, horizontalCenter: 0 });
 
   // --- PrimaryActions node with 3 buttons ---
   // CultivateButton
   const cultBtnIdx = b.addNode('CultivateButton', -1, [], [], { lpos: b.vec3(-300, 0, 0) });
   b.addPanel(cultBtnIdx, 220, 64, { fillColor: b.color(176, 130, 77, 255), strokeColor: b.color(124, 88, 49, 255) });
   const cultBtnBtnIdx = b.addButton(cultBtnIdx);
-  const cultBtnLabelIdx = b.addTextNode('CultivateButtonLabel', '修炼', 220, 64, { fontSize: 28, color: white });
+  const cultBtnLabelIdx = b.addTextNode('CultivateButtonLabel', '修炼一次', 220, 64, { fontSize: 25, color: white });
   b.objects[cultBtnIdx]._children = [b.ref(cultBtnLabelIdx)];
 
   // WorkButton
   const workBtnIdx = b.addNode('WorkButton', -1, [], [], { lpos: b.vec3(0, 0, 0) });
   b.addPanel(workBtnIdx, 220, 64, { fillColor: chromeSoft, strokeColor: chrome });
   const workBtnBtnIdx = b.addButton(workBtnIdx);
-  const workBtnLabelIdx = b.addTextNode('WorkButtonLabel', '打工', 220, 64, { fontSize: 28, color: white });
+  const workBtnLabelIdx = b.addTextNode('WorkButtonLabel', '努力工作', 220, 64, { fontSize: 25, color: white });
   b.objects[workBtnIdx]._children = [b.ref(workBtnLabelIdx)];
 
   // FishButton
   const fishBtnIdx = b.addNode('FishButton', -1, [], [], { lpos: b.vec3(300, 0, 0) });
   b.addPanel(fishBtnIdx, 220, 64, { fillColor: chromeSoft, strokeColor: chrome });
   const fishBtnBtnIdx = b.addButton(fishBtnIdx);
-  const fishBtnLabelIdx = b.addTextNode('FishButtonLabel', '摸鱼', 220, 64, { fontSize: 28, color: white });
+  const fishBtnLabelIdx = b.addTextNode('FishButtonLabel', '摸鱼恢复', 220, 64, { fontSize: 25, color: white });
   b.objects[fishBtnIdx]._children = [b.ref(fishBtnLabelIdx)];
 
   // PrimaryActions parent
@@ -443,7 +464,7 @@ function buildScene() {
     [cultBtnIdx, workBtnIdx, fishBtnIdx],
     []);
   b.addPanel(actionsIdx, 1140, 82, { fillColor: chrome, strokeColor: chromeSoft });
-  const actionsWidgetIdx = b.addWidget(actionsIdx, { alignFlags: 20, bottom: 112, horizontalCenter: 0 }); // bottom + h-center
+  const actionsWidgetIdx = b.addWidget(actionsIdx, { alignFlags: 20, bottom: 200, horizontalCenter: 0 }); // bottom + h-center
 
   // --- BottomNavigation node with 5 tabs ---
   const tabDefs = [

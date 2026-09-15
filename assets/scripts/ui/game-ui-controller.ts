@@ -123,6 +123,10 @@ export class GameUIController extends Component {
   private characterNameLabel: TextLike | null = null;
   private characterStatusLabel: TextLike | null = null;
   private workStatusLabel: TextLike | null = null;
+  private cultivationResourceLabel: TextLike | null = null;
+  private salaryResourceLabel: TextLike | null = null;
+  private performanceResourceLabel: TextLike | null = null;
+  private mindResourceLabel: TextLike | null = null;
 
   // Button references
   private cultivateButton: ButtonLike | null = null;
@@ -193,6 +197,10 @@ export class GameUIController extends Component {
     this.characterNameLabel = null;
     this.characterStatusLabel = null;
     this.workStatusLabel = null;
+    this.cultivationResourceLabel = null;
+    this.salaryResourceLabel = null;
+    this.performanceResourceLabel = null;
+    this.mindResourceLabel = null;
     this.facade = null;
   }
 
@@ -212,6 +220,10 @@ export class GameUIController extends Component {
     this.careerSummaryLabel = this.findLabel(this.findChild(this.topHeader, 'CareerSummaryLabel'));
     const resourceBar = this.findChild(this.safeAreaRoot, 'ResourceBar');
     this.resourceSummaryLabel = this.findLabel(resourceBar?.getChildByName?.('ResourceSummaryLabel') ?? null);
+    this.cultivationResourceLabel = this.findLabel(this.findChild(resourceBar, 'ResourceCultivationChip'));
+    this.salaryResourceLabel = this.findLabel(this.findChild(resourceBar, 'ResourceSalaryChip'));
+    this.performanceResourceLabel = this.findLabel(this.findChild(resourceBar, 'ResourcePerformanceChip'));
+    this.mindResourceLabel = this.findLabel(this.findChild(resourceBar, 'ResourceMindChip'));
     const characterArea = this.findChild(this.safeAreaRoot, 'CharacterArea');
     this.characterNameLabel = this.findLabel(characterArea?.getChildByName?.('CharacterNameLabel') ?? null);
     this.characterStatusLabel = this.findLabel(characterArea?.getChildByName?.('CharacterStatusLabel') ?? null);
@@ -402,6 +414,13 @@ export class GameUIController extends Component {
     const snapshot = this.facade.snapshot();
     this.setText(this.careerSummaryLabel, `${hudVm.realm} · ${hudVm.careerName}`);
     this.setText(
+      this.cultivationResourceLabel,
+      `修为\n${formatNumber(hudVm.cultivationExp)}/${formatNumber(hudVm.cultivationRequired)}`,
+    );
+    this.setText(this.salaryResourceLabel, `工资\n${formatNumber(hudVm.salary)}`);
+    this.setText(this.performanceResourceLabel, `绩效\n${formatNumber(hudVm.performance)}`);
+    this.setText(this.mindResourceLabel, `道心\n${formatNumber(hudVm.mind)}/${formatNumber(hudVm.maxMind)}`);
+    this.setText(
       this.resourceSummaryLabel,
       `工资 ${formatNumber(hudVm.salary)}  ·  灵石 ${formatNumber(snapshot.spiritStones)}  ·  修为 ${formatNumber(hudVm.cultivationExp)}/${formatNumber(hudVm.cultivationRequired)}  ·  道心 ${formatNumber(hudVm.mind)}/${formatNumber(hudVm.maxMind)}`,
     );
@@ -436,11 +455,11 @@ export class GameUIController extends Component {
         const label = this.findLabel(cultivateNode);
         if (label) {
           if (cultVm.cooldownRemaining > 0) {
-            label.string = `修炼 (${formatDuration(cultVm.cooldownRemaining)})`;
+            label.string = `修炼一次 (${formatDuration(cultVm.cooldownRemaining)})`;
           } else if (cultVm.canCultivate) {
-            label.string = '修炼';
+            label.string = '修炼一次';
           } else {
-            label.string = '修炼 (道心不足)';
+            label.string = '修炼一次 (道心不足)';
           }
         }
         // Update interactability
@@ -456,10 +475,10 @@ export class GameUIController extends Component {
       const fishLabel = this.findLabel(fishNode);
 
       if (workLabel) {
-        workLabel.string = idleVm.isFishingMode ? '打工' : '打工 ✓';
+        workLabel.string = idleVm.isFishingMode ? '努力工作' : '努力工作 ✓';
       }
       if (fishLabel) {
-        fishLabel.string = idleVm.isFishingMode ? '摸鱼 ✓' : '摸鱼';
+        fishLabel.string = idleVm.isFishingMode ? '摸鱼恢复 ✓' : '摸鱼恢复';
       }
 
       // Update interactability — current mode button is less prominent

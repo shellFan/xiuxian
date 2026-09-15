@@ -50,15 +50,13 @@ function verticalBand(name: string): { top: number; bottom: number } {
   const bottom = widget._bottom as number;
 
   if ((flags & 1) !== 0 && (flags & 4) === 0) {
-    const center = 360 - top - size.height / 2;
-    return { top: center + size.height / 2, bottom: center - size.height / 2 };
+    return { top, bottom: top + size.height };
   }
   if ((flags & 4) !== 0 && (flags & 1) === 0) {
-    const center = -360 + bottom + size.height / 2;
-    return { top: center + size.height / 2, bottom: center - size.height / 2 };
+    return { top: 720 - bottom - size.height, bottom: 720 - bottom };
   }
   if ((flags & 1) !== 0 && (flags & 4) !== 0) {
-    return { top: 360 - top, bottom: -360 + bottom };
+    return { top, bottom: 720 - bottom };
   }
   throw new Error(`${name} does not declare a supported vertical Widget band`);
 }
@@ -74,18 +72,20 @@ function centerOf(index: number): number {
   }
   const parent = node._parent?.__id__;
   assert.ok(typeof parent === 'number', `${node._name} must have a parent or Widget`);
-  return centerOf(parent) + (node._lpos?.y ?? 0);
+  // Cocos UI uses a bottom-up local Y axis, while verticalBand() exposes
+  // screen-space coordinates measured from the top of the 720px canvas.
+  return centerOf(parent) - (node._lpos?.y ?? 0);
 }
 
 function absoluteBand(name: string): { top: number; bottom: number } {
   const { index } = nodeNamed(name);
   const size = sizeOf(scene[index]);
   const center = centerOf(index);
-  return { top: center + size.height / 2, bottom: center - size.height / 2 };
+  return { top: center - size.height / 2, bottom: center + size.height / 2 };
 }
 
 function assertSeparated(upper: { top: number; bottom: number }, lower: { top: number; bottom: number }, gap: number, label: string): void {
-  assert.ok(upper.bottom >= lower.top + gap, `${label} must have at least ${gap}px separation`);
+  assert.ok(upper.bottom + gap <= lower.top, `${label} must have at least ${gap}px separation`);
 }
 
 test('Task 6 keeps the scene and desktop canvas on one 1280x720 composition', () => {
@@ -107,7 +107,7 @@ test('Task 6 rejects a fixed PageContainer height with top and bottom anchors', 
   const top = widget._top as number;
   const bottom = widget._bottom as number;
 
-  assert.equal(flags & 12, 12, 'PageContainer must use both top and bottom anchors');
+  assert.equal(flags & 5, 5, 'PageContainer must use both top and bottom anchors');
   assert.equal(
     size.height,
     720 - top - bottom,
@@ -216,11 +216,11 @@ test('Task 6 keeps Craft content inside the page band and uses direct labels', (
   const row = nodeNamed('CraftRecipeRow00').node;
   const rowSize = sizeOf(row);
   const rowCenter = centerOf(nodeNamed('CraftRecipeRow00').index);
-  assert.ok(rowCenter + rowSize.height / 2 <= page.top, 'Craft row must not cross page top');
+  assert.ok(rowCenter - rowSize.height / 2 >= page.top, 'Craft row must not cross page top');
   const last = nodeNamed('CraftRecipeRow05').node;
   const lastSize = sizeOf(last);
   const lastCenter = centerOf(nodeNamed('CraftRecipeRow05').index);
-  assert.ok(lastCenter - lastSize.height / 2 >= page.bottom, 'Craft row must not cross page bottom');
+  assert.ok(lastCenter + lastSize.height / 2 <= page.bottom, 'Craft row must not cross page bottom');
   assert.ok((row._children ?? []).length === 0, 'Craft row must not contain stale duplicate label');
   componentOf(row, 'cc.Label');
 });

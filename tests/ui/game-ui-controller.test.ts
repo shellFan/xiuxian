@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { GameFacade } from '../../assets/scripts/facade/game-facade';
-import { buildCraftViewModel } from '../../assets/scripts/ui/view-models';
+import { buildCraftViewModel, buildMainHUDViewModel } from '../../assets/scripts/ui/view-models';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 
 const root = process.cwd();
@@ -86,7 +86,9 @@ function loadGameUiController(facade: GameFacade): { new(): unknown } {
   };
 
   try {
-    return require('../../assets/scripts/ui/game-ui-controller').GameUIController as { new(): unknown };
+    const modulePath = require.resolve('../../assets/scripts/ui/game-ui-controller');
+    delete require.cache[modulePath];
+    return require(modulePath).GameUIController as { new(): unknown };
   } finally {
     moduleLoader._load = originalLoad;
   }
@@ -118,6 +120,37 @@ function createCraftScene(): { root: FakeNode; button: FakeButton; label: FakeLa
   };
 }
 
+function createHomeScene(): { root: FakeNode; labels: Record<string, FakeLabel> } {
+  const labels: Record<string, FakeLabel> = {};
+  const labelNode = (name: string): FakeNode => {
+    const label = new FakeLabel();
+    labels[name] = label;
+    return new FakeNode(name, new Map<string, unknown>([['cc.Label', label]]));
+  };
+  const buttonNode = (name: string): FakeNode =>
+    new FakeNode(name, new Map<string, unknown>([['cc.Button', new FakeButton()]]), [labelNode(`${name}Label`)]);
+  const resourceChip = (name: string): FakeNode => new FakeNode(name, new Map(), [labelNode(`${name}Label`)]);
+  const resourceBar = new FakeNode('ResourceBar', new Map(), [
+    labelNode('ResourceSummaryLabel'),
+    resourceChip('ResourceCultivationChip'),
+    resourceChip('ResourceSalaryChip'),
+    resourceChip('ResourcePerformanceChip'),
+    resourceChip('ResourceMindChip'),
+  ]);
+  const topHeader = new FakeNode('TopHeader', new Map(), [labelNode('CareerSummaryLabel')]);
+  const character = new FakeNode('CharacterArea', new Map(), [labelNode('CharacterNameLabel'), labelNode('CharacterStatusLabel')]);
+  const idle = new FakeNode('IdleIncomePanel', new Map(), [labelNode('WorkStatusLabel')]);
+  const actions = new FakeNode('PrimaryActions', new Map(), [buttonNode('CultivateButton'), buttonNode('WorkButton'), buttonNode('FishButton')]);
+  const bottom = new FakeNode('BottomNavigation', new Map(), ['TabHome', 'TabTasks', 'TabCraft', 'TabPromotion', 'TabMore'].map(buttonNode));
+  const pages = ['HomePageContent', 'TasksPageContent', 'CraftPageContent', 'PromotionPageContent', 'MorePageContent']
+    .map((name) => new FakeNode(name));
+  const pageContainer = new FakeNode('PageContainer', new Map(), pages);
+  return {
+    root: new FakeNode('SafeAreaRoot', new Map(), [topHeader, resourceBar, character, idle, actions, bottom, pageContainer]),
+    labels,
+  };
+}
+
 function testControllerBindsTheCraftPresentationToTheRealFacade(): void {
   assert.match(controllerSource, /bindCraftPage\s*\(/);
   assert.match(controllerSource, /refreshCraftPage\s*\(/);
@@ -135,6 +168,16 @@ function testControllerBindsTheCraftPresentationToTheRealFacade(): void {
   assert.match(controllerSource, /mind['"]?\s*:\s*['"]道心['"]/);
   assert.match(controllerSource, /performance['"]?\s*:\s*['"]绩效['"]/);
   assert.doesNotMatch(controllerSource, /DragController|MergeBoardView|refreshBoard|onRecruitClick|animateMerge|touch-start|touch-end/);
+}
+
+function testControllerKeepsHomePresentationFacadeDriven(): void {
+  for (const labelName of ['ResourceSummaryLabel', 'CharacterNameLabel', 'CharacterStatusLabel', 'WorkStatusLabel']) {
+    assert.match(controllerSource, new RegExp(labelName));
+  }
+  assert.match(controllerSource, /facade\.snapshot\(\)/);
+  assert.match(controllerSource, /灵石/);
+  assert.match(controllerSource, /道心/);
+  assert.match(controllerSource, /工资/);
 }
 
 function testControllerResolvesVisualCraftLayoutNodes(): void {
@@ -222,8 +265,33 @@ function testBoundCraftButtonUsesRealFacadeAndRefreshesPresentation(): void {
   assert.equal(scene.button.interactable, false);
 }
 
+function testHomeResourceChipsRefreshFromLiveFacadeState(): void {
+  const facade = new GameFacade({ storage: new MemoryStorageAdapter(), board: null });
+  const scene = createHomeScene();
+  const GameUIController = loadGameUiController(facade);
+  const controller = new GameUIController() as { node: FakeNode; onLoad(): void; refreshAll(): void };
+  controller.node = scene.root;
+  controller.onLoad();
+
+  facade.context.player.cultivationExp = 37;
+  facade.context.player.salary = 128;
+  facade.context.player.performance = 9;
+  facade.context.player.mind = 64;
+  facade.context.player.maxMind = 100;
+  controller.refreshAll();
+  const hud = buildMainHUDViewModel(facade);
+  const snapshot = facade.snapshot();
+
+  assert.equal(scene.labels.ResourceCultivationChipLabel.string, `修为\n${hud.cultivationExp}/${hud.cultivationRequired}`);
+  assert.equal(scene.labels.ResourceSalaryChipLabel.string, `工资\n${snapshot.salary}`);
+  assert.equal(scene.labels.ResourcePerformanceChipLabel.string, `绩效\n${snapshot.performance}`);
+  assert.equal(scene.labels.ResourceMindChipLabel.string, `道心\n${snapshot.mind}/${snapshot.maxMind}`);
+}
+
 testControllerBindsTheCraftPresentationToTheRealFacade();
+testControllerKeepsHomePresentationFacadeDriven();
 testControllerResolvesVisualCraftLayoutNodes();
 testRealFacadeCraftsAndPersistsTheDisplayedRecipe();
 testBoundCraftButtonUsesRealFacadeAndRefreshesPresentation();
+testHomeResourceChipsRefreshFromLiveFacadeState();
 console.log('game UI controller tests passed');
