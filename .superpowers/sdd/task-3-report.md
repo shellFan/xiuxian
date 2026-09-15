@@ -19,8 +19,9 @@
 ## 验证
 
 - focused UI/scene tests：覆盖 recipe row 布局、材料/产物/按钮可读性、按钮行为和字段映射。
-- `npm test`：待本 revision 验证。
-- `npm run build:game`：待本 revision 验证。
+- `npm test`：通过，72 个测试文件。
+- `npm run build:game`：通过。
+- Cocos Creator Editor 未进行人工点击验证：`MANUAL TEST REQUIRED`。
 
 ## 提交范围
 
