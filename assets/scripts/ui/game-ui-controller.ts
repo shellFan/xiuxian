@@ -89,6 +89,20 @@ const TAB_BUTTON_NAMES: Record<PcTab, string> = {
   MORE: 'TabMore',
 };
 
+const PAGE_TITLE_NODE_NAMES: Partial<Record<PcTab, string>> = {
+  CRAFT: 'CraftHeader',
+  TASKS: 'TasksPageContentTitleLabel',
+  PROMOTION: 'PromotionPageContentTitleLabel',
+  MORE: 'MorePageContentTitleLabel',
+};
+
+const PAGE_TITLE_TEXT: Partial<Record<PcTab, string>> = {
+  CRAFT: '合成工坊',
+  TASKS: '任务',
+  PROMOTION: '晋升',
+  MORE: '更多',
+};
+
 // ── Refresh categories ───────────────────────────────────────────────────────
 
 const REFRESH_CATEGORIES: readonly UiEventCategory[] = [
@@ -109,6 +123,7 @@ export class GameUIController extends Component {
 
   private safeAreaRoot: NodeLike | null = null;
   private topHeader: NodeLike | null = null;
+  private resourceBar: NodeLike | null = null;
   private characterArea: NodeLike | null = null;
   private idleIncomePanel: NodeLike | null = null;
   private primaryActions: NodeLike | null = null;
@@ -136,9 +151,11 @@ export class GameUIController extends Component {
 
   // Tab button references
   private tabButtons: Map<PcTab, ButtonLike> = new Map();
+  private tabHandlers: Map<PcTab, () => void> = new Map();
 
   // Page node references
   private pageNodes: Map<PcTab, NodeLike> = new Map();
+  private pageTitleLabels: Map<PcTab, TextLike> = new Map();
 
   // ── Internal state ────────────────────────────────────────────────────────
 
@@ -192,6 +209,9 @@ export class GameUIController extends Component {
     this.mergeBoardRoot = null;
     this.craftPageContent = null;
     this.craftRecipeList = null;
+    this.resourceBar = null;
+    this.tabHandlers.clear();
+    this.pageTitleLabels.clear();
     this.careerSummaryLabel = null;
     this.resourceSummaryLabel = null;
     this.characterNameLabel = null;
@@ -212,18 +232,18 @@ export class GameUIController extends Component {
 
     // Top-level children of SafeAreaRoot
     this.topHeader = this.findChild(this.safeAreaRoot, 'TopHeader');
+    this.resourceBar = this.findChild(this.safeAreaRoot, 'ResourceBar');
     this.idleIncomePanel = this.findChild(this.safeAreaRoot, 'IdleIncomePanel');
     this.primaryActions = this.findChild(this.safeAreaRoot, 'PrimaryActions');
     this.bottomNavigation = this.findChild(this.safeAreaRoot, 'BottomNavigation');
     this.pageContainer = this.findChild(this.safeAreaRoot, 'PageContainer');
 
     this.careerSummaryLabel = this.findLabel(this.findChild(this.topHeader, 'CareerSummaryLabel'));
-    const resourceBar = this.findChild(this.safeAreaRoot, 'ResourceBar');
-    this.resourceSummaryLabel = this.findLabel(resourceBar?.getChildByName?.('ResourceSummaryLabel') ?? null);
-    this.cultivationResourceLabel = this.findLabel(this.findChild(resourceBar, 'ResourceCultivationChip'));
-    this.salaryResourceLabel = this.findLabel(this.findChild(resourceBar, 'ResourceSalaryChip'));
-    this.performanceResourceLabel = this.findLabel(this.findChild(resourceBar, 'ResourcePerformanceChip'));
-    this.mindResourceLabel = this.findLabel(this.findChild(resourceBar, 'ResourceMindChip'));
+    this.resourceSummaryLabel = this.findLabel(this.resourceBar?.getChildByName?.('ResourceSummaryLabel') ?? null);
+    this.cultivationResourceLabel = this.findLabel(this.findChild(this.resourceBar, 'ResourceCultivationChip'));
+    this.salaryResourceLabel = this.findLabel(this.findChild(this.resourceBar, 'ResourceSalaryChip'));
+    this.performanceResourceLabel = this.findLabel(this.findChild(this.resourceBar, 'ResourcePerformanceChip'));
+    this.mindResourceLabel = this.findLabel(this.findChild(this.resourceBar, 'ResourceMindChip'));
     const characterArea = this.findChild(this.safeAreaRoot, 'CharacterArea');
     this.characterNameLabel = this.findLabel(characterArea?.getChildByName?.('CharacterNameLabel') ?? null);
     this.characterStatusLabel = this.findLabel(characterArea?.getChildByName?.('CharacterStatusLabel') ?? null);
@@ -263,6 +283,12 @@ export class GameUIController extends Component {
         const pageNode = this.findChild(this.pageContainer, pageNodeName);
         if (pageNode) {
           this.pageNodes.set(tab, pageNode);
+          const titleNodeName = PAGE_TITLE_NODE_NAMES[tab];
+          const titleText = PAGE_TITLE_TEXT[tab];
+          if (titleNodeName && titleText) {
+            const titleLabel = this.findLabel(this.findChild(pageNode, titleNodeName));
+            if (titleLabel) this.pageTitleLabels.set(tab, titleLabel);
+          }
         }
       }
     }
@@ -274,6 +300,7 @@ export class GameUIController extends Component {
       primaryActions: !!this.primaryActions,
       bottomNavigation: !!this.bottomNavigation,
       pageContainer: !!this.pageContainer,
+      resourceBar: !!this.resourceBar,
       cultivateButton: !!this.cultivateButton,
       workButton: !!this.workButton,
       fishButton: !!this.fishButton,
@@ -281,6 +308,7 @@ export class GameUIController extends Component {
       pageNodes: this.pageNodes.size,
       craftPageContent: !!this.craftPageContent,
       craftRecipeList: !!this.craftRecipeList,
+      pageTitleLabels: this.pageTitleLabels.size,
     });
   }
 
@@ -306,14 +334,18 @@ export class GameUIController extends Component {
 
   private wireTabs(): void {
     for (const [tab, btn] of this.tabButtons) {
-      btn.on?.('click', () => this.onTabClick(tab), this);
+      const handler = () => this.onTabClick(tab);
+      btn.on?.('click', handler, this);
+      this.tabHandlers.set(tab, handler);
     }
   }
 
   private unbindTabs(): void {
-    for (const [, btn] of this.tabButtons) {
-      btn.off?.('click', () => {}, this);
+    for (const [tab, btn] of this.tabButtons) {
+      const handler = this.tabHandlers.get(tab);
+      if (handler) btn.off?.('click', handler, this);
     }
+    this.tabHandlers.clear();
     this.tabButtons.clear();
   }
 
@@ -403,6 +435,7 @@ export class GameUIController extends Component {
     // Update button labels based on state
     this.updateButtonLabels(hudVm, cultVm, idleVm);
     this.refreshHomePresentation(hudVm, idleVm);
+    this.refreshPageTitles();
 
     // Update tab highlight
     this.updateTabHighlight();
@@ -430,6 +463,13 @@ export class GameUIController extends Component {
       this.workStatusLabel,
       `${idleVm.isFishingMode ? '带薪摸鱼' : '认真上班'}  ·  工资 ×${idleVm.salaryEfficiency.toFixed(1)}  ·  绩效 ×${idleVm.performanceEfficiency.toFixed(1)}  ·  道心恢复 ×${idleVm.mindRecoveryEfficiency.toFixed(1)}`,
     );
+  }
+
+  private refreshPageTitles(): void {
+    for (const [tab, label] of this.pageTitleLabels) {
+      const title = PAGE_TITLE_TEXT[tab];
+      if (title) label.string = title;
+    }
   }
 
   /** Force-refresh a component that is already mounted on a node. */
@@ -507,6 +547,8 @@ export class GameUIController extends Component {
       node.active = tab === this.currentTab;
     }
     const home = this.currentTab === 'HOME';
+    if (this.topHeader) this.topHeader.active = home;
+    if (this.resourceBar) this.resourceBar.active = home;
     if (this.characterArea) this.characterArea.active = home;
     if (this.idleIncomePanel) this.idleIncomePanel.active = home;
     if (this.primaryActions) this.primaryActions.active = home;

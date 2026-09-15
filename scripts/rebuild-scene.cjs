@@ -359,6 +359,52 @@ function buildScene() {
   const paperSoft = b.color(233, 224, 204, 255);
   const ink = b.color(40, 40, 40, 255);
   const white = b.color(255, 255, 255, 255);
+  const mutedInk = b.color(92, 86, 75, 255);
+  const accent = b.color(176, 130, 77, 255);
+  const accentStroke = b.color(124, 88, 49, 255);
+  const success = b.color(142, 190, 158, 255);
+  const successStroke = b.color(83, 133, 101, 255);
+  const progress = b.color(130, 174, 211, 255);
+  const progressStroke = b.color(77, 122, 163, 255);
+
+  // Page-only helpers keep every visual child asset-free while preserving
+  // the node names expected by the runtime page components.
+  const attachChild = (parentIdx, childIdx) => {
+    if (parentIdx < 0) return childIdx;
+    b.objects[parentIdx]._children.push(b.ref(childIdx));
+    b.objects[childIdx]._parent = b.ref(parentIdx);
+    return childIdx;
+  };
+
+  const addPageText = (parentIdx, name, text, width, height, opts = {}) => {
+    const textIdx = b.addTextNode(name, text, width, height, opts);
+    return attachChild(parentIdx, textIdx);
+  };
+
+  const addPageCard = (parentIdx, name, width, height, lpos, opts = {}) => {
+    const cardIdx = b.addNode(name, -1, [], [], { lpos });
+    b.addPanel(cardIdx, width, height, {
+      fillColor: opts.fillColor || paper,
+      strokeColor: opts.strokeColor || b.color(194, 172, 137, 255),
+      lineWidth: opts.lineWidth || 2,
+    });
+    return attachChild(parentIdx, cardIdx);
+  };
+
+  const addPageButton = (parentIdx, name, label, width, height, lpos, opts = {}) => {
+    const buttonIdx = b.addNode(name, -1, [], [], { lpos });
+    b.addPanel(buttonIdx, width, height, {
+      fillColor: opts.fillColor || chromeSoft,
+      strokeColor: opts.strokeColor || chrome,
+      lineWidth: 2,
+    });
+    b.addButton(buttonIdx);
+    addPageText(buttonIdx, `${name}Label`, label, width, height, {
+      fontSize: opts.fontSize || 20,
+      color: opts.textColor || white,
+    });
+    return attachChild(parentIdx, buttonIdx);
+  };
 
   // --- Background node ---
   const paperIdx = b.addNode('PaperContent', -1, [], [], { lpos: b.vec3(0, -8, 0) });
@@ -572,11 +618,142 @@ function buildScene() {
     }
 
     if (pageName !== 'HomePageContent' && pageName !== 'CraftPageContent') {
-      const pageTitle = pageName.replace('PageContent', '');
+      const pageTitles = {
+        TasksPageContent: '任务',
+        PromotionPageContent: '晋升',
+        MorePageContent: '更多',
+      };
+      const pageTitle = pageTitles[pageName] || pageName.replace('PageContent', '');
       const pageTitleIdx = b.addTextNode(`${pageName}TitleLabel`, pageTitle, 600, 48, {
-        lpos: b.vec3(0, 120, 0), fontSize: 28, color: ink,
+        lpos: b.vec3(0, 190, 0), fontSize: 30, color: ink,
       });
       pageChildren.push(pageTitleIdx);
+    }
+
+    if (pageName === 'TasksPageContent') {
+      const summaryIdx = b.addNode('TasksSummaryBar', -1, [], [], { lpos: b.vec3(0, 146, 0) });
+      b.addPanel(summaryIdx, 1040, 34, { fillColor: paperSoft, strokeColor: b.color(194, 172, 137, 255) });
+      addPageText(summaryIdx, 'TasksSlotLabel', '今日任务 · 0/3 进行中', 980, 30, {
+        fontSize: 17, color: mutedInk,
+      });
+      pageChildren.push(summaryIdx);
+
+      const tasksContainerIdx = b.addNode('TasksAvailableContainer', -1, [], [], { lpos: b.vec3(0, 6, 0) });
+      b.addUITransform(tasksContainerIdx, 1120, 290);
+      const taskCards = [
+        { name: '每日签到', reward: '奖励  💎灵石 +10  ·  ⚡修为 +5', time: '10 秒 · 日常任务' },
+        { name: '修炼日常', reward: '奖励  ⚡修为 +30  ·  道心 +5', time: '15 秒 · 修炼任务' },
+        { name: '日报周报', reward: '奖励  💰工资 +20  ·  💎灵石 +5', time: '20 秒 · 工作任务' },
+        { name: '部门会议', reward: '奖励  💰工资 +35  ·  绩效 +10', time: '15 秒 · 工作任务' },
+      ];
+      taskCards.forEach((task, index) => {
+        const column = index % 2;
+        const row = Math.floor(index / 2);
+        const cardIdx = addPageCard(
+          tasksContainerIdx,
+          `AvailableTask_${index}`,
+          520,
+          112,
+          b.vec3((column - 0.5) * 570, 65 - row * 138, 0),
+          { fillColor: index % 2 === 0 ? paper : paperSoft },
+        );
+        addPageText(cardIdx, 'NameLabel', task.name, 320, 30, {
+          lpos: b.vec3(-72, 27, 0), fontSize: 22, color: ink,
+        });
+        addPageText(cardIdx, 'DescLabel', `${task.time}\n${task.reward}`, 350, 48, {
+          lpos: b.vec3(-58, -18, 0), fontSize: 16, color: mutedInk,
+        });
+        addPageButton(cardIdx, 'StartButton', '开始', 126, 48, b.vec3(184, 0, 0), {
+          fillColor: accent, strokeColor: accentStroke, fontSize: 19,
+        });
+      });
+      pageChildren.push(tasksContainerIdx);
+    }
+
+    if (pageName === 'PromotionPageContent') {
+      const statusCardIdx = addPageCard(
+        -1,
+        'PromotionStatusCard',
+        1000,
+        150,
+        b.vec3(0, 50, 0),
+        { fillColor: paper, strokeColor: b.color(194, 172, 137, 255) },
+      );
+      addPageText(statusCardIdx, 'CurrentRankLabel', '当前职级\nLv.1 · 练气职员', 270, 54, {
+        lpos: b.vec3(-315, 44, 0), fontSize: 21, color: ink,
+      });
+      addPageText(statusCardIdx, 'RankArrowLabel', '→', 80, 48, {
+        lpos: b.vec3(0, 44, 0), fontSize: 32, color: accent,
+      });
+      addPageText(statusCardIdx, 'NextRankLabel', '下一职级\nLv.2 · 筑基职员', 270, 54, {
+        lpos: b.vec3(315, 44, 0), fontSize: 21, color: ink,
+      });
+
+      const progressTrackIdx = b.addNode('PromotionProgressTrack', -1, [], [], { lpos: b.vec3(0, 3, 0) });
+      b.addPanel(progressTrackIdx, 760, 18, { fillColor: paperSoft, strokeColor: progressStroke, lineWidth: 1 });
+      const progressFillIdx = b.addNode('PromotionProgressFill', -1, [], [], { lpos: b.vec3(-140, 0, 0) });
+      b.addPanel(progressFillIdx, 460, 12, { fillColor: progress, strokeColor: progress, lineWidth: 1 });
+      attachChild(progressTrackIdx, progressFillIdx);
+      attachChild(statusCardIdx, progressTrackIdx);
+      addPageText(statusCardIdx, 'PromotionProgressLabel', '晋升进度 35/100  ·  35%', 700, 28, {
+        lpos: b.vec3(0, -24, 0), fontSize: 17, color: progressStroke,
+      });
+      addPageText(statusCardIdx, 'PromotionConditionLabel', '条件：修为达到 100  ·  完成本阶 KPI  ·  道心 ≥ 60', 900, 26, {
+        lpos: b.vec3(0, -52, 0), fontSize: 16, color: mutedInk,
+      });
+      pageChildren.push(statusCardIdx);
+
+      const optionIdx = addPageCard(
+        -1,
+        'PromotionOption_0',
+        1000,
+        110,
+        b.vec3(0, -125, 0),
+        { fillColor: paperSoft, strokeColor: b.color(194, 172, 137, 255) },
+      );
+      addPageText(optionIdx, 'NameLabel', '稳健渡劫', 350, 30, {
+        lpos: b.vec3(-215, 27, 0), fontSize: 22, color: ink,
+      });
+      addPageText(optionIdx, 'DescLabel', '成功率 45%  ·  消耗道心 10  ·  达成条件后开放', 520, 30, {
+        lpos: b.vec3(-150, -17, 0), fontSize: 16, color: mutedInk,
+      });
+      addPageButton(optionIdx, 'PromoteButton', '开始晋升', 156, 48, b.vec3(372, 0, 0), {
+        fillColor: success, strokeColor: successStroke, fontSize: 18,
+      });
+      pageChildren.push(optionIdx);
+    }
+
+    if (pageName === 'MorePageContent') {
+      const entriesContainerIdx = b.addNode('MoreEntryGrid', -1, [], [], { lpos: b.vec3(0, -12, 0) });
+      b.addUITransform(entriesContainerIdx, 1120, 300);
+      const entries = [
+        { node: 'SectEntryCard', title: '宗门', desc: '选择宗门，寻找修行归属', button: '进入宗门' },
+        { node: 'LeaderboardEntryCard', title: '排行榜', desc: '查看道友榜单与修行排名', button: '查看排行' },
+        { node: 'FriendsEntryCard', title: '好友', desc: '与道友互通有无，结伴修行', button: '打开好友' },
+        { node: 'AchievementsEntryCard', title: '成就', desc: '记录每一步修行里程碑', button: '查看成就' },
+      ];
+      entries.forEach((entry, index) => {
+        const column = index % 2;
+        const row = Math.floor(index / 2);
+        const cardIdx = addPageCard(
+          entriesContainerIdx,
+          entry.node,
+          520,
+          108,
+          b.vec3((column - 0.5) * 570, 62 - row * 136, 0),
+          { fillColor: index % 2 === 0 ? paper : paperSoft },
+        );
+        addPageText(cardIdx, 'EntryTitleLabel', entry.title, 300, 32, {
+          lpos: b.vec3(-72, 25, 0), fontSize: 23, color: ink,
+        });
+        addPageText(cardIdx, 'EntryDescLabel', entry.desc, 330, 28, {
+          lpos: b.vec3(-55, -17, 0), fontSize: 16, color: mutedInk,
+        });
+        addPageButton(cardIdx, `${entry.node.replace('Card', 'Button')}`, entry.button, 138, 44, b.vec3(182, 0, 0), {
+          fillColor: chromeSoft, strokeColor: chrome, fontSize: 16,
+        });
+      });
+      pageChildren.push(entriesContainerIdx);
     }
 
     const pageIdx = b.addNode(pageName, -1, pageChildren, [], {
