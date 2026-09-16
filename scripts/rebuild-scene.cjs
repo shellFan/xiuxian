@@ -23,6 +23,52 @@ const PAGE_TOP_INSET = 140;
 const PAGE_BOTTOM_INSET = 90;
 const PAGE_CONTAINER_HEIGHT = DESIGN_HEIGHT - PAGE_TOP_INSET - PAGE_BOTTOM_INSET;
 
+// Stable Cocos asset identities. The SpriteFrame UUID is the sub-asset UUID
+// that belongs to the PNG's Texture2D importer record; keeping both UUIDs
+// together makes every generated reference explicit and reproducible.
+const HOME_ASSETS = {
+  character: {
+    path: 'assets/textures/ui/home/home-character.png',
+    textureUuid: 'ede466c5-53d8-4083-902e-1f3f4916f98e',
+    spriteFrameUuid: 'ede466c5-53d8-4083-902e-1f3f4916f98e@6c48a',
+  },
+  background: {
+    path: 'assets/textures/ui/home/home-office-background.png',
+    textureUuid: '7b9fa0d8-5883-47ce-8d83-b0ddf2792796',
+    spriteFrameUuid: '7b9fa0d8-5883-47ce-8d83-b0ddf2792796@6c48a',
+  },
+};
+
+function assetRef(uuid, expectedType) {
+  if (typeof uuid !== 'string' || uuid.length === 0) {
+    throw new Error(`Missing UUID for ${expectedType}`);
+  }
+  return { __uuid__: uuid, __expectedType__: expectedType };
+}
+
+function textureRef(asset) {
+  return assetRef(asset.textureUuid, 'cc.Texture2D');
+}
+
+function spriteFrameRef(asset) {
+  return assetRef(asset.spriteFrameUuid, 'cc.SpriteFrame');
+}
+
+function validateHomeAssetRefs() {
+  for (const asset of Object.values(HOME_ASSETS)) {
+    textureRef(asset);
+    spriteFrameRef(asset);
+    if (!asset.path.endsWith('.png') || !fs.existsSync(path.join(__dirname, '..', asset.path))) {
+      throw new Error(`Home visual asset must be a PNG: ${asset.path}`);
+    }
+    for (const uuid of [asset.textureUuid, asset.spriteFrameUuid]) {
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(?:@6c48a)?$/i.test(uuid)) {
+        throw new Error(`Invalid home visual asset UUID: ${uuid}`);
+      }
+    }
+  }
+}
+
 // ── Compressed UUIDs for custom components ─────────────────────────────────
 const COMP = {
   CocosBootstrap: 'b3150HobX9BGZZPA8DLrkXL',
@@ -221,6 +267,31 @@ class SceneBuilder {
     return idx;
   }
 
+  /** Add a Cocos 3.8 cc.Sprite with an explicitly typed SpriteFrame asset. */
+  addSprite(nodeIdx, spriteFrame, opts = {}) {
+    const idx = this.push({
+      __type__: 'cc.Sprite',
+      node: this.ref(nodeIdx),
+      _enabled: true,
+      __prefab: null,
+      _materials: [],
+      _srcBlendFactor: 2,
+      _dstBlendFactor: 4,
+      _color: opts.color || this.color(255, 255, 255, 255),
+      _spriteFrame: spriteFrame,
+      _type: 0,
+      _fillType: 0,
+      _fillCenter: this.vec2(0, 0),
+      _fillStart: 0,
+      _fillRange: 1,
+      _isTrimmedMode: false,
+      _useGrayscale: false,
+      _atlas: null,
+    });
+    this._linkComponent(nodeIdx, idx);
+    return idx;
+  }
+
   /** Add a cc.Graphics renderer with a filled cell background. */
   addGraphicsBackground(nodeIdx, opts = {}) {
     const idx = this.push({
@@ -324,6 +395,7 @@ class SceneBuilder {
 // ── Build the scene ────────────────────────────────────────────────────────
 
 function buildScene() {
+  validateHomeAssetRefs();
   const b = new SceneBuilder();
 
   // ── 0: cc.SceneAsset ──────────────────────────────────────────────────
@@ -409,6 +481,7 @@ function buildScene() {
   // --- Background node ---
   const paperIdx = b.addNode('PaperContent', -1, [], [], { lpos: b.vec3(0, -8, 0) });
   b.addPanel(paperIdx, 1220, 650, { fillColor: paper, strokeColor: b.color(205, 190, 161, 255) });
+  b.addSprite(paperIdx, spriteFrameRef(HOME_ASSETS.background));
   const bgIdx = b.addNode('Background', -1, [paperIdx], []);
   b.addPanel(bgIdx, 1280, 720, { fillColor: chrome, strokeColor: chrome });
   const bgWidgetIdx = b.addWidgetStretch(bgIdx);
@@ -455,9 +528,11 @@ function buildScene() {
   const resBarWidgetIdx = b.addWidget(resBarIdx, { alignFlags: 17, top: 84, horizontalCenter: 0 });
 
   // --- CharacterArea node ---
-  const characterIconIdx = b.addTextNode('CharacterIconLabel', '🐮', 100, 110, {
-    lpos: b.vec3(-480, 0, 0), fontSize: 56, color: ink,
+  const characterIconIdx = b.addNode('CharacterIconLabel', -1, [], [], {
+    lpos: b.vec3(-480, 0, 0),
   });
+  b.addUITransform(characterIconIdx, 190, 156);
+  b.addSprite(characterIconIdx, spriteFrameRef(HOME_ASSETS.character));
   const characterNameIdx = b.addTextNode('CharacterNameLabel', '练气职员 · 初入修仙职场', 620, 44, {
     lpos: b.vec3(80, 30, 0), fontSize: 28, color: ink,
   });

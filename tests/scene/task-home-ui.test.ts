@@ -135,7 +135,10 @@ test('home UI has the branded header, four independent resource chips, and chara
   componentOf(nodeNamed('CharacterArea').node, 'cc.UITransform');
   componentOf(nodeNamed('CharacterArea').node, 'cc.Graphics');
   componentOf(nodeNamed('CharacterArea').node, '9d3c5ajahRK77mt3Dp3Hysh');
-  assert.equal(labelText('CharacterIconLabel'), '🐮');
+  const characterIcon = nodeNamed('CharacterIconLabel').node;
+  const sprite = componentOf(characterIcon, 'cc.Sprite');
+  const spriteFrame = sprite._spriteFrame as { __uuid__?: string } | null;
+  assert.ok(spriteFrame && typeof spriteFrame.__uuid__ === 'string', 'CharacterIconLabel must use the formal character SpriteFrame');
   assert.equal(labelText('CharacterNameLabel'), '练气职员 · 初入修仙职场');
   assert.equal(labelText('CharacterStatusLabel'), '散修 · 未觉醒天赋 · 灵石与修为正在积累');
   assert.equal(labelText('CharacterHintLabel'), '今日也要稳住道心');
