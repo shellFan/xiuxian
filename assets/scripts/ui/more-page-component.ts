@@ -26,6 +26,7 @@ import type {
 } from './view-models';
 import {
   buildAchievementViewModel, buildDailyTaskViewModel,
+  buildLeaderboardViewModel, buildFriendsViewModel,
 } from './view-models';
 import type { UiEventCategory } from '../facade/ui-event-types';
 import { formatNumber } from './number-formatter';
@@ -43,6 +44,7 @@ const resolveCocosType = (name: string): unknown =>
 interface TextLike { string: string; active?: boolean; }
 interface ButtonLike {
   on?: (event: string, callback: () => void, target?: unknown) => void;
+  off?: (event: string, callback: () => void, target?: unknown) => void;
   interactable?: boolean;
 }
 interface NodeLike {
@@ -126,6 +128,7 @@ export class MorePageComponent extends Component {
   private facade: GameFacade | null = null;
   private currentTab: MoreSubTab = 'ACHIEVEMENT';
   private unsubs: Array<() => void> = [];
+  private boundButtons = new Set<ButtonLike>();
   private disposed = false;
 
   // ── Cocos Lifecycle ───────────────────────────────────────────────────────
@@ -223,7 +226,7 @@ export class MorePageComponent extends Component {
     const claimButton = this.findButton(node, 'ClaimButton');
     if (claimButton) {
       claimButton.interactable = item.status === 'COMPLETED';
-      claimButton.on?.('click', () => this.claimAchievement(item.id), this);
+      this.bindButtonOnce(claimButton, () => this.claimAchievement(item.id));
     }
   }
 
@@ -275,7 +278,7 @@ export class MorePageComponent extends Component {
     const claimButton = this.findButton(node, 'ClaimButton');
     if (claimButton) {
       claimButton.interactable = task.completed && !task.claimed;
-      claimButton.on?.('click', () => this.claimDailyTask(task.taskId), this);
+      this.bindButtonOnce(claimButton, () => this.claimDailyTask(task.taskId));
     }
   }
 
@@ -327,32 +330,85 @@ export class MorePageComponent extends Component {
 
   private renderLeaderboard(): void {
     if (!this.leaderboardContainer) return;
-    // WEB V1: leaderboard is placeholder
-    const placeholderLabel = this.findLabel(this.leaderboardContainer, 'PlaceholderLabel');
-    if (placeholderLabel) {
-      placeholderLabel.string = '🏆 排行榜后续版本开放';
+    if (!this.facade) return;
+    const vm = buildLeaderboardViewModel(this.facade);
+    const rankLabel = this.findLabel(this.leaderboardContainer, 'PlayerRankLabel');
+    if (rankLabel) rankLabel.string = `我的排名：第 ${vm.playerRank} 名 · 共 ${vm.totalEntries} 位道友`;
+    const rows = vm.aroundPlayer.length > 0 ? vm.aroundPlayer : vm.top3;
+    for (let i = 0; i < rows.length; i++) {
+      const row = this.leaderboardContainer.getChildByName?.(`EntryRow_${i}`);
+      const entry = rows[i];
+      if (!row || !entry) continue;
+      row.active = true;
+      const rank = this.findLabel(row, 'RankLabel');
+      const name = this.findLabel(row, 'NameLabel');
+      const score = this.findLabel(row, 'ScoreLabel');
+      if (rank) rank.string = `#${entry.rank}`;
+      if (name) name.string = entry.isPlayer ? `你 · ${entry.careerName}` : entry.name;
+      if (score) score.string = `修为 ${formatNumber(entry.cultivationExp)}`;
     }
   }
 
   /** Show "coming soon" toast for leaderboard actions. */
   public onLeaderboardAction(): void {
-    SceneBindingComponent.instance?.showToast('排行榜后续版本开放', 'INFO');
+    this.switchTab('LEADERBOARD');
   }
 
   // ── Friends Render ────────────────────────────────────────────────────────
 
   private renderFriends(): void {
     if (!this.friendsContainer) return;
-    // WEB V1: friends is placeholder
-    const placeholderLabel = this.findLabel(this.friendsContainer, 'PlaceholderLabel');
-    if (placeholderLabel) {
-      placeholderLabel.string = '👥 好友系统后续版本开放';
+    if (!this.facade) return;
+    const vm = buildFriendsViewModel(this.facade);
+    const pending = this.findLabel(this.friendsContainer, 'PendingGiftsLabel');
+    if (pending) pending.string = `${vm.totalFriends} 位好友 · ${vm.giftsToClaim} 个待领取礼物`;
+    for (let i = 0; i < vm.friends.length; i++) {
+      const friend = vm.friends[i];
+      const row = this.friendsContainer.getChildByName?.(`FriendRow_${i}`);
+      if (!row || !friend) continue;
+      row.active = true;
+      const name = this.findLabel(row, 'NameLabel');
+      const level = this.findLabel(row, 'LevelLabel');
+      const status = this.findLabel(row, 'GiftStatusLabel');
+      if (name) name.string = friend.name;
+      if (level) level.string = `Lv.${friend.careerLevel}`;
+      if (status) status.string = friend.giftReceived ? '🎁 待领取' : friend.giftSent ? '已送礼' : '可送礼';
+      const send = this.findButton(row, 'SendGiftButton');
+      const claim = this.findButton(row, 'ClaimGiftButton');
+      if (send) {
+        send.interactable = !friend.giftSent;
+        this.bindButtonOnce(send, () => this.sendFriendGift(friend.id));
+      }
+      if (claim) {
+        claim.interactable = friend.giftReceived;
+        this.bindButtonOnce(claim, () => this.claimFriendGift(friend.id));
+      }
     }
   }
 
   /** Show "coming soon" toast for friends actions. */
   public onFriendsAction(): void {
-    SceneBindingComponent.instance?.showToast('好友系统后续版本开放', 'INFO');
+    this.switchTab('FRIENDS');
+  }
+
+  private bindButtonOnce(button: ButtonLike, handler: () => void): void {
+    if (this.boundButtons.has(button)) return;
+    this.boundButtons.add(button);
+    button.on?.('click', handler, this);
+  }
+
+  private sendFriendGift(friendId: string): void {
+    if (!this.facade) return;
+    this.facade.sendFriendGift(friendId);
+    SceneBindingComponent.instance?.showToast('礼物已送达', 'SUCCESS');
+    this.refresh();
+  }
+
+  private claimFriendGift(friendId: string): void {
+    if (!this.facade) return;
+    this.facade.claimFriendGift(friendId);
+    SceneBindingComponent.instance?.showToast('好友礼物已领取', 'SUCCESS');
+    this.refresh();
   }
 
   // ── Event Subscription ────────────────────────────────────────────────────
