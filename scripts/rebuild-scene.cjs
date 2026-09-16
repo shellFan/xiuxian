@@ -799,36 +799,186 @@ function buildScene() {
     }
 
     if (pageName === 'MorePageContent') {
-      const entriesContainerIdx = b.addNode('MoreEntryGrid', -1, [], [], { lpos: b.vec3(0, -12, 0) });
-      b.addUITransform(entriesContainerIdx, 1120, 300);
-      const entries = [
-        { node: 'SectEntryCard', title: '宗门', desc: '选择宗门，寻找修行归属', button: '进入宗门' },
-        { node: 'LeaderboardEntryCard', title: '排行榜', desc: '查看道友榜单与修行排名', button: '查看排行' },
-        { node: 'FriendsEntryCard', title: '好友', desc: '与道友互通有无，结伴修行', button: '打开好友' },
-        { node: 'AchievementsEntryCard', title: '成就', desc: '记录每一步修行里程碑', button: '查看成就' },
+      // More is a real PC V1 workspace. The six sections stay in one page
+      // container so the scene can be wired by MorePageComponent without
+      // reintroducing the old "coming soon" entry cards.
+      const sectionNavIdx = b.addNode('MoreSectionTabs', -1, [], [], { lpos: b.vec3(0, 137, 0) });
+      b.addPanel(sectionNavIdx, 1120, 52, { fillColor: chrome, strokeColor: chromeSoft });
+      const sectionTabs = [
+        { name: 'MoreTabSect', label: '宗门' },
+        { name: 'MoreTabLeaderboard', label: '排行榜' },
+        { name: 'MoreTabFriends', label: '好友' },
+        { name: 'MoreTabAchievements', label: '成就' },
+        { name: 'MoreTabDaily', label: '每日任务' },
+        { name: 'MoreTabSettings', label: '设置' },
       ];
-      entries.forEach((entry, index) => {
-        const column = index % 2;
-        const row = Math.floor(index / 2);
-        const cardIdx = addPageCard(
-          entriesContainerIdx,
-          entry.node,
-          520,
-          108,
-          b.vec3((column - 0.5) * 570, 62 - row * 136, 0),
-          { fillColor: index % 2 === 0 ? paper : paperSoft },
+      sectionTabs.forEach((tab, index) => {
+        const tabIdx = addPageButton(
+          sectionNavIdx,
+          tab.name,
+          tab.label,
+          164,
+          40,
+          b.vec3((index - 2.5) * 180, 0, 0),
+          { fillColor: index === 3 ? accent : chromeSoft, strokeColor: index === 3 ? accentStroke : chrome, fontSize: 16 },
         );
-        addPageText(cardIdx, 'EntryTitleLabel', entry.title, 300, 32, {
-          lpos: b.vec3(-72, 25, 0), fontSize: 23, color: ink,
+        b.objects[tabIdx]._active = true;
+      });
+      pageChildren.push(sectionNavIdx);
+
+      const addSection = (name, title, lpos, opts = {}) => {
+        const sectionIdx = b.addNode(name, -1, [], [], {
+          lpos,
+          active: opts.active !== undefined ? opts.active : false,
         });
-        addPageText(cardIdx, 'EntryDescLabel', entry.desc, 330, 28, {
-          lpos: b.vec3(-55, -17, 0), fontSize: 16, color: mutedInk,
+        b.addPanel(sectionIdx, 1120, 252, {
+          fillColor: opts.fillColor || paper,
+          strokeColor: opts.strokeColor || b.color(194, 172, 137, 255),
         });
-        addPageButton(cardIdx, `${entry.node.replace('Card', 'Button')}`, entry.button, 138, 44, b.vec3(182, 0, 0), {
-          fillColor: chromeSoft, strokeColor: chrome, fontSize: 16,
+        addPageText(sectionIdx, 'SectionTitleLabel', title, 980, 32, {
+          lpos: b.vec3(0, 101, 0), fontSize: 22, color: ink,
+        });
+        pageChildren.push(sectionIdx);
+        return sectionIdx;
+      };
+
+      // Sect / company section. Cards are Buttons so a future scene binding
+      // can select a company without changing this generated node contract.
+      const sectIdx = addSection('SectContainer', '宗门 · 公司选择', b.vec3(0, -25, 0), { active: false });
+      addPageText(sectIdx, 'CurrentSectLabel', '当前宗门：散修 · 未加入公司', 460, 28, {
+        lpos: b.vec3(-300, 68, 0), fontSize: 18, color: ink,
+      });
+      addPageText(sectIdx, 'CooldownLabel', '切换冷却：可用', 320, 28, {
+        lpos: b.vec3(320, 68, 0), fontSize: 17, color: mutedInk,
+      });
+      const sectDefs = [
+        { name: '民企', bonus: '工资 +20%' },
+        { name: '外企', bonus: '修为 +15%' },
+        { name: '国企', bonus: '道心 +10%' },
+        { name: '大厂', bonus: '绩效 +25%' },
+      ];
+      sectDefs.forEach((sect, index) => {
+        const cardIdx = addPageCard(sectIdx, `SectCard_${index}`, 220, 86,
+          b.vec3((index - 1.5) * 250, -4, 0), {
+            fillColor: index % 2 === 0 ? paperSoft : paper,
+          });
+        b.addButton(cardIdx, { target: cardIdx });
+        addPageText(cardIdx, 'NameLabel', sect.name, 190, 26, {
+          lpos: b.vec3(0, 20, 0), fontSize: 20, color: ink,
+        });
+        addPageText(cardIdx, 'BonusLabel', sect.bonus, 190, 24, {
+          lpos: b.vec3(0, -20, 0), fontSize: 17, color: accentStroke,
         });
       });
-      pageChildren.push(entriesContainerIdx);
+      addPageButton(sectIdx, 'JoinButton', '选择公司', 150, 42, b.vec3(0, -93, 0), {
+        fillColor: success, strokeColor: successStroke, fontSize: 17,
+      });
+
+      // Leaderboard section: local/NPC data is readable even before a
+      // remote ranking service is introduced.
+      const leaderboardIdx = addSection('LeaderboardContainer', '排行榜 · 修为榜', b.vec3(0, -25, 0), { active: false, fillColor: paperSoft });
+      addPageText(leaderboardIdx, 'PlayerRankLabel', '我的排名：第 12 名 · 修为 3,280', 700, 28, {
+        lpos: b.vec3(-150, 68, 0), fontSize: 18, color: ink,
+      });
+      addPageButton(leaderboardIdx, 'RefreshButton', '刷新榜单', 126, 38, b.vec3(450, 68, 0), {
+        fillColor: chromeSoft, strokeColor: chrome, fontSize: 15,
+      });
+      const leaderboardRows = [
+        ['#1', '加班渡劫者', '修为 12,480'],
+        ['#2', '摸鱼大师', '修为 10,360'],
+        ['#3', '稳健修行人', '修为 8,920'],
+        ['#12', '我 · 练气职员', '修为 3,280'],
+      ];
+      leaderboardRows.forEach((row, index) => {
+        const rowIdx = addPageCard(leaderboardIdx, `EntryRow_${index}`, 1000, 34,
+          b.vec3(0, 34 - index * 38, 0), { fillColor: index === 3 ? b.color(218, 232, 226, 255) : paper });
+        addPageText(rowIdx, 'RankLabel', row[0], 110, 26, { lpos: b.vec3(-410, 0, 0), fontSize: 16, color: accentStroke });
+        addPageText(rowIdx, 'NameLabel', row[1], 520, 26, { lpos: b.vec3(-80, 0, 0), fontSize: 16, color: ink });
+        addPageText(rowIdx, 'ScoreLabel', row[2], 260, 26, { lpos: b.vec3(350, 0, 0), fontSize: 16, color: mutedInk });
+      });
+
+      // Friends section.
+      const friendsIdx = addSection('FriendsContainer', '好友 · 道友互助', b.vec3(0, -25, 0), { active: false });
+      addPageText(friendsIdx, 'PendingGiftsLabel', '3 位好友 · 1 个待领取礼物', 620, 28, {
+        lpos: b.vec3(-220, 68, 0), fontSize: 18, color: ink,
+      });
+      addPageButton(friendsIdx, 'ClaimAllButton', '领取全部', 126, 38, b.vec3(450, 68, 0), {
+        fillColor: accent, strokeColor: accentStroke, fontSize: 15,
+      });
+      const friendRows = [
+        ['道友·小周', 'Lv.3', '🎁 待领取'],
+        ['道友·阿琳', 'Lv.2', '可送礼'],
+        ['道友·老王', 'Lv.4', '已送礼'],
+      ];
+      friendRows.forEach((friend, index) => {
+        const rowIdx = addPageCard(friendsIdx, `FriendRow_${index}`, 1000, 42,
+          b.vec3(0, 35 - index * 48, 0), { fillColor: index % 2 === 0 ? paper : paperSoft });
+        addPageText(rowIdx, 'NameLabel', friend[0], 330, 28, { lpos: b.vec3(-290, 0, 0), fontSize: 17, color: ink });
+        addPageText(rowIdx, 'LevelLabel', friend[1], 130, 28, { lpos: b.vec3(-30, 0, 0), fontSize: 16, color: mutedInk });
+        addPageText(rowIdx, 'GiftStatusLabel', friend[2], 220, 28, { lpos: b.vec3(170, 0, 0), fontSize: 16, color: accentStroke });
+        addPageButton(rowIdx, 'SendGiftButton', '送礼', 88, 32, b.vec3(395, 0, 0), { fillColor: chromeSoft, strokeColor: chrome, fontSize: 14 });
+        addPageButton(rowIdx, 'ClaimGiftButton', '领取', 88, 32, b.vec3(490, 0, 0), { fillColor: success, strokeColor: successStroke, fontSize: 14 });
+      });
+
+      // Achievements section. This is the default MorePageComponent tab and
+      // follows its Achievement_i/NameLabel/DescLabel/ClaimButton lookup.
+      const achievementsIdx = addSection('AchievementsContainer', '成就 · 修行里程碑', b.vec3(0, -25, 0), { active: true, fillColor: paperSoft });
+      addPageText(achievementsIdx, 'ProgressLabel', '已解锁：0/12 · 还有传说等你发现', 760, 28, {
+        lpos: b.vec3(-150, 68, 0), fontSize: 18, color: ink,
+      });
+      const achievements = [
+        ['初入职场', '完成第一次修炼', '进度 0/1'],
+        ['稳定输出', '累计获得 1,000 工资', '进度 0/1,000'],
+        ['道心如铁', '道心保持在 80 以上', '进度 0/80'],
+        ['隐藏传说', '??? · 还有传说没被发现', '🔒 未解锁'],
+      ];
+      achievements.forEach((achievement, index) => {
+        const cardIdx = addPageCard(achievementsIdx, `Achievement_${index}`, 500, 58,
+          b.vec3((index % 2 === 0 ? -0.5 : 0.5) * 540, 27 - Math.floor(index / 2) * 70, 0), {
+            fillColor: index === 3 ? b.color(226, 219, 204, 255) : paper,
+          });
+        addPageText(cardIdx, 'NameLabel', achievement[0], 240, 22, { lpos: b.vec3(-100, 18, 0), fontSize: 17, color: ink });
+        addPageText(cardIdx, 'DescLabel', achievement[1], 260, 20, { lpos: b.vec3(-88, -7, 0), fontSize: 14, color: mutedInk });
+        addPageText(cardIdx, 'ProgressLabel', achievement[2], 140, 20, { lpos: b.vec3(160, 18, 0), fontSize: 14, color: accentStroke });
+        addPageButton(cardIdx, 'ClaimButton', '领取', 76, 30, b.vec3(190, -14, 0), { fillColor: success, strokeColor: successStroke, fontSize: 13 });
+      });
+
+      // Daily tasks section.
+      const dailyIdx = addSection('DailyContainer', '每日任务 · 今日清单', b.vec3(0, -25, 0), { active: false });
+      addPageText(dailyIdx, 'DailyCountLabel', '今日任务：0/4 · 刷新倒计时 08:32:10', 760, 28, {
+        lpos: b.vec3(-150, 68, 0), fontSize: 18, color: ink,
+      });
+      const dailyTasks = [
+        ['每日签到', '登录并领取今日签到奖励', '0/1'],
+        ['修炼日常', '点击修炼一次', '0/1'],
+        ['上班打卡', '累计工作 30 秒', '0/30 秒'],
+        ['稳住道心', '保持道心高于 60', '0/60'],
+      ];
+      dailyTasks.forEach((task, index) => {
+        const taskIdx = addPageCard(dailyIdx, `DailyTask_${index}`, 500, 58,
+          b.vec3((index % 2 === 0 ? -0.5 : 0.5) * 540, 27 - Math.floor(index / 2) * 70, 0), {
+            fillColor: index % 2 === 0 ? paper : paperSoft,
+          });
+        addPageText(taskIdx, 'NameLabel', task[0], 250, 22, { lpos: b.vec3(-110, 16, 0), fontSize: 17, color: ink });
+        addPageText(taskIdx, 'DescLabel', task[1], 290, 20, { lpos: b.vec3(-88, -10, 0), fontSize: 14, color: mutedInk });
+        addPageText(taskIdx, 'ProgressLabel', task[2], 120, 20, { lpos: b.vec3(155, 16, 0), fontSize: 14, color: progressStroke });
+        addPageButton(taskIdx, 'ClaimButton', '领取', 76, 30, b.vec3(190, -14, 0), { fillColor: success, strokeColor: successStroke, fontSize: 13 });
+      });
+
+      // Settings section. Buttons and data labels use the names exposed by
+      // SettingsPageComponent; dangerous clear-save UI remains absent.
+      const settingsIdx = addSection('SettingsContainer', '设置 · 游戏偏好', b.vec3(0, -25, 0), { active: false, fillColor: paperSoft });
+      addPageText(settingsIdx, 'BgmStatusLabel', 'BGM：开', 250, 28, { lpos: b.vec3(-410, 56, 0), fontSize: 17, color: ink });
+      addPageButton(settingsIdx, 'BgmToggle', '切换', 88, 34, b.vec3(-260, 56, 0), { fillColor: chromeSoft, strokeColor: chrome, fontSize: 14 });
+      addPageText(settingsIdx, 'SfxStatusLabel', '音效：开', 250, 28, { lpos: b.vec3(20, 56, 0), fontSize: 17, color: ink });
+      addPageButton(settingsIdx, 'SfxToggle', '切换', 88, 34, b.vec3(170, 56, 0), { fillColor: chromeSoft, strokeColor: chrome, fontSize: 14 });
+      addPageText(settingsIdx, 'BgmVolumeSlider', 'BGM 音量　━━━━━━●━　80%', 430, 28, { lpos: b.vec3(-305, 12, 0), fontSize: 16, color: mutedInk });
+      addPageText(settingsIdx, 'SfxVolumeSlider', '音效音量　━━━━●━━　60%', 430, 28, { lpos: b.vec3(305, 12, 0), fontSize: 16, color: mutedInk });
+      addPageText(settingsIdx, 'VersionLabel', '版本：PC V1 · 存档状态：本地可用', 540, 26, { lpos: b.vec3(-250, -34, 0), fontSize: 16, color: ink });
+      addPageButton(settingsIdx, 'FullscreenToggle', '全屏', 96, 36, b.vec3(360, -34, 0), { fillColor: chromeSoft, strokeColor: chrome, fontSize: 14 });
+      addPageButton(settingsIdx, 'SaveButton', '保存设置', 126, 38, b.vec3(-100, -88, 0), { fillColor: success, strokeColor: successStroke, fontSize: 15 });
+      addPageButton(settingsIdx, 'QuitButton', '退出游戏', 126, 38, b.vec3(100, -88, 0), { fillColor: b.color(145, 81, 70, 255), strokeColor: b.color(105, 55, 47, 255), fontSize: 15 });
+
     }
 
     const pageIdx = b.addNode(pageName, -1, pageChildren, [], {
@@ -849,7 +999,58 @@ function buildScene() {
   });
 
   // --- ModalLayer node ---
-  const modalIdx = b.addNode('ModalLayer', -1, [], []);
+  // These panels are intentionally present but hidden. SceneBindingComponent
+  // owns modal state; keeping readable content in the scene prevents a black
+  // or empty overlay while leaving all transaction logic in the existing
+  // modal manager.
+  const addModalPanel = (name, title, body, primary, secondary, status) => {
+    const modalRootIdx = b.addNode(name, -1, [], [], { active: false });
+    const maskIdx = b.addNode('Mask', -1, [], [], { active: true });
+    b.addPanel(maskIdx, DESIGN_WIDTH, DESIGN_HEIGHT, {
+      fillColor: b.color(20, 27, 40, 178), strokeColor: b.color(20, 27, 40, 178), lineWidth: 0,
+    });
+    const panelIdx = b.addNode('Panel', -1, [], [], { lpos: b.vec3(0, 0, 0) });
+    b.addPanel(panelIdx, 700, 390, { fillColor: paper, strokeColor: b.color(194, 172, 137, 255), lineWidth: 3 });
+
+    const headerIdx = b.addNode('Header', -1, [], [], { lpos: b.vec3(0, 145, 0) });
+    b.addUITransform(headerIdx, 640, 54);
+    addPageText(headerIdx, 'Title', title, 500, 42, { lpos: b.vec3(-50, 0, 0), fontSize: 26, color: ink });
+    addPageButton(headerIdx, 'Close', '×', 44, 44, b.vec3(286, 0, 0), { fillColor: chromeSoft, strokeColor: chrome, fontSize: 25 });
+
+    const bodyScrollIdx = b.addNode('BodyScroll', -1, [], [], { lpos: b.vec3(0, 18, 0) });
+    b.addPanel(bodyScrollIdx, 620, 180, { fillColor: paperSoft, strokeColor: b.color(194, 172, 137, 255), lineWidth: 1 });
+    addPageText(bodyScrollIdx, 'Content', body, 570, 150, { fontSize: 20, color: ink });
+    const statusIdx = addPageText(panelIdx, 'StatusLabel', status, 580, 26, {
+      lpos: b.vec3(0, -93, 0), fontSize: 16, color: mutedInk,
+    });
+
+    const actionsIdx = b.addNode('Actions', -1, [], [], { lpos: b.vec3(0, -145, 0) });
+    b.addUITransform(actionsIdx, 620, 56);
+    addPageButton(actionsIdx, 'Secondary', secondary, 170, 48, b.vec3(-120, 0, 0), { fillColor: chromeSoft, strokeColor: chrome, fontSize: 17 });
+    addPageButton(actionsIdx, 'Primary', primary, 190, 48, b.vec3(120, 0, 0), { fillColor: accent, strokeColor: accentStroke, fontSize: 17 });
+
+    b.objects[headerIdx]._parent = b.ref(panelIdx);
+    b.objects[bodyScrollIdx]._parent = b.ref(panelIdx);
+    b.objects[actionsIdx]._parent = b.ref(panelIdx);
+    b.objects[panelIdx]._children = [b.ref(headerIdx), b.ref(bodyScrollIdx), b.ref(statusIdx), b.ref(actionsIdx)];
+    b.objects[maskIdx]._parent = b.ref(modalRootIdx);
+    b.objects[panelIdx]._parent = b.ref(modalRootIdx);
+    b.objects[modalRootIdx]._children = [b.ref(maskIdx), b.ref(panelIdx)];
+    return modalRootIdx;
+  };
+  const eventModalIdx = addModalPanel(
+    'OfficeEventModal', '职场事件', '事件：临时会议\n选择一项处理方式，收益与代价会立即结算。',
+    '选择处理', '稍后处理', '状态：待选择 · 事件不会丢失',
+  );
+  const adModalIdx = addModalPanel(
+    'RewardAdModal', '奖励广告', '观看广告可获得明确的额外奖励。\n当前奖励：招募资源 ×2。',
+    '观看广告', '不用了', '状态：READY · 取消始终可用',
+  );
+  const offlineModalIdx = addModalPanel(
+    'OfflineRewardModal', '离线收益', '离线 2小时18分钟\n工资 +240　·　修为 +120\n看广告 ×2：工资 +480　·　修为 +240',
+    '收下', '看广告 ×2', '状态：未结算 · 1倍与2倍互斥',
+  );
+  const modalIdx = b.addNode('ModalLayer', -1, [eventModalIdx, adModalIdx, offlineModalIdx], []);
   const modalUtIdx = b.addUITransform(modalIdx, 1280, 720);
   const modalWidgetIdx = b.addWidgetStretch(modalIdx);
 
