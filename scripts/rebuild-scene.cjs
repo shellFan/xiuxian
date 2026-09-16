@@ -14,8 +14,8 @@ const fs = require('fs');
 const path = require('path');
 
 const SCENE_PATH = path.join(__dirname, '..', 'assets', 'scenes', 'Main.scene');
-const DESIGN_WIDTH = 1280;
-const DESIGN_HEIGHT = 720;
+const DESIGN_WIDTH = 720;
+const DESIGN_HEIGHT = 1280;
 // The shared resource strip ends at roughly 122px and the bottom chrome
 // begins at 652px. Pages occupy that full middle band; home-only panels are
 // toggled by GameUIController so craft/tasks never compete for the same space.
@@ -484,7 +484,7 @@ function buildScene() {
   b.addPanel(paperIdx, 1220, 650, { fillColor: paper, strokeColor: b.color(205, 190, 161, 255) });
   b.addSprite(paperIdx, spriteFrameRef(HOME_ASSETS.background));
   const bgIdx = b.addNode('Background', -1, [paperIdx], []);
-  b.addPanel(bgIdx, 1280, 720, { fillColor: chrome, strokeColor: chrome });
+  b.addPanel(bgIdx, DESIGN_WIDTH, DESIGN_HEIGHT, { fillColor: chrome, strokeColor: chrome });
   const bgWidgetIdx = b.addWidgetStretch(bgIdx);
 
   // --- TopHeader node (with MainHudComponent) ---
@@ -1053,7 +1053,7 @@ function buildScene() {
     '收下', '看广告 ×2', '状态：未结算 · 1倍与2倍互斥',
   );
   const modalIdx = b.addNode('ModalLayer', -1, [eventModalIdx, adModalIdx, offlineModalIdx], []);
-  const modalUtIdx = b.addUITransform(modalIdx, 1280, 720);
+  const modalUtIdx = b.addUITransform(modalIdx, DESIGN_WIDTH, DESIGN_HEIGHT);
   const modalWidgetIdx = b.addWidgetStretch(modalIdx);
 
   // --- ToastLayer node ---
@@ -1063,7 +1063,7 @@ function buildScene() {
 
   // --- TutorialLayer node ---
   const tutorIdx = b.addNode('TutorialLayer', -1, [], []);
-  const tutorUtIdx = b.addUITransform(tutorIdx, 1280, 720);
+  const tutorUtIdx = b.addUITransform(tutorIdx, DESIGN_WIDTH, DESIGN_HEIGHT);
   const tutorWidgetIdx = b.addWidgetStretch(tutorIdx);
 
   // ── SafeAreaRoot node ─────────────────────────────────────────────────
@@ -1086,6 +1086,47 @@ function buildScene() {
   const canvasCompIdx = b.addCanvas(canvasIdx, uiCamCompIdx);
   const canvasUtIdx = b.addUITransform(canvasIdx, DESIGN_WIDTH, DESIGN_HEIGHT);
   const canvasWidgetIdx = b.addWidgetStretch(canvasIdx);
+
+  // ── Portrait PC home composition ───────────────────────────────────────
+  // The product reference is a 9:16 single-page card. Keep the existing
+  // business bindings and node names, but explicitly place the home bands in
+  // portrait coordinates so desktop renders the same composition as mobile.
+  const portraitNode = (name) => b.objects.findIndex((o) => o.__type__ === 'cc.Node' && o._name === name);
+  const portraitLayout = (name, x, y, width, height) => {
+    const nodeIdx = portraitNode(name);
+    if (nodeIdx < 0) return;
+    const node = b.objects[nodeIdx];
+    node._lpos = b.vec3(x, y, 0);
+    const transformIdx = node._components?.map((r) => r.__id__).find((id) => b.objects[id]?.__type__ === 'cc.UITransform');
+    if (transformIdx !== undefined) b.objects[transformIdx]._contentSize = b.size(width, height);
+    const widgetIdx = node._components?.map((r) => r.__id__).find((id) => b.objects[id]?.__type__ === 'cc.Widget');
+    if (widgetIdx !== undefined) b.objects[widgetIdx]._enabled = false;
+  };
+  portraitLayout('Background', 0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
+  portraitLayout('PaperContent', 0, 0, 680, 1160);
+  portraitLayout('TopHeader', 0, 548, 680, 94);
+  portraitLayout('ResourceBar', 0, 430, 660, 112);
+  portraitLayout('CharacterArea', 0, 150, 660, 400);
+  portraitLayout('IdleIncomePanel', 0, -130, 630, 128);
+  portraitLayout('PrimaryActions', 0, -315, 660, 176);
+  portraitLayout('BottomNavigation', 0, -566, 680, 108);
+  portraitLayout('PageContainer', 0, 0, 700, 1050);
+  portraitLayout('BrandLabel', -150, 20, 380, 54);
+  portraitLayout('BrandTaglineLabel', -150, -28, 300, 28);
+  portraitLayout('CareerSummaryLabel', 170, 0, 300, 44);
+  portraitLayout('ResourceCultivationChip', -240, 0, 145, 76);
+  portraitLayout('ResourceSalaryChip', -80, 0, 145, 76);
+  portraitLayout('ResourcePerformanceChip', 80, 0, 145, 76);
+  portraitLayout('ResourceMindChip', 240, 0, 145, 76);
+  portraitLayout('CharacterIconLabel', -220, 72, 210, 220);
+  portraitLayout('CharacterNameLabel', 95, 100, 390, 44);
+  portraitLayout('CharacterStatusLabel', 95, 48, 420, 42);
+  portraitLayout('CharacterHintLabel', 95, 0, 360, 36);
+  portraitLayout('CultivateButton', -220, 0, 190, 78);
+  portraitLayout('WorkButton', 0, 0, 190, 78);
+  portraitLayout('FishButton', 220, 0, 190, 78);
+  ['TabHome', 'TabTasks', 'TabCraft', 'TabPromotion', 'TabMore'].forEach((name, index) =>
+    portraitLayout(name, (index - 2) * 135, 0, 116, 76));
 
   // ── PrefabInfo ────────────────────────────────────────────────────────
   const prefabIdx = b.addPrefabInfo();

@@ -18,8 +18,8 @@ const path = require('path');
 const buildDir = process.argv[2] || path.join(__dirname, 'build', 'web-desktop');
 const htmlPath = path.join(buildDir, 'index.html');
 const cssPath = path.join(buildDir, 'style.css');
-const GAME_WIDTH = 1280;
-const GAME_HEIGHT = 720;
+const GAME_WIDTH = 720;
+const GAME_HEIGHT = 1280;
 
 // ── Patch index.html ────────────────────────────────────────────────────────
 if (fs.existsSync(htmlPath)) {
@@ -54,7 +54,7 @@ if (fs.existsSync(htmlPath)) {
   // self-contained and rely on the scene's GameUIController.
   html = html.replace(/\s*<script[^>]+src=["']pc-patch\.js["'][^>]*><\/script>/gi, '');
 
-  // Keep the HTML canvas intrinsic size aligned with Main.scene's 1280×720 design.
+  // Keep the HTML canvas intrinsic size aligned with Main.scene's portrait design.
   html = html.replace(
     /<canvas\b[^>]*\bid="GameCanvas"[^>]*>/,
     `<canvas id="GameCanvas" width="${GAME_WIDTH}" height="${GAME_HEIGHT}" tabindex="99">`
@@ -75,7 +75,7 @@ if (fs.existsSync(htmlPath)) {
   if (!html.includes('viewport')) {
     html = html.replace(
       '</head>',
-      '  <meta name="viewport" content="width=1280,initial-scale=1">\n</head>'
+      '  <meta name="viewport" content="width=720,initial-scale=1">\n</head>'
     );
   }
 
@@ -119,9 +119,12 @@ if (fs.existsSync(cssPath)) {
 }`
   );
 
-  // Canvas: fullscreen
-  if (!css.includes('#GameCanvas {')) {
-    css += '\n#GameCanvas { width: 100%; height: 100%; display: block; }\n';
+  // Canvas: portrait card, centered and scaled without distortion.
+  const portraitCanvasRule = '#GameCanvas { width: min(100vw, 56.25vh); height: min(100vh, 177.7778vw); max-width: 100vw; max-height: 100vh; display: block; margin: 0 auto; }';
+  if (css.includes('#GameCanvas {')) {
+    css = css.replace(/#GameCanvas\s*\{[^}]*\}/, portraitCanvasRule);
+  } else {
+    css += `\n${portraitCanvasRule}\n`;
   }
 
   fs.writeFileSync(cssPath, css, 'utf-8');

@@ -43,22 +43,9 @@ function widgetOf(node: SceneObject): SceneObject {
 
 function verticalBand(name: string): { top: number; bottom: number } {
   const { node } = nodeNamed(name);
-  const widget = widgetOf(node);
   const size = sizeOf(node);
-  const flags = widget._alignFlags as number;
-  const top = widget._top as number;
-  const bottom = widget._bottom as number;
-
-  if ((flags & 1) !== 0 && (flags & 4) === 0) {
-    return { top, bottom: top + size.height };
-  }
-  if ((flags & 4) !== 0 && (flags & 1) === 0) {
-    return { top: 720 - bottom - size.height, bottom: 720 - bottom };
-  }
-  if ((flags & 1) !== 0 && (flags & 4) !== 0) {
-    return { top, bottom: 720 - bottom };
-  }
-  throw new Error(`${name} does not declare a supported vertical Widget band`);
+  const y = node._lpos?.y ?? 0;
+  return { top: 640 - y - size.height / 2, bottom: 640 - y + size.height / 2 };
 }
 
 function centerOf(index: number): number {
@@ -73,7 +60,7 @@ function centerOf(index: number): number {
   const parent = node._parent?.__id__;
   assert.ok(typeof parent === 'number', `${node._name} must have a parent or Widget`);
   // Cocos UI uses a bottom-up local Y axis, while verticalBand() exposes
-  // screen-space coordinates measured from the top of the 720px canvas.
+  // screen-space coordinates measured from the top of the 1280px canvas.
   return centerOf(parent) - (node._lpos?.y ?? 0);
 }
 
@@ -88,39 +75,31 @@ function assertSeparated(upper: { top: number; bottom: number }, lower: { top: n
   assert.ok(upper.bottom + gap <= lower.top, `${label} must have at least ${gap}px separation`);
 }
 
-test('Task 6 keeps the scene and desktop canvas on one 1280x720 composition', () => {
+test('Task 6 keeps the scene and desktop canvas on one 720x1280 portrait composition', () => {
   const canvas = scene.find((object) => object.__type__ === 'cc.Canvas');
   assert.ok(canvas, 'Main.scene must contain a Canvas');
-  assert.deepEqual(canvas._designResolution, { __type__: 'cc.Size', width: 1280, height: 720 });
+  assert.deepEqual(canvas._designResolution, { __type__: 'cc.Size', width: 720, height: 1280 });
 
   const patcher = fs.readFileSync('desktop/patch-html.cjs', 'utf8');
-  assert.match(patcher, /GAME_WIDTH\s*=\s*1280/);
-  assert.match(patcher, /GAME_HEIGHT\s*=\s*720/);
+  assert.match(patcher, /GAME_WIDTH\s*=\s*720/);
+  assert.match(patcher, /GAME_HEIGHT\s*=\s*1280/);
   assert.match(patcher, /height="\$\{GAME_HEIGHT\}"/);
 });
 
-test('Task 6 rejects a fixed PageContainer height with top and bottom anchors', () => {
+test('Task 6 keeps PageContainer inside the portrait page composition', () => {
   const page = nodeNamed('PageContainer').node;
-  const widget = widgetOf(page);
   const size = sizeOf(page);
-  const flags = widget._alignFlags as number;
-  const top = widget._top as number;
-  const bottom = widget._bottom as number;
-
-  assert.equal(flags & 5, 5, 'PageContainer must use both top and bottom anchors');
-  assert.equal(
-    size.height,
-    720 - top - bottom,
-    'a top+bottom Widget must not retain a conflicting fixed height',
-  );
-  assert.notEqual(size.height, 520, 'the stale 1280x520 PageContainer height must be removed');
+  assert.deepEqual(size, { __type__: 'cc.Size', width: 700, height: 1050 });
+  assert.equal(page._lpos?.y, 0, 'PageContainer must use the explicit portrait center position');
+  assert.equal((widgetOf(page)._enabled ?? true), false,
+    'PageContainer Widget must be disabled when explicit portrait positioning is used');
 });
 
-test('Task 6 keeps the generator and pc copy/patch chain on 1280x720', () => {
+test('Task 6 keeps the generator and pc copy/patch chain on 720x1280', () => {
   const rebuilder = fs.readFileSync('scripts/rebuild-scene.cjs', 'utf8');
-  assert.match(rebuilder, /DESIGN_WIDTH\s*=\s*1280/);
-  assert.match(rebuilder, /DESIGN_HEIGHT\s*=\s*720/);
-  assert.match(rebuilder, /PAGE_CONTAINER_HEIGHT\s*=\s*DESIGN_HEIGHT\s*-\s*PAGE_TOP_INSET\s*-\s*PAGE_BOTTOM_INSET/);
+  assert.match(rebuilder, /DESIGN_WIDTH\s*=\s*720/);
+  assert.match(rebuilder, /DESIGN_HEIGHT\s*=\s*1280/);
+  assert.match(rebuilder, /portraitLayout\s*\(/);
 
   const desktopPackage = JSON.parse(fs.readFileSync('desktop/package.json', 'utf8')) as {
     scripts?: { 'build:copy'?: string };
@@ -138,7 +117,7 @@ test('Task 6 keeps the generator and pc copy/patch chain on 1280x720', () => {
     });
     assert.equal(patchResult.status, 0, patchResult.stderr || patchResult.stdout);
     const patchedHtml = fs.readFileSync(path.join(tempBuild, 'index.html'), 'utf8');
-    assert.match(patchedHtml, /<canvas id="GameCanvas" width="1280" height="720" tabindex="99">/);
+    assert.match(patchedHtml, /<canvas id="GameCanvas" width="720" height="1280" tabindex="99">/);
   } finally {
     fs.rmSync(tempBuild, { recursive: true, force: true });
   }

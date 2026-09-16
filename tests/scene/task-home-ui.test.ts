@@ -97,19 +97,10 @@ function assertDirectChild(parentName: string, childName: string): void {
 
 function verticalBand(name: string): { top: number; bottom: number } {
   const { node } = nodeNamed(name);
-  const widget = componentOf(node, 'cc.Widget');
   const size = componentOf(node, 'cc.UITransform')._contentSize as { width: number; height: number };
-  const flags = widget._alignFlags as number;
-  const top = widget._top as number;
-  const bottom = widget._bottom as number;
-
-  if ((flags & 1) !== 0 && (flags & 4) === 0) {
-    return { top, bottom: top + size.height };
-  }
-  if ((flags & 4) !== 0 && (flags & 1) === 0) {
-    return { top: 720 - bottom - size.height, bottom: 720 - bottom };
-  }
-  throw new Error(`${name} must declare one vertical anchor direction`);
+  const y = (node._lpos as { y: number }).y;
+  const top = 640 - y - size.height / 2;
+  return { top, bottom: top + size.height };
 }
 
 test('home UI has the branded header, four independent resource chips, and character card', () => {

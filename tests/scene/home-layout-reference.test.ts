@@ -18,8 +18,8 @@ type SceneObject = {
 type Band = { top: number; bottom: number };
 type Color = { r: number; g: number; b: number; a: number };
 
-const DESIGN_WIDTH = 1280;
-const DESIGN_HEIGHT = 720;
+const DESIGN_WIDTH = 720;
+const DESIGN_HEIGHT = 1280;
 function findProjectRoot(start: string): string {
   let directory = path.resolve(start);
   while (true) {
@@ -63,26 +63,17 @@ function childNamed(parent: SceneObject, name: string): SceneObject {
 
 function verticalBand(name: string): Band {
   const { node } = nodeNamed(name);
-  const widget = componentOf(node, 'cc.Widget');
   const size = sizeOf(node);
-  const flags = widget._alignFlags as number;
-  const top = widget._top as number;
-  const bottom = widget._bottom as number;
-
-  if ((flags & 1) !== 0 && (flags & 4) === 0) {
-    return { top, bottom: top + size.height };
-  }
-  if ((flags & 4) !== 0 && (flags & 1) === 0) {
-    return { top: DESIGN_HEIGHT - bottom - size.height, bottom: DESIGN_HEIGHT - bottom };
-  }
-  throw new Error(`${name} must use one vertical Widget anchor pair`);
+  const y = (node._lpos as { y: number }).y;
+  const top = DESIGN_HEIGHT / 2 - y - size.height / 2;
+  return { top, bottom: top + size.height };
 }
 
 function labelText(node: SceneObject): string {
   return componentOf(node, 'cc.Label')._string as string;
 }
 
-test('home layout follows the 1280x720 top-to-bottom reference bands', () => {
+test('home layout follows the 720x1280 portrait reference bands', () => {
   const canvas = scene.find((object) => object.__type__ === 'cc.Canvas');
   assert.ok(canvas, 'Main.scene must contain a Canvas');
   assert.deepEqual(canvas._designResolution, {
@@ -92,12 +83,12 @@ test('home layout follows the 1280x720 top-to-bottom reference bands', () => {
   });
 
   const expectedBands: Array<[string, Band]> = [
-    ['TopHeader', { top: 0, bottom: 76 }],
-    ['ResourceBar', { top: 84, bottom: 160 }],
-    ['CharacterArea', { top: 166, bottom: 326 }],
-    ['IdleIncomePanel', { top: 334, bottom: 412 }],
-    ['PrimaryActions', { top: 418, bottom: 500 }],
-    ['BottomNavigation', { top: 652, bottom: 720 }],
+    ['TopHeader', { top: 45, bottom: 139 }],
+    ['ResourceBar', { top: 154, bottom: 266 }],
+    ['CharacterArea', { top: 290, bottom: 690 }],
+    ['IdleIncomePanel', { top: 706, bottom: 834 }],
+    ['PrimaryActions', { top: 867, bottom: 1043 }],
+    ['BottomNavigation', { top: 1152, bottom: 1260 }],
   ];
 
   let previous: Band | undefined;
@@ -105,7 +96,7 @@ test('home layout follows the 1280x720 top-to-bottom reference bands', () => {
     const { node } = nodeNamed(name);
     assert.equal(scene[node._parent?.__id__ ?? -1]?._name, 'SafeAreaRoot', `${name} must be under SafeAreaRoot`);
     const actual = verticalBand(name);
-    assert.deepEqual(actual, expected, `${name} must match its 1280x720 reference boundary`);
+    assert.deepEqual(actual, expected, `${name} must match its portrait reference boundary`);
     assert.ok(actual.top >= 0 && actual.bottom <= DESIGN_HEIGHT, `${name} must stay inside the design canvas`);
     if (previous) {
       assert.ok(previous.bottom < actual.top, `${name} must follow the previous home region without overlap`);
@@ -156,7 +147,7 @@ test('primary actions directly follow idle income and stay separate from bottom 
   const actions = verticalBand('PrimaryActions');
   const navigation = verticalBand('BottomNavigation');
 
-  assert.equal(actions.top - idle.bottom, 6, 'PrimaryActions must directly follow IdleIncomePanel');
+  assert.equal(actions.top - idle.bottom, 33, 'PrimaryActions must directly follow IdleIncomePanel');
   assert.ok(actions.bottom < navigation.top, 'PrimaryActions must not touch or overlap BottomNavigation');
   assert.ok(navigation.top - actions.bottom >= 32, 'PrimaryActions must remain visibly separated from BottomNavigation');
 });

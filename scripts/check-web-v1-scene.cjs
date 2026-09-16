@@ -297,10 +297,10 @@ function main() {
   const canvasComp = scene.find(obj => obj.__type__ === 'cc.Canvas');
   if (canvasComp) {
     const res = canvasComp._designResolution;
-    if (res && res.width === 1280 && res.height === 720) {
+    if (res && res.width === 720 && res.height === 1280) {
       console.log(`✅ Canvas design resolution: ${res.width}×${res.height}`);
     } else {
-      warnings.push(`Canvas design resolution is ${res?.width}×${res?.height}, expected 1280×720`);
+      warnings.push(`Canvas design resolution is ${res?.width}×${res?.height}, expected 720×1280`);
     }
   }
 
