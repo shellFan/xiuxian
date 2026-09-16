@@ -31,6 +31,31 @@
         ".json"
       ],
       "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "7b9fa0d8-5883-47ce-8d83-b0ddf2792796@f9941",
+      "displayName": "home-office-background",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimType": "none", "trimThreshold": 1, "rotated": false,
+        "offsetX": 0, "offsetY": 0, "trimX": 0, "trimY": 0,
+        "width": 1672, "height": 941, "rawWidth": 1672, "rawHeight": 941,
+        "borderTop": 0, "borderBottom": 0, "borderLeft": 0, "borderRight": 0,
+        "packable": true, "isUuid": true,
+        "imageUuidOrDatabaseUri": "7b9fa0d8-5883-47ce-8d83-b0ddf2792796@6c48a",
+        "atlasUuid": "",
+        "vertices": {
+          "rawPosition": [-836, -470.5, 0, 836, -470.5, 0, 836, 470.5, 0, -836, 470.5, 0],
+          "indexes": [0, 1, 2, 2, 3, 0],
+          "uv": [0, 941, 1672, 941, 1672, 0, 0, 0],
+          "nuv": [0, 0, 1, 0, 1, 1, 0, 1],
+          "minPos": [-836, -470.5, 0], "maxPos": [836, 470.5, 0]
+        },
+        "pixelsToUnit": 100, "pivotX": 0.5, "pivotY": 0.5, "meshType": 0
+      },
+      "ver": "1.0.12", "imported": true, "files": [".json"], "subMetas": {}
     }
   },
   "userData": {

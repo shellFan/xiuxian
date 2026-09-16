@@ -30,12 +30,12 @@ const HOME_ASSETS = {
   character: {
     path: 'assets/textures/ui/home/home-character.png',
     textureUuid: 'ede466c5-53d8-4083-902e-1f3f4916f98e',
-    spriteFrameUuid: 'ede466c5-53d8-4083-902e-1f3f4916f98e@6c48a',
+    spriteFrameUuid: 'ede466c5-53d8-4083-902e-1f3f4916f98e@f9941',
   },
   background: {
     path: 'assets/textures/ui/home/home-office-background.png',
     textureUuid: '7b9fa0d8-5883-47ce-8d83-b0ddf2792796',
-    spriteFrameUuid: '7b9fa0d8-5883-47ce-8d83-b0ddf2792796@6c48a',
+    spriteFrameUuid: '7b9fa0d8-5883-47ce-8d83-b0ddf2792796@f9941',
   },
 };
 
@@ -62,7 +62,7 @@ function validateHomeAssetRefs() {
       throw new Error(`Home visual asset must be a PNG: ${asset.path}`);
     }
     for (const uuid of [asset.textureUuid, asset.spriteFrameUuid]) {
-      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(?:@6c48a)?$/i.test(uuid)) {
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(?:@[a-z0-9]+)?$/i.test(uuid)) {
         throw new Error(`Invalid home visual asset UUID: ${uuid}`);
       }
     }
