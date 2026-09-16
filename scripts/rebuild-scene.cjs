@@ -510,7 +510,7 @@ function buildScene() {
     [cultBtnIdx, workBtnIdx, fishBtnIdx],
     []);
   b.addPanel(actionsIdx, 1140, 82, { fillColor: chrome, strokeColor: chromeSoft });
-  const actionsWidgetIdx = b.addWidget(actionsIdx, { alignFlags: 20, bottom: 200, horizontalCenter: 0 }); // bottom + h-center
+  const actionsWidgetIdx = b.addWidget(actionsIdx, { alignFlags: 20, bottom: 220, horizontalCenter: 0 }); // bottom + h-center
 
   // --- BottomNavigation node with 5 tabs ---
   const tabDefs = [
