@@ -103,6 +103,17 @@ const PAGE_TITLE_TEXT: Partial<Record<PcTab, string>> = {
   MORE: '更多',
 };
 
+const TASK_TYPE_LABELS: Record<string, string> = {
+  DAILY: '日常',
+  WORK: '工作',
+  CULTIVATION: '修炼',
+  EVENT: '事件',
+};
+
+const MAX_TASK_CARDS = 4;
+const TASK_UPDATE_INTERVAL = 1;
+const PROMOTION_OPTION_INDEX = 0;
+
 // ── Refresh categories ───────────────────────────────────────────────────────
 
 const REFRESH_CATEGORIES: readonly UiEventCategory[] = [
@@ -132,6 +143,10 @@ export class GameUIController extends Component {
   private craftPageContent: NodeLike | null = null;
   private craftRecipeList: NodeLike | null = null;
   private mergeBoardRoot: NodeLike | null = null;
+  private tasksPageContent: NodeLike | null = null;
+  private tasksAvailableContainer: NodeLike | null = null;
+  private promotionPageContent: NodeLike | null = null;
+  private promotionOption: NodeLike | null = null;
 
   private careerSummaryLabel: TextLike | null = null;
   private resourceSummaryLabel: TextLike | null = null;
@@ -148,6 +163,8 @@ export class GameUIController extends Component {
   private workButton: ButtonLike | null = null;
   private fishButton: ButtonLike | null = null;
   private craftButtons = new Map<ButtonLike, () => void>();
+  private taskButtons = new Map<ButtonLike, () => void>();
+  private promotionButtons = new Map<ButtonLike, () => void>();
 
   // Tab button references
   private tabButtons: Map<PcTab, ButtonLike> = new Map();
@@ -163,6 +180,7 @@ export class GameUIController extends Component {
   private currentTab: PcTab = 'HOME';
   private unsubs: Array<() => void> = [];
   private disposed = false;
+  private taskUpdateTimer = 0;
 
   // ── Cocos Lifecycle ───────────────────────────────────────────────────────
 
@@ -182,6 +200,10 @@ export class GameUIController extends Component {
 
     // Resolve and wire the craft page before binding its button.
     this.bindCraftPage();
+
+    // Resolve and wire the task and promotion pages against existing scene nodes.
+    this.bindTaskPage();
+    this.bindPromotionPage();
 
     // Wire button click handlers
     this.wireButtons();
@@ -209,6 +231,10 @@ export class GameUIController extends Component {
     this.mergeBoardRoot = null;
     this.craftPageContent = null;
     this.craftRecipeList = null;
+    this.tasksPageContent = null;
+    this.tasksAvailableContainer = null;
+    this.promotionPageContent = null;
+    this.promotionOption = null;
     this.resourceBar = null;
     this.tabHandlers.clear();
     this.pageTitleLabels.clear();
@@ -221,7 +247,19 @@ export class GameUIController extends Component {
     this.salaryResourceLabel = null;
     this.performanceResourceLabel = null;
     this.mindResourceLabel = null;
+    this.taskUpdateTimer = 0;
     this.facade = null;
+  }
+
+  protected update(dt: number): void {
+    if (!this.facade || this.disposed) return;
+
+    this.taskUpdateTimer += dt;
+    if (this.taskUpdateTimer < TASK_UPDATE_INTERVAL) return;
+
+    this.taskUpdateTimer = 0;
+    this.facade.tickTasks();
+    this.refreshTaskPage();
   }
 
   // ── Node Resolution ───────────────────────────────────────────────────────
@@ -252,6 +290,13 @@ export class GameUIController extends Component {
     this.workStatusLabel = this.findLabel(idlePanel?.getChildByName?.('WorkStatusLabel') ?? null);
 
     this.craftPageContent = this.findChild(this.pageContainer, 'CraftPageContent');
+    this.tasksPageContent = this.findChild(this.pageContainer, 'TasksPageContent');
+    this.tasksAvailableContainer = this.findChild(this.tasksPageContent, 'TasksAvailableContainer');
+    this.promotionPageContent = this.findChild(this.pageContainer, 'PromotionPageContent');
+    this.promotionOption = this.findChild(
+      this.promotionPageContent,
+      'PromotionOption_' + PROMOTION_OPTION_INDEX,
+    );
 
     // PrimaryActions children: CultivateButton, WorkButton, FishButton
     if (this.primaryActions) {
@@ -309,6 +354,8 @@ export class GameUIController extends Component {
       craftPageContent: !!this.craftPageContent,
       craftRecipeList: !!this.craftRecipeList,
       pageTitleLabels: this.pageTitleLabels.size,
+      tasksAvailableContainer: !!this.tasksAvailableContainer,
+      promotionOption: !!this.promotionOption,
     });
   }
 
@@ -328,6 +375,8 @@ export class GameUIController extends Component {
       button.off?.('click', handler, this);
     }
     this.craftButtons.clear();
+    this.clearTaskButtons();
+    this.clearPromotionButtons();
   }
 
   // ── Tab Wiring ────────────────────────────────────────────────────────────
@@ -417,6 +466,131 @@ export class GameUIController extends Component {
     }
   }
 
+  /** Bind the existing task cards to the facade task API. */
+  public bindTaskPage(): void {
+    this.tasksPageContent ??= this.findChild(this.pageContainer, 'TasksPageContent');
+    this.tasksAvailableContainer ??= this.findChild(this.tasksPageContent, 'TasksAvailableContainer');
+    this.refreshTaskPage();
+  }
+
+  /** Refresh task card copy and the stateful StartButton affordance. */
+  public refreshTaskPage(): void {
+    if (!this.facade || !this.tasksAvailableContainer) return;
+
+    const configs = this.facade.queryTaskConfigs();
+    const activeTasks = this.facade.queryActiveTasks();
+    const activeCount = activeTasks.filter((task) => !task.claimed).length;
+    const canStartMore = activeCount < 3;
+    this.clearTaskButtons();
+
+    for (let index = 0; index < MAX_TASK_CARDS; index += 1) {
+      const node = this.findChild(this.tasksAvailableContainer, 'AvailableTask_' + index);
+      if (!node) continue;
+
+      const config = configs[index];
+      if (!config) {
+        node.active = false;
+        continue;
+      }
+
+      node.active = true;
+      const task = activeTasks.find((candidate) => candidate.taskId === config.id && !candidate.claimed);
+      const nameLabel = this.findLabel(this.findChild(node, 'NameLabel'));
+      const descLabel = this.findLabel(this.findChild(node, 'DescLabel'));
+      const startButton = this.getButtonComponent(this.findChild(node, 'StartButton'));
+      const startButtonLabel = this.findLabel(this.findChild(node, 'StartButtonLabel'));
+
+      this.setText(nameLabel, (TASK_TYPE_LABELS[config.type] ?? config.type) + ' · ' + config.name);
+
+      if (task) {
+        const remaining = this.facade.queryTaskRemaining(task.taskId);
+        this.setText(
+          descLabel,
+          task.completed
+            ? config.description + ' · 已完成，可领取'
+            : config.description + ' · 进行中，剩余 ' + formatDuration(remaining),
+        );
+      } else {
+        this.setText(
+          descLabel,
+          config.description + ' · ' + formatDuration(config.durationSeconds) + ' · ' + describeTaskRewards(config),
+        );
+      }
+
+      if (!startButton) continue;
+
+      if (task?.completed) {
+        startButton.interactable = true;
+        this.setText(startButtonLabel, '领取');
+        this.bindTaskButton(startButton, () => this.onClaimTaskClick(task.taskId));
+      } else if (task) {
+        startButton.interactable = false;
+        this.setText(startButtonLabel, '进行中');
+      } else {
+        startButton.interactable = canStartMore;
+        this.setText(startButtonLabel, '开始');
+        this.bindTaskButton(startButton, () => this.onStartTaskClick(config.id));
+      }
+    }
+  }
+
+  /** Bind the existing promotion option to the first real facade option. */
+  public bindPromotionPage(): void {
+    this.promotionPageContent ??= this.findChild(this.pageContainer, 'PromotionPageContent');
+    this.promotionOption ??= this.findChild(
+      this.promotionPageContent,
+      'PromotionOption_' + PROMOTION_OPTION_INDEX,
+    );
+    this.refreshPromotionPage();
+  }
+
+  /** Refresh promotion status and the existing option/button presentation. */
+  public refreshPromotionPage(): void {
+    if (!this.facade || !this.promotionPageContent) return;
+
+    const career = this.facade.queryCareer();
+    const snapshot = this.facade.snapshot();
+    const check = this.facade.queryPromotionCheck();
+    const options = this.facade.queryPromotionOptions();
+    const option = options[PROMOTION_OPTION_INDEX];
+    const statusCard = this.findChild(this.promotionPageContent, 'PromotionStatusCard');
+    const currentRankLabel = this.findLabel(this.findChild(statusCard, 'CurrentRankLabel'));
+    const promotionProgressLabel = this.findLabel(this.findChild(statusCard, 'PromotionProgressLabel'));
+    const promotionConditionLabel = this.findLabel(this.findChild(statusCard, 'PromotionConditionLabel'));
+
+    this.setText(currentRankLabel, '当前职级\nLv.' + career.level + ' · ' + career.name);
+    const progress = career.requiredExp > 0
+      ? Math.min(1, snapshot.cultivationExp / career.requiredExp)
+      : 1;
+    this.setText(
+      promotionProgressLabel,
+      '晋升进度 ' + formatNumber(snapshot.cultivationExp) + '/' + formatNumber(career.requiredExp) + ' · ' + Math.floor(progress * 100) + '%',
+    );
+    this.setText(
+      promotionConditionLabel,
+      check.allowed ? '晋升条件已满足' : '暂不可晋升 · ' + check.reason,
+    );
+
+    this.clearPromotionButtons();
+    if (!this.promotionOption || !option) {
+      if (this.promotionOption) this.promotionOption.active = false;
+      return;
+    }
+
+    this.promotionOption.active = true;
+    this.setText(this.findLabel(this.findChild(this.promotionOption, 'NameLabel')), option.name);
+    this.setText(this.findLabel(this.findChild(this.promotionOption, 'DescLabel')), option.description);
+
+    const promoteButton = this.getButtonComponent(this.findChild(this.promotionOption, 'PromoteButton'));
+    if (!promoteButton) return;
+    promoteButton.interactable = check.allowed;
+    this.setText(
+      this.findLabel(this.findChild(this.promotionOption, 'PromoteButtonLabel')),
+      check.allowed ? '晋升' : '条件不足',
+    );
+    this.bindPromotionButton(promoteButton, () => this.onPromoteClick(option.id));
+  }
+
   private refreshAll(): void {
     if (!this.facade) return;
 
@@ -440,6 +614,8 @@ export class GameUIController extends Component {
     // Update tab highlight
     this.updateTabHighlight();
     this.refreshCraftPage();
+    this.refreshTaskPage();
+    this.refreshPromotionPage();
   }
 
   private refreshHomePresentation(hudVm: MainHUDViewModel, idleVm: IdleViewModel): void {
@@ -586,6 +762,41 @@ export class GameUIController extends Component {
     this.refreshAll();
   };
 
+  private onStartTaskClick(configId: string): void {
+    if (!this.facade || this.disposed) return;
+    const result = this.facade.startTask(configId);
+    if (!result.success) {
+      console.warn('[GameUIController] Start task failed:', result.reason);
+    }
+    this.refreshTaskPage();
+  }
+
+  private onClaimTaskClick(taskId: string): void {
+    if (!this.facade || this.disposed) return;
+    const result = this.facade.claimTask(taskId);
+    if (!result.success) {
+      console.warn('[GameUIController] Claim task failed:', result.reason);
+    }
+    this.refreshTaskPage();
+  }
+
+  private onPromoteClick(optionId: string): void {
+    if (!this.facade || this.disposed) return;
+    try {
+      const result = this.facade.promote(optionId);
+      if (!result.success) {
+        console.warn('[GameUIController] Promotion failed:', result.reason);
+      }
+    } catch (error: unknown) {
+      console.warn(
+        '[GameUIController] Promotion failed:',
+        error instanceof Error ? error.message : '渡劫失败',
+      );
+    }
+    this.refreshPromotionPage();
+    this.refreshAll();
+  }
+
   private onTabClick(tab: PcTab): void {
     if (this.currentTab === tab) return;
     console.log('[GameUIController] Tab switch:', this.currentTab, '→', tab);
@@ -642,6 +853,34 @@ export class GameUIController extends Component {
     this.craftButtons.clear();
   }
 
+  private bindTaskButton(button: ButtonLike, handler: () => void): void {
+    const previous = this.taskButtons.get(button);
+    if (previous) button.off?.('click', previous, this);
+    button.on?.('click', handler, this);
+    this.taskButtons.set(button, handler);
+  }
+
+  private clearTaskButtons(): void {
+    for (const [button, handler] of this.taskButtons) {
+      button.off?.('click', handler, this);
+    }
+    this.taskButtons.clear();
+  }
+
+  private bindPromotionButton(button: ButtonLike, handler: () => void): void {
+    const previous = this.promotionButtons.get(button);
+    if (previous) button.off?.('click', previous, this);
+    button.on?.('click', handler, this);
+    this.promotionButtons.set(button, handler);
+  }
+
+  private clearPromotionButtons(): void {
+    for (const [button, handler] of this.promotionButtons) {
+      button.off?.('click', handler, this);
+    }
+    this.promotionButtons.clear();
+  }
+
   private setText(label: TextLike | null, value: string): void {
     if (label) label.string = value;
   }
@@ -661,4 +900,16 @@ function describeCraftEffect(effect: Readonly<Record<string, number>>): string {
   return Object.entries(effect)
     .map(([key, value]) => `${labels[key] ?? key}${value >= 0 ? '+' : ''}${formatNumber(value)}`)
     .join(' ') || '无';
+}
+
+function describeTaskRewards(config: {
+  readonly rewardSalary: number;
+  readonly rewardCultivation: number;
+  readonly rewardSpiritStones: number;
+}): string {
+  return [
+    config.rewardSalary > 0 ? '工资 +' + formatNumber(config.rewardSalary) : '',
+    config.rewardCultivation > 0 ? '修为 +' + formatNumber(config.rewardCultivation) : '',
+    config.rewardSpiritStones > 0 ? '灵石 +' + formatNumber(config.rewardSpiritStones) : '',
+  ].filter(Boolean).join(' / ') || '无奖励';
 }
