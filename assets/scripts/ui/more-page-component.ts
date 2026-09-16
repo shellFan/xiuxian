@@ -27,6 +27,7 @@ import type {
 import {
   buildAchievementViewModel, buildDailyTaskViewModel,
   buildLeaderboardViewModel, buildFriendsViewModel,
+  buildSectViewModel,
 } from './view-models';
 import type { UiEventCategory } from '../facade/ui-event-types';
 import { formatNumber } from './number-formatter';
@@ -57,9 +58,10 @@ interface NodeLike {
 
 // ── Sub-tab types ────────────────────────────────────────────────────────────
 
-type MoreSubTab = 'ACHIEVEMENT' | 'DAILY' | 'SETTINGS' | 'LEADERBOARD' | 'FRIENDS';
+type MoreSubTab = 'SECT' | 'ACHIEVEMENT' | 'DAILY' | 'SETTINGS' | 'LEADERBOARD' | 'FRIENDS';
 
 const SUB_TAB_LABELS: Record<MoreSubTab, string> = {
+  SECT: '宗门',
   ACHIEVEMENT: '成就',
   DAILY: '每日',
   SETTINGS: '设置',
@@ -95,6 +97,10 @@ export class MorePageComponent extends Component {
   @property(resolveCocosType('Label'))
   public titleLabel?: TextLike;
 
+  /** Sect/company sub-page. */
+  @property(resolveCocosType('Node'))
+  public sectContainer?: NodeLike;
+
   /** Container for achievement sub-page */
   @property(resolveCocosType('Node'))
   public achievementContainer?: NodeLike;
@@ -129,6 +135,7 @@ export class MorePageComponent extends Component {
   private currentTab: MoreSubTab = 'ACHIEVEMENT';
   private unsubs: Array<() => void> = [];
   private boundButtons = new Set<ButtonLike>();
+  private subTabHandlers = new Map<ButtonLike, () => void>();
   private disposed = false;
 
   // ── Cocos Lifecycle ───────────────────────────────────────────────────────
@@ -139,6 +146,8 @@ export class MorePageComponent extends Component {
       throw new Error('MorePageComponent requires CocosBootstrapComponent with facade');
     }
     this.facade = bootstrap.facade;
+    this.resolveSceneBindings();
+    this.bindSubTabs();
     this.subscribeEvents();
     this.switchTab('ACHIEVEMENT');
   }
@@ -146,6 +155,10 @@ export class MorePageComponent extends Component {
   protected onDestroy(): void {
     this.disposed = true;
     this.unsubscribeEvents();
+    for (const [button, handler] of this.subTabHandlers) {
+      button.off?.('click', handler, this);
+    }
+    this.subTabHandlers.clear();
     this.facade = null;
   }
 
@@ -163,6 +176,7 @@ export class MorePageComponent extends Component {
     if (this.titleLabel) this.titleLabel.string = '更多';
 
     switch (this.currentTab) {
+      case 'SECT': this.renderSect(); break;
       case 'ACHIEVEMENT': this.renderAchievements(); break;
       case 'DAILY': this.renderDailyTasks(); break;
       case 'SETTINGS': this.renderSettings(); break;
@@ -175,6 +189,7 @@ export class MorePageComponent extends Component {
 
   private updateContainerVisibility(): void {
     const containers: Record<MoreSubTab, NodeLike | undefined> = {
+      SECT: this.sectContainer,
       ACHIEVEMENT: this.achievementContainer,
       DAILY: this.dailyContainer,
       SETTINGS: this.settingsContainer,
@@ -349,6 +364,64 @@ export class MorePageComponent extends Component {
     }
   }
 
+  /** Resolve the generated scene contract at runtime so the component works
+   * both in the desktop scene and in Cocos without serialized references. */
+  private resolveSceneBindings(): void {
+    const root = this.node as unknown as NodeLike;
+    if (!this.titleLabel) this.titleLabel = this.findLabel(root, 'MorePageContentTitleLabel') ?? undefined;
+    this.sectContainer ??= root.getChildByName?.('SectContainer') ?? undefined;
+    this.achievementContainer ??= root.getChildByName?.('AchievementsContainer') ?? undefined;
+    this.dailyContainer ??= root.getChildByName?.('DailyContainer') ?? undefined;
+    this.settingsContainer ??= root.getChildByName?.('SettingsContainer') ?? undefined;
+    this.leaderboardContainer ??= root.getChildByName?.('LeaderboardContainer') ?? undefined;
+    this.friendsContainer ??= root.getChildByName?.('FriendsContainer') ?? undefined;
+  }
+
+  private bindSubTabs(): void {
+    const root = this.node as unknown as NodeLike;
+    const nav = root.getChildByName?.('MoreSectionTabs');
+    if (!nav) return;
+    const tabNodes: Array<[string, MoreSubTab]> = [
+      ['MoreTabSect', 'SECT'],
+      ['MoreTabLeaderboard', 'LEADERBOARD'],
+      ['MoreTabFriends', 'FRIENDS'],
+      ['MoreTabAchievements', 'ACHIEVEMENT'],
+      ['MoreTabDaily', 'DAILY'],
+      ['MoreTabSettings', 'SETTINGS'],
+    ];
+    for (const [name, tab] of tabNodes) {
+      const button = this.findButton(nav, name);
+      if (!button || this.subTabHandlers.has(button)) continue;
+      const handler = () => this.switchTab(tab);
+      button.on?.('click', handler, this);
+      this.subTabHandlers.set(button, handler);
+    }
+  }
+
+  private renderSect(): void {
+    if (!this.facade || !this.sectContainer) return;
+    const vm = buildSectViewModel(this.facade);
+    const current = this.findLabel(this.sectContainer, 'CurrentSectLabel');
+    if (current) current.string = `当前宗门：${vm.currentSectName}`;
+    vm.sects.forEach((sect, index) => {
+      const card = this.sectContainer?.getChildByName?.(`SectCard_${index}`);
+      if (!card) return;
+      const name = this.findLabel(card, 'NameLabel');
+      const bonus = this.findLabel(card, 'BonusLabel');
+      if (name) name.string = `${sect.name}${sect.selected ? ' ✓' : ''}`;
+      if (bonus) bonus.string = sect.selected ? '当前宗门 · 已生效' : '点击选择此宗门';
+      const button = this.getSelfButton(card);
+      if (button && !this.boundButtons.has(button)) {
+        this.boundButtons.add(button);
+        button.on?.('click', () => {
+          const result = this.facade?.changeSect(sect.id);
+          SceneBindingComponent.instance?.showToast(result?.success ? `已加入${sect.name}` : (result?.reason ?? '暂时无法加入'), result?.success ? 'SUCCESS' : 'WARNING');
+          this.refresh();
+        }, this);
+      }
+    });
+  }
+
   /** Show "coming soon" toast for leaderboard actions. */
   public onLeaderboardAction(): void {
     this.switchTab('LEADERBOARD');
@@ -442,5 +515,9 @@ export class MorePageComponent extends Component {
     if (!child) return null;
     const comp = child.getComponent?.(resolveCocosType('Button'));
     return (comp as unknown as ButtonLike) ?? null;
+  }
+
+  private getSelfButton(node: NodeLike): ButtonLike | null {
+    return (node.getComponent?.(resolveCocosType('Button')) as unknown as ButtonLike) ?? null;
   }
 }
