@@ -119,8 +119,10 @@ if (fs.existsSync(cssPath)) {
 }`
   );
 
-  // Canvas: portrait card, centered and scaled without distortion.
-  const portraitCanvasRule = '#GameCanvas { width: min(100vw, 56.25vh); height: min(100vh, 177.7778vw); max-width: 100vw; max-height: 100vh; display: block; margin: 0 auto; }';
+  // Canvas: keep the authored 720x1280 portrait design as the visual ceiling.
+  // Only scale down on smaller windows; never enlarge the design artwork on a
+  // large desktop viewport, otherwise the reference card looks stretched.
+  const portraitCanvasRule = '#GameCanvas { width: min(720px, 100vw, 56.25vh); height: min(1280px, 100vh, 177.7778vw); max-width: 100vw; max-height: 100vh; display: block; margin: 0 auto; }';
   if (css.includes('#GameCanvas {')) {
     css = css.replace(/#GameCanvas\s*\{[^}]*\}/, portraitCanvasRule);
   } else {
