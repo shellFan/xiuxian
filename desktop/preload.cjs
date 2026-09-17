@@ -30,6 +30,9 @@ const electronAPI = {
     ipcRenderer.removeAllListeners('game:save-requested');
   },
 
+  // ── Game Ready Signal ──────────────────────────────────────────────────
+  gameReady: () => ipcRenderer.send('game:ready'),
+
   // ── Fullscreen ─────────────────────────────────────────────────────────
   setFullscreen: (flag) => ipcRenderer.invoke('window:set-fullscreen', flag),
   isFullscreen: () => ipcRenderer.invoke('window:is-fullscreen'),

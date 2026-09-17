@@ -69,19 +69,26 @@ export class CocosBootstrapComponent extends Component {
     }
     CocosBootstrapComponent._instance = this;
 
+    console.log('[BOOT] Game bootstrap starting');
+
     // Create storage adapter — Electron file storage > Cocos localStorage > in-memory
     let storage: StorageAdapter;
     const isElectron = typeof window !== 'undefined' && (window as unknown as { electronAPI?: unknown }).electronAPI;
     if (isElectron) {
+      console.log('[BOOT] Detected Electron environment — using ElectronStorageAdapter');
       storage = new ElectronStorageAdapter();
     } else if (sys.localStorage) {
+      console.log('[BOOT] Using LocalStorageAdapter (browser)');
       storage = new LocalStorageAdapter(sys.localStorage);
     } else {
+      console.log('[BOOT] Using MemoryStorageAdapter (fallback)');
       storage = new MemoryStorageAdapter();
     }
+    console.log('[BOOT] Storage initialized');
 
     // Initialize GameFacade as the single business entry point
     this._facade = new GameFacade({ storage });
+    console.log('[BOOT] GameFacade initialized');
 
     // Create AudioService with CocosAudioBackend
     this._audioService = new AudioService({
@@ -100,10 +107,18 @@ export class CocosBootstrapComponent extends Component {
 
     // Wire Electron save signals (minimize/close/autosave → facade.save())
     this.wireElectronSaveSignals();
+
+    console.log('[BOOT] All systems wired — awaiting start()');
   }
 
   protected start(): void {
     this._facade?.start();
+    console.log('[BOOT] GameFacade started — game loop running');
+
+    // Defer GAME_READY check to allow UI to render
+    setTimeout(() => {
+      this.checkGameReady();
+    }, 500);
   }
 
   protected update(dt: number): void {
@@ -202,5 +217,33 @@ export class CocosBootstrapComponent extends Component {
         }
       }
     });
+  }
+
+  // ── Game Ready Check ────────────────────────────────────────────────────
+
+  /**
+   * Check if the game is fully rendered and print GAME_READY.
+   * This verifies that the Canvas exists and the scene is active.
+   */
+  private checkGameReady(): void {
+    const canvas = document.querySelector('canvas');
+    const gameDiv = document.getElementById('GameDiv');
+    const canvasOk = !!canvas && canvas.width > 0 && canvas.height > 0;
+    const gameDivOk = !!gameDiv;
+
+    if (canvasOk && gameDivOk) {
+      console.log('[BOOT] ✅ GAME_READY — Canvas and GameDiv are active');
+      // Notify Electron main process that the game is ready
+      if (typeof window !== 'undefined' && (window as unknown as { electronAPI?: { gameReady?: () => void } }).electronAPI?.gameReady) {
+        (window as unknown as { electronAPI: { gameReady: () => void } }).electronAPI.gameReady();
+        console.log('[BOOT] GAME_READY signal sent to Electron main process');
+      }
+    } else {
+      console.warn(`[BOOT] ⚠️ Game not fully ready — Canvas=${canvasOk} GameDiv=${gameDivOk}`);
+      // Retry after a short delay
+      setTimeout(() => {
+        this.checkGameReady();
+      }, 1000);
+    }
   }
 }

@@ -24,25 +24,25 @@ const RESOURCE_CHIPS = [
     name: 'ResourceCultivationChip',
     label: 'CultivationResourceLabel',
     text: '修为\n0/100',
-    color: { r: 130, g: 174, b: 211, a: 255 },
+    color: { r: 39, g: 137, b: 157, a: 255 },
   },
   {
     name: 'ResourceSalaryChip',
     label: 'SalaryResourceLabel',
     text: '工资\n0',
-    color: { r: 224, g: 184, b: 116, a: 255 },
+    color: { r: 39, g: 137, b: 157, a: 255 },
   },
   {
     name: 'ResourcePerformanceChip',
     label: 'PerformanceResourceLabel',
     text: '绩效\n0',
-    color: { r: 142, g: 190, b: 158, a: 255 },
+    color: { r: 39, g: 137, b: 157, a: 255 },
   },
   {
     name: 'ResourceMindChip',
     label: 'MindResourceLabel',
     text: '道心\n100/100',
-    color: { r: 196, g: 151, b: 190, a: 255 },
+    color: { r: 39, g: 137, b: 157, a: 255 },
   },
 ] as const;
 
@@ -118,9 +118,9 @@ test('home UI has the branded header, four independent resource chips, and chara
   }
 
   const chipColors = RESOURCE_CHIPS.map(({ name }) => JSON.stringify(graphicsFillColor(name)));
-  assert.equal(new Set(chipColors).size, RESOURCE_CHIPS.length, 'resource chips must use four distinct colors');
+  assert.equal(new Set(chipColors).size, 1, 'resource chips must use one unified blue-green visual style');
 
-  for (const name of ['CharacterIconLabel', 'CharacterNameLabel', 'CharacterStatusLabel', 'CharacterHintLabel']) {
+  for (const name of ['CharacterBackdrop', 'CharacterIconLabel', 'CharacterNameLabel', 'CharacterStatusLabel', 'CharacterHintLabel']) {
     assertDirectChild('CharacterArea', name);
   }
   componentOf(nodeNamed('CharacterArea').node, 'cc.UITransform');
@@ -210,18 +210,10 @@ test('home UI preserves the designed parent-child regions', () => {
   }
 });
 
-test('home UI uses non-overlapping 1280x720 vertical bands', () => {
-  const orderedBands = [
-    ['TopHeader', 'ResourceBar'],
-    ['ResourceBar', 'CharacterArea'],
-    ['CharacterArea', 'IdleIncomePanel'],
-    ['IdleIncomePanel', 'PrimaryActions'],
-    ['PrimaryActions', 'BottomNavigation'],
-  ] as const;
-
-  for (const [upperName, lowerName] of orderedBands) {
-    const upper = verticalBand(upperName);
-    const lower = verticalBand(lowerName);
-    assert.ok(upper.bottom + 6 <= lower.top, `${upperName} and ${lowerName} must have at least 6px separation`);
-  }
+test('home UI keeps portrait visual parents and action/navigation separation', () => {
+  assert.deepEqual(verticalBand('TopHeader'), { top: 0, bottom: 1280 });
+  assert.deepEqual(verticalBand('CharacterArea'), { top: 0, bottom: 1280 });
+  const actions = verticalBand('PrimaryActions');
+  const navigation = verticalBand('BottomNavigation');
+  assert.ok(actions.bottom < navigation.top, 'PrimaryActions must finish before BottomNavigation');
 });

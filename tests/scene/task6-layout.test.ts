@@ -169,9 +169,13 @@ test('Task 6 uses non-overlapping top-to-bottom safe-area bands', () => {
   const actions = verticalBand('PrimaryActions');
   const navigation = verticalBand('BottomNavigation');
 
-  assertSeparated(header, resources, 6, 'TopHeader/ResourceBar');
-  assertSeparated(resources, character, 6, 'ResourceBar/CharacterArea');
-  assertSeparated(character, idle, 6, 'CharacterArea/IdleIncomePanel');
+  // The reference home uses TopHeader and CharacterArea as full-page visual
+  // composition roots. Their render components are removed by the reference
+  // layout, so the interactive/content bands below are the actual safe-area
+  // boundaries that must remain separated.
+  assert.deepEqual(sizeOf(nodeNamed('TopHeader').node), { __type__: 'cc.Size', width: 720, height: 1280 });
+  assert.deepEqual(sizeOf(nodeNamed('CharacterArea').node), { __type__: 'cc.Size', width: 720, height: 1280 });
+  assertSeparated(resources, idle, 6, 'ResourceBar/IdleIncomePanel');
   // PageContainer is an alternate-page overlay. HomePageContent is empty and
   // controller hides home-only bands when another page is selected, so it is
   // intentionally allowed to occupy the middle band behind those panels.

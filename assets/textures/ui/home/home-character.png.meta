@@ -126,10 +126,10 @@
     }
   },
   "userData": {
-    "hasAlpha": false,
+    "hasAlpha": true,
     "type": "sprite-frame",
     "fixAlphaTransparencyArtifacts": false,
     "redirect": "ede466c5-53d8-4083-902e-1f3f4916f98e@6c48a",
-    "flipVertical": true
+    "flipVertical": false
   }
 }

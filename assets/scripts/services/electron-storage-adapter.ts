@@ -158,30 +158,6 @@ export class ElectronStorageAdapter implements StorageAdapter {
 
 // ── Factory ────────────────────────────────────────────────────────────────
 
-/**
- * Create the best available StorageAdapter for the current environment.
- * Priority: Electron file storage > Cocos localStorage > In-memory
- */
-export function createStorageAdapter(): StorageAdapter {
-  // Check if running in Electron
-  if (typeof window !== 'undefined' && window.electronAPI?.storage) {
-    console.log('[Storage] Using ElectronStorageAdapter (file-based)');
-    return new ElectronStorageAdapter();
-  }
-
-  // Check if Cocos localStorage is available
-  if (typeof sys !== 'undefined' && sys.localStorage) {
-    console.log('[Storage] Using LocalStorageAdapter (browser)');
-    // Dynamic import guard — sys may not be available at module load time
-    const { LocalStorageAdapter } = require('./storage-adapter') as typeof import('./storage-adapter');
-    return new LocalStorageAdapter(sys.localStorage as unknown as StorageAdapter);
-  }
-
-  // Fallback to in-memory
-  console.log('[Storage] Using MemoryStorageAdapter (fallback)');
-  const { MemoryStorageAdapter } = require('./storage-adapter') as typeof import('./storage-adapter');
-  return new MemoryStorageAdapter();
-}
-
-// Need sys import for the factory function
-import { sys } from 'cc';
+// NOTE: createStorageAdapter() removed — use CocosBootstrapComponent's adapter
+// selection logic instead. The factory used require() which doesn't work in
+// the Cocos renderer process (nodeIntegration=false, contextIsolation=true).

@@ -35,7 +35,7 @@ const HOME_ART = {
 
 const HOME_ART_NODES = {
   character: 'CharacterIconLabel',
-  background: 'PaperContent',
+  background: 'CharacterBackdrop',
 } as const;
 
 const EMOJI_RE = /[\u{1F300}-\u{1FAFF}]/u;
@@ -94,7 +94,7 @@ test('home generator declares the official art paths and creates resource nodes'
     generatorSpriteFrameUuid(relativePath);
   }
 
-  assert.match(generatorSource, /b\.addSprite\(paperIdx,\s*spriteFrameRef\(HOME_ASSETS\.background\)\)/);
+  assert.match(generatorSource, /b\.addSprite\(characterBackdropIdx,\s*spriteFrameRef\(HOME_ASSETS\.background\)\)/);
   assert.match(generatorSource, /b\.addSprite\(characterIconIdx,\s*spriteFrameRef\(HOME_ASSETS\.character\)\)/);
 });
 
@@ -103,7 +103,7 @@ test('Main.scene uses sprite resource nodes for the home character and office ba
   const background = nodeNamed(HOME_ART_NODES.background);
 
   assertDirectChild('CharacterArea', character.index, character.node._name ?? 'home character');
-  assertDirectChild('Background', background.index, background.node._name ?? 'home background');
+  assertDirectChild('CharacterArea', background.index, background.node._name ?? 'home background');
 
   assert.equal(
     spriteFrameUuid(character.node, 'home character'),

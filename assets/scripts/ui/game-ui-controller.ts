@@ -41,6 +41,7 @@
  */
 
 import { _decorator, Component } from 'cc';
+import * as Cocos from 'cc';
 import { CocosBootstrapComponent } from '../core/cocos-bootstrap-component';
 import type { GameFacade } from '../facade/game-facade';
 import type { UiEventCategory } from '../facade/ui-event-types';
@@ -59,6 +60,8 @@ interface ButtonLike {
   interactable?: boolean;
 }
 interface NodeLike {
+  on?: ButtonLike['on'];
+  off?: ButtonLike['off'];
   active?: boolean;
   name?: string;
   children?: readonly NodeLike[];
@@ -181,10 +184,33 @@ export class GameUIController extends Component {
   private unsubs: Array<() => void> = [];
   private disposed = false;
   private taskUpdateTimer = 0;
+  private readonly runtimeButtons = new WeakMap<NodeLike, ButtonLike>();
+  private settingsButton: ButtonLike | null = null;
+  private readonly resizeHomeViewport = () => {
+    if (typeof document === 'undefined') return;
+    const frame = document.getElementById('GameDiv');
+    const v = (Cocos as unknown as {view?: {setFrameSize(w:number,h:number):void;setDesignResolutionSize(w:number,h:number,p:number):void}}).view;
+    if (frame && v) {
+      const width = Math.min(window.innerWidth, window.innerHeight * 720 / 1280, 490);
+      const height = width * 1280 / 720;
+      frame.style.width = `${width}px`;
+      frame.style.height = `${height}px`;
+      v.setFrameSize(width, height);
+      v.setDesignResolutionSize(720,1280,2);
+    }
+  };
+  private readonly openHomeSettings = () => {
+    this.onTabClick('MORE');
+    const page = this.findChild(this.pageContainer, 'MorePageContent');
+    (page?.getComponent?.('MorePage') as {switchTab?(tab: string): void} | undefined)?.switchTab?.('SETTINGS');
+  };
 
   // ── Cocos Lifecycle ───────────────────────────────────────────────────────
 
   protected onLoad(): void {
+    (Cocos as unknown as {view?: {resizeWithBrowserSize(enable: boolean): void}}).view?.resizeWithBrowserSize(true);
+    this.resizeHomeViewport();
+    if (typeof window !== 'undefined') window.addEventListener('resize', this.resizeHomeViewport);
     console.log('[GameUIController] onLoad — starting runtime wiring');
 
     // Resolve facade from bootstrap singleton
@@ -224,6 +250,7 @@ export class GameUIController extends Component {
   }
 
   protected onDestroy(): void {
+    if (typeof window !== 'undefined') window.removeEventListener('resize', this.resizeHomeViewport);
     this.disposed = true;
     this.unsubscribeEvents();
     this.unbindButtons();
@@ -278,10 +305,14 @@ export class GameUIController extends Component {
 
     this.careerSummaryLabel = this.findLabel(this.findChild(this.topHeader, 'CareerSummaryLabel'));
     this.resourceSummaryLabel = this.findLabel(this.resourceBar?.getChildByName?.('ResourceSummaryLabel') ?? null);
-    this.cultivationResourceLabel = this.findLabel(this.findChild(this.resourceBar, 'ResourceCultivationChip'));
-    this.salaryResourceLabel = this.findLabel(this.findChild(this.resourceBar, 'ResourceSalaryChip'));
-    this.performanceResourceLabel = this.findLabel(this.findChild(this.resourceBar, 'ResourcePerformanceChip'));
-    this.mindResourceLabel = this.findLabel(this.findChild(this.resourceBar, 'ResourceMindChip'));
+    const cultivationChip = this.findChild(this.resourceBar, 'ResourceCultivationChip');
+    const salaryChip = this.findChild(this.resourceBar, 'ResourceSalaryChip');
+    const performanceChip = this.findChild(this.resourceBar, 'ResourcePerformanceChip');
+    const mindChip = this.findChild(this.resourceBar, 'ResourceMindChip');
+    this.cultivationResourceLabel = this.findLabel(this.findChild(cultivationChip, 'CultivationResourceLabel') ?? cultivationChip);
+    this.salaryResourceLabel = this.findLabel(this.findChild(salaryChip, 'SalaryResourceLabel') ?? salaryChip);
+    this.performanceResourceLabel = this.findLabel(this.findChild(performanceChip, 'PerformanceResourceLabel') ?? performanceChip);
+    this.mindResourceLabel = this.findLabel(this.findChild(mindChip, 'MindResourceLabel') ?? mindChip);
     const characterArea = this.findChild(this.safeAreaRoot, 'CharacterArea');
     this.characterNameLabel = this.findLabel(characterArea?.getChildByName?.('CharacterNameLabel') ?? null);
     this.characterStatusLabel = this.findLabel(characterArea?.getChildByName?.('CharacterStatusLabel') ?? null);
@@ -362,12 +393,15 @@ export class GameUIController extends Component {
   // ── Button Wiring ─────────────────────────────────────────────────────────
 
   private wireButtons(): void {
+    this.settingsButton = this.getButtonComponent(this.findChild(this.topHeader, 'HomeSettingsButton'));
+    this.settingsButton?.on?.('click', this.openHomeSettings, this);
     this.cultivateButton?.on?.('click', this.onCultivateClick, this);
     this.workButton?.on?.('click', this.onWorkClick, this);
     this.fishButton?.on?.('click', this.onFishClick, this);
   }
 
   private unbindButtons(): void {
+    this.settingsButton?.off?.('click', this.openHomeSettings, this);
     this.cultivateButton?.off?.('click', this.onCultivateClick, this);
     this.workButton?.off?.('click', this.onWorkClick, this);
     this.fishButton?.off?.('click', this.onFishClick, this);
@@ -824,7 +858,20 @@ export class GameUIController extends Component {
   private getButtonComponent(node: NodeLike | null): ButtonLike | null {
     if (!node?.getComponent) return null;
     try {
-      return node.getComponent('cc.Button') as ButtonLike | null;
+      const button = node.getComponent('cc.Button') as ButtonLike | null;
+      if (!button || button.on || !node.on) return button;
+      // Cocos Button emits clicks on its Node, not on the component.
+      let bridge = this.runtimeButtons.get(node);
+      if (!bridge) {
+        bridge = {
+          on: (event, callback, target) => node.on?.(event, callback, target),
+          off: (event, callback, target) => node.off?.(event, callback, target),
+          get interactable() { return button.interactable; },
+          set interactable(value) { button.interactable = value; },
+        };
+        this.runtimeButtons.set(node, bridge);
+      }
+      return bridge;
     } catch {
       return null;
     }

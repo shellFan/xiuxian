@@ -1,1 +1,1 @@
-- [phase5-progress](phase5_progress.md) — PC V1 Desktop Build complete - EXE at dist/牛马修仙传-win32-x64/
+- [phase5-progress](phase5_progress.md) — PC V1 Desktop完成 - Electron+pc-patch.js运行时UI接线+EXE打包验证通过

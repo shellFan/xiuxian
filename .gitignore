@@ -23,6 +23,9 @@ tests/.compiled/
 .creator/
 /build/
 /dist/
+/_task5-build/
+/_task5-build2/
+/desktop/build/
 
 # Cocos .meta files MUST be tracked (required for scene/prefab references)
 !assets/**/*.meta

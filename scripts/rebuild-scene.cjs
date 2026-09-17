@@ -485,20 +485,19 @@ function buildScene() {
   // --- Background node ---
   const paperIdx = b.addNode('PaperContent', -1, [], [], { lpos: b.vec3(0, -8, 0) });
   b.addPanel(paperIdx, 1220, 650, { fillColor: paper, strokeColor: b.color(205, 190, 161, 255) });
-  b.addSprite(paperIdx, spriteFrameRef(HOME_ASSETS.background));
   const bgIdx = b.addNode('Background', -1, [paperIdx], []);
   b.addPanel(bgIdx, DESIGN_WIDTH, DESIGN_HEIGHT, { fillColor: chrome, strokeColor: chrome });
   const bgWidgetIdx = b.addWidgetStretch(bgIdx);
 
   // --- TopHeader node (with MainHudComponent) ---
   const brandLabelIdx = b.addTextNode('BrandLabel', '牛马修仙传', 300, 50, {
-    lpos: b.vec3(-430, 14, 0), fontSize: 28, color: white,
+    lpos: b.vec3(-430, 14, 0), fontSize: 28, color: ink,
   });
   const brandTaglineIdx = b.addTextNode('BrandTaglineLabel', '上班也是渡劫', 300, 24, {
     lpos: b.vec3(-430, -26, 0), fontSize: 16, color: b.color(195, 211, 235, 255),
   });
   const careerSummaryIdx = b.addTextNode('CareerSummaryLabel', '练气境 · 练气职员', 360, 42, {
-    lpos: b.vec3(330, 0, 0), fontSize: 20, color: white,
+    lpos: b.vec3(330, 0, 0), fontSize: 20, color: ink,
   });
   const topHeaderIdx = b.addNode('TopHeader', -1, [brandLabelIdx, brandTaglineIdx, careerSummaryIdx], []);
   const topHeaderHudIdx = b.addCustomComponent(topHeaderIdx, COMP.MainHud);
@@ -514,16 +513,21 @@ function buildScene() {
   });
   b.objects[resourceSummaryIdx]._active = false;
   const resourceDefs = [
-    { name: 'ResourceCultivationChip', label: 'CultivationResourceLabel', text: '修为\n0/100', x: -405, fill: b.color(130, 174, 211, 255), stroke: b.color(77, 122, 163, 255) },
-    { name: 'ResourceSalaryChip', label: 'SalaryResourceLabel', text: '工资\n0', x: -135, fill: b.color(224, 184, 116, 255), stroke: b.color(175, 127, 66, 255) },
-    { name: 'ResourcePerformanceChip', label: 'PerformanceResourceLabel', text: '绩效\n0', x: 135, fill: b.color(142, 190, 158, 255), stroke: b.color(83, 133, 101, 255) },
-    { name: 'ResourceMindChip', label: 'MindResourceLabel', text: '道心\n100/100', x: 405, fill: b.color(196, 151, 190, 255), stroke: b.color(145, 101, 139, 255) },
+    { name: 'ResourceCultivationChip', label: 'CultivationResourceLabel', icon: '◈', text: '修为\n0/100', x: -405, fill: b.color(43, 143, 164, 255), stroke: b.color(24, 95, 115, 255) },
+    { name: 'ResourceSalaryChip', label: 'SalaryResourceLabel', icon: '◆', text: '工资\n0', x: -135, fill: b.color(43, 143, 164, 255), stroke: b.color(24, 95, 115, 255) },
+    { name: 'ResourcePerformanceChip', label: 'PerformanceResourceLabel', icon: '◇', text: '绩效\n0', x: 135, fill: b.color(43, 143, 164, 255), stroke: b.color(24, 95, 115, 255) },
+    { name: 'ResourceMindChip', label: 'MindResourceLabel', icon: '✦', text: '道心\n100/100', x: 405, fill: b.color(43, 143, 164, 255), stroke: b.color(24, 95, 115, 255) },
   ];
   const resourceChipIds = resourceDefs.map((resource) => {
-    const labelIdx = b.addTextNode(resource.label, resource.text, 248, 58, {
-      lpos: b.vec3(0, 0, 0), fontSize: 19, color: white,
+    const labelIdx = b.addTextNode(resource.label, resource.text, 92, 58, {
+      lpos: b.vec3(21, 0, 0), fontSize: 17, color: white,
     });
-    const chipIdx = b.addNode(resource.name, -1, [labelIdx], [], { lpos: b.vec3(resource.x, 0, 0) });
+    const iconIdx = b.addTextNode(`${resource.name}Icon`, resource.icon, 38, 38, {
+      lpos: b.vec3(-49, 0, 0), fontSize: 22, color: b.color(255, 231, 170, 255),
+    });
+    const chipIdx = b.addNode(resource.name, -1, [iconIdx, labelIdx], [], { lpos: b.vec3(resource.x, 0, 0) });
+    b.objects[iconIdx]._parent = b.ref(chipIdx);
+    b.objects[labelIdx]._parent = b.ref(chipIdx);
     b.addPanel(chipIdx, 248, 58, { fillColor: resource.fill, strokeColor: resource.stroke, lineWidth: 2 });
     return chipIdx;
   });
@@ -532,6 +536,12 @@ function buildScene() {
   const resBarWidgetIdx = b.addWidget(resBarIdx, { alignFlags: 17, top: 84, horizontalCenter: 0 });
 
   // --- CharacterArea node ---
+  const characterBackdropIdx = b.addNode('CharacterBackdrop', -1, [], [], {
+    lpos: b.vec3(0, 0, 0),
+  });
+  b.addUITransform(characterBackdropIdx, 1120, 160);
+  b.addSprite(characterBackdropIdx, spriteFrameRef(HOME_ASSETS.background));
+
   const characterIconIdx = b.addNode('CharacterIconLabel', -1, [], [], {
     lpos: b.vec3(-480, 0, 0),
   });
@@ -546,7 +556,7 @@ function buildScene() {
   const characterHintIdx = b.addTextNode('CharacterHintLabel', '今日也要稳住道心', 420, 36, {
     lpos: b.vec3(80, -64, 0), fontSize: 18, color: b.color(130, 93, 52, 255),
   });
-  const charAreaIdx = b.addNode('CharacterArea', -1, [characterIconIdx, characterNameIdx, characterStatusIdx, characterHintIdx], []);
+  const charAreaIdx = b.addNode('CharacterArea', -1, [characterBackdropIdx, characterIconIdx, characterNameIdx, characterStatusIdx, characterHintIdx], []);
   b.addPanel(charAreaIdx, 1120, 160, { fillColor: paper, strokeColor: b.color(194, 172, 137, 255) });
   const charAreaWidgetIdx = b.addWidget(charAreaIdx, { alignFlags: 17, top: 166, horizontalCenter: 0 });
 
@@ -569,6 +579,7 @@ function buildScene() {
   const cultBtnBtnIdx = b.addButton(cultBtnIdx);
   const cultBtnLabelIdx = b.addTextNode('CultivateButtonLabel', '修炼一次', 220, 64, { fontSize: 25, color: white });
   b.objects[cultBtnIdx]._children = [b.ref(cultBtnLabelIdx)];
+  b.objects[cultBtnLabelIdx]._parent = b.ref(cultBtnIdx);
 
   // WorkButton
   const workBtnIdx = b.addNode('WorkButton', -1, [], [], { lpos: b.vec3(0, 0, 0) });
@@ -576,6 +587,7 @@ function buildScene() {
   const workBtnBtnIdx = b.addButton(workBtnIdx);
   const workBtnLabelIdx = b.addTextNode('WorkButtonLabel', '努力工作', 220, 64, { fontSize: 25, color: white });
   b.objects[workBtnIdx]._children = [b.ref(workBtnLabelIdx)];
+  b.objects[workBtnLabelIdx]._parent = b.ref(workBtnIdx);
 
   // FishButton
   const fishBtnIdx = b.addNode('FishButton', -1, [], [], { lpos: b.vec3(300, 0, 0) });
@@ -583,6 +595,7 @@ function buildScene() {
   const fishBtnBtnIdx = b.addButton(fishBtnIdx);
   const fishBtnLabelIdx = b.addTextNode('FishButtonLabel', '摸鱼恢复', 220, 64, { fontSize: 25, color: white });
   b.objects[fishBtnIdx]._children = [b.ref(fishBtnLabelIdx)];
+  b.objects[fishBtnLabelIdx]._parent = b.ref(fishBtnIdx);
 
   // PrimaryActions parent
   const actionsIdx = b.addNode('PrimaryActions', -1,
@@ -593,11 +606,11 @@ function buildScene() {
 
   // --- BottomNavigation node with 5 tabs ---
   const tabDefs = [
-    { name: 'TabHome', label: '首页' },
-    { name: 'TabTasks', label: '任务' },
-    { name: 'TabCraft', label: '合成' },
-    { name: 'TabPromotion', label: '晋升' },
-    { name: 'TabMore', label: '更多' },
+    { name: 'TabHome', label: '首页', icon: '⌂' },
+    { name: 'TabTasks', label: '任务', icon: '▤' },
+    { name: 'TabCraft', label: '合成', icon: '◇' },
+    { name: 'TabPromotion', label: '晋升', icon: '♜' },
+    { name: 'TabMore', label: '更多', icon: '⋯' },
   ];
 
   const tabNodeIds = [];
@@ -606,8 +619,15 @@ function buildScene() {
     const tabIdx = b.addNode(tab.name, -1, [], [], { lpos: b.vec3((tabIndex - 2) * 210, 0, 0) });
     b.addPanel(tabIdx, 180, 58, { fillColor: chromeSoft, strokeColor: chrome });
     b.addButton(tabIdx);
-    const tabLabelIdx = b.addTextNode(`${tab.name}Label`, tab.label, 180, 58, { fontSize: 22, color: white });
-    b.objects[tabIdx]._children = [b.ref(tabLabelIdx)];
+    const tabIconIdx = b.addTextNode(`${tab.name}Icon`, tab.icon, 180, 28, {
+      lpos: b.vec3(0, 14, 0), fontSize: 23, color: tabIndex === 0 ? b.color(255, 224, 143, 255) : white,
+    });
+    const tabLabelIdx = b.addTextNode(`${tab.name}Label`, tab.label, 180, 26, {
+      lpos: b.vec3(0, -16, 0), fontSize: 16, color: white,
+    });
+    b.objects[tabIdx]._children = [b.ref(tabIconIdx), b.ref(tabLabelIdx)];
+    b.objects[tabIconIdx]._parent = b.ref(tabIdx);
+    b.objects[tabLabelIdx]._parent = b.ref(tabIdx);
     tabNodeIds.push(tabIdx);
   }
 
@@ -1121,15 +1141,21 @@ function buildScene() {
   portraitLayout('ResourceSalaryChip', -80, 0, 145, 76);
   portraitLayout('ResourcePerformanceChip', 80, 0, 145, 76);
   portraitLayout('ResourceMindChip', 240, 0, 145, 76);
-  portraitLayout('CharacterIconLabel', -220, 72, 210, 220);
-  portraitLayout('CharacterNameLabel', 95, 100, 390, 44);
-  portraitLayout('CharacterStatusLabel', 95, 48, 420, 42);
-  portraitLayout('CharacterHintLabel', 95, 0, 360, 36);
-  portraitLayout('CultivateButton', -220, 0, 190, 78);
-  portraitLayout('WorkButton', 0, 0, 190, 78);
-  portraitLayout('FishButton', 220, 0, 190, 78);
+  portraitLayout('CharacterBackdrop', 0, 0, 660, 400);
+  portraitLayout('CharacterIconLabel', 0, -35, 540, 430);
+  portraitLayout('CharacterNameLabel', 125, 130, 390, 42);
+  portraitLayout('CharacterStatusLabel', 125, 86, 400, 34);
+  portraitLayout('CharacterHintLabel', 125, 46, 360, 30);
+  portraitLayout('CultivateButton', 0, 54, 360, 78);
+  portraitLayout('WorkButton', -175, -52, 230, 64);
+  portraitLayout('FishButton', 175, -52, 230, 64);
+  portraitLayout('CultivateButtonLabel', 0, 54, 360, 78);
+  portraitLayout('WorkButtonLabel', -175, -52, 230, 64);
+  portraitLayout('FishButtonLabel', 175, -52, 230, 64);
   ['TabHome', 'TabTasks', 'TabCraft', 'TabPromotion', 'TabMore'].forEach((name, index) =>
     portraitLayout(name, (index - 2) * 135, 0, 116, 76));
+
+  require('./home-reference-layout.cjs')(b);
 
   // ── PrefabInfo ────────────────────────────────────────────────────────
   const prefabIdx = b.addPrefabInfo();

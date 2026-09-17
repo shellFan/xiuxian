@@ -1,7 +1,9 @@
 ---
 name: phase5-progress
-description: PC V1 Desktop Build complete - EXE at dist/牛马修仙传-win32-x64/
+description: PC V1 Desktop完成 - Electron+pc-patch.js运行时UI接线+EXE打包验证通过
 type: project
 ---
 
-PC V1 OVERNIGHT COMPLETE (commit 37358bd). Windows EXE: dist/牛马修仙传-win32-x64/牛马修仙传.exe (176MB). Main.scene 1280x720 horizontal. Electron 28.3.3 wrapper. 70/70 tests + 100-seed sim pass. Build: Cocos CLI → Web Desktop → Electron → electron-packager → EXE. Known: GPU cache warning harmless, electron-builder network issue used packager fallback.
+PC V1 Desktop Build完成。pc-patch.js通过System.import('cc')获取Cocos运行时，cc.js.getClassByName('CocosBootstrapComponent').instance.facade获取Facade。3按钮+5Tab+5事件全部绑定。EXE打包到dist/牛马修仙传-win32-x64/。存档/读档正常。
+**Why:** 标记PC桌面版验收完成状态
+**How to apply:** 后续PC相关修改参考此方案，注意ccclass名是'CocosBootstrapComponent'非'CocosBootstrap'，不要修改System.import链

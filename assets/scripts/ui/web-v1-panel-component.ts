@@ -5,6 +5,7 @@ const { ccclass } = _decorator;
 interface GraphicsLike {
   clear(): void;
   rect(x: number, y: number, width: number, height: number): void;
+  roundRect?(x: number, y: number, width: number, height: number, radius: number): void;
   fill(): void;
   stroke(): void;
 }
@@ -30,7 +31,7 @@ export class WebV1PanelRenderer extends Component {
   }
 
   private drawPanel(): void {
-    const node = this.node as unknown as { getComponent(type: string): unknown };
+    const node = this.node as unknown as { name?: string; getComponent(type: string): unknown };
     const graphics = node.getComponent('cc.Graphics') as GraphicsLike | null;
     if (!graphics) return;
 
@@ -38,7 +39,9 @@ export class WebV1PanelRenderer extends Component {
     const width = transform?.contentSize?.width ?? 100;
     const height = transform?.contentSize?.height ?? 40;
     graphics.clear();
-    graphics.rect(-width / 2, -height / 2, width, height);
+    const homeCard = /^(Resource.*Chip|CultivateButton|WorkButton|FishButton|IdleIncomePanel)$/.test(node.name ?? '');
+    if (homeCard && graphics.roundRect) graphics.roundRect(-width / 2, -height / 2, width, height, 12);
+    else graphics.rect(-width / 2, -height / 2, width, height);
     graphics.fill();
     graphics.stroke();
   }

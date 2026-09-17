@@ -21,6 +21,14 @@ const cssPath = path.join(buildDir, 'style.css');
 const GAME_WIDTH = 720;
 const GAME_HEIGHT = 1280;
 
+// Creator 3.8 reads screen settings from this file, not legacy Canvas fields.
+const settingsPath = path.join(buildDir, 'src', 'settings.json');
+if (fs.existsSync(settingsPath)) {
+  const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+  settings.screen.designResolution = { width: GAME_WIDTH, height: GAME_HEIGHT, policy: 2 };
+  fs.writeFileSync(settingsPath, JSON.stringify(settings));
+}
+
 // ── Patch index.html ────────────────────────────────────────────────────────
 if (fs.existsSync(htmlPath)) {
   let html = fs.readFileSync(htmlPath, 'utf-8');
@@ -109,10 +117,11 @@ if (fs.existsSync(cssPath)) {
   css = css.replace(
     /#GameDiv\s*\{[^}]*\}/,
     `#GameDiv {
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  position: relative;
+  width: min(100vw, 56.25vh);
+  height: min(100vh, 177.77777778vw);
+  margin: auto;
+  position: absolute;
+  inset: 0;
   border: none;
   border-radius: 0;
   box-shadow: none;
@@ -122,7 +131,7 @@ if (fs.existsSync(cssPath)) {
   // Canvas: keep the authored 720x1280 portrait design as the visual ceiling.
   // Only scale down on smaller windows; never enlarge the design artwork on a
   // large desktop viewport, otherwise the reference card looks stretched.
-  const portraitCanvasRule = '#Cocos3dGameContainer, #GameCanvas { width: min(720px, 100vw, 56.25vh) !important; height: min(1280px, 100vh, 177.7778vw) !important; max-width: 100vw !important; max-height: 100vh !important; display: block; margin: 0 auto; }';
+  const portraitCanvasRule = '#Cocos3dGameContainer, #GameCanvas { width: 100%; height: 100%; display: block; }';
   if (/#(?:Cocos3dGameContainer,\s*)?#GameCanvas\s*\{/.test(css)) {
     css = css.replace(/#(?:Cocos3dGameContainer,\s*)?#GameCanvas\s*\{[^}]*\}/, portraitCanvasRule);
   } else {
