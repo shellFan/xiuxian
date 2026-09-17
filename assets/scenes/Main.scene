@@ -34916,7 +34916,7 @@
       "height": 1280
     },
     "_fitHeight": false,
-    "_fitWidth": true,
+    "_fitWidth": false,
     "_cameraComponent": {
       "__id__": 1199
     },

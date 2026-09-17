@@ -79,6 +79,8 @@ test('Task 6 keeps the scene and desktop canvas on one 720x1280 portrait composi
   const canvas = scene.find((object) => object.__type__ === 'cc.Canvas');
   assert.ok(canvas, 'Main.scene must contain a Canvas');
   assert.deepEqual(canvas._designResolution, { __type__: 'cc.Size', width: 720, height: 1280 });
+  assert.equal(canvas._fitWidth, false, 'portrait Canvas must not adapt the design width to the viewport');
+  assert.equal(canvas._fitHeight, false, 'portrait Canvas must not adapt the design height to the viewport');
 
   const patcher = fs.readFileSync('desktop/patch-html.cjs', 'utf8');
   assert.match(patcher, /GAME_WIDTH\s*=\s*720/);

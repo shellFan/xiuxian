@@ -373,8 +373,11 @@ class SceneBuilder {
       node: this.ref(nodeIdx),
       _enabled: true,
       _designResolution: this.size(DESIGN_WIDTH, DESIGN_HEIGHT),
+      // Keep the authored portrait design space fixed. The desktop wrapper
+      // performs uniform CSS scaling; Canvas must not reflow it to viewport
+      // width or the portrait UI becomes vertically distorted.
       _fitHeight: false,
-      _fitWidth: true,
+      _fitWidth: false,
       _cameraComponent: this.ref(cameraIdx),
       _alignCanvasWithScreen: true,
     });
