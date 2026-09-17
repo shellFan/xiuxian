@@ -90,6 +90,12 @@ export class CocosBootstrapComponent extends Component {
     this._facade = new GameFacade({ storage });
     console.log('[BOOT] GameFacade initialized');
 
+    // Expose facade on window for DOM overlay UI access
+    if (typeof window !== 'undefined') {
+      (window as unknown as Record<string, unknown>).__GAME_FACADE__ = this._facade;
+      console.log('[BOOT] GameFacade exposed on window.__GAME_FACADE__');
+    }
+
     // Create AudioService with CocosAudioBackend
     this._audioService = new AudioService({
       backend: new CocosAudioBackend(),

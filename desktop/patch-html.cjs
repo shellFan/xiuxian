@@ -87,8 +87,49 @@ if (fs.existsSync(htmlPath)) {
     );
   }
 
+  // ── Inject DOM Overlay UI ──────────────────────────────────────────────────
+  // Copy ui-overlay.css and ui-overlay.js to build dir
+  const overlayCss = path.join(__dirname, 'ui-overlay.css');
+  const overlayJs  = path.join(__dirname, 'ui-overlay.js');
+  const destCss    = path.join(buildDir, 'ui-overlay.css');
+  const destJs     = path.join(buildDir, 'ui-overlay.js');
+
+  if (fs.existsSync(overlayCss)) {
+    fs.copyFileSync(overlayCss, destCss);
+    console.log('[patch-html] Copied ui-overlay.css');
+  }
+  if (fs.existsSync(overlayJs)) {
+    fs.copyFileSync(overlayJs, destJs);
+    console.log('[patch-html] Copied ui-overlay.js');
+  }
+
+  // Inject <link> and <script> into index.html
+  // Position overlay relative to GameDiv for correct scaling
+  const overlayLink = '<link rel="stylesheet" href="ui-overlay.css">';
+  const overlayScript = '<script src="ui-overlay.js"></script>';
+
+  if (!html.includes('ui-overlay.css')) {
+    html = html.replace('</head>', `  ${overlayLink}\n</head>`);
+  }
+  if (!html.includes('ui-overlay.js')) {
+    html = html.replace('</body>', `  ${overlayScript}\n</body>`);
+  }
+
+  // Ensure #UiOverlay fills GameDiv (GameDiv already has position:absolute from style.css)
+  const overlayPositionCss = `
+/* DOM Overlay — fills GameDiv coordinate system */
+#UiOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+`;
+  if (!html.includes('#UiOverlay')) {
+    html = html.replace('</head>', `  <style>${overlayPositionCss}</style>\n</head>`);
+  }
+
   fs.writeFileSync(htmlPath, html, 'utf-8');
-  console.log('[patch-html] Patched index.html');
+  console.log('[patch-html] Injected DOM Overlay UI');
 } else {
   console.warn('[patch-html] index.html not found at:', htmlPath);
 }
