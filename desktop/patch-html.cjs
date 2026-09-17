@@ -122,9 +122,9 @@ if (fs.existsSync(cssPath)) {
   // Canvas: keep the authored 720x1280 portrait design as the visual ceiling.
   // Only scale down on smaller windows; never enlarge the design artwork on a
   // large desktop viewport, otherwise the reference card looks stretched.
-  const portraitCanvasRule = '#GameCanvas { width: min(720px, 100vw, 56.25vh); height: min(1280px, 100vh, 177.7778vw); max-width: 100vw; max-height: 100vh; display: block; margin: 0 auto; }';
-  if (css.includes('#GameCanvas {')) {
-    css = css.replace(/#GameCanvas\s*\{[^}]*\}/, portraitCanvasRule);
+  const portraitCanvasRule = '#Cocos3dGameContainer, #GameCanvas { width: min(720px, 100vw, 56.25vh) !important; height: min(1280px, 100vh, 177.7778vw) !important; max-width: 100vw !important; max-height: 100vh !important; display: block; margin: 0 auto; }';
+  if (/#(?:Cocos3dGameContainer,\s*)?#GameCanvas\s*\{/.test(css)) {
+    css = css.replace(/#(?:Cocos3dGameContainer,\s*)?#GameCanvas\s*\{[^}]*\}/, portraitCanvasRule);
   } else {
     css += `\n${portraitCanvasRule}\n`;
   }
