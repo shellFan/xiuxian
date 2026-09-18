@@ -28,4 +28,4 @@ tests/.compiled/
 /desktop/build/
 
 # Cocos .meta files MUST be tracked (required for scene/prefab references)
-!assets/**/*.meta
+!assets/**/*.metatmp/
