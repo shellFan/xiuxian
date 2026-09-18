@@ -533,11 +533,11 @@ test('E2E: game loop does not enter infinite loop with large delta', () => {
 test('E2E: all 10 career levels have correct names and realms', () => {
   const { facade } = createTestSetup();
   const expectedNames = [
-    '练气职员', '筑基职员', '金丹主管', '元婴主管', '化神经理',
+    '实习牛马', '正式牛马', '金丹主管', '元婴主管', '化神经理',
     '炼虚经理', '合体总监', '大乘总监', '渡劫副总', '飞升董事',
   ];
   const expectedRealms = [
-    '练气境', '筑基境', '金丹境', '元婴境', '化神境',
+    '炼气一层', '炼气三层', '金丹境', '元婴境', '化神境',
     '炼虚境', '合体境', '大乘境', '渡劫境', '飞升境',
   ];
 

@@ -1,0 +1,611 @@
+{
+  "source": "docs/img/image5.png",
+  "imageSize": [
+    1536,
+    1024
+  ],
+  "assets": [
+    {
+      "name": "brand-title",
+      "file": "brand-title.png",
+      "box": [
+        55,
+        4,
+        302,
+        56
+      ],
+      "size": [
+        247,
+        52
+      ]
+    },
+    {
+      "name": "brand-ribbon",
+      "file": "brand-ribbon.png",
+      "box": [
+        56,
+        50,
+        250,
+        88
+      ],
+      "size": [
+        194,
+        38
+      ]
+    },
+    {
+      "name": "home-avatar",
+      "file": "home-avatar.png",
+      "box": [
+        14,
+        86,
+        58,
+        138
+      ],
+      "size": [
+        44,
+        52
+      ]
+    },
+    {
+      "name": "home-character",
+      "file": "home-character.png",
+      "box": [
+        8,
+        222,
+        307,
+        362
+      ],
+      "size": [
+        299,
+        140
+      ]
+    },
+    {
+      "name": "promo-cur",
+      "file": "promo-cur.png",
+      "box": [
+        942,
+        140,
+        1053,
+        228
+      ],
+      "size": [
+        111,
+        88
+      ]
+    },
+    {
+      "name": "promo-next",
+      "file": "promo-next.png",
+      "box": [
+        1096,
+        140,
+        1207,
+        228
+      ],
+      "size": [
+        111,
+        88
+      ]
+    },
+    {
+      "name": "sect-minying",
+      "file": "sect-minying.png",
+      "box": [
+        1250,
+        96,
+        1346,
+        176
+      ],
+      "size": [
+        96,
+        80
+      ]
+    },
+    {
+      "name": "sect-waiqi",
+      "file": "sect-waiqi.png",
+      "box": [
+        1250,
+        196,
+        1346,
+        276
+      ],
+      "size": [
+        96,
+        80
+      ]
+    },
+    {
+      "name": "sect-guoqi",
+      "file": "sect-guoqi.png",
+      "box": [
+        1250,
+        296,
+        1346,
+        376
+      ],
+      "size": [
+        96,
+        80
+      ]
+    },
+    {
+      "name": "sect-dachang",
+      "file": "sect-dachang.png",
+      "box": [
+        1250,
+        396,
+        1346,
+        476
+      ],
+      "size": [
+        96,
+        80
+      ]
+    },
+    {
+      "name": "event-boss",
+      "file": "event-boss.png",
+      "box": [
+        806,
+        642,
+        1064,
+        766
+      ],
+      "size": [
+        258,
+        124
+      ]
+    },
+    {
+      "name": "ad-cow",
+      "file": "ad-cow.png",
+      "box": [
+        1082,
+        688,
+        1262,
+        828
+      ],
+      "size": [
+        180,
+        140
+      ]
+    },
+    {
+      "name": "task-report",
+      "file": "task-report.png",
+      "box": [
+        329,
+        124,
+        386,
+        181
+      ],
+      "size": [
+        57,
+        57
+      ]
+    },
+    {
+      "name": "task-bug",
+      "file": "task-bug.png",
+      "box": [
+        329,
+        234,
+        386,
+        291
+      ],
+      "size": [
+        57,
+        57
+      ]
+    },
+    {
+      "name": "task-fish",
+      "file": "task-fish.png",
+      "box": [
+        329,
+        344,
+        386,
+        401
+      ],
+      "size": [
+        57,
+        57
+      ]
+    },
+    {
+      "name": "task-meeting",
+      "file": "task-meeting.png",
+      "box": [
+        329,
+        454,
+        386,
+        511
+      ],
+      "size": [
+        57,
+        57
+      ]
+    },
+    {
+      "name": "mat-herb-a",
+      "file": "mat-herb-a.png",
+      "box": [
+        644,
+        138,
+        684,
+        182
+      ],
+      "size": [
+        40,
+        44
+      ]
+    },
+    {
+      "name": "mat-herb-b",
+      "file": "mat-herb-b.png",
+      "box": [
+        688,
+        138,
+        728,
+        182
+      ],
+      "size": [
+        40,
+        44
+      ]
+    },
+    {
+      "name": "item-pill-juqi",
+      "file": "item-pill-juqi.png",
+      "box": [
+        748,
+        140,
+        796,
+        186
+      ],
+      "size": [
+        48,
+        46
+      ]
+    },
+    {
+      "name": "mat-crystal-a",
+      "file": "mat-crystal-a.png",
+      "box": [
+        646,
+        244,
+        684,
+        281
+      ],
+      "size": [
+        38,
+        37
+      ]
+    },
+    {
+      "name": "mat-ore-b",
+      "file": "mat-ore-b.png",
+      "box": [
+        694,
+        244,
+        730,
+        281
+      ],
+      "size": [
+        36,
+        37
+      ]
+    },
+    {
+      "name": "item-stone",
+      "file": "item-stone.png",
+      "box": [
+        748,
+        242,
+        796,
+        290
+      ],
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "mat-scroll-a",
+      "file": "mat-scroll-a.png",
+      "box": [
+        644,
+        335,
+        684,
+        379
+      ],
+      "size": [
+        40,
+        44
+      ]
+    },
+    {
+      "name": "mat-scroll-b",
+      "file": "mat-scroll-b.png",
+      "box": [
+        688,
+        335,
+        728,
+        379
+      ],
+      "size": [
+        40,
+        44
+      ]
+    },
+    {
+      "name": "item-gongfa-book",
+      "file": "item-gongfa-book.png",
+      "box": [
+        748,
+        332,
+        796,
+        380
+      ],
+      "size": [
+        48,
+        48
+      ]
+    },
+    {
+      "name": "mat-flower-a",
+      "file": "mat-flower-a.png",
+      "box": [
+        646,
+        450,
+        684,
+        488
+      ],
+      "size": [
+        38,
+        38
+      ]
+    },
+    {
+      "name": "mat-flower-b",
+      "file": "mat-flower-b.png",
+      "box": [
+        694,
+        450,
+        730,
+        488
+      ],
+      "size": [
+        36,
+        38
+      ]
+    },
+    {
+      "name": "item-pill-huichun",
+      "file": "item-pill-huichun.png",
+      "box": [
+        752,
+        450,
+        800,
+        496
+      ],
+      "size": [
+        48,
+        46
+      ]
+    },
+    {
+      "name": "face-zhangsan",
+      "file": "face-zhangsan.png",
+      "box": [
+        289,
+        691,
+        333,
+        743
+      ],
+      "size": [
+        44,
+        52
+      ]
+    },
+    {
+      "name": "face-xiaoshimei",
+      "file": "face-xiaoshimei.png",
+      "box": [
+        289,
+        748,
+        333,
+        800
+      ],
+      "size": [
+        44,
+        52
+      ]
+    },
+    {
+      "name": "face-tutou",
+      "file": "face-tutou.png",
+      "box": [
+        289,
+        805,
+        333,
+        857
+      ],
+      "size": [
+        44,
+        52
+      ]
+    },
+    {
+      "name": "face-ceshi",
+      "file": "face-ceshi.png",
+      "box": [
+        289,
+        866,
+        333,
+        918
+      ],
+      "size": [
+        44,
+        52
+      ]
+    },
+    {
+      "name": "ach-first-task",
+      "file": "ach-first-task.png",
+      "box": [
+        556,
+        691,
+        604,
+        741
+      ],
+      "size": [
+        48,
+        50
+      ]
+    },
+    {
+      "name": "ach-fish",
+      "file": "ach-fish.png",
+      "box": [
+        556,
+        753,
+        604,
+        803
+      ],
+      "size": [
+        48,
+        50
+      ]
+    },
+    {
+      "name": "ach-overtime",
+      "file": "ach-overtime.png",
+      "box": [
+        556,
+        815,
+        604,
+        865
+      ],
+      "size": [
+        48,
+        50
+      ]
+    },
+    {
+      "name": "ach-promo",
+      "file": "ach-promo.png",
+      "box": [
+        556,
+        876,
+        604,
+        926
+      ],
+      "size": [
+        48,
+        50
+      ]
+    },
+    {
+      "name": "nav-home-active",
+      "file": "nav-home-active.png",
+      "box": [
+        23,
+        540,
+        54,
+        570
+      ],
+      "size": [
+        31,
+        30
+      ]
+    },
+    {
+      "name": "nav-tasks",
+      "file": "nav-tasks.png",
+      "box": [
+        83,
+        540,
+        114,
+        570
+      ],
+      "size": [
+        31,
+        30
+      ]
+    },
+    {
+      "name": "nav-craft",
+      "file": "nav-craft.png",
+      "box": [
+        143,
+        540,
+        174,
+        570
+      ],
+      "size": [
+        31,
+        30
+      ]
+    },
+    {
+      "name": "nav-promo",
+      "file": "nav-promo.png",
+      "box": [
+        203,
+        540,
+        234,
+        570
+      ],
+      "size": [
+        31,
+        30
+      ]
+    },
+    {
+      "name": "nav-more",
+      "file": "nav-more.png",
+      "box": [
+        254,
+        542,
+        283,
+        566
+      ],
+      "size": [
+        29,
+        24
+      ]
+    },
+    {
+      "name": "nav-tasks-active",
+      "file": "nav-tasks-active.png",
+      "box": [
+        387,
+        540,
+        418,
+        570
+      ],
+      "size": [
+        31,
+        30
+      ]
+    },
+    {
+      "name": "nav-craft-active",
+      "file": "nav-craft-active.png",
+      "box": [
+        1059,
+        540,
+        1090,
+        570
+      ],
+      "size": [
+        31,
+        30
+      ]
+    }
+  ]
+}

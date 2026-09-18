@@ -36,7 +36,11 @@ class FakeButton {
   }
 
   public click(): void {
-    for (const callback of this.handlers.get('click') ?? []) callback();
+    // Snapshot before dispatch: real event systems do not deliver handlers that
+    // are (re)bound during dispatch. Iterating the live Set lets the controller's
+    // synchronous refreshAll rebind the craft button mid-click, which would
+    // re-enter onCraftClick forever (any net-positive recipe loops).
+    for (const callback of [...(this.handlers.get('click') ?? [])]) callback();
   }
 }
 
@@ -240,7 +244,8 @@ function testRealFacadeCraftsAndPersistsTheDisplayedRecipe(): void {
 function testBoundCraftButtonUsesRealFacadeAndRefreshesPresentation(): void {
   const storage = new MemoryStorageAdapter();
   const facade = new GameFacade({ storage, board: null });
-  const recipe = buildCraftViewModel(facade).recipes.find((candidate) => candidate.id === 'pill_lingshen');
+  // Web V1 设计图: 丹药页首条配方为聚气丹 (entry-level)。
+  const recipe = buildCraftViewModel(facade).recipes.find((candidate) => candidate.id === 'pill_juqi');
   assert.ok(recipe, 'the entry-level craft recipe should be available');
   facade.context.player.cultivationExp = recipe.costCultivation;
   facade.context.player.spiritStones = recipe.costSpiritStones;
@@ -252,7 +257,7 @@ function testBoundCraftButtonUsesRealFacadeAndRefreshesPresentation(): void {
   controller.onLoad();
 
   assert.equal(scene.root.getChildByName('PageContainer')?.getChildByName('CraftPageContent')?.getChildByName('MergeBoardRoot')?.active, false);
-  assert.match(scene.label.string, /灵参丹/);
+  assert.match(scene.label.string, /聚气丹/);
   assert.match(scene.label.string, /材料:/);
   assert.match(scene.label.string, /产物: 修为\+50/);
   assert.match(scene.label.string, /\[合成\]/);

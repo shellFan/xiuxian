@@ -108,9 +108,12 @@ export class IdleService {
     const rawSeconds = deltaMilliseconds / 1000;
     const elapsedSeconds = Math.min(rawSeconds, this.maxOfflineSeconds);
     const capped = rawSeconds > this.maxOfflineSeconds;
-    const salary = Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600);
-    const cultivationExp = Math.floor(this.rateForBoard(this.cultivationPerHour) * elapsedSeconds / 3600);
-    const spiritStones = Math.floor(this.spiritStonesPerHour * elapsedSeconds / 3600);
+    // Sect offline gain multiplier (Web V1: 国企宗 离线收益+20%)
+    const sect = this.context.sect.current();
+    const offlineGain = sect?.modifiers.offlineGainMultiplier ?? 1;
+    const salary = Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600 * offlineGain);
+    const cultivationExp = Math.floor(this.rateForBoard(this.cultivationPerHour) * elapsedSeconds / 3600 * offlineGain);
+    const spiritStones = Math.floor(this.spiritStonesPerHour * elapsedSeconds / 3600 * offlineGain);
     return { salary, cultivationExp, spiritStones, elapsedSeconds, capped, anomaly: false, now };
   }
 

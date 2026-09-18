@@ -131,15 +131,23 @@ function testSectHasFourDistinctModifiers(): void {
   const { context } = makeContext();
   const sects = context.sect.available();
   assert.equal(sects.length, 4);
-  const multipliers = sects.map((s) => [s.modifiers.salaryMultiplier, s.modifiers.cultivationMultiplier, s.modifiers.mindMultiplier, s.modifiers.performanceMultiplier]);
-  // Each sect must have exactly one 1.2 dimension.
-  for (const m of multipliers) {
-    assert.equal(m.filter((v) => v === 1.2).length, 1, 'each sect boosts exactly one dimension by 1.2');
-    assert.equal(m.filter((v) => v === 1).length, 3);
+  // Web V1 设计图: 民企宗/外企宗/国企宗/大厂宗，每个宗门两条差异化加成。
+  assert.deepStrictEqual(sects.map((s) => s.name), ['民企宗', '外企宗', '国企宗', '大厂宗']);
+  for (const s of sects) {
+    const m = s.modifiers;
+    for (const v of [m.salaryMultiplier, m.cultivationMultiplier, m.mindMultiplier, m.performanceMultiplier]) {
+      assert.ok(v > 0, `${s.id} multipliers must be positive`);
+    }
+    const active = [m.salaryMultiplier, m.cultivationMultiplier, m.mindMultiplier, m.performanceMultiplier]
+      .filter((v) => v !== 1).length + (m.offlineGainMultiplier && m.offlineGainMultiplier !== 1 ? 1 : 0);
+    assert.ok(active >= 1 && active <= 2, `${s.id} must have 1-2 distinct modifiers`);
   }
-  // No two sects share the same boosted dimension.
-  const boosted = sects.map((s) => (s.modifiers.salaryMultiplier === 1.2 ? 'salary' : s.modifiers.cultivationMultiplier === 1.2 ? 'cultivation' : s.modifiers.mindMultiplier === 1.2 ? 'mind' : 'performance'));
-  assert.equal(new Set(boosted).size, 4, 'all four dimensions are covered');
+  // 国企宗独有离线收益加成。
+  const state = sects.find((s) => s.id === 'STATE');
+  assert.equal(state?.modifiers.offlineGainMultiplier, 1.2);
+  assert.ok(!sects.filter((s) => s.id !== 'STATE').some((s) => s.modifiers.offlineGainMultiplier));
+  // No two sects share the same name.
+  assert.equal(new Set(sects.map((s) => s.name)).size, 4, 'sect names are unique');
 }
 
 function testSectChoicePersistsAndBlocksSecondChoice(): void {

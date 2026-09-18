@@ -37,8 +37,8 @@ function testCareerViewModel(): void {
   const context = makeContext(readyLevelOne());
   const view = buildCareerViewModel(context);
   assert.equal(view.careerLevel, 1);
-  assert.equal(view.careerName, '练气职员');
-  assert.equal(view.realm, '练气境');
+  assert.equal(view.careerName, '实习牛马');
+  assert.equal(view.realm, '炼气一层');
   assert.equal(view.cultivation, 50);
   assert.equal(view.cultivationRequired, 0);
   assert.equal(view.mindStatusText, '精神饱满');

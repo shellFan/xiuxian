@@ -314,6 +314,10 @@ function validateSect(sect: Record<string, unknown>): void {
       requireNumber(modifiers[key], `sect.sects[${index}].modifiers.${key}`);
       if ((modifiers[key] as number) < 0) fail(`sect.sects[${index}].modifiers.${key} must be non-negative`);
     }
+    if (modifiers.offlineGainMultiplier !== undefined) {
+      requireNumber(modifiers.offlineGainMultiplier, `sect.sects[${index}].modifiers.offlineGainMultiplier`);
+      if ((modifiers.offlineGainMultiplier as number) < 0) fail(`sect.sects[${index}].modifiers.offlineGainMultiplier must be non-negative`);
+    }
   });
   for (const id of ['PRIVATE', 'FOREIGN', 'STATE', 'BIG_TECH']) if (!ids.has(id)) fail(`sect.sects is missing ${id}`);
 }

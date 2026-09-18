@@ -103,6 +103,20 @@ if (fs.existsSync(htmlPath)) {
     console.log('[patch-html] Copied ui-overlay.js');
   }
 
+  // Copy sliced design assets (docs/img/image5.png → desktop/assets/ui-slice)
+  const sliceSrc = path.join(__dirname, 'assets', 'ui-slice');
+  const sliceDest = path.join(buildDir, 'ui-slice');
+  if (fs.existsSync(sliceSrc)) {
+    fs.mkdirSync(sliceDest, { recursive: true });
+    let copied = 0;
+    for (const f of fs.readdirSync(sliceSrc)) {
+      if (!f.endsWith('.png') && !f.endsWith('.json')) continue;
+      fs.copyFileSync(path.join(sliceSrc, f), path.join(sliceDest, f));
+      copied++;
+    }
+    console.log(`[patch-html] Copied ui-slice assets (${copied} files)`);
+  }
+
   // Inject <link> and <script> into index.html
   // Position overlay relative to GameDiv for correct scaling
   const overlayLink = '<link rel="stylesheet" href="ui-overlay.css">';

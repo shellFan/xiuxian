@@ -1,945 +1,1519 @@
 /**
- * 牛马修仙传 — DOM Overlay UI Controller
- * 
- * 通过 window.__GAME_FACADE__ 桥接 Cocos 游戏数据
- * 在 Cocos Canvas 上叠加 HTML/CSS 层实现 UI 重构
+ * 牛马修仙传 — Web V1 DOM Overlay UI
+ *
+ * 视觉基准: docs/img/image5.png (11 屏概念图)
+ * 通过 window.__GAME_FACADE__ 桥接 Cocos 游戏数据; Facade 缺席时进入演示模式。
+ *
+ * 屏幕: 首页/任务/合成/晋升 + 子页(宗门/排行榜/好友/成就/设置) + 弹窗(事件/广告/离线)
  */
 ;(function () {
   'use strict';
 
-  /* ═══════════════════════════════════════════════════════════
-     §0. Constants & Mappings
-     ═══════════════════════════════════════════════════════════ */
+  /* ═════════════════════════════════════════════════════════
+     §0. Constants
+     ═════════════════════════════════════════════════════════ */
 
-  const NAV_TABS = [
-    { id: 'HOME',      icon: '🏠', label: '首页' },
-    { id: 'TASKS',     icon: '📋', label: '任务' },
-    { id: 'CRAFT',     icon: '🧪', label: '合成' },
-    { id: 'PROMOTION', icon: '⬆️', label: '晋升' },
-    { id: 'MORE',      icon: '⚙️', label: '更多' },
+  var ASSET = 'ui-slice/';
+
+  var NAV_TABS = [
+    { id: 'HOME',      label: '首页', icon: 'nav-home-active', active: 'nav-home-active' },
+    { id: 'TASKS',     label: '任务', icon: 'nav-tasks', active: 'nav-tasks-active' },
+    { id: 'CRAFT',     label: '合成', icon: 'nav-craft', active: 'nav-craft-active' },
+    { id: 'PROMOTION', label: '晋升', icon: 'nav-promo', active: null },
+    { id: 'MORE',      label: '更多', icon: 'nav-more',  active: null },
   ];
 
-  const TASK_TYPE_LABELS = { DAILY: '日常', WORK: '工作', CULTIVATION: '修炼', EVENT: '事件' };
-  const TASK_TYPE_ICONS  = { DAILY: '📅', WORK: '💼', CULTIVATION: '🧘', EVENT: '🎉' };
+  var PLAYER_NAME = '范大牛';
 
-  const RECIPE_TYPE_ICONS = { pill: '🧪', talisman: '📜', artifact: '🔮' };
-  const EFFECT_LABELS = {
-    cultivationExp: '修为', spiritStones: '灵石', salary: '工资',
-    performance: '绩效', mind: '心境', kpi: 'KPI',
+  var TASK_TABS = [
+    { type: 'DAILY',       label: '日常任务' },
+    { type: 'WORK',        label: '工作任务' },
+    { type: 'CULTIVATION', label: '修炼任务' },
+  ];
+
+  var TASK_TYPE_ICONS = { DAILY: '📅', WORK: '💼', CULTIVATION: '🧘', EVENT: '🎉' };
+
+  /* 任务图标切片 */
+  var TASK_ICONS = {
+    task_daily_report: 'task-report',
+    task_fix_bug: 'task-bug',
+    task_paid_fish: 'task-fish',
+    task_useless_meeting: 'task-meeting',
   };
 
-  const MIND_LABELS = ['崩溃', '焦虑', '疲惫', '平静', '专注', '悟道'];
-  const WORK_MODE_LABELS = { WORK: '打工', FISHING: '摸鱼' };
-  const WORK_MODE_ICONS  = { WORK: '💼', FISHING: '🎣' };
-
-  const MORE_SUB_TABS = [
-    { id: 'SECT',         icon: '⚔️', label: '宗门' },
-    { id: 'ACHIEVEMENT',  icon: '🏆', label: '成就' },
-    { id: 'DAILY',        icon: '📅', label: '日常' },
-    { id: 'SETTINGS',     icon: '⚙️', label: '设置' },
+  var CRAFT_TABS = [
+    { id: 'pill',     label: '丹药', match: function (id) { return id.indexOf('pill_') === 0; } },
+    { id: 'gongfa',   label: '功法', match: function (id) { return id.indexOf('talisman_') === 0 || id.indexOf('page_') === 0; } },
+    { id: 'artifact', label: '法宝', match: function (id) { return id.indexOf('artifact_') === 0; } },
+    { id: 'mat',      label: '材料', match: function () { return false; } },
   ];
 
-  /* ═══════════════════════════════════════════════════════════
-     §1. Utility Functions
-     ═══════════════════════════════════════════════════════════ */
+  /* 配方图标: 材料(两种) → 产物 */
+  var CRAFT_MATS = {
+    pill:     ['mat-herb-a', 'mat-herb-b'],
+    gongfa:   ['mat-scroll-a', 'mat-scroll-b'],
+    artifact: ['mat-crystal-a', 'mat-ore-b'],
+  };
+  var CRAFT_RESULT = {
+    pill_juqi: 'item-pill-juqi', pill_huichun: 'item-pill-huichun', page_gongfa: 'item-gongfa-book',
+    pill_lingshen: 'item-pill-juqi', pill_juling: 'item-pill-juqi', pill_poxian: 'item-pill-juqi',
+    talisman_salary: 'mat-scroll-a', talisman_mind: 'mat-scroll-b',
+    artifact_lingpai: 'item-stone',
+  };
 
-  function fmtNum(n) {
-    if (n == null) return '0';
-    if (typeof n === 'string') n = Number(n);
-    if (isNaN(n)) return '0';
-    if (n >= 1e8) return (n / 1e8).toFixed(1) + '亿';
-    if (n >= 1e4) return (n / 1e4).toFixed(1) + '万';
-    if (n >= 1000) return n.toLocaleString('zh-CN');
-    return String(Math.floor(n));
-  }
+  var SECT_IMAGES = { PRIVATE: 'sect-minying', FOREIGN: 'sect-waiqi', STATE: 'sect-guoqi', BIG_TECH: 'sect-dachang' };
 
-  function pct(current, required) {
-    if (!required || required <= 0) return 0;
-    return Math.min(100, Math.max(0, (current / required) * 100));
-  }
+  var FACE_IMAGES = ['face-zhangsan', 'face-xiaoshimei', 'face-tutou', 'face-ceshi'];
 
-  function mindText(mind, maxMind) {
-    if (maxMind <= 0) return MIND_LABELS[0];
-    const ratio = mind / maxMind;
-    if (ratio <= 0.1) return MIND_LABELS[0];
-    if (ratio <= 0.3) return MIND_LABELS[1];
-    if (ratio <= 0.5) return MIND_LABELS[2];
-    if (ratio <= 0.7) return MIND_LABELS[3];
-    if (ratio <= 0.9) return MIND_LABELS[4];
-    return MIND_LABELS[5];
-  }
+  var ACH_ICONS = ['ach-first-task', 'ach-fish', 'ach-overtime', 'ach-promo'];
+
+  var QUOTES = [
+    '“摸鱼不进法，修仙不内卷！”',
+    '“上班也是渡劫，摸鱼便是炼气。”',
+    '“老板画饼，我自吞霞。”',
+    '“工位即洞府，日报即经文。”',
+  ];
+
+  var STAT_ICONS = {
+    cultivation: ['💧', 'ico--blue'],
+    salary:      ['💰', 'ico--gold'],
+    performance: ['📈', 'ico--orange'],
+    mind:        ['☯', 'ico--jade'],
+    stone:       ['💎', 'ico--jade'],
+  };
+
+  var EFFECT_LABELS = { salary: '工资', performance: '绩效', cultivation: '修为', mind: '道心' };
+  var MIND_LABELS = ['心魔缠身', '焦虑', '疲惫', '平静', '专注', '道心通明'];
+
+  /* ═════════════════════════════════════════════════════════
+     §1. Utilities
+     ═════════════════════════════════════════════════════════ */
+
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
 
   function escHtml(s) {
-    const d = document.createElement('div');
-    d.textContent = s;
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
     return d.innerHTML;
   }
 
-  function $(sel, root) { return (root || document).querySelector(sel); }
-  function $$(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
+  function fmtNum(n) {
+    if (n == null || isNaN(Number(n))) return '0';
+    n = Number(n);
+    if (n >= 1e8) return trimZero((n / 1e8).toFixed(1)) + '亿';
+    if (n >= 1e4) return trimZero((n / 1e4).toFixed(1)) + '万';
+    if (n >= 1000) return n.toLocaleString('zh-CN');
+    return String(Math.floor(n));
+  }
+  function trimZero(s) { return s.replace(/\.0$/, ''); }
 
-  /* ═══════════════════════════════════════════════════════════
-     §2. Data Layer — Facade Bridge
-     ═══════════════════════════════════════════════════════════ */
-
-  let _facade = null;
-  let _unsubs = [];
-  let _demoMode = false;
-
-  function getFacade() {
-    if (_facade) return _facade;
-    _facade = window.__GAME_FACADE__ || null;
-    return _facade;
+  function pct(cur, req) {
+    if (!req || req <= 0) return 0;
+    return Math.min(100, Math.max(0, (cur / req) * 100));
   }
 
-  /* ── Demo data for when GameFacade is unavailable ── */
-  const DEMO = {
+  function hms(totalSeconds) {
+    totalSeconds = Math.max(0, Math.floor(totalSeconds));
+    var h = Math.floor(totalSeconds / 3600);
+    var m = Math.floor((totalSeconds % 3600) / 60);
+    var s = totalSeconds % 60;
+    function p2(x) { return (x < 10 ? '0' : '') + x; }
+    return p2(h) + ':' + p2(m) + ':' + p2(s);
+  }
+
+  function fmtDuration(seconds) {
+    seconds = Math.max(0, Math.floor(seconds));
+    if (seconds < 60) return seconds + '秒';
+    var h = Math.floor(seconds / 3600);
+    var m = Math.floor((seconds % 3600) / 60);
+    if (h > 0) return h + '小时' + m + '分钟';
+    return m + '分钟';
+  }
+
+  function img(name, cls, style) {
+    return '<img src="' + ASSET + name + '.png" ' + (cls ? 'class="' + cls + '" ' : '') +
+      (style ? 'style="' + style + '" ' : '') + 'alt="">';
+  }
+
+  function icon(statName, extraCls) {
+    var def = STAT_ICONS[statName] || ['❓', 'ico--blue'];
+    return '<span class="ico ' + def[1] + (extraCls ? ' ' + extraCls : '') + '">' + def[0] + '</span>';
+  }
+
+  /* 效果对象 → "修为 +15 道心 -8" */
+  function effectText(effects) {
+    if (!effects) return '';
+    var parts = [];
+    for (var key in EFFECT_LABELS) {
+      if (!Object.prototype.hasOwnProperty.call(EFFECT_LABELS, key)) continue;
+      var v = effects[key];
+      if (!v) continue;
+      var sign = v > 0 ? '+' : '';
+      var cls = v > 0 ? 'val-pos' : 'val-neg';
+      parts.push(EFFECT_LABELS[key] + ' <span class="' + cls + '">' + sign + v + '</span>');
+    }
+    return parts.join(' ');
+  }
+
+  function mindLabel(mind, maxMind) {
+    if (!maxMind) return MIND_LABELS[0];
+    var r = mind / maxMind;
+    if (r <= 0.1) return MIND_LABELS[0];
+    if (r <= 0.3) return MIND_LABELS[1];
+    if (r <= 0.5) return MIND_LABELS[2];
+    if (r <= 0.7) return MIND_LABELS[3];
+    if (r <= 0.9) return MIND_LABELS[4];
+    return MIND_LABELS[5];
+  }
+
+  function faceFor(seed) {
+    return FACE_IMAGES[Math.abs(seed) % FACE_IMAGES.length];
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     §2. Data Layer — Facade bridge + Demo data
+     ═════════════════════════════════════════════════════════ */
+
+  var _facade = null;
+  var _demoMode = false;
+  var _unsubs = [];
+
+  function facade() { return _facade || (window && window.__GAME_FACADE__) || null; }
+
+  /* 演示数据 — Facade 未就绪时保证 11 屏完整可看 */
+  var DEMO = {
     hud: {
-      careerLevel: 3, careerName: '筑基弟子', realm: '筑基期',
-      cultivationReq: 5000, salary: 120, performance: 85,
-      cultivationExp: 2340, spiritStones: 580, mind: 65, maxMind: 100,
-      workMode: 'WORK', kpiCompleted: 2, kpiTotal: 5,
-      talentName: '灵根', officeLevel: 1, sectId: 'qingyun',
-      isFishingMode: false, salaryEfficiency: 1.0, cultivationEfficiency: 1.2,
+      careerLevel: 1, careerName: '实习牛马', realm: '炼气一层', requiredExp: 100,
+      salary: 288, performance: 35, cultivationExp: 166, spiritStones: 42,
+      mind: 86, maxMind: 100, workMode: 'FISHING', kpiCompleted: 2, kpiTotal: 3,
+      salaryEfficiency: 1.3, cultivationEfficiency: 1.2, isFishingMode: true,
     },
-    idle: {
-      salaryEfficiency: 1.0, performanceEfficiency: 0.8,
-      mindRecoveryEfficiency: 1.0, cultivationEfficiency: 1.2,
-      isWorkIncomeStopped: false,
+    kpi: {
+      careerLevel: 1, allCompleted: false,
+      items: [
+        { type: 'MERGE_COUNT', target: 3, progress: 1, completed: false, description: '合成牛马 3 次' },
+        { type: 'WORK_SECONDS', target: 300, progress: 210, completed: false, description: '累计工作 5 分钟' },
+        { type: 'CULTIVATION', target: 50, progress: 50, completed: true, description: '修为达到 50' },
+      ],
     },
+    careerNext: { level: 2, name: '正式牛马', realm: '炼气三层' },
     tasks: {
       active: [
-        { taskId: 't1', taskType: 'DAILY', name: '日常修炼', description: '完成日常修炼任务', durationSeconds: 60, startedAt: Date.now() - 30000, rewardSalary: 10, rewardCultivation: 50, rewardSpiritStones: 5, completed: false, claimed: false },
-        { taskId: 't2', taskType: 'WORK', name: '整理文书', description: '帮师兄整理文书', durationSeconds: 120, startedAt: Date.now() - 80000, rewardSalary: 20, rewardCultivation: 0, rewardSpiritStones: 10, completed: false, claimed: false },
+        { taskId: 'task_fix_bug', taskType: 'DAILY', name: '修复线上Bug', description: '紧急修复生产环境问题', durationSeconds: 30, startedAt: Date.now() - 12000, rewardSalary: 30, rewardCultivation: 60, rewardSpiritStones: 0, rewardPerformance: 15, rewardMind: -5, completed: false, claimed: false },
       ],
       configs: [
-        { id: 'c1', type: 'DAILY', name: '采药任务', description: '去后山采集灵药', durationSeconds: 90, rewardSalary: 15, rewardCultivation: 30, rewardSpiritStones: 8 },
-        { id: 'c2', type: 'CULTIVATION', name: '闭关修炼', description: '在洞府闭关修炼', durationSeconds: 180, rewardSalary: 0, rewardCultivation: 100, rewardSpiritStones: 0 },
+        { id: 'task_daily_report', type: 'DAILY', name: '写日报', description: '完成今天的工作日报', durationSeconds: 10, rewardSalary: 10, rewardCultivation: 30, rewardSpiritStones: 0, rewardPerformance: 5 },
+        { id: 'task_paid_fish', type: 'DAILY', name: '带薪摸鱼', description: '合理摸鱼，恢复状态', durationSeconds: 15, rewardSalary: 0, rewardCultivation: 5, rewardSpiritStones: 0, rewardMind: 15 },
+        { id: 'task_useless_meeting', type: 'DAILY', name: '参加无效会议', description: '听不懂但开完的会议', durationSeconds: 20, rewardSalary: 0, rewardCultivation: 0, rewardSpiritStones: 0, rewardPerformance: 10, rewardMind: -10 },
       ],
     },
-    craft: {
-      recipes: [
-        { id: 'r1', name: '聚灵丹', description: '增加修为的丹药', costCultivation: 200, costSpiritStones: 50, effect: { cultivation: 500 }, unlockCareerLevel: 1, maxCraftCount: 0 },
-        { id: 'r2', name: '清心符', description: '恢复心境的符箓', costCultivation: 100, costSpiritStones: 30, effect: { mind: 20 }, unlockCareerLevel: 2, maxCraftCount: 0 },
+    recipes: [
+      { id: 'pill_juqi', name: '聚气丹', description: '修为+50，入门丹药', costCultivation: 100, costSpiritStones: 0, effect: { cultivation: 50 }, unlockCareerLevel: 1 },
+      { id: 'pill_huichun', name: '回春丹', description: '道心+50，恢复状态', costCultivation: 150, costSpiritStones: 3, effect: { mind: 50 }, unlockCareerLevel: 1 },
+      { id: 'pill_lingshen', name: '灵参丹', description: '修为+50，入门丹药', costCultivation: 100, costSpiritStones: 0, effect: { cultivation: 50 }, unlockCareerLevel: 1 },
+      { id: 'pill_juling', name: '聚灵丹', description: '修为+200，中级丹药', costCultivation: 500, costSpiritStones: 10, effect: { cultivation: 200 }, unlockCareerLevel: 2 },
+      { id: 'pill_poxian', name: '破仙丹', description: '修为+800，高级丹药', costCultivation: 2000, costSpiritStones: 50, effect: { cultivation: 800 }, unlockCareerLevel: 4 },
+      { id: 'page_gongfa', name: '初级功法残页', description: '参悟后修为+400', costCultivation: 500, costSpiritStones: 10, effect: { cultivation: 400 }, unlockCareerLevel: 2 },
+      { id: 'talisman_salary', name: '加薪符', description: '工资+100', costCultivation: 200, costSpiritStones: 5, effect: { salary: 100 }, unlockCareerLevel: 1 },
+      { id: 'talisman_mind', name: '静心符', description: '道心+30', costCultivation: 150, costSpiritStones: 3, effect: { mind: 30 }, unlockCareerLevel: 1 },
+      { id: 'artifact_lingpai', name: '灵牌', description: '绩效+50', costCultivation: 300, costSpiritStones: 15, effect: { performance: 50 }, unlockCareerLevel: 3 },
+    ],
+    craftedCount: {},
+    promotion: { allowed: false, needsRetry: false, probability: 45 },
+    sects: [
+      { id: 'PRIVATE', name: '民企宗', modifiers: { salaryMultiplier: 1.15, cultivationMultiplier: 1, mindMultiplier: 0.9, performanceMultiplier: 1 } },
+      { id: 'FOREIGN', name: '外企宗', modifiers: { salaryMultiplier: 1.05, cultivationMultiplier: 1, mindMultiplier: 1.15, performanceMultiplier: 1 } },
+      { id: 'STATE', name: '国企宗', modifiers: { salaryMultiplier: 0.95, cultivationMultiplier: 1, mindMultiplier: 1, performanceMultiplier: 1, offlineGainMultiplier: 1.2 } },
+      { id: 'BIG_TECH', name: '大厂宗', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1.2, mindMultiplier: 0.8, performanceMultiplier: 1 } },
+    ],
+    sectId: null,
+    leaderboard: {
+      playerRank: 23, totalEntries: 50,
+      entries: [
+        { rank: 1, name: '修仙的张三', sectName: '外企宗', careerLevel: 7, careerName: '元婴中期', cultivationExp: 82000, isPlayer: false },
+        { rank: 2, name: '摸鱼王', sectName: '国企宗', careerLevel: 6, careerName: '金丹后期', cultivationExp: 68000, isPlayer: false },
+        { rank: 3, name: '代码如来', sectName: '大厂宗', careerLevel: 6, careerName: '金丹中期', cultivationExp: 51000, isPlayer: false },
+        { rank: 4, name: '产品秃头', sectName: '私企宗', careerLevel: 5, careerName: '补基后期', cultivationExp: 43000, isPlayer: false },
+        { rank: 5, name: '测试小哥', sectName: '外企宗', careerLevel: 4, careerName: '筑基中期', cultivationExp: 39000, isPlayer: false },
+        { rank: 23, name: PLAYER_NAME, sectName: '', careerLevel: 1, careerName: '炼气一层', cultivationExp: 168, isPlayer: true },
       ],
-      playerCultivation: 2340, playerSpiritStones: 580, playerCareerLevel: 3,
     },
-    promotion: {
-      allowed: true, reason: '', probability: 0.35, needsRetry: false,
-      options: [
-        { id: 'opt1', name: '突破筑基', description: '尝试突破到筑基期，成功率35%' },
-        { id: 'opt2', name: '稳固根基', description: '先稳固当前修为再突破' },
+    friends: {
+      totalFriends: 4, onlineCount: 2, giftsToSend: 4, giftsToClaim: 0,
+      friends: [
+        { id: 'f1', name: '修仙的张三', sectName: '外企宗', careerLevel: 6, careerName: '金丹后期', cultivationExp: 51000, lastOnline: Date.now() - 120000, isOnline: true, giftSent: false, giftReceived: false },
+        { id: 'f2', name: '摸鱼小师妹', sectName: '国企宗', careerLevel: 5, careerName: '筑基后期', cultivationExp: 22000, lastOnline: Date.now() - 3 * 3600000, isOnline: false, giftSent: false, giftReceived: false },
+        { id: 'f3', name: '产品秃头', sectName: '大厂宗', careerLevel: 4, careerName: '筑气六层', cultivationExp: 12000, lastOnline: Date.now() - 26 * 3600000, isOnline: false, giftSent: false, giftReceived: false },
+        { id: 'f4', name: '测试小哥', sectName: '私企宗', careerLevel: 3, careerName: '炼气三层', cultivationExp: 6000, lastOnline: Date.now() - 5 * 3600000, isOnline: false, giftSent: false, giftReceived: false },
       ],
     },
+    achievements: [
+      { id: 'FIRST_MERGE', name: '初入职场', description: '第一次完成任务', category: 'MERGE', condition: { type: 'KPI', target: 1 }, reward: { salary: 50 } },
+      { id: 'MERGE_10', name: '摸鱼达人', description: '累计摸鱼10次', category: 'MERGE', condition: { type: 'KPI', target: 10 }, reward: { cultivation: 100 } },
+      { id: 'MERGE_50', name: '加班战士', description: '累计完成50个任务', category: 'MERGE', condition: { type: 'KPI', target: 50 }, reward: { salary: 200 } },
+      { id: 'PROMOTION_SUCCESS', name: '渡劫新星', description: '第一次晋升', category: 'PROMOTION', condition: { type: 'PROMOTION', target: 1 }, reward: { cultivation: 200 } },
+    ],
+    achStatus: { FIRST_MERGE: 'COMPLETED', MERGE_10: 'LOCKED', MERGE_50: 'LOCKED', PROMOTION_SUCCESS: 'LOCKED' },
+    event: {
+      id: 'EVENT_DEMAND_TODAY', type: 'CHOICE', title: '随机事件',
+      description: '这个需求今天能上线吗？很简单的一个功能！',
+      choices: [
+        { id: 'A', text: 'A. 澄问题老板', effects: { performance: 10, mind: -10 } },
+        { id: 'B', text: 'B. 风险比较大', effects: { performance: -3, mind: 8 } },
+        { id: 'C', text: 'C. 先让产品确认一下', effects: null },
+      ],
+    },
+    offline: { salary: 101, cultivationExp: 202, spiritStones: 15, elapsedSeconds: 12120, capped: false },
   };
 
-  function buildHUD() {
-    const f = getFacade();
+  /* ── 数据读取 ── */
+
+  function readHUD() {
+    var f = facade();
     if (!f) { _demoMode = true; return DEMO.hud; }
     try {
-      const s = f.snapshot();
+      var s = f.snapshot();
       if (!s) return null;
-      const career = f.queryCareer ? f.queryCareer() : null;
-      const talent = (f.queryTalent && s.talentId) ? f.queryTalent(s.talentId) : null;
-      const kpi = f.queryKpi ? f.queryKpi() : null;
-
+      var career = f.queryCareer ? f.queryCareer() : null;
+      var kpi = f.queryKpi ? f.queryKpi() : null;
       return {
-        careerLevel:   career ? career.level : s.careerLevel,
-        careerName:    career ? career.name : '凡人',
-        realm:         career ? career.realm : '练气期',
-        cultivationReq: career ? career.requiredExp : 100,
-        salary:        s.salary,
-        performance:   s.performance,
-        cultivationExp: s.cultivationExp,
-        mind:          s.mind,
-        maxMind:       s.maxMind,
-        workMode:      s.workMode,
-        kpiCompleted:  kpi ? kpi.items.filter(function(i){return i.completed}).length : 0,
-        kpiTotal:      kpi ? kpi.items.length : 0,
-        spiritStones:  s.spiritStones,
-        talentName:    talent ? talent.name : '',
-        officeLevel:   s.officeLevel,
-        sectId:        s.sectId,
-        mindStatus:    s.mindStatus,
-        isFishingMode: s.isFishingMode,
-        salaryEfficiency: s.salaryEfficiency,
-        cultivationEfficiency: s.cultivationEfficiency,
+        careerLevel: s.careerLevel,
+        careerName: career ? career.name : '实习牛马',
+        realm: career ? career.realm : '炼气一层',
+        requiredExp: career ? career.requiredExp : 0,
+        salary: s.salary, performance: s.performance,
+        cultivationExp: s.cultivationExp, spiritStones: s.spiritStones,
+        mind: s.mind, maxMind: s.maxMind,
+        workMode: s.workMode, isFishingMode: s.isFishingMode,
+        kpiCompleted: kpi ? kpi.items.filter(function (i) { return i.completed; }).length : 0,
+        kpiTotal: kpi ? kpi.items.length : 0,
+        salaryEfficiency: s.salaryEfficiency, cultivationEfficiency: s.cultivationEfficiency,
       };
-    } catch (e) {
-      console.warn('[UI] buildHUD error:', e);
-      return null;
-    }
+    } catch (e) { console.warn('[UI] readHUD:', e); return null; }
   }
 
-  function buildTasks() {
-    const f = getFacade();
+  function readKpi() {
+    var f = facade();
+    if (!f) return DEMO.kpi;
+    try { return f.queryKpi(); } catch (e) { return DEMO.kpi; }
+  }
+
+  function readCareerAt(level) {
+    var f = facade();
+    if (!f) return level === DEMO.hud.careerLevel + 1 ? DEMO.careerNext : null;
+    try { return f.queryCareerAt ? f.queryCareerAt(level) : null; } catch (e) { return null; }
+  }
+
+  function readTasks() {
+    var f = facade();
     if (!f) { _demoMode = true; return DEMO.tasks; }
     try {
-      const active = f.queryActiveTasks ? f.queryActiveTasks() : [];
-      const configs = f.queryTaskConfigs ? f.queryTaskConfigs() : [];
-      const activeArr = Array.isArray(active) ? active : [];
-      const configArr = Array.isArray(configs) ? configs : [];
-      // Filter out configs that are already active
-      const activeIds = new Set(activeArr.map(function(t) { return t.taskId || t.id; }));
-      const availableConfigs = configArr.filter(function(c) { return !activeIds.has(c.id); });
       return {
-        activeTasks: activeArr,
-        availableConfigs: availableConfigs,
-        activeCount: activeArr.length,
-        maxConcurrent: 4,
-        canStartMore: activeArr.length < 4,
+        active: f.queryActiveTasks ? f.queryActiveTasks() : [],
+        configs: f.queryTaskConfigs ? f.queryTaskConfigs() : [],
       };
-    } catch (e) {
-      console.warn('[UI] buildTasks error:', e);
-      return null;
-    }
+    } catch (e) { return DEMO.tasks; }
   }
 
-  function buildCraft() {
-    const f = getFacade();
-    if (!f) { _demoMode = true; return DEMO.craft; }
-    try {
-      const recipes = f.queryCraftRecipes ? f.queryCraftRecipes() : [];
-      const allRecipes = f.queryAllCraftRecipes ? f.queryAllCraftRecipes() : [];
-      const s = f.snapshot();
-      return {
-        recipes: Array.isArray(allRecipes) ? allRecipes : [],
-        availableRecipes: Array.isArray(recipes) ? recipes : [],
-        totalCrafted: f.queryTotalCraftedCount ? f.queryTotalCraftedCount() : 0,
-        playerCultivation: s ? s.cultivationExp : 0,
-        playerSpiritStones: s ? s.spiritStones : 0,
-        playerCareerLevel: s ? s.careerLevel : 1,
-      };
-    } catch (e) {
-      console.warn('[UI] buildCraft error:', e);
-      return null;
+  function readRemaining(taskId) {
+    var f = facade();
+    if (!f) {
+      var t = null;
+      DEMO.tasks.active.forEach(function (a) { if (a.taskId === taskId) t = a; });
+      if (!t) return 0;
+      return Math.max(0, t.durationSeconds - (Date.now() - t.startedAt) / 1000);
     }
+    try { return f.queryTaskRemaining(taskId); } catch (e) { return 0; }
   }
 
-  function buildPromotion() {
-    const f = getFacade();
+  function readRecipes() {
+    var f = facade();
+    if (!f) { _demoMode = true; return DEMO.recipes; }
+    try { return (f.queryAllCraftRecipes ? f.queryAllCraftRecipes() : []) || []; } catch (e) { return []; }
+  }
+
+  function readCanCraft(id) {
+    var f = facade();
+    if (!f) return { canCraft: true };
+    try { return f.queryCanCraft(id) || { canCraft: false, reason: '不可炼制' }; } catch (e) { return { canCraft: false, reason: '不可炼制' }; }
+  }
+
+  function readCraftedCount(id) {
+    var f = facade();
+    if (!f) return DEMO.craftedCount[id] || 0;
+    try { return f.queryCraftedCount ? f.queryCraftedCount(id) : 0; } catch (e) { return 0; }
+  }
+
+  function readPromotion() {
+    var f = facade();
     if (!f) { _demoMode = true; return DEMO.promotion; }
     try {
-      const check = f.queryPromotionCheck ? f.queryPromotionCheck() : null;
-      const options = f.queryPromotionOptions ? f.queryPromotionOptions() : [];
-      const probability = f.queryPromotionProbability ? f.queryPromotionProbability() : 0;
-      const needsRetry = f.queryPromotionNeedsRetry ? f.queryPromotionNeedsRetry() : false;
+      var check = f.queryPromotionCheck ? f.queryPromotionCheck() : { allowed: false };
       return {
-        allowed: check ? check.allowed : false,
-        reason: check ? String(check.reason || '') : '',
-        probability: probability,
-        needsRetry: needsRetry,
-        options: Array.isArray(options) ? options : [],
+        allowed: !!check.allowed,
+        reason: check.reason || '',
+        probability: f.queryPromotionProbability ? f.queryPromotionProbability() : 0,
+        needsRetry: f.queryPromotionNeedsRetry ? f.queryPromotionNeedsRetry() : false,
+        optionId: (f.queryPromotionOptions() || [{}])[0].id || '',
       };
-    } catch (e) {
-      console.warn('[UI] buildPromotion error:', e);
-      return null;
-    }
+    } catch (e) { return DEMO.promotion; }
   }
 
-  function buildIdle() {
-    const f = getFacade();
-    if (!f) { _demoMode = true; return DEMO.idle; }
+  function readSects() {
+    var f = facade();
+    if (!f) { _demoMode = true; return { sects: DEMO.sects, currentId: DEMO.sectId }; }
     try {
-      const s = f.snapshot();
-      if (!s) return null;
-      return {
-        workMode: s.workMode,
-        isFishingMode: s.isFishingMode,
-        salaryEfficiency: s.salaryEfficiency,
-        performanceEfficiency: s.performanceEfficiency,
-        mindRecoveryEfficiency: s.mindRecoveryEfficiency,
-        cultivationEfficiency: s.cultivationEfficiency,
-        isWorkIncomeStopped: s.isWorkIncomeStopped,
-      };
-    } catch (e) {
-      console.warn('[UI] buildIdle error:', e);
-      return null;
-    }
+      var cur = f.querySect ? f.querySect() : null;
+      return { sects: f.querySects() || [], currentId: cur ? cur.id : null };
+    } catch (e) { return { sects: [], currentId: null }; }
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     §3. Command Dispatch
-     ═══════════════════════════════════════════════════════════ */
+  function readLeaderboard() {
+    var f = facade();
+    if (!f) { _demoMode = true; return DEMO.leaderboard; }
+    try { return f.queryLeaderboard(); } catch (e) { return DEMO.leaderboard; }
+  }
 
-  function cmd(name, ...args) {
-    const f = getFacade();
-    if (!f || !f[name]) {
-      if (_demoMode) {
-        toast('🎮 演示模式: ' + name, 'info');
-        return;
-      }
-      console.warn('[UI] Command not available:', name);
+  function readFriends() {
+    var f = facade();
+    if (!f) { _demoMode = true; return DEMO.friends; }
+    try { return f.queryFriends(); } catch (e) { return DEMO.friends; }
+  }
+
+  function readAchievements() {
+    var f = facade();
+    if (!f) { _demoMode = true; return { configs: DEMO.achievements, status: DEMO.achStatus }; }
+    try {
+      var configs = f.queryAchievementConfigs() || [];
+      var status = {};
+      configs.forEach(function (c) { status[c.id] = f.queryAchievementStatus(c.id); });
+      return { configs: configs, status: status };
+    } catch (e) { return { configs: [], status: {} }; }
+  }
+
+  function readCurrentEvent() {
+    var f = facade();
+    if (!f) return null; // 演示模式不自动弹事件(可从"更多"里手动触发预览)
+    try { return f.queryCurrentEvent ? f.queryCurrentEvent() : null; } catch (e) { return null; }
+  }
+
+  function readRates() {
+    var hud = readHUD() || {};
+    /* 每分钟收益: idle 配置的每小时基数 × 职级系数 × 效率 ÷ 60。
+       基数与职级系数不直接暴露 — 用快照效率乘以保守基数演示。 */
+    var baseSalary = 10 * Math.max(1, hud.careerLevel || 1);
+    var baseCult = 5 * Math.max(1, hud.careerLevel || 1);
+    return {
+      salaryPerMin: (baseSalary * (hud.salaryEfficiency || 1)) / 60,
+      cultivationPerMin: (baseCult * (hud.cultivationEfficiency || 1)) / 60,
+    };
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     §3. Commands
+     ═════════════════════════════════════════════════════════ */
+
+  function cmd(name) {
+    var f = facade();
+    var args = Array.prototype.slice.call(arguments, 1);
+    if (!f || typeof f[name] !== 'function') {
+      toast('演示模式：' + name, 'info');
       return;
     }
     try {
-      const result = f[name](...args);
-      console.log('[UI] cmd:', name, args, '→', result);
-      if (result && typeof result.then === 'function') {
-        result.then(r => { toast(r ? '✅ ' + String(r) : '✅ 操作成功', 'success'); refresh(); })
-              .catch(e => { toast('❌ ' + (e.message || '操作失败'), 'error'); });
+      var r = f[name].apply(f, args);
+      if (r && typeof r.then === 'function') {
+        r.then(function () { refresh(); }).catch(function (e) { toast(errMsg(e), 'error'); });
+      } else if (name === 'cultivate' && r && r.cultivationExp !== undefined) {
+        toast('修炼成功，修为 +' + r.cultivationExp, 'success');
+        refresh();
       } else {
-        setTimeout(refresh, 100);
+        refresh();
       }
     } catch (e) {
-      console.error('[UI] cmd error:', name, e);
-      toast('❌ ' + e.message, 'error');
+      toast(errMsg(e), 'error');
     }
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     §4. Toast System
-     ═══════════════════════════════════════════════════════════ */
+  function errMsg(e) { return (e && e.message) ? String(e.message) : '操作失败'; }
 
-  let _toastTimer = null;
+  /* 带结果提示的命令 */
+  function cmdResult(name, okMsg) {
+    var f = facade();
+    var args = Array.prototype.slice.call(arguments, 2);
+    if (!f || typeof f[name] !== 'function') { toast('演示模式：' + name, 'info'); return; }
+    try {
+      var r = f[name].apply(f, args);
+      if (r && r.success === false) toast(r.reason || '操作失败', 'error');
+      else toast(typeof okMsg === 'function' ? okMsg(r) : okMsg, 'success');
+      refresh();
+    } catch (e) { toast(errMsg(e), 'error'); }
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     §4. Toast
+     ═════════════════════════════════════════════════════════ */
 
   function toast(msg, type) {
-    type = type || 'info';
-    const container = $('#ToastContainer');
-    if (!container) return;
-    const el = document.createElement('div');
-    el.className = 'ui-toast' + (type !== 'info' ? ' ui-toast--' + type : '');
+    var box = $('#ToastBox');
+    if (!box) return;
+    var el = document.createElement('div');
+    el.className = 'ux-toast' + (type && type !== 'info' ? ' ux-toast--' + type : '');
     el.textContent = msg;
-    container.appendChild(el);
-    setTimeout(() => {
-      el.classList.add('ui-toast--leaving');
-      setTimeout(() => el.remove(), 300);
-    }, 2500);
+    box.appendChild(el);
+    setTimeout(function () {
+      el.classList.add('ux-toast--leaving');
+      setTimeout(function () { el.remove(); }, 320);
+    }, 2400);
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     §5. Modal System
-     ═══════════════════════════════════════════════════════════ */
+  /* ═════════════════════════════════════════════════════════
+     §5. Popup system
+     ═════════════════════════════════════════════════════════ */
 
-  function showModal(title, bodyHtml, actions) {
-    const layer = $('#ModalLayer');
+  function popupLayer() { return $('#PopupLayer'); }
+
+  function closePopup() {
+    var layer = popupLayer();
+    if (layer) layer.innerHTML = '';
+    _adTimer && clearInterval(_adTimer); _adTimer = null;
+  }
+
+  function popupOpen() {
+    var layer = popupLayer();
+    return !!layer && layer.innerHTML !== '';
+  }
+
+  /* 通用对话框 */
+  function showDialog(title, bodyHtml, actions) {
+    var layer = popupLayer();
     if (!layer) return;
-    const actionsHtml = (actions || []).map(a =>
-      `<button class="ui-btn ${a.cls || 'ui-btn--ghost'}" data-modal-action="${a.id}">${escHtml(a.label)}</button>`
-    ).join('');
-
-    layer.innerHTML = `
-      <div class="ui-modal-overlay" data-close-modal>
-        <div class="ui-modal" onclick="event.stopPropagation()">
-          <div class="ui-modal-header">
-            <span class="ui-modal-title">${escHtml(title)}</span>
-            <button class="ui-modal-close" data-close-modal>✕</button>
-          </div>
-          <div class="ui-modal-body">${bodyHtml}</div>
-          ${actionsHtml ? `<div class="ui-modal-footer">${actionsHtml}</div>` : ''}
-        </div>
-      </div>`;
-
-    layer.querySelectorAll('[data-close-modal]').forEach(el => {
-      el.addEventListener('click', () => { layer.innerHTML = ''; });
-    });
-    layer.querySelectorAll('[data-modal-action]').forEach(el => {
-      el.addEventListener('click', () => {
-        const actionId = el.dataset.modalAction;
-        const action = (actions || []).find(a => a.id === actionId);
-        if (action && action.handler) action.handler();
-        layer.innerHTML = '';
+    var btns = (actions || []).map(function (a, i) {
+      return '<button class="ux-btn ux-btn--' + (a.cls || 'gray') + ' ux-btn--md" data-idx="' + i + '">' + escHtml(a.label) + '</button>';
+    }).join('');
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup ux-dialog">' +
+          '<div class="ux-popup-card">' +
+            '<div class="ux-dialog-title">' + escHtml(title) + '</div>' +
+            '<div class="ux-dialog-body">' + bodyHtml + '</div>' +
+            '<div class="ux-dialog-actions">' + btns + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    $$('.ux-dialog-actions .ux-btn', layer).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var a = (actions || [])[Number(b.dataset.idx)];
+        closePopup();
+        if (a && a.onClick) a.onClick();
       });
     });
   }
 
-  function closeModal() {
-    const layer = $('#ModalLayer');
-    if (layer) layer.innerHTML = '';
+  /* 随机事件弹窗 */
+  var _dismissedEventId = null;
+  var _dismissedAt = 0;
+
+  function maybeShowEventPopup() {
+    if (popupOpen()) return;
+    var ev = readCurrentEvent();
+    if (!ev) return;
+    if (ev.id === _dismissedEventId && Date.now() - _dismissedAt < 60000) return;
+
+    var f = facade();
+    var optionsHtml;
+    if (ev.type === 'CHOICE' && Array.isArray(ev.choices) && ev.choices.length) {
+      optionsHtml = '<div class="ux-event-options">' + ev.choices.map(function (c, i) {
+        var eff = c.effects ? effectText(c.effects) : '<span style="color:var(--text-ink-muted)">随机结果</span>';
+        var letter = String.fromCharCode(65 + i);
+        return '<button class="ux-event-option" data-choice="' + escHtml(c.id) + '">' +
+          '<span>' + escHtml(c.text.indexOf(letter) === 0 ? c.text : letter + '. ' + c.text) + '</span>' +
+          '<span class="opt-effects">' + eff + '</span></button>';
+      }).join('') + '</div>';
+    } else {
+      optionsHtml =
+        '<div class="ux-event-options">' +
+          '<div class="ux-event-option" style="justify-content:center">' + effectText(ev.effects) + '</div>' +
+          '<button class="ux-btn ux-btn--gold ux-btn--md" id="EventOkBtn" style="width:100%">知道了</button>' +
+        '</div>';
+    }
+
+    var layer = popupLayer();
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup">' +
+          '<div class="ux-header" style="height:84px;border-radius:16px 16px 0 0;margin:0 -18px 16px">' +
+            '<span class="ux-header-title">' + escHtml(ev.title || '随机事件') + '</span>' +
+            '<button class="ux-close" id="EventCloseBtn">✕</button>' +
+          '</div>' +
+          img('event-boss', 'ux-event-boss') +
+          '<div class="ux-popup-card" style="margin-top:16px">' +
+            '<div class="ux-event-bubble">' + escHtml(ev.description || '') + '</div>' +
+            optionsHtml +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    $('#EventCloseBtn').addEventListener('click', function () {
+      _dismissedEventId = ev.id;
+      _dismissedAt = Date.now();
+      closePopup();
+    });
+    $$('.ux-event-option[data-choice]', layer).forEach(function (b) {
+      b.addEventListener('click', function () {
+        try { f.resolveEventChoice(ev.id, b.dataset.choice); } catch (e) { toast(errMsg(e), 'error'); }
+        closePopup();
+        toast('选择已确定', 'success');
+        refresh();
+      });
+    });
+    var okBtn = $('#EventOkBtn');
+    if (okBtn) okBtn.addEventListener('click', function () {
+      try { f.resolveEvent(ev.id); } catch (e) { toast(errMsg(e), 'error'); }
+      closePopup();
+      refresh();
+    });
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     §6. Page Renderers
-     ═══════════════════════════════════════════════════════════ */
+  /* 广告弹窗 — 3 秒模拟播放倒计时后回调 */
+  var _adTimer = null;
 
-  /* ── 6a. Home Page ── */
+  function showAdPopup(options) {
+    var layer = popupLayer();
+    if (!layer) return;
+    var seconds = 3;
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup">' +
+          '<div class="ux-header" style="height:84px;border-radius:16px 16px 0 0;margin:0 -18px 16px">' +
+            '<span class="ux-header-title">广告弹窗</span>' +
+            '<button class="ux-close" id="AdCloseBtn">✕</button>' +
+          '</div>' +
+          '<div class="ux-popup-card">' +
+            '<div class="ux-ad-title">看广告获得双倍奖励</div>' +
+            img('ad-cow', 'ux-ad-cow') +
+            '<div class="ux-ad-status">广告播放中...</div>' +
+            '<div class="ux-ad-count" id="AdCount">' + seconds + '</div>' +
+            '<div class="ux-ad-note">看完广告可获得双倍奖励</div>' +
+            '<div class="ux-ad-actions"><button class="ux-btn ux-btn--gray ux-btn--md" id="AdCancelBtn">取消</button></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    var done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      closePopup();
+      options.onComplete && options.onComplete();
+    }
+    function cancel() {
+      if (done) return;
+      done = true;
+      closePopup();
+      try { facade() && facade().cancelRewardedAd && facade().cancelRewardedAd(); } catch (e) { /* noop */ }
+      options.onCancel && options.onCancel();
+    }
+    $('#AdCloseBtn').addEventListener('click', cancel);
+    $('#AdCancelBtn').addEventListener('click', cancel);
+    _adTimer = setInterval(function () {
+      seconds -= 1;
+      var el = $('#AdCount');
+      if (el) el.textContent = String(Math.max(0, seconds));
+      if (seconds <= 0) finish();
+    }, 900);
+  }
+
+  /* 离线收益弹窗 */
+  function showOfflinePopup(settlementId) {
+    var f = facade();
+    if (!f) return;
+    var p;
+    try { p = f.queryOfflinePreview(settlementId); } catch (e) { return; }
+    if (!p || !p.elapsedSeconds || p.elapsedSeconds < 60) return;
+    if (f.queryOfflineIsSettled && f.queryOfflineIsSettled(settlementId)) return;
+
+    var layer = popupLayer();
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup">' +
+          '<div class="ux-header" style="height:84px;border-radius:16px 16px 0 0;margin:0 -18px 16px">' +
+            '<span class="ux-header-title">离线收益窗</span>' +
+          '</div>' +
+          '<div class="ux-popup-card">' +
+            '<div class="ux-off-title">您已离线</div>' +
+            '<div class="ux-off-duration">' + fmtDuration(p.elapsedSeconds) + '</div>' +
+            '<div class="ux-off-sub">我们为您收集了修炼收益</div>' +
+            '<div class="ux-off-rows">' +
+              (p.cultivationExp > 0 ? '<div class="ux-off-row">' + icon('cultivation') + '<span class="rn">修为</span><span class="rv">+' + fmtNum(p.cultivationExp) + '</span></div>' : '') +
+              (p.salary > 0 ? '<div class="ux-off-row">' + icon('salary') + '<span class="rn">工资</span><span class="rv">+' + fmtNum(p.salary) + '</span></div>' : '') +
+              (p.spiritStones > 0 ? '<div class="ux-off-row">' + icon('stone') + '<span class="rn">灵石</span><span class="rv">+' + fmtNum(p.spiritStones) + '</span></div>' : '') +
+            '</div>' +
+            '<div class="ux-off-cap">离线收益最多累计 8 小时</div>' +
+            '<div class="ux-off-actions">' +
+              '<button class="ux-btn ux-btn--blue ux-btn--md" id="OffNormalBtn">正常领取</button>' +
+              '<button class="ux-btn ux-btn--gold ux-btn--md" id="OffDoubleBtn">看广告 ×2</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    $('#OffNormalBtn').addEventListener('click', function () {
+      try {
+        var r = f.claimOfflineReward(settlementId);
+        toast('离线收益已领取：修为 +' + fmtNum(r.cultivationExp), 'success');
+      } catch (e) { toast(errMsg(e), 'error'); }
+      closePopup();
+      refresh();
+    });
+    $('#OffDoubleBtn').addEventListener('click', function () {
+      showAdPopup({
+        onComplete: function () {
+          try {
+            f.claimOfflineDouble(settlementId, function (ok) {
+              toast(ok ? '双倍离线收益已领取！' : '广告未完成，收益保留', ok ? 'success' : 'error');
+              refresh();
+            });
+          } catch (e) { toast(errMsg(e), 'error'); }
+        },
+      });
+    });
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     §6. Page renderers
+     ═════════════════════════════════════════════════════════ */
+
+  /* ── 6a. 首页 ── */
 
   function renderHome() {
-    const hud = buildHUD();
-    const idle = buildIdle();
-    if (!hud) return '<div class="ui-loading"><div class="ui-spinner"></div>加载中...</div>';
+    var hud = readHUD();
+    if (!hud) return emptyState('⏳', '加载中...', '正在唤醒游戏数据');
+    var rates = readRates();
+    var quote = QUOTES[Math.floor(Date.now() / 3600000) % QUOTES.length];
+    var cd = cooldownOf('cultivate');
+    var fishing = hud.workMode === 'FISHING';
 
-    const cultPct = pct(hud.cultivationExp, hud.cultivationReq);
-    const mindPct = pct(hud.mind, hud.maxMind);
-    const mindLabel = mindText(hud.mind, hud.maxMind);
-    const wm = hud.workMode || 'WORK';
-    const wmLabel = WORK_MODE_LABELS[wm] || wm;
-    const wmIcon = WORK_MODE_ICONS[wm] || '💼';
-    const nextMode = wm === 'WORK' ? 'FISHING' : 'WORK';
-    const nextLabel = WORK_MODE_LABELS[nextMode];
-    const nextIcon = WORK_MODE_ICONS[nextMode];
+    var statusText;
+    var tasks = readTasks();
+    var running = (tasks.active || []).filter(function (t) { return !t.claimed; }).length > 0;
+    if (running) statusText = '正在偷偷运转周天...';
+    else if (fishing) statusText = '带薪摸鱼中，道心平稳...';
+    else statusText = '努力搬砖中，修为渐长...';
 
-    return `
-      <div class="ui-page-section">
-        <div class="ui-home-cultivation">
-          <div class="ui-realm-name">⚔️ ${escHtml(hud.realm)}</div>
-          <div class="ui-career-name">${escHtml(hud.careerName)} · Lv.${hud.careerLevel}</div>
-          <div class="ui-cult-progress">
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-muted);margin-bottom:4px">
-              <span>修为进度</span>
-              <span class="ui-num">${fmtNum(hud.cultivationExp)} / ${fmtNum(hud.cultivationReq)}</span>
-            </div>
-            <div class="ui-progress">
-              <div class="ui-progress-bar ui-progress-bar--gold" style="width:${cultPct}%"></div>
-            </div>
-          </div>
-          <div class="ui-home-actions">
-            <button class="ui-btn ui-btn--primary" onclick="UiOverlay.cmd('cultivate')">🧘 修炼</button>
-            <button class="ui-btn ui-btn--secondary" onclick="UiOverlay.cmd('changeWorkMode','${nextMode}')">${nextIcon} ${nextLabel}</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="ui-page-section">
-        <div class="ui-section-title"><span class="ui-section-icon">📊</span> 状态</div>
-        <div class="ui-idle-panel">
-          <div class="ui-idle-row">
-            <span class="ui-idle-label">心境</span>
-            <span class="ui-idle-value">${mindLabel} (${hud.mind}/${hud.maxMind})</span>
-          </div>
-          <div class="ui-progress" style="margin:4px 0">
-            <div class="ui-progress-bar ui-progress-bar--jade" style="width:${mindPct}%"></div>
-          </div>
-          <div class="ui-idle-row">
-            <span class="ui-idle-label">工作模式</span>
-            <span class="ui-idle-value">${wmIcon} ${wmLabel}</span>
-          </div>
-          <div class="ui-idle-row">
-            <span class="ui-idle-label">绩效</span>
-            <span class="ui-idle-value">${fmtNum(hud.performance)}</span>
-          </div>
-          <div class="ui-idle-row">
-            <span class="ui-idle-label">KPI</span>
-            <span class="ui-idle-value">${hud.kpiCompleted} / ${hud.kpiTotal}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="ui-page-section">
-        <div class="ui-section-title"><span class="ui-section-icon">💰</span> 资源</div>
-        <div class="ui-card">
-          <div class="ui-card-body">
-            <div class="ui-idle-row">
-              <span class="ui-idle-label">💎 灵石</span>
-              <span class="ui-idle-value ui-text-gold">${fmtNum(hud.spiritStones)}</span>
-            </div>
-            <div class="ui-idle-row">
-              <span class="ui-idle-label">💵 工资</span>
-              <span class="ui-idle-value">${fmtNum(hud.salary)}</span>
-            </div>
-          </div>
-        </div>
-      </div>`;
+    return '' +
+      '<div class="ux-home">' +
+        '<div class="ux-brand">' +
+          img('brand-title', 'ux-brand-title') +
+          img('brand-ribbon', 'ux-brand-ribbon') +
+          '<button class="ux-gear" data-action="settings">⚙</button>' +
+        '</div>' +
+        '<div class="ux-player">' +
+          img('home-avatar', 'ux-player-avatar') +
+          '<div>' +
+            '<div class="ux-player-name">' + PLAYER_NAME + '</div>' +
+            '<div class="ux-player-sub">' + escHtml(hud.careerName) + ' · ' + escHtml(hud.realm) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ux-stats">' +
+          statBox('cultivation', '修为', fmtNum(hud.cultivationExp) + (hud.requiredExp > 0 ? '<small> / ' + fmtNum(hud.requiredExp) + '</small>' : '')) +
+          statBox('salary', '工资', fmtNum(hud.salary)) +
+          statBox('performance', '绩效', fmtNum(hud.performance)) +
+          statBox('mind', '道心', fmtNum(hud.mind) + '<small> / ' + fmtNum(hud.maxMind) + '</small>') +
+        '</div>' +
+        '<div class="ux-quote">' + escHtml(quote) + '</div>' +
+        '<div class="ux-home-hero">' + img('home-character') + '</div>' +
+        '<div class="ux-home-panel">' +
+          '<span class="ux-status-ribbon">' + escHtml(statusText) + '</span>' +
+          '<div class="ux-rates">' +
+            '<div class="ux-rates-row">' + icon('cultivation') + '修为 +' + rates.cultivationPerMin.toFixed(1) + '/分钟' +
+              '<span style="width:14px"></span>' + icon('salary') + '工资 +' + rates.salaryPerMin.toFixed(1) + '/分钟</div>' +
+            '<div class="ux-idle-timer">今日挂机: <b id="IdleTimer">' + hms(sessionSeconds()) + '</b></div>' +
+          '</div>' +
+          '<button class="ux-btn ux-btn--gold ux-btn--lg ux-cultivate-btn" data-action="cultivate">' +
+            '🔥 修炼一次' +
+            (cd > 0 ? '<span class="ux-cultivate-cd">' + Math.ceil(cd) + 's</span>' : '<span class="dot"></span>') +
+          '</button>' +
+          '<div class="ux-mode-row">' +
+            modeBtn('WORK', '努力工作', '效率+30%', !fishing) +
+            modeBtn('FISHING', '带薪摸鱼', '道心+200%', fishing) +
+          '</div>' +
+        '</div>' +
+      '</div>';
   }
 
-  /* ── 6b. Tasks Page ── */
+  function statBox(stat, label, value) {
+    return '<div class="ux-stat"><div class="ux-stat-label">' + icon(stat) + label + '</div>' +
+      '<div class="ux-stat-value">' + value + '</div></div>';
+  }
+
+  function modeBtn(mode, label, sub, active) {
+    var cls = mode === 'WORK' ? 'blue' : 'green';
+    var emoji = mode === 'WORK' ? '💼' : '🐟';
+    return '<button class="ux-btn ux-btn--' + cls + ' ux-mode-btn' + (active ? '' : ' ux-mode-btn--off') + '" data-action="mode" data-mode="' + mode + '">' +
+      '<span class="m1">' + emoji + ' ' + label + '</span><span class="m2">' + sub + '</span></button>';
+  }
+
+  /* ── 6b. 任务 ── */
+
+  var _taskTab = 'DAILY';
 
   function renderTasks() {
-    const data = buildTasks();
-    if (!data) return '<div class="ui-loading"><div class="ui-spinner"></div>加载中...</div>';
+    var data = readTasks();
+    var html = '<div class="ux-tabs">' + TASK_TABS.map(function (t) {
+      return '<button class="ux-tab' + (_taskTab === t.type ? ' ux-tab--active' : '') + '" data-tasktab="' + t.type + '">' + t.label + '</button>';
+    }).join('') + '</div>';
 
-    let html = '';
-    const now = Date.now();
+    var configs = (data.configs || []).filter(function (c) { return c.type === _taskTab; });
+    var active = (data.active || []).filter(function (t) { return !t.claimed; });
+    var activeHere = active.filter(function (t) { return (t.taskType || '') === _taskTab; });
+    var activeIds = {};
+    active.forEach(function (t) { activeIds[t.taskId] = true; });
+    var available = configs.filter(function (c) { return !activeIds[c.id]; });
 
-    // Active tasks
-    if (data.activeTasks.length > 0) {
-      html += '<div class="ui-page-section">';
-      html += '<div class="ui-section-title"><span class="ui-section-icon">🔥</span> 进行中 (${data.activeTasks.length}/${data.maxConcurrent})</div>';
-      data.activeTasks.forEach(t => {
-        const typeIcon = TASK_TYPE_ICONS[t.taskType] || TASK_TYPE_ICONS[t.type] || '📋';
-        const typeLabel = TASK_TYPE_LABELS[t.taskType] || TASK_TYPE_LABELS[t.type] || t.taskType || '任务';
-        // Calculate progress from startedAt and durationSeconds
-        let progressPct = 0;
-        if (t.completed) {
-          progressPct = 100;
-        } else if (t.startedAt && t.durationSeconds) {
-          const elapsed = (now - t.startedAt) / 1000;
-          progressPct = Math.min(100, Math.max(0, (elapsed / t.durationSeconds) * 100));
-        }
-        const isComplete = !!t.completed;
-        const btnLabel = isComplete ? '领取' : Math.floor(progressPct) + '%';
-        const btnClass = isComplete ? 'ui-btn--primary' : 'ui-btn--secondary';
-        html += `
-          <div class="ui-card ui-task-card">
-            <div class="ui-task-icon">${typeIcon}</div>
-            <div class="ui-task-info">
-              <div class="ui-task-name">${escHtml(t.name || typeLabel + '任务')}</div>
-              <div class="ui-task-desc">${escHtml(t.description || '')}</div>
-              <div class="ui-task-progress">
-                <div class="ui-progress">
-                  <div class="ui-progress-bar ui-progress-bar--gold" style="width:${progressPct}%"></div>
-                </div>
-                <div class="ui-progress-text">${Math.floor(progressPct)}%</div>
-              </div>
-            </div>
-            <button class="ui-btn ${btnClass} ui-btn--sm" ${isComplete ? '' : 'disabled'}
-              onclick="UiOverlay.cmd('claimTask','${t.taskId}')">${btnLabel}</button>
-          </div>`;
-      });
-      html += '</div>';
+    if (!activeHere.length && !available.length) {
+      return html + emptyState('📋', '暂无任务', '继续修炼，任务会自动出现');
     }
 
-    // Available tasks
-    if (data.availableConfigs.length > 0) {
-      html += '<div class="ui-page-section">';
-      html += '<div class="ui-section-title"><span class="ui-section-icon">📋</span> 可接任务</div>';
-      data.availableConfigs.forEach(c => {
-        const typeIcon = TASK_TYPE_ICONS[c.type] || '📋';
-        const typeLabel = TASK_TYPE_LABELS[c.type] || c.type || '任务';
-        const canStart = data.canStartMore;
-        // Show reward info
-        let rewardParts = [];
-        if (c.rewardSalary > 0) rewardParts.push('💰' + fmtNum(c.rewardSalary));
-        if (c.rewardCultivation > 0) rewardParts.push('⚔️' + fmtNum(c.rewardCultivation));
-        if (c.rewardSpiritStones > 0) rewardParts.push('💎' + fmtNum(c.rewardSpiritStones));
-        const rewardHtml = rewardParts.length > 0 ? rewardParts.join(' ') : '';
-        const durationMin = c.durationSeconds ? Math.ceil(c.durationSeconds / 60) : 0;
-        html += `
-          <div class="ui-card ui-task-card ${canStart ? 'ui-card--interactive' : 'ui-card--disabled'}">
-            <div class="ui-task-icon">${typeIcon}</div>
-            <div class="ui-task-info">
-              <div class="ui-task-name">${escHtml(c.name || typeLabel + '任务')}</div>
-              <div class="ui-task-desc">${escHtml(c.description || '')}</div>
-              ${rewardHtml ? '<div style="font-size:11px;color:var(--color-gold);margin-top:2px">奖励: ' + rewardHtml + '</div>' : ''}
-              ${durationMin > 0 ? '<div style="font-size:11px;color:var(--color-text-muted)">耗时: ' + durationMin + '分钟</div>' : ''}
-            </div>
-            <button class="ui-btn ui-btn--secondary ui-btn--sm" ${canStart ? '' : 'disabled'}
-              onclick="UiOverlay.cmd('startTask','${c.id}')">接取</button>
-          </div>`;
-      });
-      html += '</div>';
-    }
-
-    if (!data.activeTasks.length && !data.availableConfigs.length) {
-      html += '<div class="ui-empty-state"><div class="ui-empty-icon">📋</div><div class="ui-empty-text">暂无任务</div><div class="ui-empty-hint">继续修炼，任务会自动出现</div></div>';
-    }
-
+    activeHere.forEach(function (t) {
+      var remain = t.completed ? 0 : readRemaining(t.taskId);
+      html += taskCard(t, remain, true);
+    });
+    available.forEach(function (c) { html += taskCard(c, c.durationSeconds, false); });
     return html;
   }
 
-  /* ── 6c. Craft Page ── */
+  function taskIcon(taskOrCfg) {
+    var sliced = TASK_ICONS[taskOrCfg.taskId || taskOrCfg.id];
+    if (sliced) return img(sliced, 'ux-task-icon');
+    var emoji = TASK_TYPE_ICONS[taskOrCfg.taskType || taskOrCfg.type] || '📋';
+    return '<div class="ux-task-icon" style="display:flex;align-items:center;justify-content:center;font-size:52px">' + emoji + '</div>';
+  }
+
+  function taskCard(t, seconds, isActive) {
+    var rewards = rewardRows(t);
+    var right;
+    if (isActive) {
+      var done = seconds <= 0;
+      right = '<div class="ux-task-right">' +
+        (done
+          ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="claim" data-id="' + escHtml(t.taskId) + '">领取</button>'
+          : '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>' + Math.ceil(seconds) + 's</button>') +
+        '<div class="ux-task-timebar"><div class="ux-progress" style="height:18px">' +
+          '<div class="ux-progress-fill ux-progress-fill--blue" style="width:' + pct(t.durationSeconds - seconds, t.durationSeconds) + '%"></div>' +
+        '</div></div></div>';
+    } else {
+      right = '<div class="ux-task-right">' +
+        '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="start" data-id="' + escHtml(t.id) + '">开始</button>' +
+        '<div class="ux-task-duration">' + fmtDuration(seconds) + '</div></div>';
+    }
+    return '<div class="ux-card ux-task-card">' + taskIcon(t) +
+      '<div class="ux-task-info">' +
+        '<div class="ux-task-name">' + escHtml(t.name || '任务') + '</div>' +
+        '<div class="ux-task-desc">' + escHtml(t.description || '') + '</div>' +
+        (rewards ? '<div class="ux-task-rewards">' + rewards + '</div>' : '') +
+      '</div>' + right + '</div>';
+  }
+
+  function rewardRows(t) {
+    var rows = [];
+    if (t.rewardCultivation) rows.push(rewardRow('cultivation', '修为', t.rewardCultivation));
+    if (t.rewardSalary) rows.push(rewardRow('salary', '工资', t.rewardSalary));
+    if (t.rewardPerformance) rows.push(rewardRow('performance', '绩效', t.rewardPerformance));
+    if (t.rewardSpiritStones) rows.push(rewardRow('stone', '灵石', t.rewardSpiritStones));
+    if (t.rewardMind) rows.push(rewardRow('mind', '道心', t.rewardMind));
+    return rows.join('');
+  }
+
+  function rewardRow(stat, label, v) {
+    var sign = v > 0 ? '+' : '';
+    var cls = v > 0 ? 'val-pos' : 'val-neg';
+    return '<div class="ux-reward-row">' + icon(stat) + label + ' <span class="' + cls + '">' + sign + v + '</span></div>';
+  }
+
+  /* ── 6c. 物品合成 ── */
+
+  var _craftTab = 'pill';
 
   function renderCraft() {
-    const data = buildCraft();
-    if (!data) return '<div class="ui-loading"><div class="ui-spinner"></div>加载中...</div>';
+    var recipes = readRecipes();
+    var html = '<div class="ux-tabs">' + CRAFT_TABS.map(function (t) {
+      return '<button class="ux-tab' + (_craftTab === t.id ? ' ux-tab--active' : '') + '" data-crafttab="' + t.id + '">' + t.label + '</button>';
+    }).join('') + '</div>';
 
-    let html = '';
-
-    if (data.recipes.length > 0) {
-      html += '<div class="ui-page-section">';
-      html += '<div class="ui-section-title"><span class="ui-section-icon">🧪</span> 炼制配方</div>';
-      data.recipes.forEach(r => {
-        const canAfford = (data.playerCultivation >= (r.costCultivation || 0)) && (data.playerSpiritStones >= (r.costSpiritStones || 0));
-        const unlocked = (r.unlockCareerLevel || 0) <= data.playerCareerLevel;
-        const canCraft = canAfford && unlocked;
-        // Build cost display
-        let costParts = [];
-        if (r.costCultivation > 0) costParts.push('修为 ' + fmtNum(r.costCultivation));
-        if (r.costSpiritStones > 0) costParts.push('灵石 ' + fmtNum(r.costSpiritStones));
-        const costHtml = costParts.join(' + ');
-        // Build effect display
-        let effectParts = [];
-        const eff = r.effect || {};
-        if (eff.salary) effectParts.push('薪资+' + fmtNum(eff.salary));
-        if (eff.performance) effectParts.push('绩效+' + fmtNum(eff.performance));
-        if (eff.cultivation) effectParts.push('修为+' + fmtNum(eff.cultivation));
-        if (eff.mind) effectParts.push('心境+' + fmtNum(eff.mind));
-        const effectHtml = effectParts.join('  ');
-
-        html += `
-          <div class="ui-card ui-recipe-card ${canCraft ? 'ui-card--interactive' : 'ui-card--disabled'}">
-            <div class="ui-recipe-header">
-              <div class="ui-recipe-icon">🧪</div>
-              <div class="ui-recipe-name">${escHtml(r.name || '配方')}</div>
-              ${!unlocked ? '<span style="font-size:11px;color:var(--color-text-muted)">需Lv.' + (r.unlockCareerLevel || 0) + '</span>' : ''}
-            </div>
-            ${r.description ? '<div class="ui-recipe-desc" style="font-size:12px;color:var(--color-text-muted);margin-bottom:6px">' + escHtml(r.description) + '</div>' : ''}
-            ${costHtml ? '<div class="ui-recipe-cost">消耗: ' + escHtml(costHtml) + '</div>' : ''}
-            ${effectHtml ? '<div class="ui-recipe-effect">效果: ' + escHtml(effectHtml) + '</div>' : ''}
-            <div class="ui-card-footer">
-              <button class="ui-btn ui-btn--primary ui-btn--sm" ${canCraft ? '' : 'disabled'}
-                onclick="UiOverlay.cmd('craft','${r.id}')">炼制</button>
-            </div>
-          </div>`;
-      });
-      html += '</div>';
-    } else {
-      html += '<div class="ui-empty-state"><div class="ui-empty-icon">🧪</div><div class="ui-empty-text">暂无配方</div><div class="ui-empty-hint">提升修为解锁更多配方</div></div>';
+    if (_craftTab === 'mat') {
+      var hud = readHUD() || {};
+      return html +
+        '<div class="ux-card"><div class="ux-task-name" style="margin-bottom:10px">💎 灵石</div>' +
+        '<div class="ux-reward-row">' + icon('stone') + '持有数量 <span class="val-pos" style="font-size:28px">' + fmtNum(hud.spiritStones) + '</span></div>' +
+        '<div class="ux-recipe-desc" style="margin-top:12px">灵石通过挂机收益与任务获得，是炼制丹药法宝的通用耗材。</div></div>' +
+        '<div class="ux-card"><div class="ux-task-name" style="margin-bottom:10px">🌿 素材图鉴</div>' +
+        '<div style="display:flex;gap:18px">' +
+          matTile('mat-herb-a', '聚气草') + matTile('mat-crystal-a', '晶石') + matTile('mat-scroll-a', '功法卷') + matTile('mat-flower-a', '回春花') +
+        '</div></div>';
     }
 
+    var list = recipes.filter(function (r) {
+      var tab = CRAFT_TABS.filter(function (t) { return t.id === _craftTab; })[0];
+      return tab && tab.match(r.id);
+    });
+    if (!list.length) return html + emptyState('🧪', '暂无配方', '提升职级后解锁更多配方');
+
+    list.forEach(function (r) {
+      var check = readCanCraft(r.id);
+      var count = readCraftedCount(r.id);
+      var mats = CRAFT_MATS[(_craftTab === 'gongfa' && r.id.indexOf('talisman_') === 0) ? 'gongfa' : _craftTab] || CRAFT_MATS.pill;
+      var resultImg = CRAFT_RESULT[r.id] || 'item-pill-juqi';
+      html += '' +
+        '<div class="ux-card ux-recipe-card">' +
+          '<div class="ux-recipe-name">' + escHtml(r.name) +
+            (count > 0 ? '<span class="ux-recipe-count">已炼 ×' + count + '</span>' : '') + '</div>' +
+          '<div class="ux-recipe-flow">' +
+            '<div class="ux-mat">' + img(mats[0]) + '<span class="x' + (readHUD() && readHUD().cultivationExp < r.costCultivation ? ' lack' : '') + '">×' + fmtNum(r.costCultivation) + '</span></div>' +
+            '<div class="ux-mat">' + img(mats[1]) + '<span class="x' + ((readHUD() && readHUD().spiritStones < r.costSpiritStones) ? ' lack' : '') + '">×' + fmtNum(r.costSpiritStones) + '</span></div>' +
+            '<span class="ux-arrow">→</span>' +
+            '<div class="ux-recipe-result">' + img(resultImg) + '</div>' +
+            '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="craft" data-id="' + escHtml(r.id) + '"' + (check.canCraft ? '' : ' disabled') + '>合成</button>' +
+          '</div>' +
+          '<div class="ux-recipe-desc">' + escHtml(r.description || '') +
+            (!check.canCraft && check.reason ? ' · <span class="val-neg">' + escHtml(check.reason) + '</span>' : '') +
+          '</div>' +
+        '</div>';
+    });
     return html;
   }
 
-  /* ── 6d. Promotion Page ── */
+  function matTile(name, label) {
+    return '<div class="ux-mat">' + img(name) + '<span class="x" style="font-weight:700">' + label + '</span></div>';
+  }
+
+  /* ── 6d. 晋升渡劫 ── */
 
   function renderPromotion() {
-    const data = buildPromotion();
-    const hud = buildHUD();
-    if (!data) return '<div class="ui-loading"><div class="ui-spinner"></div>加载中...</div>';
+    var hud = readHUD();
+    if (!hud) return emptyState('⏳', '加载中...', '');
+    var promo = readPromotion();
+    var kpi = readKpi();
+    var next = readCareerAt(hud.careerLevel + 1);
 
-    let html = '';
+    var stageHtml =
+      '<div class="ux-promo-stage">' +
+        '<div class="ux-stage-box">' +
+          '<div class="ux-stage-label">当前职级</div>' +
+          '<div class="ux-stage-name">' + escHtml(hud.careerName) + '</div>' +
+          '<div class="ux-stage-realm">' + escHtml(hud.realm) + '</div>' +
+          img('promo-cur', 'ux-stage-img') +
+        '</div>' +
+        '<div class="ux-promo-arrow">➤</div>' +
+        '<div class="ux-stage-box ux-stage-box--next">' +
+          '<div class="ux-stage-label">下一阶段</div>' +
+          '<div class="ux-stage-name">' + escHtml(next ? next.name : '？？？') + '</div>' +
+          '<div class="ux-stage-realm">' + escHtml(next ? next.realm : '') + '</div>' +
+          img('promo-next', 'ux-stage-img') +
+        '</div>' +
+      '</div>';
 
-    html += '<div class="ui-page-section">';
-    html += '<div class="ui-section-title"><span class="ui-section-icon">⬆️</span> 晋升</div>';
+    var rows = '';
+    /* 修为条件 */
+    var reqExp = Math.max(hud.requiredExp, 0);
+    rows += reqRow('cultivation', '修为', hud.cultivationExp, reqExp, reqExp <= 0 || hud.cultivationExp >= reqExp, 'blue');
+    /* KPI 条件 (真实晋升门槛) */
+    (kpi.items || []).forEach(function (item) {
+      var stat = item.type === 'SALARY_EARNED' ? 'salary' : (item.type === 'CULTIVATION' ? 'cultivation' : 'performance');
+      rows += reqRow(stat, kpiShortLabel(item.type), item.progress, item.target, item.completed, item.completed ? 'green' : 'orange');
+    });
+    /* 道心 (影响渡劫成功率) */
+    rows += reqRow('mind', '道心', hud.mind, hud.maxMind, hud.mind >= 30, 'green');
+    var reqHtml = '<div class="ux-card"><div class="ux-req-rows">' + rows + '</div>' +
+      '<div class="ux-promo-note">满足全部条件后可进行渡劫晋升 · 当前成功率 ' + Math.floor(promo.probability) + '%</div></div>';
 
-    html += `<div class="ui-card">
-      <div class="ui-promo-status">
-        <div class="ui-promo-realm">${escHtml(hud ? hud.realm : '练气期')}</div>
-        <div class="ui-promo-probability">
-          成功率: <span class="ui-value">${data.probability != null ? Math.floor(data.probability * 100) : 0}%</span>
-        </div>
-      </div>`;
-
-    if (data.allowed) {
-      const firstOptId = (data.options && data.options.length > 0) ? (data.options[0].id || '') : '';
-      html += `
-        <div class="ui-card-footer" style="justify-content:center">
-          <button class="ui-btn ui-btn--primary ui-btn--lg ui-animate-pulse" onclick="UiOverlay.cmd('promote','${escHtml(firstOptId)}')">突破晋升</button>
-        </div>`;
-    } else if (data.reason) {
-      html += `<div style="text-align:center;padding:8px 0;color:var(--color-text-muted);font-size:13px">${escHtml(data.reason)}</div>`;
+    var btn;
+    if (promo.allowed) {
+      btn = '<button class="ux-btn ux-btn--gold ux-btn--lg" data-action="promote">渡劫晋升</button>';
+    } else if (promo.needsRetry) {
+      btn = '<button class="ux-btn ux-btn--gray ux-btn--md" data-action="promoRetry">渡劫失败 · 看广告再试</button>';
+    } else {
+      btn = '<button class="ux-btn ux-btn--gray ux-btn--lg" disabled>渡劫晋升</button>';
     }
 
-    if (data.needsRetry) {
-      const retryOptId = (data.options && data.options.length > 0) ? (data.options[0].id || '') : '';
-      html += `
-        <div class="ui-card-footer" style="justify-content:center">
-          <button class="ui-btn ui-btn--secondary" onclick="UiOverlay.cmd('promote','${escHtml(retryOptId)}')">再次尝试</button>
-        </div>`;
+    return stageHtml + reqHtml + '<div class="ux-promo-action">' + btn + '</div>';
+  }
+
+  function kpiShortLabel(type) {
+    return { MERGE_COUNT: '完成任务', WORK_SECONDS: '工作时长', CULTIVATION: '修为达标', SALARY_EARNED: '累计工资', EVENT_RESOLVED: '处理事件' }[type] || '任务';
+  }
+
+  function reqRow(stat, label, cur, req, ok, fill) {
+    var numsRight = req > 0 ? '/ ' + fmtNum(req) : '已达标';
+    return '<div class="ux-req-row">' + icon(stat) +
+      '<span class="ux-req-label">' + escHtml(label) + '</span>' +
+      '<div class="ux-req-mid">' +
+        '<div class="ux-req-nums"><span>' + fmtNum(cur) + '</span><span>' + numsRight + '</span></div>' +
+        '<div class="ux-progress" style="height:20px"><div class="ux-progress-fill ux-progress-fill--' + fill + '" style="width:' + pct(cur, req) + '%"></div></div>' +
+      '</div>' +
+      '<span class="ux-check' + (ok ? '' : ' ux-check--pending') + '">✓</span></div>';
+  }
+
+  /* ── 6e. 宗门 ── */
+
+  function sectEffectLines(mods) {
+    var lines = [];
+    function line(txt, positive) {
+      lines.push('<div class="ux-sect-effect"><span class="' + (positive ? 'val-pos' : 'val-neg') + '">' + txt + '</span></div>');
     }
-
-    html += '</div></div>';
-
-    // Promotion options
-    if (data.options && data.options.length > 0) {
-      html += '<div class="ui-page-section">';
-      html += '<div class="ui-section-title"><span class="ui-section-icon">🎯</span> 晋升选项</div>';
-      data.options.forEach(opt => {
-        html += `
-          <div class="ui-card ui-card--interactive" onclick="UiOverlay.showPromoDetail('${escHtml(opt.id || opt.name || '')}')">
-            <div class="ui-card-header">
-              <span class="ui-card-title">${escHtml(opt.name || opt.title || '选项')}</span>
-              ${opt.level ? `<span class="ui-card-badge">Lv.${opt.level}</span>` : ''}
-            </div>
-            <div class="ui-card-body">${escHtml(opt.description || opt.desc || '')}</div>
-          </div>`;
-      });
-      html += '</div>';
+    if (mods.salaryMultiplier && mods.salaryMultiplier !== 1) {
+      var v = Math.round(Math.abs(mods.salaryMultiplier - 1) * 100);
+      line('工资 ' + (mods.salaryMultiplier > 1 ? '+' : '-') + v + '%', mods.salaryMultiplier > 1);
     }
+    if (mods.cultivationMultiplier && mods.cultivationMultiplier !== 1) {
+      var cv = Math.round(Math.abs(mods.cultivationMultiplier - 1) * 100);
+      line('修为 ' + (mods.cultivationMultiplier > 1 ? '+' : '-') + cv + '%', mods.cultivationMultiplier > 1);
+    }
+    if (mods.mindMultiplier && mods.mindMultiplier !== 1) {
+      var mv = Math.round(Math.abs(mods.mindMultiplier - 1) * 100);
+      if (mods.mindMultiplier > 1) line('道心恢复 +' + mv + '%', true);
+      else line('道心消耗 +' + mv + '%', false);
+    }
+    if (mods.performanceMultiplier && mods.performanceMultiplier !== 1) {
+      var pv = Math.round(Math.abs(mods.performanceMultiplier - 1) * 100);
+      line('绩效 ' + (mods.performanceMultiplier > 1 ? '+' : '-') + pv + '%', mods.performanceMultiplier > 1);
+    }
+    if (mods.offlineGainMultiplier && mods.offlineGainMultiplier !== 1) {
+      var ov = Math.round((mods.offlineGainMultiplier - 1) * 100);
+      line('离线收益 +' + ov + '%', ov > 0);
+    }
+    return lines.join('');
+  }
 
+  function renderSect() {
+    var data = readSects();
+    var html = '<div class="ux-section-ribbon">选择宗门</div>';
+    if (!data.sects.length) return html + emptyState('⚔️', '暂无宗门', '');
+    data.sects.forEach(function (s) {
+      var isCur = data.currentId === s.id;
+      var btn = isCur
+        ? '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>已选择</button>'
+        : '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="sect" data-id="' + s.id + '">选择</button>';
+      html += '<div class="ux-card ux-sect-card">' +
+        (isCur ? '<span class="ux-sect-current">当前宗门</span>' : '') +
+        img(SECT_IMAGES[s.id] || 'sect-minying', 'ux-sect-img') +
+        '<div class="ux-sect-info">' +
+          '<div class="ux-sect-name">' + escHtml(s.name) + '</div>' +
+          sectEffectLines(s.modifiers || {}) +
+        '</div>' + btn + '</div>';
+    });
     return html;
   }
 
-  /* ── 6e. More Page ── */
+  /* ── 6f. 排行榜 ── */
 
-  let _moreSubTab = 'SECT';
+  var _lbTab = 'exp';
+
+  function renderLeaderboard() {
+    var view = readLeaderboard();
+    var entries = (view.entries || []).slice();
+    var html = '<div class="ux-tabs">' +
+      '<button class="ux-tab' + (_lbTab === 'exp' ? ' ux-tab--active' : '') + '" data-lbtab="exp">修为榜</button>' +
+      '<button class="ux-tab' + (_lbTab === 'level' ? ' ux-tab--active' : '') + '" data-lbtab="level">职级榜</button>' +
+      '<button class="ux-tab' + (_lbTab === 'sect' ? ' ux-tab--active' : '') + '" data-lbtab="sect">宗门榜</button>' +
+      '</div>';
+
+    if (_lbTab === 'level') entries.sort(function (a, b) { return b.careerLevel - a.careerLevel || b.cultivationExp - a.cultivationExp; });
+    else entries.sort(function (a, b) { return b.cultivationExp - a.cultivationExp; });
+
+    html += '<div class="ux-card" style="padding:14px 10px">' +
+      '<div class="ux-lb-head"><span class="ux-lb-c1">排名</span><span class="ux-lb-c2">玩家名</span><span class="ux-lb-c3">境界/职级</span><span class="ux-lb-c4">修为</span></div>';
+
+    entries.slice(0, 10).forEach(function (e, i) {
+      var rank = i + 1;
+      var rankHtml = rank <= 3
+        ? '<span class="ux-lb-rank ux-lb-rank--' + rank + '">' + rank + '</span>'
+        : '<span class="ux-lb-rank">' + rank + '</span>';
+      var sub = _lbTab === 'sect' ? escHtml(e.sectName || '散修') : escHtml(e.careerName || ('Lv.' + e.careerLevel));
+      html += '<div class="ux-lb-row' + (e.isPlayer ? ' ux-lb-row--me' : '') + '">' +
+        '<span class="ux-lb-c1">' + rankHtml + '</span>' +
+        '<span class="ux-lb-c2"><div class="ux-lb-name">' + escHtml(e.isPlayer ? PLAYER_NAME : e.name) + '</div></span>' +
+        '<span class="ux-lb-c3"><div class="ux-lb-realm">' + sub + '</div></span>' +
+        '<span class="ux-lb-c4"><div class="ux-lb-score">' + (_lbTab === 'level' ? 'Lv.' + e.careerLevel : fmtNum(e.cultivationExp)) + '</div></span>' +
+        '</div>';
+    });
+
+    /* 我的排名不在前十 → 底部补一行 */
+    var meInTop = entries.slice(0, 10).some(function (e) { return e.isPlayer; });
+    if (!meInTop && view.playerRank) {
+      var me = entries.filter(function (e) { return e.isPlayer; })[0];
+      if (me) {
+        html += '<div class="ux-lb-row ux-lb-row--me" style="margin-top:14px">' +
+          '<span class="ux-lb-c1"><span class="ux-lb-rank">' + view.playerRank + '</span></span>' +
+          '<span class="ux-lb-c2"><div class="ux-lb-name">' + PLAYER_NAME + '</div></span>' +
+          '<span class="ux-lb-c3"><div class="ux-lb-realm">' + escHtml(me.careerName || '') + '</div></span>' +
+          '<span class="ux-lb-c4"><div class="ux-lb-score">' + fmtNum(me.cultivationExp) + '</div></span></div>';
+      }
+    }
+    html += '</div>';
+    return html;
+  }
+
+  /* ── 6g. 好友 ── */
+
+  var _friendTab = 'list';
+
+  function renderFriends() {
+    var view = readFriends();
+    var html = '<div class="ux-tabs">' +
+      '<button class="ux-tab' + (_friendTab === 'list' ? ' ux-tab--active' : '') + '" data-ftab="list">好友列表</button>' +
+      '<button class="ux-tab' + (_friendTab === 'add' ? ' ux-tab--active' : '') + '" data-ftab="add">添加好友</button>' +
+      '</div>';
+
+    if (_friendTab === 'add') {
+      return html + '<div class="ux-card" style="text-align:center;padding:40px 20px">' +
+        '<div style="font-size:56px;margin-bottom:12px">🤝</div>' +
+        '<div class="ux-task-name">好友邀请码</div>' +
+        '<div class="ux-recipe-desc" style="margin:10px 0 18px">把邀请码分享给同事，互相拜访赠送灵石。</div>' +
+        '<div class="ux-lb-score" style="font-size:34px;letter-spacing:4px">NM-2026-XX88</div>' +
+        '<button class="ux-btn ux-btn--gold ux-btn--md" data-action="copyInvite" style="margin-top:18px">复制邀请码</button></div>';
+    }
+
+    if (!view.friends || !view.friends.length) {
+      return html + emptyState('👥', '暂无好友', '去添加好友一起摸鱼修仙');
+    }
+    view.friends.forEach(function (fr, i) {
+      var online = fr.isOnline;
+      var lastSeen = online ? '在线' : timeAgo(fr.lastOnline) + '前在线';
+      var canClaim = view.giftsToClaim > 0 && fr.giftReceived; // 数据侧只给计数，具体归属用简化展示
+      html += '<div class="ux-card ux-friend-card">' +
+        img(faceFor(i + 1), 'ux-friend-avatar') +
+        '<div class="ux-friend-info">' +
+          '<div class="ux-friend-name">' + escHtml(fr.name) + (canClaim ? '<span class="ux-gift-dot">可领礼物</span>' : '') + '</div>' +
+          '<div class="ux-friend-realm">' + escHtml(fr.careerName || '') + ' · ' + escHtml(fr.sectName || '散修') + '</div>' +
+          '<div class="ux-friend-online ' + (online ? 'on--yes' : 'on--no') + '">' + lastSeen + '</div>' +
+        '</div>' +
+        '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="visit" data-id="' + escHtml(fr.id) + '">拜访</button>' +
+        '</div>';
+    });
+    return html;
+  }
+
+  function timeAgo(ts) {
+    if (!ts) return '很久';
+    var s = Math.max(1, (Date.now() - ts) / 1000);
+    if (s < 3600) return Math.floor(s / 60) + '分钟';
+    if (s < 86400) return Math.floor(s / 3600) + '小时';
+    return Math.floor(s / 86400) + '天';
+  }
+
+  /* ── 6h. 成就 ── */
+
+  var _achTab = 'all';
+
+  function renderAchievements() {
+    var data = readAchievements();
+    var html = '<div class="ux-tabs">' +
+      ['all:全部', 'unlocked:已解锁', 'locked:未解锁', 'hidden:隐藏'].map(function (pair) {
+        var p = pair.split(':');
+        return '<button class="ux-tab' + (_achTab === p[0] ? ' ux-tab--active' : '') + '" data-achtab="' + p[0] + '">' + p[1] + '</button>';
+      }).join('') + '</div>';
+
+    var list = (data.configs || []).filter(function (c) {
+      var st = data.status[c.id];
+      if (_achTab === 'unlocked') return st === 'COMPLETED' || st === 'CLAIMED';
+      if (_achTab === 'locked') return st === 'LOCKED';
+      if (_achTab === 'hidden') return c.category === 'EVENT';
+      return true;
+    });
+
+    if (!list.length) return html + emptyState('🏆', '暂无成就', '继续修仙，成就自然解锁');
+
+    list.forEach(function (c, i) {
+      var st = data.status[c.id];
+      var right;
+      if (st === 'COMPLETED') {
+        right = '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="claimAch" data-id="' + escHtml(c.id) + '">领取</button>';
+      } else if (st === 'CLAIMED') {
+        right = '<span class="ux-ach-progress" style="color:#4e9e3e">已领取</span>';
+      } else {
+        right = '<span class="ux-ach-lock">🔒</span>';
+      }
+      html += '<div class="ux-card ux-ach-card">' +
+        img(ACH_ICONS[i % ACH_ICONS.length], 'ux-ach-icon' + (st === 'LOCKED' ? ' ux-ach-icon--locked' : '')) +
+        '<div class="ux-ach-info">' +
+          '<div class="ux-ach-name">' + escHtml(c.name) + '</div>' +
+          '<div class="ux-ach-desc">' + escHtml(c.description) + '</div>' +
+          (c.reward ? '<div class="ux-ach-reward">奖励: ' + effectText(c.reward).replace(/<span class="/g, '<span class="') + '</div>' : '') +
+        '</div>' + right + '</div>';
+    });
+    return html;
+  }
+
+  /* ── 6i. 更多 / 设置 ── */
 
   function renderMore() {
-    let html = '';
+    return '' +
+      '<div class="ux-more-grid">' +
+        moreItem('sect', '⚔️', '宗门', '选择你的流派') +
+        moreItem('leaderboard', '🏆', '排行榜', '修为职级大比拼') +
+        moreItem('friends', '👥', '好友', '拜访好友赠灵石') +
+        moreItem('achievements', '📜', '成就', '职场修仙履历') +
+        moreItem('settings', '⚙️', '设置', '音效与存档') +
+      '</div>' +
+      '<div class="ux-about">—— 白天上班，晚上修仙，上班也是渡劫 ——<br>《牛马修仙传》Web V1</div>';
+  }
 
-    // Sub tabs
-    html += '<div class="ui-sub-tabs">';
-    MORE_SUB_TABS.forEach(t => {
-      html += `<button class="ui-sub-tab ${_moreSubTab === t.id ? 'ui-sub-tab--active' : ''}" 
-        onclick="UiOverlay.switchMoreTab('${t.id}')">${t.icon} ${t.label}</button>`;
-    });
-    html += '</div>';
+  function moreItem(page, emoji, label, sub) {
+    return '<button class="ux-card ux-more-item" data-action="goto" data-page="' + page + '">' +
+      '<span class="mc">' + emoji + '</span><span class="mi">' + label + '</span><span class="ms">' + sub + '</span></button>';
+  }
 
-    // Sub content
-    switch (_moreSubTab) {
-      case 'SECT': html += renderMoreSect(); break;
-      case 'ACHIEVEMENT': html += renderMoreAchievement(); break;
-      case 'DAILY': html += renderMoreDaily(); break;
-      case 'SETTINGS': html += renderMoreSettings(); break;
-      default: html += renderMoreSect();
+  function renderSettings() {
+    return '' +
+      '<div class="ux-card">' +
+        settingRow('音效', '游戏音效开关', 'sfx', true) +
+        settingRow('背景音乐', '修仙背景音乐开关', 'bgm', true) +
+        settingRow('推送提醒', '渡劫与事件提醒', 'notify', false) +
+      '</div>' +
+      '<div class="ux-card" style="margin-top:20px">' +
+        '<div class="ux-setting-row" style="display:flex;align-items:center;justify-content:space-between">' +
+          '<div><div class="ux-task-name">清空存档</div><div class="ux-recipe-desc">删除本地存档并重新开始（危险操作）</div></div>' +
+          '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="clearSave">清空</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ux-about">《牛马修仙传》 v1.0-rc.1 · Web V1<br>上班也是渡劫</div>';
+  }
+
+  function settingRow(label, desc, key, on) {
+    return '<div class="ux-setting-row" style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">' +
+      '<div><div class="ux-task-name">' + label + '</div><div class="ux-recipe-desc">' + desc + '</div></div>' +
+      '<button class="ux-btn ux-btn--' + (on ? 'gold' : 'gray') + ' ux-btn--sm" data-action="toggle" data-key="' + key + '">' + (on ? '开' : '关') + '</button></div>';
+  }
+
+  function emptyState(emoji, txt, hint) {
+    return '<div class="ux-empty"><div class="big">' + emoji + '</div><div class="txt">' + escHtml(txt) + '</div>' +
+      (hint ? '<div class="hint">' + escHtml(hint) + '</div>' : '') + '</div>';
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     §7. Screen controller
+     ═════════════════════════════════════════════════════════ */
+
+  var _screen = 'HOME';          // 当前主页面
+  var _subPage = null;           // 子页面: SECT/LEADERBOARD/FRIENDS/ACHIEVEMENTS/SETTINGS
+  var _cdCache = {};             // 冷却缓存(秒)
+  var _sessionStart = Date.now();
+
+  function sessionSeconds() { return (Date.now() - _sessionStart) / 1000; }
+
+  function cooldownOf(key) {
+    var f = facade();
+    if (!f) return 0;
+    try {
+      if (key === 'cultivate') return f.queryCultivationCooldown ? f.queryCultivationCooldown() : 0;
+    } catch (e) { /* noop */ }
+    return 0;
+  }
+
+  var PAGE_TITLES = {
+    HOME: '', TASKS: '任务', CRAFT: '物品合成', PROMOTION: '晋升渡劫', MORE: '更多',
+    SECT: '宗门页', LEADERBOARD: '排行榜', FRIENDS: '好友', ACHIEVEMENTS: '成就', SETTINGS: '设置',
+  };
+
+  function currentPage() { return _subPage || _screen; }
+
+  function renderCurrent() {
+    var page = currentPage();
+    switch (page) {
+      case 'HOME': return renderHome();
+      case 'TASKS': return renderTasks();
+      case 'CRAFT': return renderCraft();
+      case 'PROMOTION': return renderPromotion();
+      case 'MORE': return renderMore();
+      case 'SECT': return renderSect();
+      case 'LEADERBOARD': return renderLeaderboard();
+      case 'FRIENDS': return renderFriends();
+      case 'ACHIEVEMENTS': return renderAchievements();
+      case 'SETTINGS': return renderSettings();
+      default: return renderHome();
+    }
+  }
+
+  function renderShell() {
+    var overlay = $('#UiOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'UiOverlay';
+      // 挂 body 而非 GameDiv: GameDiv 会被 Cocos 侧 resize 逻辑缩小,
+      // overlay 需要铺满整个视口。
+      document.body.appendChild(overlay);
+    }
+    var page = currentPage();
+    var isHome = page === 'HOME';
+    var isSub = !!_subPage;
+
+    var header;
+    if (isHome) {
+      header = '';
+    } else {
+      header =
+        '<div class="ux-header">' +
+          '<button class="ux-back" data-action="back">‹</button>' +
+          '<span class="ux-header-title">' + escHtml(PAGE_TITLES[page] || '') + '</span>' +
+        '</div>';
     }
 
-    return html;
-  }
+    var nav = '<div class="ux-nav">' + NAV_TABS.map(function (t) {
+      var active = !isSub && _screen === t.id;
+      var iconSrc = active && t.active ? t.active : t.icon;
+      return '<button class="ux-nav-item' + (active ? ' ux-nav-item--active' : '') + '" data-nav="' + t.id + '">' +
+        img(iconSrc) + '<span>' + t.label + '</span></button>';
+    }).join('') + '</div>';
 
-  function renderMoreSect() {
-    const f = getFacade();
-    let sect = null;
-    try { sect = f && f.querySect ? f.querySect() : null; } catch (e) {}
+    overlay.innerHTML =
+      '<div class="ux-screen">' +
+        header +
+        '<div class="ux-body" id="UiBody">' + renderCurrent() + '</div>' +
+        nav +
+      '</div>' +
+      '<div id="PopupLayer"></div>' +
+      '<div class="ux-toast-container" id="ToastBox"></div>';
 
-    if (!sect) {
-      return '<div class="ui-empty-state"><div class="ui-empty-icon">⚔️</div><div class="ui-empty-text">尚未加入宗门</div><div class="ui-empty-hint">提升修为后可加入宗门</div></div>';
-    }
-
-    return `
-      <div class="ui-card">
-        <div class="ui-card-header">
-          <span class="ui-card-title">⚔️ ${escHtml(sect.name || '宗门')}</span>
-          ${sect.level ? `<span class="ui-card-badge">Lv.${sect.level}</span>` : ''}
-        </div>
-        <div class="ui-card-body">${escHtml(sect.description || sect.desc || '宗门信息')}</div>
-      </div>`;
-  }
-
-  function renderMoreAchievement() {
-    return '<div class="ui-empty-state"><div class="ui-empty-icon">🏆</div><div class="ui-empty-text">成就系统</div><div class="ui-empty-hint">即将开放</div></div>';
-  }
-
-  function renderMoreDaily() {
-    return '<div class="ui-empty-state"><div class="ui-empty-icon">📅</div><div class="ui-empty-text">每日签到</div><div class="ui-empty-hint">即将开放</div></div>';
-  }
-
-  function renderMoreSettings() {
-    return `
-      <div class="ui-card">
-        <div class="ui-setting-row">
-          <div>
-            <div class="ui-setting-label">音效</div>
-            <div class="ui-setting-desc">游戏音效开关</div>
-          </div>
-          <button class="ui-toggle ui-toggle--on" id="ToggleSfx" onclick="UiOverlay.toggleSetting(this,'sfx')"></button>
-        </div>
-        <div class="ui-setting-row">
-          <div>
-            <div class="ui-setting-label">背景音乐</div>
-            <div class="ui-setting-desc">背景音乐开关</div>
-          </div>
-          <button class="ui-toggle" id="ToggleBgm" onclick="UiOverlay.toggleSetting(this,'bgm')"></button>
-        </div>
-        <div class="ui-setting-row">
-          <div>
-            <div class="ui-setting-label">推送通知</div>
-            <div class="ui-setting-desc">接收游戏通知</div>
-          </div>
-          <button class="ui-toggle ui-toggle--on" id="ToggleNotify" onclick="UiOverlay.toggleSetting(this,'notify')"></button>
-        </div>
-      </div>
-      <div class="ui-card" style="margin-top:12px">
-        <div class="ui-card-body ui-text-center ui-text-muted ui-text-sm">
-          牛马修仙传 v1.0<br>DOM Overlay UI
-        </div>
-      </div>`;
-  }
-
-  /* ═══════════════════════════════════════════════════════════
-     §7. Main UI Controller
-     ═══════════════════════════════════════════════════════════ */
-
-  let _currentTab = 'HOME';
-  let _refreshTimer = null;
-  let _overlay = null;
-
-  function buildOverlay() {
-    const el = document.createElement('div');
-    el.id = 'UiOverlay';
-    el.innerHTML = `
-      <div class="ui-header" id="UiHeader"></div>
-      <div class="ui-resource-bar" id="UiResourceBar"></div>
-      <div class="ui-page-container" id="UiPageContainer"></div>
-      <div class="ui-bottom-nav" id="UiBottomNav"></div>
-      <div id="ModalLayer"></div>
-      <div class="ui-toast-container" id="ToastContainer"></div>`;
-    return el;
-  }
-
-  function renderHeader() {
-    const el = $('#UiHeader');
-    if (!el) return;
-    const hud = buildHUD();
-    if (!hud) { el.innerHTML = '<span class="ui-header-title">牛马修仙传</span>'; return; }
-    const demoTag = _demoMode ? ' <span style="font-size:10px;color:var(--color-gold);background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px">演示</span>' : '';
-    el.innerHTML = `
-      <span class="ui-header-title">🏠 牛马修仙传${demoTag}</span>
-      <span class="ui-header-realm">${escHtml(hud.realm)}</span>`;
-  }
-
-  function renderResourceBar() {
-    const el = $('#UiResourceBar');
-    if (!el) return;
-    const hud = buildHUD();
-    if (!hud) { el.innerHTML = ''; return; }
-    el.innerHTML = `
-      <div class="ui-res-item"><span class="ui-res-icon">💎</span><span class="ui-res-value ui-num">${fmtNum(hud.spiritStones)}</span></div>
-      <div class="ui-res-item"><span class="ui-res-icon">💵</span><span class="ui-res-value ui-num">${fmtNum(hud.salary)}</span></div>
-      <div class="ui-res-item"><span class="ui-res-icon">📊</span><span class="ui-res-value ui-num">${fmtNum(hud.performance)}</span></div>
-      <div class="ui-res-item"><span class="ui-res-icon">🧘</span><span class="ui-res-value ui-num">${fmtNum(hud.cultivationExp)}</span></div>`;
-  }
-
-  function renderPage() {
-    const el = $('#UiPageContainer');
-    if (!el) return;
-    let html = '';
-    switch (_currentTab) {
-      case 'HOME':      html = renderHome(); break;
-      case 'TASKS':     html = renderTasks(); break;
-      case 'CRAFT':     html = renderCraft(); break;
-      case 'PROMOTION': html = renderPromotion(); break;
-      case 'MORE':      html = renderMore(); break;
-      default:          html = renderHome();
-    }
-    el.innerHTML = `<div class="ui-page ui-page--active">${html}</div>`;
-  }
-
-  function renderNav() {
-    const el = $('#UiBottomNav');
-    if (!el) return;
-    el.innerHTML = NAV_TABS.map(t => `
-      <button class="ui-nav-item ${_currentTab === t.id ? 'ui-nav-item--active' : ''}" 
-        data-tab="${t.id}">
-        <span class="ui-nav-icon">${t.icon}</span>
-        <span class="ui-nav-label">${t.label}</span>
-      </button>`).join('');
-
-    el.querySelectorAll('.ui-nav-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tab = btn.dataset.tab;
-        if (tab && tab !== _currentTab) {
-          _currentTab = tab;
-          renderNav();
-          renderPage();
-        }
-      });
-    });
+    bindEvents();
   }
 
   function refresh() {
-    renderHeader();
-    renderResourceBar();
-    renderPage();
+    var overlay = $('#UiOverlay');
+    if (!overlay || !$('#UiBody')) { renderShell(); return; }
+    var body = $('#UiBody');
+    var scrollTop = body.scrollTop;
+    /* 只重绘 body + header 内容，保持弹窗/toast 层不被打断 */
+    body.innerHTML = renderCurrent();
+    body.scrollTop = scrollTop;
+    bindEvents();
   }
 
-  function startAutoRefresh() {
-    stopAutoRefresh();
-    _refreshTimer = setInterval(refresh, 2000);
+  function fullRefresh() { renderShell(); }
+
+  /* ── 事件绑定 (委托) ── */
+
+  var _settings = { sfx: true, bgm: true, notify: false };
+
+  function bindEvents() {
+    var overlay = $('#UiOverlay');
+    if (!overlay) return;
+
+    overlay.onclick = function (e) {
+      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab]') : null;
+      if (!el) return;
+
+      if (el.dataset.nav) {
+        var tab = el.dataset.nav;
+        _subPage = null;
+        if (_screen !== tab) { _screen = tab; fullRefresh(); }
+        return;
+      }
+      var act = el.dataset.action;
+      if (!act) {
+        /* 页内 tab 切换 */
+        if (el.dataset.tasktab) { _taskTab = el.dataset.tasktab; refresh(); }
+        else if (el.dataset.crafttab) { _craftTab = el.dataset.crafttab; refresh(); }
+        else if (el.dataset.lbtab) { _lbTab = el.dataset.lbtab; refresh(); }
+        else if (el.dataset.ftab) { _friendTab = el.dataset.ftab; refresh(); }
+        else if (el.dataset.achtab) { _achTab = el.dataset.achtab; refresh(); }
+        return;
+      }
+
+      switch (act) {
+        case 'back':
+          _subPage = null;
+          fullRefresh();
+          break;
+        case 'goto':
+          _subPage = (el.dataset.page || '').toUpperCase();
+          if (_subPage === 'SETTINGS') _subPage = 'SETTINGS';
+          fullRefresh();
+          break;
+        case 'settings':
+          _subPage = 'SETTINGS';
+          fullRefresh();
+          break;
+        case 'cultivate':
+          cmdResult('cultivate', function (r) {
+            return '修炼成功，修为 +' + (r && r.cultivationExp !== undefined ? r.cultivationExp : '?');
+          });
+          break;
+        case 'mode':
+          cmdResult('changeWorkMode', '切换成功', el.dataset.mode);
+          break;
+        case 'start':
+          cmdResult('startTask', '任务已开始', el.dataset.id);
+          break;
+        case 'claim':
+          cmdResult('claimTask', '任务奖励已领取', el.dataset.id);
+          break;
+        case 'craft':
+          cmdResult('craft', '炼制成功！', el.dataset.id);
+          break;
+        case 'promote': {
+          var promo = readPromotion();
+          var f = facade();
+          if (!f) { toast('演示模式：promote', 'info'); break; }
+          try {
+            var r = f.promote(promo.optionId);
+            if (r.success) toast('渡劫成功！晋升 ' + (r.newLevel ? 'Lv.' + r.newLevel : ''), 'success');
+            else toast(r.reason || '渡劫失败', 'error');
+          } catch (e) { toast(errMsg(e), 'error'); }
+          refresh();
+          break;
+        }
+        case 'promoRetry': {
+          var pf = facade();
+          if (!pf) { toast('演示模式：retry', 'info'); break; }
+          showAdPopup({
+            onComplete: function () {
+              try {
+                pf.showRewardedAdSync('PROMOTION_RETRY', 'PROMOTION_RETRY');
+                toast('重试机会已获得', 'success');
+              } catch (e) { toast(errMsg(e), 'error'); }
+              refresh();
+            },
+          });
+          break;
+        }
+        case 'sect': {
+          var cur = readSects().currentId;
+          var sectId = el.dataset.id;
+          var sectName = (readSects().sects.filter(function (s) { return s.id === sectId; })[0] || {}).name || '新宗门';
+          if (!cur) {
+            cmdResult('changeSect', '已拜入' + sectName, sectId);
+          } else {
+            showDialog('转宗确认', '转宗需要 <b>24 小时</b>冷却，确定要转投 ' + escHtml(sectName) + ' 吗？', [
+              { label: '取消', cls: 'gray' },
+              { label: '确定转宗', cls: 'gold', onClick: function () { cmdResult('changeSect', '已转投新宗门', sectId); } },
+            ]);
+          }
+          break;
+        }
+        case 'visit':
+          cmdResult('sendFriendGift', '拜访成功，已赠送好友灵石', el.dataset.id);
+          break;
+        case 'copyInvite':
+          copyText('NM-2026-XX88');
+          toast('邀请码已复制', 'success');
+          break;
+        case 'claimAch':
+          cmd('claimAchievement', el.dataset.id);
+          toast('成就奖励已领取', 'success');
+          break;
+        case 'toggle': {
+          var key = el.dataset.key;
+          _settings[key] = !_settings[key];
+          el.className = 'ux-btn ux-btn--' + (_settings[key] ? 'gold' : 'gray') + ' ux-btn--sm';
+          el.textContent = _settings[key] ? '开' : '关';
+          break;
+        }
+        case 'clearSave':
+          showDialog('清空存档', '确定要<b style="color:var(--neg)">删除全部存档</b>吗？此操作不可恢复。', [
+            { label: '取消', cls: 'gray' },
+            {
+              label: '确定清空', cls: 'blue', onClick: function () {
+                try { facade() && facade().clearSave(); toast('存档已清空', 'success'); }
+                catch (e) { toast(errMsg(e), 'error'); }
+                refresh();
+              },
+            },
+          ]);
+          break;
+      }
+    };
   }
 
-  function stopAutoRefresh() {
-    if (_refreshTimer) { clearInterval(_refreshTimer); _refreshTimer = null; }
+  function copyText(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    } catch (e) { /* noop */ }
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     §8. Hide Cocos canvas (overlay replaces native UI)
+     ═════════════════════════════════════════════════════════ */
+
+  function hideCocosUI() {
+    var canvas = document.querySelector('#GameDiv canvas');
+    if (canvas) { canvas.style.opacity = '0'; canvas.style.pointerEvents = 'none'; }
+    var container = document.getElementById('Cocos3dGameContainer');
+    if (container) { container.style.opacity = '0'; container.style.pointerEvents = 'none'; }
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     §9. Public API
+     ═════════════════════════════════════════════════════════ */
+
+  window.UiOverlay = {
+    cmd: cmd,
+    toast: toast,
+    refresh: refresh,
+    fullRefresh: fullRefresh,
+    goto: function (page) { _subPage = String(page || '').toUpperCase(); fullRefresh(); },
+    showAdPopup: showAdPopup,
+    showOfflinePopup: function () { showOfflinePopup('offline_' + Date.now()); },
+    showDialog: showDialog,
+    closePopup: closePopup,
+  };
+
+  /* ═════════════════════════════════════════════════════════
+     §10. Init
+     ═════════════════════════════════════════════════════════ */
+
+  function init() {
+    console.log('[UI] Web V1 overlay initializing...');
+    hideCocosUI();
+    fullRefresh();
+
+    /* 轮询 Facade — 就绪后切真实数据 + 离线收益检查 */
+    var attempts = 0;
+    var poll = setInterval(function () {
+      attempts += 1;
+      if (facade()) {
+        clearInterval(poll);
+        console.log('[UI] GameFacade ready — switching to live data');
+        _demoMode = false;
+        subscribeEvents();
+        setTimeout(function () { showOfflinePopup('offline_' + Date.now()); }, 1200);
+        refresh();
+      } else if (attempts >= 100) {
+        clearInterval(poll);
+        console.warn('[UI] GameFacade not found — staying in demo mode');
+      }
+    }, 300);
+
+    /* 主刷新循环: 倒计时/冷却/事件 */
+    setInterval(function () {
+      _cdCache = {};
+      if (!popupOpen()) {
+        refresh();
+        maybeShowEventPopup();
+      }
+    }, 1000);
   }
 
   function subscribeEvents() {
-    const f = getFacade();
+    var f = facade();
     if (!f || !f.onUiEvent) return;
-    const categories = ['STATE_CHANGED', 'RESOURCE_CHANGED', 'WORK_MODE_CHANGED', 'CAREER_CHANGED', 'BUFF_CHANGED'];
-    categories.forEach(cat => {
+    ['STATE_CHANGED', 'RESOURCE_CHANGED', 'WORK_MODE_CHANGED', 'CAREER_CHANGED', 'BUFF_CHANGED'].forEach(function (cat) {
       try {
-        const unsub = f.onUiEvent(cat, () => { setTimeout(refresh, 50); });
+        var unsub = f.onUiEvent(cat, function () { setTimeout(refresh, 60); });
         if (typeof unsub === 'function') _unsubs.push(unsub);
-      } catch (e) { /* ignore */ }
+      } catch (e) { /* noop */ }
     });
   }
 
-  function unsubscribeEvents() {
-    _unsubs.forEach(fn => { try { fn(); } catch (e) {} });
-    _unsubs = [];
-  }
-
-  /* ═══════════════════════════════════════════════════════════
-     §8. Hide Cocos Native UI
-     ═══════════════════════════════════════════════════════════ */
-
-  function hideCocosUI() {
-    // Only hide the Cocos canvas — NOT GameDiv (UiOverlay is a child of GameDiv)
-    const canvas = document.querySelector('#GameDiv canvas');
-    if (canvas) {
-      canvas.style.opacity = '0';
-      canvas.style.pointerEvents = 'none';
-    }
-    // Also hide the Cocos3dGameContainer wrapper if present
-    const container = document.getElementById('Cocos3dGameContainer');
-    if (container) {
-      container.style.opacity = '0';
-      container.style.pointerEvents = 'none';
-    }
-  }
-
-  /* ═══════════════════════════════════════════════════════════
-     §9. Public API (window.UiOverlay)
-     ═══════════════════════════════════════════════════════════ */
-
-  window.UiOverlay = {
-    cmd,
-    toast,
-    showModal,
-    closeModal,
-    refresh,
-    switchMoreTab(tab) { _moreSubTab = tab; renderPage(); },
-    showPromoDetail(id) {
-      const data = buildPromotion();
-      const opt = data && data.options ? data.options.find(o => o.id === id || o.name === id) : null;
-      if (!opt) { showModal('晋升详情', '<p style="color:var(--color-text-muted)">未找到该选项</p>'); return; }
-      const body = `
-        <div style="margin-bottom:12px">
-          <div style="font-size:16px;font-weight:600;color:var(--color-text-primary)">${escHtml(opt.name || opt.title || '选项')}</div>
-          <div style="font-size:13px;color:var(--color-text-secondary);margin-top:6px">${escHtml(opt.description || opt.desc || '无描述')}</div>
-        </div>
-        ${data && data.probability != null ? `<div style="font-size:13px;color:var(--color-text-muted)">成功率: <span class="ui-value">${Math.floor(data.probability * 100)}%</span></div>` : ''}
-        <div style="margin-top:16px;display:flex;gap:8px;justify-content:center">
-          <button class="ui-btn ui-btn--secondary" onclick="UiOverlay.closeModal()">取消</button>
-          <button class="ui-btn ui-btn--primary" onclick="UiOverlay.cmd('promote','${escHtml(opt.id || '')}');UiOverlay.closeModal()">确认晋升</button>
-        </div>`;
-      showModal('晋升详情', body);
-    },
-    toggleSetting(el, key) {
-      el.classList.toggle('ui-toggle--on');
-      toast((el.classList.contains('ui-toggle--on') ? '开启' : '关闭') + ' ' + key, 'success');
-    },
-  };
-
-  /* ═══════════════════════════════════════════════════════════
-     §10. Initialization
-     ═══════════════════════════════════════════════════════════ */
-
-  function init() {
-    console.log('[UI] Initializing DOM Overlay...');
-
-    // Mount immediately with demo data, switch to real data when facade arrives
-    mount();
-
-    // Poll for GameFacade — once found, re-render with real data
-    let attempts = 0;
-    const maxAttempts = 200;
-    const pollInterval = setInterval(() => {
-      attempts++;
-      if (getFacade() && !_demoMode) {
-        clearInterval(pollInterval);
-        console.log('[UI] GameFacade found, switching to live data');
-        _demoMode = false;
-        refresh();
-        subscribeEvents();
-      } else if (attempts >= maxAttempts) {
-        clearInterval(pollInterval);
-        if (_demoMode) {
-          console.warn('[UI] GameFacade not found after', maxAttempts * 300, 'ms — staying in demo mode');
-        }
-      }
-    }, 300);
-  }
-
-  function mount() {
-    // Build and insert overlay INTO GameDiv for correct scaling
-    const gameDiv = document.getElementById('GameDiv');
-    _overlay = buildOverlay();
-    if (gameDiv) {
-      gameDiv.appendChild(_overlay);
-    } else {
-      document.body.appendChild(_overlay);
-    }
-    hideCocosUI();
-
-    // Initial render (demo data if facade not available)
-    renderHeader();
-    renderResourceBar();
-    renderNav();
-    renderPage();
-
-    // Start auto refresh
-    startAutoRefresh();
-
-    console.log('[UI] DOM Overlay mounted', _demoMode ? '(demo mode)' : '(live mode)');
-    toast(_demoMode ? '🎮 UI已加载 (演示模式)' : '🎮 UI已加载', 'gold');
-  }
-
-  // Boot
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
-
 })();

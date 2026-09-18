@@ -12,6 +12,10 @@ export interface TaskConfig {
   readonly rewardSalary: number;
   readonly rewardCultivation: number;
   readonly rewardSpiritStones: number;
+  /** Optional performance delta granted on claim (Web V1 design tasks). */
+  readonly rewardPerformance?: number;
+  /** Optional mind delta granted on claim — may be negative (design: 道心-5). */
+  readonly rewardMind?: number;
 }
 
 /** Result of starting a task. */
@@ -45,6 +49,11 @@ const DEFAULT_MAX_ACTIVE_TASKS = 3;
 
 /** Default task pool for the core gameplay. */
 const DEFAULT_TASKS: readonly TaskConfig[] = [
+  // Web V1 设计图任务（日常任务页展示的四条）
+  { id: 'task_daily_report', type: 'DAILY', name: '写日报', description: '完成今天的工作日报', durationSeconds: 10, rewardSalary: 10, rewardCultivation: 30, rewardSpiritStones: 0, rewardPerformance: 5 },
+  { id: 'task_fix_bug', type: 'DAILY', name: '修复线上Bug', description: '紧急修复生产环境问题', durationSeconds: 30, rewardSalary: 30, rewardCultivation: 60, rewardSpiritStones: 0, rewardPerformance: 15, rewardMind: -5 },
+  { id: 'task_paid_fish', type: 'DAILY', name: '带薪摸鱼', description: '合理摸鱼，恢复状态', durationSeconds: 15, rewardSalary: 0, rewardCultivation: 5, rewardSpiritStones: 0, rewardMind: 15 },
+  { id: 'task_useless_meeting', type: 'DAILY', name: '参加无效会议', description: '听不懂但开完的会议', durationSeconds: 20, rewardSalary: 0, rewardCultivation: 0, rewardSpiritStones: 0, rewardPerformance: 10, rewardMind: -10 },
   { id: 'daily_checkin', type: 'DAILY', name: '每日签到', description: '完成每日签到', durationSeconds: 10, rewardSalary: 50, rewardCultivation: 10, rewardSpiritStones: 5 },
   { id: 'daily_cultivate', type: 'DAILY', name: '修炼日常', description: '完成修炼日常任务', durationSeconds: 15, rewardSalary: 30, rewardCultivation: 20, rewardSpiritStones: 3 },
   { id: 'daily_report', type: 'DAILY', name: '日报周报', description: '提交日报周报', durationSeconds: 20, rewardSalary: 40, rewardCultivation: 5, rewardSpiritStones: 2 },
@@ -139,6 +148,8 @@ export class TaskService {
       rewardSalary: config.rewardSalary,
       rewardCultivation: config.rewardCultivation,
       rewardSpiritStones: config.rewardSpiritStones,
+      rewardPerformance: config.rewardPerformance ?? 0,
+      rewardMind: config.rewardMind ?? 0,
       completed: false,
       claimed: false,
     };
@@ -196,6 +207,10 @@ export class TaskService {
     const previousSalary = this.context.player.salary;
     const previousExp = this.context.player.cultivationExp;
     const previousStones = this.context.player.spiritStones;
+    const previousPerformance = this.context.player.performance;
+    const previousMind = this.context.player.mind;
+    const rewardPerformance = task.rewardPerformance ?? 0;
+    const rewardMind = task.rewardMind ?? 0;
 
     try {
       if (task.rewardSalary > 0) {
@@ -206,6 +221,12 @@ export class TaskService {
       }
       if (task.rewardSpiritStones > 0) {
         this.context.player.spiritStones += task.rewardSpiritStones;
+      }
+      if (rewardPerformance !== 0) {
+        this.context.player.performance = Math.max(0, this.context.player.performance + rewardPerformance);
+      }
+      if (rewardMind !== 0) {
+        this.context.player.mind = Math.min(this.context.player.maxMind, Math.max(0, this.context.player.mind + rewardMind));
       }
 
       task.claimed = true;
@@ -227,6 +248,8 @@ export class TaskService {
       this.context.player.salary = previousSalary;
       this.context.player.cultivationExp = previousExp;
       this.context.player.spiritStones = previousStones;
+      this.context.player.performance = previousPerformance;
+      this.context.player.mind = previousMind;
       task.claimed = false;
       throw error;
     }

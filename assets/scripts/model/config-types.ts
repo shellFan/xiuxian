@@ -24,6 +24,8 @@ export interface SectModifiers {
   readonly cultivationMultiplier: number;
   readonly mindMultiplier: number;
   readonly performanceMultiplier: number;
+  /** Optional offline (idle settlement) gain multiplier — Web V1 国企宗 离线收益+20%. */
+  readonly offlineGainMultiplier?: number;
 }
 export interface SectConfig {
   readonly id: SectId;

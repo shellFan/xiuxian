@@ -174,6 +174,9 @@ export class GameFacade {
   /** Current career level info. */
   public queryCareer() { return this.context.career.current(); }
 
+  /** Career config at an absolute level (1-based) — used by the promotion stage preview. */
+  public queryCareerAt(level: number) { return this.context.career.get(level); }
+
   /** Current sect info. */
   public querySect() { return this.context.sect.current(); }
 

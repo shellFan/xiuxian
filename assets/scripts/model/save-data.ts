@@ -30,6 +30,10 @@ export interface ActiveTaskState {
   readonly rewardSalary: number;
   readonly rewardCultivation: number;
   readonly rewardSpiritStones: number;
+  /** Optional performance delta granted on claim (Web V1 design tasks). */
+  rewardPerformance?: number;
+  /** Optional mind delta granted on claim — may be negative (design: 道心-5). */
+  rewardMind?: number;
   completed: boolean;
   claimed: boolean;
 }
