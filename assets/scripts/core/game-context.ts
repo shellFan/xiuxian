@@ -52,6 +52,7 @@ import { InnerDemonService } from '../v2/inner-demon-service';
 import { V2EconomyService } from '../v2/v2-economy-service';
 import { V2EventService } from '../v2/v2-event-service';
 import { V2ItemService } from '../v2/v2-item-service';
+import { NpcService, WeekendService } from '../v2/npc-weekend-service';
 import craftConfig from '../../configs/craft.json';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
@@ -122,6 +123,10 @@ export class GameContext {
   public readonly v2Events: V2EventService;
   /** V2 物品系统（材料/功法/装备/合成/消耗品/商店）。 */
   public readonly v2Items: V2ItemService;
+  /** V2 NPC 关系系统。 */
+  public readonly npc: NpcService;
+  /** V2 周末活动系统。 */
+  public readonly weekend: WeekendService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -192,6 +197,8 @@ export class GameContext {
     this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);
     this.v2Events = new V2EventService(this, this.clockV2, this.gameDay, this.innerDemon, this.randomV2);
     this.v2Items = new V2ItemService(this, this.clockV2, this.gameDay, this.randomV2);
+    this.npc = new NpcService(this);
+    this.weekend = new WeekendService(this, this.clockV2, this.gameDay, this.innerDemon);
   }
 
   /** @deprecated No longer used in PC V1 — board is null by default. */
