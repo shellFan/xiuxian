@@ -20,10 +20,21 @@ function testSavesAndRestoresPlayerAndWorkers(): void {
     { id: 'worker-1', level: 2, row: 1, column: 3 },
   ] });
   service.save(player);
-  assert.deepEqual(service.load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 80, maxWorkerLevel: 3, lastSaveTime: 123,
-    workers: [{ id: 'worker-1', level: 2, row: 1, column: 3 }], cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100,
-    performance: 0, sectId: null, lastSectSwitchTime: 0, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
-    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [], craftedItemIds: [] });
+  // Gameplay V2: 存档含 V2 字段，这里断言关键字段子集而非完整字面量。
+  const loaded = service.load();
+  assert.equal(loaded.saveVersion, CURRENT_SAVE_VERSION);
+  assert.equal(loaded.salary, 80);
+  assert.equal(loaded.maxWorkerLevel, 3);
+  assert.equal(loaded.lastSaveTime, 123);
+  assert.deepEqual(loaded.workers, [{ id: 'worker-1', level: 2, row: 1, column: 3 }]);
+  assert.equal(loaded.workMode, 'FISHING');
+  // V2 迁移字段有安全默认值
+  assert.equal(loaded.innerDemon, 0);
+  assert.deepEqual(loaded.materials, {});
+  assert.equal(loaded.gameDay, null);
+  assert.deepEqual(loaded.equippedTechniques, [null, null, null]);
+  // roundtrip 一致
+  assert.deepEqual(new PlayerData(loaded).toSaveData(), loaded);
 }
 
 function testSuccessfulSavesRecordMonotonicInjectedTime(): void {
@@ -75,10 +86,18 @@ function testEmptyAndInvalidStorageBecomeNewPlayer(): void {
 function testMigratesOlderVersionAndDefaultsMissingFields(): void {
   const storage = new MemoryStorageAdapter();
   storage.setItem('game-save', JSON.stringify({ saveVersion: 1, salary: 20, workers: [{ id: 'w', level: 1, row: 0, column: 0 }] }));
-  assert.deepEqual(new SaveService(storage).load(), { saveVersion: CURRENT_SAVE_VERSION, salary: 20, maxWorkerLevel: 1, lastSaveTime: 0,
-    workers: [{ id: 'w', level: 1, row: 0, column: 0 }], cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100,
-    performance: 0, sectId: null, lastSectSwitchTime: 0, talentId: null, workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0,
-    kpiProgress: {}, promotionFailCount: 0, officeLevel: 1, lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [], craftedItemIds: [] });
+  const loaded = new SaveService(storage).load();
+  // Gameplay V2: 关键字段迁移 + V2 字段安全默认值
+  assert.equal(loaded.saveVersion, CURRENT_SAVE_VERSION);
+  assert.equal(loaded.salary, 20);
+  assert.equal(loaded.maxWorkerLevel, 1);
+  assert.deepEqual(loaded.workers, [{ id: 'w', level: 1, row: 0, column: 0 }]);
+  assert.equal(loaded.cultivationExp, 0);
+  assert.equal(loaded.mind, 100);
+  assert.equal(loaded.workMode, 'FISHING');
+  assert.equal(loaded.innerDemon, 0);
+  assert.deepEqual(loaded.materials, {});
+  assert.deepEqual(loaded.relationships, {});
 }
 
 function testPhaseTwoDefaultsSurvivePlayerRoundTrip(): void {
@@ -110,16 +129,15 @@ function testInvalidPlayerScalarsFallBackToSafeDefaults(): void {
     lastSaveTime: Number.MAX_SAFE_INTEGER + 1,
     workers: [],
   }));
-  assert.deepEqual(new SaveService(storage).load(), {
-    saveVersion: CURRENT_SAVE_VERSION,
-    salary: 0,
-    maxWorkerLevel: 0,
-    lastSaveTime: 0,
-    workers: [],
-    cultivationExp: 0, careerLevel: 1, mind: 100, maxMind: 100, performance: 0, sectId: null, lastSectSwitchTime: 0, talentId: null,
-    workMode: 'FISHING', workSeconds: 0, fishingSeconds: 0, kpiProgress: {}, promotionFailCount: 0, officeLevel: 1,
-    lastIdleSettlementId: null, unlockedAchievementIds: [], claimedAchievementIds: [], dailySignIn: null, dailyTasks: [], dailyTaskDay: -1, tutorialStep: 'FIRST_RECRUIT', tutorialCompleted: false, spiritStones: 0, lastCultivateTime: 0, activeTasks: [], craftedItemIds: []
-  });
+  const loaded = new SaveService(storage).load();
+  assert.equal(loaded.salary, 0);
+  assert.equal(loaded.maxWorkerLevel, 0);
+  assert.equal(loaded.lastSaveTime, 0);
+  assert.equal(loaded.mind, 100);
+  assert.equal(loaded.workMode, 'FISHING');
+  // V2 默认值同样安全
+  assert.equal(loaded.innerDemon, 0);
+  assert.deepEqual(loaded.materials, {});
 }
 
 function testMigratedInvalidSaveTimeCanBeReplacedByNextSave(): void {

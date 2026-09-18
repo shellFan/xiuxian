@@ -116,7 +116,82 @@ function migrate(raw: unknown): GameSaveData {
   if (isNonNegativeSafeInteger(legacyMindRemainder) && !isNonNegativeSafeInteger(raw[modeMindRemainderKey])) {
     dataWithRemainder(data, modeMindRemainderKey, legacyMindRemainder);
   }
-  return data;
+  // ── Gameplay V2 (saveVersion 6): old saves migrate with safe defaults ──
+  // V2 fields with safe defaults for old saves (readonly — assign via mutable copy).
+  const v2: V2Fields = {
+    gameDay: isRecord(raw.gameDay) ? (raw.gameDay as unknown as GameSaveData['gameDay']) : null,
+    innerDemon: isNonNegativeSafeInteger(raw.innerDemon) ? raw.innerDemon : 0,
+    activeDemons: Array.isArray(raw.activeDemons) ? (raw.activeDemons as unknown[]).filter(isString) : [],
+    materials: isRecord(raw.materials) ? numericRecord(raw.materials) : {},
+    ownedTechniques: Array.isArray(raw.ownedTechniques) ? (raw.ownedTechniques as unknown[]).filter(isString) : [],
+    techniqueLevels: isRecord(raw.techniqueLevels) ? numericRecord(raw.techniqueLevels) : {},
+    equippedTechniques: Array.isArray(raw.equippedTechniques)
+      ? (raw.equippedTechniques as unknown[]).map((item) => (isString(item) ? item : null))
+      : [null, null, null],
+    ownedEquipment: Array.isArray(raw.ownedEquipment) ? (raw.ownedEquipment as unknown[]).filter(isString) : [],
+    equippedEquipment: isRecord(raw.equippedEquipment)
+      ? (Object.fromEntries(
+          Object.entries(raw.equippedEquipment).filter(([, v]) => isString(v) || v === null),
+        ) as Record<string, string | null>)
+      : {},
+    relationships: isRecord(raw.relationships) ? boundedNumberRecord(raw.relationships) : {},
+    eventFlags: isRecord(raw.eventFlags) ? booleanRecord(raw.eventFlags) : {},
+    eventChainState: isRecord(raw.eventChainState) ? (raw.eventChainState as GameSaveData['eventChainState']) : {},
+    eventCooldowns: isRecord(raw.eventCooldowns) ? numericRecord(raw.eventCooldowns) : {},
+    firedEvents: Array.isArray(raw.firedEvents) ? (raw.firedEvents as unknown[]).filter(isString) : [],
+    pendingEvents: Array.isArray(raw.pendingEvents)
+      ? (raw.pendingEvents as unknown[]).filter(isPendingEvent).map((e) => ({ ...e }))
+      : [],
+    dailyHistory: Array.isArray(raw.dailyHistory) ? (raw.dailyHistory as GameSaveData['dailyHistory']) : [],
+    weeklyHistory: Array.isArray(raw.weeklyHistory) ? (raw.weeklyHistory as GameSaveData['weeklyHistory']) : [],
+    devTimeOffsetMs: isNonNegativeSafeInteger(raw.devTimeOffsetMs) ? raw.devTimeOffsetMs : 0,
+    unlockState: isRecord(raw.unlockState) ? booleanRecord(raw.unlockState) : {},
+    cultivatingSeconds: isNonNegativeSafeInteger(raw.cultivatingSeconds) ? raw.cultivatingSeconds : 0,
+    socialSeconds: isNonNegativeSafeInteger(raw.socialSeconds) ? raw.socialSeconds : 0,
+  };
+  return Object.assign(data, v2);
+}
+
+/** Non-optional V2 fields set by migrate() for old saves. */
+type V2Fields = {
+  gameDay: GameSaveData['gameDay'];
+  innerDemon: number;
+  activeDemons: readonly string[];
+  materials: Readonly<Record<string, number>>;
+  ownedTechniques: readonly string[];
+  techniqueLevels: Readonly<Record<string, number>>;
+  equippedTechniques: readonly (string | null)[];
+  ownedEquipment: readonly string[];
+  equippedEquipment: Readonly<Record<string, string | null>>;
+  relationships: Readonly<Record<string, number>>;
+  eventFlags: Readonly<Record<string, boolean>>;
+  eventChainState: GameSaveData['eventChainState'];
+  eventCooldowns: Readonly<Record<string, number>>;
+  firedEvents: readonly string[];
+  pendingEvents: GameSaveData['pendingEvents'];
+  dailyHistory: GameSaveData['dailyHistory'];
+  weeklyHistory: GameSaveData['weeklyHistory'];
+  devTimeOffsetMs: number;
+  unlockState: Readonly<Record<string, boolean>>;
+  cultivatingSeconds: number;
+  socialSeconds: number;
+};
+
+function boundedNumberRecord(value: Record<string, unknown>): Record<string, number> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, v]) => typeof v === 'number' && Number.isFinite(v)).map(([k, v]) => [k, Math.max(-100, Math.min(100, v as number))]),
+  );
+}
+
+function booleanRecord(value: Record<string, unknown>): Record<string, boolean> {
+  return Object.fromEntries(Object.entries(value).filter(([, v]) => typeof v === 'boolean')) as Record<string, boolean>;
+}
+
+function isPendingEvent(value: unknown): value is import('../model/save-data').PendingEventState {
+  if (!isRecord(value)) return false;
+  return typeof value.uid === 'string' && typeof value.eventId === 'string'
+    && isNonNegativeSafeInteger(value.occurredAt)
+    && (value.priority === 'CRITICAL' || value.priority === 'IMPORTANT' || value.priority === 'NORMAL' || value.priority === 'FLAVOR');
 }
 
 function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultivationRemainder' | 'workMindRemainder' | 'fishingMindRemainder', value: number): void {

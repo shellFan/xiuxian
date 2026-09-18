@@ -76,6 +76,13 @@ export class GameLoopService {
       // Task tick failure must not crash the game loop
     }
 
+    // 5.5 V2 economy: activity durations, daily situation flows, inner demon, payday
+    try {
+      this.context.v2Economy.tick(seconds);
+    } catch {
+      // V2 economy failure must not crash the game loop
+    }
+
     // 6. Poll for career events
     this.context.careerEvents.poll();
 

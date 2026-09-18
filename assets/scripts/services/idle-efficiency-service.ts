@@ -35,6 +35,10 @@ export interface IdleEfficiencyBreakdown {
 const WORK_MODE_MODIFIERS: Record<WorkMode, { salary: number; performance: number; mindRecovery: number }> = {
   WORK: { salary: 1.3, performance: 1.2, mindRecovery: 0.5 },
   FISHING: { salary: 0.6, performance: 0.7, mindRecovery: 3.0 },
+  // V2 §21 偷偷修炼：工资几乎归零，修炼收益走 cultivation 倍率（work-service）
+  CULTIVATING: { salary: 0.3, performance: 0.5, mindRecovery: 1.5 },
+  // V2 §22 社交划水：关系收益 ×2 在 relationship-service 侧生效
+  SOCIAL: { salary: 0.5, performance: 0.7, mindRecovery: 1.2 },
 };
 
 /** Mind efficiency tiers based on mind/maxMind ratio. */

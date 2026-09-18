@@ -45,6 +45,11 @@ import { IdleEfficiencyService } from '../services/idle-efficiency-service';
 import { LeaderboardService } from '../services/leaderboard-service';
 import { FriendsService } from '../services/friends-service';
 import { CraftService } from '../services/craft-service';
+import { GameClockV2 } from '../v2/v2-clock';
+import { RandomService } from '../v2/random-service';
+import { GameDayService } from '../v2/game-day-service';
+import { InnerDemonService } from '../v2/inner-demon-service';
+import { V2EconomyService } from '../v2/v2-economy-service';
 import craftConfig from '../../configs/craft.json';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
@@ -101,6 +106,16 @@ export class GameContext {
   public readonly leaderboard: LeaderboardService;
   public readonly friends: FriendsService;
   public readonly craft: CraftService;
+  /** V2 统一时钟（含 DEV 时间偏移）。 */
+  public readonly clockV2: GameClockV2;
+  /** V2 统一随机服务。 */
+  public readonly randomV2: RandomService;
+  /** V2 工作日生命周期 + 今日局势。 */
+  public readonly gameDay: GameDayService;
+  /** V2 心魔系统。 */
+  public readonly innerDemon: InnerDemonService;
+  /** V2 四模式经济修正。 */
+  public readonly v2Economy: V2EconomyService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -162,6 +177,13 @@ export class GameContext {
     this.leaderboard = new LeaderboardService(this);
     this.friends = new FriendsService(this);
     this.craft = new CraftService(this, craftConfig as import('../services/craft-service').CraftConfig);
+    // ── Gameplay V2 services ──
+    this.clockV2 = new GameClockV2({ clock: options.clock });
+    this.clockV2.setDevOffsetMs(this.player.devTimeOffsetMs ?? 0);
+    this.randomV2 = new RandomService();
+    this.gameDay = new GameDayService(this, this.clockV2, this.randomV2);
+    this.innerDemon = new InnerDemonService(this);
+    this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);
   }
 
   /** @deprecated No longer used in PC V1 — board is null by default. */

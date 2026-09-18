@@ -1,0 +1,52 @@
+{
+  "companySituations": [
+    { "id": "sit_month_end", "name": "月底冲刺", "description": "这个月的KPI还差一大截，全公司都在假装很忙。", "effects": { "workSalaryMul": 1.15, "workPerformanceMul": 1.25, "mindPerHourDelta": -6, "eventWeights": { "BOSS": 1.3, "WORK": 1.2 } } },
+    { "id": "sit_friday_chill", "name": "佛系星期五", "description": "没人想在这个下午开火，邮件都变得客气起来。", "effects": { "workSalaryMul": 0.9, "socialRelationshipMul": 1.5, "mindPerHourDelta": 3, "eventWeights": { "NPC": 1.4 } } },
+    { "id": "sit_overtime_all", "name": "全员加班", "description": "晚上九点，工位的灯比白天还亮。", "effects": { "workSalaryMul": 1.2, "mindPerHourDelta": -10, "innerDemonPerHour": 1.5, "eventWeights": { "BOSS": 1.2, "WORK": 1.3 } } },
+    { "id": "sit_kpi_week", "name": "绩效周", "description": "绩效沟通表已经发到各组群里了。", "effects": { "workPerformanceMul": 1.4, "mindPerHourDelta": -5, "eventWeights": { "BOSS": 1.5 } } },
+    { "id": "sit_payday", "name": "发薪日", "description": "短信提示音响了，是工资到账的声音，也是房贷扣款的声音。", "effects": { "salaryBonusFlat": 80, "mindPerHourDelta": 5, "eventWeights": { "NPC": 1.2 } } },
+    { "id": "sit_team_building", "name": "团建日", "description": "行政说团建是福利。你看了看周六的日期，没说话。", "effects": { "cultivationMul": 0.8, "socialRelationshipMul": 1.6, "eventWeights": { "NPC": 1.6 } } },
+    { "id": "sit_release_day", "name": "版本上线", "description": "今晚发版。群里@所有人，有人已经开始订宵夜。", "effects": { "workPerformanceMul": 1.2, "mindPerHourDelta": -8, "eventWeights": { "WORK": 1.5, "BOSS": 1.2 } } },
+    { "id": "sit_requirement_freeze", "name": "需求冻结", "description": "产品说这周不改需求了。你不太信，但姑且信一次。", "effects": { "cultivationMul": 1.2, "mindPerHourDelta": 6, "eventWeights": { "PRODUCT": 0.6 } } },
+    { "id": "sit_layoff_rumor", "name": "裁员传闻", "description": "匿名区有人说要优化30%。工位的绿萝突然被很多人搬回了家。", "effects": { "mindPerHourDelta": -6, "innerDemonPerHour": 1.2, "eventWeights": { "NPC": 1.3, "BOSS": 1.2 } } },
+    { "id": "sit_boss_inspect", "name": "领导视察", "description": "大老板今天来巡视，所有人键盘敲得像在弹《野蜂飞舞》。", "effects": { "workPerformanceMul": 1.15, "cultivationMul": 0.75, "eventWeights": { "BOSS": 1.8 } } },
+    { "id": "sit_anniversary", "name": "公司周年", "description": "司庆发了一箱苹果，寓意平平安安。你联想到被优化的同事，觉得这个礼物很讽刺。", "effects": { "salaryBonusFlat": 50, "mindPerHourDelta": 2, "eventWeights": { "NPC": 1.3 } } },
+    { "id": "sit_budget_freeze", "name": "预算冻结", "description": "采购申请全部驳回，连打印纸都要省着用。", "effects": { "workSalaryMul": 0.95, "mindPerHourDelta": -3, "eventWeights": { "WORK": 1.1 } } }
+  ],
+  "bossMoods": [
+    { "id": "boss_good_mood", "name": "老板心情不错", "description": "老板哼着歌走进办公室，今天的空气都是甜的。", "effects": { "promotionChanceBonus": 5, "mindPerHourDelta": 3, "eventWeights": { "BOSS": 0.8 } } },
+    { "id": "boss_furious", "name": "老板暴躁", "description": "老板今早摔了三次门。远离他的视线半径十米。", "effects": { "workPerformanceMul": 0.9, "mindPerHourDelta": -6, "eventWeights": { "BOSS": 1.6 } } },
+    { "id": "boss_business_trip", "name": "老板出差", "description": "老板飞去总部开会了。办公室的氧气浓度明显上升。", "effects": { "cultivationMul": 1.3, "fishingMindDelta": 2, "eventWeights": { "BOSS": 0.3 } } },
+    { "id": "boss_in_meeting", "name": "老板开会", "description": "老板在会议室一坐一整天。你知道他出来的那一刻才是危险时刻。", "effects": { "cultivationMul": 1.15, "eventWeights": { "BOSS": 0.6 } } },
+    { "id": "boss_watching", "name": "亲自盯项目", "description": "老板搬了把椅子坐在你们组后面。你感觉后颈发凉。", "effects": { "workPerformanceMul": 1.2, "cultivationMul": 0.7, "eventWeights": { "BOSS": 1.7 } } },
+    { "id": "boss_painting_pie", "name": "准备画饼", "description": "老板让行政订了下午茶。按照经验，饼越甜，坑越深。", "effects": { "mindPerHourDelta": -2, "eventWeights": { "BOSS": 1.4 } } },
+    { "id": "boss_strategy", "name": "沉迷战略", "description": "老板在看《道德经》和《Scaling Up》。公司方向又要变了。", "effects": { "cultivationMul": 1.1, "eventWeights": { "PRODUCT": 1.2 } } },
+    { "id": "boss_diligent", "name": "突然勤奋", "description": "老板七点半就到了，工位上贴满了便利贴。这不正常。", "effects": { "workPerformanceMul": 1.25, "mindPerHourDelta": -4, "eventWeights": { "BOSS": 1.5 } } },
+    { "id": "boss_invisible", "name": "神隐", "description": "已经三天没人见过老板了。有人说在见他，有人说他卸载了钉钉。", "effects": { "cultivationMul": 1.35, "fishingMindDelta": 3, "eventWeights": { "BOSS": 0.2 } } },
+    { "id": "boss_performance_talk", "name": "准备绩效谈话", "description": "老板的小本本翻开了。挨个谈话，一个都跑不掉。", "effects": { "workPerformanceMul": 1.3, "mindPerHourDelta": -8, "innerDemonPerHour": 1, "eventWeights": { "BOSS": 1.6 } } }
+  ],
+  "projectSituations": [
+    { "id": "proj_legacy_hell", "name": "祖传屎山", "description": "这个模块没有注释，没有测试，作者三年前就离职了。", "effects": { "workPerformanceMul": 0.85, "cultivationMul": 0.9, "eventWeights": { "BUG": 1.6 } } },
+    { "id": "proj_stable", "name": "稳定运行", "description": "系统已经稳定运行187天。大家都在默默祈祷不要打破这个纪录。", "effects": { "fishingMindDelta": 2, "cultivationMul": 1.1, "eventWeights": { "BUG": 0.5 } } },
+    { "id": "proj_requirement_explosion", "name": "需求爆炸", "description": "需求文档从12页涨到了48页，工期没变。", "effects": { "workPerformanceMul": 1.2, "mindPerHourDelta": -7, "eventWeights": { "PRODUCT": 1.7 } } },
+    { "id": "prod_online_alert", "name": "线上告警", "description": "监控大屏红了一块，值班群炸了。", "effects": { "workSalaryMul": 1.15, "mindPerHourDelta": -9, "innerDemonPerHour": 1.2, "eventWeights": { "BUG": 1.8 } } },
+    { "id": "proj_urgent_release", "name": "紧急上线", "description": "原本下周的版本，客户说这周三必须上。", "effects": { "workSalaryMul": 1.25, "workPerformanceMul": 1.3, "mindPerHourDelta": -8, "eventWeights": { "WORK": 1.4, "BUG": 1.3 } } },
+    { "id": "proj_test_blocked", "name": "测试阻塞", "description": "测试环境挂了两天，需求在手里堆成山。", "effects": { "fishingMindDelta": 2, "cultivationMul": 1.2, "eventWeights": { "WORK": 0.8 } } },
+    { "id": "proj_legacy_debt", "name": "历史遗留", "description": "交接文档只有一句话：有问题问老王。老王也离职了。", "effects": { "workPerformanceMul": 0.9, "eventWeights": { "BUG": 1.4 } } },
+    { "id": "proj_redesign_loop", "name": "疯狂改版", "description": "首页这个月第八次改版了。设计师和产品互相点头，然后一起看向你。", "effects": { "workPerformanceMul": 1.15, "mindPerHourDelta": -6, "eventWeights": { "PRODUCT": 1.6 } } },
+    { "id": "proj_tech_debt", "name": "技术债爆炸", "description": "架构评审会上，有人提了'重写'两个字，全场沉默。", "effects": { "cultivationMul": 1.15, "workPerformanceMul": 0.9, "eventWeights": { "BUG": 1.3 } } },
+    { "id": "proj_acceptance_soon", "name": "项目即将验收", "description": "甲方下周来验收。PPT做了一百多页，系统还在冒烟。", "effects": { "workPerformanceMul": 1.35, "mindPerHourDelta": -7, "eventWeights": { "WORK": 1.5, "BOSS": 1.2 } } }
+  ],
+  "personalConditions": [
+    { "id": "self_fresh", "name": "精神饱满", "description": "睡了八小时，今天看代码都顺眼了几分。", "effects": { "workPerformanceMul": 1.15, "mindPerHourDelta": 4 } },
+    { "id": "self_insomnia", "name": "昨晚失眠", "description": "凌晨三点，你盯着天花板想的是那个没改完的Bug。", "effects": { "workPerformanceMul": 0.85, "mindPerHourDelta": -5, "innerDemonPerHour": 1 } },
+    { "id": "self_epiphany", "name": "突然顿悟", "description": "洗澡的时候突然想通了那个架构问题。悟了，但只悟了今天。", "effects": { "cultivationMul": 1.5 } },
+    { "id": "self_coffee", "name": "咖啡续命", "description": "今天第三杯美式。心脏在敲鼓，手在抖，但脑子在飞。", "effects": { "workPerformanceMul": 1.2, "mindPerHourDelta": -2 } },
+    { "id": "self_lie_flat", "name": "摆烂", "description": "今天的你，是一具坐在工位上的躯壳。", "effects": { "workPerformanceMul": 0.7, "cultivationMul": 0.7, "mindPerHourDelta": 2 } },
+    { "id": "self_inspiration", "name": "灵感爆发", "description": "文思如泉涌，一天写完了三天的活。", "effects": { "workPerformanceMul": 1.45, "mindPerHourDelta": -3 } },
+    { "id": "self_back_pain", "name": "腰酸背痛", "description": "人体工学椅是玄学，腰突是真实的。", "effects": { "workPerformanceMul": 0.9, "mindPerHourDelta": -3 } },
+    { "id": "self_calm_water", "name": "心如止水", "description": "需求来了不喜，加班来了不悲。你已经超越了情绪。", "effects": { "mindPerHourDelta": 6, "cultivationMul": 1.2 } },
+    { "id": "self_want_quit", "name": "想离职", "description": "浏览器开了七个招聘网站，最后一个收藏夹里有你三年前的简历。", "effects": { "workPerformanceMul": 0.8, "mindPerHourDelta": -4, "innerDemonPerHour": 1.5 } },
+    { "id": "self_want_grind", "name": "今天想卷", "description": "不知道为什么，今天就是想卷。可能是春天到了。", "effects": { "workPerformanceMul": 1.4, "workSalaryMul": 1.15, "mindPerHourDelta": -4 } }
+  ]
+}

@@ -1,4 +1,5 @@
 import type { GameContext } from '../../core/game-context';
+import type { WorkMode } from '../../model/save-data';
 
 export interface CareerViewModel {
   readonly careerLevel: number;
@@ -13,7 +14,7 @@ export interface CareerViewModel {
   readonly mindStatusText: string;
   readonly sectName: string;
   readonly talentName: string;
-  readonly workMode: 'WORK' | 'FISHING';
+  readonly workMode: WorkMode;
   readonly officeName: string;
   readonly canPromote: boolean;
   readonly promotionReason: string;
