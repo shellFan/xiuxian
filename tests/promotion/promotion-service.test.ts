@@ -311,6 +311,25 @@ class CapturingStorageAdapter implements StorageAdapter {
   public removeItem(): void { /* noop */ }
 }
 
+function testCommittedPromotionSurvivesCareerListenerFailure(): void {
+  const storage = new CapturingStorageAdapter();
+  const player = new PlayerData(readyLevelOne());
+  const context = new GameContext({ player, storage, randomProvider: new FixedRandomProvider(0.5) });
+  context.events.on('careerChanged', () => { throw new Error('career listener failed'); });
+
+  const result = context.promotion.promoteGuaranteed('PPT');
+
+  assert.equal(result.success, true, 'post-commit listener failure must not fail the command');
+  assert.equal(storage.writeCount, 1, 'promotion must already be committed before notifications');
+  const saved = JSON.parse(storage.lastValue as string) as GameSaveData;
+  assert.equal(player.careerLevel, 2, 'listener failure must not roll back committed promotion');
+  assert.equal(player.careerLevel, saved.careerLevel);
+  assert.equal(player.cultivationExp, saved.cultivationExp);
+  assert.equal(player.performance, saved.performance);
+  assert.equal(player.officeLevel, saved.officeLevel);
+  assert.deepEqual(player.kpiProgress, saved.kpiProgress);
+}
+
 /** TEST-01: a successful promotion must perform exactly one storage write (no nested Office save). */
 function testPromotionProducesExactlyOneSave(): void {
   const storage = new CountingStorageAdapter();
@@ -408,6 +427,7 @@ testRetryTokenConsumedOnce();
 testRetryFailNeedsRewardAgain();
 testRequestRetryBeforeFailureRejected();
 testDuplicateRetryCallbackOnlyOneToken();
+testCommittedPromotionSurvivesCareerListenerFailure();
 testPromotionProducesExactlyOneSave();
 testNoSecondSaveRegression();
 testStorageAtomicSnapshot();

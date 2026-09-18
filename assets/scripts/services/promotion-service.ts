@@ -1,4 +1,5 @@
 import type { GameContext } from '../core/game-context';
+import type { GameEvents } from '../core/game-events';
 import type { RandomProvider } from '../core/random-provider';
 import { DEFAULT_RANDOM_PROVIDER } from '../core/random-provider';
 import type { RewardProvider } from './reward-provider';
@@ -114,6 +115,7 @@ export class PromotionService {
     const probability = this.getProbability();
     const success = roll < probability / 100;
     const before = this.context.player.toSaveData();
+    let mindDelta = 0;
     try {
       if (success) {
         const required = this.context.career.current().requiredExp;
@@ -132,20 +134,15 @@ export class PromotionService {
         // A successful breakthrough clears the retry requirement entirely.
         this.retryRequired = false;
         beforeCommit?.();
+        this.context.dailyTasks.addProgress('PROMOTION_1', 1);
         // The ONLY persistence write for the whole promotion transaction.
         this.context.saveService.save(this.context.player);
-        this.context.dailyTasks.addProgress('PROMOTION_1', 1);
-        this.context.events.emit('careerChanged', { careerLevel: this.context.player.careerLevel });
-        this.context.events.emit('promotionChanged', { success: true, careerLevel: this.context.player.careerLevel });
       } else {
-        const mindDelta = this.context.mind.applyDelta(-MIND_FAILURE_PENALTY);
+        mindDelta = this.context.mind.applyDelta(-MIND_FAILURE_PENALTY);
         this.context.player.promotionFailCount += 1;
         // A failure re-arms the retry requirement; a new token is needed for another attempt.
         this.retryRequired = true;
         this.context.saveService.save(this.context.player);
-        this.context.events.emit('promotionChanged', { success: false, careerLevel: oldCareerLevel });
-        this.context.events.emit('mindChanged', { delta: mindDelta, total: this.context.player.mind });
-        return this.result(false, probability, roll, oldCareerLevel, oldCareerLevel, 0, mindDelta, this.context.player.promotionFailCount);
       }
     } catch (error) {
       restorePlayer(this.context.player, before);
@@ -155,7 +152,22 @@ export class PromotionService {
       this.retryRequested = retryBefore.retryRequested;
       throw error;
     }
-    return this.result(true, probability, roll, oldCareerLevel, this.context.player.careerLevel, PERFORMANCE_REWARD, 0, this.context.player.promotionFailCount);
+    if (success) {
+      this.emitPostCommit('careerChanged', { careerLevel: this.context.player.careerLevel });
+      this.emitPostCommit('promotionChanged', { success: true, careerLevel: this.context.player.careerLevel });
+      return this.result(true, probability, roll, oldCareerLevel, this.context.player.careerLevel, PERFORMANCE_REWARD, 0, this.context.player.promotionFailCount);
+    }
+    this.emitPostCommit('promotionChanged', { success: false, careerLevel: oldCareerLevel });
+    this.emitPostCommit('mindChanged', { delta: mindDelta, total: this.context.player.mind });
+    return this.result(false, probability, roll, oldCareerLevel, oldCareerLevel, 0, mindDelta, this.context.player.promotionFailCount);
+  }
+
+  private emitPostCommit<K extends 'careerChanged' | 'promotionChanged' | 'mindChanged'>(event: K, payload: GameEvents[K]): void {
+    try {
+      this.context.events.emit(event, payload);
+    } catch {
+      // The save is already committed; listener failures must not change command success.
+    }
   }
 
   /**
@@ -233,5 +245,7 @@ function restorePlayer(player: GameContext['player'], data: GameSaveData): void 
   player.tutorialCompleted = data.tutorialCompleted ?? false;
   player.spiritStones = data.spiritStones ?? 0;
   player.lastCultivateTime = data.lastCultivateTime ?? 0;
+  player.dailyTasks = (data.dailyTasks ?? []).map((task) => ({ ...task }));
+  player.dailyTaskDay = data.dailyTaskDay ?? -1;
   player.activeTasks = (data.activeTasks ?? []).map((t) => ({ ...t }));
 }

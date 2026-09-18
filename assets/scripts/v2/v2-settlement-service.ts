@@ -18,6 +18,7 @@ import type { GameDayService } from './game-day-service';
 import type { InnerDemonService } from './inner-demon-service';
 import type { NpcService } from './npc-weekend-service';
 import type { DaySummaryState, WeeklySummaryState } from '../model/save-data';
+import type { PlayerData } from '../model/player-data';
 import promoTitlesConfig from '../../configs/v2/promotion-titles.json';
 
 interface QuestionOption {
@@ -199,23 +200,25 @@ export class PromotionV2Service {
     const passLine = 60;
     const passed = total >= passLine;
     this.currentQuestions = null;
-    const before = p.toSaveData();
+    const before = snapshotPlayer(p);
+    let newLevel = p.careerLevel;
 
     try {
       if (passed) {
         const result = this.context.promotion.promoteGuaranteed(this.firstPromotionOptionId(), () => this.demons.reduce(10));
-        this.context.events.emit('v2PromotionResult', { passed, score: total, newLevel: result.newCareerLevel });
+        newLevel = result.newCareerLevel;
       } else {
         this.demons.add(8); // 失败加心魔（§82）
         const until = this.clock.now() + 86_400_000; // 次日再试
         p.eventFlags[`promoCooldownUntil:${until}`] = true;
         this.context.saveService.save(p);
-        this.context.events.emit('v2PromotionResult', { passed, score: total });
       }
     } catch (error) {
-      Object.assign(p, new (p.constructor as typeof import('../model/player-data').PlayerData)(before));
+      restorePlayer(p, before);
       throw error;
     }
+    if (passed) this.context.events.emit('v2PromotionResult', { passed, score: total, newLevel });
+    else this.context.events.emit('v2PromotionResult', { passed, score: total });
     return { base, bonuses, total, passed, passLine };
   }
 
@@ -262,7 +265,7 @@ export class DaySettlementService {
     if (day.settled) throw new Error('今日已结算');
     if (!this.gameDay.isOffWork()) throw new Error('未到下班时间');
     const p = this.context.player;
-    const before = p.toSaveData();
+    const before = snapshotPlayer(p);
 
     const title = this.pickTitle(day.dayIndex);
     const rank = this.pickRank(day);
@@ -309,7 +312,7 @@ export class DaySettlementService {
       }
       this.context.saveService.save(p);
     } catch (error) {
-      Object.assign(p, new (p.constructor as typeof import('../model/player-data').PlayerData)(before));
+      restorePlayer(p, before);
       throw error;
     }
     this.context.events.emit('daySettled', { ...view });
@@ -405,4 +408,28 @@ export class DaySettlementService {
     this.context.events.emit('weekSettled', { ...summary });
     return summary;
   }
+}
+
+type PlayerSnapshot = Readonly<Record<string, unknown>>;
+
+function snapshotPlayer(player: PlayerData): PlayerSnapshot {
+  return clonePlayerValue(player as unknown as Record<string, unknown>);
+}
+
+function restorePlayer(player: PlayerData, snapshot: PlayerSnapshot): void {
+  const target = player as unknown as Record<string, unknown>;
+  for (const key of Object.keys(target)) {
+    if (!Object.prototype.hasOwnProperty.call(snapshot, key)) delete target[key];
+  }
+  Object.assign(target, clonePlayerValue(snapshot));
+}
+
+function clonePlayerValue<T>(value: T): T {
+  if (Array.isArray(value)) return value.map((item) => clonePlayerValue(item)) as T;
+  if (value !== null && typeof value === 'object') {
+    const clone: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value)) clone[key] = clonePlayerValue(item);
+    return clone as T;
+  }
+  return value;
 }

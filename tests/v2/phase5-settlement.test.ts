@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
+import type { StorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { FixedRandomProvider } from '../../assets/scripts/core/random-provider';
 import { PROMO_TITLES_IMPORTED } from './promo-config';
@@ -20,6 +21,60 @@ function workdayClockAt(hour: number, weekdayTarget = 3): FakeClock {
 
 function makeCtx(clock: FakeClock, randomProvider = new FixedRandomProvider(0.5)): GameContext {
   return new GameContext({ storage: new MemoryStorageAdapter(), player: new PlayerData({ lastSaveTime: clock.now() }), clock, randomProvider });
+}
+
+class FailOnceStorageAdapter implements StorageAdapter {
+  private readonly values = new Map<string, string>();
+  private failNextWrite = true;
+
+  public getItem(key: string): string | null {
+    return this.values.get(key) ?? null;
+  }
+
+  public setItem(key: string, value: string): void {
+    if (this.failNextWrite) {
+      this.failNextWrite = false;
+      throw new Error('save failed');
+    }
+    this.values.set(key, value);
+  }
+
+  public removeItem(key: string): void {
+    this.values.delete(key);
+  }
+}
+
+function makeFailOnceCtx(clock: FakeClock, randomProvider = new FixedRandomProvider(0.5)): GameContext {
+  return new GameContext({
+    storage: new FailOnceStorageAdapter(),
+    player: new PlayerData({ lastSaveTime: clock.now() }),
+    clock,
+    randomProvider,
+  });
+}
+
+function exactPlayerState(player: PlayerData): unknown {
+  return JSON.parse(JSON.stringify(player));
+}
+
+function prepareDefense(ctx: GameContext, performance: number, mind: number): void {
+  const p = ctx.player;
+  p.workSeconds = 7200;
+  p.cultivationExp = 100;
+  p.kpiProgress['TASK_DONE'] = 3;
+  p.performance = performance;
+  p.mind = mind;
+  p.mindRemainder = 7;
+}
+
+function withFixedMathRandom<T>(value: number, action: () => T): T {
+  const original = Math.random;
+  Math.random = () => value;
+  try {
+    return action();
+  } finally {
+    Math.random = original;
+  }
 }
 
 // ── 晋升条件（§75/§77） ─────────────────────────────────────────────────────
@@ -112,6 +167,103 @@ function testPromotionCultivationGate(): void {
   assert.throws(() => ctx.promotionV2.startDefense(), /CULTIVATION_INSUFFICIENT/);
 }
 
+function testFailedDefenseSaveRollbackIsExactAndRetryable(): void {
+  const clock = workdayClockAt(10);
+  const ctx = makeFailOnceCtx(clock);
+  prepareDefense(ctx, 0, 50);
+  ctx.player.innerDemon = 9;
+  const before = exactPlayerState(ctx.player);
+
+  withFixedMathRandom(0, () => {
+    const questions = ctx.promotionV2.startDefense();
+    assert.throws(
+      () => ctx.promotionV2.submitDefense(questions.map((q) => q.options[0].id)),
+      /save failed/,
+    );
+  });
+
+  assert.deepEqual(exactPlayerState(ctx.player), before, 'failed defense save must restore exact PlayerData');
+  assert.equal(ctx.promotionV2.check().allowed, true, 'save failure must leave defense eligible for retry');
+  const retryScore = withFixedMathRandom(0, () => {
+    const retryQuestions = ctx.promotionV2.startDefense();
+    return ctx.promotionV2.submitDefense(retryQuestions.map((q) => q.options[0].id));
+  });
+  assert.equal(retryScore.passed, false);
+  assert.equal(ctx.player.innerDemon, 17);
+  assert.equal(ctx.promotionV2.check().reason, 'COOLDOWN');
+}
+
+function testSuccessfulDefenseSaveRollbackIsExactAndRetryable(): void {
+  const clock = workdayClockAt(10);
+  const ctx = makeFailOnceCtx(clock);
+  prepareDefense(ctx, 120, 100);
+  ctx.player.innerDemon = 20;
+  ctx.player.activeDemons = ['demon_mental_friction'];
+  const before = exactPlayerState(ctx.player);
+
+  const questions = ctx.promotionV2.startDefense();
+  assert.throws(
+    () => ctx.promotionV2.submitDefense(questions.map((q) => q.options[0].id)),
+    /save failed/,
+  );
+
+  assert.deepEqual(exactPlayerState(ctx.player), before, 'successful defense save must restore exact PlayerData');
+  assert.equal(ctx.promotionV2.check().allowed, true, 'save failure must leave promotion eligible for retry');
+  const retryQuestions = ctx.promotionV2.startDefense();
+  const retryScore = ctx.promotionV2.submitDefense(retryQuestions.map((q) => q.options[0].id));
+  assert.equal(retryScore.passed, true);
+  assert.equal(ctx.player.careerLevel, 2);
+  assert.equal(ctx.player.innerDemon, 10);
+}
+
+function testPromotionResultListenerFailureDoesNotRollbackCommittedDefense(): void {
+  const clock = workdayClockAt(10);
+  const ctx = makeCtx(clock);
+  prepareDefense(ctx, 120, 100);
+  ctx.player.mindRemainder = 0;
+  ctx.player.innerDemon = 20;
+  ctx.player.activeDemons = ['demon_mental_friction'];
+  ctx.events.on('v2PromotionResult', () => { throw new Error('listener failed'); });
+
+  const questions = ctx.promotionV2.startDefense();
+  assert.throws(
+    () => ctx.promotionV2.submitDefense(questions.map((q) => q.options[0].id)),
+    /listener failed/,
+  );
+
+  const saved = ctx.saveService.load();
+  assert.equal(ctx.player.careerLevel, 2, 'listener failure must not roll back committed promotion');
+  assert.equal(ctx.player.careerLevel, saved.careerLevel);
+  assert.equal(ctx.player.cultivationExp, saved.cultivationExp);
+  assert.equal(ctx.player.performance, saved.performance);
+  assert.equal(ctx.player.innerDemon, saved.innerDemon);
+  assert.deepEqual(ctx.player.activeDemons, saved.activeDemons);
+  assert.deepEqual(ctx.player.kpiProgress, saved.kpiProgress);
+}
+
+function testLegacyPromotionListenerFailureDoesNotBreakDefense(): void {
+  const clock = workdayClockAt(10);
+  const ctx = makeCtx(clock);
+  prepareDefense(ctx, 120, 100);
+  ctx.player.mindRemainder = 0;
+  ctx.player.innerDemon = 20;
+  ctx.player.activeDemons = ['demon_mental_friction'];
+  ctx.events.on('careerChanged', () => { throw new Error('career listener failed'); });
+
+  const questions = ctx.promotionV2.startDefense();
+  const score = ctx.promotionV2.submitDefense(questions.map((q) => q.options[0].id));
+
+  const saved = ctx.saveService.load();
+  assert.equal(score.passed, true, 'committed defense remains successful when a legacy listener throws');
+  assert.equal(ctx.player.careerLevel, 2);
+  assert.equal(ctx.player.careerLevel, saved.careerLevel);
+  assert.equal(ctx.player.cultivationExp, saved.cultivationExp);
+  assert.equal(ctx.player.performance, saved.performance);
+  assert.equal(ctx.player.innerDemon, saved.innerDemon);
+  assert.deepEqual(ctx.player.activeDemons, saved.activeDemons);
+  assert.deepEqual(ctx.player.kpiProgress, saved.kpiProgress);
+}
+
 // ── 日结算（§92~§95） ───────────────────────────────────────────────────────
 
 function testDailySettlementOnce(): void {
@@ -164,6 +316,39 @@ function testWeeklySettlementOnFriday(): void {
   assert.equal(ctx.player.weeklyHistory[0].weekIndex, 0);
 }
 
+function testDailySettlementSaveRollbackIsExactAndRetryable(): void {
+  const clock = workdayClockAt(18, 3);
+  const ctx = makeFailOnceCtx(clock);
+  ctx.gameDay.ensureStarted();
+  ctx.player.mindRemainder = 7;
+  const before = exactPlayerState(ctx.player);
+
+  assert.throws(() => ctx.daySettlement.settle(), /save failed/);
+
+  assert.deepEqual(exactPlayerState(ctx.player), before, 'daily save failure must restore exact PlayerData');
+  assert.equal(ctx.daySettlement.canSettle(), true, 'daily settlement must remain retryable');
+  ctx.daySettlement.settle();
+  assert.equal(ctx.player.gameDay?.settled, true);
+  assert.equal(ctx.player.dailyHistory.length, 1);
+}
+
+function testWeeklySettlementSaveRollbackIsExactAndRetryable(): void {
+  const clock = workdayClockAt(18, 5);
+  const ctx = makeFailOnceCtx(clock);
+  ctx.gameDay.ensureStarted();
+  ctx.player.mindRemainder = 7;
+  const before = exactPlayerState(ctx.player);
+
+  assert.throws(() => ctx.daySettlement.settle(), /save failed/);
+
+  assert.deepEqual(exactPlayerState(ctx.player), before, 'weekly save failure must restore exact PlayerData');
+  assert.equal(ctx.daySettlement.canSettle(), true, 'weekly settlement must remain retryable');
+  ctx.daySettlement.settle();
+  assert.equal(ctx.player.gameDay?.settled, true);
+  assert.equal(ctx.player.dailyHistory.length, 1);
+  assert.equal(ctx.player.weeklyHistory.length, 1);
+}
+
 // ── run ──────────────────────────────────────────────────────────────────────
 
 testPromotionCheckNeedsWorkdays();
@@ -171,8 +356,14 @@ testPromotionDefenseFlow();
 testPromotionFailCooldown();
 testPromotionMindGate();
 testPromotionCultivationGate();
+testFailedDefenseSaveRollbackIsExactAndRetryable();
+testSuccessfulDefenseSaveRollbackIsExactAndRetryable();
+testPromotionResultListenerFailureDoesNotRollbackCommittedDefense();
+testLegacyPromotionListenerFailureDoesNotBreakDefense();
 testDailySettlementOnce();
 testDailySettlementNotBeforeOffWork();
 testDailyTitlePools();
 testWeeklySettlementOnFriday();
+testDailySettlementSaveRollbackIsExactAndRetryable();
+testWeeklySettlementSaveRollbackIsExactAndRetryable();
 console.log('gameplay v2 phase5 settlement tests passed');
