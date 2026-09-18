@@ -1043,3 +1043,75 @@
   from { opacity: 0; transform: translateY(-14px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ═════════════════════════════════════════════════════════
+   §17. Gameplay V2 additions
+   ═════════════════════════════════════════════════════════ */
+
+.ux-day-strip {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 24px 0;
+  padding: 10px 20px;
+  background: linear-gradient(180deg, rgba(42, 68, 94, 0.85), rgba(31, 52, 74, 0.85));
+  border: 2px solid #1f344a;
+  border-radius: 12px;
+  color: #e6d9b4;
+  font-size: 22px;
+}
+.ux-day-strip b { color: #f8cf62; }
+.ux-day-strip .ds-week { opacity: 0.85; }
+
+.ux-situation { text-align: center; }
+.ux-sit-label {
+  font-size: 20px;
+  color: #b9c8d4;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+}
+.ux-sit-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.ux-sit-chip {
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(240, 177, 60, 0.14);
+  border: 1px solid rgba(240, 177, 60, 0.45);
+  color: #f3e9cf;
+  font-size: 19px;
+}
+.ux-demon {
+  margin-top: 2px;
+  font-size: 21px;
+  color: #e8a0a0;
+  font-weight: 700;
+}
+
+.ux-mode-row--4 { flex-wrap: wrap; }
+.ux-mode-row--4 .ux-mode-btn { flex: 1 1 42%; }
+
+.ux-event-tag {
+  position: absolute;
+  right: 84px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: rgba(240, 177, 60, 0.18);
+  border: 1px solid rgba(240, 177, 60, 0.5);
+  color: #f8cf62;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.ux-equip-slots { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.ux-tech-slot { text-align: center; padding: 16px 12px; }
+.ux-tech-slot--empty { opacity: 0.55; border-style: dashed; }
+.ux-tech-slot .ux-btn { margin-top: 10px; }
+
+.ux-dev-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+.ux-defense-q { margin-bottom: 18px; }
+.ux-defense-q .ux-event-options { margin-top: 10px; }
+
+.ux-event-result-rows { margin-top: 8px; }

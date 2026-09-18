@@ -177,6 +177,63 @@ export class GameFacade {
   /** Career config at an absolute level (1-based) — used by the promotion stage preview. */
   public queryCareerAt(level: number) { return this.context.career.get(level); }
 
+  // ── Gameplay V2 查询/命令桥（DOM Overlay 用） ──────────────────────────────
+
+  /** 今日局势视图（GameDayService）。 */
+  public queryDailySituation() { return this.context.gameDay.getSituation(); }
+  /** 今日游戏日状态。 */
+  public queryGameDay() { return this.context.gameDay.current(); }
+  /** 距下班毫秒。 */
+  public queryTimeUntilOffWork() { return this.context.clockV2.getTimeUntilOffWorkMs(); }
+  /** 当前游戏时间信息。 */
+  public queryGameClock() {
+    const d = this.context.clockV2.getGameDate();
+    return { ...d, isWeekend: this.context.clockV2.isWeekend(), isWorkingHours: this.context.clockV2.isWorkingHours() };
+  }
+  /** 心魔值与激活心魔。 */
+  public queryInnerDemon() {
+    return { value: this.context.player.innerDemon, active: [...this.context.player.activeDemons] };
+  }
+  /** V2 事件：当前事件/选项/选择。 */
+  public queryV2CurrentEvent() { return this.context.v2Events.currentEvent(); }
+  public queryV2CurrentChoices() { return this.context.v2Events.currentChoices(); }
+  public resolveV2Event(choiceId: string | null) { return this.context.v2Events.choose(choiceId); }
+  /** V2 物品系统。 */
+  public queryMaterialCount(id: string) { return this.context.v2Items.materialCount(id); }
+  public queryAllMaterials() { return ({ ...this.context.player.materials }); }
+  public queryOwnedTechniques() { return [...this.context.player.ownedTechniques]; }
+  public queryTechniqueLevels() { return ({ ...this.context.player.techniqueLevels }); }
+  public queryEquippedTechniques() { return [...this.context.player.equippedTechniques]; }
+  public queryOwnedEquipment() { return [...this.context.player.ownedEquipment]; }
+  public queryEquippedEquipment() { return ({ ...this.context.player.equippedEquipment }); }
+  public v2Craft(recipeId: string) { return this.context.v2Items.craft(recipeId); }
+  public v2UseConsumable(id: string) { return this.context.v2Items.useConsumable(id); }
+  public v2EquipTechnique(slot: 0 | 1 | 2, id: string | null) { return this.context.v2Items.equipTechnique(slot, id); }
+  public v2UpgradeTechnique(id: string) { return this.context.v2Items.upgradeTechnique(id); }
+  public v2EquipItem(slot: 'DESK' | 'BADGE' | 'ACCESSORY', id: string | null) { return this.context.v2Items.equipItem(slot, id); }
+  public v2TodayShop() { return this.context.v2Items.todayShop(); }
+  public v2Buy(itemId: string, price: number) { return this.context.v2Items.buy(itemId, price); }
+  /** V2 NPC 关系。 */
+  public queryNpcViews() { return this.context.npc.views(); }
+  /** V2 晋升答辩。 */
+  public queryPromotionCheckV2() { return this.context.promotionV2.check(); }
+  public startPromotionDefense() { return this.context.promotionV2.startDefense(); }
+  public submitPromotionDefense(answers: string[]) { return this.context.promotionV2.submitDefense(answers); }
+  /** V2 日结算。 */
+  public queryCanSettleDay() { return this.context.daySettlement.canSettle(); }
+  public settleDay() { return this.context.daySettlement.settle(); }
+  /** 周末活动。 */
+  public queryWeekendOptions() { return this.context.weekend.options(); }
+  public queryWeekendChosen() { return this.context.weekend.hasChosen(); }
+  public chooseWeekend(id: 'SECLUDED_CULTIVATE' | 'SLEEP_MADLY' | 'FRIENDS_GATHER') { return this.context.weekend.choose(id); }
+  /** DEV 时间控制（Release 由 UI 隐藏）。 */
+  public devAdvanceTime(deltaMs: number) { this.context.clockV2.advanceDevTime(deltaMs); this.context.saveService.save(this.context.player); }
+  public devJumpToHour(hour: number, minute?: number) { this.context.clockV2.jumpToHour(hour, minute ?? 0, true); this.context.saveService.save(this.context.player); }
+  public devForceEvent(eventId: string) { return this.context.v2Events.forceTrigger(eventId); }
+  public devSetMind(v: number) { this.context.player.mind = Math.max(0, Math.min(this.context.player.maxMind, Math.floor(v))); this.context.saveService.save(this.context.player); }
+  public devSetDemon(v: number) { this.context.innerDemon.add(v - this.context.player.innerDemon); this.context.saveService.save(this.context.player); }
+  public devGrantMaterial(id: string, n: number) { this.context.v2Items.addMaterial(id, n); this.context.saveService.save(this.context.player); }
+
   /** Current sect info. */
   public querySect() { return this.context.sect.current(); }
 

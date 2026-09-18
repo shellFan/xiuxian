@@ -91,8 +91,10 @@ if (fs.existsSync(htmlPath)) {
   // Copy ui-overlay.css and ui-overlay.js to build dir
   const overlayCss = path.join(__dirname, 'ui-overlay.css');
   const overlayJs  = path.join(__dirname, 'ui-overlay.js');
+  const overlayV2Js = path.join(__dirname, 'ui-overlay-v2.js');
   const destCss    = path.join(buildDir, 'ui-overlay.css');
   const destJs     = path.join(buildDir, 'ui-overlay.js');
+  const destV2Js   = path.join(buildDir, 'ui-overlay-v2.js');
 
   if (fs.existsSync(overlayCss)) {
     fs.copyFileSync(overlayCss, destCss);
@@ -101,6 +103,10 @@ if (fs.existsSync(htmlPath)) {
   if (fs.existsSync(overlayJs)) {
     fs.copyFileSync(overlayJs, destJs);
     console.log('[patch-html] Copied ui-overlay.js');
+  }
+  if (fs.existsSync(overlayV2Js)) {
+    fs.copyFileSync(overlayV2Js, destV2Js);
+    console.log('[patch-html] Copied ui-overlay-v2.js');
   }
 
   // Copy sliced design assets (docs/img/image5.png → desktop/assets/ui-slice)
@@ -120,13 +126,19 @@ if (fs.existsSync(htmlPath)) {
   // Inject <link> and <script> into index.html
   // Position overlay relative to GameDiv for correct scaling
   const overlayLink = '<link rel="stylesheet" href="ui-overlay.css">';
-  const overlayScript = '<script src="ui-overlay.js"></script>';
+  const overlayScript = '<script src="ui-overlay-v2.js"></script>\n  <script src="ui-overlay.js"></script>';
 
   if (!html.includes('ui-overlay.css')) {
     html = html.replace('</head>', `  ${overlayLink}\n</head>`);
   }
   if (!html.includes('ui-overlay.js')) {
     html = html.replace('</body>', `  ${overlayScript}\n</body>`);
+  }
+  if (html.includes('ui-overlay.js') && !html.includes('ui-overlay-v2.js')) {
+    html = html.replace(
+      '<script src="ui-overlay.js"></script>',
+      '<script src="ui-overlay-v2.js"></script>\n  <script src="ui-overlay.js"></script>',
+    );
   }
 
   // Ensure #UiOverlay fills GameDiv (GameDiv already has position:absolute from style.css)

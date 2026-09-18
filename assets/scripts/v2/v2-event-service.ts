@@ -203,6 +203,8 @@ export class V2EventService {
     }
 
     this.context.events.emit('v2EventResolved', { eventId: def.id, choiceId, success, summary });
+    // §260: 事件选择立即持久化
+    try { this.context.saveService.save(this.context.player); } catch { /* 存档失败不吞结算 */ }
     return { eventId: def.id, choiceId, success, summary, effectsApplied: effects };
   }
 

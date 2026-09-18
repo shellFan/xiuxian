@@ -687,20 +687,36 @@
 
   /* ── 6a. 首页 ── */
 
+  /* V2 UI 桥接（ui-overlay-v2.js） */
+  var V2 = null; // 由 initV2Bridge 在注入宿主后赋值（未 init 的 V2UI 缺少 H 工具）
+
   function renderHome() {
     var hud = readHUD();
     if (!hud) return emptyState('⏳', '加载中...', '正在唤醒游戏数据');
     var rates = readRates();
     var quote = QUOTES[Math.floor(Date.now() / 3600000) % QUOTES.length];
     var cd = cooldownOf('cultivate');
-    var fishing = hud.workMode === 'FISHING';
+    var mode = hud.workMode || 'WORK';
+    var MODE_META = {
+      WORK: { label: '努力工作', sub: '钱+30% 绩效+30%', emoji: '💼', cls: 'blue' },
+      FISHING: { label: '带薪摸鱼', sub: '修为+10% 道心回复', emoji: '🐟', cls: 'green' },
+      CULTIVATING: { label: '偷偷修炼', sub: '修为×2.0 工资-70%', emoji: '🧘', cls: 'gold' },
+      SOCIAL: { label: '社交划水', sub: '关系×2 钱-50%', emoji: '🍵', cls: 'gray' },
+    };
 
     var statusText;
     var tasks = readTasks();
     var running = (tasks.active || []).filter(function (t) { return !t.claimed; }).length > 0;
     if (running) statusText = '正在偷偷运转周天...';
-    else if (fishing) statusText = '带薪摸鱼中，道心平稳...';
+    else if (mode === 'FISHING') statusText = '带薪摸鱼中，道心平稳...';
+    else if (mode === 'CULTIVATING') statusText = '屏息凝神，偷偷修炼...';
+    else if (mode === 'SOCIAL') statusText = '茶水间情报交换中...';
     else statusText = '努力搬砖中，修为渐长...';
+
+    var modeBtns = ['WORK', 'FISHING', 'CULTIVATING', 'SOCIAL'].map(function (m) {
+      var meta = MODE_META[m];
+      return modeBtn(m, meta.label, meta.sub, meta.emoji, meta.cls, mode === m);
+    }).join('');
 
     return '' +
       '<div class="ux-home">' +
@@ -709,6 +725,7 @@
           img('brand-ribbon', 'ux-brand-ribbon') +
           '<button class="ux-gear" data-action="settings">⚙</button>' +
         '</div>' +
+        (V2 ? V2.dayStripHtml() : '') +
         '<div class="ux-player">' +
           img('home-avatar', 'ux-player-avatar') +
           '<div>' +
@@ -725,7 +742,9 @@
         '<div class="ux-quote">' + escHtml(quote) + '</div>' +
         '<div class="ux-home-hero">' + img('home-character') + '</div>' +
         '<div class="ux-home-panel">' +
+          (V2 ? V2.situationHtml() : '') +
           '<span class="ux-status-ribbon">' + escHtml(statusText) + '</span>' +
+          (V2 ? V2.demonHtml() : '') +
           '<div class="ux-rates">' +
             '<div class="ux-rates-row">' + icon('cultivation') + '修为 +' + rates.cultivationPerMin.toFixed(1) + '/分钟' +
               '<span style="width:14px"></span>' + icon('salary') + '工资 +' + rates.salaryPerMin.toFixed(1) + '/分钟</div>' +
@@ -735,10 +754,7 @@
             '🔥 修炼一次' +
             (cd > 0 ? '<span class="ux-cultivate-cd">' + Math.ceil(cd) + 's</span>' : '<span class="dot"></span>') +
           '</button>' +
-          '<div class="ux-mode-row">' +
-            modeBtn('WORK', '努力工作', '效率+30%', !fishing) +
-            modeBtn('FISHING', '带薪摸鱼', '道心+200%', fishing) +
-          '</div>' +
+          '<div class="ux-mode-row ux-mode-row--4">' + modeBtns + '</div>' +
         '</div>' +
       '</div>';
   }
@@ -748,9 +764,7 @@
       '<div class="ux-stat-value">' + value + '</div></div>';
   }
 
-  function modeBtn(mode, label, sub, active) {
-    var cls = mode === 'WORK' ? 'blue' : 'green';
-    var emoji = mode === 'WORK' ? '💼' : '🐟';
+  function modeBtn(mode, label, sub, emoji, cls, active) {
     return '<button class="ux-btn ux-btn--' + cls + ' ux-mode-btn' + (active ? '' : ' ux-mode-btn--off') + '" data-action="mode" data-mode="' + mode + '">' +
       '<span class="m1">' + emoji + ' ' + label + '</span><span class="m2">' + sub + '</span></button>';
   }
@@ -1151,6 +1165,9 @@
   function renderMore() {
     return '' +
       '<div class="ux-more-grid">' +
+        moreItem('techniques', '📖', '功法', '主修与辅助 Build') +
+        moreItem('equipment', '🎽', '法宝', '三槽职场法宝') +
+        moreItem('npc', '🧑‍🤝‍🧑', '人际', '六位核心NPC关系') +
         moreItem('sect', '⚔️', '宗门', '选择你的流派') +
         moreItem('leaderboard', '🏆', '排行榜', '修为职级大比拼') +
         moreItem('friends', '👥', '好友', '拜访好友赠灵石') +
@@ -1215,6 +1232,7 @@
   var PAGE_TITLES = {
     HOME: '', TASKS: '任务', CRAFT: '物品合成', PROMOTION: '晋升渡劫', MORE: '更多',
     SECT: '宗门页', LEADERBOARD: '排行榜', FRIENDS: '好友', ACHIEVEMENTS: '成就', SETTINGS: '设置',
+    TECHNIQUES: '功法', EQUIPMENT: '法宝', NPC: '人际关系', SETTLEMENT: '下班结算', DEV: 'DEV 面板',
   };
 
   function currentPage() { return _subPage || _screen; }
@@ -1225,7 +1243,17 @@
       case 'HOME': return renderHome();
       case 'TASKS': return renderTasks();
       case 'CRAFT': return renderCraft();
-      case 'PROMOTION': return renderPromotion();
+      case 'PROMOTION': {
+        var hudP = readHUD();
+        var v2Html = V2 && hudP ? V2.promotionPageHtml(hudP, readKpi(), readCareerAt(hudP.careerLevel + 1)) : null;
+        if (v2Html) return v2Html;
+        return renderPromotion();
+      }
+      case 'TECHNIQUES': return V2 ? V2.renderTechniques() : emptyState('📖', '功法', 'V2 数据未就绪');
+      case 'EQUIPMENT': return V2 ? V2.renderEquipment() : emptyState('🎽', '法宝', 'V2 数据未就绪');
+      case 'NPC': return V2 ? V2.renderNpc() : emptyState('🧑‍🤝‍🧑', '人际', 'V2 数据未就绪');
+      case 'SETTLEMENT': return V2 ? V2.renderSettlementPage() : emptyState('🌇', '结算', 'V2 数据未就绪');
+      case 'DEV': return V2 ? V2.renderDev() : emptyState('🚫', 'DEV', 'V2 数据未就绪');
       case 'MORE': return renderMore();
       case 'SECT': return renderSect();
       case 'LEADERBOARD': return renderLeaderboard();
@@ -1343,6 +1371,84 @@
         case 'mode':
           cmdResult('changeWorkMode', '切换成功', el.dataset.mode);
           break;
+        case 'startDefense':
+          if (V2) V2.showDefenseModal();
+          break;
+        case 'doSettle': {
+          var fSettle = facade();
+          if (fSettle) {
+            try {
+              var view = fSettle.settleDay();
+              toast('结算完成：' + view.title + ' · 评级 ' + view.rank, 'success');
+            } catch (e) { toast(errMsg(e), 'error'); }
+            fullRefresh();
+          }
+          break;
+        }
+        case 'devAdvance':
+          cmd('devAdvanceTime', Number(el.dataset.arg));
+          toast('DEV: 时间已推进', 'info');
+          break;
+        case 'devJump':
+          cmd('devJumpToHour', Math.floor(Number(el.dataset.arg) / 60), Number(el.dataset.arg) % 60);
+          toast('DEV: 已跳转', 'info');
+          break;
+        case 'devNextDay':
+          cmd('devJumpToHour', 9, 0);
+          toast('DEV: 次日 09:00', 'info');
+          break;
+        case 'devMind':
+          cmd('devSetMind', Number(el.dataset.arg));
+          break;
+        case 'devDemon':
+          cmd('devSetDemon', Number(el.dataset.arg));
+          break;
+        case 'devMaterial': {
+          var matId = el.dataset.arg === '10' ? 'mat_lingcao' : 'mat_page';
+          var n = el.dataset.arg === '10' ? 10 : 5;
+          cmd('devGrantMaterial', matId, n);
+          break;
+        }
+        case 'devEvent': {
+          var fDev = facade();
+          if (fDev && fDev.devForceEvent(el.dataset.arg)) toast('DEV: 事件已触发', 'info');
+          else toast('触发失败', 'error');
+          break;
+        }
+        case 'techEquip': {
+          var fT = facade();
+          if (fT) {
+            var owned = fT.queryOwnedTechniques();
+            var eqd = fT.queryEquippedTechniques();
+            var slot = -1;
+            for (var si = 0; si < 3; si++) {
+              if (eqd[si] === el.dataset.id) { slot = -2; break; }
+              if (eqd[si] === null && slot === -1) slot = si;
+            }
+            if (slot === -2) { toast('已装备该功法', 'info'); break; }
+            if (slot === -1) slot = 2;
+            cmdResult('v2EquipTechnique', '装备成功', slot, el.dataset.id);
+          }
+          break;
+        }
+        case 'techUnequip':
+          cmd('v2EquipTechnique', Number(el.dataset.slot), null);
+          break;
+        case 'techUpgrade':
+          cmdResult('v2UpgradeTechnique', '升级成功', el.dataset.id);
+          break;
+        case 'equipItem': {
+          var fE = facade();
+          if (fE) {
+            var slotMap = { DESK: 'DESK', BADGE: 'BADGE', ACCESSORY: 'ACCESSORY' };
+            var slotGuess = el.dataset.slot && el.dataset.slot !== 'DESK' ? el.dataset.slot : guessSlot(fE, el.dataset.id);
+            cmdResult('v2EquipItem', '装备成功', slotGuess, el.dataset.id);
+          }
+          break;
+        }
+        case 'equipUnequip':
+          cmd('v2EquipItem', el.dataset.slot, null);
+          break;
         case 'start':
           cmdResult('startTask', '任务已开始', el.dataset.id);
           break;
@@ -1426,6 +1532,13 @@
     };
   }
 
+  function guessSlot(f, equipmentId) {
+    // 兜底按 id 关键词猜槽位（按钮未携带 data-slot 时）。
+    if (/keyboard|monitor|cup|chair|cactus|pillow|desk|filter|mug|plant|hoodie|thinkpad|lunch|footrest|stand/i.test(equipmentId)) return 'DESK';
+    if (/badge|usb|token|doc|book|cable/i.test(equipmentId)) return 'BADGE';
+    return 'ACCESSORY';
+  }
+
   function copyText(text) {
     try {
       var ta = document.createElement('textarea');
@@ -1490,12 +1603,37 @@
       }
     }, 300);
 
-    /* 主刷新循环: 倒计时/冷却/事件 */
+    /* V2 UI 桥接初始化 */
+    function initV2Bridge() {
+      if (!window.V2UI) return false;
+      window.V2UI.init({
+        facade: facade,
+        $: $, $$: $$, escHtml: escHtml, img: img, icon: icon, fmtNum: fmtNum, hms: hms,
+        emptyState: emptyState, reqRow: reqRow, kpiShortLabel: kpiShortLabel,
+        popupLayer: popupLayer, closePopup: closePopup, popupOpen: popupOpen,
+        toast: toast, errMsg: errMsg, refresh: refresh,
+      });
+      V2 = window.V2UI;
+      fullRefresh();
+      return true;
+    }
+    if (!initV2Bridge()) {
+      var v2Poll = setInterval(function () {
+        if (initV2Bridge()) clearInterval(v2Poll);
+      }, 500);
+    }
+
+    /* 主刷新循环: 倒计时/冷却/事件/V2 弹窗 */
     setInterval(function () {
       _cdCache = {};
       if (!popupOpen()) {
         refresh();
         maybeShowEventPopup();
+        if (V2) {
+          V2.maybeShowV2EventModal();
+          V2.maybeShowWeekendModal();
+          V2.maybeShowSettlementModal();
+        }
       }
     }, 1000);
   }
