@@ -1,0 +1,3055 @@
+{
+ "events": [
+  {
+   "id": "legacy_s0",
+   "title": "祖传屎山·起源",
+   "description": "接手了一个没人敢动的模块。注释最后一行停留在三年前，署名是你已经不认识的工号。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "IMPORTANT",
+   "baseWeight": 8,
+   "chainId": "legacy",
+   "chainStage": 0,
+   "choices": [
+    {
+     "id": "REFACTOR",
+     "text": "悄悄开始重构",
+     "successChance": 0.6,
+     "successEffects": {
+      "performance": 10,
+      "mind": -5,
+      "material": {
+       "code_fragment": 2
+      },
+      "setFlags": [
+       "legacy_refactored"
+      ]
+     },
+     "failureEffects": {
+      "performance": -5,
+      "mind": -10,
+      "innerDemon": 5
+     },
+     "resultText": "重构进行到一半，你发现两个模块之间靠一个魔法数字维持着平衡。"
+    },
+    {
+     "id": "IGNORE",
+     "text": "敬而远之",
+     "successChance": {
+      "mind": 3,
+      "setFlags": [
+       "legacy_untouched"
+      ]
+     },
+     "resultText": "你在心里给它上了三炷香，转身去改别的需求。"
+    }
+   ]
+  },
+  {
+   "id": "legacy_s1",
+   "title": "祖传屎山·余震",
+   "description": "上周没人动的那个模块，今天突然在监控里闪了一下。像是在证明自己的存在。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "IMPORTANT",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "legacy_untouched"
+   },
+   "chainId": "legacy",
+   "chainStage": 1,
+   "choices": [
+    {
+     "id": "HOTFIX",
+     "text": "连夜打补丁",
+     "successChance": 0.7,
+     "successEffects": {
+      "performance": 8,
+      "mind": -8,
+      "material": {
+       "bug_crystal": 1
+      }
+     },
+     "failureEffects": {
+      "performance": -8,
+      "innerDemon": 8,
+      "mind": -5
+     },
+     "resultText": "补丁打上了，你总觉得哪里不对，但监控绿了。"
+    },
+    {
+     "id": "WAIT",
+     "text": "再观察观察",
+     "successChance": {
+      "mind": -3
+     },
+     "resultText": "它又安静了。你知道这只是暴风雨前的礼貌。"
+    }
+   ]
+  },
+  {
+   "id": "legacy_s2",
+   "title": "祖传屎山·觉醒",
+   "description": "那个模块开始在生产环境随机返回三年前的数据。用户投诉说看到了已经下架的商品。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "CRITICAL",
+   "baseWeight": 0,
+   "chainId": "legacy",
+   "chainStage": 2,
+   "choices": [
+    {
+     "id": "DIG",
+     "text": "深入屎山找根因",
+     "successChance": 0.5,
+     "successEffects": {
+      "performance": 20,
+      "cultivation": 30,
+      "material": {
+       "legacy_code": 1,
+       "code_fragment": 3
+      },
+      "setFlags": [
+       "legacy_purified"
+      ]
+     },
+     "failureEffects": {
+      "performance": -10,
+      "mind": -15,
+      "innerDemon": 10
+     },
+     "resultText": "你在第 4000 行找到了答案：一个三年前的 if，等一个三年后的条件。"
+    },
+    {
+     "id": "BLAME",
+     "text": "在群里甩锅给架构",
+     "successChance": 0.4,
+     "successEffects": {
+      "mind": 5,
+      "relationship": {
+       "VETERAN": 5
+      }
+     },
+     "failureEffects": {
+      "relationship": {
+       "BOSS": -8,
+       "VETERAN": -5
+      },
+      "innerDemon": 5
+     },
+     "resultText": "群里安静了几分钟。架构群把你拉进去又踢了出来。"
+    }
+   ]
+  },
+  {
+   "id": "legacy_s3",
+   "title": "祖传屎山·飞升",
+   "description": "重写还是续命？整个组的命运压在你一个人身上。",
+   "category": "CHAIN",
+   "rarity": "EPIC",
+   "priority": "CRITICAL",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "legacy_purified"
+   },
+   "chainId": "legacy",
+   "chainStage": 3,
+   "choices": [
+    {
+     "id": "REWRITE",
+     "text": "推倒重写",
+     "successChance": 0.55,
+     "successEffects": {
+      "performance": 40,
+      "cultivation": 60,
+      "mind": 10,
+      "grantEquipment": "eq_legacy_thinkpad",
+      "setFlags": [
+       "legacy_rewritten"
+      ]
+     },
+     "failureEffects": {
+      "performance": -15,
+      "mind": -20,
+      "innerDemon": 15
+     },
+     "resultText": "新系统上线那一刻，你理解了什么叫不破不立。"
+    },
+    {
+     "id": "WRAP",
+     "text": "包装成微服务",
+     "successChance": 0.65,
+     "successEffects": {
+      "performance": 25,
+      "salary": 100
+     },
+     "failureEffects": {
+      "performance": -10,
+      "mind": -10
+     },
+     "resultText": "PPT 上它已经是微服务架构了。实际上它只是被三个换行符隔开。"
+    }
+   ]
+  },
+  {
+   "id": "incident_s0",
+   "title": "群里突然安静了",
+   "description": "工作群突然没人说话。通常这意味着生产出事了。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "IMPORTANT",
+   "baseWeight": 8,
+   "chainId": "incident",
+   "chainStage": 0,
+   "choices": [
+    {
+     "id": "CHECK",
+     "text": "主动看监控",
+     "successChance": {
+      "performance": 5,
+      "setFlags": [
+       "incident_checked"
+      ]
+     },
+     "resultText": "你打开了监控大盘。红色区域像晚霞一样绚烂。"
+    },
+    {
+     "id": "SILENT",
+     "text": "装作没看见",
+     "successChance": {
+      "mind": -5,
+      "setFlags": [
+       "incident_ignored"
+      ]
+     },
+     "resultText": "你继续改自己的需求，心跳声比键盘声还响。"
+    }
+   ]
+  },
+  {
+   "id": "incident_s1",
+   "title": "定位到你的机器",
+   "description": "告警定位到了你上周发布的服务。日志里你的 commit 像遗书一样安静。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "CRITICAL",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "incident_checked"
+   },
+   "chainId": "incident",
+   "chainStage": 1,
+   "choices": [
+    {
+     "id": "FIX",
+     "text": "立刻回滚修复",
+     "successChance": 0.7,
+     "successEffects": {
+      "performance": 15,
+      "mind": -10,
+      "relationship": {
+       "TESTER": 5
+      }
+     },
+     "failureEffects": {
+      "performance": -10,
+      "mind": -15,
+      "innerDemon": 8
+     },
+     "resultText": "回滚完成。你在心里把测试环境骂了一遍，虽然问题出在生产配置。"
+    },
+    {
+     "id": "DEFEND",
+     "text": "先说不是我的问题",
+     "successChance": 0.35,
+     "successEffects": {
+      "mind": 3,
+      "relationship": {
+       "BOSS": -3
+      }
+     },
+     "failureEffects": {
+      "relationship": {
+       "BOSS": -10
+      },
+      "innerDemon": 8
+     },
+     "resultText": "你刚说完，老板甩出了你的 commit 链接。时间戳精确到秒。"
+    }
+   ]
+  },
+  {
+   "id": "incident_s2",
+   "title": "复盘会议",
+   "description": "事故复盘会开了两小时，结论是\"加强意识\"。你没忍住叹了口气。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "chainId": "incident",
+   "chainStage": 2,
+   "choices": [
+    {
+     "id": "PROPOSE",
+     "text": "提议加监控告警",
+     "successChance": 0.6,
+     "successEffects": {
+      "performance": 12,
+      "relationship": {
+       "BOSS": 5
+      },
+      "setFlags": [
+       "monitoring_added"
+      ]
+     },
+     "failureEffects": {
+      "mind": -5
+     },
+     "resultText": "方案通过了，排期排在三个版本之后。"
+    },
+    {
+     "id": "QUIET",
+     "text": "沉默记笔记",
+     "successChance": {
+      "mind": 2
+     },
+     "resultText": "你在笔记本上写下\"加强意识\"四个字，画了个圈。"
+    }
+   ]
+  },
+  {
+   "id": "incident_s3",
+   "title": "深夜的补偿",
+   "description": "事故平息后的深夜，你收到测试小哥发来的奶茶外卖。附言：辛苦了，下次别半夜发版。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "chainId": "incident",
+   "chainStage": 3,
+   "effects": {
+    "mind": 15,
+    "relationship": {
+     "TESTER": 8
+    },
+    "material": {
+     "coffee_bean": 2
+    }
+   }
+  },
+  {
+   "id": "pie_s0",
+   "title": "饼的香气",
+   "description": "老板把你叫进办公室，说公司下一轮融资到位后，期权池会扩大。他的眼睛里有光。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "chainId": "pie",
+   "chainStage": 0,
+   "choices": [
+    {
+     "id": "BELIEVE",
+     "text": "认真听讲",
+     "successChance": {
+      "cultivation": 15,
+      "mind": -5,
+      "setFlags": [
+       "pie_believer"
+      ]
+     },
+     "resultText": "你听完了整场愿景，感觉自己已经财富自由了一秒钟。"
+    },
+    {
+     "id": "NOD",
+     "text": "熟练点头",
+     "successChance": {
+      "mind": 3,
+      "relationship": {
+       "BOSS": 3
+      },
+      "setFlags": [
+       "pie_nodder"
+      ]
+     },
+     "resultText": "你点头点得恰到好处，像一株成熟的向日葵。"
+    }
+   ]
+  },
+  {
+   "id": "pie_s1",
+   "title": "饼的发酵",
+   "description": "全员会上，老板宣布\"明年上市\"。前台小姐姐鼓掌的力度最大。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "chainId": "pie",
+   "chainStage": 1,
+   "choices": [
+    {
+     "id": "CHEER",
+     "text": "跟着鼓掌",
+     "successChance": {
+      "mind": 2,
+      "relationship": {
+       "BOSS": 4
+      }
+     },
+     "resultText": "你的掌声和薪水一样，标准且克制。"
+    },
+    {
+     "id": "CALCULATE",
+     "text": "默默算期权行权价",
+     "successChance": {
+      "cultivation": 10,
+      "mind": -4
+     },
+     "resultText": "你算出行权价比市价高 40%。数学是清醒的。"
+    }
+   ]
+  },
+  {
+   "id": "pie_s2",
+   "title": "饼的代价",
+   "description": "\"公司困难时期，大家共渡难关。\"加班餐从 40 元降到了 15 元。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "chainId": "pie",
+   "chainStage": 2,
+   "choices": [
+    {
+     "id": "ACCEPT",
+     "text": "理解公司",
+     "successChance": {
+      "mind": -8,
+      "innerDemon": 5
+     },
+     "resultText": "你理解了公司。公司也理解了你的沉默。"
+    },
+    {
+     "id": "MOONLIGHT",
+     "text": "下班偷偷投简历",
+     "successChance": 0.5,
+     "successEffects": {
+      "mind": 8,
+      "setFlags": [
+       "resume_sent"
+      ]
+     },
+     "failureEffects": {
+      "relationship": {
+       "BOSS": -5
+      },
+      "innerDemon": 6
+     },
+     "resultText": "你更新了简历。猎头说\"这个薪资我们帮不了你\"。"
+    }
+   ]
+  },
+  {
+   "id": "pie_s3",
+   "title": "饼的兑现？",
+   "description": "融资到账了。老板在群里发了三个红包，最大的一百八十八元。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "pie_believer"
+   },
+   "chainId": "pie",
+   "chainStage": 3,
+   "effects": {
+    "salary": 60,
+    "mind": 10,
+    "relationship": {
+     "BOSS": 5
+    }
+   }
+  },
+  {
+   "id": "pie_s4",
+   "title": "饼的终局",
+   "description": "上市没等到，等来了新老板。旧老板的工位搬空了，只留下一盆仙人掌。",
+   "category": "CHAIN",
+   "rarity": "EPIC",
+   "priority": "IMPORTANT",
+   "baseWeight": 0,
+   "chainId": "pie",
+   "chainStage": 4,
+   "effects": {
+    "mind": -10,
+    "cultivation": 40,
+    "material": {
+     "boss_pie": 1
+    },
+    "relationship": {
+     "HR": 5
+    }
+   }
+  },
+  {
+   "id": "req_s0",
+   "title": "第一版需求",
+   "description": "产品经理发来原型图：\"很简单，就一个列表页。\"你看了一眼，37 个交互说明。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "chainId": "req",
+   "chainStage": 0,
+   "choices": [
+    {
+     "id": "ESTIMATE",
+     "text": "认真评估",
+     "successChance": 0.7,
+     "successEffects": {
+      "performance": 8,
+      "relationship": {
+       "PRODUCT": 3
+      },
+      "material": {
+       "requirement_fragment": 1
+      }
+     },
+     "failureEffects": {
+      "performance": -4,
+      "mind": -5
+     },
+     "resultText": "你评估了两周。产品说\"下周要\"。"
+    },
+    {
+     "id": "ACCEPT",
+     "text": "好的收到",
+     "successChance": {
+      "mind": -3
+     },
+     "resultText": "你说\"好的\"。这两个字你练了三年。"
+    }
+   ]
+  },
+  {
+   "id": "req_s1",
+   "title": "第7次改版",
+   "description": "产品第七次改原型。这次他把\"确定\"按钮挪到了左边，理由是\"用户的手往左偏\"。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "chainId": "req",
+   "chainStage": 1,
+   "choices": [
+    {
+     "id": "ARGUE",
+     "text": "拿数据反驳",
+     "successChance": 0.45,
+     "successEffects": {
+      "performance": 10,
+      "mind": 5,
+      "relationship": {
+       "PRODUCT": -3
+      }
+     },
+     "failureEffects": {
+      "mind": -8,
+      "innerDemon": 5
+     },
+     "resultText": "产品说\"这个数据我们的场景不一样\"。你输了，但你没有错。"
+    },
+    {
+     "id": "COMPLY",
+     "text": "默默改掉",
+     "successChance": {
+      "mind": -5,
+      "cultivation": 8
+     },
+     "resultText": "你花了五分钟改完，又花了一小时平复心情。"
+    }
+   ]
+  },
+  {
+   "id": "req_s2",
+   "title": "需求成精了",
+   "description": "凌晨两点，需求文档自己更新了。新增的一行写着：\"此处留白，给用户想象空间。\"",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "oncePerDay": true,
+   "chainId": "req",
+   "chainStage": 2,
+   "effects": {
+    "cultivation": 25,
+    "mind": -5
+   }
+  },
+  {
+   "id": "req_s3",
+   "title": "轮回终结",
+   "description": "产品经理离职了。交接文档第一行：\"这些需求都不是我真实想法。\"",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "IMPORTANT",
+   "baseWeight": 0,
+   "chainId": "req",
+   "chainStage": 3,
+   "effects": {
+    "mind": 12,
+    "cultivation": 30,
+    "relationship": {
+     "PRODUCT": 5
+    },
+    "material": {
+     "requirement_fragment": 2
+    }
+   }
+  },
+  {
+   "id": "toilet_s0",
+   "title": "厕所异象",
+   "description": "厕所最后一个隔间灵气逼人。你怀疑前端又在里面闭关。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "allowedModes": [
+    "FISHING",
+    "CULTIVATING"
+   ],
+   "chainId": "toilet",
+   "chainStage": 0,
+   "choices": [
+    {
+     "id": "ENTER",
+     "text": "进去一探",
+     "successChance": 0.6,
+     "successEffects": {
+      "cultivation": 25,
+      "mind": 5,
+      "setFlags": [
+       "toilet_disciple"
+      ]
+     },
+     "failureEffects": {
+      "mind": -5
+     },
+     "resultText": "你在马桶上悟了三分钟。窗外车流声都成了诵经声。"
+    },
+    {
+     "id": "SKIP",
+     "text": "忍住",
+     "successChance": {
+      "mind": 2
+     },
+     "resultText": "你用了第二个隔间。平凡，但安全。"
+    }
+   ]
+  },
+  {
+   "id": "toilet_s1",
+   "title": "秘境 stabilize",
+   "description": "那个隔间成为了你的秘密基地。每次坐在上面，思路异常清晰。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "toilet_disciple"
+   },
+   "chainId": "toilet",
+   "chainStage": 1,
+   "effects": {
+    "cultivation": 15,
+    "mind": 5
+   }
+  },
+  {
+   "id": "toilet_s2",
+   "title": "秘境争夺",
+   "description": "发现前端小哥也在蹲这个隔间。四目相对（隔着门板），气氛凝重。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "chainId": "toilet",
+   "chainStage": 2,
+   "choices": [
+    {
+     "id": "SHARE",
+     "text": "约定轮流使用",
+     "successChance": {
+      "relationship": {
+       "JUNIOR": 8
+      },
+      "mind": 5,
+      "setFlags": [
+       "toilet_shared"
+      ]
+     },
+     "resultText": "你们制定了排期表。修仙界的契约精神不过如此。"
+    },
+    {
+     "id": "FIGHT",
+     "text": "速度取胜",
+     "successChance": 0.5,
+     "successEffects": {
+      "cultivation": 20,
+      "mind": 3
+     },
+     "failureEffects": {
+      "mind": -6
+     },
+     "resultText": "你赢了，但从此每次进去都有人在外面敲门。"
+    }
+   ]
+  },
+  {
+   "id": "toilet_s3",
+   "title": "厕所仙人",
+   "description": "保洁阿姨说这个隔间的纸消耗速度是别的三倍。她不懂修仙，但她懂 worldly wisdom：多放了卷纸。",
+   "category": "CHAIN",
+   "rarity": "EPIC",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "toilet_shared"
+   },
+   "onceEver": true,
+   "chainId": "toilet",
+   "chainStage": 3,
+   "effects": {
+    "cultivation": 60,
+    "mind": 15,
+    "grantAchievementHint": null,
+    "material": {
+     "spirit_energy": 1
+    }
+   }
+  },
+  {
+   "id": "git_s0",
+   "title": "未知仓库",
+   "description": "公司 GitLab 上有个仓库叫 do-not-touch。它有提交记录，但没有任何人出现在 contributors 里。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 6,
+   "chainId": "gitmystery",
+   "chainStage": 0,
+   "choices": [
+    {
+     "id": "CLONE",
+     "text": "克隆下来看看",
+     "successChance": 0.5,
+     "successEffects": {
+      "cultivation": 30,
+      "material": {
+       "code_fragment": 2
+      },
+      "setFlags": [
+       "git_touched"
+      ]
+     },
+     "failureEffects": {
+      "mind": -8
+     },
+     "resultText": "README 只有一行：\"你已经看到了。\""
+    },
+    {
+     "id": "CLOSE",
+     "text": "默默关掉页面",
+     "successChance": {
+      "mind": 2
+     },
+     "resultText": "好奇心害死的猫，尸体现在还在你脑子里。"
+    }
+   ]
+  },
+  {
+   "id": "git_s1",
+   "title": "仓库的推送",
+   "description": "do-not-touch 仓库更新了。commit message 是你的名字。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "IMPORTANT",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "git_touched"
+   },
+   "chainId": "gitmystery",
+   "chainStage": 1,
+   "choices": [
+    {
+     "id": "INVESTIGATE",
+     "text": "顺着提交记录追查",
+     "successChance": 0.5,
+     "successEffects": {
+      "cultivation": 40,
+      "performance": 10
+     },
+     "failureEffects": {
+      "innerDemon": 10,
+      "mind": -8
+     },
+     "resultText": "提交作者的邮箱是你的名字加一串数字。注册时间是十年后。"
+    },
+    {
+     "id": "DELETE",
+     "text": "删除本地克隆",
+     "successChance": {
+      "mind": -3,
+      "setFlags": [
+       "git_deleted"
+      ]
+     },
+     "resultText": "你删了仓库。当晚你梦到有人在 git push --force 你的人生。"
+    }
+   ]
+  },
+  {
+   "id": "git_s2",
+   "title": "仓库消失",
+   "description": "do-not-touch 仓库从 GitLab 上消失了。就像从未存在过。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "git_deleted"
+   },
+   "onceEver": true,
+   "chainId": "gitmystery",
+   "chainStage": 2,
+   "effects": {
+    "cultivation": 50,
+    "mind": 8
+   }
+  },
+  {
+   "id": "layoff_s0",
+   "title": "风声",
+   "description": "匿名区有人说\"月底见分晓\"。点赞数在午休时间翻了一倍。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 7,
+   "chainId": "layoff",
+   "chainStage": 0,
+   "choices": [
+    {
+     "id": "VERIFY",
+     "text": "找HR仙子打听",
+     "successChance": 0.5,
+     "successEffects": {
+      "relationship": {
+       "HR": 5
+      },
+      "setFlags": [
+       "layoff_confirmed_false"
+      ]
+     },
+     "failureEffects": {
+      "relationship": {
+       "HR": -3
+      },
+      "mind": -5
+     },
+     "resultText": "HR 微笑着说\"没有的事\"。她的微笑很专业。"
+    },
+    {
+     "id": "WORK",
+     "text": "用加班表明价值",
+     "successChance": {
+      "performance": 15,
+      "mind": -8,
+      "innerDemon": 5
+     },
+     "resultText": "你连续加班到十点。老板说\"小范很有干劲\"，然后又说了句\"但是\"。"
+    }
+   ]
+  },
+  {
+   "id": "layoff_s1",
+   "title": "名单",
+   "description": "有人说看到了名单。名单上有部门、有名字、有 N+1。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "IMPORTANT",
+   "baseWeight": 0,
+   "chainId": "layoff",
+   "chainStage": 1,
+   "choices": [
+    {
+     "id": "TALK",
+     "text": "和老油条聊聊",
+     "successChance": 0.7,
+     "successEffects": {
+      "mind": 10,
+      "relationship": {
+       "VETERAN": 8
+      },
+      "cultivation": 10
+     },
+     "failureEffects": {
+      "mind": -5
+     },
+     "resultText": "老油条说：\"我经历过四次裁员。第一次我怕，后来我懂了——怕没有用，简历要有用。\""
+    },
+    {
+     "id": "UPDATE",
+     "text": "深夜更新简历",
+     "successChance": {
+      "mind": 5,
+      "setFlags": [
+       "resume_v2"
+      ]
+     },
+     "resultText": "你把\"精通\"改成了\"熟悉\"，把\"热爱\"改成了\"擅长\"。诚实使人年轻。"
+    }
+   ]
+  },
+  {
+   "id": "layoff_s2",
+   "title": "尘埃落定",
+   "description": "名单公布了。你不在上面，隔壁组的老张在上面。他收拾东西时朝你笑了笑。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "IMPORTANT",
+   "baseWeight": 0,
+   "chainId": "layoff",
+   "chainStage": 2,
+   "effects": {
+    "mind": -12,
+    "cultivation": 35,
+    "innerDemon": 5,
+    "material": {
+     "badge_fragment": 1
+    }
+   }
+  },
+  {
+   "id": "layoff_s3",
+   "title": "老张的消息",
+   "description": "三个月后，老张发来消息：新公司涨薪40%，就是通勤远了一点。你盯着\"恭喜\"两个字打了很久。",
+   "category": "CHAIN",
+   "rarity": "EPIC",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "onceEver": true,
+   "chainId": "layoff",
+   "chainStage": 3,
+   "effects": {
+    "mind": -5,
+    "cultivation": 20,
+    "innerDemon": 8
+   }
+  },
+  {
+   "id": "release_s0",
+   "title": "上线前夜",
+   "description": "今晚十点发版。测试说回归没跑完，产品说必须按时上。你夹在中间，像三明治里的那片生菜。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "IMPORTANT",
+   "baseWeight": 7,
+   "chainId": "release",
+   "chainStage": 0,
+   "choices": [
+    {
+     "id": "DELAY",
+     "text": "坚持延期",
+     "successChance": 0.5,
+     "successEffects": {
+      "mind": 8,
+      "relationship": {
+       "TESTER": 8
+      }
+     },
+     "failureEffects": {
+      "relationship": {
+       "PRODUCT": -5
+      },
+      "performance": -5
+     },
+     "resultText": "版本延期了一天。测试小哥看你的眼神像看救命恩人。"
+    },
+    {
+     "id": "SHIP",
+     "text": "带病上线",
+     "successChance": 0.6,
+     "successEffects": {
+      "performance": 15,
+      "salary": 50,
+      "mind": -8
+     },
+     "failureEffects": {
+      "innerDemon": 12,
+      "mind": -10,
+      "nextEvent": "release_s1"
+     },
+     "resultText": "版本按时上了。你在心里给那个已知 bug 上了一炷香。"
+    }
+   ]
+  },
+  {
+   "id": "release_s1",
+   "title": "凌晨告警",
+   "description": "你担心的事情发生了。凌晨一点，告警把你从床上拽起来。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "CRITICAL",
+   "baseWeight": 0,
+   "chainId": "release",
+   "chainStage": 1,
+   "choices": [
+    {
+     "id": "HOTFIX",
+     "text": "起床救火",
+     "successChance": 0.7,
+     "successEffects": {
+      "performance": 12,
+      "mind": -12,
+      "innerDemon": 5
+     },
+     "failureEffects": {
+      "performance": -8,
+      "innerDemon": 10
+     },
+     "resultText": "四十分钟后系统恢复。你躺在床上，天已经亮了一半。"
+    },
+    {
+     "id": "CALL",
+     "text": "打电话叫醒同组",
+     "successChance": 0.3,
+     "successEffects": {
+      "mind": -3
+     },
+     "failureEffects": {
+      "relationship": {
+       "VETERAN": -10
+      },
+      "innerDemon": 5
+     },
+     "resultText": "老油条接了电话，只说了一句\"我记住了\"。"
+    }
+   ]
+  },
+  {
+   "id": "release_s2",
+   "title": "灰度通过",
+   "description": "三天后，新版本各项指标正常。老板在群里发了\"辛苦了\"三个字。你截了图。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "chainId": "release",
+   "chainStage": 2,
+   "effects": {
+    "performance": 10,
+    "mind": 10,
+    "salary": 30
+   }
+  },
+  {
+   "id": "junior_s0",
+   "title": "小师妹的报错",
+   "description": "摸鱼小师妹发来消息：范师兄，我的代码报了个错，红的，能帮我看下吗？",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "chainId": "junior",
+   "chainStage": 0,
+   "choices": [
+    {
+     "id": "HELP",
+     "text": "放下手头活去看",
+     "successChance": 0.8,
+     "successEffects": {
+      "relationship": {
+       "JUNIOR": 10
+      },
+      "mind": 5,
+      "performance": -3,
+      "material": {
+       "fishing_tip": 1
+      }
+     },
+     "failureEffects": {
+      "performance": -5,
+      "mind": -3
+     },
+     "resultText": "问题是一个分号。你花了二十分钟找到它，花了十分钟教她为什么。"
+    },
+    {
+     "id": "LINK",
+     "text": "甩一个文档链接",
+     "successChance": {
+      "relationship": {
+       "JUNIOR": -3
+      },
+      "performance": 2
+     },
+     "resultText": "你发了份《新手入门.pdf》。她回了\"谢谢师兄\"。你有点后悔。"
+    }
+   ]
+  },
+  {
+   "id": "junior_s1",
+   "title": "小师妹的回礼",
+   "description": "小师妹神秘兮兮地塞给你一袋东西：\"这是我在厕所秘境捡到的，给你！\"",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "junior_helped"
+   },
+   "chainId": "junior",
+   "chainStage": 1,
+   "effects": {
+    "material": {
+     "spirit_energy": 1,
+     "coffee_residue": 2
+    },
+    "mind": 5,
+    "relationship": {
+     "JUNIOR": 5
+    }
+   }
+  },
+  {
+   "id": "junior_s2",
+   "title": "小师妹渡劫",
+   "description": "小师妹要转正答辩了。她问你要不要\"顺便\"帮她看看PPT。",
+   "category": "CHAIN",
+   "rarity": "RARE",
+   "priority": "IMPORTANT",
+   "baseWeight": 0,
+   "chainId": "junior",
+   "chainStage": 2,
+   "choices": [
+    {
+     "id": "COACH",
+     "text": "帮她改PPT到十点",
+     "successChance": 0.75,
+     "successEffects": {
+      "relationship": {
+       "JUNIOR": 15
+      },
+      "mind": 8,
+      "cultivation": 10,
+      "setFlags": [
+       "junior_promoted"
+      ]
+     },
+     "failureEffects": {
+      "mind": -5
+     },
+     "resultText": "PPT改到第十版时，她突然说\"师兄你比产品靠谱多了\"。"
+    },
+    {
+     "id": "BUSY",
+     "text": "最近太忙了",
+     "successChance": {
+      "relationship": {
+       "JUNIOR": -8
+      },
+      "mind": -3
+     },
+     "resultText": "她说\"没事，我随便问问\"。那个\"随便\"很重。"
+    }
+   ]
+  },
+  {
+   "id": "veteran_s0",
+   "title": "老油条的茶",
+   "description": "老油条前辈泡了杯茶，招呼你过去：\"小范，教你点课本上没有的。\"",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "chainId": "veteran",
+   "chainStage": 0,
+   "choices": [
+    {
+     "id": "LEARN",
+     "text": "虚心求教",
+     "successChance": {
+      "cultivation": 20,
+      "relationship": {
+       "VETERAN": 10
+      },
+      "setFlags": [
+       "veteran_student"
+      ]
+     },
+     "resultText": "他教你三件事：邮件抄送的艺术、会议室的座次、以及什么时候该装忙。"
+    },
+    {
+     "id": "DECLINE",
+     "text": "手头有活",
+     "successChance": {
+      "relationship": {
+       "VETERAN": -5
+      }
+     },
+     "resultText": "他说\"好的，以后再说\"。你们都知道没有以后。"
+    }
+   ]
+  },
+  {
+   "id": "veteran_s1",
+   "title": "甩锅神功·观摩",
+   "description": "会上有人问起数据不一致的问题。老油条用一句话把话题引向了三个月前的\"历史决策\"。",
+   "category": "CHAIN",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "veteran_student"
+   },
+   "chainId": "veteran",
+   "chainStage": 1,
+   "choices": [
+    {
+     "id": "STUDY",
+     "text": "认真记笔记",
+     "successChance": {
+      "cultivation": 15,
+      "mind": 3,
+      "relationship": {
+       "VETERAN": 5
+      }
+     },
+     "resultText": "你记下了这句话的句式：\"当时我们是基于XX前提做的决策，现在前提变了。\""
+    },
+    {
+     "id": "PRACTICE",
+     "text": "现学现用",
+     "successChance": 0.4,
+     "successEffects": {
+      "mind": 6,
+      "performance": 3
+     },
+     "failureEffects": {
+      "relationship": {
+       "BOSS": -5
+      },
+      "mind": -5
+     },
+     "resultText": "你甩得还不够圆。老板追问了一句，你就露馅了。"
+    }
+   ]
+  },
+  {
+   "id": "veteran_s2",
+   "title": "传承之礼",
+   "description": "老油条要内部转岗了。临走前他把一本笔记本塞给你：\"我十年的踩坑记录。别给别人看。\"",
+   "category": "CHAIN",
+   "rarity": "EPIC",
+   "priority": "IMPORTANT",
+   "baseWeight": 0,
+   "conditions": {
+    "eventFlag": "veteran_student"
+   },
+   "onceEver": true,
+   "chainId": "veteran",
+   "chainStage": 2,
+   "effects": {
+    "grantTechnique": "tech_blame_god",
+    "cultivation": 50,
+    "mind": 10,
+    "relationship": {
+     "VETERAN": 10
+    }
+   }
+  },
+  {
+   "id": "n_standup",
+   "title": "晨会站会",
+   "description": "站会上每个人都说\"没什么阻塞\"。你知道有三个人的\"没什么\"至少值两天工期。",
+   "category": "WORK",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 12,
+   "cooldown": 7200,
+   "choices": [
+    {
+     "id": "SPEAK",
+     "text": "说出真实阻塞",
+     "successChance": 0.5,
+     "successEffects": {
+      "performance": 6,
+      "relationship": {
+       "BOSS": 3
+      }
+     },
+     "failureEffects": {
+      "mind": -4
+     },
+     "resultText": "老板说\"这些细节会后聊\"。会后没有会。"
+    },
+    {
+     "id": "NOD",
+     "text": "没什么阻塞",
+     "successChance": {
+      "mind": 1
+     },
+     "resultText": "轮到你了。你说\"没什么阻塞\"。会开完了。"
+    }
+   ]
+  },
+  {
+   "id": "n_review",
+   "title": "代码评审",
+   "description": "你给同事的代码提了 12 条意见。他给你回了\"好的，我改\"。然后只改了 2 条。",
+   "category": "WORK",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 11,
+   "cooldown": 7200,
+   "effects": {
+    "performance": 5,
+    "cultivation": 5
+   }
+  },
+  {
+   "id": "n日报",
+   "title": "写日报",
+   "description": "今天的日报你写了四十分钟。其中三十五分钟在想怎么把\"改样式\"写得有意义。",
+   "category": "WORK",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 10,
+   "cooldown": 7200,
+   "effects": {
+    "performance": 3,
+    "cultivation": 3,
+    "mind": -2
+   }
+  },
+  {
+   "id": "n_ppt",
+   "title": "紧急PPT",
+   "description": "老板明早汇报要用PPT，晚上八点甩给你三页大纲：\"润色一下，不用太久。\"",
+   "category": "WORK",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 9,
+   "cooldown": 14400,
+   "choices": [
+    {
+     "id": "ELABORATE",
+     "text": "精心制作",
+     "successChance": {
+      "performance": 10,
+      "mind": -8,
+      "material": {
+       "ppt_fragment": 2,
+       "boss_pie": 1
+      }
+     },
+     "resultText": "你做了23页，加了两段动画。老板最后只讲了第3页。"
+    },
+    {
+     "id": "MINIMAL",
+     "text": "能看就行",
+     "successChance": {
+      "performance": 4,
+      "mind": -3,
+      "material": {
+       "ppt_fragment": 1
+      }
+     },
+     "resultText": "三页变六页。够用了。"
+    }
+   ]
+  },
+  {
+   "id": "n_meeting_endless",
+   "title": "无限会议",
+   "description": "这个会本来约了半小时。现在已经第九十分钟了，议题还没过第一个。",
+   "category": "MEETING",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 10,
+   "cooldown": 14400,
+   "effects": {
+    "mind": -8,
+    "innerDemon": 3,
+    "cultivation": 5
+   }
+  },
+  {
+   "id": "n_meeting_useless",
+   "title": "可以不开的会",
+   "description": "会议邀请写着\"简单同步\"。你算了算，同步的内容一封邮件就能写完。",
+   "category": "MEETING",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 10,
+   "cooldown": 7200,
+   "effects": {
+    "mind": -4,
+    "cultivation": 4
+   }
+  },
+  {
+   "id": "n_boss_pass",
+   "title": "老板走过",
+   "description": "老板从你身后走过。你以0.3秒的速度切了屏幕。他停了一下，又走了。",
+   "category": "BOSS",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 10,
+   "allowedModes": [
+    "FISHING",
+    "CULTIVATING",
+    "SOCIAL"
+   ],
+   "cooldown": 3600,
+   "effects": {
+    "mind": -3
+   }
+  },
+  {
+   "id": "n_boss_praise",
+   "title": "老板表扬",
+   "description": "老板在群里表扬了你的方案\"思路清晰\"。你看了三遍，确认没有@错人。",
+   "category": "BOSS",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "cooldown": 14400,
+   "effects": {
+    "performance": 8,
+    "mind": 8,
+    "relationship": {
+     "BOSS": 5
+    }
+   }
+  },
+  {
+   "id": "n_boss_blame",
+   "title": "无妄之锅",
+   "description": "线上出了问题，老板第一句话是\"这块是谁负责的\"。你发现那个模块的文档上写的是你的名字。",
+   "category": "BOSS",
+   "rarity": "COMMON",
+   "priority": "IMPORTANT",
+   "baseWeight": 8,
+   "cooldown": 28800,
+   "choices": [
+    {
+     "id": "OWN",
+     "text": "先扛下来",
+     "successChance": {
+      "mind": -10,
+      "innerDemon": 8,
+      "relationship": {
+       "BOSS": 3
+      }
+     },
+     "resultText": "你说\"我来处理\"。处理完之后，锅还是你的，但你赚到了态度分。"
+    },
+    {
+     "id": "EXPLAIN",
+     "text": "解释来龙去脉",
+     "successChance": 0.4,
+     "successEffects": {
+      "mind": 3,
+      "relationship": {
+       "BOSS": -2
+      }
+     },
+     "failureEffects": {
+      "relationship": {
+       "BOSS": -8
+      },
+      "innerDemon": 6
+     },
+     "resultText": "你解释了十分钟。老板听完说\"所以现在谁来修？\"。"
+    }
+   ]
+  },
+  {
+   "id": "n_req_change",
+   "title": "需求又变了",
+   "description": "产品经理第N次改需求。这次他很有礼貌，礼貌得让你更想打人。",
+   "category": "PRODUCT",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 11,
+   "cooldown": 14400,
+   "effects": {
+    "mind": -6,
+    "performance": 3,
+    "relationship": {
+     "PRODUCT": 1
+    }
+   }
+  },
+  {
+   "id": "n_req_urgent",
+   "title": "突然插急活",
+   "description": "\"这个很急，今天能上吗？\"产品经理凑过来的表情，像在问\"能借我五百吗\"。",
+   "category": "PRODUCT",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 10,
+   "cooldown": 14400,
+   "choices": [
+    {
+     "id": "ACCEPT",
+     "text": "接了",
+     "successChance": 0.6,
+     "successEffects": {
+      "performance": 12,
+      "salary": 30,
+      "mind": -8
+     },
+     "failureEffects": {
+      "performance": -5,
+      "mind": -10
+     },
+     "resultText": "你加了三小时班。上线的功能第二天被下线了。"
+    },
+    {
+     "id": "REFUSE",
+     "text": "排期下个迭代",
+     "successChance": {
+      "relationship": {
+       "PRODUCT": -4
+      },
+      "mind": 3
+     },
+     "resultText": "产品说\"我跟老板说去\"。你等着，任务还是进了下个迭代。"
+    }
+   ]
+  },
+  {
+   "id": "n_test_reject",
+   "title": "测试打回",
+   "description": "测试小哥提了7个bug。其中3个是\"预期结果和实际不一致\"——预期文档是他自己写的。",
+   "category": "BUG",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 11,
+   "cooldown": 14400,
+   "effects": {
+    "performance": -4,
+    "mind": -4,
+    "relationship": {
+     "TESTER": 1
+    }
+   }
+  },
+  {
+   "id": "n_bug_hidden",
+   "title": "隐蔽Bug",
+   "description": "你发现了一个藏得很深的bug。修完之后你陷入了沉思：它存在了两年，为什么现在才发现？",
+   "category": "BUG",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 10,
+   "cooldown": 14400,
+   "effects": {
+    "performance": 8,
+    "cultivation": 8,
+    "material": {
+     "bug_crystal": 1
+    }
+   }
+  },
+  {
+   "id": "n_offline_380",
+   "title": "凌晨上线",
+   "description": "需求要求凌晨三点上线，因为\"用户少\"。你看着\"用户少\"三个字，想到了你自己凌晨三点的心跳。",
+   "category": "BUG",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 7,
+   "cooldown": 604800,
+   "effects": {
+    "performance": 10,
+    "salary": 60,
+    "mind": -12,
+    "innerDemon": 6
+   }
+  },
+  {
+   "id": "n_overtime_voluntary",
+   "title": "自愿加班",
+   "description": "九点了，办公室还有五个人。没有一个是自愿的，但都没有走。",
+   "category": "WORK",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 9,
+   "cooldown": 28800,
+   "effects": {
+    "salary": 40,
+    "performance": 8,
+    "mind": -8,
+    "innerDemon": 3
+   }
+  },
+  {
+   "id": "n_lunch_where",
+   "title": "午饭去哪",
+   "description": "\"今天中午吃啥？\"这个问题的难度，随着工龄增长而指数上升。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 10,
+   "cooldown": 86400,
+   "effects": {
+    "mind": 3
+   }
+  },
+  {
+   "id": "n_milk_tea",
+   "title": "下午茶拼单",
+   "description": "同事发起奶茶拼单。你本想减肥，但\"满50减20\"的横幅说服了你。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 10,
+   "cooldown": 86400,
+   "effects": {
+    "salaryCost": 18,
+    "mind": 6,
+    "relationship": {
+     "JUNIOR": 2
+    }
+   }
+  },
+  {
+   "id": "n_express",
+   "title": "快递到工位",
+   "description": "你网购的机械键盘到了。拆快递的瞬间，你感觉自己像个开盲盒的孩子。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 8,
+   "cooldown": 172800,
+   "effects": {
+    "mind": 5,
+    "cultivation": 3
+   }
+  },
+  {
+   "id": "n_hr_survey",
+   "title": "HR满意度调研",
+   "description": "HR发了员工满意度问卷，注明\"匿名\"。你觉得这个\"匿名\"的意思是可以查工号。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 9,
+   "cooldown": 604800,
+   "choices": [
+    {
+     "id": "HONEST",
+     "text": "如实填写",
+     "successChance": 0.3,
+     "successEffects": {
+      "mind": 5,
+      "relationship": {
+       "HR": -3
+      }
+     },
+     "failureEffects": {
+      "relationship": {
+       "HR": -8
+      },
+      "innerDemon": 3
+     },
+     "resultText": "你如实写了\"希望减少无效会议\"。HR约你\"喝咖啡聊聊\"。"
+    },
+    {
+     "id": "POLITE",
+     "text": "全部满意",
+     "successChance": {
+      "relationship": {
+       "HR": 3
+      },
+      "mind": -2
+     },
+     "resultText": "你全勾了\"满意\"。卷面上你最幸福。"
+    }
+   ]
+  },
+  {
+   "id": "n_salary_day",
+   "title": "工资到账",
+   "description": "工资到账短信响了。你先看了公积金，再看个税，最后才看实发。每个数字都比上个月理直气壮了一点。",
+   "category": "WORK",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "cooldown": 604800,
+   "effects": {
+    "salary": 20,
+    "mind": 8
+   }
+  },
+  {
+   "id": "n_review_self",
+   "title": "自我绩效评价",
+   "description": "绩效自评让你写\"本季度最大成就\"。你写了半天，删了又写。最后写了\"按时交付\"。",
+   "category": "WORK",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "cooldown": 604800,
+   "effects": {
+    "performance": 5,
+    "mind": -3
+   }
+  },
+  {
+   "id": "n_colleague_quit",
+   "title": "同事提离职",
+   "description": "隔壁组的小李提了离职。他请全组喝奶茶，笑得像刚中彩票。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "cooldown": 604800,
+   "choices": [
+    {
+     "id": "ASK",
+     "text": "问他去哪",
+     "successChance": {
+      "mind": -3,
+      "cultivation": 5,
+      "setFlags": [
+       "want_quit_more"
+      ]
+     },
+     "resultText": "他说了公司名。那个公司在招聘软件的首页上挂了很久。"
+    },
+    {
+     "id": "BLESS",
+     "text": "只说恭喜",
+     "successChance": {
+      "mind": 2
+     },
+     "resultText": "你说\"恭喜\"。这两个字里有三分真心，七分羡慕。"
+    }
+   ]
+  },
+  {
+   "id": "n_printer",
+   "title": "打印机渡劫",
+   "description": "打印机又卡纸了。它发出濒死的哀鸣，吐出一张半页白半页黑的纸。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 9,
+   "cooldown": 28800,
+   "effects": {
+    "cultivation": 5,
+    "mind": -2
+   }
+  },
+  {
+   "id": "n_vpn",
+   "title": "VPN断了",
+   "description": "VPN毫无征兆地断了。你重启了三次，换了两个网，最后发现是公司出口带宽满了。",
+   "category": "BUG",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 9,
+   "cooldown": 28800,
+   "effects": {
+    "mind": -3,
+    "cultivation": 2
+   }
+  },
+  {
+   "id": "n_keyboard_war",
+   "title": "键盘声战争",
+   "description": "新同事的机械键盘是青轴。整个办公室的人都在用眼神谴责他。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 9,
+   "cooldown": 86400,
+   "effects": {
+    "mind": -2,
+    "cultivation": 3
+   }
+  },
+  {
+   "id": "n_ac_suddenly",
+   "title": "空调之争",
+   "description": "26度还是22度？这个问题的战争从夏天打到冬天，从来没有赢家。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 9,
+   "cooldown": 86400,
+   "effects": {
+    "mind": -1
+   }
+  },
+  {
+   "id": "n_email_cc",
+   "title": "抄送的艺术",
+   "description": "一封邮件被抄送给了全组，包括老板的老板。你从\"收件人\"变成了\"背锅候选人\"。",
+   "category": "WORK",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "cooldown": 28800,
+   "effects": {
+    "mind": -4,
+    "performance": 2
+   }
+  },
+  {
+   "id": "n_data_request",
+   "title": "临时取数",
+   "description": "老板要一份\"马上要\"的数据。你花了三小时做出来，五分钟后收到回复\"好的，先放着\"。",
+   "category": "WORK",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 9,
+   "cooldown": 28800,
+   "effects": {
+    "performance": 5,
+    "mind": -5
+   }
+  },
+  {
+   "id": "n_desk_plant",
+   "title": "绿萝告急",
+   "description": "工位的绿萝黄了两片叶子。你想起上一次浇水是两周前。它替你扛下了工位的岁月。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 7,
+   "cooldown": 172800,
+   "effects": {
+    "mind": 3
+   }
+  },
+  {
+   "id": "n_wifi_slow",
+   "title": "下午三点的WiFi",
+   "description": "每天下午三点，公司WiFi准时变慢。大家怀疑是带宽调度，其实是所有人都在点下午茶。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 8,
+   "cooldown": 86400,
+   "effects": {
+    "mind": -1,
+    "cultivation": 2
+   }
+  },
+  {
+   "id": "m_server_tribulation",
+   "title": "服务器渡劫",
+   "description": "机房的服务器在雷雨夜集体重启。运维说这叫\"雷劫\"，扛过去算它命大。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 9,
+   "cooldown": 86400,
+   "effects": {
+    "cultivation": 10,
+    "mind": 3
+   }
+  },
+  {
+   "id": "m_bug_spirit",
+   "title": "Bug成精",
+   "description": "这个bug你修了八次，它出现了九次。你开始怀疑它在进化。",
+   "category": "BUG",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "cooldown": 86400,
+   "choices": [
+    {
+     "id": "PURSUE",
+     "text": "追到底",
+     "successChance": 0.5,
+     "successEffects": {
+      "cultivation": 30,
+      "performance": 10,
+      "material": {
+       "bug_crystal": 2
+      }
+     },
+     "failureEffects": {
+      "mind": -8,
+      "innerDemon": 5
+     },
+     "resultText": "第九次，你终于抓到了它。根因是一行十年前的代码在等一个十年后的输入。"
+    },
+    {
+     "id": "TAME",
+     "text": "供奉起来",
+     "successChance": {
+      "mind": 2,
+      "cultivation": 10
+     },
+     "resultText": "你在代码里加了个try-catch，注释写着\"勿动\"。它安静了。"
+    }
+   ]
+  },
+  {
+   "id": "m_coffee_furnace",
+   "title": "咖啡炼丹炉",
+   "description": "茶水间的咖啡机在你按键的瞬间发出了龙吟。这杯美式，有灵性。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 9,
+   "cooldown": 28800,
+   "effects": {
+    "cultivation": 8,
+    "mind": 5,
+    "material": {
+     "coffee_residue": 1
+    }
+   }
+  },
+  {
+   "id": "m_desk_array",
+   "title": "工位聚灵阵",
+   "description": "你把绿萝、加湿器和三块显示器摆成了特定角度。工位的灵气浓度提升了 12%。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 8,
+   "cooldown": 172800,
+   "effects": {
+    "cultivation": 15,
+    "mind": 3
+   }
+  },
+  {
+   "id": "m_meeting_illusion",
+   "title": "会议室幻境",
+   "description": "这个会开了三小时，你却记不起任何一句人话。你怀疑会议室吞噬了时间。",
+   "category": "MEETING",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 7,
+   "cooldown": 86400,
+   "effects": {
+    "mind": -5,
+    "cultivation": 8,
+    "innerDemon": 2
+   }
+  },
+  {
+   "id": "m_git_realm",
+   "title": "Git仓库秘境",
+   "description": "你在 git log 里看到了一条来自2035年的提交。作者署名是你，留言是\"别升职\"。",
+   "category": "SECRET",
+   "rarity": "EPIC",
+   "priority": "NORMAL",
+   "baseWeight": 4,
+   "cooldown": 604800,
+   "onceEver": true,
+   "choices": [
+    {
+     "id": "OBEY",
+     "text": "听未来自己的",
+     "successChance": {
+      "mind": 5,
+      "cultivation": 10,
+      "setFlags": [
+       "git_prophecy"
+      ]
+     },
+     "resultText": "你决定躺平一周。奇怪的是，这周特别顺。"
+    },
+    {
+     "id": "DEFY",
+     "text": "偏要升职",
+     "successChance": {
+      "performance": 15,
+      "mind": -5
+     },
+     "resultText": "你把这条提交当成了反向指标。未来的事，未来再说。"
+    }
+   ]
+  },
+  {
+   "id": "m_nap_dao",
+   "title": "午睡入定",
+   "description": "趴在工位上睡了二十分钟。醒来时你分不清是午休还是闭关。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 10,
+   "cooldown": 86400,
+   "effects": {
+    "mind": 8,
+    "cultivation": 5
+   }
+  },
+  {
+   "id": "m_elevator_npc",
+   "title": "电梯奇遇",
+   "description": "电梯里遇到大老板。三十层楼的行程，你俩都没说话。这是你本周最长的社交。",
+   "category": "BOSS",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 8,
+   "cooldown": 172800,
+   "effects": {
+    "mind": -2,
+    "cultivation": 2
+   }
+  },
+  {
+   "id": "m_wifi_dao",
+   "title": "断网悟道",
+   "description": "公司断网一小时。IT说是故障，你说是天意。这一小时你完成了两天的活。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 6,
+   "cooldown": 604800,
+   "effects": {
+    "performance": 15,
+    "cultivation": 15,
+    "mind": 5
+   }
+  },
+  {
+   "id": "m_pie_smell",
+   "title": "画饼真香",
+   "description": "老板画的饼太大了，你居然闻到了香味。你需要冷静一下。",
+   "category": "BOSS",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 8,
+   "cooldown": 86400,
+   "effects": {
+    "cultivation": 8,
+    "mind": -2
+   }
+  },
+  {
+   "id": "m_5g_spirit",
+   "title": "5G灵脉",
+   "description": "你发现公司某角落网速奇快。从此那里站满了\"抽烟\"的人。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 8,
+   "cooldown": 172800,
+   "effects": {
+    "cultivation": 10,
+    "mind": 3
+   }
+  },
+  {
+   "id": "m_old_file",
+   "title": "上古文档",
+   "description": "共享盘里有个文件夹叫\"新建文件夹(3)\"，里面有公司2009年的组织架构图。你在里面看到了老板的名字，那时候他还是你现在的职级。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 6,
+   "cooldown": 604800,
+   "effects": {
+    "cultivation": 20,
+    "mind": 5
+   }
+  },
+  {
+   "id": "m_screen_ghost",
+   "title": "屏幕鬼影",
+   "description": "你的显示器左上角总是闪过一个白影。报修三次，师傅说\"显示器没问题\"。你开始怀疑是自己有问题。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 5,
+   "cooldown": 604800,
+   "effects": {
+    "innerDemon": 5,
+    "cultivation": 10
+   }
+  },
+  {
+   "id": "m_ot_ghost",
+   "title": "加班幻觉",
+   "description": "凌晨的办公室，你听到有人叫你的名字。回头只有你工位的绿萝。它好像又黄了一片。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 5,
+   "cooldown": 604800,
+   "effects": {
+    "innerDemon": 6,
+    "cultivation": 12
+   }
+  },
+  {
+   "id": "m_key_spirit",
+   "title": "键盘显灵",
+   "description": "你的键盘F键失灵了三天。今天它自己好了。你没修它，就像你不会去打扰一个正在闭关的高人。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 7,
+   "cooldown": 172800,
+   "effects": {
+    "cultivation": 8,
+    "mind": 3
+   }
+  },
+  {
+   "id": "m_ppt_dao",
+   "title": "PPT悟道",
+   "description": "做到第38页时，你突然理解了老板所有的决策。原来PPT才是公司的功法秘籍。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 6,
+   "cooldown": 604800,
+   "effects": {
+    "cultivation": 25,
+    "performance": 5,
+    "material": {
+     "ppt_fragment": 1
+    }
+   }
+  },
+  {
+   "id": "m_smell_debug",
+   "title": "闻Bug术",
+   "description": "你发现自己能\"闻到\"bug的味道了。这次是这排代码——果然，隐藏三层的空指针。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 6,
+   "cooldown": 86400,
+   "effects": {
+    "performance": 10,
+    "cultivation": 10,
+    "material": {
+     "bug_crystal": 1
+    }
+   }
+  },
+  {
+   "id": "m_nap_boss",
+   "title": "老板也在摸鱼",
+   "description": "你路过老板办公室，看到他在刷短视频。四目相对，他缓缓地、庄重地关掉了屏幕。从此你们有了共享的秘密。",
+   "category": "BOSS",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 5,
+   "cooldown": 604800,
+   "onceEver": true,
+   "effects": {
+    "relationship": {
+     "BOSS": 8
+    },
+    "mind": 5
+   }
+  },
+  {
+   "id": "m_gate_pass",
+   "title": "门禁失效",
+   "description": "你的工牌今天早上突然刷不开门。保安看了你三秒，放你进去了。你在这个公司工作的证明，只剩工牌和眼神。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 6,
+   "cooldown": 172800,
+   "effects": {
+    "mind": -2,
+    "cultivation": 5,
+    "material": {
+     "badge_fragment": 1
+    }
+   }
+  },
+  {
+   "id": "m_duanwu",
+   "title": "节日粽子",
+   "description": "端午发了粽子。行政说这是\"高端定制款\"。你咬了一口，是蛋黄肉的，还挺好吃。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 6,
+   "cooldown": 604800,
+   "effects": {
+    "mind": 6,
+    "salaryCost": 0
+   }
+  },
+  {
+   "id": "m_weather_rain",
+   "title": "暴雨通勤",
+   "description": "暴雨天，地铁限流。你淋着雨到公司，工位还没坐热就开始羡慕远程办公的人。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 7,
+   "cooldown": 604800,
+   "effects": {
+    "mind": -5,
+    "cultivation": 3
+   }
+  },
+  {
+   "id": "m_canteen_dao",
+   "title": "食堂玄学",
+   "description": "食堂阿姨的手今天抖了一下，多给了你一块肉。你觉得今天适合买彩票。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 8,
+   "cooldown": 86400,
+   "effects": {
+    "mind": 5,
+    "cultivation": 3
+   }
+  },
+  {
+   "id": "m_water_cooler",
+   "title": "饮水机八卦",
+   "description": "饮水机旁听到了一个惊天八卦：原来隔壁组的OKR和你们的一模一样。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 8,
+   "cooldown": 86400,
+   "effects": {
+    "mind": 2,
+    "cultivation": 4
+   }
+  },
+  {
+   "id": "m_second_screen",
+   "title": "副屏的秘密",
+   "description": "你发现副屏朝向的角度，刚好能让路过的人看到代码，而你看到的是弹幕网站。工位风水学，是一门大学问。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 7,
+   "cooldown": 172800,
+   "effects": {
+    "cultivation": 8,
+    "mind": 4,
+    "material": {
+     "fishing_tip": 1
+    }
+   }
+  },
+  {
+   "id": "m_startup_dream",
+   "title": "创业的梦",
+   "description": "午休时梦到自己创业成功，财务自由。醒来后闹钟响了，你还有三个需求要改。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 8,
+   "cooldown": 172800,
+   "effects": {
+    "mind": -3,
+    "cultivation": 8
+   }
+  },
+  {
+   "id": "npc_boss_1on1",
+   "title": "老板1对1",
+   "description": "老板约你1对1：\"聊聊你的职业规划。\"你准备了一段话，他在看手机。",
+   "category": "BOSS",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 9,
+   "cooldown": 604800,
+   "choices": [
+    {
+     "id": "PLAN",
+     "text": "认真讲规划",
+     "successChance": 0.5,
+     "successEffects": {
+      "relationship": {
+       "BOSS": 8
+      },
+      "performance": 5
+     },
+     "failureEffects": {
+      "mind": -5
+     },
+     "resultText": "老板说\"很好，保持\"。你不知道保持什么。"
+    },
+    {
+     "id": "LISTEN",
+     "text": "等他说",
+     "successChance": {
+      "relationship": {
+       "BOSS": 3
+      }
+     },
+     "resultText": "他说了四十分钟公司战略。你点头了十七次。"
+    }
+   ]
+  },
+  {
+   "id": "npc_boss_dinner",
+   "title": "老板请客",
+   "description": "老板请核心成员吃饭。菜很好，话题很尬。全程你只在他说\"年轻人要多吃\"时动了筷子。",
+   "category": "BOSS",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 7,
+   "cooldown": 604800,
+   "effects": {
+    "mind": 3,
+    "relationship": {
+     "BOSS": 6
+    },
+    "salaryCost": 0
+   }
+  },
+  {
+   "id": "npc_boss_quiz",
+   "title": "老板突击提问",
+   "description": "老板突然问\"这个功能的数据怎么样\"。你打开了三份文档，数据都不一样。",
+   "category": "BOSS",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 9,
+   "cooldown": 28800,
+   "choices": [
+    {
+     "id": "HONEST",
+     "text": "说数据有出入",
+     "successChance": 0.5,
+     "successEffects": {
+      "relationship": {
+       "BOSS": 3
+      },
+      "mind": -2
+     },
+     "failureEffects": {
+      "relationship": {
+       "BOSS": -4
+      }
+     },
+     "resultText": "老板皱了皱眉，说\"把数据搞准\"。这成了你的新需求。"
+    },
+    {
+     "id": "BLUFF",
+     "text": "报个大概",
+     "successChance": 0.4,
+     "successEffects": {
+      "performance": 5
+     },
+     "failureEffects": {
+      "relationship": {
+       "BOSS": -6
+      },
+      "innerDemon": 3
+     },
+     "resultText": "你报了个数。三天后有人引用了这个数，越传越大。"
+    }
+   ]
+  },
+  {
+   "id": "npc_prod_review",
+   "title": "产品评审会",
+   "description": "产品讲解新需求，PPT第9页写着\"技术实现很简单\"。你的手在桌下握成了拳。",
+   "category": "PRODUCT",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 10,
+   "cooldown": 604800,
+   "choices": [
+    {
+     "id": "QUESTION",
+     "text": "问边界情况",
+     "successChance": 0.5,
+     "successEffects": {
+      "performance": 6,
+      "relationship": {
+       "PRODUCT": -2
+      }
+     },
+     "failureEffects": {
+      "mind": -5
+     },
+     "resultText": "你问了三个\"如果\"。产品现场新造了三个需求。"
+    },
+    {
+     "id": "SILENT",
+     "text": "保持沉默",
+     "successChance": {
+      "mind": 2
+     },
+     "resultText": "你全程微笑。会后需求文档多了两页。"
+    }
+   ]
+  },
+  {
+   "id": "npc_prod_mockup",
+   "title": "原型图之谜",
+   "description": "产品发来的原型图上有个按钮没写文案，备注是\"你懂的\"。你不懂。没人懂。",
+   "category": "PRODUCT",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 9,
+   "cooldown": 28800,
+   "effects": {
+    "mind": -3,
+    "cultivation": 3
+   }
+  },
+  {
+   "id": "npc_tester_warning",
+   "title": "测试预警",
+   "description": "测试小哥私下告诉你：\"明天要测的模块，我昨天点了两下，感觉有东西。\"",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 9,
+   "cooldown": 604800,
+   "choices": [
+    {
+     "id": "PRECHECK",
+     "text": "提前自查",
+     "successChance": {
+      "performance": 8,
+      "relationship": {
+       "TESTER": 6
+      },
+      "cultivation": 5
+     },
+     "resultText": "你真查出了两个问题。测试小哥说\"稳\"。"
+    },
+    {
+     "id": "CONFIDENT",
+     "text": "我的代码没问题",
+     "successChance": 0.3,
+     "successEffects": {
+      "mind": 3
+     },
+     "failureEffects": {
+      "performance": -8,
+      "relationship": {
+       "TESTER": -3
+      },
+      "mind": -5
+     },
+     "resultText": "测试第二天给你提了9个bug。其中一个标了P0。"
+    }
+   ]
+  },
+  {
+   "id": "npc_tester_treat",
+   "title": "测试的零食",
+   "description": "测试小哥工位的零食柜永远敞开。他说\"吃吧，提bug之前吃点甜的，大家都好说话\"。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 8,
+   "cooldown": 86400,
+   "effects": {
+    "mind": 4,
+    "relationship": {
+     "TESTER": 3
+    },
+    "salaryCost": 0
+   }
+  },
+  {
+   "id": "npc_junior_fish",
+   "title": "小师妹求带",
+   "description": "小师妹说想学\"师兄的摸鱼心法\"。你看了看四周，压低了声音。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 9,
+   "cooldown": 604800,
+   "choices": [
+    {
+     "id": "TEACH",
+     "text": "传授三成",
+     "successChance": {
+      "relationship": {
+       "JUNIOR": 8
+      },
+      "cultivation": 5,
+      "mind": 4
+     },
+     "resultText": "你教了她三成。她学得比你快。"
+    },
+    {
+     "id": "REFUSE",
+     "text": "这个不能教",
+     "successChance": {
+      "relationship": {
+       "JUNIOR": -4
+      }
+     },
+     "resultText": "她说\"哦\"。第二周她摸鱼比你顺畅了。"
+    }
+   ]
+  },
+  {
+   "id": "npc_junior_gossip",
+   "title": "小师妹的情报",
+   "description": "小师妹的消息比内网还快：\"听说下个月要调薪了，你去争取争取！\"",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "cooldown": 604800,
+   "effects": {
+    "mind": 5,
+    "cultivation": 5,
+    "relationship": {
+     "JUNIOR": 2
+    }
+   }
+  },
+  {
+   "id": "npc_veteran_shortcut",
+   "title": "老油条的捷径",
+   "description": "老油条告诉你一个内部系统的隐藏快捷键，能省一半工单处理时间。\"别外传，这是师门信物。\"",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "cooldown": 604800,
+   "effects": {
+    "performance": 8,
+    "relationship": {
+     "VETERAN": 4
+    },
+    "cultivation": 5
+   }
+  },
+  {
+   "id": "npc_veteran_warning",
+   "title": "老油条的警告",
+   "description": "老油条意味深长地说：\"下周的会，你别第一个发言。\"",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 8,
+   "cooldown": 604800,
+   "choices": [
+    {
+     "id": "HEED",
+     "text": "听劝",
+     "successChance": {
+      "mind": 3,
+      "relationship": {
+       "VETERAN": 5
+      }
+     },
+     "resultText": "会上第一个发言的人被追加了三个需求。你后怕地摸了摸鼻子。"
+    },
+    {
+     "id": "IGNORE2",
+     "text": "不以为然",
+     "successChance": 0.4,
+     "successEffects": {
+      "performance": 5
+     },
+     "failureEffects": {
+      "performance": -5,
+      "mind": -6,
+      "relationship": {
+       "VETERAN": -3
+      }
+     },
+     "resultText": "你发言了。然后你领到了三个\"顺便做一下\"。"
+    }
+   ]
+  },
+  {
+   "id": "npc_hr_review",
+   "title": "HR面谈",
+   "description": "HR仙子约你\"例行沟通\"。你回忆了自己有没有做过什么，想了十分钟，一无所得。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 9,
+   "cooldown": 604800,
+   "choices": [
+    {
+     "id": "OPEN",
+     "text": "说说真实想法",
+     "successChance": 0.5,
+     "successEffects": {
+      "relationship": {
+       "HR": 8
+      },
+      "mind": 3
+     },
+     "failureEffects": {
+      "relationship": {
+       "HR": -3
+      },
+      "innerDemon": 3
+     },
+     "resultText": "你说希望能少一点无效加班。HR记了很多。你不知道她记的是哪一面。"
+    },
+    {
+     "id": "SAFE",
+     "text": "标准答案",
+     "successChance": {
+      "relationship": {
+       "HR": 2
+      }
+     },
+     "resultText": "你说\"挺好的，学到了很多\"。HR笑着说\"你每季度都这么说\"。"
+    }
+   ]
+  },
+  {
+   "id": "npc_hr_benefit",
+   "title": "HR福利通知",
+   "description": "HR发通知：补充医疗保险生效了。你研究了三分钟条款，结论是\"希望永远用不上\"。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 7,
+   "cooldown": 604800,
+   "effects": {
+    "mind": 3
+   }
+  },
+  {
+   "id": "npc_hr_payroll",
+   "title": "薪资疑问",
+   "description": "你发现这个月工资多了300块。你去问HR，她说\"查一下\"。第二天，少了300。",
+   "category": "NPC",
+   "rarity": "COMMON",
+   "priority": "NORMAL",
+   "baseWeight": 6,
+   "cooldown": 604800,
+   "effects": {
+    "mind": -4,
+    "salary": 0
+   }
+  },
+  {
+   "id": "r_poker_face",
+   "title": "扑克脸大师",
+   "description": "老板在会上说\"这个项目谁做的，做得不错\"。全组安静了五秒。你缓缓举手，保持扑克脸。",
+   "category": "BOSS",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 5,
+   "cooldown": 604800,
+   "effects": {
+    "relationship": {
+     "BOSS": 10
+    },
+    "performance": 10,
+    "mind": 8
+   }
+  },
+  {
+   "id": "r_deadline_miracle",
+   "title": "不可能的交付",
+   "description": " deadline 提前了一周。你闭关两天，咖啡喝了九杯，交付了。你看着自己的手，怀疑它们悟了。",
+   "category": "WORK",
+   "rarity": "RARE",
+   "priority": "IMPORTANT",
+   "baseWeight": 5,
+   "cooldown": 604800,
+   "effects": {
+    "performance": 20,
+    "salary": 80,
+    "mind": -15,
+    "innerDemon": 8,
+    "cultivation": 20
+   }
+  },
+  {
+   "id": "r_headhunter",
+   "title": "猎头来电",
+   "description": "猎头说有个\"职级翻倍、薪资涨50%\"的机会。你听完了，说了句\"我再想想\"。挂了电话，你把\"再想想\"设成了屏保。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "IMPORTANT",
+   "baseWeight": 5,
+   "cooldown": 604800,
+   "choices": [
+    {
+     "id": "REPLY",
+     "text": "发简历看看",
+     "successChance": {
+      "mind": -5,
+      "cultivation": 10,
+      "setFlags": [
+       "headhunter_contacted"
+      ]
+     },
+     "resultText": "你更新了简历发过去。对方已读。"
+    },
+    {
+     "id": "STAY",
+     "text": "再也不是",
+     "successChance": {
+      "mind": 5,
+      "relationship": {
+       "BOSS": 2
+      }
+     },
+     "resultText": "你删掉了短信。稳定也是一种修行。"
+    }
+   ]
+  },
+  {
+   "id": "r_dark_kitchen",
+   "title": "深夜食堂",
+   "description": "加班到十一点，行政突然推来一车宵夜：\"老板请的。\"烤串的热气里，你重新审视了这家公司。",
+   "category": "WORK",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 5,
+   "cooldown": 604800,
+   "effects": {
+    "mind": 10,
+    "salary": 30,
+    "relationship": {
+     "BOSS": 3
+    }
+   }
+  },
+  {
+   "id": "r_gamified_kpi",
+   "title": "绩效奇迹",
+   "description": "季度绩效出来了：你是团队第一。奖金到账那一刻，你决定这季度继续装普通人。",
+   "category": "WORK",
+   "rarity": "EPIC",
+   "priority": "NORMAL",
+   "baseWeight": 4,
+   "cooldown": 1209600,
+   "effects": {
+    "salary": 200,
+    "performance": 15,
+    "mind": 12,
+    "relationship": {
+     "BOSS": 5
+    }
+   }
+  },
+  {
+   "id": "r_system_enlightenment",
+   "title": "系统顿悟",
+   "description": "凌晨两点半，你突然想通了系统里所有纠缠不清的依赖关系。你爬起来画了张图，然后热泪盈眶。",
+   "category": "SECRET",
+   "rarity": "EPIC",
+   "priority": "NORMAL",
+   "baseWeight": 3,
+   "cooldown": 1209600,
+   "effects": {
+    "cultivation": 80,
+    "mind": 15,
+    "performance": 10
+   }
+  },
+  {
+   "id": "r_zhuangzhou_dream",
+   "title": "庄周梦蝶",
+   "description": "午休你梦到自己是一只牛，在格子间的草原上吃草。醒来后发现，口水打湿了键盘。到底谁是梦？",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 4,
+   "cooldown": 604800,
+   "effects": {
+    "cultivation": 30,
+    "mind": 8
+   }
+  },
+  {
+   "id": "r_fire_drill",
+   "title": "消防演习",
+   "description": "全员疏散到楼下，烈日下站了四十分钟。你观察到：没有人在讨论工作，这是本月最轻松的时刻。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 5,
+   "cooldown": 1209600,
+   "effects": {
+    "mind": 8,
+    "cultivation": 5
+   }
+  },
+  {
+   "id": "r_anniversary_gift",
+   "title": "周年礼物",
+   "description": "入职周年，HR送了你一个定制马克杯，上面印着你的名字和日期。这是公司记得你的方式。",
+   "category": "NPC",
+   "rarity": "RARE",
+   "priority": "NORMAL",
+   "baseWeight": 4,
+   "cooldown": 1209600,
+   "onceEver": true,
+   "effects": {
+    "mind": 10,
+    "relationship": {
+     "HR": 5
+    },
+    "grantEquipment": "eq_mug"
+   }
+  },
+  {
+   "id": "r_boss_secret",
+   "title": "老板的秘密",
+   "description": "你无意间发现老板的电脑屏保是一只橘猫戴工牌的照片。原来他也有柔软的一面。",
+   "category": "BOSS",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 4,
+   "cooldown": 1209600,
+   "effects": {
+    "relationship": {
+     "BOSS": 5
+    },
+    "mind": 5
+   }
+  },
+  {
+   "id": "r_zero_bug_day",
+   "title": "零Bug的一天",
+   "description": "今天测试一个bug都没提。全组陷入不安：\"他是不是请假了？\"",
+   "category": "BUG",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 4,
+   "cooldown": 604800,
+   "effects": {
+    "mind": 8,
+    "performance": 5,
+    "cultivation": 10
+   }
+  },
+  {
+   "id": "r_promotion_wind",
+   "title": "晋升风声",
+   "description": "HR和老板在会议室谈了一小时，白板上写着你的名字。你假装路过，听到了\"储备\"两个字。",
+   "category": "BOSS",
+   "rarity": "EPIC",
+   "priority": "IMPORTANT",
+   "baseWeight": 4,
+   "cooldown": 1209600,
+   "effects": {
+    "mind": -5,
+    "cultivation": 20,
+    "relationship": {
+     "BOSS": 3
+    },
+    "promotionModifier": 10
+   }
+  },
+  {
+   "id": "e_toilet_sage",
+   "title": "隔间仙人",
+   "description": "你在厕所隔间门板背面发现一行小字：\"此地灵气，可持续三分钟。切勿贪多。\"落款日期是2015年。",
+   "category": "SECRET",
+   "rarity": "EPIC",
+   "priority": "FLAVOR",
+   "baseWeight": 2,
+   "allowedModes": [
+    "FISHING",
+    "CULTIVATING"
+   ],
+   "cooldown": 1209600,
+   "onceEver": true,
+   "effects": {
+    "cultivation": 40,
+    "mind": 10
+   }
+  },
+  {
+   "id": "e_404_dao",
+   "title": "404之道",
+   "description": "你访问了一个404页面。页面写着：\"你寻找的页面已飞升。施主，回头是岸。\"",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 2,
+   "cooldown": 604800,
+   "effects": {
+    "cultivation": 15,
+    "mind": 5
+   }
+  },
+  {
+   "id": "e_night_watch",
+   "title": "凌晨四点的办公室",
+   "description": "你凌晨四点回到公司取落下的电脑。整层楼的灯为你一人亮着。你突然理解了\"孤独\"和\"自由\"是同一个词。",
+   "category": "SECRET",
+   "rarity": "EPIC",
+   "priority": "FLAVOR",
+   "baseWeight": 1,
+   "cooldown": 2592000,
+   "onceEver": true,
+   "effects": {
+    "cultivation": 60,
+    "mind": 20,
+    "innerDemon": -10
+   }
+  },
+  {
+   "id": "e_cat",
+   "title": "楼道橘猫",
+   "description": "公司楼下有只橘猫，工牌挂着\"首席摸鱼官\"。它每天准时上班，从不加班。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 3,
+   "cooldown": 604800,
+   "choices": [
+    {
+     "id": "PET",
+     "text": "rua一把",
+     "successChance": {
+      "mind": 10,
+      "cultivation": 5
+     },
+     "resultText": "猫在你手上蹭了蹭。它的毛很软，它的生活比你松弛。"
+    },
+    {
+     "id": "FEED",
+     "text": "投喂火腿肠",
+     "successChance": 0.8,
+     "successEffects": {
+      "mind": 15,
+      "material": {
+       "fishing_tip": 1
+      },
+      "setFlags": [
+       "cat_friend"
+      ]
+     },
+     "failureEffects": {
+      "salaryCost": 3,
+      "mind": 5
+     },
+     "resultText": "猫吃了火腿肠，看了你一眼，走开了。但你知道，你们已经是朋友。"
+    }
+   ]
+  },
+  {
+   "id": "e_old_badge",
+   "title": "旧工牌",
+   "description": "你在抽屉深处翻到第一张工牌。照片上的自己眼睛发亮，头发浓密。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 3,
+   "cooldown": 2592000,
+   "effects": {
+    "mind": -3,
+    "cultivation": 15,
+    "material": {
+     "badge_fragment": 1
+    }
+   }
+  },
+  {
+   "id": "e_music_moment",
+   "title": "耳机里的歌",
+   "description": "随机播放突然放到你大学时代的歌。窗外的阳光斜斜的，你恍惚了三秒，回到了那个不用开周会的年纪。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 3,
+   "cooldown": 604800,
+   "effects": {
+    "mind": 12,
+    "cultivation": 10
+   }
+  },
+  {
+   "id": "e_last_word",
+   "title": "离职同事的留言",
+   "description": "你在茶水间的柜子底层发现一罐可乐，贴着字条：\"给下一个需要它的人。——2019年，14楼的我\"",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 2,
+   "cooldown": 1209600,
+   "onceEver": true,
+   "effects": {
+    "mind": 15,
+    "cultivation": 10
+   }
+  },
+  {
+   "id": "e_rain_window",
+   "title": "雨窗发呆",
+   "description": "暴雨敲窗，你盯着玻璃上的水痕发呆了五分钟。这五分钟，你没有想需求，没有想deadline。",
+   "category": "SECRET",
+   "rarity": "COMMON",
+   "priority": "FLAVOR",
+   "baseWeight": 3,
+   "cooldown": 604800,
+   "effects": {
+    "mind": 10
+   }
+  },
+  {
+   "id": "e_dao_margin",
+   "title": "文档的边角",
+   "description": "你在一份2016年的需求文档页边发现手写小字：\"记得按时吃饭。\"你摸了摸自己的胃，决定中午不吃轻食了。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 2,
+   "cooldown": 1209600,
+   "onceEver": true,
+   "effects": {
+    "mind": 8,
+    "cultivation": 8
+   }
+  },
+  {
+   "id": "e_star_dao",
+   "title": "加班后的星空",
+   "description": "深夜下班，你在写字楼前抬头，居然看到了星星。城市里难得一见。你在楼下站了十分钟才走。",
+   "category": "SECRET",
+   "rarity": "RARE",
+   "priority": "FLAVOR",
+   "baseWeight": 2,
+   "cooldown": 1209600,
+   "onceEver": true,
+   "effects": {
+    "mind": 18,
+    "cultivation": 20,
+    "innerDemon": -5
+   }
+  },
+  {
+   "id": "e_office_plant_flower",
+   "title": "绿萝开花",
+   "description": "你工位的绿萝——那盆你养了两年、黄过三次叶的绿萝——开出了一朵小白花。全网都说绿萝不开花。",
+   "category": "SECRET",
+   "rarity": "EPIC",
+   "priority": "FLAVOR",
+   "baseWeight": 1,
+   "cooldown": 2592000,
+   "onceEver": true,
+   "effects": {
+    "mind": 25,
+    "cultivation": 30
+   }
+  }
+ ]
+}

@@ -50,6 +50,7 @@ import { RandomService } from '../v2/random-service';
 import { GameDayService } from '../v2/game-day-service';
 import { InnerDemonService } from '../v2/inner-demon-service';
 import { V2EconomyService } from '../v2/v2-economy-service';
+import { V2EventService } from '../v2/v2-event-service';
 import craftConfig from '../../configs/craft.json';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
@@ -116,6 +117,8 @@ export class GameContext {
   public readonly innerDemon: InnerDemonService;
   /** V2 四模式经济修正。 */
   public readonly v2Economy: V2EconomyService;
+  /** V2 配置驱动事件引擎。 */
+  public readonly v2Events: V2EventService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -184,6 +187,7 @@ export class GameContext {
     this.gameDay = new GameDayService(this, this.clockV2, this.randomV2);
     this.innerDemon = new InnerDemonService(this);
     this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);
+    this.v2Events = new V2EventService(this, this.clockV2, this.gameDay, this.innerDemon, this.randomV2);
   }
 
   /** @deprecated No longer used in PC V1 — board is null by default. */

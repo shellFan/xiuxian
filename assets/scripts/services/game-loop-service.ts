@@ -83,8 +83,13 @@ export class GameLoopService {
       // V2 economy failure must not crash the game loop
     }
 
-    // 6. Poll for career events
+    // 6. Poll for career events (V1 legacy) + V2 event engine
     this.context.careerEvents.poll();
+    try {
+      this.context.v2Events.poll();
+    } catch {
+      // V2 event engine failure must not crash the game loop
+    }
 
     // 7. Achievement check (periodic)
     if (this.achievementCheckIntervalSeconds > 0) {
