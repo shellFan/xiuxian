@@ -51,6 +51,7 @@ import { GameDayService } from '../v2/game-day-service';
 import { InnerDemonService } from '../v2/inner-demon-service';
 import { V2EconomyService } from '../v2/v2-economy-service';
 import { V2EventService } from '../v2/v2-event-service';
+import { V2ItemService } from '../v2/v2-item-service';
 import craftConfig from '../../configs/craft.json';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
@@ -119,6 +120,8 @@ export class GameContext {
   public readonly v2Economy: V2EconomyService;
   /** V2 配置驱动事件引擎。 */
   public readonly v2Events: V2EventService;
+  /** V2 物品系统（材料/功法/装备/合成/消耗品/商店）。 */
+  public readonly v2Items: V2ItemService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -188,6 +191,7 @@ export class GameContext {
     this.innerDemon = new InnerDemonService(this);
     this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);
     this.v2Events = new V2EventService(this, this.clockV2, this.gameDay, this.innerDemon, this.randomV2);
+    this.v2Items = new V2ItemService(this, this.clockV2, this.gameDay, this.randomV2);
   }
 
   /** @deprecated No longer used in PC V1 — board is null by default. */

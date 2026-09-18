@@ -1,0 +1,1734 @@
+{
+ "materials": [
+  {
+   "id": "mat_lingcao",
+   "name": "灵草",
+   "rarity": "COMMON",
+   "sources": [
+    "task",
+    "shop"
+   ],
+   "description": "茶水间绿植区\"借\"来的叶子，据说泡水喝提神。"
+  },
+  {
+   "id": "mat_page",
+   "name": "功法残页",
+   "rarity": "COMMON",
+   "sources": [
+    "task",
+    "event",
+    "craft"
+   ],
+   "description": "打印单面的废纸背面，写着似是而非的口诀。"
+  },
+  {
+   "id": "mat_coffee_residue",
+   "name": "咖啡残渣",
+   "rarity": "COMMON",
+   "sources": [
+    "task",
+    "event"
+   ],
+   "description": "咖啡渣。老油条说可以除甲醛，你选择相信。"
+  },
+  {
+   "id": "mat_code_fragment",
+   "name": "代码残片",
+   "rarity": "COMMON",
+   "sources": [
+    "task",
+    "event"
+   ],
+   "description": "从祖传模块剥落的碎片，每一片都带着怨念。"
+  },
+  {
+   "id": "mat_legacy_code",
+   "name": "祖传代码",
+   "rarity": "RARE",
+   "sources": [
+    "event"
+   ],
+   "description": "三年前的结晶。接触时请佩戴防护装备。"
+  },
+  {
+   "id": "mat_stone_fragment",
+   "name": "灵石碎片",
+   "rarity": "COMMON",
+   "sources": [
+    "task",
+    "shop"
+   ],
+   "description": "碎灵石。攒够一千个可以……换个好看的屏保。"
+  },
+  {
+   "id": "mat_ppt_fragment",
+   "name": "PPT残页",
+   "rarity": "COMMON",
+   "sources": [
+    "task",
+    "event"
+   ],
+   "description": "被老板毙掉的那几页。颜色越艳，死得越快。"
+  },
+  {
+   "id": "mat_boss_pie",
+   "name": "老板画的大饼",
+   "rarity": "RARE",
+   "sources": [
+    "event"
+   ],
+   "description": "实体化的饼。闻着香，咬不动。"
+  },
+  {
+   "id": "mat_bug_crystal",
+   "name": "Bug结晶",
+   "rarity": "RARE",
+   "sources": [
+    "task",
+    "event"
+   ],
+   "description": "bug 被修复的瞬间凝结而成。越隐蔽的 bug 结晶越纯。"
+  },
+  {
+   "id": "mat_fishing_tip",
+   "name": "摸鱼心得",
+   "rarity": "COMMON",
+   "sources": [
+    "event"
+   ],
+   "description": "前任摸鱼达人留下的笔记，第一页写着\"手要稳\"。"
+  },
+  {
+   "id": "mat_requirement_fragment",
+   "name": "需求碎片",
+   "rarity": "COMMON",
+   "sources": [
+    "task",
+    "event"
+   ],
+   "description": "每次改版碎掉一片。理论上可以拼出完整需求，实际上不可能。"
+  },
+  {
+   "id": "mat_test_report",
+   "name": "测试报告",
+   "rarity": "COMMON",
+   "sources": [
+    "task"
+   ],
+   "description": "满页的红色。测试小哥的愤怒结晶。"
+  },
+  {
+   "id": "mat_meeting_notes",
+   "name": "会议纪要",
+   "rarity": "COMMON",
+   "sources": [
+    "task"
+   ],
+   "description": "\"会议结论：下次继续讨论。\"历史的循环。"
+  },
+  {
+   "id": "mat_badge_fragment",
+   "name": "工牌碎片",
+   "rarity": "COMMON",
+   "sources": [
+    "event"
+   ],
+   "description": "工牌磨损的碎片。带着三年工龄的包浆。"
+  },
+  {
+   "id": "mat_keycap",
+   "name": "键帽",
+   "rarity": "COMMON",
+   "sources": [
+    "task",
+    "shop"
+   ],
+   "description": "从机械键盘上退休的键帽。F 键最容易先走。"
+  },
+  {
+   "id": "mat_cable",
+   "name": "网线残片",
+   "rarity": "COMMON",
+   "sources": [
+    "task"
+   ],
+   "description": "IT 换下的网线。据说水晶头还能用。"
+  },
+  {
+   "id": "mat_server_dust",
+   "name": "服务器灰尘",
+   "rarity": "COMMON",
+   "sources": [
+    "event"
+   ],
+   "description": "机房深处的陈年积灰。摸一把，感受算力的重量。"
+  },
+  {
+   "id": "mat_print_paper",
+   "name": "打印纸",
+   "rarity": "COMMON",
+   "sources": [
+    "shop",
+    "task"
+   ],
+   "description": "A4纸。公司最接近\"仙气\"的东西。"
+  },
+  {
+   "id": "mat_coffee_bean",
+   "name": "咖啡豆",
+   "rarity": "COMMON",
+   "sources": [
+    "shop",
+    "event"
+   ],
+   "description": "精品咖啡豆。研磨时香气就是结界。"
+  },
+  {
+   "id": "mat_spirit_energy",
+   "name": "仙气",
+   "rarity": "RARE",
+   "sources": [
+    "event",
+    "secret"
+   ],
+   "description": "厕所秘境特产。装在瓶子里也不肯散。"
+  },
+  {
+   "id": "mat_996_talisman",
+   "name": "加班符",
+   "rarity": "RARE",
+   "sources": [
+    "event"
+   ],
+   "description": "加班到凌晨的人结成的符。微微发烫。"
+  },
+  {
+   "id": "mat_touchstone",
+   "name": "试金石",
+   "rarity": "EPIC",
+   "sources": [
+    "secret"
+   ],
+   "description": "老油条留下的石头。据说贴在额头上能测出会议的真假。"
+  },
+  {
+   "id": "mat_dao_ink",
+   "name": "道心墨",
+   "rarity": "RARE",
+   "sources": [
+    "craft"
+   ],
+   "description": "用平静心境研出的墨。写字自带说服力。"
+  },
+  {
+   "id": "mat_time_sand",
+   "name": "时之沙",
+   "rarity": "EPIC",
+   "sources": [
+    "secret"
+   ],
+   "description": "从午休沙漏里漏出的沙。握得越紧，流得越快。"
+  },
+  {
+   "id": "mat_keyword",
+   "name": "关键词",
+   "rarity": "RARE",
+   "sources": [
+    "event"
+   ],
+   "description": "从海量需求里提炼出的一个词。它决定整个版本的命运。"
+  },
+  {
+   "id": "mat_mental_shard",
+   "name": "心魔碎片",
+   "rarity": "RARE",
+   "sources": [
+    "event"
+   ],
+   "description": "心魔被击败后的残渣。可以炼药，也可以反噬。"
+  },
+  {
+   "id": "mat_nostalgia",
+   "name": "旧时光",
+   "rarity": "EPIC",
+   "sources": [
+    "secret"
+   ],
+   "description": "装在旧工牌套里的一段回忆。打开时会闻到夏天的味道。"
+  }
+ ],
+ "techniques": [
+  {
+   "id": "tech_paid_fish",
+   "name": "带薪摸鱼诀",
+   "rarity": "RARE",
+   "slot": "either",
+   "description": "摸鱼时修为+30%，老板查岗事件风险-10%。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "mode": "FISHING",
+    "cultivationMul": 1.3,
+    "bossEventWeight": 0.9
+   }
+  },
+  {
+   "id": "tech_996_burn",
+   "name": "996燃血大法",
+   "rarity": "RARE",
+   "slot": "main",
+   "description": "WORK绩效+40%，每小时心魔+2。燃的是血，换的是钱。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "mode": "WORK",
+    "performanceMul": 1.4,
+    "innerDemonPerHour": 2
+   }
+  },
+  {
+   "id": "tech_blame",
+   "name": "甩锅神功",
+   "rarity": "RARE",
+   "slot": "either",
+   "description": "负面事件50%概率减半（成功把话题引向历史决策）。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "eventDamageMul": 0.5,
+    "trigger": "onNegativeEvent",
+    "chance": 0.5
+   }
+  },
+  {
+   "id": "tech_toilet_seclusion",
+   "name": "厕所闭关术",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "每次使用厕所秘境额外+10修为。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onToiletEvent",
+    "cultivationBonus": 10
+   }
+  },
+  {
+   "id": "tech_freeze_spell",
+   "name": "需求冻结咒",
+   "rarity": "RARE",
+   "slot": "either",
+   "description": "PRODUCT类事件权重-30%。念动真言，需求退散。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "eventWeight": {
+     "PRODUCT": 0.7
+    }
+   }
+  },
+  {
+   "id": "tech_copy_paste",
+   "name": "复制粘贴心经",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "WORK绩效+10%。\"编程的本质\"——你的第3个师父说。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "mode": "WORK",
+    "performanceMul": 1.1
+   }
+  },
+  {
+   "id": "tech_daily_report",
+   "name": "日报炼气诀",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "写日报类事件奖励翻倍。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onDailyReportEvent",
+    "rewardMul": 2
+   }
+  },
+  {
+   "id": "tech_weekly_loop",
+   "name": "周报轮回功",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "周五绩效+20%。轮回之日，功力大涨。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onFriday",
+    "performanceMul": 1.2
+   }
+  },
+  {
+   "id": "tech_meeting_zen",
+   "name": "会议入定法",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "会议事件道心损耗-50%。肉身在场，神游天外。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onMeetingEvent",
+    "mindLossMul": 0.5
+   }
+  },
+  {
+   "id": "tech_bug_body",
+   "name": "Bug炼体术",
+   "rarity": "RARE",
+   "slot": "either",
+   "description": "每修一个bug+5修为。以bug为食，以报错为汤。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onBugFixed",
+    "cultivationBonus": 5
+   }
+  },
+  {
+   "id": "tech_coffee_life",
+   "name": "咖啡续命经",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "道心低于30时，每小时道心+2。咖啡因护体。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onLowMind",
+    "mindPerHour": 2
+   }
+  },
+  {
+   "id": "tech_boss_pie_true",
+   "name": "老板画饼真经",
+   "rarity": "RARE",
+   "slot": "either",
+   "description": "BOSS类事件奖励+30%，但道心损耗+10%。饼吃多了会噎着。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "eventRewardMul": {
+     "BOSS": 1.3
+    },
+    "eventMindLossMul": {
+     "BOSS": 1.1
+    }
+   }
+  },
+  {
+   "id": "tech_kbd_sword",
+   "name": "键盘御剑术",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "WORK工资+10%。十指翻飞，人键合一。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "mode": "WORK",
+    "salaryMul": 1.1
+   }
+  },
+  {
+   "id": "tech_paid_seclusion",
+   "name": "带薪闭关诀",
+   "rarity": "EPIC",
+   "slot": "main",
+   "description": "CULTIVATING时工资惩罚减半（×0.65）。最高级的摸鱼是修炼。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "mode": "CULTIVATING",
+    "salaryPenaltyReduction": 0.5
+   }
+  },
+  {
+   "id": "tech_resign_ascend",
+   "name": "离职飞升经",
+   "rarity": "LEGENDARY",
+   "slot": "main",
+   "description": "心魔越高，修为+10%~+50%。破而后立，离开是为了飞升。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onHighDemon",
+    "cultivationBonusPerDemon": 0.5
+   }
+  },
+  {
+   "id": "tech_test_shield",
+   "name": "测试护体功",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "BUG类事件负面概率-20%。测试小哥是你的护法。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "eventWeight": {
+     "BUG": 0.8
+    }
+   }
+  },
+  {
+   "id": "tech_prod_mindread",
+   "name": "产品读心术",
+   "rarity": "RARE",
+   "slot": "either",
+   "description": "PRODUCT事件50%概率预知结果（显示隐藏选项）。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onProductEvent",
+    "revealHidden": 0.5
+   }
+  },
+  {
+   "id": "tech_requirement_escape",
+   "name": "需求遁术",
+   "rarity": "RARE",
+   "slot": "either",
+   "description": "急需求事件50%概率直接跳过。三十六计，走为上。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onUrgentRequirement",
+    "skipChance": 0.5
+   }
+  },
+  {
+   "id": "tech_desk_array",
+   "name": "工位聚灵诀",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "CULTIVATING修为+15%。聚灵阵心法：绿萝为阵眼。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "mode": "CULTIVATING",
+    "cultivationMul": 1.15
+   }
+  },
+  {
+   "id": "tech_fish_conceal",
+   "name": "摸鱼敛息术",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "FISHING时老板事件权重-20%。敛息屏气，人鱼合一。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "mode": "FISHING",
+    "bossEventWeight": 0.8
+   }
+  },
+  {
+   "id": "tech_slack_dao",
+   "name": "划水大道",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "SOCIAL关系收益+30%。水至清则无鱼，人至察则无徒。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "mode": "SOCIAL",
+    "relationshipMul": 1.3
+   }
+  },
+  {
+   "id": "tech_morning_breath",
+   "name": "晨会吐纳术",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "站会事件道心损耗减半。站着也是站，呼吸也是练。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onStandupEvent",
+    "mindLossMul": 0.5
+   }
+  },
+  {
+   "id": "tech_excel_array",
+   "name": "表格困灵阵",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "取数类事件绩效+50%。Excel在手，天下我有。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onDataEvent",
+    "performanceMul": 1.5
+   }
+  },
+  {
+   "id": "tech_nap_heart",
+   "name": "午睡养神功",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "午休期间道心恢复+100%。趴下的瞬间，天地安静。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onLunch",
+    "mindRecoveryMul": 2
+   }
+  },
+  {
+   "id": "tech_overtime_lotus",
+   "name": "加班火莲",
+   "rarity": "RARE",
+   "slot": "main",
+   "description": "连续加班3天后，绩效+30%持续一天，之后心魔+10。火莲开时， also 业火起。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onOvertimeStreak",
+    "performanceBurst": 1.3,
+    "innerDemonCost": 10
+   }
+  },
+  {
+   "id": "tech_email_flying",
+   "name": "飞剑传书",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "邮件类事件道心损耗-30%。抄送即护身符。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onEmailEvent",
+    "mindLossMul": 0.7
+   }
+  },
+  {
+   "id": "tech_poker_face",
+   "name": "扑克脸功",
+   "rarity": "RARE",
+   "slot": "either",
+   "description": "被表扬时绩效+50%，被批评时道心损耗-40%。喜怒不形于色。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onBossJudgement",
+    "praisePerfMul": 1.5,
+    "blameMindMul": 0.6
+   }
+  },
+  {
+   "id": "tech_water_cooler_flow",
+   "name": "饮水机听风术",
+   "rarity": "COMMON",
+   "slot": "either",
+   "description": "八卦事件获得双倍情报材料。风从水起来。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 3,
+    "mat_dao_ink": 0
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onGossipEvent",
+    "materialMul": 2
+   }
+  },
+  {
+   "id": "tech_old_code_shield",
+   "name": "祖传代码护法",
+   "rarity": "RARE",
+   "slot": "either",
+   "description": "祖传模块事件负面-25%。你不动它，它不动你。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onLegacyEvent",
+    "negativeMul": 0.75
+   }
+  },
+  {
+   "id": "tech_startup_heart",
+   "name": "创业不灭心",
+   "rarity": "EPIC",
+   "slot": "main",
+   "description": "道心低于20时修为+30%。燃尽之处，皆是道场。",
+   "maxLevel": 3,
+   "level": 1,
+   "upgradeCost": {
+    "mat_page": 6,
+    "mat_dao_ink": 1
+   },
+   "level3Bonus": "质变：效果翻倍，且冷却减半。",
+   "modifiers": {
+    "trigger": "onCriticalMind",
+    "cultivationMul": 1.3
+   }
+  }
+ ],
+ "equipment": [
+  {
+   "id": "eq_mech_keyboard",
+   "name": "上古机械键盘",
+   "rarity": "EPIC",
+   "slot": "DESK",
+   "description": "青轴，声音能传两层楼。WORK绩效+15%，同事关系-5%。",
+   "modifiers": {
+    "performanceMul": 1.15,
+    "relationship": {
+     "JUNIOR": -5
+    }
+   }
+  },
+  {
+   "id": "eq_chosen_badge",
+   "name": "天选工牌",
+   "rarity": "LEGENDARY",
+   "slot": "BADGE",
+   "description": "从未消磁、从未忘带。BOSS事件奖励+20%。",
+   "modifiers": {
+    "eventRewardMul": {
+     "BOSS": 1.2
+    }
+   }
+  },
+  {
+   "id": "eq_anc_noise",
+   "name": "降噪耳机",
+   "rarity": "RARE",
+   "slot": "ACCESSORY",
+   "description": "戴上它，世界只剩你和需求。道心恢复+15%。",
+   "modifiers": {
+    "mindRecoveryMul": 1.15
+   }
+  },
+  {
+   "id": "eq_coffee_cup",
+   "name": "续命咖啡杯",
+   "rarity": "RARE",
+   "slot": "DESK",
+   "description": "永远恒温。每小时道心+1。",
+   "modifiers": {
+    "mindPerHour": 1
+   }
+  },
+  {
+   "id": "eq_old_usb",
+   "name": "祖传U盘",
+   "rarity": "RARE",
+   "slot": "BADGE",
+   "description": "里面有什么没人知道。事件材料掉落+10%。",
+   "modifiers": {
+    "materialMul": 1.1
+   }
+  },
+  {
+   "id": "eq_boss_mug",
+   "name": "老板同款保温杯",
+   "rarity": "COMMON",
+   "slot": "DESK",
+   "description": "BOSS事件道心损耗-15%。某种意义上的护身符。",
+   "modifiers": {
+    "eventMindLossMul": {
+     "BOSS": 0.85
+    }
+   }
+  },
+  {
+   "id": "eq_chair",
+   "name": "人体工学椅",
+   "rarity": "RARE",
+   "slot": "DESK",
+   "description": "腰不酸了。每小时道心+0.5。",
+   "modifiers": {
+    "mindPerHour": 0.5
+   }
+  },
+  {
+   "id": "eq_fish_monitor",
+   "name": "摸鱼副屏",
+   "rarity": "RARE",
+   "slot": "DESK",
+   "description": "主屏代码，副屏股票。FISHING修为+20%。",
+   "modifiers": {
+    "mode": "FISHING",
+    "cultivationMul": 1.2
+   }
+  },
+  {
+   "id": "eq_privacy_filter",
+   "name": "防窥屏",
+   "rarity": "COMMON",
+   "slot": "DESK",
+   "description": "只有正脸能看清。摸鱼被老板发现的概率-50%。",
+   "modifiers": {
+    "fishingRiskMul": 0.5
+   }
+  },
+  {
+   "id": "eq_gaming_mouse",
+   "name": "电竞鼠标",
+   "rarity": "COMMON",
+   "slot": "DESK",
+   "description": "WORK绩效+8%。16000DPI的手感。",
+   "modifiers": {
+    "performanceMul": 1.08
+   }
+  },
+  {
+   "id": "eq_vpn_token",
+   "name": "公司VPN令牌",
+   "rarity": "COMMON",
+   "slot": "BADGE",
+   "description": "居家也能\"在岗\"。离线收益+10%。",
+   "modifiers": {
+    "offlineMul": 1.1
+   }
+  },
+  {
+   "id": "eq_legacy_doc",
+   "name": "祖传需求文档",
+   "rarity": "RARE",
+   "slot": "BADGE",
+   "description": "传说中的原始需求。PRODUCT事件奖励+25%。",
+   "modifiers": {
+    "eventRewardMul": {
+     "PRODUCT": 1.25
+    }
+   }
+  },
+  {
+   "id": "eq_cactus",
+   "name": "仙人掌盆栽",
+   "rarity": "COMMON",
+   "slot": "DESK",
+   "description": "不用浇水，陪你加班。每小时心魔-0.3。",
+   "modifiers": {
+    "innerDemonPerHour": -0.3
+   }
+  },
+  {
+   "id": "eq_test_amulet",
+   "name": "测试护身符",
+   "rarity": "COMMON",
+   "slot": "ACCESSORY",
+   "description": "测试小哥亲手所画。BUG事件权重-15%。",
+   "modifiers": {
+    "eventWeight": {
+     "BUG": 0.85
+    }
+   }
+  },
+  {
+   "id": "eq_proto_diagram",
+   "name": "产品原型图",
+   "rarity": "COMMON",
+   "slot": "DESK",
+   "description": "签名版。PRODUCT事件道心损耗-20%。",
+   "modifiers": {
+    "eventMindLossMul": {
+     "PRODUCT": 0.8
+    }
+   }
+  },
+  {
+   "id": "eq_lumbar_pillow",
+   "name": "工位靠枕",
+   "rarity": "COMMON",
+   "slot": "DESK",
+   "description": "每小时道心+0.3。工位的温柔。",
+   "modifiers": {
+    "mindPerHour": 0.3
+   }
+  },
+  {
+   "id": "eq_dual_monitor",
+   "name": "双屏显示器",
+   "rarity": "RARE",
+   "slot": "DESK",
+   "description": "WORK绩效+12%，CULTIVATING修为+8%。一屏代码一屏经文。",
+   "modifiers": {
+    "performanceMul": 1.12,
+    "cultivationMul": 1.08
+   }
+  },
+  {
+   "id": "eq_company_mug",
+   "name": "公司纪念水杯",
+   "rarity": "COMMON",
+   "slot": "ACCESSORY",
+   "description": "十周年纪念款。道心恢复+8%。",
+   "modifiers": {
+    "mindRecoveryMul": 1.08
+   }
+  },
+  {
+   "id": "eq_red_badge",
+   "name": "红色工牌",
+   "rarity": "EPIC",
+   "slot": "BADGE",
+   "description": "传说中的特殊权限。所有事件奖励+10%。",
+   "modifiers": {
+    "eventRewardMulAll": 1.1
+   }
+  },
+  {
+   "id": "eq_old_thinkpad",
+   "name": "老旧ThinkPad",
+   "rarity": "EPIC",
+   "slot": "DESK",
+   "description": "开机要三分钟，但从不出错。所有事件道心损耗-10%。",
+   "modifiers": {
+    "eventMindLossMulAll": 0.9
+   }
+  },
+  {
+   "id": "eq_wrist_guard",
+   "name": "腱鞘护腕",
+   "rarity": "COMMON",
+   "slot": "ACCESSORY",
+   "description": "每小时道心+0.2。手腕是程序员的命根。",
+   "modifiers": {
+    "mindPerHour": 0.2
+   }
+  },
+  {
+   "id": "eq_lunch_box",
+   "name": "妈妈牌饭盒",
+   "rarity": "RARE",
+   "slot": "ACCESSORY",
+   "description": "自带午饭，每天省25块，吃出家的味道。每小时道心+0.8。",
+   "modifiers": {
+    "mindPerHour": 0.8
+   }
+  },
+  {
+   "id": "eq_footrest",
+   "name": "工学脚踏",
+   "rarity": "COMMON",
+   "slot": "DESK",
+   "description": "每小时道心+0.3。脚踏实地的具象化。",
+   "modifiers": {
+    "mindPerHour": 0.3
+   }
+  },
+  {
+   "id": "eq_blue_light_glasses",
+   "name": "防蓝光眼镜",
+   "rarity": "COMMON",
+   "slot": "ACCESSORY",
+   "description": "CULTIVATING修为+10%。眼前的世界泛着黄，心却静了。",
+   "modifiers": {
+    "mode": "CULTIVATING",
+    "cultivationMul": 1.1
+   }
+  },
+  {
+   "id": "eq_hotel_pillow",
+   "name": "会议靠垫",
+   "rarity": "COMMON",
+   "slot": "ACCESSORY",
+   "description": "会议事件道心损耗-25%。会议是身体与灵魂的分居。",
+   "modifiers": {
+    "eventMindLossMul": {
+     "MEETING": 0.75
+    }
+   }
+  },
+  {
+   "id": "eq_stand_desk",
+   "name": "升降桌",
+   "rarity": "RARE",
+   "slot": "DESK",
+   "description": "站坐交替，每小时道心+1。",
+   "modifiers": {
+    "mindPerHour": 1
+   }
+  },
+  {
+   "id": "eq_spare_cable",
+   "name": "备用网线",
+   "rarity": "COMMON",
+   "slot": "BADGE",
+   "description": "网络故障时你就是救世主。NPC事件关系收益+10%。",
+   "modifiers": {
+    "relationshipMul": 1.1
+   }
+  },
+  {
+   "id": "eq_signed_boss_book",
+   "name": "老板签名书",
+   "rarity": "RARE",
+   "slot": "BADGE",
+   "description": "《指数型组织》，扉页有签名。BOSS事件关系收益+20%。",
+   "modifiers": {
+    "relationshipMul": 1.2
+   }
+  },
+  {
+   "id": "eq_balcony_plant",
+   "name": "阳台多肉",
+   "rarity": "COMMON",
+   "slot": "DESK",
+   "description": "每小时心魔-0.2。多肉不需要希望也能活。",
+   "modifiers": {
+    "innerDemonPerHour": -0.2
+   }
+  },
+  {
+   "id": "eq_dark_hoodie",
+   "name": "神秘连帽衫",
+   "rarity": "EPIC",
+   "slot": "ACCESSORY",
+   "description": "穿上它，你就不是员工，是黑客。SECRET事件权重+30%。",
+   "modifiers": {
+    "eventWeight": {
+     "SECRET": 1.3
+    }
+   }
+  }
+ ],
+ "recipes": [
+  {
+   "id": "rp_coffee_life",
+   "category": "丹药",
+   "name": "续命咖啡",
+   "ingredients": {
+    "mat_coffee_bean": 2,
+    "mat_coffee_residue": 1
+   },
+   "output": {
+    "consumable": "cons_coffee"
+   },
+   "description": "mind+20。下午三点的救赎。"
+  },
+  {
+   "id": "rp_qiqi_pill",
+   "category": "丹药",
+   "name": "聚气丹",
+   "ingredients": {
+    "mat_lingcao": 2,
+    "mat_spirit_energy": 1
+   },
+   "output": {
+    "consumable": "cons_qiqi"
+   },
+   "description": "获得600s修为×1.5 buff。入门丹药，聚气三分钟。"
+  },
+  {
+   "id": "rp_clear_heart",
+   "category": "丹药",
+   "name": "清心丹",
+   "ingredients": {
+    "mat_lingcao": 3,
+    "mat_dao_ink": 1
+   },
+   "output": {
+    "consumable": "cons_clear"
+   },
+   "description": "innerDemon-10。心如明镜，尘埃自去。"
+  },
+  {
+   "id": "rp_fish_talisman",
+   "category": "丹药",
+   "name": "摸鱼符",
+   "ingredients": {
+    "mat_fishing_tip": 2,
+    "mat_print_paper": 2
+   },
+   "output": {
+    "consumable": "cons_fish_charm"
+   },
+   "description": "下一次老板查岗自动免疫。护身符级别。"
+  },
+  {
+   "id": "rp_overtime_pill",
+   "category": "丹药",
+   "name": "加班丹",
+   "ingredients": {
+    "mat_996_talisman": 1,
+    "mat_coffee_bean": 3
+   },
+   "output": {
+    "consumable": "cons_overtime"
+   },
+   "description": "WORK效率×1.5持续2h，心魔+5。以魔入道。"
+  },
+  {
+   "id": "rp_heal_pill",
+   "category": "丹药",
+   "name": "回春丹",
+   "ingredients": {
+    "mat_lingcao": 2,
+    "mat_meeting_notes": 1
+   },
+   "output": {
+    "consumable": "cons_heal"
+   },
+   "description": "mind+35。会议后的自我修复。"
+  },
+  {
+   "id": "rp_pure_pill",
+   "category": "丹药",
+   "name": "静神丹",
+   "ingredients": {
+    "mat_mental_shard": 1,
+    "mat_dao_ink": 1
+   },
+   "output": {
+    "consumable": "cons_pure"
+   },
+   "description": "innerDemon-20。心魔碎片反炼为药。"
+  },
+  {
+   "id": "rp_spirit_pill",
+   "category": "丹药",
+   "name": "凝神丹",
+   "ingredients": {
+    "mat_spirit_energy": 2,
+    "mat_time_sand": 1
+   },
+   "output": {
+    "consumable": "cons_spirit"
+   },
+   "description": "900s修为×2.0。顿悟的滋味。"
+  },
+  {
+   "id": "rp_stone_pill",
+   "category": "丹药",
+   "name": "碎灵丹",
+   "ingredients": {
+    "mat_stone_fragment": 5
+   },
+   "output": {
+    "consumable": "cons_stone_pill"
+   },
+   "description": "salary+50。灵石碎末压制而成，能吃出钱的口感。"
+  },
+  {
+   "id": "rp_baoji_pill",
+   "category": "丹药",
+   "name": "爆击丹",
+   "ingredients": {
+    "mat_bug_crystal": 2,
+    "mat_coffee_bean": 2
+   },
+   "output": {
+    "consumable": "cons_baoji"
+   },
+   "description": "1200s绩效×1.5。以bug之毒攻绩效之木。"
+  },
+  {
+   "id": "rp_page_common",
+   "category": "功法",
+   "name": "普通功法残页",
+   "ingredients": {
+    "mat_page": 3
+   },
+   "output": {
+    "technique": "random_common"
+   },
+   "description": "随机普通功法。量大管饱。"
+  },
+  {
+   "id": "rp_page_rare",
+   "category": "功法",
+   "name": "稀有功法残页",
+   "ingredients": {
+    "mat_page": 5,
+    "mat_dao_ink": 1
+   },
+   "output": {
+    "technique": "random_rare"
+   },
+   "description": "随机稀有功法。",
+   "salaryCost": 100
+  },
+  {
+   "id": "rp_page_fish",
+   "category": "功法",
+   "name": "带薪摸鱼诀残卷",
+   "ingredients": {
+    "mat_page": 4,
+    "mat_fishing_tip": 3
+   },
+   "output": {
+    "technique": "tech_paid_fish"
+   },
+   "description": "摸鱼修仙流核心功法。"
+  },
+  {
+   "id": "rp_page_996",
+   "category": "功法",
+   "name": "996燃血大法残卷",
+   "ingredients": {
+    "mat_page": 4,
+    "mat_996_talisman": 2
+   },
+   "output": {
+    "technique": "tech_996_burn"
+   },
+   "description": "卷王必修。副作用自负。"
+  },
+  {
+   "id": "rp_page_blame",
+   "category": "功法",
+   "name": "甩锅神功残卷",
+   "ingredients": {
+    "mat_page": 4,
+    "mat_meeting_notes": 3
+   },
+   "output": {
+    "technique": "tech_blame"
+   },
+   "description": "老油条一脉的看家本领。"
+  },
+  {
+   "id": "rp_page_burn",
+   "category": "功法",
+   "name": "996燃血·天卷",
+   "ingredients": {
+    "mat_page": 8,
+    "mat_bug_crystal": 3,
+    "mat_996_talisman": 3
+   },
+   "output": {
+    "technique": "tech_overtime_lotus"
+   },
+   "description": "燃血大法进阶。心魔警告。",
+   "salaryCost": 300
+  },
+  {
+   "id": "rp_page_read",
+   "category": "功法",
+   "name": "产品读心术残卷",
+   "ingredients": {
+    "mat_page": 4,
+    "mat_requirement_fragment": 4
+   },
+   "output": {
+    "technique": "tech_prod_mindread"
+   },
+   "description": "读懂需求的瞬间，你流泪了。"
+  },
+  {
+   "id": "rp_page_ascend",
+   "category": "功法",
+   "name": "离职飞升经残卷",
+   "ingredients": {
+    "mat_page": 6,
+    "mat_nostalgia": 1,
+    "mat_mental_shard": 2
+   },
+   "output": {
+    "technique": "tech_resign_ascend"
+   },
+   "description": "传说中的禁术。",
+   "salaryCost": 500
+  },
+  {
+   "id": "rp_eq_amulet",
+   "category": "法宝",
+   "name": "测试护身符",
+   "ingredients": {
+    "mat_test_report": 2,
+    "mat_print_paper": 2,
+    "mat_dao_ink": 1
+   },
+   "output": {
+    "equipment": "eq_test_amulet"
+   },
+   "description": "测试小哥看了都说灵。"
+  },
+  {
+   "id": "rp_eq_pillow",
+   "category": "法宝",
+   "name": "工位靠枕",
+   "ingredients": {
+    "mat_print_paper": 3,
+    "mat_meeting_notes": 2
+   },
+   "output": {
+    "equipment": "eq_lumbar_pillow"
+   },
+   "description": "用废弃纪要填充，蓬松且讽刺。"
+  },
+  {
+   "id": "rp_eq_cup",
+   "category": "法宝",
+   "name": "续命咖啡杯",
+   "ingredients": {
+    "mat_coffee_residue": 4,
+    "mat_stone_fragment": 3
+   },
+   "output": {
+    "equipment": "eq_coffee_cup"
+   },
+   "description": "咖啡渣淬火，恒温符文。",
+   "salaryCost": 150
+  },
+  {
+   "id": "rp_eq_cactus",
+   "category": "法宝",
+   "name": "仙人掌盆栽",
+   "ingredients": {
+    "mat_lingcao": 3,
+    "mat_stone_fragment": 2
+   },
+   "output": {
+    "equipment": "eq_cactus"
+   },
+   "description": "以灵草养仙人掌。"
+  },
+  {
+   "id": "rp_eq_filter",
+   "category": "法宝",
+   "name": "防窥屏",
+   "ingredients": {
+    "mat_print_paper": 2,
+    "mat_badge_fragment": 2,
+    "mat_dao_ink": 1
+   },
+   "output": {
+    "equipment": "eq_privacy_filter"
+   },
+   "description": "纸糊的偏振膜（并不是）。"
+  },
+  {
+   "id": "rp_eq_wrist",
+   "category": "法宝",
+   "name": "腱鞘护腕",
+   "ingredients": {
+    "mat_cable": 2,
+    "mat_print_paper": 2
+   },
+   "output": {
+    "equipment": "eq_wrist_guard"
+   },
+   "description": "网线编织，意外地结实。"
+  },
+  {
+   "id": "rp_eq_lunch",
+   "category": "法宝",
+   "name": "妈妈牌饭盒",
+   "ingredients": {
+    "mat_lingcao": 2,
+    "mat_time_sand": 1
+   },
+   "output": {
+    "equipment": "eq_lunch_box"
+   },
+   "description": "时之沙保温，家的味道永不过期。"
+  },
+  {
+   "id": "rp_eq_hoodie",
+   "category": "法宝",
+   "name": "神秘连帽衫",
+   "ingredients": {
+    "mat_server_dust": 3,
+    "mat_996_talisman": 2,
+    "mat_badge_fragment": 2
+   },
+   "output": {
+    "equipment": "eq_dark_hoodie"
+   },
+   "description": "机房灰尘染就。穿上后敲代码自带BGM。",
+   "salaryCost": 400
+  },
+  {
+   "id": "rp_mat_ink",
+   "category": "材料",
+   "name": "道心墨",
+   "ingredients": {
+    "mat_meeting_notes": 3,
+    "mat_coffee_residue": 2
+   },
+   "output": {
+    "material": {
+     "mat_dao_ink": 1
+    }
+   },
+   "description": "以会议之烦躁，研道心之墨。"
+  },
+  {
+   "id": "rp_mat_stone",
+   "category": "材料",
+   "name": "灵石碎片提纯",
+   "ingredients": {
+    "mat_stone_fragment": 4
+   },
+   "output": {
+    "material": {
+     "mat_stone_fragment": 6
+    }
+   },
+   "description": "无损提纯（并非）。"
+  },
+  {
+   "id": "rp_mat_energy",
+   "category": "材料",
+   "name": "仙气收集",
+   "ingredients": {
+    "mat_lingcao": 2,
+    "mat_coffee_residue": 2,
+    "mat_server_dust": 1
+   },
+   "output": {
+    "material": {
+     "mat_spirit_energy": 1
+    }
+   },
+   "description": "三者相混，静置片刻，仙气自来。"
+  },
+  {
+   "id": "rp_mat_keyword",
+   "category": "材料",
+   "name": "关键词提炼",
+   "ingredients": {
+    "mat_requirement_fragment": 5,
+    "mat_dao_ink": 1
+   },
+   "output": {
+    "material": {
+     "mat_keyword": 1
+    }
+   },
+   "description": "五份碎片提一个词，这就是产品经理的工作。"
+  },
+  {
+   "id": "rp_mat_shard",
+   "category": "材料",
+   "name": "心魔碎片凝练",
+   "ingredients": {
+    "mat_mental_shard": 3
+   },
+   "output": {
+    "material": {
+     "mat_mental_shard": 4
+    }
+   },
+   "description": "碎片也能再碎。"
+  },
+  {
+   "id": "rp_mat_996",
+   "category": "材料",
+   "name": "加班符临摹",
+   "ingredients": {
+    "mat_print_paper": 3,
+    "mat_coffee_residue": 3
+   },
+   "output": {
+    "material": {
+     "mat_996_talisman": 1
+    }
+   },
+   "description": "照着前人的符，描一遍。像，但不全像。"
+  }
+ ],
+ "consumables": [
+  {
+   "id": "cons_coffee",
+   "name": "续命咖啡",
+   "effect": {
+    "mind": 20
+   },
+   "description": "mind+20。凉了也先喝为敬。"
+  },
+  {
+   "id": "cons_qiqi",
+   "name": "聚气丹",
+   "effect": {
+    "buff": "WORK_CULTIVATION_BOOST:1.5:600"
+   },
+   "description": "600s修为×1.5。"
+  },
+  {
+   "id": "cons_clear",
+   "name": "清心丹",
+   "effect": {
+    "innerDemon": -10
+   },
+   "description": "innerDemon-10。"
+  },
+  {
+   "id": "cons_fish_charm",
+   "name": "摸鱼符",
+   "effect": {
+    "flag": "fish_charm_active"
+   },
+   "description": "下一次老板查岗免疫。"
+  },
+  {
+   "id": "cons_overtime",
+   "name": "加班丹",
+   "effect": {
+    "buff": "WORK_SALARY_BOOST:1.5:7200",
+    "innerDemon": 5
+   },
+   "description": "2h工作×1.5，心魔+5。"
+  },
+  {
+   "id": "cons_heal",
+   "name": "回春丹",
+   "effect": {
+    "mind": 35
+   },
+   "description": "mind+35。"
+  },
+  {
+   "id": "cons_pure",
+   "name": "静神丹",
+   "effect": {
+    "innerDemon": -20
+   },
+   "description": "innerDemon-20。"
+  },
+  {
+   "id": "cons_spirit",
+   "name": "凝神丹",
+   "effect": {
+    "buff": "WORK_CULTIVATION_BOOST:2.0:900"
+   },
+   "description": "900s修为×2.0。"
+  },
+  {
+   "id": "cons_stone_pill",
+   "name": "碎灵丹",
+   "effect": {
+    "salary": 50
+   },
+   "description": "salary+50。"
+  },
+  {
+   "id": "cons_baoji",
+   "name": "爆击丹",
+   "effect": {
+    "buff": "KPI_PROGRESS_BOOST:1.5:1200"
+   },
+   "description": "1200s绩效×1.5。"
+  }
+ ],
+ "shop": {
+  "refreshPerDay": 6,
+  "stock": [
+   {
+    "itemId": "mat_lingcao",
+    "price": 20,
+    "stock": 3
+   },
+   {
+    "itemId": "mat_coffee_bean",
+    "price": 15,
+    "stock": 4
+   },
+   {
+    "itemId": "mat_print_paper",
+    "price": 10,
+    "stock": 5
+   },
+   {
+    "itemId": "mat_stone_fragment",
+    "price": 8,
+    "stock": 6
+   },
+   {
+    "itemId": "mat_page",
+    "price": 25,
+    "stock": 3
+   },
+   {
+    "itemId": "mat_meeting_notes",
+    "price": 12,
+    "stock": 3
+   },
+   {
+    "itemId": "cons_coffee",
+    "price": 30,
+    "stock": 3
+   },
+   {
+    "itemId": "cons_heal",
+    "price": 60,
+    "stock": 2
+   },
+   {
+    "itemId": "cons_clear",
+    "price": 80,
+    "stock": 1
+   },
+   {
+    "itemId": "eq_lumbar_pillow",
+    "price": 200,
+    "stock": 1
+   },
+   {
+    "itemId": "eq_wrist_guard",
+    "price": 150,
+    "stock": 1
+   },
+   {
+    "itemId": "eq_test_amulet",
+    "price": 180,
+    "stock": 1
+   }
+  ],
+  "rarePool": [
+   "eq_coffee_cup",
+   "eq_fish_monitor",
+   "eq_dual_monitor",
+   "cons_spirit"
+  ],
+  "blackMarketPool": [
+   "eq_red_badge",
+   "tech_resign_ascend",
+   "eq_dark_hoodie",
+   "mat_touchstone",
+   "mat_time_sand",
+   "mat_nostalgia"
+  ]
+ }
+}
