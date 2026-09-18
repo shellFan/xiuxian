@@ -135,11 +135,9 @@ function testWorkModeSwitch(): void {
 
 function testKpiCompletionEnablesPromotion(): void {
   const { context } = makeSimulation({ player: makePlayer({ careerLevel: 1, cultivationExp: 200 }) });
-  // Level 1 KPI: MERGE_COUNT=3, WORK_SECONDS=300, CULTIVATION=50
-  // Set KPI counters to meet requirements
-  context.player.kpiProgress = { MERGE_COUNT: 5, SALARY_EARNED: 100, EVENT_RESOLVED: 0 };
-  context.player.workSeconds = 600;
-  // cultivationExp is already 200 which is >= 50
+  // Gameplay V2 L1 KPI: WORK_SECONDS=7200 + CULTIVATION=100 + TASK_DONE=3
+  context.player.kpiProgress = { TASK_DONE: 3 };
+  context.player.workSeconds = 7200;
   assert.ok(context.kpi.isCurrentKpiCompleted(), 'KPI should be completed');
   const check = context.promotion.canPromote();
   assert.equal(check.allowed, true, 'promotion should be allowed when KPI completed + cultivation sufficient');
@@ -174,9 +172,9 @@ function testPromotionSuccess(): void {
     player: makePlayer({ careerLevel: 1, cultivationExp: 200, mind: 100 }),
     random,
   });
-  // Meet KPI requirements
-  context.player.kpiProgress = { MERGE_COUNT: 5, SALARY_EARNED: 100, EVENT_RESOLVED: 0 };
-  context.player.workSeconds = 600;
+  // Meet KPI requirements (V2: WORK_SECONDS=7200 + CULTIVATION=100 + TASK_DONE=3)
+  context.player.kpiProgress = { TASK_DONE: 3 };
+  context.player.workSeconds = 7200;
   const check = context.promotion.canPromote();
   assert.equal(check.allowed, true, 'promotion should be allowed');
   const options = context.promotion.getOptions();
@@ -193,8 +191,8 @@ function testPromotionFailureDrainsMind(): void {
     player: makePlayer({ careerLevel: 1, cultivationExp: 200, mind: 100 }),
     random,
   });
-  context.player.kpiProgress = { MERGE_COUNT: 5, SALARY_EARNED: 100, EVENT_RESOLVED: 0 };
-  context.player.workSeconds = 600;
+  context.player.kpiProgress = { TASK_DONE: 3 };
+  context.player.workSeconds = 7200;
   const options = context.promotion.getOptions();
   const result = context.promotion.promote(options[0].id);
   assert.equal(result.success, false, 'promotion should fail');
@@ -306,13 +304,9 @@ function testFullCoreLoopIntegration(): void {
   assert.ok(context.player.salary > 0, 'should earn salary from work');
   assert.ok(context.player.workSeconds > 0, 'should accumulate work seconds');
 
-  // 4. Meet KPI requirements for promotion
-  context.player.kpiProgress = {
-    MERGE_COUNT: 5,
-    SALARY_EARNED: 100,
-    EVENT_RESOLVED: 0,
-  };
-  context.player.workSeconds = 600;
+  // 4. Meet KPI requirements for promotion (V2: WORK_SECONDS=7200 + CULTIVATION=100 + TASK_DONE=3)
+  context.player.kpiProgress = { TASK_DONE: 3 };
+  context.player.workSeconds = 7200;
   context.player.cultivationExp = 200;
   context.player.mind = 100;
 

@@ -53,6 +53,7 @@ import { V2EconomyService } from '../v2/v2-economy-service';
 import { V2EventService } from '../v2/v2-event-service';
 import { V2ItemService } from '../v2/v2-item-service';
 import { NpcService, WeekendService } from '../v2/npc-weekend-service';
+import { PromotionV2Service, DaySettlementService } from '../v2/v2-settlement-service';
 import craftConfig from '../../configs/craft.json';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
@@ -127,6 +128,10 @@ export class GameContext {
   public readonly npc: NpcService;
   /** V2 周末活动系统。 */
   public readonly weekend: WeekendService;
+  /** V2 晋升答辩系统。 */
+  public readonly promotionV2: PromotionV2Service;
+  /** V2 日/周结算系统。 */
+  public readonly daySettlement: DaySettlementService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -199,6 +204,8 @@ export class GameContext {
     this.v2Items = new V2ItemService(this, this.clockV2, this.gameDay, this.randomV2);
     this.npc = new NpcService(this);
     this.weekend = new WeekendService(this, this.clockV2, this.gameDay, this.innerDemon);
+    this.promotionV2 = new PromotionV2Service(this, this.clockV2, this.innerDemon, this.npc);
+    this.daySettlement = new DaySettlementService(this, this.clockV2, this.gameDay, this.innerDemon);
   }
 
   /** @deprecated No longer used in PC V1 — board is null by default. */

@@ -82,10 +82,10 @@ function testPromotionChangesOffice(): void {
   // Lv2 sits in office 1 (共享工位, careers 1~2); promoting to Lv3 moves to office 2 (普通工位).
   const { context, player } = makeContext({
     careerLevel: 2,
-    cultivationExp: 150,
+    cultivationExp: 500,
     mind: 100,
-    workSeconds: 600,
-    kpiProgress: { MERGE_COUNT: 5, SALARY_EARNED: 0, EVENT_RESOLVED: 0 },
+    workSeconds: 28800,
+    kpiProgress: { TASK_DONE: 8 },
   }, new FixedRandomProvider(0.5));
   assert.equal(context.office.getOfficeName(), '共享工位');
   context.promotion.promote('PPT');

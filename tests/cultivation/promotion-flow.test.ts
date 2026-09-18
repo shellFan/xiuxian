@@ -40,11 +40,9 @@ function makeContext(options: {
   });
   const storage = new MemoryStorageAdapter();
   const context = new GameContext({ player, storage, clock, randomProvider: random });
-  // Complete KPI so promotion is allowed (level 1 requires: MERGE_COUNT=3, WORK_SECONDS=300, CULTIVATION=50)
-  player.workSeconds = 300;
-  context.kpi.recordMerge();
-  context.kpi.recordMerge();
-  context.kpi.recordMerge();
+  // Complete KPI so promotion is allowed (V2 level 1: WORK_SECONDS=7200, CULTIVATION=100, TASK_DONE=3)
+  player.workSeconds = 7200;
+  player.kpiProgress['TASK_DONE'] = 3;
   const promotion = new PromotionService(context, { randomProvider: random });
   return { context, clock, player, promotion };
 }
@@ -52,7 +50,10 @@ function makeContext(options: {
 // ── Test 1: canPromote returns READY when requirements met ───────────────────
 
 function testCanPromoteReady(): void {
-  const { promotion } = makeContext({ careerLevel: 1, cultivationExp: 1000 });
+  // Gameplay V2: L1 KPI = WORK_SECONDS 7200 + CULTIVATION 100 + TASK_DONE 3
+  const { promotion, player } = makeContext({ careerLevel: 1, cultivationExp: 1000 });
+  player.workSeconds = 7200;
+  player.kpiProgress['TASK_DONE'] = 3;
   const check = promotion.canPromote();
   assert.equal(check.allowed, true, 'should be allowed');
   assert.equal(check.reason, 'READY', 'reason should be READY');

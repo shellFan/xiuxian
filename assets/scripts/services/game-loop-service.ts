@@ -83,6 +83,13 @@ export class GameLoopService {
       // V2 economy failure must not crash the game loop
     }
 
+    // 5.6 V2 daily/weekly settlement: once per started workday after 18:00.
+    try {
+      if (this.context.daySettlement.canSettle()) this.context.daySettlement.settle();
+    } catch {
+      // A settlement persistence failure must not crash the game loop.
+    }
+
     // 6. Poll for career events (V1 legacy) + V2 event engine
     this.context.careerEvents.poll();
     try {

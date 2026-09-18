@@ -20,6 +20,15 @@ function makeContext(player: PlayerData, clock = new FakeClock(1_000), random = 
   return context;
 }
 
+/**
+ * Frame-rate tests compare complete save snapshots. Keep their 60-second work
+ * window before the V2 event scheduler's next window so random event selection
+ * cannot make two otherwise identical simulations diverge.
+ */
+function makeFrameRatePlayer(workMode: 'WORK' | 'FISHING', mind: number): PlayerData {
+  return new PlayerData({ workMode, mind, eventCooldowns: { __nextEventAt: 120_000 } });
+}
+
 function testTickBeforeStartDoesNothing(): void {
   const context = makeContext(new PlayerData({ workMode: 'WORK', mind: 100 }));
   const loop = new GameLoopService(context);
@@ -49,8 +58,8 @@ function testSixtySecondsFishingRecoversMindAndCountsFishTime(): void {
 }
 
 function testTickIsFrameRateIndependent(): void {
-  const sliced = makeContext(new PlayerData({ workMode: 'WORK', mind: 80 }));
-  const bulk = makeContext(new PlayerData({ workMode: 'WORK', mind: 80 }));
+  const sliced = makeContext(makeFrameRatePlayer('WORK', 80));
+  const bulk = makeContext(makeFrameRatePlayer('WORK', 80));
   const slicedLoop = new GameLoopService(sliced);
   const bulkLoop = new GameLoopService(bulk);
   slicedLoop.start();
@@ -130,7 +139,7 @@ function testAutoSaveDisabledWhenZero(): void {
 // ── Multi-FPS frame-rate independence ────────────────────────────────────────
 
 function testFrameRateIndependentAt60FPS(): void {
-  const player = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const player = makeFrameRatePlayer('WORK', 80);
   const context = makeContext(player);
   const loop = new GameLoopService(context);
   loop.start();
@@ -138,7 +147,7 @@ function testFrameRateIndependentAt60FPS(): void {
   for (let i = 0; i < 3600; i += 1) loop.tick(1 / 60);
   const fps60 = context.player.toSaveData();
 
-  const player2 = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const player2 = makeFrameRatePlayer('WORK', 80);
   const context2 = makeContext(player2);
   const loop2 = new GameLoopService(context2);
   loop2.start();
@@ -149,7 +158,7 @@ function testFrameRateIndependentAt60FPS(): void {
 }
 
 function testFrameRateIndependentAt30FPS(): void {
-  const player = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const player = makeFrameRatePlayer('WORK', 80);
   const context = makeContext(player);
   const loop = new GameLoopService(context);
   loop.start();
@@ -157,7 +166,7 @@ function testFrameRateIndependentAt30FPS(): void {
   for (let i = 0; i < 1800; i += 1) loop.tick(1 / 30);
   const fps30 = context.player.toSaveData();
 
-  const player2 = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const player2 = makeFrameRatePlayer('WORK', 80);
   const context2 = makeContext(player2);
   const loop2 = new GameLoopService(context2);
   loop2.start();
@@ -168,7 +177,7 @@ function testFrameRateIndependentAt30FPS(): void {
 }
 
 function testFrameRateIndependentAt10FPS(): void {
-  const player = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const player = makeFrameRatePlayer('WORK', 80);
   const context = makeContext(player);
   const loop = new GameLoopService(context);
   loop.start();
@@ -176,7 +185,7 @@ function testFrameRateIndependentAt10FPS(): void {
   for (let i = 0; i < 600; i += 1) loop.tick(0.1);
   const fps10 = context.player.toSaveData();
 
-  const player2 = new PlayerData({ workMode: 'WORK', mind: 80 });
+  const player2 = makeFrameRatePlayer('WORK', 80);
   const context2 = makeContext(player2);
   const loop2 = new GameLoopService(context2);
   loop2.start();
@@ -187,14 +196,14 @@ function testFrameRateIndependentAt10FPS(): void {
 }
 
 function testFrameRateIndependentFishingMode(): void {
-  const player = new PlayerData({ workMode: 'FISHING', mind: 10 });
+  const player = makeFrameRatePlayer('FISHING', 10);
   const context = makeContext(player);
   const loop = new GameLoopService(context);
   loop.start();
   for (let i = 0; i < 3600; i += 1) loop.tick(1 / 60);
   const fps60 = context.player.toSaveData();
 
-  const player2 = new PlayerData({ workMode: 'FISHING', mind: 10 });
+  const player2 = makeFrameRatePlayer('FISHING', 10);
   const context2 = makeContext(player2);
   const loop2 = new GameLoopService(context2);
   loop2.start();

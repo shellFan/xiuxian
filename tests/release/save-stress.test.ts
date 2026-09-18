@@ -143,17 +143,17 @@ test('Save Stress: save/load preserves state across promotions', () => {
   });
 
   // Simulate progression: promote from level 1 to 5
-  const KPI_REQ: Record<number, { MERGE_COUNT: number; WORK_SECONDS: number; CULTIVATION: number }> = {
-    1: { MERGE_COUNT: 3, WORK_SECONDS: 300, CULTIVATION: 50 },
-    2: { MERGE_COUNT: 5, WORK_SECONDS: 600, CULTIVATION: 120 },
-    3: { MERGE_COUNT: 8, WORK_SECONDS: 900, CULTIVATION: 250 },
-    4: { MERGE_COUNT: 12, WORK_SECONDS: 1200, CULTIVATION: 400 },
+  const KPI_REQ: Record<number, { TASK_DONE: number; WORK_SECONDS: number; CULTIVATION: number }> = {
+    1: { TASK_DONE: 3, WORK_SECONDS: 7200, CULTIVATION: 100 },
+    2: { TASK_DONE: 8, WORK_SECONDS: 28800, CULTIVATION: 500 },
+    3: { TASK_DONE: 15, WORK_SECONDS: 64800, CULTIVATION: 1500 },
+    4: { TASK_DONE: 24, WORK_SECONDS: 122400, CULTIVATION: 3500 },
   };
-  const CAREER_EXP: Record<number, number> = { 1: 0, 2: 100, 3: 300, 4: 700, 5: 1500 };
+  const CAREER_EXP: Record<number, number> = { 1: 0, 2: 300, 3: 1800, 4: 3900, 5: 7500 };
 
   for (let level = 1; level <= 4; level++) {
     const kpi = KPI_REQ[level];
-    facade.context.player.kpiProgress = { MERGE_COUNT: kpi.MERGE_COUNT, SALARY_EARNED: 0, EVENT_RESOLVED: 0 };
+    facade.context.player.kpiProgress = { TASK_DONE: kpi.TASK_DONE };
     facade.context.player.workSeconds = kpi.WORK_SECONDS;
     facade.context.player.cultivationExp = Math.max(kpi.CULTIVATION, CAREER_EXP[level]);
     facade.context.player.mind = 100;

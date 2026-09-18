@@ -209,6 +209,8 @@ export class TaskService {
     const previousStones = this.context.player.spiritStones;
     const previousPerformance = this.context.player.performance;
     const previousMind = this.context.player.mind;
+    const previousKpiProgress = { ...this.context.player.kpiProgress };
+    const previousDailyTasks = this.context.player.dailyTasks.map((dailyTask) => ({ ...dailyTask }));
     const rewardPerformance = task.rewardPerformance ?? 0;
     const rewardMind = task.rewardMind ?? 0;
 
@@ -230,6 +232,7 @@ export class TaskService {
       }
 
       task.claimed = true;
+      this.context.kpi.recordTaskDone();
       this.context.saveService.save(this.context.player);
 
       this.context.events.emit('taskClaimed', {
@@ -250,6 +253,8 @@ export class TaskService {
       this.context.player.spiritStones = previousStones;
       this.context.player.performance = previousPerformance;
       this.context.player.mind = previousMind;
+      this.context.player.kpiProgress = previousKpiProgress;
+      this.context.player.dailyTasks = previousDailyTasks;
       task.claimed = false;
       throw error;
     }

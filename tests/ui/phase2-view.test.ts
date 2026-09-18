@@ -14,10 +14,10 @@ function makeContext(player: PlayerData, clock = new FakeClock(1_000)): GameCont
 function readyLevelOne(): PlayerData {
   return new PlayerData({
     careerLevel: 1,
-    cultivationExp: 50,
+    cultivationExp: 200,
     mind: 100,
-    workSeconds: 300,
-    kpiProgress: { MERGE_COUNT: 3, SALARY_EARNED: 0, EVENT_RESOLVED: 0 },
+    workSeconds: 7200,
+    kpiProgress: { TASK_DONE: 3 },
   });
 }
 
@@ -39,8 +39,8 @@ function testCareerViewModel(): void {
   assert.equal(view.careerLevel, 1);
   assert.equal(view.careerName, '实习牛马');
   assert.equal(view.realm, '炼气一层');
-  assert.equal(view.cultivation, 50);
-  assert.equal(view.cultivationRequired, 0);
+  assert.equal(view.cultivation, 200);
+  assert.equal(view.cultivationRequired, 0); // V2: L1 requiredExp = 0（KPI 另行校验修为）
   assert.equal(view.mindStatusText, '精神饱满');
   assert.equal(view.officeName, '共享工位');
   assert.equal(view.workMode, 'FISHING');

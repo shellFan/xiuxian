@@ -198,9 +198,9 @@ function testKpiToPromotionIntegration(): void {
     player: makePlayer({ careerLevel: 1, cultivationExp: 200, mind: 100 }),
   });
 
-  // Meet KPI requirements for level 1 → 2
-  context.player.kpiProgress = { MERGE_COUNT: 5, SALARY_EARNED: 100, EVENT_RESOLVED: 0 };
-  context.player.workSeconds = 600;
+  // Gameplay V2 L1 KPI: WORK_SECONDS=7200 + CULTIVATION=100 + TASK_DONE=3.
+  context.player.kpiProgress = { TASK_DONE: 3 };
+  context.player.workSeconds = 7200;
 
   // Verify KPI is complete
   assert.ok(context.kpi.isCurrentKpiCompleted(), 'KPI should be completed');
@@ -330,8 +330,8 @@ function testCompleteGameplayFlow(): void {
   assert.ok(context.player.workSeconds > 0, 'workSeconds accumulated');
 
   // ── Phase E: KPI Completion ──
-  context.player.kpiProgress = { MERGE_COUNT: 5, SALARY_EARNED: 100, EVENT_RESOLVED: 0 };
-  context.player.workSeconds = 600;
+  context.player.kpiProgress = { TASK_DONE: 3 };
+  context.player.workSeconds = 7200;
   context.player.cultivationExp = 200;
   context.player.mind = 100;
   assert.ok(context.kpi.isCurrentKpiCompleted(), 'KPI should be completed');

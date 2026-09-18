@@ -83,13 +83,27 @@ export class PromotionService {
   }
 
   public promote(optionId: string): PromotionResult {
+    return this.promoteWithRoll(optionId, this.random.next());
+  }
+
+  /**
+   * Completes a promotion whose success has already been decided by a higher-level
+   * flow, such as the Gameplay V2 defense. It keeps the normal promotion
+   * transaction (KPI reset, office sync, save, events) while bypassing the retired
+   * interview-roll and retry gate.
+   */
+  public promoteGuaranteed(optionId: string, beforeCommit?: () => void): PromotionResult {
+    return this.promoteWithRoll(optionId, 0, true, beforeCommit);
+  }
+
+  private promoteWithRoll(optionId: string, roll: number, bypassRetryGate = false, beforeCommit?: () => void): PromotionResult {
     if (typeof optionId !== 'string' || optionId.trim() === '') throw new Error('Invalid promotion option');
     if (!this.getOptions().some((option) => option.id === optionId)) throw new Error(`Unknown promotion option ${optionId}`);
     const check = this.canPromote();
     if (!check.allowed) throw new Error(`Promotion not allowed: ${check.reason}`);
     // After a failed interview a rewarded retry is required before another attempt. The first
     // attempt is always free; this guard blocks a naked re-click until a retry token is granted.
-    if (this.retryRequired && !this.retryAvailable) throw new Error('Promotion retry required');
+    if (!bypassRetryGate && this.retryRequired && !this.retryAvailable) throw new Error('Promotion retry required');
     // Snapshot session retry state BEFORE any mutation so a failed attempt can roll it back
     // atomically with the player data. A watched retry ad must not be lost just because the
     // subsequent save fails (Phase 3 real-ad readiness).
@@ -98,7 +112,6 @@ export class PromotionService {
     this.retryAvailable = false;
     const oldCareerLevel = this.context.player.careerLevel;
     const probability = this.getProbability();
-    const roll = this.random.next();
     const success = roll < probability / 100;
     const before = this.context.player.toSaveData();
     try {
@@ -118,6 +131,7 @@ export class PromotionService {
         this.context.player.promotionFailCount = 0;
         // A successful breakthrough clears the retry requirement entirely.
         this.retryRequired = false;
+        beforeCommit?.();
         // The ONLY persistence write for the whole promotion transaction.
         this.context.saveService.save(this.context.player);
         this.context.dailyTasks.addProgress('PROMOTION_1', 1);

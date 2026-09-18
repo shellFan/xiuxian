@@ -142,8 +142,8 @@ function testDebugPromoteIntegration(): void {
   context.debug.promote();
   assert.equal(player.careerLevel, 2);
   assert.equal(player.officeLevel, 1); // office for career 2 is level 1
-  // Verify KPI was reset for new level
-  assert.deepEqual(player.kpiProgress, {});
+  // TASK_DONE remains cumulative for the next level's cumulative target.
+  assert.deepEqual(player.kpiProgress, { TASK_DONE: 3 });
   // Verify saved
   const saved = JSON.parse(storage.getItem(SAVE_KEY)!);
   assert.equal(saved.careerLevel, 2);
@@ -354,14 +354,14 @@ function testV4RoundTrip(): void {
     salary: 1000,
     careerLevel: 4,
     officeLevel: 2,
-    cultivationExp: 500,
+    cultivationExp: 3500,
     mind: 85,
     maxMind: 100,
     performance: 15,
     sectId: 'PRIVATE',
     talentId: 'TALENT_GUANXI',
     workMode: 'WORK',
-    workSeconds: 3600,
+    workSeconds: 122400,
     fishingSeconds: 1800,
     kpiProgress: { SALARY_EARNED: 800, MERGE_COUNT: 5 },
     promotionFailCount: 2,
@@ -384,13 +384,13 @@ function testV4RoundTrip(): void {
   assert.equal(reloaded.salary, 1000);
   assert.equal(reloaded.careerLevel, 4);
   assert.equal(reloaded.officeLevel, 2);
-  assert.equal(reloaded.cultivationExp, 500);
+  assert.equal(reloaded.cultivationExp, 3500);
   assert.equal(reloaded.mind, 85);
   assert.equal(reloaded.performance, 15);
   assert.equal(reloaded.sectId, 'PRIVATE');
   assert.equal(reloaded.talentId, 'TALENT_GUANXI');
   assert.equal(reloaded.workMode, 'WORK');
-  assert.equal(reloaded.workSeconds, 3600);
+  assert.equal(reloaded.workSeconds, 122400);
   assert.equal(reloaded.fishingSeconds, 1800);
   assert.deepEqual(reloaded.kpiProgress, { SALARY_EARNED: 800, MERGE_COUNT: 5 });
   assert.equal(reloaded.promotionFailCount, 2);

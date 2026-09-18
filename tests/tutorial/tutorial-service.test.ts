@@ -156,11 +156,11 @@ function testAutoAdvanceCheckKpi(): void {
   const context = makeContext();
   context.player.tutorialStep = 'CHECK_KPI';
   context.player.careerLevel = 1;
-  context.player.kpiProgress = { MERGE_COUNT: 0, SALARY_EARNED: 0, EVENT_RESOLVED: 0 };
+  context.player.kpiProgress = { TASK_DONE: 0 };
   assert.equal(context.tutorial.isConditionMet('CHECK_KPI'), false);
-  // Meet KPI requirements for level 1: MERGE_COUNT=3, WORK_SECONDS=300, CULTIVATION=50
-  context.player.kpiProgress = { MERGE_COUNT: 5, SALARY_EARNED: 100, EVENT_RESOLVED: 0 };
-  context.player.workSeconds = 600;
+  // Gameplay V2 L1: TASK_DONE=3, WORK_SECONDS=7200, CULTIVATION=100.
+  context.player.kpiProgress = { TASK_DONE: 3 };
+  context.player.workSeconds = 7200;
   context.player.cultivationExp = 200;
   assert.equal(context.tutorial.isConditionMet('CHECK_KPI'), true);
   const advanced = context.tutorial.checkAutoAdvance();
@@ -221,8 +221,8 @@ function testFullTutorialFlowViaGameLoop(): void {
   assert.equal(context.tutorial.currentStep(), 'CHECK_KPI');
 
   // Step 5: CHECK_KPI - meet KPI requirements
-  context.player.kpiProgress = { MERGE_COUNT: 5, SALARY_EARNED: 100, EVENT_RESOLVED: 0 };
-  context.player.workSeconds = 600;
+  context.player.kpiProgress = { TASK_DONE: 3 };
+  context.player.workSeconds = 7200;
   context.player.cultivationExp = 200;
   context.tutorial.checkAutoAdvance();
   assert.equal(context.tutorial.currentStep(), 'FIRST_PROMOTION');

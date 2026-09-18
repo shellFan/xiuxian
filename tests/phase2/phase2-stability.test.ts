@@ -249,11 +249,11 @@ function testKpiMaxLevelNotCompleted(): void {
 }
 
 function testKpiCompletionAndSwitchReset(): void {
-  const { context, player } = makeContext({ careerLevel: 1, cultivationExp: 50, workSeconds: 300, kpiProgress: { MERGE_COUNT: 3 } });
+  const { context, player } = makeContext({ careerLevel: 1, cultivationExp: 100, workSeconds: 7200, kpiProgress: { TASK_DONE: 3 } });
   assert.equal(context.kpi.isCurrentKpiCompleted(), true);
   context.kpi.switchLevel(2);
   assert.equal(player.careerLevel, 2);
-  assert.deepEqual(player.kpiProgress, {}, 'per-level counters reset');
+  assert.deepEqual(player.kpiProgress, { TASK_DONE: 3 }, 'cumulative task count is preserved');
   assert.equal(context.kpi.isCurrentKpiCompleted(), false, 'level 2 targets not yet met');
 }
 
@@ -265,20 +265,20 @@ function testPromotionReasons(): void {
   assert.equal(context.promotion.canPromote().reason, 'MAX_LEVEL');
   const kpiIncomplete = makeContext({ careerLevel: 1, cultivationExp: 10 });
   assert.equal(kpiIncomplete.context.promotion.canPromote().reason, 'KPI_INCOMPLETE');
-  const cultShort = makeContext({ careerLevel: 3, cultivationExp: 280, workSeconds: 900, kpiProgress: { MERGE_COUNT: 8 } });
+  const cultShort = makeContext({ careerLevel: 3, cultivationExp: 1500, workSeconds: 64800, kpiProgress: { TASK_DONE: 15 } }); // KPI达标(1500) 但 < requiredExp(1800)
   assert.equal(cultShort.context.promotion.canPromote().reason, 'CULTIVATION_INSUFFICIENT');
-  const ready = makeContext({ careerLevel: 1, cultivationExp: 50, mind: 100, workSeconds: 300, kpiProgress: { MERGE_COUNT: 3 } });
+  const ready = makeContext({ careerLevel: 1, cultivationExp: 200, mind: 100, workSeconds: 7200, kpiProgress: { TASK_DONE: 3 } }); // requiredExp 200
   assert.equal(ready.context.promotion.canPromote().allowed, true);
 }
 
 function testPromotionSuccessAndFailure(): void {
-  const ok = makeContext({ careerLevel: 1, cultivationExp: 50, mind: 100, workSeconds: 300, kpiProgress: { MERGE_COUNT: 3 } }, new FixedRandomProvider(0.5));
+  const ok = makeContext({ careerLevel: 1, cultivationExp: 200, mind: 100, workSeconds: 7200, kpiProgress: { TASK_DONE: 3 } }, new FixedRandomProvider(0.5));
   const pass = ok.context.promotion.promote('PPT');
   assert.equal(pass.success, true);
   assert.equal(ok.player.careerLevel, 2);
   assert.equal(ok.player.officeLevel, 1, 'careers 1-2 share office level 1');
 
-  const fail = makeContext({ careerLevel: 1, cultivationExp: 50, mind: 100, workSeconds: 300, kpiProgress: { MERGE_COUNT: 3 } }, new FixedRandomProvider(0.9));
+  const fail = makeContext({ careerLevel: 1, cultivationExp: 200, mind: 100, workSeconds: 7200, kpiProgress: { TASK_DONE: 3 } }, new FixedRandomProvider(0.9));
   const result = fail.context.promotion.promote('PPT');
   assert.equal(result.success, false);
   assert.equal(fail.player.careerLevel, 1);
@@ -287,7 +287,7 @@ function testPromotionSuccessAndFailure(): void {
 }
 
 function testPromotionOfficeAdvancesOnLevelThree(): void {
-  const { context, player } = makeContext({ careerLevel: 2, cultivationExp: 120, mind: 100, workSeconds: 600, kpiProgress: { MERGE_COUNT: 5 } }, new FixedRandomProvider(0.5));
+  const { context, player } = makeContext({ careerLevel: 2, cultivationExp: 500, mind: 100, workSeconds: 28800, kpiProgress: { TASK_DONE: 8 } }, new FixedRandomProvider(0.5));
   assert.equal(context.promotion.canPromote().allowed, true);
   context.promotion.promote('DATA');
   assert.equal(player.careerLevel, 3);
@@ -300,14 +300,14 @@ function testPromotionSaveFailureRollsBack(): void {
     setItem: () => { throw new Error('quota exceeded'); },
     removeItem: () => undefined,
   };
-  const player = new PlayerData({ careerLevel: 1, cultivationExp: 50, mind: 100, workSeconds: 300, kpiProgress: { MERGE_COUNT: 3 } });
+  const player = new PlayerData({ careerLevel: 1, cultivationExp: 200, mind: 100, workSeconds: 7200, kpiProgress: { TASK_DONE: 3 } });
   const context = new GameContext({ player, storage: throwingStorage, randomProvider: new FixedRandomProvider(0.5) });
   assert.throws(() => context.promotion.promote('PPT'), /quota exceeded/);
   assert.equal(player.careerLevel, 1);
-  assert.equal(player.cultivationExp, 50);
+  assert.equal(player.cultivationExp, 200);
   assert.equal(player.performance, 0);
   assert.equal(player.mind, 100);
-  assert.deepEqual(player.kpiProgress, { MERGE_COUNT: 3 });
+  assert.deepEqual(player.kpiProgress, { TASK_DONE: 3 });
 }
 
 // ---------------------------------------------------------------------------
@@ -409,7 +409,7 @@ function testOfflineDoubleSaveFailureRollsBack(): void {
 // ---------------------------------------------------------------------------
 function testStressInvariantsHold(): void {
   const rng = new SequenceRandomProvider([0.1, 0.4, 0.7, 0.9, 0.2, 0.55, 0.83, 0.05, 0.66, 0.33]);
-  const { context, player, clock } = makeContext({ careerLevel: 1, cultivationExp: 50, mind: 100, workSeconds: 300, kpiProgress: { MERGE_COUNT: 3 } }, rng);
+  const { context, player, clock } = makeContext({ careerLevel: 1, cultivationExp: 100, mind: 100, workSeconds: 7200, kpiProgress: { TASK_DONE: 3 } }, rng);
   const office = context.office;
   for (let i = 0; i < 200; i += 1) {
     clock.advance(10 * 60 * 1000);

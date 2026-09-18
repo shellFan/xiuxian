@@ -25,12 +25,17 @@ function testLoadsLevelOneRequirements(): void {
   const context = createContext();
   const reqs = context.kpi.getCurrentRequirements();
   assert.equal(reqs.length, 3);
-  const merge = reqs.find((r) => r.type === 'MERGE_COUNT');
+  // Gameplay V2: L1 = WORK_SECONDS 7200 + CULTIVATION 100 + TASK_DONE 3（MERGE_COUNT 已移除，§75）
   const work = reqs.find((r) => r.type === 'WORK_SECONDS');
   const cult = reqs.find((r) => r.type === 'CULTIVATION');
-  assert.equal(merge?.target, 3);
-  assert.equal(work?.target, 300);
-  assert.equal(cult?.target, 50);
+  const task = reqs.find((r) => r.type === 'TASK_DONE');
+  assert.ok(work, 'WORK_SECONDS requirement exists');
+  assert.equal(work.target, 7200);
+  assert.ok(cult, 'CULTIVATION requirement exists');
+  assert.equal(cult.target, 100);
+  assert.ok(task, 'TASK_DONE requirement exists');
+  assert.equal(task.target, 3);
+  assert.equal(reqs.find((r) => r.type === 'MERGE_COUNT'), undefined, 'MERGE_COUNT removed in V2');
   assert.equal(context.kpi.isCurrentKpiCompleted(), false);
 }
 
@@ -75,26 +80,28 @@ function testWorkSecondsAccumulateAndFishingDoesNot(): void {
 
 function testCultivationThreshold(): void {
   const context = createContext();
-  context.player.cultivationExp = 49;
+  // Gameplay V2: L1 CULTIVATION 目标为 100
+  context.player.cultivationExp = 99;
   const reqs = context.kpi.getCurrentRequirements();
   const cult = reqs.find((r) => r.type === 'CULTIVATION');
   assert.equal(context.kpi.isRequirementCompleted(cult!), false);
-  context.player.cultivationExp = 50;
+  context.player.cultivationExp = 100;
   assert.equal(context.kpi.isRequirementCompleted(cult!), true);
 }
 
 function testSingleRequirementCompletion(): void {
   const context = createContext();
-  context.player.kpiProgress = { MERGE_COUNT: 3 };
-  const mergeReq = context.kpi.getCurrentRequirements().find((r) => r.type === 'MERGE_COUNT')!;
-  assert.equal(context.kpi.isRequirementCompleted(mergeReq), true);
+  // V2: TASK_DONE 取代 MERGE_COUNT 作为计数型 KPI
+  context.player.kpiProgress = { TASK_DONE: 3 };
+  const taskReq = context.kpi.getCurrentRequirements().find((r) => r.type === 'TASK_DONE')!;
+  assert.equal(context.kpi.isRequirementCompleted(taskReq), true);
 }
 
 function testAllRequirementsCompletion(): void {
   const context = createContext();
-  context.player.kpiProgress = { MERGE_COUNT: 3 };
-  context.player.workSeconds = 300;
-  context.player.cultivationExp = 50;
+  context.player.kpiProgress = { TASK_DONE: 3 };
+  context.player.workSeconds = 7200;
+  context.player.cultivationExp = 100;
   assert.equal(context.kpi.isCurrentKpiCompleted(), true);
   assert.equal(context.kpi.getView().allCompleted, true);
 }
@@ -105,14 +112,15 @@ function testCareerLevelSwitchReadsCorrectRequirements(): void {
   context.kpi.switchLevel(4);
   assert.equal(context.player.careerLevel, 4);
   const reqs = context.kpi.getCurrentRequirements();
-  const merge = reqs.find((r) => r.type === 'MERGE_COUNT');
-  assert.equal(merge?.target, 12);
+  // V2: L4 = WORK_SECONDS 122400 + CULTIVATION 3500 + TASK_DONE 24
+  const task = reqs.find((r) => r.type === 'TASK_DONE');
+  assert.equal(task?.target, 24);
   const work = reqs.find((r) => r.type === 'WORK_SECONDS');
-  assert.equal(work?.target, 1200);
-  // Per-level counters reset on switch; cumulative attributes preserved.
-  context.player.kpiProgress = { MERGE_COUNT: 99 };
+  assert.equal(work?.target, 122400);
+  // TASK_DONE is cumulative alongside workSeconds and cultivationExp.
+  context.player.kpiProgress = { TASK_DONE: 99 };
   context.kpi.switchLevel(4);
-  assert.equal(context.player.kpiProgress.MERGE_COUNT ?? 0, 0);
+  assert.equal(context.player.kpiProgress.TASK_DONE, 99);
 }
 
 function testRepeatEventsDoNotDoubleCount(): void {

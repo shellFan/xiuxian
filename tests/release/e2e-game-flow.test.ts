@@ -16,23 +16,23 @@ import { MergeService } from '../../assets/scripts/services/merge-service';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-/** KPI requirements per career level (from kpi.json). */
-const KPI_REQUIREMENTS: Record<number, { MERGE_COUNT: number; WORK_SECONDS: number; CULTIVATION: number }> = {
-  1: { MERGE_COUNT: 3, WORK_SECONDS: 300, CULTIVATION: 50 },
-  2: { MERGE_COUNT: 5, WORK_SECONDS: 600, CULTIVATION: 120 },
-  3: { MERGE_COUNT: 8, WORK_SECONDS: 900, CULTIVATION: 250 },
-  4: { MERGE_COUNT: 12, WORK_SECONDS: 1200, CULTIVATION: 400 },
-  5: { MERGE_COUNT: 16, WORK_SECONDS: 1500, CULTIVATION: 600 },
-  6: { MERGE_COUNT: 20, WORK_SECONDS: 1800, CULTIVATION: 850 },
-  7: { MERGE_COUNT: 25, WORK_SECONDS: 2100, CULTIVATION: 1150 },
-  8: { MERGE_COUNT: 30, WORK_SECONDS: 2400, CULTIVATION: 1500 },
-  9: { MERGE_COUNT: 36, WORK_SECONDS: 2700, CULTIVATION: 1900 },
+/** Gameplay V2 KPI requirements per career level (from kpi.json). */
+const KPI_REQUIREMENTS: Record<number, { TASK_DONE: number; WORK_SECONDS: number; CULTIVATION: number }> = {
+  1: { TASK_DONE: 3, WORK_SECONDS: 7200, CULTIVATION: 100 },
+  2: { TASK_DONE: 8, WORK_SECONDS: 28800, CULTIVATION: 500 },
+  3: { TASK_DONE: 15, WORK_SECONDS: 64800, CULTIVATION: 1500 },
+  4: { TASK_DONE: 24, WORK_SECONDS: 122400, CULTIVATION: 3500 },
+  5: { TASK_DONE: 36, WORK_SECONDS: 208800, CULTIVATION: 7000 },
+  6: { TASK_DONE: 50, WORK_SECONDS: 324000, CULTIVATION: 13000 },
+  7: { TASK_DONE: 66, WORK_SECONDS: 468000, CULTIVATION: 22000 },
+  8: { TASK_DONE: 84, WORK_SECONDS: 648000, CULTIVATION: 35000 },
+  9: { TASK_DONE: 104, WORK_SECONDS: 864000, CULTIVATION: 52000 },
 };
 
 /** Career level requiredExp (cultivation) from career.json. */
 const CAREER_REQUIRED_EXP: Record<number, number> = {
-  1: 0, 2: 100, 3: 300, 4: 700, 5: 1500,
-  6: 3000, 7: 6000, 8: 12000, 9: 24000, 10: 50000,
+  1: 0, 2: 300, 3: 1800, 4: 3900, 5: 7500,
+  6: 13600, 7: 22700, 8: 35800, 9: 52900, 10: 76000,
 };
 
 interface TestSetup {
@@ -82,9 +82,7 @@ function prepareForPromotion(facade: GameFacade, clock: FakeClock): void {
 
   // Set KPI counters
   player.kpiProgress = {
-    MERGE_COUNT: kpi.MERGE_COUNT,
-    SALARY_EARNED: 0,
-    EVENT_RESOLVED: 0,
+    TASK_DONE: kpi.TASK_DONE,
   };
   // Set work seconds
   player.workSeconds = kpi.WORK_SECONDS;
@@ -198,32 +196,32 @@ test('E2E: toggleWorkMode switches between WORK and FISHING', () => {
 
 // ── 6. KPI Progress ──────────────────────────────────────────────────────────
 
-test('E2E: KPI progress tracks merge count, work seconds, cultivation', () => {
+test('E2E: KPI progress tracks task completions, work seconds, cultivation', () => {
   const { facade, clock } = createTestSetup();
 
-  // PC V1: Set KPI counters directly (no board/merge available)
-  facade.context.player.kpiProgress = { MERGE_COUNT: 1, SALARY_EARNED: 0, EVENT_RESOLVED: 0 };
+  // Gameplay V2: set the task-completion KPI directly.
+  facade.context.player.kpiProgress = { TASK_DONE: 1 };
 
   // Set work seconds and cultivation directly
-  facade.context.player.workSeconds = 300;
-  facade.context.player.cultivationExp = 50;
+  facade.context.player.workSeconds = 7200;
+  facade.context.player.cultivationExp = 100;
 
   const kpi = facade.queryKpi();
   assert.strictEqual(kpi.careerLevel, 1, 'KPI should show career level 1');
 
   // Check individual items
-  const mergeItem = kpi.items.find(i => i.type === 'MERGE_COUNT');
+  const taskItem = kpi.items.find(i => i.type === 'TASK_DONE');
   const workItem = kpi.items.find(i => i.type === 'WORK_SECONDS');
   const cultItem = kpi.items.find(i => i.type === 'CULTIVATION');
 
-  assert.ok(mergeItem, 'Should have MERGE_COUNT KPI');
+  assert.ok(taskItem, 'Should have TASK_DONE KPI');
   assert.ok(workItem, 'Should have WORK_SECONDS KPI');
   assert.ok(cultItem, 'Should have CULTIVATION KPI');
 
   // Verify targets match config
-  assert.strictEqual(mergeItem!.target, 3, 'Level 1 merge target is 3');
-  assert.strictEqual(workItem!.target, 300, 'Level 1 work target is 300');
-  assert.strictEqual(cultItem!.target, 50, 'Level 1 cultivation target is 50');
+  assert.strictEqual(taskItem!.target, 3, 'Level 1 task target is 3');
+  assert.strictEqual(workItem!.target, 7200, 'Level 1 work target is 7200');
+  assert.strictEqual(cultItem!.target, 100, 'Level 1 cultivation target is 100');
 });
 
 // ── 7. Daily Tasks ───────────────────────────────────────────────────────────
@@ -437,7 +435,7 @@ test('E2E: complete promotion path from Level 1 to Level 10', () => {
   // Verify the career names are correct
   const career = facade.queryCareer();
   assert.strictEqual(career.level, 10, 'Career query should show level 10');
-  assert.strictEqual(career.name, '飞升董事', 'Level 10 should be 飞升董事');
+  assert.strictEqual(career.name, '区域副总监', 'Level 10 should be 区域副总监');
 });
 
 // ── 16. No NaN / Infinity / Negative Resources ───────────────────────────────
@@ -533,12 +531,12 @@ test('E2E: game loop does not enter infinite loop with large delta', () => {
 test('E2E: all 10 career levels have correct names and realms', () => {
   const { facade } = createTestSetup();
   const expectedNames = [
-    '实习牛马', '正式牛马', '金丹主管', '元婴主管', '化神经理',
-    '炼虚经理', '合体总监', '大乘总监', '渡劫副总', '飞升董事',
+    '实习牛马', '正式牛马', '骨干牛马', '小组骨干', '项目骨干',
+    '部门骨干', '部门主管', '部门经理', '高级经理', '区域副总监',
   ];
   const expectedRealms = [
-    '炼气一层', '炼气三层', '金丹境', '元婴境', '化神境',
-    '炼虚境', '合体境', '大乘境', '渡劫境', '飞升境',
+    '炼气一层', '炼气三层', '炼气六层', '筑基初期', '筑基中期',
+    '筑基后期', '金丹初期', '金丹中期', '金丹后期', '元婴初期',
   ];
 
   for (let i = 1; i <= 10; i++) {
@@ -681,16 +679,16 @@ test('E2E: career level cultivation multiplier increases with level', () => {
 test('E2E: KPI targets increase across career levels', () => {
   const { facade } = createTestSetup();
 
-  let prevMerge = 0;
+  let prevTask = 0;
   let prevWork = 0;
   let prevCult = 0;
 
   for (let level = 1; level <= 9; level++) {
     const kpi = KPI_REQUIREMENTS[level];
-    assert.ok(kpi.MERGE_COUNT > prevMerge, `Level ${level} merge target should increase`);
+    assert.ok(kpi.TASK_DONE > prevTask, `Level ${level} task target should increase`);
     assert.ok(kpi.WORK_SECONDS > prevWork, `Level ${level} work target should increase`);
     assert.ok(kpi.CULTIVATION > prevCult, `Level ${level} cultivation target should increase`);
-    prevMerge = kpi.MERGE_COUNT;
+    prevTask = kpi.TASK_DONE;
     prevWork = kpi.WORK_SECONDS;
     prevCult = kpi.CULTIVATION;
   }

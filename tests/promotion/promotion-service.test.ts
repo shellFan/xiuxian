@@ -18,13 +18,13 @@ function makeContext(options: PlayerDataOptions, random?: FixedRandomProvider, r
 function readyLevelOne(): PlayerDataOptions {
   return {
     careerLevel: 1,
-    cultivationExp: 50,
+    cultivationExp: 200,
     mind: 100,
     maxMind: 100,
     performance: 0,
     promotionFailCount: 0,
-    workSeconds: 300,
-    kpiProgress: { MERGE_COUNT: 3, SALARY_EARNED: 0, EVENT_RESOLVED: 0 },
+    workSeconds: 7200,
+    kpiProgress: { TASK_DONE: 3 },
   };
 }
 
@@ -41,10 +41,10 @@ function testCultivationInsufficientBlocksPromotion(): void {
   // player with cultivation between the two is KPI-complete yet not promotable.
   const { promotion } = makeContext({
     careerLevel: 3,
-    cultivationExp: 280,
+    cultivationExp: 1500, // KPI ok, < requiredExp 1800
     mind: 100,
-    workSeconds: 900,
-    kpiProgress: { MERGE_COUNT: 8, SALARY_EARNED: 0, EVENT_RESOLVED: 0 },
+    workSeconds: 64800,
+    kpiProgress: { TASK_DONE: 15 },
   });
   assert.equal(promotion.canPromote().allowed, false);
   assert.equal(promotion.canPromote().reason, 'CULTIVATION_INSUFFICIENT');
@@ -115,10 +115,10 @@ function testSuccessConsumesRequiredKeepsOverflow(): void {
   const { promotion, player } = makeContext(
     {
       careerLevel: 2,
-      cultivationExp: 150,
+      cultivationExp: 800,
       mind: 100,
-      workSeconds: 600,
-      kpiProgress: { MERGE_COUNT: 5, SALARY_EARNED: 0, EVENT_RESOLVED: 0 },
+      workSeconds: 28800,
+      kpiProgress: { TASK_DONE: 8 },
     },
     new FixedRandomProvider(0.5),
   );
@@ -126,14 +126,14 @@ function testSuccessConsumesRequiredKeepsOverflow(): void {
   const result = promotion.promote('DATA');
   assert.equal(result.success, true);
   assert.equal(player.careerLevel, 3);
-  // Lv2 requiredExp = 100, overflow 150 - 100 = 50 preserved.
-  assert.equal(player.cultivationExp, 50);
+  // V2: Lv2 requiredExp = 300，overflow 800 - 300 = 500 preserved.
+  assert.equal(player.cultivationExp, 500);
 }
 
 function testSuccessResetsKpi(): void {
   const { promotion, player } = makeContext(readyLevelOne(), new FixedRandomProvider(0.5));
   promotion.promote('PPT');
-  assert.deepEqual(player.kpiProgress, {});
+  assert.deepEqual(player.kpiProgress, { TASK_DONE: 3 });
   assert.equal(promotion.canPromote().allowed, false);
 }
 
@@ -180,10 +180,10 @@ function testSaveFailureRollsBackTransaction(): void {
   const context = new GameContext({ player, storage: throwingStorage, randomProvider: new FixedRandomProvider(0.5) });
   assert.throws(() => context.promotion.promote('PPT'), /quota exceeded/);
   assert.equal(player.careerLevel, 1);
-  assert.equal(player.cultivationExp, 50);
+  assert.equal(player.cultivationExp, 200); // V2: readyLevelOne 修为 200，回滚后保留
   assert.equal(player.performance, 0);
   assert.equal(player.mind, 100);
-  assert.equal(player.kpiProgress.MERGE_COUNT, 3);
+  assert.equal(player.kpiProgress.TASK_DONE, 3);
   assert.equal(player.promotionFailCount, 0);
 }
 
@@ -346,7 +346,7 @@ function testStorageAtomicSnapshot(): void {
   assert.equal(saved.performance, 15, 'performance +10 persisted');
   assert.equal(saved.promotionFailCount, 0, 'fail count reset persisted');
   assert.equal(saved.officeLevel, context.office.getOfficeLevel(), 'office mirror synced to new career level');
-  assert.deepEqual(saved.kpiProgress, {}, 'per-level KPI counters reset in the persisted snapshot');
+  assert.deepEqual(saved.kpiProgress, { TASK_DONE: 3 }, 'cumulative task KPI persists after promotion');
 }
 
 /**
@@ -369,7 +369,7 @@ function testRetryTokenSurvivesSaveFailure(): void {
   // Player fully rolled back to the pre-attempt state.
   assert.equal(player.careerLevel, 1);
   assert.equal(player.performance, 0);
-  assert.equal(player.cultivationExp, 50);
+  assert.equal(player.cultivationExp, 200); // V2: readyLevelOne 修为 200
   // The retry token must NOT be lost: the player watched the ad but the save failed.
   assert.equal(context.promotion.retryGranted, true, 'retry token survives a save failure');
   assert.equal(context.promotion.needsRetry(), false, 'token available, no retry-required block');

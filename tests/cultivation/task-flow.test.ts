@@ -267,6 +267,28 @@ function testGetConfigsByType(): void {
   console.log('  ✓ getConfigsByType filters correctly');
 }
 
+function testClaimRollbackRestoresTaskKpiProgress(): void {
+  const clock = new FakeClock(10_000);
+  let rejectSaves = false;
+  const storage = {
+    getItem: () => null,
+    setItem: () => { if (rejectSaves) throw new Error('quota exceeded'); },
+    removeItem: () => undefined,
+  };
+  const player = new PlayerData({ mind: 100, maxMind: 100 });
+  const context = new GameContext({ player, storage, clock });
+  const tasks = new TaskService(context, { clock, tasks: TEST_TASKS });
+  tasks.startTask('test_daily');
+  clock.advance(10_000);
+  tasks.tick();
+  rejectSaves = true;
+
+  assert.throws(() => tasks.claimTask('test_daily'), /quota exceeded/);
+  assert.equal(player.activeTasks[0].claimed, false);
+  assert.equal(player.kpiProgress.TASK_DONE ?? 0, 0);
+  console.log('  ✓ failed claim restores task KPI progress');
+}
+
 // ── Run all tests ────────────────────────────────────────────────────────────
 
 testStartTaskSuccessfully();
@@ -282,4 +304,5 @@ testCleanupClaimedTasks();
 testTaskEventsFire();
 testGetRemainingSeconds();
 testGetConfigsByType();
+testClaimRollbackRestoresTaskKpiProgress();
 console.log('task flow tests passed');

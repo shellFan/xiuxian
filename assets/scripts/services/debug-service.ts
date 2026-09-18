@@ -58,6 +58,7 @@ export class DebugService {
         case 'MERGE_COUNT':
         case 'SALARY_EARNED':
         case 'EVENT_RESOLVED':
+        case 'TASK_DONE':
           if ((this.context.player.kpiProgress[req.type] ?? 0) < req.target) {
             this.context.player.kpiProgress[req.type] = req.target;
           }

@@ -72,7 +72,8 @@ export interface ConfigBundle {
  * WORK_SECONDS reads `PlayerData.workSeconds` and CULTIVATION reads
  * `PlayerData.cultivationExp` directly, so they must NOT be duplicated into kpiProgress.
  */
-export type KpiType = 'MERGE_COUNT' | 'WORK_SECONDS' | 'CULTIVATION' | 'SALARY_EARNED' | 'EVENT_RESOLVED';
+/** Gameplay V2: TASK_DONE（任务完成数）取代 MERGE_COUNT（§75）。 */
+export type KpiType = 'MERGE_COUNT' | 'WORK_SECONDS' | 'CULTIVATION' | 'SALARY_EARNED' | 'EVENT_RESOLVED' | 'TASK_DONE';
 
 export interface KpiRequirement {
   readonly type: KpiType;

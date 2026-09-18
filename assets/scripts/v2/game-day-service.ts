@@ -105,7 +105,9 @@ export class GameDayService {
     day = {
       dayIndex: prevIndex + 1,
       weekday: this.clock.getGameDate().weekday,
-      startedAt: Math.max(this.clock.now(), today.startTs),
+      // Keep the date key within today's work window even when the player first
+      // opens after 18:00; otherwise the next tick would create another day.
+      startedAt: today.startTs,
       settled: false,
       durations: emptyActivityDurations(),
       income: { salary: 0, cultivation: 0, performance: 0 },

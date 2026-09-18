@@ -62,10 +62,10 @@ function makeContext(player?: InstanceType<typeof PlayerData>, clock = new FakeC
 function readyLevelOne(): InstanceType<typeof PlayerData> {
   return new PlayerData({
     careerLevel: 1,
-    cultivationExp: 50,
+    cultivationExp: 100,
     mind: 100,
-    workSeconds: 300,
-    kpiProgress: { MERGE_COUNT: 3, SALARY_EARNED: 0, EVENT_RESOLVED: 0 },
+    workSeconds: 7200,
+    kpiProgress: { TASK_DONE: 3 },
   });
 }
 

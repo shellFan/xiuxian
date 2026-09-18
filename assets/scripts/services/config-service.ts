@@ -72,7 +72,7 @@ function validateBundle(raw: unknown): asserts raw is ConfigBundle {
 
 const VALID_CAREER_EVENT_TYPES = ['POSITIVE', 'NEGATIVE', 'CHOICE', 'RARE', 'EASTER_EGG'];
 const VALID_EFFECT_KEYS = ['salary', 'performance', 'cultivation', 'mind'];
-const VALID_KPI_TYPES = ['MERGE_COUNT', 'WORK_SECONDS', 'CULTIVATION', 'SALARY_EARNED', 'EVENT_RESOLVED'];
+const VALID_KPI_TYPES = ['MERGE_COUNT', 'WORK_SECONDS', 'CULTIVATION', 'SALARY_EARNED', 'EVENT_RESOLVED', 'TASK_DONE'];
 
 /**
  * Unified validation for a GameEffect config object. Only the four known resource

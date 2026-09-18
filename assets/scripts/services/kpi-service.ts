@@ -17,6 +17,7 @@ export interface KpiView {
 
 const DEFAULT_DESCRIPTIONS: Record<KpiType, string> = {
   MERGE_COUNT: '合成牛马次数',
+  TASK_DONE: '完成任务次数',
   WORK_SECONDS: '工作时长',
   CULTIVATION: '修为',
   SALARY_EARNED: '累计薪资',
@@ -26,8 +27,8 @@ const DEFAULT_DESCRIPTIONS: Record<KpiType, string> = {
 /**
  * Tracks career-level promotion KPIs. Progress that can be derived from existing
  * PlayerData fact fields is NOT stored: WORK_SECONDS reads `workSeconds` and
- * CULTIVATION reads `cultivationExp`. Only the three counters that cannot be
- * derived (MERGE_COUNT / SALARY_EARNED / EVENT_RESOLVED) live in `kpiProgress`.
+ * CULTIVATION reads `cultivationExp`. Counter requirements live in `kpiProgress`.
+ * TASK_DONE is cumulative in Gameplay V2; the legacy counters are per-level.
  */
 export class KpiService {
   public constructor(private readonly context: GameContext) {}
@@ -90,6 +91,11 @@ export class KpiService {
     this.incrementCounter('MERGE_COUNT', 1);
   }
 
+  /** Gameplay V2 §69/§75: 任务完成计数（claim 时调用）。 */
+  public recordTaskDone(): void {
+    this.incrementCounter('TASK_DONE', 1);
+  }
+
   /** Called when salary is granted (e.g. from a merge reward). */
   public recordSalaryEarned(amount: number): void {
     if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('Invalid salary earned amount');
@@ -109,9 +115,10 @@ export class KpiService {
   public switchLevel(newLevel: number): void {
     if (!Number.isSafeInteger(newLevel) || newLevel < 1 || newLevel > 10) throw new Error('Invalid career level');
     this.context.player.careerLevel = newLevel;
-    // Reset per-level counters. Cumulative facts (workSeconds / cultivationExp) are
-    // intentionally preserved and compared against the new level's larger targets.
-    this.context.player.kpiProgress = {};
+    // WORK_SECONDS / CULTIVATION are cumulative fact fields. TASK_DONE is also
+    // cumulative in V2, while legacy counters remain per-level and are cleared.
+    const taskDone = this.context.player.kpiProgress.TASK_DONE;
+    this.context.player.kpiProgress = taskDone === undefined ? {} : { TASK_DONE: taskDone };
   }
 
   private incrementCounter(type: KpiType, amount: number): void {
