@@ -76,6 +76,7 @@ export interface GameContextOptions {
   readonly rewardProvider?: RewardProvider;
   readonly clock?: Clock;
   readonly careerEventClock?: Clock;
+  readonly randomV2?: RandomService;
 }
 
 export class GameContext {
@@ -196,7 +197,7 @@ export class GameContext {
     // ── Gameplay V2 services ──
     this.clockV2 = new GameClockV2({ clock: options.clock });
     this.clockV2.setDevOffsetMs(this.player.devTimeOffsetMs ?? 0);
-    this.randomV2 = new RandomService();
+    this.randomV2 = options.randomV2 ?? new RandomService();
     this.gameDay = new GameDayService(this, this.clockV2, this.randomV2);
     this.innerDemon = new InnerDemonService(this);
     this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);

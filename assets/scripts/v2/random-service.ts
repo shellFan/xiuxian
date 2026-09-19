@@ -72,9 +72,11 @@ export function createRng(rng: () => number): Rng {
  * 每日系统统一用 `forDay(dayIndex)` 派生，保证同一天可复现。
  */
 export class RandomService {
-  public next(): number { return Math.random(); }
+  public constructor(private readonly runtimeSource: () => number = Math.random) {}
 
-  public rng(): Rng { return createRng(Math.random); }
+  public next(): number { return this.runtimeSource(); }
+
+  public rng(): Rng { return createRng(this.runtimeSource); }
 
   /** 按任意种子派生确定性 RNG。 */
   public seeded(seed: number): Rng { return createRng(mulberry32(seed)); }

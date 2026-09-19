@@ -15,6 +15,7 @@ import { GameLoopService } from '../../assets/scripts/services/game-loop-service
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { FakeClock } from '../../assets/scripts/core/clock';
+import { RandomService, mulberry32 } from '../../assets/scripts/v2/random-service';
 
 interface Profile {
   readonly name: string;
@@ -26,6 +27,8 @@ interface Profile {
 }
 
 const BASE = new Date();
+const BALANCE_SIMULATION_SEED = 0x5eed1234;
+
 function workdayClock(dayOffset: number, hour: number): FakeClock {
   // 从下一个周一开始推 dayOffset 个自然日（跳过周末——周末不模拟工作）
   const d = new Date(BASE);
@@ -59,6 +62,7 @@ interface SimResult {
   equipment: number;
   npcAvg: number;
   promotions: number;
+  defenseQuestions: string[];
   dailyHistory: number;
   nanFound: boolean;
   negatives: string[];
@@ -72,6 +76,7 @@ function simulate(profile: Profile): SimResult {
     player: new PlayerData({ lastSaveTime: clock.now(), workMode: 'FISHING' }),
     clock,
     board: null, // 与生产路径 GameFacade 默认一致（PC V1 无合成棋盘）
+    randomV2: new RandomService(mulberry32(BALANCE_SIMULATION_SEED)),
   });
   const loop = new GameLoopService(context, { autoSaveIntervalSeconds: 0 });
   loop.start();
@@ -79,7 +84,7 @@ function simulate(profile: Profile): SimResult {
   const result: SimResult = {
     profile: profile.name, days: 0, careerLevel: 1, salary: 0, cultivation: 0, performance: 0,
     mindEnd: 100, demonEnd: 0, eventsHandled: 0, materialsKinds: 0, techniques: 0, equipment: 0,
-    npcAvg: 0, promotions: 0, dailyHistory: 0, nanFound: false, negatives: [], levelUpDays: {},
+    npcAvg: 0, promotions: 0, defenseQuestions: [], dailyHistory: 0, nanFound: false, negatives: [], levelUpDays: {},
   };
   let lastLevel = 1;
   const HOUR = 3_600_000; // 一小时的毫秒数（模拟时间全部用毫秒）
@@ -169,6 +174,7 @@ function simulate(profile: Profile): SimResult {
     if (promoCheck.allowed) {
       try {
         const questions = context.promotionV2.startDefense();
+        result.defenseQuestions.push(...questions.map((question) => question.id));
         const answers = questions.map((q) => {
           const idx = profile.choiceStyle === 'safe' ? 0 : profile.choiceStyle === 'risky' ? q.options.length - 1 : 1;
           return q.options[Math.min(idx, q.options.length - 1)].id;
@@ -240,6 +246,9 @@ for (const profile of PROFILES) {
   assert.deepEqual(r.negatives, [], `${r.profile}: ${r.negatives.join(',')}`);
   assert.ok(r.dailyHistory > 0, `${r.profile}: no settlements recorded`);
 }
+
+const repeatedNormal = simulate(PROFILES[1]);
+assert.deepEqual(repeatedNormal, results[1], 'equivalent balance simulations must be reproducible');
 
 // §282: 晋升节奏
 const normal = results[1];

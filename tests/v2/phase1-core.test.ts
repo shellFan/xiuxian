@@ -89,6 +89,30 @@ function testSeededDeterminism(): void {
   assert.ok(c >= 0 && c <= 999);
 }
 
+function testRuntimeSourceInjection(): void {
+  const values = [0.125, 0.75];
+  let index = 0;
+  const svc = new RandomService(() => values[index++]);
+
+  assert.equal(svc.next(), 0.125, 'next() uses the injected runtime source');
+  assert.equal(svc.rng().next(), 0.75, 'rng() uses the injected runtime source');
+}
+
+function testGameContextRandomServiceInjection(): void {
+  const clock = workdayClock(9);
+  const randomV2 = new RandomService(() => 0.375);
+  const context = new GameContext({
+    player: new PlayerData({ lastSaveTime: clock.now() }),
+    storage: new MemoryStorageAdapter(),
+    clock,
+    board: null,
+    randomV2,
+  });
+
+  assert.equal(context.randomV2, randomV2, 'GameContext exposes the injected V2 random service');
+  assert.equal(context.randomV2.next(), 0.375);
+}
+
 function testMulberry32Range(): void {
   const rng = mulberry32(42);
   for (let i = 0; i < 1000; i += 1) {
@@ -267,6 +291,8 @@ testClockAfterOffWork();
 testDevTimeAdvance();
 testClockRollbackDetect();
 testSeededDeterminism();
+testRuntimeSourceInjection();
+testGameContextRandomServiceInjection();
 testMulberry32Range();
 testGameDayEnsureStarted();
 testGameDayNextDay();
