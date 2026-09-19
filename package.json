@@ -27,6 +27,8 @@
     "phase5:check": "tsc -p tsconfig.game.json --noEmit && node tests/.compiled/tests/phase5/event-runtime-adapter.test.js && node tests/.compiled/tests/phase5/reward-ad-policy.test.js && node tests/.compiled/tests/phase5/phase5-integration.test.js",
     "release:check": "tsc -p tsconfig.game.json --noEmit && node tests/run-all.cjs",
     "web-v1:check": "node scripts/check-web-v1-scene.cjs && node scripts/check-web-v1-build.cjs",
+    "content:check": "node scripts/check-v2-content.cjs",
+    "gameplay-v2:check": "npm run build:game && node scripts/check-v2-content.cjs && node scripts/check-legacy-merge.cjs",
     "pc:dev": "cd desktop && npm run dev",
     "pc:start": "cd desktop && npm start",
     "pc:build": "node scripts/build-web.cjs",

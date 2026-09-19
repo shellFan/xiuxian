@@ -142,6 +142,8 @@ export interface GameSaveData {
   readonly mindRemainder?: number;
   readonly workMindRemainder?: number;
   readonly fishingMindRemainder?: number;
+  readonly cultivatingMindRemainder?: number;
+  readonly socialMindRemainder?: number;
   readonly unlockedAchievementIds?: readonly string[];
   readonly claimedAchievementIds?: readonly string[];
   readonly dailySignIn?: DailySignInState | null;

@@ -113,8 +113,13 @@ function migrate(raw: unknown): GameSaveData {
   if (isNonNegativeSafeInteger(raw.fishingMindRemainder) && raw.fishingMindRemainder !== 0) dataWithRemainder(data, 'fishingMindRemainder', raw.fishingMindRemainder);
   const legacyMindRemainder = raw.mindRemainder;
   const modeMindRemainderKey = raw.workMode === 'WORK' ? 'workMindRemainder' : 'fishingMindRemainder';
-  if (isNonNegativeSafeInteger(legacyMindRemainder) && !isNonNegativeSafeInteger(raw[modeMindRemainderKey])) {
-    dataWithRemainder(data, modeMindRemainderKey, legacyMindRemainder);
+  if (isNonNegativeSafeInteger(legacyMindRemainder)) {
+    if ((isFiniteNumber(raw.saveVersion) ? raw.saveVersion : 0) >= 6) {
+      // V2 统一槽：mindRemainder 直接保留（四模式共用）
+      dataWithRemainder(data, 'mindRemainder', legacyMindRemainder);
+    } else if (!isNonNegativeSafeInteger(raw[modeMindRemainderKey])) {
+      dataWithRemainder(data, modeMindRemainderKey, legacyMindRemainder);
+    }
   }
   // ── Gameplay V2 (saveVersion 6): old saves migrate with safe defaults ──
   // V2 fields with safe defaults for old saves (readonly — assign via mutable copy).
@@ -194,7 +199,7 @@ function isPendingEvent(value: unknown): value is import('../model/save-data').P
     && (value.priority === 'CRITICAL' || value.priority === 'IMPORTANT' || value.priority === 'NORMAL' || value.priority === 'FLAVOR');
 }
 
-function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultivationRemainder' | 'workMindRemainder' | 'fishingMindRemainder', value: number): void {
+function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultivationRemainder' | 'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder' | 'mindRemainder', value: number): void {
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {

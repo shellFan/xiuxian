@@ -169,10 +169,10 @@ test('E2E: work tick accumulates salary and cultivation', () => {
   // Switch to WORK mode
   facade.changeWorkMode('WORK');
 
-  // Tick for 720 seconds (12 minutes) — salaryPerHour=10, cultivationPerHour=5, denominator=7200,
-  // WORK multiplier=2: salary = floor(10 * 720 * 2 / 7200) = 2, cultivation = floor(5 * 720 * 2 / 7200) = 1
+  // Tick for 1800 seconds (30 minutes) — V2 WORK ×1.3 salary / ×0.8 cultivation:
+  // salary = floor(10 * 1800 * 1.3 / 7200) = 3, cultivation = floor(8 * 1800 * 0.8 / 7200) = 1
   facade.start();
-  facade.tick(720);
+  facade.tick(1800);
 
   const player = facade.context.player;
   assert.ok(player.salary > 0, 'Salary should increase after working');

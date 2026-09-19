@@ -93,7 +93,7 @@ function testIdleBoundariesZeroEightHourCap(): void {
   eight.clock.set(1_000 + 8 * 60 * 60 * 1_000);
   const exact = eight.context.idle.settle('eight');
   assert.equal(exact.salary, 80);
-  assert.equal(exact.cultivationExp, 40);
+  assert.equal(exact.cultivationExp, 64); // V2 L1 8/h × 8h
   assert.equal(exact.capped, false);
   // re-settling the same id after no time passes is a duplicate (no re-grant)
   assert.deepEqual(eight.context.idle.settle('eight'), { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, duplicate: true });
@@ -354,7 +354,7 @@ function testOfflineDoubleGrantsTwoXAndBlocksNormal(): void {
   context.offline.claimDouble('sid-1', (ok) => { granted = ok; });
   assert.equal(granted, true);
   assert.equal(player.salary, 20, 'double = 2x base, never re-runs IdleService');
-  assert.equal(player.cultivationExp, 10);
+  assert.equal(player.cultivationExp, 16); // V2: 8/h × 2
   assert.equal(player.lastIdleSettlementId, 'sid-1');
   assert.throws(() => context.offline.claimNormal('sid-1'), /already claimed/);
 }

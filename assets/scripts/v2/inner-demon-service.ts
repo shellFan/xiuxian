@@ -132,7 +132,7 @@ export class InnerDemonService {
     this.demonAccumulatedSeconds -= hours * 3600;
     const player = this.context.player;
     let delta = 0;
-    if (player.mind < 10) delta += 3;
+    if (player.mind < 10) delta += 2;
     else if (player.mind < 30 && this.has('lowMindDemonPerHour')) delta += 2;
     if (delta > 0) this.add(delta * hours);
   }

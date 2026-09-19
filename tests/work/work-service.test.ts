@@ -16,7 +16,7 @@ function createContext(player = new PlayerData()): { context: GameContext; stora
 function testWorkTickUsesFullRatesAndConsumesMind(): void {
   const { context, storage } = createContext(new PlayerData({ mind: 10 }));
   context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  const work = new WorkService(context, { salaryPerHour: 60, cultivationPerHour: 120, mindPerHour: 120 });
+  const work = new WorkService(context, { salaryPerHour: 60, cultivationPerHour: 120, mindPerHour: 120, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   work.setMode('WORK');
 
   assert.deepEqual(work.tick(30), { salary: 0, cultivationExp: 1, mind: -1, elapsedSeconds: 30, mode: 'WORK' });
@@ -31,7 +31,7 @@ function testWorkTickUsesFullRatesAndConsumesMind(): void {
 function testFishingTickUsesHalfRatesAndRecoversMind(): void {
   const { context } = createContext(new PlayerData({ mind: 10, workMode: 'FISHING' }));
   context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  const work = new WorkService(context, { salaryPerHour: 120, cultivationPerHour: 120, mindPerHour: 120 });
+  const work = new WorkService(context, { salaryPerHour: 120, cultivationPerHour: 120, mindPerHour: 120, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
 
   assert.deepEqual(work.tick(60), { salary: 1, cultivationExp: 1, mind: 2, elapsedSeconds: 60, mode: 'FISHING' });
   assert.equal(context.player.salary, 1);
@@ -45,7 +45,7 @@ function testShortTicksMatchSingleTickForBothModes(): void {
     const single = createContext(new PlayerData({ mind: 50, workMode: mode }));
     const sliced = createContext(new PlayerData({ mind: 50, workMode: mode }));
     for (const { context } of [single, sliced]) context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
-    const options = { salaryPerHour: 61, cultivationPerHour: 127, mindPerHour: 113 };
+    const options = { salaryPerHour: 61, cultivationPerHour: 127, mindPerHour: 113, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, };
     const singleWork = new WorkService(single.context, options);
     const slicedWork = new WorkService(sliced.context, options);
 
@@ -79,7 +79,7 @@ function testTickSaveFailureRollsBackAllState(): void {
   const storage: StorageAdapter = { getItem: (key) => durableStorage.getItem(key), setItem: () => { throw new Error('quota exceeded'); }, removeItem: () => undefined };
   const context = new GameContext({ player, saveService: new SaveService(storage) });
   context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  const work = new WorkService(context, { salaryPerHour: 3600, cultivationPerHour: 3600, mindPerHour: 3600 });
+  const work = new WorkService(context, { salaryPerHour: 3600, cultivationPerHour: 3600, mindPerHour: 3600, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
 
   work.tick(1);
   assert.throws(() => work.save(), /quota exceeded/);
@@ -93,13 +93,13 @@ function testWorkRemainderSurvivesSaveAndReload(): void {
   const storage = new MemoryStorageAdapter();
   const first = new GameContext({ player: new PlayerData(), saveService: new SaveService(storage) });
   first.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  const firstWork = new WorkService(first, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 0 });
+  const firstWork = new WorkService(first, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 0, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   firstWork.setMode('WORK');
   firstWork.tick(3599);
   firstWork.save();
 
   const second = new GameContext({ saveService: new SaveService(storage), board: first.board!, player: new PlayerData(new SaveService(storage).load()) });
-  const secondWork = new WorkService(second, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 0 });
+  const secondWork = new WorkService(second, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 0, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   assert.deepEqual(secondWork.tick(1), { salary: 1, cultivationExp: 1, mind: 0, elapsedSeconds: 1, mode: 'WORK' });
 }
 
@@ -107,12 +107,12 @@ function testFishingRemainderSurvivesSaveAndReload(): void {
   const storage = new MemoryStorageAdapter();
   const first = new GameContext({ player: new PlayerData({ mind: 0, workMode: 'FISHING' }), saveService: new SaveService(storage) });
   first.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  const firstWork = new WorkService(first, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 1 });
+  const firstWork = new WorkService(first, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 1, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   firstWork.tick(7199);
   firstWork.save();
 
   const second = new GameContext({ saveService: new SaveService(storage), board: first.board!, player: new PlayerData(new SaveService(storage).load()) });
-  const secondWork = new WorkService(second, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 1 });
+  const secondWork = new WorkService(second, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 1, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   assert.deepEqual(secondWork.tick(1), { salary: 1, cultivationExp: 1, mind: 1, elapsedSeconds: 1, mode: 'FISHING' });
 }
 
@@ -129,7 +129,7 @@ function testWorkSaveFailureRestoresLatestCrossServiceSave(): void {
   };
   const context = new GameContext({ player: new PlayerData(), saveService: new SaveService(storage) });
   context.economy.changeSalary(5);
-  const work = new WorkService(context, { salaryPerHour: 3600, cultivationPerHour: 3600, mindPerHour: 3600 });
+  const work = new WorkService(context, { salaryPerHour: 3600, cultivationPerHour: 3600, mindPerHour: 3600, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   work.tick(1);
   shouldFail = true;
 
@@ -144,12 +144,12 @@ function testWeightedRemaindersSurviveRateChangesAndReload(): void {
   const storage = new MemoryStorageAdapter();
   const first = new GameContext({ player: new PlayerData({ workMode: 'WORK' }), saveService: new SaveService(storage) });
   first.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  const firstWork = new WorkService(first, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 1 });
+  const firstWork = new WorkService(first, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 1, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   firstWork.tick(1800);
   firstWork.save();
 
   const second = new GameContext({ saveService: new SaveService(storage), board: first.board!, player: new PlayerData(new SaveService(storage).load()) });
-  const secondWork = new WorkService(second, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 1 });
+  const secondWork = new WorkService(second, { salaryPerHour: 1, cultivationPerHour: 1, mindPerHour: 1, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   assert.deepEqual(secondWork.tick(1800), { salary: 1, cultivationExp: 1, mind: -1, elapsedSeconds: 1800, mode: 'WORK' });
 }
 
@@ -164,7 +164,7 @@ function testWorkSaveFailureDoesNotReadStorageDuringRollback(): void {
   const context = new GameContext({ player: new PlayerData(), saveService: new SaveService(storage) });
   context.economy.changeSalary(5);
   const readsAfterCommit = reads;
-  const work = new WorkService(context, { salaryPerHour: 3600, cultivationPerHour: 3600, mindPerHour: 3600 });
+  const work = new WorkService(context, { salaryPerHour: 3600, cultivationPerHour: 3600, mindPerHour: 3600, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   work.tick(1);
   fail = true;
 
@@ -179,16 +179,16 @@ function testMindRemainderKeepsDirectionAcrossModeSwitches(): void {
   work.tick(3599);
   work.setMode('FISHING');
   const reloadedWorkContext = new GameContext({ saveService: new SaveService(workContext.storage), board: workContext.context.board!, player: new PlayerData(new SaveService(workContext.storage).load()) });
-  const reloadedWork = new WorkService(reloadedWorkContext, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1 });
+  const reloadedWork = new WorkService(reloadedWorkContext, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   assert.deepEqual(reloadedWork.tick(1), { salary: 0, cultivationExp: 0, mind: 0, elapsedSeconds: 1, mode: 'FISHING' });
   assert.equal(reloadedWorkContext.player.mind, 50);
 
   const fishingContext = createContext(new PlayerData({ mind: 0, workMode: 'FISHING' }));
-  const fishing = new WorkService(fishingContext.context, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1 });
+  const fishing = new WorkService(fishingContext.context, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   fishing.tick(3599);
   fishing.setMode('WORK');
   const reloadedFishingContext = new GameContext({ saveService: new SaveService(fishingContext.storage), board: fishingContext.context.board!, player: new PlayerData(new SaveService(fishingContext.storage).load()) });
-  const reloadedFishing = new WorkService(reloadedFishingContext, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1 });
+  const reloadedFishing = new WorkService(reloadedFishingContext, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   assert.deepEqual(reloadedFishing.tick(1), { salary: 0, cultivationExp: 0, mind: 0, elapsedSeconds: 1, mode: 'WORK' });
   assert.equal(reloadedFishingContext.player.mind, 0);
 }
@@ -197,7 +197,7 @@ function testDynamicRatesRemainExactAcrossSaveReload(): void {
   const storage = new MemoryStorageAdapter();
   const first = new GameContext({ player: new PlayerData({ workMode: 'WORK' }), saveService: new SaveService(storage) });
   first.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
-  const firstWork = new WorkService(first, { salaryPerHour: [1, 3, 9, 27, 81, 243], cultivationPerHour: [2, 5, 10, 20, 40, 80], mindPerHour: 0 });
+  const firstWork = new WorkService(first, { salaryPerHour: [1, 3, 9, 27, 81, 243], cultivationPerHour: [2, 5, 10, 20, 40, 80], mindPerHour: 0, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
   firstWork.tick(1800);
 
   first.board!.remove({ row: 0, column: 0 });
@@ -208,7 +208,7 @@ function testDynamicRatesRemainExactAcrossSaveReload(): void {
     board: first.board!,
     player: new PlayerData(new SaveService(storage).load()),
   });
-  const reloadedWork = new WorkService(reloaded, { salaryPerHour: [1, 3, 9, 27, 81, 243], cultivationPerHour: [2, 5, 10, 20, 40, 80], mindPerHour: 0 });
+  const reloadedWork = new WorkService(reloaded, { salaryPerHour: [1, 3, 9, 27, 81, 243], cultivationPerHour: [2, 5, 10, 20, 40, 80], mindPerHour: 0, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
 
   assert.deepEqual(reloadedWork.tick(1800), { salary: 2, cultivationExp: 2, mind: 0, elapsedSeconds: 1800, mode: 'WORK' });
   assert.equal(reloaded.player.salary, 2);
@@ -229,7 +229,7 @@ function testLegacyGenericMindRemainderMigratesOncePerMode(): void {
     assert.equal(migrated[expectedKey], 3599);
 
     const context = new GameContext({ saveService, player: new PlayerData(migrated) });
-    const work = new WorkService(context, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1 });
+    const work = new WorkService(context, { salaryPerHour: 0, cultivationPerHour: 0, mindPerHour: 1, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
     work.setMode(oppositeMode);
 
     const reloaded = saveService.load();

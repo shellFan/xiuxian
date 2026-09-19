@@ -45,7 +45,13 @@ export class KpiService {
   public getProgress(requirement: KpiRequirement): number {
     switch (requirement.type) {
       case 'WORK_SECONDS':
-        return this.context.player.workSeconds;
+        // V2: 出勤活跃时长 = 工作+摸鱼+修炼+社交（摸鱼流也可晋升）
+        return (
+          this.context.player.workSeconds +
+          this.context.player.fishingSeconds +
+          this.context.player.cultivatingSeconds +
+          this.context.player.socialSeconds
+        );
       case 'CULTIVATION':
         return this.context.player.cultivationExp;
       default:

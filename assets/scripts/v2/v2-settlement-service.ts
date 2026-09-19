@@ -133,10 +133,11 @@ export class PromotionV2Service {
     const check = this.check();
     if (!check.allowed) throw new Error(`不可晋升：${check.reason}`);
     const pool = [...PROMO_TITLES.promotionQuestions];
+    const rng = this.context.randomV2.rng(); // 答辩现场随机（非确定；内容校验走专用 seed 路径）
     // Fisher-Yates 部分洗牌取 3
     const picked: PromotionQuestion[] = [];
     for (let i = 0; i < 3 && pool.length > 0; i += 1) {
-      const idx = Math.floor(Math.random() * pool.length);
+      const idx = rng.int(0, pool.length - 1);
       picked.push(pool.splice(idx, 1)[0]);
     }
     this.currentQuestions = picked;
@@ -197,6 +198,7 @@ export class PromotionV2Service {
     });
 
     const total = Math.max(0, Math.min(100, base + bonuses.reduce((s, b) => s + b.value, 0)));
+    if (process.env.SIM_DEBUG) console.log(`[DEFENSE] base=${base} total=${total} passed=${total >= 60}`);
     const passLine = 60;
     const passed = total >= passLine;
     this.currentQuestions = null;

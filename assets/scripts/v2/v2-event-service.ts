@@ -56,7 +56,7 @@ export class V2EventService {
       negativeStreak: Number(player.eventFlags['__negativeStreak'] ?? 0) || 0,
       firedTodayDay: 0,
     });
-    this.rng = random.rng();
+    this.rng = random.forDay(0, 0); // 占位：poll 时按 dayIndex 重置种子（§144）
   }
 
   /** 世界状态快照（条件评估用）。 */
@@ -91,6 +91,8 @@ export class V2EventService {
     if (this.current) return this.current;
     const now = this.clock.now();
     const dayIndex = Math.max(1, this.gameDay.dayIndex());
+    // §144: 每日种子——同一天内事件序列可复现
+    this.rng = this.random.forDay(dayIndex, this.scheduler.state.firedToday.length);
     if (!this.scheduler.isDue(now, dayIndex)) return this.pollChain(now);
 
     const world = this.world();

@@ -27,6 +27,8 @@ export interface PlayerDataOptions {
   readonly mindRemainder?: number;
   readonly workMindRemainder?: number;
   readonly fishingMindRemainder?: number;
+  readonly cultivatingMindRemainder?: number;
+  readonly socialMindRemainder?: number;
   readonly unlockedAchievementIds?: readonly string[];
   readonly claimedAchievementIds?: readonly string[];
   readonly dailySignIn?: DailySignInState | null;
@@ -102,6 +104,8 @@ export class PlayerData {
   public mindRemainder: number;
   public workMindRemainder: number;
   public fishingMindRemainder: number;
+  public cultivatingMindRemainder: number;
+  public socialMindRemainder: number;
   public unlockedAchievementIds: string[];
   public claimedAchievementIds: string[];
   public dailySignIn: DailySignInState | null;
@@ -163,6 +167,8 @@ export class PlayerData {
     this.mindRemainder = normalizeRemainder(options.mindRemainder);
     this.workMindRemainder = normalizeRemainder(options.workMindRemainder);
     this.fishingMindRemainder = normalizeRemainder(options.fishingMindRemainder);
+    this.cultivatingMindRemainder = normalizeRemainder(options.cultivatingMindRemainder);
+    this.socialMindRemainder = normalizeRemainder(options.socialMindRemainder);
     this.unlockedAchievementIds = [...(options.unlockedAchievementIds ?? [])];
     this.claimedAchievementIds = [...(options.claimedAchievementIds ?? [])];
     this.dailySignIn = options.dailySignIn ?? null;
@@ -251,6 +257,9 @@ export class PlayerData {
     if (this.cultivationRemainder !== 0) Object.assign(data, { cultivationRemainder: this.cultivationRemainder });
     if (this.workMindRemainder !== 0) Object.assign(data, { workMindRemainder: this.workMindRemainder });
     if (this.fishingMindRemainder !== 0) Object.assign(data, { fishingMindRemainder: this.fishingMindRemainder });
+    if (this.cultivatingMindRemainder !== 0) Object.assign(data, { cultivatingMindRemainder: this.cultivatingMindRemainder });
+    if (this.socialMindRemainder !== 0) Object.assign(data, { socialMindRemainder: this.socialMindRemainder });
+    if (this.mindRemainder !== 0) Object.assign(data, { mindRemainder: this.mindRemainder });
     return data;
   }
 }

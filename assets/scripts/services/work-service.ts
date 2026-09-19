@@ -5,7 +5,10 @@ import type { WorkMode } from '../model/save-data';
 export interface WorkServiceOptions {
   readonly salaryPerHour?: number | readonly number[];
   readonly cultivationPerHour?: number | readonly number[];
+  /** 旧版语义： magnitude，WORK/CULTIVATING 取负、FISHING/SOCIAL 取正。缺省用 MODE_RULES。 */
   readonly mindPerHour?: number;
+  /** 每模式倍率覆写（余数机制测试注入旧倍率用）。 */
+  readonly modeMultipliers?: Partial<Record<WorkMode, { salaryMul?: number; cultivationMul?: number }>>;
 }
 
 export interface WorkTickResult {
@@ -16,6 +19,22 @@ export interface WorkTickResult {
   readonly mode: WorkMode;
 }
 
+/**
+ * V2 四模式经济表（§19~§22）。
+ * salary/cultivation 为基础率的倍率；mindPerHour 为道心每小时变化（负=流失）。
+ */
+export const MODE_RULES: Record<WorkMode, {
+  secondsKey: 'workSeconds' | 'fishingSeconds' | 'cultivatingSeconds' | 'socialSeconds';
+  salaryMul: number;
+  cultivationMul: number;
+  mindPerHour: number;
+}> = {
+  WORK: { secondsKey: 'workSeconds', salaryMul: 1.3, cultivationMul: 0.8, mindPerHour: -12 },
+  FISHING: { secondsKey: 'fishingSeconds', salaryMul: 0.6, cultivationMul: 1.1, mindPerHour: 36 },
+  CULTIVATING: { secondsKey: 'cultivatingSeconds', salaryMul: 0.3, cultivationMul: 2.0, mindPerHour: -9 },
+  SOCIAL: { secondsKey: 'socialSeconds', salaryMul: 0.5, cultivationMul: 0.6, mindPerHour: 24 },
+};
+
 const ZERO_RESULT = (mode: WorkMode): WorkTickResult => ({ salary: 0, cultivationExp: 0, mind: 0, elapsedSeconds: 0, mode });
 
 export class WorkService {
@@ -24,7 +43,10 @@ export class WorkService {
   private readonly mindPerHour: number;
   private committedSnapshot: ReturnType<GameContext['player']['toSaveData']>;
 
+  private readonly options: WorkServiceOptions;
+
   public constructor(private readonly context: GameContext, options: WorkServiceOptions = {}) {
+    this.options = options;
     this.salaryPerHour = normalizeRates(options.salaryPerHour ?? idleConfig.salaryPerHour, 'salary');
     this.cultivationPerHour = normalizeRates(options.cultivationPerHour ?? idleConfig.cultivationPerHour, 'cultivation');
     this.mindPerHour = options.mindPerHour ?? 60;
@@ -35,7 +57,7 @@ export class WorkService {
   public get mode(): WorkMode { return this.context.player.workMode; }
 
   public setMode(mode: WorkMode): void {
-    if (mode !== 'WORK' && mode !== 'FISHING') throw new Error('Invalid work mode');
+    if (!MODE_RULES[mode]) throw new Error('Invalid work mode');
     if (this.context.player.workMode === mode) return;
     this.context.player.workMode = mode;
     this.save();
@@ -57,25 +79,37 @@ export class WorkService {
     if (!Number.isSafeInteger(elapsedSeconds) || elapsedSeconds < 0) throw new Error('Invalid work duration');
     const mode = this.mode;
     if (elapsedSeconds === 0) return ZERO_RESULT(mode);
-    const secondsKey = mode === 'WORK' ? 'workSeconds' : 'fishingSeconds';
+    const baseRules = MODE_RULES[mode];
+    const override = this.options.modeMultipliers?.[mode];
+    const rules = {
+      secondsKey: baseRules.secondsKey,
+      salaryMul: override?.salaryMul ?? baseRules.salaryMul,
+      cultivationMul: override?.cultivationMul ?? baseRules.cultivationMul,
+      mindPerHour: this.options.mindPerHour !== undefined
+        ? (mode === 'WORK' || mode === 'CULTIVATING' ? -this.options.mindPerHour : this.options.mindPerHour)
+        : baseRules.mindPerHour,
+    };
+    const secondsKey = rules.secondsKey;
     const previousSeconds = this.context.player[secondsKey];
     const nextSeconds = previousSeconds + elapsedSeconds;
     if (!Number.isSafeInteger(nextSeconds)) throw new Error('Invalid work duration');
-    const multiplier = mode === 'WORK' ? 2 : 1;
     const salaryRate = this.rateForBoard(this.salaryPerHour);
     const cultivationRate = this.rateForBoard(this.cultivationPerHour);
     const previous = this.context.player.toSaveData();
     const salaryBuffMul = this.context.buffs.getMultiplier('WORK_SALARY_BOOST');
     const cultivationBuffMul = this.context.buffs.getMultiplier('WORK_CULTIVATION_BOOST');
     const careerMul = this.context.career.current();
-    const salaryResult = accumulate(salaryRate, elapsedSeconds, multiplier, this.context.player.salaryRemainder, 7200);
-    const cultivationResult = accumulate(cultivationRate, elapsedSeconds, multiplier, this.context.player.cultivationRemainder, 7200);
-    const mindRemainderKey = mode === 'WORK' ? 'workMindRemainder' : 'fishingMindRemainder';
-    const mindResult = accumulate(this.mindPerHour, elapsedSeconds, 1, this.context.player[mindRemainderKey], 3600);
+    const salaryResult = accumulate(salaryRate, elapsedSeconds, rules.salaryMul, this.context.player.salaryRemainder, 7200);
+    const cultivationResult = accumulate(cultivationRate, elapsedSeconds, rules.cultivationMul, this.context.player.cultivationRemainder, 7200);
+    // 道心按模式方向累积余数（负向与正向共用 player.mindRemainder 槽）
+    const mindRate = rules.mindPerHour;
+    const mindRemainderKey = MODE_RULES[mode].secondsKey.replace('Seconds', 'MindRemainder') as
+      'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder';
+    const mindResult = accumulate(Math.abs(mindRate), elapsedSeconds, 1, this.context.player[mindRemainderKey] ?? 0, 3600);
     const salary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier);
     const cultivationExp = Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier);
     const mindBuffMul = mode === 'FISHING' ? this.context.buffs.getMultiplier('FISHING_MIND_BOOST') : 1;
-    const mindDelta = mode === 'WORK' ? -mindResult.reward : Math.floor(mindResult.reward * mindBuffMul);
+    const mindDelta = mindRate >= 0 ? Math.floor(mindResult.reward * mindBuffMul) : -mindResult.reward;
     try {
       this.context.economy.applyIdleSalary(salary);
       this.context.cultivation.applyIdleExperience(cultivationExp);
@@ -87,7 +121,7 @@ export class WorkService {
       // Update daily task progress for time-based tasks (absolute value from player state).
       if (mode === 'WORK') {
         this.context.dailyTasks.setProgress('WORK_10_MIN', nextSeconds);
-      } else {
+      } else if (mode === 'FISHING') {
         this.context.dailyTasks.setProgress('FISH_3_MIN', nextSeconds);
       }
       return { salary, cultivationExp, mind: actualMindDelta, elapsedSeconds, mode };
@@ -115,9 +149,13 @@ function normalizeRates(value: number | readonly number[], name: string): readon
 }
 
 function accumulate(rate: number, seconds: number, multiplier: number, remainder: number, denominator: number): { reward: number; remainder: number } {
-  const numerator = remainder + rate * seconds * multiplier;
+  // V2 倍率含小数（1.3/0.8/…）：rate/mul 各 ×10³ 保持整数运算，
+  // remainder 为全精度分子余量（跨 tick/save 精确衔接）。
+  const numerator = remainder + Math.round(rate * 1000) * seconds * Math.round(multiplier * 1000);
+  const scaledDenominator = denominator * 1_000_000;
   if (!Number.isSafeInteger(numerator)) throw new Error('Invalid work reward');
-  return { reward: Math.floor(numerator / denominator), remainder: numerator % denominator };
+  const reward = Math.floor(numerator / scaledDenominator);
+  return { reward, remainder: numerator % scaledDenominator };
 }
 
 function restorePlayer(player: GameContext['player'], data: ReturnType<GameContext['player']['toSaveData']>): void {

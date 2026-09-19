@@ -27,7 +27,8 @@ function testOneHour(): void {
   const clock = new FakeClock(1_000);
   const { offline } = makeContext(clock);
   clock.advance(3_600 * 1000);
-  assert.deepEqual(offline.preview('one'), { salary: 10, cultivationExp: 5, spiritStones: 6, elapsedSeconds: 3600, capped: false, duplicate: false });
+  // V2 L1 cultivation 8/h
+  assert.deepEqual(offline.preview('one'), { salary: 10, cultivationExp: 8, spiritStones: 6, elapsedSeconds: 3600, capped: false, duplicate: false });
 }
 
 function testEightHourCap(): void {
@@ -64,7 +65,7 @@ function testNormalClaim(): void {
   clock.advance(3_600 * 1000);
   const result = offline.claimNormal('s');
   assert.equal(result.salary, 10);
-  assert.equal(result.cultivationExp, 5);
+  assert.equal(result.cultivationExp, 8);
   assert.equal(context.player.salary, 10);
   assert.equal(offline.isSettled('s'), true);
 }

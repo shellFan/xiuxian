@@ -1454,6 +1454,7 @@
           break;
         case 'claim':
           cmdResult('claimTask', '任务奖励已领取', el.dataset.id);
+          cmd('cleanupClaimedTasks');
           break;
         case 'craft':
           cmdResult('craft', '炼制成功！', el.dataset.id);

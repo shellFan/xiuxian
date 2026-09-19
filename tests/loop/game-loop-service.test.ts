@@ -38,21 +38,22 @@ function testTickBeforeStartDoesNothing(): void {
 }
 
 function testSixtySecondsWorkDrainsMindAndCountsWorkTime(): void {
+  // Gameplay V2: WORK 流失缓和为 -12/h → 300 秒掉 1 点
   const context = makeContext(new PlayerData({ workMode: 'WORK', mind: 100 }));
   const loop = new GameLoopService(context);
   loop.start();
-  loop.tick(60);
-  assert.equal(context.player.workSeconds, 60);
-  assert.equal(context.player.fishingSeconds, 0);
+  loop.tick(300);
+  assert.equal(context.player.workSeconds, 300);
   assert.ok(context.player.mind < 100, 'WORK must drain mind');
 }
 
 function testSixtySecondsFishingRecoversMindAndCountsFishTime(): void {
+  // Gameplay V2: FISHING +36/h → 300 秒恢复 1 点
   const context = makeContext(new PlayerData({ workMode: 'FISHING', mind: 10 }));
   const loop = new GameLoopService(context);
   loop.start();
-  loop.tick(60);
-  assert.equal(context.player.fishingSeconds, 60);
+  loop.tick(300);
+  assert.equal(context.player.fishingSeconds, 300);
   assert.equal(context.player.workSeconds, 0);
   assert.ok(context.player.mind > 10, 'FISHING must recover mind');
 }
@@ -261,7 +262,7 @@ function testWorkToFishingModeSwitchPreservesState(): void {
   const salaryAfterWork = context.player.salary;
 
   context.work.setMode('FISHING');
-  loop.tick(600); // 10 minutes of fishing
+  loop.tick(1800); // 30 minutes of fishing (V2 ×0.6 → 10min 内不足 1 点)
 
   // Work seconds must be preserved
   assert.equal(context.player.workSeconds, workSeconds, 'workSeconds must be preserved after mode switch');
