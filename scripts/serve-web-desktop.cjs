@@ -13,6 +13,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { getWebDesktopBuildDir } = require('./web-desktop-build-path.cjs');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'application/javascript; charset=utf-8',
@@ -25,7 +26,7 @@ const MIME_TYPES = {
   '.map': 'application/json', '.txt': 'text/plain; charset=utf-8',
 };
 
-const rootDir = path.resolve(path.join(__dirname, '..', 'build', 'web-desktop'));
+const rootDir = getWebDesktopBuildDir(path.resolve(__dirname, '..'));
 
 if (!fs.existsSync(rootDir)) {
   console.error(`[serve] Build directory not found: ${rootDir}`);

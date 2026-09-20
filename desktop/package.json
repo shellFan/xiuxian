@@ -8,7 +8,7 @@
     "start": "electron .",
     "pack": "electron-packager . 牛马修仙传 --platform=win32 --arch=x64 --overwrite --out=../dist --icon=assets/icon.ico --asar",
     "pack:portable": "electron-packager . 牛马修仙传 --platform=win32 --arch=x64 --overwrite --out=../dist --icon=assets/icon.ico --asar --portable",
-    "build:copy": "node -e \"const fs=require('fs'),p=require('path');const src=p.join(__dirname,'..','build','web-desktop');const dst=p.join(__dirname,'build','web-desktop');if(fs.existsSync(src)){fs.cpSync(src,dst,{recursive:true});console.log('Copied web-desktop build')}else{console.error('Run Cocos build first: npm run pc:build');process.exit(1)}\" && node patch-html.cjs",
+    "build:copy": "node -e \"const fs=require('fs'),p=require('path'),b=require('../scripts/web-desktop-build-path.cjs');const src=b.getWebDesktopBuildDir(p.join(__dirname,'..'));const dst=p.join(__dirname,'build','web-desktop');if(fs.existsSync(src)){fs.rmSync(dst,{recursive:true,force:true});fs.cpSync(src,dst,{recursive:true});console.log('Copied web-desktop build')}else{console.error('Run Cocos build first: npm run pc:build');process.exit(1)}\" && node patch-html.cjs",
     "prepack": "npm run build:copy"
   },
   "dependencies": {},

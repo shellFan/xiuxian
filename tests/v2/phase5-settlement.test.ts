@@ -9,6 +9,7 @@ import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adap
 import type { StorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { FixedRandomProvider } from '../../assets/scripts/core/random-provider';
+import { RandomService } from '../../assets/scripts/v2/random-service';
 import { PROMO_TITLES_IMPORTED } from './promo-config';
 
 function workdayClockAt(hour: number, weekdayTarget = 3): FakeClock {
@@ -44,12 +45,17 @@ class FailOnceStorageAdapter implements StorageAdapter {
   }
 }
 
-function makeFailOnceCtx(clock: FakeClock, randomProvider = new FixedRandomProvider(0.5)): GameContext {
+function makeFailOnceCtx(
+  clock: FakeClock,
+  randomProvider = new FixedRandomProvider(0.5),
+  randomV2 = new RandomService(() => 0),
+): GameContext {
   return new GameContext({
     storage: new FailOnceStorageAdapter(),
     player: new PlayerData({ lastSaveTime: clock.now() }),
     clock,
     randomProvider,
+    randomV2,
   });
 }
 

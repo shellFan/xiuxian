@@ -2,6 +2,24 @@
 const { app, BrowserWindow } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
+
+app.on('browser-window-created', (_event, win) => {
+  const debuggerSession = win.webContents.debugger;
+  try {
+    debuggerSession.attach('1.3');
+    debuggerSession.on('message', (_debugEvent, method, params) => {
+      if (method === 'Runtime.exceptionThrown') {
+        console.error('RENDERER_EXCEPTION ' + JSON.stringify(params.exceptionDetails));
+      }
+    });
+    debuggerSession.sendCommand('Runtime.enable').catch((error) => {
+      console.error('RENDERER_DIAGNOSTICS_UNAVAILABLE ' + error.message);
+    });
+  } catch (error) {
+    console.error('RENDERER_DIAGNOSTICS_UNAVAILABLE ' + error.message);
+  }
+});
+
 require('./main.cjs');
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 app.whenReady().then(async () => {
@@ -26,8 +44,11 @@ app.whenReady().then(async () => {
     if(name==='FishButton') await wait(5000);
     const point=await win.webContents.executeJavaScript(`(async()=>{
       const cc=await System.import('cc');const root=cc.director.getScene();
+      if(!root)throw new Error('Runtime scene missing');
       function find(n){if(n.name===${JSON.stringify(name)})return n;for(const c of n.children){const r=find(c);if(r)return r;}}
-      const node=find(root),camera=root.getComponentInChildren(cc.Canvas).cameraComponent;
+      const node=find(root);
+      if(!node)throw new Error('Runtime node missing: ${name}; scene roots=' + root.children.map((child)=>child.name).join(','));
+      const camera=root.getComponentInChildren(cc.Canvas).cameraComponent;
       const p=camera.worldToScreen(node.worldPosition),canvas=document.querySelector('canvas'),r=canvas.getBoundingClientRect();
       return {x:Math.round(r.x+p.x/canvas.width*r.width),y:Math.round(r.y+(canvas.height-p.y)/canvas.height*r.height)};
     })()`);
