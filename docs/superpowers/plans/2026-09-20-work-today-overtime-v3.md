@@ -81,9 +81,9 @@
 ### Task 4: Daily and weekly settlement, timeline and sharing projection
 
 **Files:**
-- Modify: `assets/scripts/v2/v2-settlement-service.ts`, `assets/scripts/facade/game-facade.ts`, `assets/scripts/facade/game-snapshot.ts`
+- Modify: `assets/scripts/v2/v2-settlement-service.ts`, `assets/scripts/model/save-data.ts`, `assets/scripts/model/player-data.ts`, `assets/scripts/services/save-service.ts`, `assets/scripts/facade/game-facade.ts`, `assets/scripts/facade/game-snapshot.ts`
 - Create: `assets/scripts/v3/work-today-presentation.ts`, `assets/configs/v3/work-today-copy.json`
-- Test: `tests/v3/work-today-settlement.test.ts`
+- Test: `tests/v3/work-today-settlement.test.ts`, `tests/v3/work-today-save-migration.test.ts`
 
 **Interfaces:**
 - Produces `WorkTodaySettlementView`, `WeeklyWorkTodayView`, `DailyShareCardData` and one canonical event timeline.
@@ -115,11 +115,12 @@
 ### Task 6: Integration, regression, runtime evidence and report
 
 **Files:**
-- Create: `tests/v3/work-today-integration.test.ts`, `ai/reports/WORK-TODAY-SYSTEM.md`
+- Create: `assets/scripts/v3/project-time-bridge.ts`, `tests/v3/work-today-integration.test.ts`, `tests/v3/project-time-bridge.test.ts`, `ai/reports/WORK-TODAY-SYSTEM.md`
 - Modify: `scripts/check-v2-content.cjs`, runtime capture helpers only if required by existing Electron verification flow.
 
 - [ ] Write end-to-end failing scenarios covering leave, free/paid/weekend/forced overtime, paid fishing, pause/restore, offline deduplication, midnight crossing and combat-time attribution.
 - [ ] Connect project/dungeon entry hooks to the same work-session recorder; ensure combat does not own a second clock or salary path.
+- [ ] Define `ProjectTimeBridge.begin(kind)` / `end(token)` for PROJECT, FISHING_DUNGEON, INCIDENT_BOSS and NIGHT_BOSS; route elapsed time to WORK/FISHING/INCIDENT/OVERTIME through WorkTodayService, with no separate combat clock or direct salary mutation.
 - [ ] Verify every content minimum (20 pre-off-work, 30 night, 5 bosses, 10 chains, 15 achievements) in the content checker.
 - [ ] Run full `npm test`, `npm run build`, `npm run gameplay-v2:check`, `npm run pc:build`, `npm run pc:copy`, `npm run pc:check` and Electron captures for all six required UI states.
 - [ ] Write the required report with clock, countdown, wage, fishing, purchasing-power, agenda, allocation, timeline, weekend, overtime, settlement and V3-combat evidence; commit and push.
@@ -133,3 +134,5 @@
 | time, salary, paid fishing, allocation, todos, purchasing power, fortune, companion and timeline | 1, 4–5 | clock/projection/UI tests |
 | daily/weekly settlement, title, share card and real UI states | 4–6 | exactly-once/integration tests and Electron captures |
 | unified battle/dungeon time, pause/offline/midnight and no duplicate income | 1–2, 6 | integration and regression matrix |
+
+The detailed numbered source requirements are authoritative acceptance inputs: content checker asserts 20/30/5/10/15 minima; state-machine tests cover items 1–66; Work Today tests cover V3 items 1–145; runtime/report steps cover V3 items 146–163.
