@@ -116,12 +116,13 @@ export class V2EventService {
   /** 链事件到期检测（次日推进，§40 历史选择后果）。 */
   private pollChain(nowMs: number): EventDefinition | null {
     const chains = this.context.player.eventChainState;
+    let world: EventWorldState | undefined;
     for (const [chainId, state] of Object.entries(chains)) {
       const nextId = `${chainId}_s${state.stage + 1}`;
       const nextDef = EVENT_MAP.get(nextId);
       if (!nextDef) continue;
       // 链下一阶段：距离上阶段 >= 半天 或 同日 4 小时后触发
-      if (nowMs - state.lastDayIndex >= 4 * 3600_000 && checkEventConditions(nextDef, this.world())) {
+      if (nowMs - state.lastDayIndex >= 4 * 3600_000 && checkEventConditions(nextDef, world ??= this.world())) {
         this.startEvent(nextDef, nowMs);
         return this.current;
       }
@@ -168,7 +169,7 @@ export class V2EventService {
 
     let choice: EventChoice | null = null;
     if (choiceId !== null) {
-      choice = (def.choices ?? []).find((c) => c.id === choiceId) ?? null;
+      choice = visibleChoices(def, this.world()).find((c) => c.id === choiceId) ?? null;
       if (!choice) throw new Error('无效选项');
     }
 

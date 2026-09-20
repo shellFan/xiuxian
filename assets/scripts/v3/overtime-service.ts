@@ -96,19 +96,33 @@ export class OvertimeService {
       paidSeconds: stats.paidSeconds + (session.free ? 0 : session.elapsedSeconds),
       freeSeconds: stats.freeSeconds + (session.free ? session.elapsedSeconds : 0),
       sessions: stats.sessions + 1,
-      nightSessions: stats.nightSessions + (session.startedAt !== null && this.clock.isNightShift(session.startedAt) ? 1 : 0),
+      nightSessions: stats.nightSessions + (this.includesNightWork(session) ? 1 : 0),
       freeSessions: stats.freeSessions + (session.free ? 1 : 0),
       consecutiveDays,
       longestStreak: Math.max(stats.longestStreak, consecutiveDays),
     };
     if (session.elapsedSeconds > 0) this.context.player.lastOvertimeWorkdayStartAt = workdayStartAt;
-    this.context.player.overtimeFatigue = fatigueForSeconds(session.elapsedSeconds);
+    this.context.player.overtimeFatigue = this.fatigue();
     this.gameDay.setOvertimeState(session.source, 'COMPLETED', session.free);
     this.session = null;
   }
 
   public fatigue(): OvertimeFatigue {
-    return this.session ? fatigueForSeconds(this.session.elapsedSeconds) : this.context.player.overtimeFatigue;
+    const current = fatigueForSeconds(this.session?.elapsedSeconds ?? 0);
+    const persisted = this.context.player.overtimeFatigue;
+    const severity: Record<OvertimeFatigue, number> = { RESTED: 0, TIRED: 1, EXHAUSTED: 2 };
+    return severity[current] > severity[persisted] ? current : persisted;
+  }
+
+  /** Count only recorded work, not an unobserved clock jump or the planned duration. */
+  private includesNightWork(session: OvertimeSession): boolean {
+    if (session.startedAt === null || session.elapsedSeconds <= 0) return false;
+    if (this.clock.isNightShift(session.startedAt)) return true;
+    // A daytime start first enters the next night window at local 20:00.
+    // Use a calendar boundary so DST does not shift that local time.
+    const nightStart = new Date(session.startedAt);
+    nightStart.setHours(20, 0, 0, 0);
+    return session.startedAt + session.elapsedSeconds * 1000 > nightStart.getTime();
   }
 
   private assertDuration(seconds: number): void {
