@@ -282,6 +282,7 @@
         careerName: career ? career.name : '实习牛马',
         realm: career ? career.realm : '炼气一层',
         requiredExp: career ? career.requiredExp : 0,
+        sectName: (function () { try { var sec = f.querySect ? f.querySect() : null; return sec ? sec.name : null; } catch (e) { return null; } })(),
         salary: s.salary, performance: s.performance,
         cultivationExp: s.cultivationExp, spiritStones: s.spiritStones,
         mind: s.mind, maxMind: s.maxMind,
@@ -693,71 +694,100 @@
   function renderHome() {
     var hud = readHUD();
     if (!hud) return emptyState('⏳', '加载中...', '正在唤醒游戏数据');
-    var rates = readRates();
     var quote = QUOTES[Math.floor(Date.now() / 3600000) % QUOTES.length];
+    void quote;
+    return '' +
+      '<div class="ux-home">' +
+        homeTopbarHtml(hud) +
+        '<aside class="ux-home-col ux-home-left">' + homeLeftHtml(hud) + '</aside>' +
+        '<main class="ux-home-col ux-home-center">' + homeCenterHtml(hud) + '</main>' +
+        '<aside class="ux-home-col ux-home-right">' + homeRightHtml(hud) + '</aside>' +
+      '</div>';
+  }
+
+  /* PC 首页顶栏：品牌 / 日期·星期·时钟 / 今日局势 / 设置（§5） */
+  function homeTopbarHtml(hud) {
+    var g = null;
+    var f = facade();
+    if (f && typeof f.queryGameClock === 'function') { try { g = f.queryGameClock(); } catch (e) { g = null; } }
+    var clockText = '--:--:--';
+    var dateText = '';
+    var stateText = '准备开工';
+    if (g) {
+      clockText = String(g.hour).padStart(2, '0') + ':' + String(g.minute).padStart(2, '0');
+      var nowDate = new Date();
+      dateText = (nowDate.getMonth() + 1) + '月' + nowDate.getDate() + '日';
+      var weekName = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][g.weekday] || '';
+      if (g.isWeekend) stateText = '周末 · 肉身自由';
+      else if (g.isWorkingHours) stateText = '上班中';
+      else stateText = (g.hour >= 18) ? '已过下班点' : '未开工';
+      dateText += ' ' + weekName;
+    }
+    return '<div class="ux-topbar">' +
+      '<div class="ux-brand">' + img('brand-title', 'ux-brand-title') + '</div>' +
+      '<div class="ux-topbar-clock"><b>' + clockText + '</b><span>' + dateText + ' · ' + escHtml(stateText) + ' · ' + escHtml(hud.careerName || '') + '</span></div>' +
+      (V2 ? '<div class="ux-topbar-sit">' + V2.situationHtml() + '</div>' : '') +
+      '<button class="ux-gear" data-action="settings">⚙</button>' +
+      '</div>';
+  }
+
+  /* 左栏：角色 / 四维 / 证据袋 / NPC 陪伴 */
+  function homeLeftHtml(hud) {
+    var f = facade();
+    var evidence = f && typeof f.queryEvidence === 'function' ? (f.queryEvidence() || []) : [];
+    var sect = hud.sectName ? '<div class="ux-player-sect">宗门 · ' + escHtml(hud.sectName) + '</div>' : '';
+    return '<div class="ux-card ux-player">' +
+        img('home-avatar', 'ux-player-avatar') +
+        '<div>' +
+          '<div class="ux-player-name">' + PLAYER_NAME + '</div>' +
+          '<div class="ux-player-sub">' + escHtml(hud.careerName) + ' · ' + escHtml(hud.realm) + '</div>' +
+          sect +
+        '</div>' +
+      '</div>' +
+      '<div class="ux-stats">' +
+        statBox('cultivation', '修为', fmtNum(hud.cultivationExp) + (hud.requiredExp > 0 ? '<small> / ' + fmtNum(hud.requiredExp) + '</small>' : '')) +
+        statBox('salary', '工资', fmtNum(hud.salary)) +
+        statBox('performance', '绩效', fmtNum(hud.performance)) +
+        statBox('mind', '道心', fmtNum(hud.mind) + '<small> / ' + fmtNum(hud.maxMind) + '</small>') +
+      '</div>' +
+      '<button class="ux-card ux-evidence-line" data-action="openModal" data-modal="evidence">' +
+        '🧾 证据袋 <b>' + evidence.length + '</b> 件<span class="ux-evidence-hint">点击查看</span>' +
+      '</button>' +
+      npcCompanionHtml(hud);
+  }
+
+  /* 中栏：下班倒计时 / 实时工资 / 进度 / 操作（§9~§13） */
+  function homeCenterHtml(hud) {
+    var rates = readRates();
     var cd = cooldownOf('cultivate');
     var mode = hud.workMode || 'WORK';
     var MODE_META = {
-      WORK: { label: '努力工作', sub: '钱+30% 绩效+30%', emoji: '💼', cls: 'blue' },
-      FISHING: { label: '带薪摸鱼', sub: '修为+10% 道心回复', emoji: '🐟', cls: 'green' },
-      CULTIVATING: { label: '偷偷修炼', sub: '修为×2.0 工资-70%', emoji: '🧘', cls: 'gold' },
-      SOCIAL: { label: '社交划水', sub: '关系×2 钱-50%', emoji: '🍵', cls: 'gray' },
+      WORK: { label: '努力工作', sub: '钱+30%', emoji: '💼', cls: 'blue' },
+      FISHING: { label: '带薪摸鱼', sub: '道心回复', emoji: '🐟', cls: 'green' },
+      CULTIVATING: { label: '偷偷修炼', sub: '修为×2.0', emoji: '🧘', cls: 'gold' },
+      SOCIAL: { label: '社交划水', sub: '关系×2', emoji: '🍵', cls: 'gray' },
     };
-
-    var statusText;
-    var tasks = readTasks();
-    var running = (tasks.active || []).filter(function (t) { return !t.claimed; }).length > 0;
-    if (running) statusText = '正在偷偷运转周天...';
-    else if (mode === 'FISHING') statusText = '带薪摸鱼中，道心平稳...';
-    else if (mode === 'CULTIVATING') statusText = '屏息凝神，偷偷修炼...';
-    else if (mode === 'SOCIAL') statusText = '茶水间情报交换中...';
-    else statusText = '努力搬砖中，修为渐长...';
-
     var modeBtns = ['WORK', 'FISHING', 'CULTIVATING', 'SOCIAL'].map(function (m) {
       var meta = MODE_META[m];
       return modeBtn(m, meta.label, meta.sub, meta.emoji, meta.cls, mode === m);
     }).join('');
+    return workTodayHtml() +
+      '<div class="ux-earned-card" id="EarnedCard">' + earnedCardInner(hud, rates) + '</div>' +
+      '<div class="ux-center-actions">' +
+        '<button class="ux-btn ux-btn--gold ux-btn--sm ux-cultivate-btn" data-action="cultivate">' +
+          '🔥 修炼一次' +
+          (cd > 0 ? '<span class="ux-cultivate-cd">' + Math.ceil(cd) + 's</span>' : '<span class="dot"></span>') +
+        '</button>' +
+        '<div class="ux-mode-row ux-mode-row--4">' + modeBtns + '</div>' +
+      '</div>' +
+      '<div class="ux-status-line"><span class="ux-status-ribbon">' + escHtml(homeStatusText(hud)) + '</span>' +
+        '<span class="ux-idle-timer">今日挂机 <b id="IdleTimer">' + hms(sessionSeconds()) + '</b></span></div>';
+  }
 
-    return '' +
-      '<div class="ux-home">' +
-        '<div class="ux-brand">' +
-          img('brand-title', 'ux-brand-title') +
-          img('brand-ribbon', 'ux-brand-ribbon') +
-          '<button class="ux-gear" data-action="settings">⚙</button>' +
-        '</div>' +
-        (V2 ? V2.dayStripHtml() : '') +
-        workTodayHtml() +
-        '<div class="ux-player">' +
-          img('home-avatar', 'ux-player-avatar') +
-          '<div>' +
-            '<div class="ux-player-name">' + PLAYER_NAME + '</div>' +
-            '<div class="ux-player-sub">' + escHtml(hud.careerName) + ' · ' + escHtml(hud.realm) + '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="ux-stats">' +
-          statBox('cultivation', '修为', fmtNum(hud.cultivationExp) + (hud.requiredExp > 0 ? '<small> / ' + fmtNum(hud.requiredExp) + '</small>' : '')) +
-          statBox('salary', '工资', fmtNum(hud.salary)) +
-          statBox('performance', '绩效', fmtNum(hud.performance)) +
-          statBox('mind', '道心', fmtNum(hud.mind) + '<small> / ' + fmtNum(hud.maxMind) + '</small>') +
-        '</div>' +
-        '<div class="ux-quote">' + escHtml(quote) + '</div>' +
-        '<div class="ux-home-hero">' + img('home-character') + '</div>' +
-        '<div class="ux-home-panel">' +
-          (V2 ? V2.situationHtml() : '') +
-          '<span class="ux-status-ribbon">' + escHtml(statusText) + '</span>' +
-          (V2 ? V2.demonHtml() : '') +
-          '<div class="ux-rates">' +
-            '<div class="ux-rates-row">' + icon('cultivation') + '修为 +' + rates.cultivationPerMin.toFixed(1) + '/分钟' +
-              '<span style="width:14px"></span>' + icon('salary') + '工资 +' + rates.salaryPerMin.toFixed(1) + '/分钟</div>' +
-            '<div class="ux-idle-timer">今日挂机: <b id="IdleTimer">' + hms(sessionSeconds()) + '</b></div>' +
-          '</div>' +
-          '<button class="ux-btn ux-btn--gold ux-btn--lg ux-cultivate-btn" data-action="cultivate">' +
-            '🔥 修炼一次' +
-            (cd > 0 ? '<span class="ux-cultivate-cd">' + Math.ceil(cd) + 's</span>' : '<span class="dot"></span>') +
-          '</button>' +
-          '<div class="ux-mode-row ux-mode-row--4">' + modeBtns + '</div>' +
-        '</div>' +
-      '</div>';
+  /* 右栏：今日待办 / 购买力 / 黄历 / 最近动态（§34/§51/§53/§58） */
+  function homeRightHtml(hud) {
+    void hud;
+    return agendaHtml() + purchasingPowerHtml() + fortuneHtml() + recentTimelineHtml();
   }
 
   function statBox(stat, label, value) {
@@ -768,6 +798,54 @@
   function modeBtn(mode, label, sub, emoji, cls, active) {
     return '<button class="ux-btn ux-btn--' + cls + ' ux-mode-btn' + (active ? '' : ' ux-mode-btn--off') + '" data-action="mode" data-mode="' + mode + '">' +
       '<span class="m1">' + emoji + ' ' + label + '</span><span class="m2">' + sub + '</span></button>';
+  }
+
+  function homeStatusText(hud) {    var tasks = readTasks();
+    var running = (tasks.active || []).filter(function (t) { return !t.claimed; }).length > 0;
+    var f = facade();
+    var ot = null;
+    if (f && typeof f.queryOvertime === 'function') { try { ot = f.queryOvertime(); } catch (e) { ot = null; } }
+    if (ot && ot.status === 'ACTIVE') return ot.free ? '正在免费燃烧生命...' : '带薪奋斗中...';
+    if (running) return '正在偷偷运转周天...';
+    if (hud.workMode === 'FISHING') return '带薪摸鱼中，道心平稳...';
+    if (hud.workMode === 'CULTIVATING') return '屏息凝神，偷偷修炼...';
+    if (hud.workMode === 'SOCIAL') return '茶水间情报交换中...';
+    return '努力搬砖中，修为渐长...';
+  }
+
+  /* NPC 陪伴：按状态给一句（§54~§55） */
+  function npcCompanionHtml(hud) {
+    var f = facade();
+    var g = f && typeof f.queryGameClock === 'function' ? (function () { try { return f.queryGameClock(); } catch (e) { return null; } })() : null;
+    var rels = f && typeof f.queryNpcViews === 'function' ? (function () { try { return f.queryNpcViews(); } catch (e) { return null; } })() : null;
+    var hour = g ? g.hour : 12;
+    var line;
+    if (g && g.isWeekend) {
+      line = ['小师妹：周末的云比周一的好看。', '小师妹：别看手机了，企业群不会自己冒红点。', '小师妹：今天的修炼计划是——躺着。'][dayPick(3)];
+    } else if (hour >= 18) {
+      line = ['小师妹："工资已经下班了，你还没有。"', '小师妹："再不走，保洁阿姨都要赶人了。"', '小师妹："晚风不错，适合御剑（地铁）。"'][dayPick(3)];
+    } else if (hour >= 17) {
+      line = ['小师妹："正在偷偷收拾东西。"', '小师妹："不要有人叫我。"', '小师妹："还有一会儿，行吧，我陪你。"'][dayPick(3)];
+    } else if (hud.workMode === 'FISHING') {
+      line = ['小师妹："摸鱼是门手艺，你已经是老师傅了。"', '小师妹："正在屏蔽产品经理的气息。"'][dayPick(2)];
+    } else if (hud.workMode === 'CULTIVATING') {
+      line = ['小师妹："正在和困意斗法。"', '小师妹："肉身在工位，元神已到食堂。"'][dayPick(2)];
+    } else {
+      line = ['小师妹："正在炼化老板画的大饼。"', '小师妹："还有几个小时，行吧，我陪你。"', '小师妹："今天也要平安下班哦。"'][dayPick(3)];
+    }
+    var relText = '';
+    if (rels && rels.length) {
+      var best = rels.reduce(function (a, b) { return ((b.relationship || 0) > (a.relationship || 0) ? b : a); }, rels[0]);
+      if (best && best.name) relText = '<span class="ux-npc-rel">至交：' + escHtml(best.name) + '</span>';
+    }
+    return '<div class="ux-card ux-npc-line"><div class="ux-npc-quote">' + escHtml(line) + '</div>' + relText + '</div>';
+  }
+
+  function dayPick(mod) {
+    var day = 0;
+    var f = facade();
+    if (f && typeof f.queryGameDay === 'function') { try { day = (f.queryGameDay() || {}).dayIndex || 0; } catch (e) { day = 0; } }
+    return (day + new Date().getDate()) % mod;
   }
 
   /* Work Today is a projection only: it never derives time or mutates salary in the UI. */
@@ -782,20 +860,192 @@
       view = { countdownMs: 5 * 60 * 1000, standardWorkSeconds: 7 * 3600 + 55 * 60, overtimeSeconds: 0, freeOvertimeSeconds: 0, timeline: [] };
     }
     var overtime = f && typeof f.queryOvertime === 'function' ? f.queryOvertime() : null;
-    var timeline = (view.timeline || []).slice(-3).map(function (entry) {
-      return '<li>' + new Date(entry.occurredAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' ' + escHtml(entry.eventId || entry.kind) + '</li>';
-    }).join('');
-    var action = overtime && overtime.status === 'ACTIVE'
-      ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="finishOvertime">结束加班</button>'
-      : '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">今晚再卷 2 小时</button>';
-    return '<section class="ux-work-today">' +
-      '<div class="ux-work-today__headline">距离下班 <b id="WorkTodayCountdown">' + hms(view.countdownMs / 1000) + '</b></div>' +
-      '<div class="ux-work-today__grid"><span>标准工时 ' + hms(view.standardWorkSeconds) + '</span><span>加班 ' + hms(view.overtimeSeconds) + '</span><span>免费加班 ' + hms(view.freeOvertimeSeconds) + '</span></div>' +
-      (overtime ? '<div class="ux-work-today__warning">工资已经下班了，你还没有。当前 ' + (overtime.free ? '自愿奋斗（无工资）' : '有补偿加班') + '</div>' : '') +
-      '<div class="ux-work-today__actions">' + action + '</div>' +
-      (timeline ? '<details class="ux-work-today__timeline"><summary>今日时间线</summary><ul>' + timeline + '</ul></details>' : '') +
+    var g = f && typeof f.queryGameClock === 'function' ? (function () { try { return f.queryGameClock(); } catch (e) { return null; } })() : null;
+    var weekend = !!(g && g.isWeekend);
+    var headline;
+    if (weekend) {
+      headline = '<div class="ux-work-today__headline">距离周一 <b>' + hms(timeUntilMondayMs() / 1000) + '</b><small class="ux-wt-sub">肉身自由。</small></div>';
+    } else {
+      var pct = Math.max(0, Math.min(100, Math.round((view.standardWorkSeconds || 0) / (8 * 3600) * 100)));
+      headline = '<div class="ux-work-today__headline">距离下班 <b id="WorkTodayCountdown">' + hms(view.countdownMs / 1000) + '</b>' +
+        '<small class="ux-wt-sub">今天已熬过去 ' + pct + '%</small></div>' +
+        '<div class="ux-wt-bar"><i style="width:' + pct + '%"></i></div>';
+    }
+    var overtimeBit = '';
+    var action = '';
+    if (overtime && overtime.status === 'ACTIVE') {
+      overtimeBit = '<div class="ux-work-today__warning">' + (overtime.free
+        ? '免费加班 ' + hms(view.freeOvertimeSeconds || 0) + ' · 额外工资 ¥0.00 —— 工资已经下班了，你还没有。'
+        : '带薪加班中 · 1.5×工资结算') + '</div>';
+      action = '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="finishOvertime">结束加班</button>';
+    } else if (!weekend) {
+      overtimeBit = '<div class="ux-work-today__grid"><span>标准工时 ' + hms(view.standardWorkSeconds) + '</span><span>加班 ' + hms(view.overtimeSeconds) + '</span><span>免费加班 ' + hms(view.freeOvertimeSeconds) + '</span></div>';
+      action = '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">今晚再卷 2 小时</button>';
+    } else {
+      action = '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">主动渡劫（加班 2h）</button>';
+    }
+    return '<section class="ux-work-today">' + headline + overtimeBit +
+      '<div class="ux-work-today__actions">' + action +
+      '<button class="ux-btn ux-btn--sm ux-btn--ghost" data-action="openModal" data-modal="timeline">今日时间线</button></div>' +
       '</section>';
   }
+
+  function timeUntilMondayMs() {
+    var now = new Date();
+    var next = new Date(now);
+    var add = (8 - now.getDay()) % 7 || 7;
+    next.setDate(now.getDate() + add);
+    next.setHours(9, 0, 0, 0);
+    return Math.max(0, next.getTime() - now.getTime());
+  }
+
+  /* 实时工资卡：只做 projection（§10/§11） */
+  function earnedCardInner(hud, rates) {
+    var f = facade();
+    var day = f && typeof f.queryGameDay === 'function' ? (function () { try { return f.queryGameDay(); } catch (e) { return null; } })() : null;
+    var income = day && day.income ? day.income.salary : hud.salaryToday != null ? hud.salaryToday : 0;
+    var fishing = day && day.settlementInputs ? (day.settlementInputs.paidFishingSalary || 0) : 0;
+    var g = f && typeof f.queryGameClock === 'function' ? (function () { try { return f.queryGameClock(); } catch (e) { return null; } })() : null;
+    var perSec = (rates.salaryPerMin / 60);
+    var fishingLine = (hud.workMode === 'FISHING' && fishing > 0)
+      ? '<div class="ux-earned-fishing">🐟 本次带薪摸鱼已入账 <b>¥' + fishing.toFixed(2) + '</b></div>' : '';
+    var offWork = g && !g.isWeekend && g.hour >= 18;
+    return '<div class="ux-earned-main">今日已赚 <b>¥' + (income || 0).toFixed(2) + '</b></div>' +
+      (offWork ? '<div class="ux-earned-offwork">额外工资 <b>¥0.00</b> —— 工资已经下班了，你还没有。</div>' : '') +
+      fishingLine +
+      '<div class="ux-earned-rates"><span>¥' + rates.salaryPerMin.toFixed(2) + '/分钟</span><span>¥' + perSec.toFixed(3) + '/秒</span><span>修为 +' + rates.cultivationPerMin.toFixed(1) + '/分钟</span></div>';
+  }
+
+  /* 今日待办：指派任务 top4（§34） */
+  function agendaHtml() {
+    var f = facade();
+    var data = f && typeof f.queryAssignedTasks === 'function' ? (function () { try { return f.queryAssignedTasks(); } catch (e) { return null; } })() : null;
+    var top = data ? data.top : [];
+    var overflow = data ? Math.max(0, data.openCount - top.length) : 0;
+    var prioCls = { P0: 'p0', P1: 'p1', P2: 'p2', P3: 'p3' };
+    var items = top.map(function (t) {
+      return '<div class="ux-agenda-item' + (t.priority === 'P0' && !t.isFakeP0 ? ' ux-agenda-item--hot' : '') + '">' +
+        '<span class="ux-prio ' + (prioCls[t.priority] || 'p3') + '">' + t.priority + '</span>' +
+        '<span class="ux-agenda-title" title="' + escHtml(t.title) + '">' + escHtml(t.title) + '</span>' +
+        '<span class="ux-agenda-src">' + escHtml(sourceName(t.source)) + '</span>' +
+        '<button class="ux-agenda-btn" data-action="assignedDone" data-id="' + t.id + '" title="完成">✓</button>' +
+        '<button class="ux-agenda-btn ux-agenda-btn--no" data-action="assignedRefuse" data-id="' + t.id + '" title="拒绝/搁置">✕</button>' +
+        '</div>';
+    }).join('');
+    if (!items) items = '<div class="ux-agenda-empty">暂时没人塞活。警惕。</div>';
+    return '<div class="ux-card ux-agenda"><div class="ux-card-title">今日待办' +
+      (overflow > 0 ? ' <span class="ux-agenda-more">+' + overflow + ' 件破事</span>' : '') +
+      '<button class="ux-card-more" data-action="openModal" data-modal="agenda">全部</button></div>' + items + '</div>';
+  }
+
+  function sourceName(src) {
+    var map = { BOSS: '老板', COLLEAGUE: '同事', PRODUCT: '产品', TEST: '测试', CLIENT: '客户', INCIDENT: '事故', SYSTEM: '系统' };
+    return map[src] || src || '';
+  }
+
+  /* 今日购买力（§51）：首页只显示 3 项，配置驱动 */
+  var POWER_ITEMS = [
+    { icon: '☕', name: '咖啡', price: 18 },
+    { icon: '🍜', name: '午饭', price: 24 },
+    { icon: '🧋', name: '奶茶', price: 15 },
+    { icon: '🏠', name: '房租', price: 4200, per: '月' },
+  ];
+  function purchasingPowerHtml() {
+    var f = facade();
+    var day = f && typeof f.queryGameDay === 'function' ? (function () { try { return f.queryGameDay(); } catch (e) { return null; } })() : null;
+    var income = day && day.income ? day.income.salary : 0;
+    var items = POWER_ITEMS.slice(0, 3).map(function (it) {
+      var n = it.price > 0 ? income / it.price : 0;
+      return '<div class="ux-power-item"><span>' + it.icon + ' ' + it.name + '</span><b>' + (n >= 100 ? Math.floor(n) : n.toFixed(1)) + (it.per || '') + (it.per ? '' : (it.name === '午饭' ? '顿' : '杯')) + '</b></div>';
+    }).join('');
+    return '<div class="ux-card ux-power"><div class="ux-card-title">今日购买力<button class="ux-card-more" data-action="openModal" data-modal="power">全部</button></div>' + items + '</div>';
+  }
+
+  /* 今日黄历（§53）：按日索引确定性挑选 */
+  var FORTUNE_DO = ['提交代码', '装忙', '带薪摸鱼', '敷衍评审', '准点下班', '已读不回', '顺水推舟', '摸鱼修炼'];
+  var FORTUNE_DONT = ['回复"在"', '周五上线', '接需求', '正面硬刚', '口头答应', '深夜发布', '打开需求文档', '轻信排期'];
+  function fortuneHtml() {
+    var f = facade();
+    var day = f && typeof f.queryGameDay === 'function' ? (function () { try { return f.queryGameDay(); } catch (e) { return null; } })() : null;
+    var idx = ((day ? day.dayIndex : 1) * 7 + new Date().getDay() * 3) % FORTUNE_DO.length;
+    var idx2 = ((day ? day.dayIndex : 1) * 5 + new Date().getDay() * 2 + 3) % FORTUNE_DONT.length;
+    return '<div class="ux-card ux-fortune"><div class="ux-card-title">今日黄历</div>' +
+      '<div class="ux-fortune-row"><span class="do">宜</span>' + FORTUNE_DO[idx] + '</div>' +
+      '<div class="ux-fortune-row"><span class="dont">忌</span>' + FORTUNE_DONT[idx2] + '</div></div>';
+  }
+
+  /* 最近动态（§58）：只显示 2 条，点击看全部 */
+  function recentTimelineHtml() {
+    var f = facade();
+    var view = f && typeof f.queryWorkToday === 'function' ? (function () { try { return f.queryWorkToday(); } catch (e) { return null; } })() : null;
+    var tl = view && view.timeline ? view.timeline.slice(-2).reverse() : [];
+    var items = tl.map(function (entry) {
+      var time = new Date(entry.occurredAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+      var name = TIMELINE_NAMES[entry.eventId] || entry.eventId || entry.kind;
+      return '<div class="ux-recent-item"><span>' + time + '</span>' + escHtml(name) + '</div>';
+    }).join('') || '<div class="ux-agenda-empty">今天还风平浪静。</div>';
+    return '<div class="ux-card ux-recent"><div class="ux-card-title">最近动态<button class="ux-card-more" data-action="openModal" data-modal="timeline">全部</button></div>' + items + '</div>';
+  }
+
+  var TIMELINE_NAMES = {
+    MEETING: '会议', INCIDENT: '事故处理', MODE_TRANSITION: '切换状态',
+  };
+
+  /* ── 首页弹窗（子 Modal 可滚动，§135） ── */
+  function openHomeModal(kind) {
+    var f = facade();
+    var title = '详情';
+    var body = '';
+    if (kind === 'timeline') {
+      title = '今日时间线';
+      var view = f && typeof f.queryWorkToday === 'function' ? (function () { try { return f.queryWorkToday(); } catch (e) { return null; } })() : null;
+      var tl = view && view.timeline ? view.timeline : [];
+      body = tl.length ? '<div class="ux-modal-list">' + tl.map(function (entry) {
+        var time = new Date(entry.occurredAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        return '<div class="ux-recent-item"><span>' + time + '</span>' + escHtml(TIMELINE_NAMES[entry.eventId] || entry.eventId || entry.kind) + '</div>';
+      }).join('') + '</div>' : '<div class="ux-agenda-empty">今天还风平浪静。</div>';
+    } else if (kind === 'power') {
+      title = '今日购买力';
+      var day = f && typeof f.queryGameDay === 'function' ? (function () { try { return f.queryGameDay(); } catch (e) { return null; } })() : null;
+      var income = day && day.income ? day.income.salary : 0;
+      body = '<div class="ux-modal-list">' + POWER_ITEMS.map(function (it) {
+        var n = it.price > 0 ? income / it.price : 0;
+        return '<div class="ux-power-item"><span>' + it.icon + ' ' + it.name + '</span><b>' + (n >= 100 ? Math.floor(n) : n.toFixed(1)) + (it.per || (it.name === '午饭' ? '顿' : '杯')) + '</b></div>';
+      }).join('') + '</div><div class="ux-modal-note">按今日实时工资折算 · 仅为修仙士的浪漫</div>';
+    } else if (kind === 'agenda') {
+      title = '全部待办';
+      var data = f && typeof f.queryAssignedTasks === 'function' ? (function () { try { return f.queryAssignedTasks(); } catch (e) { return null; } })() : null;
+      var open = data ? data.all : [];
+      body = open.length ? '<div class="ux-modal-list">' + open.map(function (t) {
+        return '<div class="ux-agenda-item"><span class="ux-prio ' + (t.priority === 'P0' ? 'p0' : t.priority === 'P1' ? 'p1' : t.priority === 'P2' ? 'p2' : 'p3') + '">' + t.priority + '</span>' +
+          '<span class="ux-agenda-title">' + escHtml(t.title) + '</span>' +
+          '<button class="ux-agenda-btn" data-action="assignedDone" data-id="' + t.id + '">✓</button>' +
+          '<button class="ux-agenda-btn ux-agenda-btn--no" data-action="assignedRefuse" data-id="' + t.id + '">✕</button></div>';
+      }).join('') + '</div>' : '<div class="ux-agenda-empty">暂时没人塞活。警惕。</div>';
+    } else if (kind === 'evidence') {
+      title = '证据袋';
+      var evidence = f && typeof f.queryEvidence === 'function' ? (function () { try { return f.queryEvidence(); } catch (e) { return []; } })() : [];
+      body = evidence.length ? '<div class="ux-modal-list">' + evidence.map(function (ev) {
+        return '<div class="ux-recent-item"><span class="ux-evidence-type">' + escHtml(ev.type) + '</span>' + escHtml(ev.label) + '</div>';
+      }).join('') + '</div><div class="ux-modal-note">证据用于解锁事件选项与复盘定责——它不是库存垃圾。</div>'
+        : '<div class="ux-agenda-empty">还没有证据。干活、截图、留痕都会攒下证据。</div>';
+    } else {
+      return;
+    }
+    var layer = popupLayer();
+    if (!layer) return;
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup ux-popup--wide">' +
+          '<div class="ux-header" style="height:70px;border-radius:16px 16px 0 0;margin:0 -18px 14px">' +
+            '<span class="ux-header-title">' + escHtml(title) + '</span>' +
+          '</div>' +
+          '<div class="ux-popup-card ux-popup-card--scroll">' + body + '</div>' +
+          '<div class="ux-dialog-actions"><button class="ux-btn ux-btn--gray ux-btn--md" data-action="closePopup">关闭</button></div>' +
+        '</div>' +
+      '</div>';
+  }
+
 
   /* ── 6b. 任务 ── */
 
@@ -1327,7 +1577,7 @@
     overlay.innerHTML =
       '<div class="ux-screen">' +
         header +
-        '<div class="ux-body" id="UiBody">' + renderCurrent() + '</div>' +
+        '<div class="ux-body' + (isHome ? ' ux-body--home' : '') + '" id="UiBody">' + renderCurrent() + '</div>' +
         nav +
       '</div>' +
       '<div id="PopupLayer"></div>' +
@@ -1341,6 +1591,8 @@
     if (!overlay || !$('#UiBody')) { renderShell(); return; }
     var body = $('#UiBody');
     var scrollTop = body.scrollTop;
+    /* 首页禁纵向滚动（§134）：加 home 修饰类，其余页面保持可滚动。 */
+    body.classList.toggle('ux-body--home', currentPage() === 'HOME');
     /* 只重绘 body + header 内容，保持弹窗/toast 层不被打断 */
     body.innerHTML = renderCurrent();
     body.scrollTop = scrollTop;
@@ -1418,6 +1670,35 @@
             toast('加班已结束，记得把自己也保存一下。', 'success');
             refresh();
           } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'openModal':
+          openHomeModal(el.dataset.modal);
+          break;
+        case 'closePopup':
+          closePopup();
+          refresh();
+          break;
+        case 'assignedDone': {
+          var fDone = facade();
+          if (!fDone) break;
+          try {
+            var done = fDone.completeAssignedTask(el.dataset.id);
+            toast(done && done.summary ? done.summary : '任务完成。', 'success');
+          } catch (e) { toast(errMsg(e), 'error'); }
+          closePopup();
+          refresh();
+          break;
+        }
+        case 'assignedRefuse': {
+          var fRefuse = facade();
+          if (!fRefuse) break;
+          try {
+            var refused = fRefuse.refuseAssignedTask(el.dataset.id);
+            toast(refused && refused.summary ? refused.summary : '已搁置。', 'info');
+          } catch (e) { toast(errMsg(e), 'error'); }
+          closePopup();
+          refresh();
           break;
         }
         case 'startDefense':

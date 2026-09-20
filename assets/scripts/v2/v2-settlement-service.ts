@@ -247,6 +247,21 @@ export interface DailySettlementView {
   readonly eventsHandled: number;
   readonly materialsGained: number;
   readonly isWeekly: boolean;
+  // ── V4 职场地hell日总结（§59） ──
+  /** 当日带薪摸鱼收入。 */
+  readonly paidFishingSalary?: number;
+  /** 当日有偿加班时长（秒）。 */
+  readonly paidOvertimeSeconds?: number;
+  /** 当日被塞的指派任务（完成/拒绝）。 */
+  readonly assignedTasksDone?: number;
+  readonly assignedTasksRefused?: number;
+  /** 当日责任案件：被甩锅 / 成功反击。 */
+  readonly blamesTaken?: number;
+  readonly blameCounters?: number;
+  /** 当日生产事故数。 */
+  readonly incidents?: number;
+  /** 当日获得的证据数。 */
+  readonly evidenceGained?: number;
 }
 
 export class DaySettlementService {
@@ -311,6 +326,15 @@ export class DaySettlementService {
       eventsHandled: day.eventsHandled,
       materialsGained: day.materialsGained,
       isWeekly,
+      // V4 日总结：当日口径（从各领当日字段聚合）
+      paidFishingSalary: day.settlementInputs?.paidFishingSalary ?? 0,
+      paidOvertimeSeconds: day.overtimeFree ? 0 : day.durations.overtime,
+      assignedTasksDone: p.assignedTasks.filter((t) => t.status === 'DONE' && t.createdDay === day.dayIndex).length,
+      assignedTasksRefused: p.assignedTasks.filter((t) => t.status === 'REFUSED' && t.createdDay === day.dayIndex).length,
+      blamesTaken: p.responsibilityCases.filter((c) => c.status === 'PLAYER_ACCEPTED' && c.createdDay === day.dayIndex).length,
+      blameCounters: p.responsibilityCases.filter((c) => c.status === 'PLAYER_CLEARED' && c.createdDay === day.dayIndex).length,
+      incidents: p.incidents.filter((i) => i.dayIndex === day.dayIndex).length,
+      evidenceGained: p.evidence.filter((e) => e.dayIndex === day.dayIndex).length,
     };
 
     try {

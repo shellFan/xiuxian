@@ -480,6 +480,13 @@
               (view.durations.overtime ? '⚡ 加班 ' + dur(view.durations.overtime) + (view.freeOvertimeSeconds ? '（免费）' : '（有补偿）') + '<br>' : '') +
               '⚡ 事件 ' + view.eventsHandled + ' · 材料 ' + view.materialsGained + ' 份' +
             '</div>' +
+            ((view.paidFishingSalary || view.blamesTaken || view.blameCounters || view.incidents || view.assignedTasksDone) ?
+              '<div class="ux-recipe-desc" style="margin-top:8px;line-height:1.9">' +
+                (view.paidFishingSalary ? '🐟 带薪摸鱼收入 <b style="color:var(--green-lo)">¥' + Number(view.paidFishingSalary).toFixed(2) + '</b><br>' : '') +
+                (view.assignedTasksDone || view.assignedTasksRefused ? '📋 塞来的活：完成 ' + (view.assignedTasksDone || 0) + ' · 拒绝 ' + (view.assignedTasksRefused || 0) + '<br>' : '') +
+                (view.blamesTaken || view.blameCounters ? '🛡️ 背锅 ' + (view.blamesTaken || 0) + ' 次 · 成功反击 ' + (view.blameCounters || 0) + ' 次<br>' : '') +
+                (view.incidents ? '🔥 生产事故 ' + view.incidents + ' 次 · 证据 +' + (view.evidenceGained || 0) + '<br>' : '') +
+              '</div>' : '') +
             '<div class="ux-work-today__warning">' + H.escHtml(view.statusText || '') + '</div>' +
             '<div class="ux-dialog-actions"><button class="ux-btn ux-btn--gold ux-btn--md" id="SettleOk">明天见</button></div>' +
           '</div>' +

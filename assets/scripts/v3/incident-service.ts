@@ -112,7 +112,10 @@ export class IncidentService {
     };
     this.replace(next);
     if (day) {
-      this.context.gameDay.recordEventInterval('INCIDENT', incident.id, incident.createdAt, Date.now());
+      // 记录实际处置窗口（以累计处置时长为准，而不是两次调用之间的挂钟差）。
+      const end = Date.now();
+      const start = end - incident.mitigationSeconds * 1000 - 1;
+      this.context.gameDay.recordEventInterval('INCIDENT', incident.id, start, end);
     }
     this.bumpLifetime('incidentMitigationSeconds', incident.mitigationSeconds);
     return next;

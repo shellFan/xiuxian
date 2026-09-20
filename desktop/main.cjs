@@ -23,10 +23,11 @@ const { GameServer } = require('./game-server.cjs');
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const GAME_TITLE = '牛马修仙传 - 上班也是渡劫';
-const DEFAULT_WIDTH = 460;
-const DEFAULT_HEIGHT = 850;
-const MIN_WIDTH = 340;
-const MIN_HEIGHT = 620;
+// PC-first: 1280×720 is the hard baseline (§216); min size keeps the dashboard usable.
+const DEFAULT_WIDTH = 1280;
+const DEFAULT_HEIGHT = 720;
+const MIN_WIDTH = 1150;
+const MIN_HEIGHT = 680;
 const BG_COLOR = '#dfe9e8';
 const AUTO_SAVE_INTERVAL_MS = 60_000;
 const BOOT_TIMEOUT_MS = 30_000;
