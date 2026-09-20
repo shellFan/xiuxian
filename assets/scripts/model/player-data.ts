@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -63,6 +63,8 @@ export interface PlayerDataOptions {
   readonly weeklyHistory?: readonly WeeklySummaryState[];
   readonly devTimeOffsetMs?: number;
   readonly unlockState?: Readonly<Record<string, boolean>>;
+  readonly compTime?: number;
+  readonly overtimeStats?: OvertimeStats;
 }
 
 export class PlayerData {
@@ -141,6 +143,8 @@ export class PlayerData {
   public weeklyHistory: WeeklySummaryState[];
   public devTimeOffsetMs: number;
   public unlockState: Record<string, boolean>;
+  public compTime: number;
+  public overtimeStats: OvertimeStats;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -202,6 +206,8 @@ export class PlayerData {
     this.weeklyHistory = (options.weeklyHistory ?? []).map((w) => ({ ...w }));
     this.devTimeOffsetMs = options.devTimeOffsetMs ?? 0;
     this.unlockState = { ...(options.unlockState ?? {}) };
+    this.compTime = Math.max(0, Math.floor(options.compTime ?? 0));
+    this.overtimeStats = { totalSeconds: 0, paidSeconds: 0, freeSeconds: 0, sessions: 0, consecutiveDays: 0, longestStreak: 0, ...(options.overtimeStats ?? {}) };
   }
 
   public static createDefault(): PlayerData {
@@ -251,6 +257,8 @@ export class PlayerData {
       weeklyHistory: this.weeklyHistory.map((w) => ({ ...w })),
       devTimeOffsetMs: this.devTimeOffsetMs,
       unlockState: { ...this.unlockState },
+      compTime: this.compTime,
+      overtimeStats: { ...this.overtimeStats },
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
@@ -279,9 +287,11 @@ function cloneGameDay(day: GameDayState): GameDayState {
     durations: { ...day.durations },
     income: { ...day.income },
     situationIds: [...day.situationIds],
+    settlementInputs: { ...day.settlementInputs },
+    eventHistory: day.eventHistory.map((entry) => ({ ...entry })),
   };
 }
 
 export function emptyActivityDurations(): ActivityDurationsState {
-  return { work: 0, fishing: 0, cultivating: 0, social: 0, meeting: 0, lunch: 0 };
+  return { work: 0, fishing: 0, cultivating: 0, social: 0, meeting: 0, lunch: 0, overtime: 0, incident: 0 };
 }

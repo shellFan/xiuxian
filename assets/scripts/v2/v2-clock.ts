@@ -120,6 +120,19 @@ export class GameClockV2 {
     return hour >= this.lunchStartHour && hour < this.lunchEndHour;
   }
 
+  public isPreOffWorkRiskWindow(nowMs = this.now()): boolean {
+    const d = new Date(nowMs);
+    return d.getHours() === this.workEndHour - 1 && d.getMinutes() >= 30;
+  }
+  public isOvertimeWindow(nowMs = this.now()): boolean {
+    return nowMs >= this.workdayEndTs(nowMs);
+  }
+  public isNightShift(nowMs = this.now()): boolean {
+    const hour = new Date(nowMs).getHours();
+    return hour >= 20 || hour < this.workStartHour;
+  }
+  public isMidnight(nowMs = this.now()): boolean { return new Date(nowMs).getHours() === 0; }
+
   /** 今天 09:00 的时间戳。 */
   public workdayStartTs(nowMs = this.now()): number {
     const d = new Date(nowMs);

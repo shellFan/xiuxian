@@ -98,6 +98,7 @@ export class GameDayService {
   public ensureStarted(): GameDayState {
     const today = this.todayKey();
     let day = this.context.player.gameDay;
+    if (day && !day.settled) return day;
     if (day && day.startedAt >= today.startTs && day.startedAt < today.endTs) {
       return day; // 今天已开工
     }
@@ -114,6 +115,11 @@ export class GameDayService {
       eventsHandled: 0,
       materialsGained: 0,
       situationIds: [],
+      overtimeSource: null,
+      overtimeStatus: 'NONE',
+      overtimeFree: false,
+      settlementInputs: { paidFishingSalary: 0 },
+      eventHistory: [],
     };
     this.context.player.gameDay = day;
     this.situationCache = null;
@@ -132,6 +138,36 @@ export class GameDayService {
     else if (mode === 'CULTIVATING') durations.cultivating += seconds;
     else if (mode === 'SOCIAL') durations.social += seconds;
     this.context.player.gameDay = { ...day, durations };
+  }
+
+  public transitionMode(mode: WorkMode): void {
+    const day = this.context.player.gameDay;
+    if (!day || day.eventHistory.some((entry) => entry.kind === 'MODE_TRANSITION' && entry.occurredAt === this.clock.now() && entry.eventId === mode)) return;
+    const durations = { ...day.durations };
+    const previousStart = [...day.eventHistory].reverse().find((entry) => entry.kind === 'MODE_TRANSITION')?.occurredAt ?? day.startedAt;
+    const previousMode = this.context.player.workMode;
+    durations[previousMode.toLowerCase() as 'work' | 'fishing' | 'cultivating' | 'social'] += Math.max(0, Math.floor((this.clock.now() - previousStart) / 1000));
+    this.context.player.workMode = mode;
+    this.context.player.gameDay = { ...day, durations, eventHistory: [...day.eventHistory, { id: `mode_${this.clock.now()}`, kind: 'MODE_TRANSITION', occurredAt: this.clock.now(), eventId: mode }] };
+  }
+
+  public recordEventInterval(kind: 'MEETING' | 'INCIDENT', eventId: string, startedAt: number, endedAt: number): void {
+    const day = this.context.player.gameDay;
+    if (!day || endedAt <= startedAt) return;
+    const durations = { ...day.durations };
+    if (kind === 'MEETING') durations.meeting += Math.floor((endedAt - startedAt) / 1000);
+    else durations.incident += Math.floor((endedAt - startedAt) / 1000);
+    this.context.player.gameDay = { ...day, durations, eventHistory: [...day.eventHistory, { id: `${eventId}_${startedAt}`, kind: 'EVENT', occurredAt: startedAt, eventId }] };
+  }
+
+  public setOvertimeState(source: import('../model/save-data').OvertimeSource, status: import('../model/save-data').OvertimeStatus, free: boolean): void {
+    const day = this.context.player.gameDay;
+    if (day) this.context.player.gameDay = { ...day, overtimeSource: source, overtimeStatus: status, overtimeFree: free };
+  }
+
+  public recordSettlementInput(input: Partial<GameDayState['settlementInputs']>): void {
+    const day = this.context.player.gameDay;
+    if (day) this.context.player.gameDay = { ...day, settlementInputs: { ...day.settlementInputs, ...input } };
   }
 
   public addIncome(kind: 'salary' | 'cultivation' | 'performance', amount: number): void {

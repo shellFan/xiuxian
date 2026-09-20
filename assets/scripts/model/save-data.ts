@@ -1,4 +1,4 @@
-export const CURRENT_SAVE_VERSION = 6;
+export const CURRENT_SAVE_VERSION = 7;
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -30,7 +30,14 @@ export interface ActivityDurationsState {
   social: number;
   meeting: number;
   lunch: number;
+  overtime: number;
+  incident: number;
 }
+
+export type OvertimeSource = 'VOLUNTARY' | 'REQUESTED' | 'FORCED' | 'EMERGENCY' | 'WEEKEND' | 'COMPENSATED' | null;
+export type OvertimeStatus = 'NONE' | 'OFFERED' | 'ACTIVE' | 'COMPLETED';
+export interface WorkTimelineEntry { id: string; kind: 'MODE_TRANSITION' | 'EVENT'; occurredAt: number; eventId?: string; }
+export interface OvertimeStats { totalSeconds: number; paidSeconds: number; freeSeconds: number; sessions: number; consecutiveDays: number; longestStreak: number; }
 
 /** 单个工作日的持久化状态。 */
 export interface GameDayState {
@@ -48,6 +55,11 @@ export interface GameDayState {
   materialsGained: number;
   /** 今日局势 modifier id（公司/老板/项目/个人 各一条）。 */
   situationIds: string[];
+  overtimeSource: OvertimeSource;
+  overtimeStatus: OvertimeStatus;
+  overtimeFree: boolean;
+  settlementInputs: { paidFishingSalary: number };
+  eventHistory: WorkTimelineEntry[];
 }
 
 /** 离线积压的重要选择事件。 */
@@ -184,4 +196,6 @@ export interface GameSaveData {
   readonly cultivatingSeconds?: number;
   readonly socialSeconds?: number;
   readonly performanceRemainder?: number;
+  readonly compTime?: number;
+  readonly overtimeStats?: OvertimeStats;
 }

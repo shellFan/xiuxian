@@ -154,7 +154,25 @@ function migrate(raw: unknown): GameSaveData {
     cultivatingSeconds: isNonNegativeSafeInteger(raw.cultivatingSeconds) ? raw.cultivatingSeconds : 0,
     socialSeconds: isNonNegativeSafeInteger(raw.socialSeconds) ? raw.socialSeconds : 0,
   };
-  return Object.assign(data, v2);
+  const merged = Object.assign(data, v2);
+  const overtimeStats = isRecord(raw.overtimeStats) ? raw.overtimeStats : {};
+  Object.assign(merged, {
+    compTime: isNonNegativeSafeInteger(raw.compTime) ? raw.compTime : 0,
+    overtimeStats: {
+      totalSeconds: isNonNegativeSafeInteger(overtimeStats.totalSeconds) ? overtimeStats.totalSeconds : 0,
+      paidSeconds: isNonNegativeSafeInteger(overtimeStats.paidSeconds) ? overtimeStats.paidSeconds : 0,
+      freeSeconds: isNonNegativeSafeInteger(overtimeStats.freeSeconds) ? overtimeStats.freeSeconds : 0,
+      sessions: isNonNegativeSafeInteger(overtimeStats.sessions) ? overtimeStats.sessions : 0,
+      consecutiveDays: isNonNegativeSafeInteger(overtimeStats.consecutiveDays) ? overtimeStats.consecutiveDays : 0,
+      longestStreak: isNonNegativeSafeInteger(overtimeStats.longestStreak) ? overtimeStats.longestStreak : 0,
+    },
+  });
+  if (merged.gameDay) {
+    const day = merged.gameDay as any;
+    if (!isRecord(day.durations) || !isNonNegativeSafeInteger(day.dayIndex) || !isNonNegativeSafeInteger(day.weekday) || day.weekday > 6) merged.gameDay = null;
+    else merged.gameDay = { ...day, durations: { work: 0, fishing: 0, cultivating: 0, social: 0, meeting: 0, lunch: 0, overtime: 0, incident: 0, ...day.durations }, overtimeSource: day.overtimeSource ?? null, overtimeStatus: day.overtimeStatus ?? 'NONE', overtimeFree: day.overtimeFree === true, settlementInputs: { paidFishingSalary: isNonNegativeSafeInteger(day.settlementInputs?.paidFishingSalary) ? day.settlementInputs.paidFishingSalary : 0 }, eventHistory: Array.isArray(day.eventHistory) ? day.eventHistory.filter((entry: unknown) => isRecord(entry) && typeof entry.id === 'string' && (entry.kind === 'MODE_TRANSITION' || entry.kind === 'EVENT') && isNonNegativeSafeInteger(entry.occurredAt)).map((entry: any) => ({ ...entry })) : [] };
+  }
+  return merged;
 }
 
 /** Non-optional V2 fields set by migrate() for old saves. */
@@ -203,7 +221,7 @@ function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultiva
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {
-  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'FIRST_RECRUIT', tutorialCompleted: data.tutorialCompleted ?? false, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })) };
+  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'FIRST_RECRUIT', tutorialCompleted: data.tutorialCompleted ?? false, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })), overtimeStats: data.overtimeStats ? { ...data.overtimeStats } : undefined, gameDay: data.gameDay ? { ...data.gameDay, durations: { ...data.gameDay.durations }, income: { ...data.gameDay.income }, situationIds: [...data.gameDay.situationIds], settlementInputs: { ...data.gameDay.settlementInputs }, eventHistory: data.gameDay.eventHistory.map((entry) => ({ ...entry })) } : null };
 }
 
 function isWorker(value: unknown): value is WorkerSaveData {
