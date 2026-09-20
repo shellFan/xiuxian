@@ -122,6 +122,18 @@ export class WorkService {
       this.context.player.salaryRemainder = salaryResult.remainder;
       this.context.player.cultivationRemainder = cultivationResult.remainder;
       this.context.player[mindRemainderKey] = mindResult.remainder;
+      // V4: 实时工资全额记入当日结算账本（此前仅事件工资入账，日报少记普通工资）。
+      if (salary > 0) this.context.gameDay.addIncome('salary', salary);
+      if (cultivationExp > 0) this.context.gameDay.addIncome('cultivation', cultivationExp);
+      // 摸鱼工资单独沉淀为结算输入（日报"带薪摸鱼收入"）。
+      if (salary > 0 && mode === 'FISHING') {
+        const inputs = this.context.player.gameDay?.settlementInputs;
+        this.context.gameDay.recordSettlementInput({ paidFishingSalary: (inputs?.paidFishingSalary ?? 0) + salary });
+        this.context.player.lifetimeStats = {
+          ...this.context.player.lifetimeStats,
+          paidFishingSalary: (this.context.player.lifetimeStats.paidFishingSalary ?? 0) + salary,
+        };
+      }
       // Update daily task progress for time-based tasks (absolute value from player state).
       if (mode === 'WORK') {
         this.context.dailyTasks.setProgress('WORK_10_MIN', nextSeconds);

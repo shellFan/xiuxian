@@ -266,7 +266,7 @@ function testOldSaveMigrationV2Fields(): void {
   storage.setItem(DEFAULT_SAVE_KEY, JSON.stringify(v1Save));
   const saveService = new SaveService(storage);
   const loaded = saveService.load();
-  assert.equal(loaded.saveVersion, 7, 'migrated to v7');
+  assert.equal(loaded.saveVersion, 8, 'migrated to v8');
   assert.equal(loaded.innerDemon, 0);
   assert.deepEqual(loaded.materials, {});
   assert.equal(loaded.gameDay, null);
@@ -279,7 +279,7 @@ function testCorruptSaveFallsBackToDefault(): void {
   storage.setItem(DEFAULT_SAVE_KEY, '{broken json');
   const saveService = new SaveService(storage);
   const loaded = saveService.load();
-  assert.equal(loaded.saveVersion, 7);
+  assert.equal(loaded.saveVersion, 8);
   assert.equal(loaded.salary, 0);
 }
 

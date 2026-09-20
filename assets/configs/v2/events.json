@@ -35,7 +35,7 @@
     {
      "id": "IGNORE",
      "text": "敬而远之",
-     "successChance": {
+     "effects": {
       "mind": 3,
       "setFlags": [
        "legacy_untouched"
@@ -80,7 +80,7 @@
     {
      "id": "WAIT",
      "text": "再观察观察",
-     "successChance": {
+     "effects": {
       "mind": -3
      },
      "resultText": "它又安静了。你知道这只是暴风雨前的礼貌。"
@@ -205,7 +205,7 @@
     {
      "id": "CHECK",
      "text": "主动看监控",
-     "successChance": {
+     "effects": {
       "performance": 5,
       "setFlags": [
        "incident_checked"
@@ -216,7 +216,7 @@
     {
      "id": "SILENT",
      "text": "装作没看见",
-     "successChance": {
+     "effects": {
       "mind": -5,
       "setFlags": [
        "incident_ignored"
@@ -310,7 +310,7 @@
     {
      "id": "QUIET",
      "text": "沉默记笔记",
-     "successChance": {
+     "effects": {
       "mind": 2
      },
      "resultText": "你在笔记本上写下\"加强意识\"四个字，画了个圈。"
@@ -351,7 +351,7 @@
     {
      "id": "BELIEVE",
      "text": "认真听讲",
-     "successChance": {
+     "effects": {
       "cultivation": 15,
       "mind": -5,
       "setFlags": [
@@ -363,7 +363,7 @@
     {
      "id": "NOD",
      "text": "熟练点头",
-     "successChance": {
+     "effects": {
       "mind": 3,
       "relationship": {
        "BOSS": 3
@@ -390,7 +390,7 @@
     {
      "id": "CHEER",
      "text": "跟着鼓掌",
-     "successChance": {
+     "effects": {
       "mind": 2,
       "relationship": {
        "BOSS": 4
@@ -401,7 +401,7 @@
     {
      "id": "CALCULATE",
      "text": "默默算期权行权价",
-     "successChance": {
+     "effects": {
       "cultivation": 10,
       "mind": -4
      },
@@ -423,7 +423,7 @@
     {
      "id": "ACCEPT",
      "text": "理解公司",
-     "successChance": {
+     "effects": {
       "mind": -8,
       "innerDemon": 5
      },
@@ -524,7 +524,7 @@
     {
      "id": "ACCEPT",
      "text": "好的收到",
-     "successChance": {
+     "effects": {
       "mind": -3
      },
      "resultText": "你说\"好的\"。这两个字你练了三年。"
@@ -562,7 +562,7 @@
     {
      "id": "COMPLY",
      "text": "默默改掉",
-     "successChance": {
+     "effects": {
       "mind": -5,
       "cultivation": 8
      },
@@ -641,7 +641,7 @@
     {
      "id": "SKIP",
      "text": "忍住",
-     "successChance": {
+     "effects": {
       "mind": 2
      },
      "resultText": "你用了第二个隔间。平凡，但安全。"
@@ -680,7 +680,7 @@
     {
      "id": "SHARE",
      "text": "约定轮流使用",
-     "successChance": {
+     "effects": {
       "relationship": {
        "JUNIOR": 8
       },
@@ -761,7 +761,7 @@
     {
      "id": "CLOSE",
      "text": "默默关掉页面",
-     "successChance": {
+     "effects": {
       "mind": 2
      },
      "resultText": "好奇心害死的猫，尸体现在还在你脑子里。"
@@ -799,7 +799,7 @@
     {
      "id": "DELETE",
      "text": "删除本地克隆",
-     "successChance": {
+     "effects": {
       "mind": -3,
       "setFlags": [
        "git_deleted"
@@ -862,7 +862,7 @@
     {
      "id": "WORK",
      "text": "用加班表明价值",
-     "successChance": {
+     "effects": {
       "performance": 15,
       "mind": -8,
       "innerDemon": 5
@@ -901,7 +901,7 @@
     {
      "id": "UPDATE",
      "text": "深夜更新简历",
-     "successChance": {
+     "effects": {
       "mind": 5,
       "setFlags": [
        "resume_v2"
@@ -1087,7 +1087,7 @@
     {
      "id": "LINK",
      "text": "甩一个文档链接",
-     "successChance": {
+     "effects": {
       "relationship": {
        "JUNIOR": -3
       },
@@ -1154,7 +1154,7 @@
     {
      "id": "BUSY",
      "text": "最近太忙了",
-     "successChance": {
+     "effects": {
       "relationship": {
        "JUNIOR": -8
       },
@@ -1178,7 +1178,7 @@
     {
      "id": "LEARN",
      "text": "虚心求教",
-     "successChance": {
+     "effects": {
       "cultivation": 20,
       "relationship": {
        "VETERAN": 10
@@ -1192,7 +1192,7 @@
     {
      "id": "DECLINE",
      "text": "手头有活",
-     "successChance": {
+     "effects": {
       "relationship": {
        "VETERAN": -5
       }
@@ -1218,7 +1218,7 @@
     {
      "id": "STUDY",
      "text": "认真记笔记",
-     "successChance": {
+     "effects": {
       "cultivation": 15,
       "mind": 3,
       "relationship": {
@@ -1296,7 +1296,7 @@
     {
      "id": "NOD",
      "text": "没什么阻塞",
-     "successChance": {
+     "effects": {
       "mind": 1
      },
      "resultText": "轮到你了。你说\"没什么阻塞\"。会开完了。"
@@ -1345,7 +1345,7 @@
     {
      "id": "ELABORATE",
      "text": "精心制作",
-     "successChance": {
+     "effects": {
       "performance": 10,
       "mind": -8,
       "material": {
@@ -1358,7 +1358,7 @@
     {
      "id": "MINIMAL",
      "text": "能看就行",
-     "successChance": {
+     "effects": {
       "performance": 4,
       "mind": -3,
       "material": {
@@ -1446,7 +1446,7 @@
     {
      "id": "OWN",
      "text": "先扛下来",
-     "successChance": {
+     "effects": {
       "mind": -10,
       "innerDemon": 8,
       "relationship": {
@@ -1520,7 +1520,7 @@
     {
      "id": "REFUSE",
      "text": "排期下个迭代",
-     "successChance": {
+     "effects": {
       "relationship": {
        "PRODUCT": -4
       },
@@ -1671,7 +1671,7 @@
     {
      "id": "POLITE",
      "text": "全部满意",
-     "successChance": {
+     "effects": {
       "relationship": {
        "HR": 3
       },
@@ -1722,7 +1722,7 @@
     {
      "id": "ASK",
      "text": "问他去哪",
-     "successChance": {
+     "effects": {
       "mind": -3,
       "cultivation": 5,
       "setFlags": [
@@ -1734,7 +1734,7 @@
     {
      "id": "BLESS",
      "text": "只说恭喜",
-     "successChance": {
+     "effects": {
       "mind": 2
      },
      "resultText": "你说\"恭喜\"。这两个字里有三分真心，七分羡慕。"
@@ -1895,7 +1895,7 @@
     {
      "id": "TAME",
      "text": "供奉起来",
-     "successChance": {
+     "effects": {
       "mind": 2,
       "cultivation": 10
      },
@@ -1963,7 +1963,7 @@
     {
      "id": "OBEY",
      "text": "听未来自己的",
-     "successChance": {
+     "effects": {
       "mind": 5,
       "cultivation": 10,
       "setFlags": [
@@ -1975,7 +1975,7 @@
     {
      "id": "DEFY",
      "text": "偏要升职",
-     "successChance": {
+     "effects": {
       "performance": 15,
       "mind": -5
      },
@@ -2293,7 +2293,7 @@
     {
      "id": "LISTEN",
      "text": "等他说",
-     "successChance": {
+     "effects": {
       "relationship": {
        "BOSS": 3
       }
@@ -2391,7 +2391,7 @@
     {
      "id": "SILENT",
      "text": "保持沉默",
-     "successChance": {
+     "effects": {
       "mind": 2
      },
      "resultText": "你全程微笑。会后需求文档多了两页。"
@@ -2425,7 +2425,7 @@
     {
      "id": "PRECHECK",
      "text": "提前自查",
-     "successChance": {
+     "effects": {
       "performance": 8,
       "relationship": {
        "TESTER": 6
@@ -2482,7 +2482,7 @@
     {
      "id": "TEACH",
      "text": "传授三成",
-     "successChance": {
+     "effects": {
       "relationship": {
        "JUNIOR": 8
       },
@@ -2494,7 +2494,7 @@
     {
      "id": "REFUSE",
      "text": "这个不能教",
-     "successChance": {
+     "effects": {
       "relationship": {
        "JUNIOR": -4
       }
@@ -2550,7 +2550,7 @@
     {
      "id": "HEED",
      "text": "听劝",
-     "successChance": {
+     "effects": {
       "mind": 3,
       "relationship": {
        "VETERAN": 5
@@ -2607,7 +2607,7 @@
     {
      "id": "SAFE",
      "text": "标准答案",
-     "successChance": {
+     "effects": {
       "relationship": {
        "HR": 2
       }
@@ -2690,7 +2690,7 @@
     {
      "id": "REPLY",
      "text": "发简历看看",
-     "successChance": {
+     "effects": {
       "mind": -5,
       "cultivation": 10,
       "setFlags": [
@@ -2702,7 +2702,7 @@
     {
      "id": "STAY",
      "text": "再也不是",
-     "successChance": {
+     "effects": {
       "mind": 5,
       "relationship": {
        "BOSS": 2
@@ -2919,7 +2919,7 @@
     {
      "id": "PET",
      "text": "rua一把",
-     "successChance": {
+     "effects": {
       "mind": 10,
       "cultivation": 5
      },

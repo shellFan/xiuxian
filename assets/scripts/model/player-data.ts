@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -67,6 +67,14 @@ export interface PlayerDataOptions {
   readonly overtimeStats?: OvertimeStats;
   readonly lastOvertimeWorkdayStartAt?: number;
   readonly overtimeFatigue?: OvertimeFatigueState;
+  // ── Gameplay V4 ──
+  readonly activeOvertimeSession?: OvertimeSessionState | null;
+  readonly evidence?: readonly EvidenceItemState[];
+  readonly responsibilityCases?: readonly ResponsibilityCaseState[];
+  readonly incidents?: readonly IncidentState[];
+  readonly technicalDebt?: Readonly<Record<string, number>>;
+  readonly assignedTasks?: readonly AssignedTaskState[];
+  readonly lifetimeStats?: Readonly<Record<string, number>>;
 }
 
 export class PlayerData {
@@ -149,6 +157,14 @@ export class PlayerData {
   public overtimeStats: OvertimeStats;
   public lastOvertimeWorkdayStartAt: number;
   public overtimeFatigue: OvertimeFatigueState;
+  // ── Gameplay V4 ──
+  public activeOvertimeSession: OvertimeSessionState | null;
+  public evidence: EvidenceItemState[];
+  public responsibilityCases: ResponsibilityCaseState[];
+  public incidents: IncidentState[];
+  public technicalDebt: Record<string, number>;
+  public assignedTasks: AssignedTaskState[];
+  public lifetimeStats: Record<string, number>;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -214,6 +230,13 @@ export class PlayerData {
     this.overtimeStats = { totalSeconds: 0, paidSeconds: 0, freeSeconds: 0, sessions: 0, nightSessions: 0, freeSessions: 0, consecutiveDays: 0, longestStreak: 0, ...(options.overtimeStats ?? {}) };
     this.lastOvertimeWorkdayStartAt = Number.isSafeInteger(options.lastOvertimeWorkdayStartAt) && options.lastOvertimeWorkdayStartAt! >= 0 ? options.lastOvertimeWorkdayStartAt! : 0;
     this.overtimeFatigue = options.overtimeFatigue === 'EXHAUSTED' || options.overtimeFatigue === 'TIRED' ? options.overtimeFatigue : 'RESTED';
+    this.activeOvertimeSession = sanitizeSession(options.activeOvertimeSession);
+    this.evidence = [...(options.evidence ?? [])];
+    this.responsibilityCases = [...(options.responsibilityCases ?? [])];
+    this.incidents = [...(options.incidents ?? [])];
+    this.technicalDebt = sanitizeDebt(options.technicalDebt);
+    this.assignedTasks = [...(options.assignedTasks ?? [])];
+    this.lifetimeStats = sanitizeLifetime(options.lifetimeStats);
   }
 
   public static createDefault(): PlayerData {
@@ -267,6 +290,13 @@ export class PlayerData {
       overtimeStats: { ...this.overtimeStats },
       lastOvertimeWorkdayStartAt: this.lastOvertimeWorkdayStartAt,
       overtimeFatigue: this.overtimeFatigue,
+      activeOvertimeSession: this.activeOvertimeSession ? { ...this.activeOvertimeSession } : null,
+      evidence: this.evidence.map((e) => ({ ...e })),
+      responsibilityCases: this.responsibilityCases.map((c) => ({ ...c, evidenceIds: [...c.evidenceIds], relationshipEffects: { ...c.relationshipEffects } })),
+      incidents: this.incidents.map((i) => ({ ...i })),
+      technicalDebt: { ...this.technicalDebt },
+      assignedTasks: this.assignedTasks.map((t) => ({ ...t })),
+      lifetimeStats: { ...this.lifetimeStats },
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
@@ -287,6 +317,36 @@ function normalizeRemainder(value: number | undefined): number {
 function clampInt(value: number | undefined, min: number, max: number, fallback: number): number {
   if (value === undefined || !Number.isFinite(value)) return fallback;
   return Math.min(max, Math.max(min, Math.floor(value)));
+}
+
+function sanitizeSession(session: OvertimeSessionState | null | undefined): OvertimeSessionState | null {
+  if (!session || typeof session !== 'object') return null;
+  if (!session.source || typeof session.plannedSeconds !== 'number' || session.plannedSeconds <= 0) return null;
+  return {
+    source: session.source,
+    free: session.free === true,
+    plannedSeconds: Math.max(0, Math.floor(session.plannedSeconds)),
+    elapsedSeconds: Math.max(0, Math.floor(session.elapsedSeconds ?? 0)),
+    mode: session.mode ?? null,
+    status: session.status === 'ACTIVE' ? 'ACTIVE' : 'OFFERED',
+    startedAt: typeof session.startedAt === 'number' ? session.startedAt : null,
+  };
+}
+
+function sanitizeDebt(debt: Readonly<Record<string, number>> | undefined): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [domain, value] of Object.entries(debt ?? {})) {
+    if (typeof value === 'number' && Number.isFinite(value)) out[domain] = Math.min(100, Math.max(0, Math.floor(value)));
+  }
+  return out;
+}
+
+function sanitizeLifetime(stats: Readonly<Record<string, number>> | undefined): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [key, value] of Object.entries(stats ?? {})) {
+    if (typeof value === 'number' && Number.isFinite(value)) out[key] = Math.max(0, Math.floor(value));
+  }
+  return out;
 }
 
 function cloneGameDay(day: GameDayState): GameDayState {

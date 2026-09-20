@@ -176,6 +176,16 @@ function migrate(raw: unknown): GameSaveData {
     if (!isRecord(day.durations) || !isNonNegativeSafeInteger(day.dayIndex) || !isNonNegativeSafeInteger(day.weekday) || day.weekday > 6) merged.gameDay = null;
     else merged.gameDay = { ...day, durations: { work: 0, fishing: 0, cultivating: 0, social: 0, meeting: 0, lunch: 0, overtime: 0, incident: 0, ...day.durations }, overtimeSource: day.overtimeSource ?? null, overtimeStatus: day.overtimeStatus ?? 'NONE', overtimeFree: day.overtimeFree === true, settlementInputs: { paidFishingSalary: isNonNegativeSafeInteger(day.settlementInputs?.paidFishingSalary) ? day.settlementInputs.paidFishingSalary : 0 }, eventHistory: Array.isArray(day.eventHistory) ? day.eventHistory.filter((entry: unknown) => isRecord(entry) && typeof entry.id === 'string' && (entry.kind === 'MODE_TRANSITION' || entry.kind === 'EVENT') && isNonNegativeSafeInteger(entry.occurredAt)).map((entry: any) => ({ ...entry })) : [] };
   }
+  // ── Gameplay V4 (saveVersion 8): 职场地狱字段，旧存档安全默认值 ──
+  Object.assign(merged, {
+    activeOvertimeSession: isOvertimeSessionState(raw.activeOvertimeSession) ? raw.activeOvertimeSession : null,
+    evidence: Array.isArray(raw.evidence) ? (raw.evidence as unknown[]).filter(isEvidenceItem).map((e) => ({ ...e })) : [],
+    responsibilityCases: Array.isArray(raw.responsibilityCases) ? (raw.responsibilityCases as unknown[]).filter(isResponsibilityCase).map((c) => ({ ...c })) : [],
+    incidents: Array.isArray(raw.incidents) ? (raw.incidents as unknown[]).filter(isIncidentState).map((i) => ({ ...i })) : [],
+    technicalDebt: isRecord(raw.technicalDebt) ? boundedNumberRecord(raw.technicalDebt) : {},
+    assignedTasks: Array.isArray(raw.assignedTasks) ? (raw.assignedTasks as unknown[]).filter(isAssignedTask).map((t) => ({ ...t })) : [],
+    lifetimeStats: isRecord(raw.lifetimeStats) ? numericRecord(raw.lifetimeStats) : {},
+  });
   return merged;
 }
 
@@ -219,6 +229,63 @@ function isPendingEvent(value: unknown): value is import('../model/save-data').P
   return typeof value.uid === 'string' && typeof value.eventId === 'string'
     && isNonNegativeSafeInteger(value.occurredAt)
     && (value.priority === 'CRITICAL' || value.priority === 'IMPORTANT' || value.priority === 'NORMAL' || value.priority === 'FLAVOR');
+}
+
+function isOvertimeSessionState(value: unknown): value is import('../model/save-data').OvertimeSessionState {
+  if (!isRecord(value)) return false;
+  const source = value.source;
+  const sourceOk = source === 'VOLUNTARY' || source === 'REQUESTED' || source === 'FORCED' || source === 'EMERGENCY' || source === 'WEEKEND' || source === 'COMPENSATED';
+  return sourceOk
+    && typeof value.free === 'boolean'
+    && isPositiveSafeInteger(value.plannedSeconds)
+    && isNonNegativeSafeInteger(value.elapsedSeconds)
+    && (value.status === 'OFFERED' || value.status === 'ACTIVE')
+    && (value.startedAt === null || isNonNegativeSafeInteger(value.startedAt));
+}
+
+function isEvidenceItem(value: unknown): value is import('../model/save-data').EvidenceItemState {
+  if (!isRecord(value)) return false;
+  return typeof value.id === 'string'
+    && typeof value.type === 'string'
+    && typeof value.label === 'string'
+    && isNonNegativeSafeInteger(value.dayIndex)
+    && isNonNegativeSafeInteger(value.createdAt);
+}
+
+function isResponsibilityCase(value: unknown): value is import('../model/save-data').ResponsibilityCaseState {
+  if (!isRecord(value)) return false;
+  return typeof value.id === 'string'
+    && isPositiveSafeInteger(value.createdDay)
+    && isNonNegativeSafeInteger(value.createdAt)
+    && typeof value.sourceNpc === 'string'
+    && typeof value.actualOwnerNpc === 'string'
+    && typeof value.cause === 'string'
+    && typeof value.status === 'string';
+}
+
+function isIncidentState(value: unknown): value is import('../model/save-data').IncidentState {
+  if (!isRecord(value)) return false;
+  return typeof value.id === 'string'
+    && typeof value.type === 'string'
+    && typeof value.severity === 'string'
+    && isPositiveSafeInteger(value.dayIndex)
+    && isNonNegativeSafeInteger(value.createdAt)
+    && typeof value.status === 'string'
+    && typeof value.forcedRelease === 'boolean'
+    && typeof value.riskConfirmed === 'boolean'
+    && isNonNegativeSafeInteger(value.mitigationSeconds);
+}
+
+function isAssignedTask(value: unknown): value is import('../model/save-data').AssignedTaskState {
+  if (!isRecord(value)) return false;
+  return typeof value.id === 'string'
+    && typeof value.title === 'string'
+    && typeof value.priority === 'string'
+    && typeof value.source === 'string'
+    && isPositiveSafeInteger(value.createdDay)
+    && isNonNegativeSafeInteger(value.createdAt)
+    && typeof value.status === 'string'
+    && typeof value.isFakeP0 === 'boolean';
 }
 
 function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultivationRemainder' | 'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder' | 'mindRemainder', value: number): void {

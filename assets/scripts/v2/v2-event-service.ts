@@ -87,6 +87,8 @@ export class V2EventService {
       ownedTechniques: [...p.ownedTechniques],
       ownedEquipment: [...p.ownedEquipment],
       eventFlags: { ...p.eventFlags },
+      eventWeights: { ...this.gameDay.aggregateEffects().eventWeights },
+      evidenceTypes: this.context.evidence.heldTypes(),
     };
   }
 
@@ -290,6 +292,39 @@ export class V2EventService {
     if (effects.promotionCooldownDays) {
       p.eventFlags[`promoCooldownUntil:${Date.now() + effects.promotionCooldownDays * 86_400_000}`] = true;
     }
+    // ── V4 职场地狱效果 ──
+    if (effects.evidence) {
+      this.context.evidence.grant(
+        effects.evidence.type as Parameters<typeof this.context.evidence.grant>[0],
+        effects.evidence.label,
+      );
+    }
+    if (effects.assignTask) {
+      this.context.assignedTasks.assign(effects.assignTask);
+    }
+    if (effects.openCase) {
+      this.context.responsibility.openCase(effects.openCase);
+    }
+    if (effects.raiseIncident && !this.context.incidents.active()) {
+      const risk = this.context.incidents.currentRisk();
+      // raiseIncident 表示剧情必然而至；risk<0.5 时降一档严重度，模拟"运气好"。
+      const severity = downgradeSeverity(effects.raiseIncident.severity, risk < 0.5);
+      this.context.incidents.raise({
+        ...effects.raiseIncident,
+        severity,
+        type: effects.raiseIncident.type as Parameters<typeof this.context.incidents.raise>[0]['type'],
+      });
+    }
+    if (effects.techDebt) {
+      for (const [domain, delta] of Object.entries(effects.techDebt)) {
+        this.context.techDebt.add(domain, delta);
+      }
+    }
+    if (effects.startOvertime && !this.context.overtime.current()) {
+      const { source, free, plannedMinutes } = effects.startOvertime;
+      this.context.overtime.offer(source, free, Math.max(1, Math.floor(plannedMinutes)) * 60);
+      this.context.overtime.accept(p.workMode);
+    }
   }
 
   /** 离线恢复时分流积压事件（§41：最多 5 个重要，其余自动结算）。 */
@@ -326,4 +361,14 @@ function classifyImpact(effects: EventEffects): 'NEGATIVE' | 'NEUTRAL' | 'POSITI
   if (score < 0) return 'NEGATIVE';
   if (score > 0) return 'POSITIVE';
   return 'NEUTRAL';
+}
+
+/** 严重度降一档（运气好/风险低时事故更轻）。 */
+function downgradeSeverity(severity: 'S1' | 'S2' | 'S3' | 'S4', downgrade: boolean): 'S1' | 'S2' | 'S3' | 'S4' {
+  if (!downgrade) return severity;
+  switch (severity) {
+    case 'S1': return 'S2';
+    case 'S2': return 'S3';
+    default: return 'S4';
+  }
 }

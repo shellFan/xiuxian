@@ -1,4 +1,4 @@
-export const CURRENT_SAVE_VERSION = 7;
+export const CURRENT_SAVE_VERSION = 8;
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -39,6 +39,104 @@ export type OvertimeStatus = 'NONE' | 'OFFERED' | 'ACTIVE' | 'COMPLETED';
 export interface WorkTimelineEntry { id: string; kind: 'MODE_TRANSITION' | 'EVENT'; occurredAt: number; eventId?: string; }
 export interface OvertimeStats { totalSeconds: number; paidSeconds: number; freeSeconds: number; sessions: number; nightSessions: number; freeSessions: number; consecutiveDays: number; longestStreak: number; }
 export type OvertimeFatigueState = 'RESTED' | 'TIRED' | 'EXHAUSTED';
+
+/** 活跃/待接受加班会话的持久化形态（V4：重启后恢复，不允许靠重开清加班）。 */
+export interface OvertimeSessionState {
+  source: Exclude<OvertimeSource, null>;
+  free: boolean;
+  plannedSeconds: number;
+  elapsedSeconds: number;
+  mode: WorkMode | null;
+  status: 'OFFERED' | 'ACTIVE';
+  startedAt: number | null;
+}
+
+// ── Gameplay V4 职场地狱存档类型 ────────────────────────────────────────────
+
+export type EvidenceType =
+  | 'GIT_LOG' | 'CHAT_RECORD' | 'REQUIREMENT_DOC' | 'MEETING_NOTE' | 'EMAIL'
+  | 'TEST_REPORT' | 'DEPLOY_LOG' | 'MONITOR_LOG' | 'RISK_CONFIRMATION' | 'TICKET_HISTORY';
+
+export interface EvidenceItemState {
+  readonly id: string;
+  readonly type: EvidenceType;
+  readonly label: string;
+  readonly dayIndex: number;
+  readonly createdAt: number;
+}
+
+export type IncidentType =
+  | 'PAYMENT_FAILURE' | 'DATABASE_LOCK' | 'SLOW_SQL' | 'REDIS_OUTAGE' | 'CACHE_AVALANCHE'
+  | 'NGINX_502' | 'DISK_FULL' | 'CPU_HIGH' | 'OOM' | 'MESSAGE_BACKLOG'
+  | 'CERT_EXPIRED' | 'THIRD_PARTY_FAILURE' | 'BAD_DEPLOY' | 'CONFIG_ERROR';
+
+export type IncidentSeverity = 'S1' | 'S2' | 'S3' | 'S4';
+export type IncidentStatus = 'DETECTED' | 'MITIGATING' | 'RECOVERED' | 'POSTMORTEM_DONE' | 'CLOSED';
+
+export interface IncidentState {
+  readonly id: string;
+  readonly type: IncidentType;
+  readonly severity: IncidentSeverity;
+  readonly dayIndex: number;
+  readonly createdAt: number;
+  status: IncidentStatus;
+  /** 根因（复盘后填写）。 */
+  rootCause?: string;
+  /** 是否由强行上线/未测试发布引发（影响复盘责任判定）。 */
+  forcedRelease: boolean;
+  riskConfirmed: boolean;
+  mitigationSeconds: number;
+  /** 结案摘要。 */
+  summary?: string;
+}
+
+export type ResponsibilityStatus = 'OPEN' | 'DISPUTED' | 'PLAYER_ACCEPTED' | 'PLAYER_CLEARED' | 'RESOLVED';
+
+export interface ResponsibilityCaseState {
+  readonly id: string;
+  readonly createdDay: number;
+  readonly createdAt: number;
+  /** 甩锅来源 NPC。 */
+  readonly sourceNpc: string;
+  /** 真正责任人 NPC（可能就是玩家自己）。 */
+  readonly actualOwnerNpc: string;
+  /** 是否试图甩锅给玩家。 */
+  readonly blamedPlayer: boolean;
+  readonly cause: string;
+  readonly severity: IncidentSeverity;
+  readonly relatedTaskId?: string;
+  readonly relatedIncidentId?: string;
+  /** 支持玩家反击的证据 id。 */
+  evidenceIds: string[];
+  status: ResponsibilityStatus;
+  resolution?: string;
+  /** 结案时对玩家的绩效影响（正=反击成功/背锅有赏）。 */
+  performanceDelta: number;
+  relationshipEffects: Record<string, number>;
+}
+
+/** 技术债领域。 */
+export type TechDebtDomain = 'PAYMENT' | 'LOGIN' | 'ORDER' | 'REPORT' | 'MESSAGE' | 'DEPLOY' | 'INFRA';
+
+export type AssignedTaskPriority = 'P0' | 'P1' | 'P2' | 'P3';
+export type AssignedTaskSource = 'BOSS' | 'COLLEAGUE' | 'PRODUCT' | 'TEST' | 'CLIENT' | 'INCIDENT' | 'SYSTEM';
+
+export interface AssignedTaskState {
+  readonly id: string;
+  readonly title: string;
+  readonly detail?: string;
+  readonly priority: AssignedTaskPriority;
+  readonly source: AssignedTaskSource;
+  readonly createdDay: number;
+  readonly createdAt: number;
+  status: 'OPEN' | 'DONE' | 'REFUSED' | 'EXPIRED';
+  readonly rewardSalary: number;
+  readonly rewardPerformance: number;
+  readonly rewardCultivation: number;
+  readonly rewardMind: number;
+  /** 假 P0（拒绝才是对的）。 */
+  readonly isFakeP0: boolean;
+}
 
 /** 单个工作日的持久化状态。 */
 export interface GameDayState {
@@ -203,4 +301,20 @@ export interface GameSaveData {
   readonly lastOvertimeWorkdayStartAt?: number;
   /** Temporary after-effects from overtime; cleared by rest/recovery, never a currency. */
   readonly overtimeFatigue?: OvertimeFatigueState;
+
+  // ── Gameplay V4 字段（saveVersion 8；旧存档迁移时补默认值） ──
+  /** 进行中/待接受的加班会话（跨重启恢复）。 */
+  readonly activeOvertimeSession?: OvertimeSessionState | null;
+  /** 玩家持有的证据（解锁事件选项）。 */
+  readonly evidence?: readonly EvidenceItemState[];
+  /** 责任判定案件（甩锅/复盘）。 */
+  readonly responsibilityCases?: readonly ResponsibilityCaseState[];
+  /** 生产事故历史。 */
+  readonly incidents?: readonly IncidentState[];
+  /** 领域技术债（0~100）。 */
+  readonly technicalDebt?: Readonly<Record<string, number>>;
+  /** 被指派的临时任务（含假 P0）。 */
+  readonly assignedTasks?: readonly AssignedTaskState[];
+  /** 终身统计（牛马档案）：累计加班秒/摸鱼秒/背锅/反击/事故/Boss 等。 */
+  readonly lifetimeStats?: Readonly<Record<string, number>>;
 }

@@ -427,7 +427,7 @@ test('SaveServiceV2: load returns default when empty', () => {
   const storage = new MemoryStorageAdapter();
   const service = new SaveServiceV2(storage);
   const data = service.load();
-  assert.strictEqual(data.saveVersion, 7); // Work Today V3 schema bumped 6 → 7
+  assert.strictEqual(data.saveVersion, 8); // V4 workplace schema bumped 7 → 8
   assert.strictEqual(data.salary, 0);
 });
 

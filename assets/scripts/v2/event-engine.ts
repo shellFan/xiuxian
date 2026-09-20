@@ -20,6 +20,35 @@ export type EventCategory = 'WORK' | 'BOSS' | 'BUG' | 'PRODUCT' | 'NPC' | 'SECRE
 export type EventRarity = 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
 export type EventPriority = 'CRITICAL' | 'IMPORTANT' | 'NORMAL' | 'FLAVOR';
 
+/** V4：事件可以随手打开一个责任案件/指派任务/事故会话。 */
+export interface AssignedTaskEffectSpec {
+  readonly title: string;
+  readonly detail?: string;
+  readonly priority: 'P0' | 'P1' | 'P2' | 'P3';
+  readonly source: 'BOSS' | 'COLLEAGUE' | 'PRODUCT' | 'TEST' | 'CLIENT' | 'INCIDENT' | 'SYSTEM';
+  readonly rewardSalary?: number;
+  readonly rewardPerformance?: number;
+  readonly rewardCultivation?: number;
+  readonly rewardMind?: number;
+  readonly isFakeP0?: boolean;
+}
+
+export interface OpenCaseEffectSpec {
+  readonly sourceNpc: string;
+  readonly actualOwnerNpc: string;
+  readonly blamedPlayer?: boolean;
+  readonly cause: string;
+  readonly severity: 'S1' | 'S2' | 'S3' | 'S4';
+  readonly relatedIncidentId?: string;
+}
+
+export interface RaiseIncidentEffectSpec {
+  readonly type: string;
+  readonly severity: 'S1' | 'S2' | 'S3' | 'S4';
+  readonly forcedRelease?: boolean;
+  readonly riskConfirmed?: boolean;
+}
+
 export interface EventEffects {
   salary?: number;
   cultivation?: number;
@@ -48,6 +77,19 @@ export interface EventEffects {
   promotionModifier?: number;
   /** 晋升冷却天数。 */
   promotionCooldownDays?: number;
+  // ── V4 职场地狱扩展 ──
+  /** 获得证据（§18~§21：解锁事件选项 + 复盘定责）。 */
+  evidence?: { type: string; label: string };
+  /** 指派临时任务（§33~§40）。 */
+  assignTask?: AssignedTaskEffectSpec;
+  /** 打开责任案件（§15~§17）。 */
+  openCase?: OpenCaseEffectSpec;
+  /** 触发生产事故（§25）。 */
+  raiseIncident?: RaiseIncidentEffectSpec;
+  /** 技术债变化：domain → delta（§48~§50）。 */
+  techDebt?: Record<string, number>;
+  /** 直接开始一段加班会话（强制加班类事件）。 */
+  startOvertime?: { source: 'FORCED' | 'REQUESTED' | 'EMERGENCY' | 'COMPENSATED'; free: boolean; plannedMinutes: number };
 }
 
 export interface EventChoiceRequirements {
@@ -65,6 +107,8 @@ export interface EventChoiceRequirements {
   eventFlag?: string;
   minMind?: number;
   maxMind?: number;
+  /** V4：需要持有某类证据（§20 证据解锁选项）。 */
+  evidence?: string;
 }
 
 export interface EventChoice {
@@ -149,6 +193,10 @@ export interface EventWorldState {
   ownedTechniques: readonly string[];
   ownedEquipment: readonly string[];
   eventFlags: Record<string, boolean>;
+  /** 今日局势聚合出的事件类别权重（category → multiplier）。 */
+  eventWeights?: Record<string, number>;
+  /** V4：玩家持有的证据类型（evidence 门控）。 */
+  evidenceTypes?: readonly string[];
 }
 
 export function checkRequirements(req: EventChoiceRequirements | undefined, world: EventWorldState): boolean {
@@ -168,6 +216,7 @@ export function checkRequirements(req: EventChoiceRequirements | undefined, worl
     }
   }
   if (req.eventFlag && !world.eventFlags[req.eventFlag]) return false;
+  if (req.evidence && !(world.evidenceTypes ?? []).includes(req.evidence)) return false;
   if (req.minMind !== undefined && world.mind < req.minMind) return false;
   if (req.maxMind !== undefined && world.mind > req.maxMind) return false;
   return true;
@@ -268,12 +317,9 @@ export class EventScheduler {
 
     const weights = eligible.map((def) => {
       let weight = def.baseWeight;
-      // 局势权重放大
-      for (const sitId of world.situationIds) {
-        // situation eventWeights 按类别映射（由调用方聚合后写入 world.situationIds 无法携带数值，
-        // 实际数值加权在 GameDayService.aggregateEffects().eventWeights — 这里用 category 简化键）
-        void sitId;
-      }
+      // 局势权重放大：GameDayService.aggregateEffects().eventWeights 按 category 聚合。
+      const sitWeight = world.eventWeights?.[def.category];
+      if (sitWeight !== undefined && sitWeight > 0) weight *= sitWeight;
       // 负面连击保护：稀有/正面事件加权由调用方通过 world 传入（此处按 rarity 简化：负面连击时 RARE 加权）
       if (this.state.negativeStreak >= this.config.negativeStreakThreshold && (def.rarity === 'RARE' || def.rarity === 'EPIC')) {
         weight *= 1.5;

@@ -1,3 +1,4 @@
+import idleConfig from '../../configs/idle.json';
 import type { GameContext } from '../core/game-context';
 import type { OvertimeSource, WorkMode } from '../model/save-data';
 import type { GameDayService } from '../v2/game-day-service';
@@ -15,6 +16,12 @@ export interface OvertimeSession {
   readonly startedAt: number | null;
 }
 
+/** 付费加班工资倍率（§13：支持 1.0/1.5/2.0；周末与补偿按 2.0）。 */
+export function paidOvertimeMultiplier(source: Exclude<OvertimeSource, null>): number {
+  if (source === 'WEEKEND' || source === 'COMPENSATED') return 2.0;
+  return 1.5;
+}
+
 /**
  * Owns an explicit after-hours work decision.  The service intentionally does
  * not pay salary itself: free sessions can therefore never obtain an ordinary
@@ -22,13 +29,16 @@ export interface OvertimeSession {
  * configured compensation rules to paid sessions.
  */
 export class OvertimeService {
-  private session: OvertimeSession | null = null;
+  private session: OvertimeSession | null;
 
   public constructor(
     private readonly context: GameContext,
     private readonly clock: GameClockV2,
     private readonly gameDay: GameDayService,
-  ) {}
+  ) {
+    // V4: 会话随存档恢复——重启/Electron 重开不允许"洗掉"一次进行中的加班。
+    this.session = context.player.activeOvertimeSession ? { ...context.player.activeOvertimeSession } : null;
+  }
 
   public current(): OvertimeSession | null {
     return this.session ? { ...this.session } : null;
@@ -43,6 +53,7 @@ export class OvertimeService {
     if (this.session) throw new Error('已有待处理的加班');
     this.gameDay.ensureStarted();
     this.session = { source, free, plannedSeconds, elapsedSeconds: 0, mode: null, status: 'OFFERED', startedAt: null };
+    this.persist();
     this.gameDay.setOvertimeState(source, 'OFFERED', free);
     return this.current()!;
   }
@@ -50,6 +61,7 @@ export class OvertimeService {
   public accept(mode: WorkMode): OvertimeSession {
     if (!this.session || this.session.status !== 'OFFERED') throw new Error('没有可接受的加班');
     this.session = { ...this.session, mode, status: 'ACTIVE', startedAt: this.clock.now() };
+    this.persist();
     this.gameDay.setOvertimeState(this.session.source, 'ACTIVE', this.session.free);
     return this.current()!;
   }
@@ -71,6 +83,7 @@ export class OvertimeService {
     if (day) {
       this.context.player.gameDay = { ...day, durations: { ...day.durations, overtime: day.durations.overtime + elapsed } };
     }
+    this.persist();
     return this.current();
   }
 
@@ -80,7 +93,18 @@ export class OvertimeService {
     if (session.status !== 'ACTIVE' || session.elapsedSeconds <= 0) {
       this.gameDay.setOvertimeState(session.source, 'COMPLETED', session.free);
       this.session = null;
+      this.persist();
       return;
+    }
+    // 付费加班在结束时一次性发薪（免费加班永远是 0，§12/§176）。
+    if (!session.free) {
+      const pay = this.paidOvertimeSalary(session);
+      if (pay > 0) {
+        this.context.economy.applyIdleSalary(pay);
+        this.gameDay.addIncome('salary', pay);
+        this.context.kpi.recordSalaryEarned(pay);
+        this.context.events.emit('salaryChanged', { amount: pay, total: this.context.player.salary });
+      }
     }
     const stats = this.context.player.overtimeStats;
     const totalSeconds = stats.totalSeconds + session.elapsedSeconds;
@@ -103,8 +127,11 @@ export class OvertimeService {
     };
     if (session.elapsedSeconds > 0) this.context.player.lastOvertimeWorkdayStartAt = workdayStartAt;
     this.context.player.overtimeFatigue = this.fatigue();
+    this.bumpLifetime('overtimeSeconds', session.elapsedSeconds);
+    this.bumpLifetime(session.free ? 'freeOvertimeSessions' : 'paidOvertimeSessions', 1);
     this.gameDay.setOvertimeState(session.source, 'COMPLETED', session.free);
     this.session = null;
+    this.persist();
   }
 
   public fatigue(): OvertimeFatigue {
@@ -112,6 +139,13 @@ export class OvertimeService {
     const persisted = this.context.player.overtimeFatigue;
     const severity: Record<OvertimeFatigue, number> = { RESTED: 0, TIRED: 1, EXHAUSTED: 2 };
     return severity[current] > severity[persisted] ? current : persisted;
+  }
+
+  /** 付费加班一次性工资：职业时薪 × 倍率 × 实际时长（免费永远 0）。 */
+  public paidOvertimeSalary(session: OvertimeSession): number {
+    if (session.free || session.elapsedSeconds <= 0) return 0;
+    const ratePerSecond = paidOvertimeBaseRatePerSecond(this.context);
+    return Math.floor(ratePerSecond * session.elapsedSeconds * paidOvertimeMultiplier(session.source));
   }
 
   /** Count only recorded work, not an unobserved clock jump or the planned duration. */
@@ -125,6 +159,15 @@ export class OvertimeService {
     return session.startedAt + session.elapsedSeconds * 1000 > nightStart.getTime();
   }
 
+  private bumpLifetime(key: string, delta: number): void {
+    const stats = this.context.player.lifetimeStats;
+    this.context.player.lifetimeStats = { ...stats, [key]: (stats[key] ?? 0) + delta };
+  }
+
+  private persist(): void {
+    this.context.player.activeOvertimeSession = this.session ? { ...this.session } : null;
+  }
+
   private assertDuration(seconds: number): void {
     if (!Number.isSafeInteger(seconds) || seconds <= 0) throw new Error('Invalid overtime duration');
   }
@@ -134,4 +177,12 @@ function fatigueForSeconds(seconds: number): OvertimeFatigue {
   if (seconds >= 8 * 3600) return 'EXHAUSTED';
   if (seconds >= 2 * 3600) return 'TIRED';
   return 'RESTED';
+}
+
+/** 职业等级决定的时薪（与 WorkService 的 rateForBoard 同源）。 */
+function paidOvertimeBaseRatePerSecond(context: GameContext): number {
+  const list = idleConfig.salaryPerHour;
+  const levelIndex = Math.min(Math.max(1, context.player.careerLevel) - 1, list.length - 1);
+  const perHour = list[levelIndex] ?? list[0] ?? 0;
+  return perHour / 3600;
 }

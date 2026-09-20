@@ -132,7 +132,7 @@ function testCrossMidnightOwnershipSurvivesRestartAndRetries(): void {
 }
 
 function testV6MigrationAndImmutableRoundTrip(): void {
-  assert.equal(CURRENT_SAVE_VERSION, 7);
+  assert.equal(CURRENT_SAVE_VERSION, 8);
   const storage = new MemoryStorageAdapter();
   const v6Day = {
     dayIndex: 4,
@@ -147,7 +147,7 @@ function testV6MigrationAndImmutableRoundTrip(): void {
   };
   storage.setItem(DEFAULT_SAVE_KEY, JSON.stringify({ saveVersion: 6, salary: 123, gameDay: v6Day }));
   const loaded = new SaveService(storage).load();
-  assert.equal(loaded.saveVersion, 7);
+  assert.equal(loaded.saveVersion, 8);
   assert.equal(loaded.salary, 123);
   assert.equal(loaded.compTime, 0);
   assert.deepEqual(loaded.overtimeStats, {

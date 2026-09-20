@@ -126,6 +126,13 @@ export class GameLoopService {
       // Daily task refresh failure must not crash the game loop
     }
 
+    // 8.5 V4: expire stale assigned tasks once the calendar day has moved on.
+    try {
+      this.context.assignedTasks.expireStale(this.context.gameDay.dayIndex());
+    } catch {
+      // Assigned-task expiry must not crash the game loop
+    }
+
     // 9. Tutorial auto-advance check
     try {
       this.context.tutorial.checkAutoAdvance();

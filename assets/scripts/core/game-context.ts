@@ -56,6 +56,11 @@ import { NpcService, WeekendService } from '../v2/npc-weekend-service';
 import { PromotionV2Service, DaySettlementService } from '../v2/v2-settlement-service';
 import { OvertimeService } from '../v3/overtime-service';
 import { WorkTodayService } from '../v3/work-today-service';
+import { EvidenceService } from '../v3/evidence-service';
+import { ResponsibilityService } from '../v3/responsibility-service';
+import { IncidentService } from '../v3/incident-service';
+import { TechDebtService } from '../v3/tech-debt-service';
+import { AssignedTaskService } from '../v3/assigned-task-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import craftConfig from '../../configs/craft.json';
 import achievementsConfig from '../../configs/achievements.json';
@@ -140,6 +145,16 @@ export class GameContext {
   public readonly overtime: OvertimeService;
   /** V3 首页只读投影。 */
   public readonly workToday: WorkTodayService;
+  /** V4 证据系统（解锁事件选项/复盘定责）。 */
+  public readonly evidence: EvidenceService;
+  /** V4 责任判定（甩锅案件）。 */
+  public readonly responsibility: ResponsibilityService;
+  /** V4 生产事故生命周期。 */
+  public readonly incidents: IncidentService;
+  /** V4 领域技术债。 */
+  public readonly techDebt: TechDebtService;
+  /** V4 指派任务（假 P0 / 真事故）。 */
+  public readonly assignedTasks: AssignedTaskService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -215,6 +230,11 @@ export class GameContext {
     this.gameDay = new GameDayService(this, this.clockV2, this.randomV2);
     this.overtime = new OvertimeService(this, this.clockV2, this.gameDay);
     this.workToday = new WorkTodayService(this.player, this.clockV2, this.gameDay);
+    this.evidence = new EvidenceService(this);
+    this.techDebt = new TechDebtService(this);
+    this.responsibility = new ResponsibilityService(this);
+    this.incidents = new IncidentService(this);
+    this.assignedTasks = new AssignedTaskService(this);
     this.innerDemon = new InnerDemonService(this);
     this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);
     this.v2Events = new V2EventService(this, this.clockV2, this.gameDay, this.innerDemon, this.randomV2);

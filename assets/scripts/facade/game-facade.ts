@@ -244,6 +244,52 @@ export class GameFacade {
   public devSetDemon(v: number) { this.context.innerDemon.add(v - this.context.player.innerDemon); this.context.saveService.save(this.context.player); }
   public devGrantMaterial(id: string, n: number) { this.context.v2Items.addMaterial(id, n); this.context.saveService.save(this.context.player); }
 
+  // ── Gameplay V4 职场地狱桥（DOM Overlay 用） ──────────────────────────────
+
+  /** 玩家持有的证据列表。 */
+  public queryEvidence() { return this.context.evidence.all(); }
+  /** 责任案件（OPEN/DISPUTED 在前，最近结案在后）。 */
+  public queryResponsibilityCases() {
+    const open = this.context.responsibility.openCases();
+    const closed = this.context.responsibility.all().filter((c) => c.status !== 'OPEN' && c.status !== 'DISPUTED').slice(-6);
+    return [...open, ...closed];
+  }
+  public acceptBlameCase(caseId: string) { return this.context.responsibility.acceptBlame(caseId); }
+  public clearCaseWithEvidence(caseId: string) { return this.context.responsibility.clearWithEvidence(caseId); }
+  /** 活跃事故 + 最近事故历史。 */
+  public queryIncidentState() {
+    return { active: this.context.incidents.active(), recent: this.context.incidents.all().slice(-6), risk: this.context.incidents.currentRisk() };
+  }
+  public mitigateIncident(incidentId: string, minutes: number) { return this.context.incidents.mitigate(incidentId, Math.max(0, Math.floor(minutes)) * 60); }
+  public recoverIncident(incidentId: string, summary?: string) { return this.context.incidents.recover(incidentId, summary); }
+  public completeIncidentPostmortem(incidentId: string, rootCause: string, summary?: string) { return this.context.incidents.completePostmortem(incidentId, rootCause, summary); }
+  /** 领域技术债与还债。 */
+  public queryTechDebt() {
+    return { levels: this.context.techDebt.all(), average: this.context.techDebt.average() };
+  }
+  public repayTechDebt(domain: string, minutes: number) {
+    const reduced = this.context.techDebt.repay(domain, minutes);
+    this.context.saveService.save(this.context.player);
+    return { domain, reduced };
+  }
+  /** 指派任务（首页待办/假 P0）。 */
+  public queryAssignedTasks() {
+    const open = this.context.assignedTasks.open();
+    return { top: this.context.assignedTasks.topForHome(4), openCount: open.length, all: open };
+  }
+  public completeAssignedTask(taskId: string) { return this.context.assignedTasks.complete(taskId); }
+  public refuseAssignedTask(taskId: string) { return this.context.assignedTasks.refuse(taskId); }
+  /** 牛马档案（终身统计）。 */
+  public queryLifetimeStats() {
+    const p = this.context.player;
+    return {
+      ...p.lifetimeStats,
+      workSeconds: p.workSeconds,
+      fishingSeconds: p.fishingSeconds,
+      overtimeStats: { ...p.overtimeStats },
+    };
+  }
+
   /** Current sect info. */
   public querySect() { return this.context.sect.current(); }
 
