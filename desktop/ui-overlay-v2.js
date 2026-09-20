@@ -477,8 +477,10 @@
             '<div class="ux-recipe-desc" style="margin-top:12px;line-height:1.9">' +
               '💼 ' + dur(view.durations.work) + ' · 🐟 ' + dur(view.durations.fishing) + '<br>' +
               '🧘 ' + dur(view.durations.cultivating) + ' · 🍵 ' + dur(view.durations.social) + '<br>' +
+              (view.durations.overtime ? '⚡ 加班 ' + dur(view.durations.overtime) + (view.freeOvertimeSeconds ? '（免费）' : '（有补偿）') + '<br>' : '') +
               '⚡ 事件 ' + view.eventsHandled + ' · 材料 ' + view.materialsGained + ' 份' +
             '</div>' +
+            '<div class="ux-work-today__warning">' + H.escHtml(view.statusText || '') + '</div>' +
             '<div class="ux-dialog-actions"><button class="ux-btn ux-btn--gold ux-btn--md" id="SettleOk">明天见</button></div>' +
           '</div>' +
         '</div>' +
