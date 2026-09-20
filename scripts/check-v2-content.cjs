@@ -208,6 +208,67 @@ for (const achievement of overtimeAchievements) {
 }
 if (overtimeAchievements.length < 15) fail(`overtime achievements: need >=15, got ${overtimeAchievements.length}`);
 
+// ── Gameplay V4 workplace hell content ─────────────────────────────────────
+const workplaceBundle = load('assets/configs/v3/workplace-content.json');
+const workplaceContent = workplaceBundle.events;
+const workplaceAchievements = workplaceBundle.achievements ?? [];
+const workplaceIds = new Set();
+const workplaceChains = new Map();
+const EVIDENCE_TYPES = new Set(['GIT_LOG', 'CHAT_RECORD', 'REQUIREMENT_DOC', 'MEETING_NOTE', 'EMAIL', 'TEST_REPORT', 'DEPLOY_LOG', 'MONITOR_LOG', 'RISK_CONFIRMATION', 'TICKET_HISTORY']);
+let evidenceGated = 0;
+let evidenceGranted = 0;
+let assignTaskEffects = 0;
+let openCaseEffects = 0;
+let raiseIncidentEffects = 0;
+let weekendEvents = 0;
+let hardlineChoices = 0;
+let managementEvents = 0;
+for (const event of workplaceContent) {
+  if (workplaceIds.has(event.id)) fail(`workplace: duplicate event id ${event.id}`);
+  if (eventIds.has(event.id) || overtimeIds.has(event.id)) fail(`workplace: event id collides with earlier pool: ${event.id}`);
+  workplaceIds.add(event.id);
+  if (!event.title || !event.description) fail(`workplace: ${event.id} missing text`);
+  if (event.chainId) {
+    if (!workplaceChains.has(event.chainId)) workplaceChains.set(event.chainId, []);
+    workplaceChains.get(event.chainId).push(event);
+  }
+  if (event.allowWeekend) weekendEvents += 1;
+  if ((event.minCareer ?? 1) >= 7) managementEvents += 1;
+  for (const choice of event.choices ?? []) {
+    if (!choice.id || !choice.text) fail(`workplace: ${event.id} has incomplete choice`);
+    if (choice.requirements?.evidence) {
+      if (!EVIDENCE_TYPES.has(choice.requirements.evidence)) fail(`workplace: ${event.id}/${choice.id} unknown evidence type`);
+      evidenceGated += 1;
+    }
+    if (choice.effects?.evidence || choice.successEffects?.evidence) evidenceGranted += 1;
+    if (choice.effects?.assignTask || choice.successEffects?.assignTask || choice.failureEffects?.assignTask) assignTaskEffects += 1;
+    if (choice.effects?.openCase || choice.successEffects?.openCase) openCaseEffects += 1;
+    if (choice.effects?.raiseIncident || choice.failureEffects?.raiseIncident) raiseIncidentEffects += 1;
+    if (choice.effects?.techDebt || choice.successEffects?.techDebt || choice.failureEffects?.techDebt) continue;
+  }
+}
+for (const [chainId, chainEvents] of workplaceChains) {
+  const stages = [...new Set(chainEvents.map((event) => event.chainStage))].sort((a, b) => a - b);
+  if (stages.length < 2 || stages[0] !== 0 || stages[1] !== 1) fail(`workplace: chain ${chainId} must start at stages 0,1 contiguous`);
+}
+for (const event of workplaceContent) {
+  for (const choice of event.choices ?? []) {
+    if (choice.nextEvent && !workplaceIds.has(choice.nextEvent)) fail(`workplace: ${event.id} points to missing ${choice.nextEvent}`);
+  }
+}
+if (evidenceGated + evidenceGranted < 20) fail(`workplace: need >=20 evidence options (gated+granted), got ${evidenceGated + evidenceGranted}`);
+if (assignTaskEffects < 10) fail(`workplace: need >=10 assignTask effects, got ${assignTaskEffects}`);
+if (openCaseEffects + raiseIncidentEffects < 8) fail(`workplace: need >=8 case/incident effects, got ${openCaseEffects + raiseIncidentEffects}`);
+if (weekendEvents < 2) fail(`workplace: need >=2 weekend events, got ${weekendEvents}`);
+if (managementEvents < 2) fail(`workplace: need >=2 management (minCareer>=7) events, got ${managementEvents}`);
+if (workplaceChains.size < 6) fail(`workplace: need >=6 chains, got ${workplaceChains.size}`);
+const workplaceAchievementIds = new Set();
+for (const achievement of workplaceAchievements) {
+  if (workplaceAchievementIds.has(achievement.id)) fail(`workplace achievements: duplicate id ${achievement.id}`);
+  if (baseAchievementIds.has(achievement.id)) fail(`workplace achievements: id collides with base achievement ${achievement.id}`);
+  workplaceAchievementIds.add(achievement.id);
+}
+
 // ── 汇总 ─────────────────────────────────────────────────────────────────────
 console.log('═══════════════════════════════════════');
 console.log('Gameplay V2 Content Check');
@@ -217,6 +278,8 @@ console.log(`materials: ${items.materials.length} | techniques: ${items.techniqu
 console.log(`situations: 42 | questions: ${pt.promotionQuestions.length} | titles: ${pt.dailyTitles.length}`);
 console.log(`Overtime V3: pre-off ${preOffCount} | night ${nightCount} | standalone night ${standaloneNightCount} | bosses ${nightBossCount} | chains ${overtimeChains.size} | achievements ${overtimeAchievements.length}`);
 console.log('Overtime V3 cross-pool IDs: verified');
+console.log(`Workplace V4: events ${workplaceContent.length} | chains ${workplaceChains.size} | evidence options ${evidenceGated + evidenceGranted} | assignTask ${assignTaskEffects} | case/incident ${openCaseEffects + raiseIncidentEffects} | weekend ${weekendEvents} | mgmt ${managementEvents} | achievements ${workplaceAchievements.length}`);
+console.log('Workplace V4 cross-pool IDs: verified');
 for (const w of warnings) console.log(`WARN: ${w}`);
 if (errors.length) {
   for (const e of errors) console.error(`FAIL: ${e}`);

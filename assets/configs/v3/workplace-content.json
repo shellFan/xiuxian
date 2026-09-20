@@ -1,0 +1,2902 @@
+{
+  "events": [
+    {
+      "id": "wp_blame_api_s0",
+      "title": "接口报错了",
+      "description": "10:20，企业群里炸了：核心接口全线报错。老油条前辈第一个发言：\"这个接口之前范大牛改过，让他先看一下吧。\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "IMPORTANT",
+      "baseWeight": 6,
+      "cooldown": 259200,
+      "chainId": "wp_blame_api",
+      "chainStage": 0,
+      "choices": [
+        {
+          "id": "OK_LOOK",
+          "text": "行，我看看",
+          "effects": {
+            "mind": -4,
+            "assignTask": {
+              "title": "排查线上接口报错",
+              "priority": "P0",
+              "source": "COLLEAGUE",
+              "rewardSalary": 30,
+              "rewardPerformance": 3,
+              "rewardCultivation": 20
+            },
+            "setFlags": [
+              "wp_blame_api_taken"
+            ],
+            "nextEvent": "wp_blame_api_s1"
+          },
+          "resultText": "你放下自己的需求，开始背锅……啊不，排查。"
+        },
+        {
+          "id": "DISPUTE",
+          "text": "你昨天不是刚改过配置吗？",
+          "effects": {
+            "mind": -2,
+            "relationship": {
+              "VETERAN": -3
+            },
+            "setFlags": [
+              "wp_blame_api_disputed"
+            ],
+            "nextEvent": "wp_blame_api_s1"
+          },
+          "resultText": "群里安静了两分钟。老油条：\"我有改吗？我记不清了，先看线上吧。\""
+        },
+        {
+          "id": "GIT_EVIDENCE",
+          "text": "把Git记录发群里",
+          "requirements": {
+            "evidence": "GIT_LOG"
+          },
+          "effects": {
+            "mind": 2,
+            "performance": 2,
+            "relationship": {
+              "VETERAN": -6
+            },
+            "openCase": {
+              "sourceNpc": "VETERAN",
+              "actualOwnerNpc": "VETERAN",
+              "blamedPlayer": true,
+              "cause": "接口配置被同事昨日修改导致线上报错",
+              "severity": "S3"
+            },
+            "setFlags": [
+              "wp_blame_api_cleared"
+            ],
+            "nextEvent": "wp_blame_api_s2"
+          },
+          "resultText": "Git 记录甩进群里：昨天 18:47，老油条改了配置没有走评审。气氛凝固了。"
+        },
+        {
+          "id": "SOLVE_FIRST",
+          "text": "先解决，责任以后再说",
+          "effects": {
+            "performance": 4,
+            "mind": -6,
+            "relationship": {
+              "BOSS": 3,
+              "VETERAN": 4
+            },
+            "assignTask": {
+              "title": "回滚配置并恢复接口",
+              "priority": "P0",
+              "source": "SYSTEM",
+              "rewardSalary": 30,
+              "rewardPerformance": 4,
+              "rewardCultivation": 15
+            },
+            "setFlags": [
+              "wp_blame_api_taken"
+            ],
+            "nextEvent": "wp_blame_api_s1"
+          },
+          "resultText": "领导在群里点了赞。锅还在飞，但至少方向暂时不朝你。"
+        },
+        {
+          "id": "REFUSE",
+          "text": "我已经下班了（内心：现在是上午十点）",
+          "effects": {
+            "mind": 3,
+            "performance": -4,
+            "relationship": {
+              "VETERAN": -2,
+              "BOSS": -4
+            },
+            "setFlags": [
+              "wp_blame_api_ignored"
+            ],
+            "nextEvent": "wp_blame_api_s1"
+          },
+          "resultText": "你把手机扣在桌上。十分钟后，领导亲自打来了电话。"
+        }
+      ]
+    },
+    {
+      "id": "wp_blame_api_s1",
+      "title": "日志里的真相",
+      "description": "翻了一遍发布记录与日志：报错根因是昨天下班后有人改了路由配置，没走评审，没留备注。",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "IMPORTANT",
+      "baseWeight": 0,
+      "chainId": "wp_blame_api",
+      "chainStage": 1,
+      "conditions": {
+        "eventFlag": "wp_blame_api_taken"
+      },
+      "choices": [
+        {
+          "id": "SAVE_LOG",
+          "text": "截图保存日志和发布记录",
+          "effects": {
+            "evidence": {
+              "type": "MONITOR_LOG",
+              "label": "接口报错根因：昨日配置变更"
+            },
+            "mind": 2,
+            "setFlags": [
+              "wp_blame_api_evidence"
+            ]
+          },
+          "resultText": "证据到手。它在钱包里微微发光，像一张护身符。"
+        },
+        {
+          "id": "FIX_QUIET",
+          "text": "默默修好，什么也不说",
+          "effects": {
+            "mind": -6,
+            "performance": 2,
+            "techDebt": {
+              "DEPLOY": 6
+            },
+            "setFlags": [
+              "wp_blame_api_swallowed"
+            ]
+          },
+          "resultText": "你修好了接口。老油条在群里说：\"不愧是范大牛。\"你觉得这句夸奖像口锅。"
+        }
+      ]
+    },
+    {
+      "id": "wp_blame_api_s2",
+      "title": "会议室里对质",
+      "description": "下午临时拉了个会。领导：\"说说吧，这个配置是谁改的？\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "IMPORTANT",
+      "baseWeight": 0,
+      "chainId": "wp_blame_api",
+      "chainStage": 2,
+      "conditions": {
+        "eventFlag": "wp_blame_api_cleared"
+      },
+      "choices": [
+        {
+          "id": "PRESENT",
+          "text": "把发布记录投屏",
+          "effects": {
+            "performance": 4,
+            "mind": 4,
+            "relationship": {
+              "VETERAN": -8,
+              "BOSS": 2
+            },
+            "setFlags": [
+              "wp_blame_api_win"
+            ],
+            "nextEvent": "wp_blame_api_s3",
+            "grantEquipment": "eq_mech_keyboard"
+          },
+          "resultText": "投屏、放大、念出时间。老油条的表情像被索引全表扫描。"
+        },
+        {
+          "id": "MERCY",
+          "text": "\"过去的事了，先把流程补上吧\"",
+          "effects": {
+            "mind": 2,
+            "relationship": {
+              "VETERAN": 6,
+              "BOSS": -1
+            },
+            "setFlags": [
+              "wp_blame_api_win"
+            ]
+          },
+          "resultText": "你给了台阶。老油条眼神复杂。有些人在心里给你记了一功。"
+        }
+      ]
+    },
+    {
+      "id": "wp_blame_api_s3",
+      "title": "之后的几天",
+      "description": "老油条又来找你：\"帮我看个问题呗，很快的。\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "NORMAL",
+      "baseWeight": 0,
+      "chainId": "wp_blame_api",
+      "chainStage": 3,
+      "cooldown": 172800,
+      "conditions": {
+        "eventFlag": "wp_blame_api_win"
+      },
+      "choices": [
+        {
+          "id": "REMEMBER",
+          "text": "上次那个锅是谁的来着？",
+          "effects": {
+            "mind": 5,
+            "relationship": {
+              "VETERAN": -3
+            }
+          },
+          "resultText": "老油条讪讪地走了。道心微暖。"
+        },
+        {
+          "id": "HELP",
+          "text": "还是帮他看一眼",
+          "effects": {
+            "mind": -2,
+            "relationship": {
+              "VETERAN": 6
+            },
+            "performance": 1,
+            "setFlags": [
+              "mem:VETERAN:HELPED_BY_PLAYER"
+            ]
+          },
+          "resultText": "问题五分钟解决。成年人的恩怨，有时候就是五分钟的事。"
+        }
+      ]
+    },
+    {
+      "id": "wp_credit_steal_s0",
+      "title": "昨晚的功劳",
+      "description": "昨晚上线事故，你修到凌晨。今天晨会上，老油条先开口了：\"昨天我们一起处理到挺晚，总算压下去了。\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "IMPORTANT",
+      "baseWeight": 5,
+      "cooldown": 259200,
+      "chainId": "wp_credit_steal",
+      "chainStage": 0,
+      "choices": [
+        {
+          "id": "LET_GO",
+          "text": "算了",
+          "effects": {
+            "mind": -5,
+            "innerDemon": 4,
+            "relationship": {
+              "VETERAN": 3
+            },
+            "setFlags": [
+              "mem:VETERAN:STOLE_CREDIT",
+              "wp_credit_swallowed"
+            ]
+          },
+          "resultText": "你低头喝了一口枸杞茶。枸杞没有说话。"
+        },
+        {
+          "id": "SPEAK_UP",
+          "text": "当场说明：凌晨两点后是我一个人在修",
+          "effects": {
+            "performance": 3,
+            "mind": 2,
+            "relationship": {
+              "VETERAN": -5,
+              "BOSS": 2
+            },
+            "setFlags": [
+              "wp_credit_claimed"
+            ]
+          },
+          "resultText": "会议室安静了三秒。领导在表格里改了一个数字。"
+        },
+        {
+          "id": "SHOW_COMMIT",
+          "text": "把提交记录投屏",
+          "requirements": {
+            "evidence": "GIT_LOG"
+          },
+          "effects": {
+            "performance": 5,
+            "mind": 4,
+            "relationship": {
+              "VETERAN": -8,
+              "BOSS": 3
+            },
+            "openCase": {
+              "sourceNpc": "VETERAN",
+              "actualOwnerNpc": "PLAYER",
+              "blamedPlayer": false,
+              "cause": "抢功：夜间事故修复归属争议",
+              "severity": "S4"
+            },
+            "setFlags": [
+              "wp_credit_proven",
+              "mem:VETERAN:STOLE_CREDIT"
+            ],
+            "grantTechnique": "tech_blame"
+          },
+          "resultText": "23:41、01:12、03:05，每一笔提交都写着你的名字。老油条说：\"哦，可能是我记错了。\""
+        },
+        {
+          "id": "REMEMBER_IT",
+          "text": "记在心里",
+          "effects": {
+            "innerDemon": 2,
+            "setFlags": [
+              "mem:VETERAN:STOLE_CREDIT",
+              "wp_credit_silent"
+            ]
+          },
+          "resultText": "修仙之人，不争朝夕。但账，是记下了。"
+        }
+      ]
+    },
+    {
+      "id": "wp_credit_steal_s1",
+      "title": "他又来求助了",
+      "description": "下午，老油条凑过来：\"大牛，这个线上问题帮我看看呗？就五分钟。\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "NORMAL",
+      "baseWeight": 0,
+      "chainId": "wp_credit_steal",
+      "chainStage": 1,
+      "cooldown": 86400,
+      "conditions": {
+        "eventFlag": "mem:VETERAN:STOLE_CREDIT"
+      },
+      "choices": [
+        {
+          "id": "CALLBACK",
+          "text": "\"上次一起修的时候，你在哪来着？\"",
+          "effects": {
+            "mind": 5,
+            "relationship": {
+              "VETERAN": -4
+            }
+          },
+          "resultText": "老油条笑容一僵：\"……我这不是来请教嘛。\""
+        },
+        {
+          "id": "FIVE_MIN_YOU",
+          "text": "\"五分钟？那你自己五分钟就搞定了。\"",
+          "effects": {
+            "mind": 4,
+            "relationship": {
+              "VETERAN": -3
+            }
+          },
+          "resultText": "以其人之道还治其人之身。老油条悻悻地走了。"
+        },
+        {
+          "id": "HELP_ANYWAY",
+          "text": "帮，但抄送领导",
+          "effects": {
+            "performance": 3,
+            "mind": -1,
+            "relationship": {
+              "VETERAN": 2,
+              "BOSS": 2
+            },
+            "assignTask": {
+              "title": "协助老油条处理线上问题",
+              "priority": "P2",
+              "source": "COLLEAGUE",
+              "rewardSalary": 15,
+              "rewardPerformance": 3
+            }
+          },
+          "resultText": "邮件抄送领导。既帮了忙，也留了痕。职场修仙，谓之【留痕诀】。"
+        },
+        {
+          "id": "REFUSE_HELP",
+          "text": "\"我手上有自己的活。\"",
+          "effects": {
+            "mind": 3,
+            "relationship": {
+              "VETERAN": -5
+            }
+          },
+          "resultText": "第一次拒绝比想象中容易。"
+        }
+      ]
+    },
+    {
+      "id": "wp_req_change_s0",
+      "title": "需求一直就是这样的",
+      "description": "产品经理：\"这个功能上线了怎么跟设计稿不一样？需求一直就是这样的。\"你记得评审时根本没有这条。",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "IMPORTANT",
+      "baseWeight": 6,
+      "cooldown": 259200,
+      "chainId": "wp_req_change",
+      "chainStage": 0,
+      "choices": [
+        {
+          "id": "OPEN_DOC",
+          "text": "打开原始需求文档",
+          "requirements": {
+            "evidence": "REQUIREMENT_DOC"
+          },
+          "effects": {
+            "mind": 4,
+            "performance": 3,
+            "relationship": {
+              "PRODUCT": -5
+            },
+            "setFlags": [
+              "wp_req_won"
+            ]
+          },
+          "resultText": "文档翻到第 3 页第 7 行。产品经理沉默了三秒：\"……我看看排期。\""
+        },
+        {
+          "id": "ARGUE",
+          "text": "口头争辩",
+          "successChance": 0.5,
+          "successEffects": {
+            "mind": 2,
+            "performance": 1,
+            "setFlags": [
+              "wp_req_won"
+            ]
+          },
+          "failureEffects": {
+            "mind": -5,
+            "performance": -2,
+            "techDebt": {
+              "ORDER": 4
+            },
+            "assignTask": {
+              "title": "按产品口径紧急调整功能",
+              "priority": "P1",
+              "source": "PRODUCT",
+              "rewardSalary": 20,
+              "rewardPerformance": 1
+            },
+            "setFlags": [
+              "wp_req_lost"
+            ]
+          },
+          "resultText": "争赢了是道理，争输了是排期。"
+        },
+        {
+          "id": "ACCEPT",
+          "text": "认了，加班改",
+          "effects": {
+            "mind": -6,
+            "performance": 2,
+            "techDebt": {
+              "ORDER": 8
+            },
+            "assignTask": {
+              "title": "紧急实现\"本来就有\"的需求",
+              "priority": "P1",
+              "source": "PRODUCT",
+              "rewardSalary": 25,
+              "rewardPerformance": 2
+            },
+            "setFlags": [
+              "wp_req_lost"
+            ]
+          },
+          "resultText": "需求文档不会说话，但排期会。"
+        },
+        {
+          "id": "CUT_SCOPE",
+          "text": "砍成最小版本",
+          "effects": {
+            "mind": 2,
+            "performance": 1,
+            "relationship": {
+              "PRODUCT": -3
+            },
+            "techDebt": {
+              "ORDER": 3
+            }
+          },
+          "resultText": "\"先上交互，动画下周。\"——本周最实用的一句话。"
+        },
+        {
+          "id": "ASK_GROUP",
+          "text": "拉群里让他文字确认一遍",
+          "effects": {
+            "mind": 1,
+            "evidence": {
+              "type": "CHAT_RECORD",
+              "label": "产品确认需求边界的聊天记录"
+            },
+            "relationship": {
+              "PRODUCT": -2
+            }
+          },
+          "resultText": "产品经理打了一行字又删了三遍。最终版：\"按原样吧。\"证据 +1。"
+        }
+      ]
+    },
+    {
+      "id": "wp_req_change_s1",
+      "title": "复盘会上的锅",
+      "description": "几天后复盘会，产品经理：\"当初评审都说好了的。\"你翻开了笔记本。",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "NORMAL",
+      "baseWeight": 0,
+      "chainId": "wp_req_change",
+      "chainStage": 1,
+      "conditions": {
+        "eventFlag": "wp_req_won"
+      },
+      "choices": [
+        {
+          "id": "STAY_CALM",
+          "text": "微笑不语",
+          "effects": {
+            "mind": 3,
+            "relationship": {
+              "PRODUCT": 2
+            }
+          },
+          "resultText": "有些胜利不需要再宣布第二次。"
+        }
+      ]
+    },
+    {
+      "id": "wp_release_hell_s0",
+      "title": "客户明天要看",
+      "description": "17:40。老板走过来：\"客户明天上午要看，今晚直接上线吧。\"测试用例还剩一半没有跑。",
+      "category": "CHAIN",
+      "rarity": "EPIC",
+      "priority": "CRITICAL",
+      "baseWeight": 8,
+      "cooldown": 432000,
+      "chainId": "wp_release_hell",
+      "chainStage": 0,
+      "minMinuteOfDay": 1050,
+      "choices": [
+        {
+          "id": "OVERTIME_RELEASE",
+          "text": "加班上线",
+          "effects": {
+            "mind": -8,
+            "performance": 5,
+            "relationship": {
+              "BOSS": 5
+            },
+            "techDebt": {
+              "DEPLOY": 10,
+              "PAYMENT": 5
+            },
+            "setFlags": [
+              "release_forced",
+              "release_skipped_tests"
+            ],
+            "startOvertime": {
+              "source": "FORCED",
+              "free": true,
+              "plannedMinutes": 180
+            },
+            "nextEvent": "wp_release_hell_s1"
+          },
+          "resultText": "18:00 的下班音乐响起时，你们组没有一个人动。工资已经下班了，你还没有。"
+        },
+        {
+          "id": "NOT_TESTED",
+          "text": "没测完不能上",
+          "effects": {
+            "mind": 2,
+            "performance": -2,
+            "relationship": {
+              "BOSS": -4
+            },
+            "setFlags": [
+              "wp_release_refused"
+            ]
+          },
+          "resultText": "老板皱了皱眉：\"那你跟我解释一下什么叫敏捷。\""
+        },
+        {
+          "id": "RISK_CONFIRM",
+          "text": "可以，但先签风险确认",
+          "effects": {
+            "mind": 1,
+            "performance": 3,
+            "relationship": {
+              "BOSS": 1
+            },
+            "evidence": {
+              "type": "RISK_CONFIRMATION",
+              "label": "老板签字的上线风险确认单"
+            },
+            "techDebt": {
+              "DEPLOY": 6
+            },
+            "setFlags": [
+              "release_forced",
+              "release_risk_confirmed"
+            ],
+            "startOvertime": {
+              "source": "REQUESTED",
+              "free": true,
+              "plannedMinutes": 180
+            },
+            "nextEvent": "wp_release_hell_s1"
+          },
+          "resultText": "老板签了字，嘴里嘟囔\"流程真多\"。这张纸现在价值连城。"
+        },
+        {
+          "id": "IMPOSSIBLE",
+          "text": "今天不可能",
+          "effects": {
+            "mind": 3,
+            "performance": -5,
+            "relationship": {
+              "BOSS": -7
+            },
+            "setFlags": [
+              "wp_release_refused"
+            ]
+          },
+          "resultText": "说完这句话，你的心跳很快。老板的心跳也很快。"
+        },
+        {
+          "id": "WHO_PROMISED",
+          "text": "谁承诺的谁做",
+          "effects": {
+            "mind": 4,
+            "performance": -3,
+            "relationship": {
+              "BOSS": -8,
+              "PRODUCT": -5
+            },
+            "setFlags": [
+              "wp_release_refused"
+            ]
+          },
+          "resultText": "会议室鸦雀无声。原来承诺的人是产品，客户是老板的酒局。"
+        }
+      ]
+    },
+    {
+      "id": "wp_release_hell_s1",
+      "title": "凌晨的发布",
+      "description": "23:47，发布按钮悬在鼠标下。监控曲线安静得像暴风雨前。",
+      "category": "CHAIN",
+      "rarity": "EPIC",
+      "priority": "CRITICAL",
+      "baseWeight": 0,
+      "chainId": "wp_release_hell",
+      "chainStage": 1,
+      "requiresOvertime": true,
+      "conditions": {
+        "eventFlag": "release_forced"
+      },
+      "choices": [
+        {
+          "id": "RELEASE",
+          "text": "点下发布",
+          "successChance": 0.55,
+          "successEffects": {
+            "performance": 6,
+            "mind": 2,
+            "cultivation": 40,
+            "setFlags": [
+              "wp_release_done"
+            ]
+          },
+          "failureEffects": {
+            "mind": -10,
+            "innerDemon": 6,
+            "performance": 2,
+            "raiseIncident": {
+              "type": "PAYMENT_FAILURE",
+              "severity": "S2",
+              "forcedRelease": true
+            },
+            "assignTask": {
+              "title": "生产事故应急：支付失败",
+              "priority": "P0",
+              "source": "INCIDENT",
+              "rewardSalary": 40,
+              "rewardPerformance": 5
+            },
+            "setFlags": [
+              "wp_release_incident"
+            ]
+          },
+          "resultText": "发布完成的那一刻，你既想哭又想笑。"
+        },
+        {
+          "id": "WAIT_MORNING",
+          "text": "赌气等到明早再发（反正有人签字）",
+          "effects": {
+            "mind": 4,
+            "performance": -3,
+            "relationship": {
+              "BOSS": -3
+            },
+            "removeFlags": [
+              "release_forced"
+            ],
+            "setFlags": [
+              "wp_release_delayed"
+            ]
+          },
+          "resultText": "你合上电脑。明天的事，明天再说。"
+        }
+      ]
+    },
+    {
+      "id": "wp_release_hell_s2",
+      "title": "第二天早会",
+      "description": "老板：\"昨晚辛苦了。\"他顿了顿，\"不过客户那边说支付页面打不开。\"",
+      "category": "CHAIN",
+      "rarity": "EPIC",
+      "priority": "CRITICAL",
+      "baseWeight": 0,
+      "chainId": "wp_release_hell",
+      "chainStage": 2,
+      "conditions": {
+        "eventFlag": "wp_release_incident"
+      },
+      "choices": [
+        {
+          "id": "SHOW_CONFIRM",
+          "text": "把风险确认单放在桌上",
+          "requirements": {
+            "evidence": "RISK_CONFIRMATION"
+          },
+          "effects": {
+            "performance": 5,
+            "mind": 4,
+            "relationship": {
+              "BOSS": -2
+            },
+            "setFlags": [
+              "wp_release_protected"
+            ],
+            "grantEquipment": "eq_chosen_badge"
+          },
+          "resultText": "老板看着自己的签名，表情像看到了欠条：\"……先修复。这事以后再说。\""
+        },
+        {
+          "id": "FIX_FIRST",
+          "text": "先修复，责任以后再算",
+          "effects": {
+            "performance": 3,
+            "mind": -3,
+            "assignTask": {
+              "title": "支付链路回滚与修复",
+              "priority": "P0",
+              "source": "INCIDENT",
+              "rewardSalary": 45,
+              "rewardPerformance": 5
+            }
+          },
+          "resultText": "先止损。锅的事，午饭后再说。"
+        }
+      ]
+    },
+    {
+      "id": "wp_incident_review_s0",
+      "title": "复盘：不追责",
+      "description": "第二天下午，事故复盘会。领导开场：\"我们今天不是追责，主要是找原因。\"然后他翻开笔记本：\"这个代码是谁写的？\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "IMPORTANT",
+      "baseWeight": 0,
+      "chainId": "wp_incident_review",
+      "chainStage": 0,
+      "conditions": {
+        "eventFlag": "wp_release_incident"
+      },
+      "choices": [
+        {
+          "id": "ITS_ME",
+          "text": "是我",
+          "effects": {
+            "performance": -4,
+            "mind": -3,
+            "relationship": {
+              "BOSS": 3
+            },
+            "lifetime": {
+              "blamesTaken": 1
+            },
+            "setFlags": [
+              "wp_review_accepted"
+            ]
+          },
+          "resultText": "你站了出来。领导点头：\"态度不错。\"绩效表上划了一笔。"
+        },
+        {
+          "id": "ROOT_CAUSE",
+          "text": "先看根因，人是次要的",
+          "effects": {
+            "performance": 2,
+            "mind": 2,
+            "setFlags": [
+              "wp_review_technical"
+            ]
+          },
+          "resultText": "你把时间线投了出来。追责的气氛被技术细节冲淡了。"
+        },
+        {
+          "id": "REQ_CHANGED",
+          "text": "需求临上线前改过",
+          "effects": {
+            "performance": 1,
+            "relationship": {
+              "PRODUCT": -4
+            },
+            "setFlags": [
+              "wp_review_blame_product"
+            ]
+          },
+          "resultText": "产品经理猛地抬头。会议室的火力改变了方向。"
+        },
+        {
+          "id": "DEPLOY_LOG",
+          "text": "部署记录在这里（发布是老板确认的）",
+          "requirements": {
+            "evidence": "DEPLOY_LOG"
+          },
+          "effects": {
+            "performance": 5,
+            "mind": 4,
+            "relationship": {
+              "BOSS": -1
+            },
+            "openCase": {
+              "sourceNpc": "BOSS",
+              "actualOwnerNpc": "BOSS",
+              "blamedPlayer": true,
+              "cause": "强行上线导致生产事故，风险确认在案",
+              "severity": "S2"
+            },
+            "setFlags": [
+              "wp_review_cleared"
+            ]
+          },
+          "resultText": "部署记录、确认单、时间线，一页页投屏。领导扶了扶眼镜：\"流程问题。下不为例。\""
+        },
+        {
+          "id": "NOT_MY_DUTY",
+          "text": "\"我什么时候负责这块了？\"",
+          "effects": {
+            "mind": 2,
+            "performance": -1,
+            "relationship": {
+              "BOSS": -2
+            },
+            "setFlags": [
+              "wp_review_disputed"
+            ]
+          },
+          "resultText": "会议纪要最终写的是\"职责边界待明确\"——这算赢了一半。"
+        },
+        {
+          "id": "SILENCE",
+          "text": "沉默",
+          "effects": {
+            "mind": -6,
+            "innerDemon": 4,
+            "performance": -3,
+            "setFlags": [
+              "wp_review_silent"
+            ]
+          },
+          "resultText": "会议室安静得能听见你喝水的声音。所有的沉默最终都会被记账。"
+        }
+      ]
+    },
+    {
+      "id": "wp_incident_review_s1",
+      "title": "复盘之后",
+      "description": "复盘会结束，走廊里，老油条拍了拍你：\"今天会上，你挺硬气啊。\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "NORMAL",
+      "baseWeight": 0,
+      "chainId": "wp_incident_review",
+      "chainStage": 1,
+      "cooldown": 86400,
+      "conditions": {
+        "eventFlag": "wp_review_cleared"
+      },
+      "choices": [
+        {
+          "id": "HUMBLE",
+          "text": "\"都是为了把事做好。\"",
+          "effects": {
+            "mind": 3,
+            "relationship": {
+              "VETERAN": 2,
+              "BOSS": 1
+            }
+          },
+          "resultText": "分寸感是职场最高的功法。老油条若有所思地走了。"
+        },
+        {
+          "id": "DIRECT",
+          "text": "\"下次改配置，麻烦走个评审。\"",
+          "effects": {
+            "mind": 4,
+            "relationship": {
+              "VETERAN": -2
+            },
+            "grantTechnique": "tech_blame"
+          },
+          "resultText": "话说得平静，分量十足。第二天，评审流程真的多了两个必填项。"
+        }
+      ]
+    },
+    {
+      "id": "wp_credit_steal_s2",
+      "title": "绩效面谈",
+      "description": "季度绩效面谈，领导翻着记录：\"这次线上事故，处理过程我记得不太清了……\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "NORMAL",
+      "baseWeight": 0,
+      "chainId": "wp_credit_steal",
+      "chainStage": 2,
+      "cooldown": 86400,
+      "choices": [
+        {
+          "id": "CLARIFY",
+          "text": "把时间线再说一遍",
+          "effects": {
+            "performance": 3,
+            "mind": 2,
+            "relationship": {
+              "BOSS": 1
+            }
+          },
+          "resultText": "23:41、01:12、03:05——你说得很平静。领导在表格上改了两个数字。"
+        },
+        {
+          "id": "SHARE_CREDIT",
+          "text": "\"都是团队的努力。\"",
+          "effects": {
+            "mind": 1,
+            "relationship": {
+              "BOSS": 2,
+              "VETERAN": 4
+            }
+          },
+          "resultText": "领导欣赏你的格局。老油条松了口气。有些亏，吃在明处。"
+        }
+      ]
+    },
+    {
+      "id": "wp_req_change_s2",
+      "title": "需求又来了",
+      "description": "几天后，产品经理又凑过来：\"上次那个功能效果不错，再加个小导出吧，很小的。\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "NORMAL",
+      "baseWeight": 0,
+      "chainId": "wp_req_change",
+      "chainStage": 2,
+      "cooldown": 86400,
+      "conditions": {
+        "eventFlag": "wp_req_won"
+      },
+      "choices": [
+        {
+          "id": "SHOW_HISTORY",
+          "text": "打开需求变更记录",
+          "requirements": {
+            "evidence": "CHAT_RECORD"
+          },
+          "effects": {
+            "mind": 4,
+            "performance": 2,
+            "relationship": {
+              "PRODUCT": -2
+            }
+          },
+          "resultText": "记录显示这个\"很小的需求\"已经是第三次变更。产品经理：\"……我先跟老板对齐。\""
+        },
+        {
+          "id": "ASK_PLAN",
+          "text": "\"可以，走排期。\"",
+          "effects": {
+            "mind": 2,
+            "performance": 1
+          },
+          "resultText": "排期是程序员的结界。产品经理点点头走了。"
+        },
+        {
+          "id": "PUSH_BACK",
+          "text": "\"先把这个版本的线上反馈看完再说。\"",
+          "effects": {
+            "mind": 3,
+            "performance": 2
+          },
+          "resultText": "用数据说话。一周后，导出的优先级自然降到了 P3。"
+        }
+      ]
+    },
+    {
+      "id": "wp_incident_review_s2",
+      "title": "事故结案",
+      "description": "一周后，复盘报告终于定稿。领导在群里@你：\"结案了。以后发布流程按新的来。\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "NORMAL",
+      "baseWeight": 0,
+      "chainId": "wp_incident_review",
+      "chainStage": 2,
+      "cooldown": 86400,
+      "conditions": {
+        "eventFlag": "wp_review_cleared"
+      },
+      "choices": [
+        {
+          "id": "ACCEPT_PROCESS",
+          "text": "研究新流程，顺手提两个简化建议",
+          "effects": {
+            "performance": 3,
+            "mind": 2,
+            "cultivation": 10,
+            "techDebt": {
+              "DEPLOY": -5
+            }
+          },
+          "resultText": "新流程比想象中合理。你提的两个简化建议被采纳了。技术债 -5。"
+        },
+        {
+          "id": "JUST_ACK",
+          "text": "\"收到。\"",
+          "effects": {
+            "mind": 1
+          },
+          "resultText": "结案。有些事故的最好结局，就是变成流程的一部分。"
+        }
+      ]
+    },
+    {
+      "id": "wp_fake_p0_s0",
+      "title": "P0！！",
+      "description": "17:58。测试小哥冲过来：\"有个P0！特别急！\"你打开一看：登录页有个按钮偏了 2px。",
+      "category": "BUG",
+      "rarity": "COMMON",
+      "priority": "IMPORTANT",
+      "baseWeight": 7,
+      "cooldown": 86400,
+      "minMinuteOfDay": 1068,
+      "chainId": "wp_fake_p0",
+      "chainStage": 0,
+      "choices": [
+        {
+          "id": "WTF",
+          "text": "这TM是P0？",
+          "effects": {
+            "mind": 5,
+            "relationship": {
+              "TESTER": -3
+            },
+            "lifetime": {
+              "fakeP0Refused": 1
+            },
+            "setFlags": [
+              "wp_fake_p0_resolved"
+            ]
+          },
+          "resultText": "测试小哥：\"但是……但是产品说很急。\"你俩对视，达成了一种默契。"
+        },
+        {
+          "id": "DOWN_GRADE",
+          "text": "降P3，建单走排期",
+          "effects": {
+            "mind": 3,
+            "performance": 1,
+            "relationship": {
+              "TESTER": 1
+            },
+            "assignTask": {
+              "title": "修复按钮偏移 2px（P3）",
+              "priority": "P3",
+              "source": "TEST",
+              "rewardSalary": 5,
+              "rewardPerformance": 1,
+              "isFakeP0": true
+            },
+            "setFlags": [
+              "wp_fake_p0_resolved"
+            ]
+          },
+          "resultText": "排期确定：下周四。测试小哥松了口气：\"那我就写普通单了。\""
+        },
+        {
+          "id": "FIX_QUICK",
+          "text": "顺手改了（5分钟的事）",
+          "effects": {
+            "mind": -1,
+            "performance": 2,
+            "relationship": {
+              "TESTER": 4
+            },
+            "assignTask": {
+              "title": "修复按钮偏移 2px",
+              "priority": "P0",
+              "source": "TEST",
+              "rewardSalary": 5,
+              "rewardPerformance": 2,
+              "isFakeP0": true
+            },
+            "setFlags": [
+              "wp_fake_p0_resolved"
+            ]
+          },
+          "resultText": "改完顺手点了个发布。这种小忙，攒的是人情。"
+        },
+        {
+          "id": "TOMORROW",
+          "text": "明天处理",
+          "effects": {
+            "mind": 2,
+            "performance": -1,
+            "relationship": {
+              "TESTER": -2
+            },
+            "setFlags": [
+              "wp_fake_p0_resolved"
+            ]
+          },
+          "resultText": "你关掉了弹窗。窗外的天色刚好变成下班色。"
+        }
+      ]
+    },
+    {
+      "id": "wp_fake_p0_s1",
+      "title": "这次是真的",
+      "description": "17:52。监控告警：支付成功率从 99.2% 跌到 61%。测试小哥的声音都变了：\"这、这次是真的……\"",
+      "category": "BUG",
+      "rarity": "RARE",
+      "priority": "CRITICAL",
+      "baseWeight": 0,
+      "cooldown": 259200,
+      "minMinuteOfDay": 1020,
+      "chainId": "wp_fake_p0",
+      "chainStage": 1,
+      "conditions": {
+        "eventFlag": "wp_fake_p0_resolved"
+      },
+      "choices": [
+        {
+          "id": "FIX_NOW",
+          "text": "立刻排查",
+          "effects": {
+            "mind": -4,
+            "performance": 6,
+            "evidence": {
+              "type": "MONITOR_LOG",
+              "label": "支付成功率异常监控截图"
+            },
+            "assignTask": {
+              "title": "支付链路 P0 应急排查",
+              "priority": "P0",
+              "source": "INCIDENT",
+              "rewardSalary": 50,
+              "rewardPerformance": 6,
+              "rewardCultivation": 30
+            }
+          },
+          "resultText": "你打开监控大盘。红色像晚霞一样绚烂——但这次晚霞要命。"
+        },
+        {
+          "id": "REFUSE_REAL",
+          "text": "\"我今天下班了。\"（把手机调成静音）",
+          "effects": {
+            "mind": 1,
+            "performance": -8,
+            "relationship": {
+              "BOSS": -8,
+              "TESTER": -3
+            },
+            "innerDemon": 3,
+            "setFlags": [
+              "wp_refused_real_p0"
+            ]
+          },
+          "resultText": "第二天，支付失败的截图和你的名字一起出现在晨会PPT第一页。"
+        },
+        {
+          "id": "CALL_VETERAN",
+          "text": "拉上老油条一起",
+          "effects": {
+            "mind": -2,
+            "performance": 4,
+            "relationship": {
+              "VETERAN": 4,
+              "BOSS": 2
+            },
+            "assignTask": {
+              "title": "联合排查支付 P0",
+              "priority": "P0",
+              "source": "INCIDENT",
+              "rewardSalary": 40,
+              "rewardPerformance": 4,
+              "rewardCultivation": 20
+            }
+          },
+          "resultText": "两个人一起看监控。锅至少不会只落在一个人的屏幕上。"
+        },
+        {
+          "id": "USE_MONITOR",
+          "text": "调出昨天存的监控截图对比基线",
+          "requirements": {
+            "evidence": "MONITOR_LOG"
+          },
+          "effects": {
+            "mind": -1,
+            "performance": 8,
+            "cultivation": 20,
+            "relationship": {
+              "BOSS": 3
+            },
+            "assignTask": {
+              "title": "按基线对比快速定位支付异常",
+              "priority": "P0",
+              "source": "INCIDENT",
+              "rewardSalary": 55,
+              "rewardPerformance": 8,
+              "rewardCultivation": 30
+            },
+            "grantConsumable": "cons_spirit"
+          },
+          "resultText": "有基线对比，十分钟锁定变更点。证据的意义就是这一刻。"
+        }
+      ]
+    },
+    {
+      "id": "wp_real_p0_pay",
+      "title": "午后的支付告警",
+      "description": "14:41。监控告警：支付回调超时率 34%。这锅没人敢接，因为根本不知道是谁的。",
+      "category": "BUG",
+      "rarity": "RARE",
+      "priority": "CRITICAL",
+      "baseWeight": 4,
+      "cooldown": 259200,
+      "choices": [
+        {
+          "id": "INVESTIGATE_PAY",
+          "text": "主动跟进",
+          "effects": {
+            "mind": -3,
+            "performance": 5,
+            "evidence": {
+              "type": "MONITOR_LOG",
+              "label": "支付回调超时分析"
+            },
+            "assignTask": {
+              "title": "支付回调超时排查",
+              "priority": "P0",
+              "source": "INCIDENT",
+              "rewardSalary": 40,
+              "rewardPerformance": 5,
+              "rewardCultivation": 25
+            }
+          },
+          "resultText": "主动接锅的最好结果：锅变成了军功章。"
+        },
+        {
+          "id": "WAIT_ASSIGN",
+          "text": "等领导指派",
+          "effects": {
+            "mind": 1,
+            "performance": -1
+          },
+          "resultText": "半小时后，指派邮件到了。收件人一栏，写着你的名字。"
+        }
+      ]
+    },
+    {
+      "id": "wp_fake_p0_s2",
+      "title": "P0 猎人的名声",
+      "description": "自从你两次准确判断 P0 真伪，测试小哥提 bug 前会先自己看两遍。今天他跑过来：\"这次……这次真的是 P0，我先自己确认过了。\"",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "NORMAL",
+      "baseWeight": 0,
+      "chainId": "wp_fake_p0",
+      "chainStage": 2,
+      "cooldown": 86400,
+      "conditions": {
+        "eventFlag": "wp_fake_p0_resolved"
+      },
+      "choices": [
+        {
+          "id": "APPRECIATE",
+          "text": "\"干得漂亮，一起看。\"",
+          "effects": {
+            "mind": 4,
+            "performance": 3,
+            "relationship": {
+              "TESTER": 6
+            },
+            "assignTask": {
+              "title": "联合处理真 P0：登录超时",
+              "priority": "P0",
+              "source": "TEST",
+              "rewardSalary": 35,
+              "rewardPerformance": 4,
+              "rewardCultivation": 20
+            }
+          },
+          "resultText": "互信是职场最稀有的资源。今天它升值了。"
+        },
+        {
+          "id": "TEACH_FILTER",
+          "text": "教他写\"复现步骤+影响面\"模板",
+          "effects": {
+            "mind": 2,
+            "cultivation": 12,
+            "relationship": {
+              "TESTER": 5
+            }
+          },
+          "resultText": "从此团队的 P0 报告都有了模板。你悄悄给全组升了级。"
+        }
+      ]
+    },
+    {
+      "id": "wp_test_regression",
+      "title": "回归测试全挂",
+      "description": "测试小哥：\"今天回归，38个用例挂了35个。\"你的新代码昨天刚合并。",
+      "category": "BUG",
+      "rarity": "COMMON",
+      "priority": "NORMAL",
+      "baseWeight": 5,
+      "cooldown": 172800,
+      "choices": [
+        {
+          "id": "CHECK_ENV",
+          "text": "先查测试环境",
+          "successChance": 0.6,
+          "successEffects": {
+            "performance": 3,
+            "mind": 2,
+            "evidence": {
+              "type": "TEST_REPORT",
+              "label": "测试环境配置漂移证明"
+            }
+          },
+          "failureEffects": {
+            "mind": -4,
+            "assignTask": {
+              "title": "修复回归失败的用例",
+              "priority": "P1",
+              "source": "TEST",
+              "rewardSalary": 20,
+              "rewardPerformance": 3,
+              "rewardCultivation": 12
+            }
+          },
+          "resultText": "环境问题能救你一天，救不了你一世。"
+        },
+        {
+          "id": "OWN_IT",
+          "text": "认了，改",
+          "effects": {
+            "mind": -3,
+            "performance": 2,
+            "cultivation": 15,
+            "assignTask": {
+              "title": "修复回归失败的用例",
+              "priority": "P1",
+              "source": "TEST",
+              "rewardSalary": 20,
+              "rewardPerformance": 3,
+              "rewardCultivation": 12
+            }
+          },
+          "resultText": "改代码是修行，跑测试是渡劫。"
+        },
+        {
+          "id": "BLAME_MERGE",
+          "text": "\"是不是别人也合了代码？\"",
+          "successChance": 0.4,
+          "successEffects": {
+            "mind": 2
+          },
+          "failureEffects": {
+            "mind": -5,
+            "relationship": {
+              "TESTER": -3
+            },
+            "performance": -1
+          },
+          "resultText": "Git 记录显示，昨天只有你一个人提交。空气突然安静。"
+        }
+      ]
+    },
+    {
+      "id": "wp_boss_late_msg",
+      "title": "17:59 的消息",
+      "description": "17:59，老板在企业群里@你：\"小范，明天早上之前，把这个季度的复盘给我。\"",
+      "category": "BOSS",
+      "rarity": "COMMON",
+      "priority": "IMPORTANT",
+      "baseWeight": 6,
+      "cooldown": 259200,
+      "minMinuteOfDay": 1075,
+      "choices": [
+        {
+          "id": "TONIGHT",
+          "text": "今晚做",
+          "effects": {
+            "mind": -5,
+            "performance": 4,
+            "relationship": {
+              "BOSS": 4
+            },
+            "startOvertime": {
+              "source": "REQUESTED",
+              "free": true,
+              "plannedMinutes": 120
+            }
+          },
+          "resultText": "你重新解锁了电脑。屏幕的光照在脸上，像月光，也像工牌。"
+        },
+        {
+          "id": "MORNING",
+          "text": "明早提前一小时到",
+          "effects": {
+            "mind": 1,
+            "performance": 1,
+            "relationship": {
+              "BOSS": 1
+            },
+            "assignTask": {
+              "title": "早到一小时写复盘",
+              "priority": "P1",
+              "source": "BOSS",
+              "rewardSalary": 15,
+              "rewardPerformance": 2
+            }
+          },
+          "resultText": "谈判成功。代价是明天的闹钟提前一小时。"
+        },
+        {
+          "id": "TEMPLATE",
+          "text": "找去年的模板改一改",
+          "effects": {
+            "mind": 3,
+            "performance": 2,
+            "techDebt": {
+              "REPORT": 5
+            }
+          },
+          "resultText": "去年的数据改成本年，\"修仙\"改成\"降本增效\"。领导批：\"写得很好。\""
+        }
+      ]
+    },
+    {
+      "id": "wp_boss_pie",
+      "title": "画的饼有点大",
+      "description": "老板把全组叫进会议室：\"明年这个时候，我们就是行业第一。到时候在座的都是元老。\"",
+      "category": "BOSS",
+      "rarity": "COMMON",
+      "priority": "FLAVOR",
+      "baseWeight": 5,
+      "cooldown": 172800,
+      "choices": [
+        {
+          "id": "BELIEVE",
+          "text": "听进去了",
+          "effects": {
+            "cultivation": 20,
+            "mind": -5,
+            "setFlags": [
+              "pie_believer"
+            ],
+            "grantTechnique": "tech_boss_pie_true"
+          },
+          "resultText": "你听完了整场愿景，感觉自己已经财富自由了一秒钟。"
+        },
+        {
+          "id": "NOD",
+          "text": "点头鼓掌",
+          "effects": {
+            "mind": 2,
+            "relationship": {
+              "BOSS": 3
+            }
+          },
+          "resultText": "你的掌声和薪水一样，标准且克制。"
+        },
+        {
+          "id": "DIGEST",
+          "text": "炼化这块饼",
+          "effects": {
+            "cultivation": 8,
+            "mind": 1
+          },
+          "resultText": "画饼充饥不可取，但炼饼入药可修心。修为 +8。"
+        }
+      ]
+    },
+    {
+      "id": "wp_boss_inspect",
+      "title": "老板视察工位",
+      "description": "老板背着手在你身后站了三分钟。你的屏幕上是半屏代码半屏购物网站。",
+      "category": "BOSS",
+      "rarity": "COMMON",
+      "priority": "NORMAL",
+      "baseWeight": 5,
+      "cooldown": 172800,
+      "choices": [
+        {
+          "id": "ALT_TAB",
+          "text": " Alt+Tab 神技",
+          "successChance": 0.8,
+          "successEffects": {
+            "mind": 2
+          },
+          "failureEffects": {
+            "mind": -4,
+            "performance": -1,
+            "relationship": {
+              "BOSS": -2
+            }
+          },
+          "resultText": "手速即是命运。"
+        },
+        {
+          "id": "SHOW_WORKLOG",
+          "text": "把提交记录摊开给他看",
+          "requirements": {
+            "evidence": "GIT_LOG"
+          },
+          "effects": {
+            "relationship": {
+              "BOSS": 2
+            },
+            "mind": 1
+          },
+          "resultText": "老板扫了一眼提交时间线，点了点头走了。证据有时候比解释好用。"
+        },
+        {
+          "id": "STAY_CALM",
+          "text": "心如止水，继续改 bug",
+          "effects": {
+            "performance": 2,
+            "relationship": {
+              "BOSS": 2
+            }
+          },
+          "resultText": "泰山崩于前而色不变。老板看了两分钟，走了。"
+        }
+      ]
+    },
+    {
+      "id": "wp_product_small_req",
+      "title": "很小的需求",
+      "description": "17:56，产品经理：\"就加个很小的需求——导出、审批流、消息推送，再兼容一下历史数据。就这些，很小的。\"",
+      "category": "PRODUCT",
+      "rarity": "COMMON",
+      "priority": "IMPORTANT",
+      "baseWeight": 7,
+      "cooldown": 172800,
+      "minMinuteOfDay": 1050,
+      "choices": [
+        {
+          "id": "TONIGHT_DO",
+          "text": "今晚做",
+          "effects": {
+            "mind": -6,
+            "performance": 3,
+            "relationship": {
+              "PRODUCT": 4
+            },
+            "techDebt": {
+              "ORDER": 6,
+              "MESSAGE": 4
+            },
+            "startOvertime": {
+              "source": "REQUESTED",
+              "free": true,
+              "plannedMinutes": 150
+            }
+          },
+          "resultText": "四个需求，一晚上，零加班费。产品经理发了个\"辛苦了\"的表情包。"
+        },
+        {
+          "id": "NEXT_SPRINT",
+          "text": "下周排期",
+          "effects": {
+            "mind": 2,
+            "performance": 0,
+            "relationship": {
+              "PRODUCT": -2
+            }
+          },
+          "resultText": "排期表是程序员的护身符。"
+        },
+        {
+          "id": "MIN_VERSION",
+          "text": "砍成最小版",
+          "effects": {
+            "mind": 2,
+            "performance": 1,
+            "techDebt": {
+              "ORDER": 3
+            }
+          },
+          "resultText": "导出改成截图，审批流改成口头确认。产品沉默地接受了。"
+        },
+        {
+          "id": "BOSS_DECIDE",
+          "text": "让老板定优先级",
+          "effects": {
+            "mind": 1,
+            "relationship": {
+              "PRODUCT": -3,
+              "BOSS": 1
+            },
+            "setFlags": [
+              "wp_priority_escalated"
+            ]
+          },
+          "resultText": "老板：\"都要。\"——问题进入了薛定谔状态。"
+        },
+        {
+          "id": "SHOW_ORIG",
+          "text": "打开原始需求文档",
+          "requirements": {
+            "evidence": "REQUIREMENT_DOC"
+          },
+          "effects": {
+            "mind": 4,
+            "performance": 2,
+            "relationship": {
+              "PRODUCT": -2
+            }
+          },
+          "resultText": "原始需求里没有这一条。产品经理沉默了三秒：\"……我再对一下。\""
+        }
+      ]
+    },
+    {
+      "id": "wp_product_color",
+      "title": "把按钮改成五彩斑斓的黑",
+      "description": "产品：\"老板觉得按钮不够高级，改成那种……五彩斑斓的黑。\"",
+      "category": "PRODUCT",
+      "rarity": "COMMON",
+      "priority": "FLAVOR",
+      "baseWeight": 4,
+      "cooldown": 259200,
+      "choices": [
+        {
+          "id": "PRODUCT_COLOR_DOC",
+          "text": "翻出原始设计稿确认",
+          "requirements": {
+            "evidence": "REQUIREMENT_DOC"
+          },
+          "effects": {
+            "mind": 2,
+            "performance": 1
+          },
+          "resultText": "设计稿上写的是\"#333\"。产品经理：\"……那可能老板记错了。\""
+        },
+        {
+          "id": "GRADIENT",
+          "text": "加个渐变",
+          "effects": {
+            "mind": 1,
+            "performance": 1
+          },
+          "resultText": "linear-gradient(145deg, #000, #111)。老板：\"有点意思了。\""
+        },
+        {
+          "id": "REFERENCE",
+          "text": "科普一下色彩原理",
+          "effects": {
+            "mind": 2,
+            "relationship": {
+              "PRODUCT": -1
+            }
+          },
+          "resultText": "你讲了十分钟明度与饱和度。产品记了笔记，最后改回了原样。"
+        }
+      ]
+    },
+    {
+      "id": "wp_meeting_endless",
+      "title": "无限拉长的晨会",
+      "description": "晨会开到第四十分钟，开始讨论食堂涨价问题。",
+      "category": "MEETING",
+      "rarity": "COMMON",
+      "priority": "FLAVOR",
+      "baseWeight": 5,
+      "cooldown": 172800,
+      "choices": [
+        {
+          "id": "ENDURE",
+          "text": "继续听",
+          "effects": {
+            "mind": -3
+          },
+          "resultText": "你灵魂出窍，元神在工位上写完了半个需求。"
+        },
+        {
+          "id": "SKIP_HIGH",
+          "text": "（职级≥5）\"我手上有P1，先出去了\"",
+          "requirements": {
+            "minCareer": 5
+          },
+          "effects": {
+            "mind": 3,
+            "performance": 1,
+            "relationship": {
+              "BOSS": -1
+            }
+          },
+          "resultText": "职级就是话语权。你平静地离开，无人阻拦。"
+        },
+        {
+          "id": "TOILET",
+          "text": "厕所遁",
+          "effects": {
+            "mind": 4,
+            "cultivation": 5
+          },
+          "resultText": "隔间里，你闭目打坐。粪肥的气息中，道心愈发坚定。"
+        }
+      ]
+    },
+    {
+      "id": "wp_meeting_review",
+      "title": "需求评审会",
+      "description": "评审会上，产品念了二十分钟。你发现了三处逻辑漏洞和一处与线上数据结构冲突。",
+      "category": "MEETING",
+      "rarity": "COMMON",
+      "priority": "NORMAL",
+      "baseWeight": 5,
+      "cooldown": 172800,
+      "choices": [
+        {
+          "id": "RAISE_ISSUES",
+          "text": "当场指出",
+          "effects": {
+            "performance": 3,
+            "mind": 1,
+            "relationship": {
+              "PRODUCT": -2
+            },
+            "evidence": {
+              "type": "REQUIREMENT_DOC",
+              "label": "标注了风险的需求评审记录"
+            }
+          },
+          "resultText": "产品当场改了文档。你顺手保存了这一版——未来的证据。"
+        },
+        {
+          "id": "AFTER_MEETING",
+          "text": "会后私聊",
+          "effects": {
+            "performance": 1,
+            "relationship": {
+              "PRODUCT": 3
+            }
+          },
+          "resultText": "私下沟通，给足面子。产品承诺修改。你多留了个心眼，也存了文档。"
+        },
+        {
+          "id": "SILENT",
+          "text": "什么都不说",
+          "effects": {
+            "mind": -2,
+            "techDebt": {
+              "ORDER": 4
+            }
+          },
+          "resultText": "两周后，冲突如期而至。每一笔技术债都有溯源。"
+        }
+      ]
+    },
+    {
+      "id": "wp_npc_junior_coffee",
+      "title": "小师妹的投喂",
+      "description": "摸鱼小师妹递来一杯咖啡：\"看你最近加班，这个给你。\"",
+      "category": "NPC",
+      "rarity": "COMMON",
+      "priority": "FLAVOR",
+      "baseWeight": 5,
+      "cooldown": 172800,
+      "choices": [
+        {
+          "id": "THANKS",
+          "text": "道谢，喝下",
+          "effects": {
+            "mind": 6,
+            "relationship": {
+              "JUNIOR": 4
+            }
+          },
+          "resultText": "咖啡温热。世界突然没那么糟。"
+        },
+        {
+          "id": "SHARE",
+          "text": "分她一半，聊十分钟",
+          "effects": {
+            "mind": 4,
+            "relationship": {
+              "JUNIOR": 7,
+              "VETERAN": -1
+            }
+          },
+          "resultText": "十分钟的闲聊，胜过一小时带薪摸鱼。"
+        }
+      ]
+    },
+    {
+      "id": "wp_npc_veteran_teach",
+      "title": "老油条传功",
+      "description": "老油条压低声音：\"教你一招——所有事，群里说，邮件确认，留痕。能救你半条命。\"",
+      "category": "NPC",
+      "rarity": "RARE",
+      "priority": "FLAVOR",
+      "baseWeight": 4,
+      "cooldown": 432000,
+      "choices": [
+        {
+          "id": "LEARN",
+          "text": "虚心求教",
+          "effects": {
+            "mind": 4,
+            "performance": 2,
+            "relationship": {
+              "VETERAN": 5
+            },
+            "evidence": {
+              "type": "MEETING_NOTE",
+              "label": "老油条亲传《留痕诀》笔记"
+            }
+          },
+          "resultText": "你获得了功法残页【留痕诀】。这不是Attribute，是命。"
+        },
+        {
+          "id": "Doubt",
+          "text": "\"你上次不还甩锅给我？\"",
+          "requirements": {
+            "eventFlag": "mem:VETERAN:STOLE_CREDIT"
+          },
+          "effects": {
+            "mind": 3,
+            "relationship": {
+              "VETERAN": -4
+            }
+          },
+          "resultText": "老油条尴尬地笑了：\"此一时彼一时。\"但招你还是说了。"
+        }
+      ]
+    },
+    {
+      "id": "wp_npc_hr_talk",
+      "title": "HR仙子的关心",
+      "description": "HR仙子约你喝咖啡：\"最近状态怎么样？有什么想法都可以跟我说。\"",
+      "category": "NPC",
+      "rarity": "COMMON",
+      "priority": "FLAVOR",
+      "baseWeight": 4,
+      "cooldown": 432000,
+      "choices": [
+        {
+          "id": "HONEST",
+          "text": "说了点真话",
+          "effects": {
+            "mind": 3,
+            "relationship": {
+              "HR": 4
+            },
+            "innerDemon": -2
+          },
+          "resultText": "HR认真记了笔记。真话在这个公司仍然是稀缺资源。"
+        },
+        {
+          "id": "DIPLOMATIC",
+          "text": "\"挺好的，都挺好的。\"",
+          "effects": {
+            "mind": 1,
+            "relationship": {
+              "HR": 1
+            }
+          },
+          "resultText": "标准答案。标准微笑。标准的一场空。"
+        }
+      ]
+    },
+    {
+      "id": "wp_weekend_boss_msg",
+      "title": "飞剑传书：\"在吗？\"",
+      "description": "周六下午，老板的飞剑悬在窗外：\"在吗？\"",
+      "category": "NPC",
+      "rarity": "RARE",
+      "priority": "IMPORTANT",
+      "baseWeight": 8,
+      "allowWeekend": true,
+      "cooldown": 432000,
+      "choices": [
+        {
+          "id": "REPLY_ZAI",
+          "text": "\"在\"",
+          "effects": {
+            "mind": -6,
+            "performance": 2,
+            "relationship": {
+              "BOSS": 3
+            },
+            "assignTask": {
+              "title": "周末紧急支援：处理线上数据问题",
+              "priority": "P0",
+              "source": "BOSS",
+              "rewardSalary": 30,
+              "rewardPerformance": 2
+            },
+            "setFlags": [
+              "wp_replied_zai"
+            ],
+            "lifetime": {
+              "weekendLostToZai": 1
+            }
+          },
+          "resultText": "一个字，值半天周末。史称《一个\"在\"字引发的血案》。"
+        },
+        {
+          "id": "NOT_HOME",
+          "text": "【不在】（没回）",
+          "effects": {
+            "mind": 4,
+            "relationship": {
+              "BOSS": -2
+            }
+          },
+          "resultText": "飞剑悬了三分钟，走了。你从窗帘后面探出头。"
+        },
+        {
+          "id": "NOT_SEE",
+          "text": "【没看见】（两小时后回）",
+          "effects": {
+            "mind": 2,
+            "relationship": {
+              "BOSS": -1
+            }
+          },
+          "resultText": "老板：\"没事了，已经让别人处理了。\"你赌赢了。这次。"
+        },
+        {
+          "id": "WHAT_UP",
+          "text": "【什么事？】（谨慎试探）",
+          "effects": {
+            "mind": 1,
+            "relationship": {
+              "BOSS": 1
+            }
+          },
+          "resultText": "老板：\"小问题，明天说也行。\"你赢回了周末，还留下了负责的印象。"
+        }
+      ]
+    },
+    {
+      "id": "wp_weekend_oncall",
+      "title": "周末值班告警",
+      "description": "周六 02:14，值班手机响起：磁盘使用率 96%。你是本月的值班牛马。",
+      "category": "BUG",
+      "rarity": "RARE",
+      "priority": "IMPORTANT",
+      "baseWeight": 6,
+      "allowWeekend": true,
+      "cooldown": 259200,
+      "choices": [
+        {
+          "id": "HANDLE",
+          "text": "起床处理",
+          "effects": {
+            "mind": -5,
+            "cultivation": 15,
+            "performance": 4,
+            "evidence": {
+              "type": "TICKET_HISTORY",
+              "label": "周末值班处理工单记录"
+            },
+            "assignTask": {
+              "title": "值班：清理磁盘并扩容",
+              "priority": "P1",
+              "source": "INCIDENT",
+              "rewardSalary": 25,
+              "rewardPerformance": 4
+            },
+            "grantConsumable": "cons_overtime"
+          },
+          "resultText": "凌晨三点的服务器机房，比任何洞天福地都安静。"
+        },
+        {
+          "id": "SNOOZE",
+          "text": "关掉告警继续睡",
+          "successChance": 0.4,
+          "successEffects": {
+            "mind": 2
+          },
+          "failureEffects": {
+            "mind": -8,
+            "performance": -4,
+            "raiseIncident": {
+              "type": "DISK_FULL",
+              "severity": "S2"
+            },
+            "setFlags": [
+              "wp_oncall_ignored"
+            ]
+          },
+          "resultText": "磁盘满的那一瞬间，整个服务跟着告警群一起炸了。"
+        }
+      ]
+    },
+    {
+      "id": "wp_mgmt_team_ot",
+      "title": "Deadline 来了",
+      "description": "你是主管了。项目倒排，还差三天的量。老板看着你：\"怎么办？\"",
+      "category": "BOSS",
+      "rarity": "RARE",
+      "priority": "IMPORTANT",
+      "baseWeight": 6,
+      "minCareer": 7,
+      "cooldown": 259200,
+      "choices": [
+        {
+          "id": "TEAM_OT",
+          "text": "【今晚大家辛苦一下】",
+          "effects": {
+            "mind": -3,
+            "performance": 5,
+            "relationship": {
+              "BOSS": 5
+            },
+            "lifetime": {
+              "teamOvertimeForced": 1
+            },
+            "setFlags": [
+              "wp_dragon_choice"
+            ]
+          },
+          "resultText": "你说出了当年最恨的那句话。说出口的瞬间，你听到了龙鳞摩擦的声音。"
+        },
+        {
+          "id": "CUT_SCOPE",
+          "text": "【砍需求，保核心】",
+          "effects": {
+            "performance": 3,
+            "mind": 2,
+            "relationship": {
+              "PRODUCT": -3,
+              "BOSS": 1
+            }
+          },
+          "resultText": "你砍掉了两个炫技模块。核心功能按时交付。团队看你的眼神里有了光。"
+        },
+        {
+          "id": "DELAY",
+          "text": "【重新排期，我去顶住】",
+          "effects": {
+            "performance": 1,
+            "mind": 3,
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "wp_guardian_choice"
+            ]
+          },
+          "resultText": "你一个人走进老板办公室。团队不知道你顶了什么。"
+        },
+        {
+          "id": "I_STAY",
+          "text": "【我留下，你们走】",
+          "effects": {
+            "mind": -2,
+            "performance": 4,
+            "cultivation": 20,
+            "lifetime": {
+              "guardianCount": 1
+            },
+            "setFlags": [
+              "wp_guardian_choice"
+            ]
+          },
+          "resultText": "22:00，办公室只剩你一盏灯。你把最难的三个模块写完了。"
+        }
+      ]
+    },
+    {
+      "id": "wp_mgmt_sub_incident",
+      "title": "下属的事故",
+      "description": "你的下属手抖删了配置，支付中断二十分钟。老板：\"你团队怎么管理的？\"",
+      "category": "BOSS",
+      "rarity": "RARE",
+      "priority": "CRITICAL",
+      "baseWeight": 5,
+      "minCareer": 7,
+      "cooldown": 259200,
+      "choices": [
+        {
+          "id": "TAKE_RESP",
+          "text": "【我负责，管理是我的责任】",
+          "effects": {
+            "performance": -2,
+            "mind": 3,
+            "relationship": {
+              "BOSS": 3
+            },
+            "lifetime": {
+              "guardianCount": 1
+            }
+          },
+          "resultText": "下属红着眼眶看你。你的绩效掉了一截，威望涨了一截。"
+        },
+        {
+          "id": "ROOT_CAUSE_FIRST",
+          "text": "【先看根因】",
+          "effects": {
+            "performance": 3,
+            "mind": 1,
+            "evidence": {
+              "type": "DEPLOY_LOG",
+              "label": "配置变更事故时间线"
+            },
+            "grantEquipment": "eq_privacy_filter"
+          },
+          "resultText": "你拉出变更记录：审批流程缺失才是根因。追责变成了流程改造。"
+        },
+        {
+          "id": "PROTECT",
+          "text": "【流程漏洞，不能全怪他】",
+          "effects": {
+            "performance": 1,
+            "mind": 3,
+            "relationship": {
+              "BOSS": -1
+            },
+            "lifetime": {
+              "guardianCount": 1
+            }
+          },
+          "resultText": "你当场立了双人复核制度。事故再没犯过第二次。"
+        },
+        {
+          "id": "BLAME_SUB",
+          "text": "【责任到人，是他删的】",
+          "effects": {
+            "performance": 2,
+            "mind": -5,
+            "innerDemon": 8,
+            "relationship": {
+              "BOSS": 2
+            }
+          },
+          "resultText": "下属被罚了绩效。组里的空气从此变得客气而冰冷。"
+        }
+      ]
+    },
+    {
+      "id": "wp_npc_junior_help",
+      "title": "小师妹的求助",
+      "description": "摸鱼小师妹的屏幕上是一片报错：\"师兄，我环境坏了，导师……啊不，领导催得紧。\"",
+      "category": "NPC",
+      "rarity": "COMMON",
+      "priority": "NORMAL",
+      "baseWeight": 4,
+      "cooldown": 172800,
+      "choices": [
+        {
+          "id": "HELP",
+          "text": "帮她看看",
+          "effects": {
+            "mind": 3,
+            "relationship": {
+              "JUNIOR": 6
+            },
+            "performance": 1,
+            "setFlags": [
+              "mem:JUNIOR:PLAYER_HELPED"
+            ]
+          },
+          "resultText": "问题是 npm 缓存。五分钟，一段善缘。"
+        },
+        {
+          "id": "TEACH",
+          "text": "教她怎么查",
+          "effects": {
+            "mind": 2,
+            "relationship": {
+              "JUNIOR": 8
+            },
+            "cultivation": 10
+          },
+          "resultText": "\"授人以渔\"是个好功法，修为+10。"
+        },
+        {
+          "id": "BUSY",
+          "text": "\"我忙，你问老油条。\"",
+          "effects": {
+            "mind": -1,
+            "relationship": {
+              "JUNIOR": -3
+            }
+          },
+          "resultText": "小师妹哦了一声。工位之间的距离突然变远了。"
+        }
+      ]
+    },
+    {
+      "id": "wp_boss_overtime_ask",
+      "title": "今晚大家辛苦一下",
+      "description": "18:02，老板在群里：\"版本有点赶，今晚大家辛苦一下，加一会儿班。\"",
+      "category": "BOSS",
+      "rarity": "COMMON",
+      "priority": "IMPORTANT",
+      "baseWeight": 6,
+      "cooldown": 172800,
+      "minMinuteOfDay": 1080,
+      "choices": [
+        {
+          "id": "ACCEPT",
+          "text": "【行】",
+          "effects": {
+            "mind": -4,
+            "performance": 3,
+            "relationship": {
+              "BOSS": 3
+            },
+            "startOvertime": {
+              "source": "REQUESTED",
+              "free": true,
+              "plannedMinutes": 120
+            }
+          },
+          "resultText": "群里刷起\"收到\"。你也是其中之一。"
+        },
+        {
+          "id": "COMP_TIME",
+          "text": "【可以，明天调休】",
+          "effects": {
+            "mind": -1,
+            "performance": 2,
+            "relationship": {
+              "BOSS": 1
+            },
+            "startOvertime": {
+              "source": "COMPENSATED",
+              "free": false,
+              "plannedMinutes": 120
+            }
+          },
+          "resultText": "谈判达成。带薪加班，下班无愧。"
+        },
+        {
+          "id": "ASK_PAY",
+          "text": "【先说加班费】",
+          "effects": {
+            "mind": 2,
+            "performance": -1,
+            "relationship": {
+              "BOSS": -3
+            },
+            "startOvertime": {
+              "source": "COMPENSATED",
+              "free": false,
+              "plannedMinutes": 90
+            }
+          },
+          "resultText": "老板：\"……按 1.5 倍算。\"今晚的灯，亮得心安理得。"
+        },
+        {
+          "id": "REFUSE_OT",
+          "text": "【去他的，我不加】",
+          "effects": {
+            "mind": 6,
+            "performance": -4,
+            "relationship": {
+              "BOSS": -6
+            },
+            "innerDemon": -3
+          },
+          "resultText": "你合上电脑，走进晚风。自由是有代价的，今晚的代价叫绩效。"
+        },
+        {
+          "id": "TOMORROW_DO",
+          "text": "【明天做，今晚效率不高】",
+          "effects": {
+            "mind": 2,
+            "performance": -1,
+            "relationship": {
+              "BOSS": -1
+            }
+          },
+          "resultText": "道理是对的，老板的脸是臭的。"
+        }
+      ]
+    },
+    {
+      "id": "wp_boss_1800_free",
+      "title": "18:00，没有人叫住你",
+      "description": "18:00 整。群里没有任何消息。走廊安静。你甚至有点不习惯。",
+      "category": "SECRET",
+      "rarity": "RARE",
+      "priority": "NORMAL",
+      "baseWeight": 4,
+      "cooldown": 172800,
+      "minMinuteOfDay": 1080,
+      "choices": [
+        {
+          "id": "LEAVE",
+          "text": "【立即飞升（下班）】",
+          "effects": {
+            "mind": 8,
+            "cultivation": 10,
+            "setFlags": [
+              "wp_left_on_time"
+            ]
+          },
+          "resultText": "夕阳把你的影子拉得很长。今天，你战胜了公司，也战胜了惯性。"
+        },
+        {
+          "id": "STAY",
+          "text": "再坐一会儿",
+          "effects": {
+            "mind": -3,
+            "performance": 2
+          },
+          "resultText": "你不知道自己在等什么。也许是在等一句\"今天可以走了\"——尽管从来没人说过这句话。"
+        }
+      ]
+    },
+    {
+      "id": "wp_incident_boss_random",
+      "title": "监控大盘红了",
+      "description": "下午三点，监控群突然刷屏：CPU 100%，接口超时。值班群里@了所有人。",
+      "category": "BUG",
+      "rarity": "RARE",
+      "priority": "CRITICAL",
+      "baseWeight": 5,
+      "cooldown": 259200,
+      "choices": [
+        {
+          "id": "INVESTIGATE",
+          "text": "立刻排查",
+          "successChance": 0.65,
+          "successEffects": {
+            "performance": 5,
+            "mind": -3,
+            "cultivation": 20,
+            "evidence": {
+              "type": "MONITOR_LOG",
+              "label": "CPU 打满根因分析"
+            },
+            "assignTask": {
+              "title": "CPU 100% 应急处理",
+              "priority": "P0",
+              "source": "INCIDENT",
+              "rewardSalary": 40,
+              "rewardPerformance": 5,
+              "rewardCultivation": 25
+            }
+          },
+          "failureEffects": {
+            "mind": -6,
+            "raiseIncident": {
+              "type": "CPU_HIGH",
+              "severity": "S2"
+            },
+            "assignTask": {
+              "title": "生产事故应急：CPU 打满",
+              "priority": "P0",
+              "source": "INCIDENT",
+              "rewardSalary": 45,
+              "rewardPerformance": 4
+            }
+          },
+          "resultText": "你打开了一百个终端窗口，像打开了百鬼夜行图。"
+        },
+        {
+          "id": "CALL_FOR_HELP",
+          "text": "拉架构师进群",
+          "effects": {
+            "mind": -1,
+            "performance": 3,
+            "relationship": {
+              "VETERAN": 2
+            },
+            "assignTask": {
+              "title": "协同排查 CPU 异常",
+              "priority": "P1",
+              "source": "INCIDENT",
+              "rewardSalary": 25,
+              "rewardPerformance": 3
+            }
+          },
+          "resultText": "架构师三句话定位了问题。你记进了小本本：这就是差距，也是方向。"
+        },
+        {
+          "id": "WAIT",
+          "text": "等等看，可能自己恢复",
+          "successChance": 0.3,
+          "successEffects": {
+            "mind": 1
+          },
+          "failureEffects": {
+            "mind": -7,
+            "performance": -3,
+            "raiseIncident": {
+              "type": "CPU_HIGH",
+              "severity": "S1",
+              "forcedRelease": false
+            }
+          },
+          "resultText": "它没有恢复。它还在涨。"
+        }
+      ]
+    },
+    {
+      "id": "wp_bug_ghost_pointer",
+      "title": "空指针显形",
+      "description": "测试环境又崩了。日志里躺着一个经典的 NullPointerException，像小鬼一样阴魂不散。",
+      "category": "BUG",
+      "rarity": "COMMON",
+      "priority": "NORMAL",
+      "baseWeight": 5,
+      "cooldown": 86400,
+      "choices": [
+        {
+          "id": "TRACE_UPSTREAM",
+          "text": "翻上游变更工单",
+          "requirements": {
+            "evidence": "TICKET_HISTORY"
+          },
+          "effects": {
+            "cultivation": 20,
+            "performance": 2,
+            "techDebt": {
+              "ORDER": -3
+            },
+            "mind": 1
+          },
+          "resultText": "工单历史指向上游字段变更。你不是在修 bug，是在考古——而考古需要史料。"
+        },
+        {
+          "id": "EXORCISE",
+          "text": "加判空，超度它",
+          "effects": {
+            "cultivation": 12,
+            "mind": 1,
+            "performance": 1,
+            "grantConsumable": "cons_clear"
+          },
+          "resultText": "if (obj == null) return;——一句真言，百鬼退散。"
+        },
+        {
+          "id": "ROOT_CHECK",
+          "text": "查根因：为什么 obj 会是 null",
+          "effects": {
+            "cultivation": 25,
+            "mind": -1,
+            "performance": 2,
+            "techDebt": {
+              "ORDER": -2
+            },
+            "grantConsumable": "cons_stone_pill"
+          },
+          "resultText": "你顺藤摸瓜找到上游数据缺失。技术债悄悄少了两分。"
+        }
+      ]
+    },
+    {
+      "id": "wp_bug_slow_sql",
+      "title": "慢 SQL 泥潭",
+      "description": "一个查询跑了 40 秒。DBA 在群里发了执行计划，意思很明确：全表扫描。",
+      "category": "BUG",
+      "rarity": "COMMON",
+      "priority": "NORMAL",
+      "baseWeight": 5,
+      "cooldown": 86400,
+      "choices": [
+        {
+          "id": "ADD_INDEX",
+          "text": "加索引",
+          "effects": {
+            "cultivation": 18,
+            "performance": 2,
+            "mind": 1,
+            "grantConsumable": "cons_clear"
+          },
+          "resultText": "EXPLAIN 里出现了 index 的绿色。世界清净了。"
+        },
+        {
+          "id": "REWRITE",
+          "text": "重写查询逻辑",
+          "effects": {
+            "cultivation": 30,
+            "mind": -2,
+            "performance": 3,
+            "techDebt": {
+              "ORDER": -3
+            },
+            "grantConsumable": "cons_clear"
+          },
+          "resultText": "40s → 0.3s。你在工位上偷偷握了个拳。"
+        },
+        {
+          "id": "CACHE_IT",
+          "text": "先加缓存顶住",
+          "effects": {
+            "cultivation": 10,
+            "performance": 2,
+            "techDebt": {
+              "PAYMENT": 4
+            }
+          },
+          "resultText": "缓存是特效药，也是慢性债。记得还。"
+        }
+      ]
+    },
+    {
+      "id": "wp_npc_farewell",
+      "title": "同事的散伙饭",
+      "description": "隔壁组的测试老哥提了离职。饭局上他说：\"这公司是个好的修炼场，但不是道场。\"",
+      "category": "NPC",
+      "rarity": "COMMON",
+      "priority": "FLAVOR",
+      "baseWeight": 3,
+      "cooldown": 432000,
+      "choices": [
+        {
+          "id": "TOAST",
+          "text": "敬他一杯",
+          "effects": {
+            "mind": 5,
+            "innerDemon": -3,
+            "relationship": {
+              "TESTER": 3
+            }
+          },
+          "resultText": "酒过三巡，他说了内推的渠道。江湖再见。"
+        },
+        {
+          "id": "REFLECT",
+          "text": "回去想想自己的路",
+          "effects": {
+            "mind": 3,
+            "cultivation": 8
+          },
+          "resultText": "凌晨的反思最值钱。你写下了一行笔记：修仙为了什么？"
+        }
+      ]
+    },
+    {
+      "id": "wp_secret_toilet_meet",
+      "title": "厕所里的机缘",
+      "description": "你在隔间刷手机，听见隔壁在打电话：\"对，客户那边我签了……风险确认？不用不用，出了事我担着。\"",
+      "category": "SECRET",
+      "rarity": "EPIC",
+      "priority": "NORMAL",
+      "baseWeight": 3,
+      "cooldown": 432000,
+      "choices": [
+        {
+          "id": "REMEMBER_VOICE",
+          "text": "默默记下这个声音",
+          "effects": {
+            "mind": 2,
+            "evidence": {
+              "type": "EMAIL",
+              "label": "老板口头承诺\"出事我担着\"的旁听记录"
+            }
+          },
+          "resultText": "你获得了一份奇怪的证据。它在关键时刻可能价值千金。"
+        },
+        {
+          "id": "FLUSH_LEAVE",
+          "text": "冲水，离开，此事与我无关",
+          "effects": {
+            "mind": 1
+          },
+          "resultText": "修仙之人，不偷听壁角。但你的心跳确实快了两拍。"
+        }
+      ]
+    },
+    {
+      "id": "wp_work_grind",
+      "title": "一段专注的 coding",
+      "description": "你进入心流状态，手指在键盘上化作残影。",
+      "category": "WORK",
+      "rarity": "COMMON",
+      "priority": "FLAVOR",
+      "baseWeight": 6,
+      "cooldown": 43200,
+      "choices": [
+        {
+          "id": "DEEP_WORK",
+          "text": "继续深入",
+          "effects": {
+            "cultivation": 20,
+            "performance": 3,
+            "mind": -3,
+            "grantConsumable": "cons_coffee"
+          },
+          "resultText": "两小时后，功能写完，道心微损。这就是 WORK 模式的一生。"
+        }
+      ]
+    },
+    {
+      "id": "wp_product_ai_req",
+      "title": "老板说要加 AI",
+      "description": "产品：\"老板说要在后台加个AI。具体做什么不重要，重要的是要有。\"",
+      "category": "PRODUCT",
+      "rarity": "COMMON",
+      "priority": "NORMAL",
+      "baseWeight": 4,
+      "cooldown": 259200,
+      "choices": [
+        {
+          "id": "CHATBOT",
+          "text": "接个大模型接口，做个客服机器人",
+          "effects": {
+            "cultivation": 25,
+            "performance": 3,
+            "mind": -2,
+            "techDebt": {
+              "MESSAGE": 5
+            }
+          },
+          "resultText": "三天写完。机器人把\"退货\"回答成\"退火\"，老板很满意。"
+        },
+        {
+          "id": "DELAY_AI",
+          "text": "\"AI 需要数据治理，先立项调研\"",
+          "effects": {
+            "mind": 3,
+            "performance": 1
+          },
+          "resultText": "专业性话术胜过一切。产品把需求改成了\"调研中\"。"
+        }
+      ]
+    },
+    {
+      "id": "wp_test_env_down",
+      "title": "测试环境挂了",
+      "description": "测试：\"环境挂了，今天没法测。\"你看了眼时间：下午四点，离下班还有两小时。",
+      "category": "BUG",
+      "rarity": "COMMON",
+      "priority": "NORMAL",
+      "baseWeight": 4,
+      "cooldown": 172800,
+      "choices": [
+        {
+          "id": "FIX_ENV",
+          "text": "顺手修环境",
+          "effects": {
+            "cultivation": 12,
+            "performance": 2,
+            "relationship": {
+              "TESTER": 4
+            }
+          },
+          "resultText": "你修好了环境。测试小哥看你的眼神像看救世主。"
+        },
+        {
+          "id": "SECRET_JOY",
+          "text": "（内心狂喜：今天不用提测了）",
+          "effects": {
+            "mind": 6
+          },
+          "resultText": "你面无表情地说\"真不巧\"，心里放起了烟花。"
+        }
+      ]
+    },
+    {
+      "id": "wp_incident_midnight_deploy",
+      "title": "凌晨发布窗口",
+      "description": "凌晨一点，发布窗口开启。你必须在困意最深的时候保持绝对清醒。",
+      "category": "CHAIN",
+      "rarity": "RARE",
+      "priority": "IMPORTANT",
+      "baseWeight": 6,
+      "requiresOvertime": true,
+      "minMinuteOfDay": 1380,
+      "maxMinuteOfDay": 360,
+      "cooldown": 432000,
+      "choices": [
+        {
+          "id": "DEPLOY_NOW",
+          "text": "按计划发布",
+          "successChance": 0.7,
+          "successEffects": {
+            "performance": 5,
+            "cultivation": 30,
+            "mind": -4
+          },
+          "failureEffects": {
+            "mind": -8,
+            "raiseIncident": {
+              "type": "CONFIG_ERROR",
+              "severity": "S2",
+              "forcedRelease": true
+            },
+            "assignTask": {
+              "title": "凌晨应急：配置回滚",
+              "priority": "P0",
+              "source": "INCIDENT",
+              "rewardSalary": 40,
+              "rewardPerformance": 4
+            }
+          },
+          "resultText": "凌晨三点的发布，像在雷区里绣花。"
+        },
+        {
+          "id": "CHECKLIST",
+          "text": "先过一遍检查清单",
+          "effects": {
+            "mind": -2,
+            "performance": 3,
+            "cultivation": 15,
+            "setFlags": [
+              "wp_deploy_checklist"
+            ]
+          },
+          "resultText": "你逐项打勾，发现两处环境变量没配。发布顺延半小时，平安无事。"
+        }
+      ]
+    }
+  ],
+  "achievements": [
+    {
+      "id": "WP_ZAI",
+      "name": "一个“在”字引发的血案",
+      "description": "周末回复老板“在”并损失了半天周末。",
+      "category": "EVENT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "weekendLostToZai",
+        "target": 1
+      },
+      "reward": {
+        "mind": -5,
+        "cultivation": 30
+      }
+    },
+    {
+      "id": "WP_FAKE_P0",
+      "name": "这TM是P0？",
+      "description": "累计识破 3 次假 P0。",
+      "category": "EVENT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "fakeP0Refused",
+        "target": 3
+      },
+      "reward": {
+        "performance": 5,
+        "mind": 5
+      }
+    },
+    {
+      "id": "WP_EVIDENCE",
+      "name": "证据确凿",
+      "description": "第一次用证据完成责任反击。",
+      "category": "EVENT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "blameCounters",
+        "target": 1
+      },
+      "reward": {
+        "mind": 8
+      }
+    },
+    {
+      "id": "WP_BLAME_5",
+      "name": "背锅侠",
+      "description": "累计背锅 5 次。",
+      "category": "EVENT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "blamesTaken",
+        "target": 5
+      },
+      "reward": {
+        "innerDemon": -5,
+        "cultivation": 20
+      }
+    },
+    {
+      "id": "WP_DRAGON",
+      "name": "屠龙者终成恶龙",
+      "description": "作为管理者，3 次要求团队免费加班。",
+      "category": "EVENT",
+      "hidden": true,
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "teamOvertimeForced",
+        "target": 3
+      },
+      "reward": {
+        "performance": 10,
+        "innerDemon": 10
+      }
+    },
+    {
+      "id": "WP_GUARDIAN",
+      "name": "牛马保护神",
+      "description": "作为管理者，5 次保护团队。",
+      "category": "EVENT",
+      "hidden": true,
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "guardianCount",
+        "target": 5
+      },
+      "reward": {
+        "mind": 10,
+        "cultivation": 50
+      }
+    },
+    {
+      "id": "WP_FISHER",
+      "name": "成功让公司为你的修仙买单",
+      "description": "单日带薪摸鱼收入超过 ¥100。",
+      "category": "EVENT",
+      "hidden": true,
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "fishingDayOver100",
+        "target": 1
+      },
+      "reward": {
+        "mind": 8
+      }
+    },
+    {
+      "id": "WP_INCIDENT_S1",
+      "name": "凌晨四点的公司",
+      "description": "参与处置 3 次生产事故。",
+      "category": "EVENT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "incidentCount",
+        "target": 3
+      },
+      "reward": {
+        "cultivation": 40
+      }
+    },
+    {
+      "id": "WP_OT_FREE_3",
+      "name": "工资已经下班了",
+      "description": "完成 3 次免费加班。",
+      "category": "OVERTIME",
+      "condition": {
+        "type": "OVERTIME_STAT",
+        "stat": "freeSessions",
+        "target": 3
+      },
+      "reward": {
+        "cultivation": 20
+      }
+    }
+  ]
+}

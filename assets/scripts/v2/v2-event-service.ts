@@ -11,6 +11,7 @@ import type { InnerDemonService } from './inner-demon-service';
 import type { RandomService, Rng } from './random-service';
 import eventsConfig from '../../configs/v2/events.json';
 import { OVERTIME_EVENTS, mergeUniqueById } from '../v3/overtime-content';
+import { WORKPLACE_EVENTS } from '../v3/workplace-content';
 import {
   type EventDefinition,
   type EventChoice,
@@ -23,8 +24,12 @@ import {
 } from './event-engine';
 
 export const EVENTS: readonly EventDefinition[] = mergeUniqueById(
-  (eventsConfig as { events: EventDefinition[] }).events,
-  OVERTIME_EVENTS,
+  mergeUniqueById(
+    (eventsConfig as { events: EventDefinition[] }).events,
+    OVERTIME_EVENTS,
+    'event',
+  ),
+  WORKPLACE_EVENTS,
   'event',
 );
 export const EVENT_MAP: ReadonlyMap<string, EventDefinition> = new Map(EVENTS.map((e) => [e.id, e]));
@@ -100,8 +105,8 @@ export class V2EventService {
     if (this.current) return this.current;
     const now = this.clock.now();
     const dayIndex = Math.max(1, this.gameDay.dayIndex());
-    // §144: 每日种子——同一天内事件序列可复现
-    this.rng = this.random.forDay(dayIndex, this.scheduler.state.firedToday.length);
+    // §144: 每日种子——同一天内事件序列可复现；pickSeq 保证每次 pick 消耗新随机数
+    this.rng = this.random.forDay(dayIndex, this.scheduler.nextPickSalt());
     if (!this.scheduler.isDue(now, dayIndex)) return this.pollChain(now);
 
     const world = this.world();
@@ -324,6 +329,13 @@ export class V2EventService {
       const { source, free, plannedMinutes } = effects.startOvertime;
       this.context.overtime.offer(source, free, Math.max(1, Math.floor(plannedMinutes)) * 60);
       this.context.overtime.accept(p.workMode);
+    }
+    if (effects.lifetime) {
+      const stats = { ...p.lifetimeStats };
+      for (const [key, delta] of Object.entries(effects.lifetime)) {
+        stats[key] = (stats[key] ?? 0) + delta;
+      }
+      p.lifetimeStats = stats;
     }
   }
 

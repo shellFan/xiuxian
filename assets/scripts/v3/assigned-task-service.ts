@@ -137,6 +137,7 @@ export class AssignedTaskService {
     this.context.mind.applyDelta(mind);
     this.replace({ ...task, status: 'REFUSED' });
     this.bumpLifetime('assignedTasksRefused', 1);
+    if (task.isFakeP0) this.bumpLifetime('fakeP0Refused', 1);
     const summary = isRealP0
       ? `你拒了真 P0（${task.title}）。绩效 ${performance}，领导记住了。`
       : task.isFakeP0

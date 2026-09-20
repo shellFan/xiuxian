@@ -90,6 +90,8 @@ export interface EventEffects {
   techDebt?: Record<string, number>;
   /** 直接开始一段加班会话（强制加班类事件）。 */
   startOvertime?: { source: 'FORCED' | 'REQUESTED' | 'EMERGENCY' | 'COMPENSATED'; free: boolean; plannedMinutes: number };
+  /** 终身统计累计（牛马档案/成就）。 */
+  lifetime?: Record<string, number>;
 }
 
 export interface EventChoiceRequirements {
@@ -259,6 +261,8 @@ export interface SchedulerState {
   negativeStreak: number;
   /** 今日窗口标识（dayIndex，用于 firedToday 清空）。 */
   firedTodayDay: number;
+  /** pick 序号：作为每日种子的 salt，保证每次 pick 消耗新的随机数（§144）。 */
+  pickSeq: number;
 }
 
 export interface SchedulerConfig {
@@ -292,7 +296,13 @@ export class EventScheduler {
       firedToday: [...(state?.firedToday ?? [])],
       negativeStreak: state?.negativeStreak ?? 0,
       firedTodayDay: state?.firedTodayDay ?? 0,
+      pickSeq: state?.pickSeq ?? 0,
     };
+  }
+
+  /** 每次 pick 消耗一个新的盐值：同一天内事件序列可复现，但不会退化为单一随机数。 */
+  public nextPickSalt(): number {
+    return this.state.pickSeq++;
   }
 
   /** 是否到点（§186：按 nextEventTimestamp，不逐帧 roll）。 */

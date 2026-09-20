@@ -270,7 +270,7 @@ function validatePromotion(promotion: Record<string, unknown>): void {
 }
 
 const VALID_ACHIEVEMENT_CATEGORIES = ['MERGE', 'SALARY', 'CAREER', 'EVENT', 'PROMOTION', 'OFFICE', 'MIND', 'IDLE', 'SECT', 'TALENT', 'WORK', 'OVERTIME'];
-const VALID_ACHIEVEMENT_CONDITION_TYPES = ['KPI', 'SALARY', 'CAREER_LEVEL', 'EVENT_TYPE', 'PROMOTION', 'OFFICE_LEVEL', 'MIND_FULL', 'IDLE_CLAIM', 'SECT_JOIN', 'TALENT_PICK', 'WORK_SECONDS', 'OVERTIME_STAT'];
+const VALID_ACHIEVEMENT_CONDITION_TYPES = ['KPI', 'SALARY', 'CAREER_LEVEL', 'EVENT_TYPE', 'PROMOTION', 'OFFICE_LEVEL', 'MIND_FULL', 'IDLE_CLAIM', 'SECT_JOIN', 'TALENT_PICK', 'WORK_SECONDS', 'OVERTIME_STAT', 'LIFETIME_STAT'];
 const VALID_OVERTIME_ACHIEVEMENT_STATS = ['totalSeconds', 'paidSeconds', 'freeSeconds', 'sessions', 'nightSessions', 'freeSessions', 'consecutiveDays', 'longestStreak'];
 
 function validateAchievements(achievements: Record<string, unknown>): void {
@@ -296,6 +296,11 @@ function validateAchievements(achievements: Record<string, unknown>): void {
     }
     if (condition.type === 'OVERTIME_STAT') {
       if (typeof condition.stat !== 'string' || !VALID_OVERTIME_ACHIEVEMENT_STATS.includes(condition.stat)) fail(`achievements.achievements[${index}].condition.stat is invalid`);
+      requireNumber(condition.target, `achievements.achievements[${index}].condition.target`);
+      if (!Number.isSafeInteger(condition.target) || (condition.target as number) <= 0) fail(`achievements.achievements[${index}].condition.target must be positive`);
+    }
+    if (condition.type === 'LIFETIME_STAT') {
+      requireString(condition.lifetimeKey, `achievements.achievements[${index}].condition.lifetimeKey`);
       requireNumber(condition.target, `achievements.achievements[${index}].condition.target`);
       if (!Number.isSafeInteger(condition.target) || (condition.target as number) <= 0) fail(`achievements.achievements[${index}].condition.target must be positive`);
     }

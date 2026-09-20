@@ -129,6 +129,24 @@ function simulate(profile: Profile): SimResult {
       // 主动 20 分钟 tick（§147 CASUAL 15min ≈ 模拟粒度），其余离线跳过
       loop.tick(20 * 60); // 游戏 20 分钟主动
       clock.advance(HOUR); // 现实 60 分钟窗口（含 40 分钟离线，timestamp 经济）
+      // 事件即时处理（真实玩家看到弹窗会立刻选，不会攒到下班）
+      let segGuard = 0;
+      while (context.v2Events.currentEvent() && segGuard < 40) {
+        const segChoices = context.v2Events.currentChoices();
+        if (!segChoices.length) {
+          try { context.v2Events.choose(null); } catch { break; }
+          segGuard += 1;
+          continue;
+        }
+        let segPick = segChoices[0];
+        if (profile.choiceStyle === 'safe') {
+          segPick = segChoices.reduce((best, c) => ((c.successChance ?? 1) > (best.successChance ?? 1) ? c : best), segChoices[0]);
+        } else if (profile.choiceStyle === 'risky') {
+          segPick = segChoices.reduce((best, c) => ((c.successChance ?? 1) <= (best.successChance ?? 1) ? c : best), segChoices[0]);
+        }
+        try { context.v2Events.choose(segPick.id); } catch { break; }
+        segGuard += 1;
+      }
     }
 
     // 18:00 后结算（模拟玩家打开游戏看到结算）：8 段后约 17:00，跳 2h 到 19:00

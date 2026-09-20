@@ -12,7 +12,8 @@ export type AchievementStatus = 'LOCKED' | 'COMPLETED' | 'CLAIMED';
 export type AchievementConditionType =
   | 'KPI' | 'SALARY' | 'CAREER_LEVEL' | 'EVENT_TYPE'
   | 'PROMOTION' | 'OFFICE_LEVEL' | 'MIND_FULL'
-  | 'IDLE_CLAIM' | 'SECT_JOIN' | 'TALENT_PICK' | 'WORK_SECONDS' | 'OVERTIME_STAT';
+  | 'IDLE_CLAIM' | 'SECT_JOIN' | 'TALENT_PICK' | 'WORK_SECONDS' | 'OVERTIME_STAT'
+  | 'LIFETIME_STAT';
 
 export type OvertimeAchievementStat = 'totalSeconds' | 'paidSeconds' | 'freeSeconds' | 'sessions' | 'nightSessions' | 'freeSessions' | 'consecutiveDays' | 'longestStreak';
 
@@ -22,6 +23,8 @@ export interface AchievementCondition {
   readonly target?: number;
   readonly eventType?: string;
   readonly stat?: OvertimeAchievementStat;
+  /** LIFETIME_STAT 用：player.lifetimeStats 的键。 */
+  readonly lifetimeKey?: string;
 }
 
 export interface AchievementConfig {
@@ -178,6 +181,10 @@ export class AchievementService {
       case 'OVERTIME_STAT': {
         if (!condition.stat || condition.target === undefined) return false;
         return player.overtimeStats[condition.stat] >= condition.target;
+      }
+      case 'LIFETIME_STAT': {
+        if (!condition.lifetimeKey || condition.target === undefined) return false;
+        return (player.lifetimeStats[condition.lifetimeKey] ?? 0) >= condition.target;
       }
       default:
         return false;

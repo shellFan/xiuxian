@@ -62,6 +62,7 @@ import { IncidentService } from '../v3/incident-service';
 import { TechDebtService } from '../v3/tech-debt-service';
 import { AssignedTaskService } from '../v3/assigned-task-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
+import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
 import craftConfig from '../../configs/craft.json';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
@@ -186,8 +187,12 @@ export class GameContext {
     }
     const mergedAchievements = {
       achievements: mergeUniqueById(
-        (achievementsConfig as import('../services/achievement-service').AchievementBundle).achievements,
-        OVERTIME_ACHIEVEMENTS.achievements,
+        mergeUniqueById(
+          (achievementsConfig as import('../services/achievement-service').AchievementBundle).achievements,
+          OVERTIME_ACHIEVEMENTS.achievements,
+          'achievement',
+        ),
+        WORKPLACE_ACHIEVEMENTS.achievements,
         'achievement',
       ),
     };
