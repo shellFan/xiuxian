@@ -12,18 +12,20 @@
 
 - 在当前 `gameplay-v2` 分支开发并做阶段提交，绝不 force push、reset 或清理用户文件。
 - 使用 `GameClockV2`；首页、项目、加班和结算不得各自读取 `Date.now()`。
+- `WorkService.tick()` 与 `V2EconomyService.tick()` 必须通过同一个时段门控和速率函数，跨越午休/18:00 的 tick 必须切分区间，绝不双发工资。
 - 普通工资仅累计 09:00–18:00 内的有效模式时间；免费加班必须明确 `salary = 0`。
 - 所有新持久化字段提供旧存档默认值和 clone/save round-trip 覆盖。
 - 任意一天的模式时长、会议、午休、事故与加班时长必须守恒；每日/每周结算 exactly once。
 - 事件、NPC、任务、成就、购买力、黄历与文案必须配置驱动，不在 UI 内硬编码内容数组。
 - 完成交付前执行完整测试、V2 检查、PC 构建/运行时截图和报告 `ai/reports/WORK-TODAY-SYSTEM.md`。
+- 用户已明确授权本需求的阶段 commit 与最终 non-force push；其余 Git 安全约束保持不变。
 
 ---
 
 ### Task 1: 统一 Work Today 存档与时间投影
 
 **Files:**
-- Modify: `assets/scripts/model/save-data.ts`, `assets/scripts/model/player-data.ts`, `assets/scripts/services/save-service.ts`, `assets/scripts/v2/v2-clock.ts`, `assets/scripts/v2/game-day-service.ts`
+- Modify: `assets/scripts/model/save-data.ts`, `assets/scripts/model/player-data.ts`, `assets/scripts/services/save-service.ts`, `assets/scripts/v2/v2-clock.ts`, `assets/scripts/v2/game-day-service.ts`, `tests/v2/phase1-core.test.ts`, `tests/facade/game-facade.test.ts`
 - Create: `assets/scripts/v3/work-today-service.ts`
 - Test: `tests/v3/work-today-time.test.ts`
 
@@ -32,7 +34,8 @@
 - Extends `GameDayState` with all daily durations, overtime source/status and event history; extends `GameSaveData` with permanent overtime statistics and `compTime`.
 
 - [ ] Write failing tests at 09:00, 12:00, 13:00, 17:30, 17:55, 17:59, 18:00, 20:00, 23:59 and 00:00, asserting one clock-driven countdown and conserved allocation.
-- [ ] Add save version 7 defaults, immutable clone/serialize handling, nested-state validation and a migration from save version 6 without direct casts.
+- [ ] Add save version 7 defaults, immutable clone/serialize handling, nested-state validation and a migration from save version 6 without direct casts; update all v6 fixtures/assertions.
+- [ ] Define cross-midnight ownership: a session remains attached to its originating GameDay until it completes/settles; only after that may `ensureStarted()` roll the next natural date. Test restart/retry boundaries.
 - [ ] Implement `GameClockV2` phase helpers (`isPreOffWorkRiskWindow`, `isOvertimeWindow`, `isNightShift`, `isMidnight`) and Work Today projection without any resource mutation.
 - [ ] Implement mode/event interval recording in `GameDayService`; record only transitions and settlement inputs, never per-frame save writes.
 - [ ] Run `npm test -- tests/v3/work-today-time.test.ts` and commit `feat(v3): add unified work today time accounting`.
@@ -41,7 +44,7 @@
 
 **Files:**
 - Create: `assets/scripts/v3/overtime-service.ts`, `assets/configs/v3/overtime-events.json`, `assets/configs/v3/overtime-tasks.json`
-- Modify: `assets/scripts/core/game-context.ts`, `assets/scripts/services/game-loop-service.ts`, `assets/scripts/v2/v2-event-service.ts`, `assets/scripts/v2/event-engine.ts`, `assets/scripts/v2/npc-weekend-service.ts`, `assets/scripts/services/task-service.ts`, `assets/scripts/model/save-data.ts`
+- Modify: `assets/scripts/core/game-context.ts`, `assets/scripts/services/game-loop-service.ts`, `assets/scripts/services/work-service.ts`, `assets/scripts/v2/v2-economy-service.ts`, `assets/scripts/v2/v2-event-service.ts`, `assets/scripts/v2/event-engine.ts`, `assets/scripts/v2/npc-weekend-service.ts`, `assets/scripts/services/task-service.ts`, `assets/scripts/model/save-data.ts`
 - Test: `tests/v3/overtime-service.test.ts`
 
 **Interfaces:**
@@ -53,13 +56,14 @@
 - [ ] Add temporary fatigue states (TIRED/EXHAUSTED), consecutive-overtime thresholds 2/3/5/7, weekend sleep recovery and CompTime redemption.
 - [ ] Add config-driven task pools with differentiated salary, performance, material, cultivation and NPC rewards.
 - [ ] Change game-loop ordering so 18:00 creates an offer/decision before settlement, blocks normal salary after 18:00 and prevents V1/V2 double accrual.
+- [ ] Make WorkService transaction snapshots restore every new player/GameDay/Overtime field after save failure.
 - [ ] Add 20 overtime-specific pre-off-work events, 30 overtime-specific night events, 5 night bosses and 10 overtime chains including the four required chains; enforce eligibility/cooldown/branch requirements in the event engine.
 - [ ] Run focused tests and commit `feat(v3): add overtime decisions and emergency work`.
 
 ### Task 3: Economy, NPC, dungeon, achievements and balance
 
 **Files:**
-- Modify: `assets/scripts/v2/v2-economy-service.ts`, `assets/scripts/v2/inner-demon-service.ts`, `assets/scripts/v2/npc-weekend-service.ts`, `assets/scripts/services/achievement-service.ts`, `assets/scripts/model/config-types.ts`
+- Modify: `assets/scripts/core/game-context.ts`, `assets/scripts/services/config-service.ts`, `assets/scripts/v2/v2-economy-service.ts`, `assets/scripts/v2/inner-demon-service.ts`, `assets/scripts/v2/npc-weekend-service.ts`, `assets/scripts/services/achievement-service.ts`, `assets/scripts/model/config-types.ts`
 - Create: `assets/configs/v3/overtime-achievements.json`, `assets/configs/v3/night-shift-content.json`, `assets/scripts/v3/overtime-balance-simulator.ts`
 - Test: `tests/v3/overtime-economy-balance.test.ts`
 
@@ -69,6 +73,7 @@
 
 - [ ] Write failing tests for paid fishing salary, free overtime zero salary, each overtime mode multiplier, fatigue penalties, NPC intervention and night modifier rewards.
 - [ ] Implement WORK/FISHING/CULTIVATING/SOCIAL overtime modifiers, boss/night-shift eligibility, night monster/boss config and NPC relationship choices.
+- [ ] Register overtime content, task, achievement, NPC, purchasing-power, almanac and copy bundles through ConfigService/GameContext; no service or UI owns literal content pools.
 - [ ] Add at least 15 overtime achievements, including all named requirements and hidden achievement conditions, through generic stat conditions rather than UI-only flags.
 - [ ] Implement deterministic balance simulations proving daily overtime is not the highest long-run strategy and that low Mind/high InnerDemon makes on-time leave preferable.
 - [ ] Run focused tests plus simulator and commit `feat(v3): balance overtime rewards and long-term costs`.
@@ -118,3 +123,13 @@
 - [ ] Verify every content minimum (20 pre-off-work, 30 night, 5 bosses, 10 chains, 15 achievements) in the content checker.
 - [ ] Run full `npm test`, `npm run build`, `npm run gameplay-v2:check`, `npm run pc:build`, `npm run pc:copy`, `npm run pc:check` and Electron captures for all six required UI states.
 - [ ] Write the required report with clock, countdown, wage, fishing, purchasing-power, agenda, allocation, timeline, weekend, overtime, settlement and V3-combat evidence; commit and push.
+
+## Requirement Traceability
+
+| Requirement group | Delivery task | Proof |
+| --- | --- | --- |
+| 76-item overtime sources, choices, free/paid/weekend/emergency, fatigue, NPC and CompTime | 2–3 | state-machine, event, NPC and balance tests |
+| 20 pre-off-work events, 30 night events, 5 bosses, 10 chains, 15 achievements | 2–3, 6 | config-count checker and eligibility tests |
+| time, salary, paid fishing, allocation, todos, purchasing power, fortune, companion and timeline | 1, 4–5 | clock/projection/UI tests |
+| daily/weekly settlement, title, share card and real UI states | 4–6 | exactly-once/integration tests and Electron captures |
+| unified battle/dungeon time, pause/offline/midnight and no duplicate income | 1–2, 6 | integration and regression matrix |
