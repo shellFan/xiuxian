@@ -62,7 +62,7 @@ const STAGE_LABELS: Record<RelationshipStage, string> = {
   HOSTILE: '敌视', COLD: '冷淡', NORMAL: '普通', FRIENDLY: '友好', TRUSTED: '信任',
 };
 
-export type WeekendActivityId = 'SECLUDED_CULTIVATE' | 'SLEEP_MADLY' | 'FRIENDS_GATHER';
+export type WeekendActivityId = 'SECLUDED_CULTIVATE' | 'SLEEP_MADLY' | 'FRIENDS_GATHER' | 'VOLUNTARY_OVERTIME';
 
 export interface WeekendActivityResult {
   readonly activity: WeekendActivityId;
@@ -184,6 +184,7 @@ export class WeekendService {
       { id: 'SECLUDED_CULTIVATE', name: '闭关修炼', description: '修为大进（+80），道心恢复少（+10）。' },
       { id: 'SLEEP_MADLY', name: '疯狂补觉', description: '道心大复（+45），心魔消散（-15）。' },
       { id: 'FRIENDS_GATHER', name: '朋友聚会', description: 'JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。' },
+      { id: 'VOLUNTARY_OVERTIME', name: '主动加班', description: '周末再卷 2 小时：有补偿，但会留下疲劳。' },
     ];
   }
 
@@ -200,7 +201,13 @@ export class WeekendService {
     } else if (activity === 'SLEEP_MADLY') {
       this.context.mind.applyDelta(45);
       this.demons.reduce(15);
+      this.context.player.overtimeFatigue = 'RESTED';
       summary = '睡了 16 小时。道心 +45，心魔 -15。梦里的需求文档全都自动关闭了。';
+    } else if (activity === 'VOLUNTARY_OVERTIME') {
+      this.gameDay.ensureStarted();
+      this.context.overtime.offer('WEEKEND', false, 2 * 3600);
+      this.context.overtime.accept(this.context.player.workMode);
+      summary = '周末项目攻坚已开始：2 小时有补偿加班，工资之外也请照顾道心。';
     } else {
       const npc = new NpcService(this.context);
       npc.change('JUNIOR', 8);

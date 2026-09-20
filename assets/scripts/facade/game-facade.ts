@@ -235,7 +235,7 @@ export class GameFacade {
   /** 周末活动。 */
   public queryWeekendOptions() { return this.context.weekend.options(); }
   public queryWeekendChosen() { return this.context.weekend.hasChosen(); }
-  public chooseWeekend(id: 'SECLUDED_CULTIVATE' | 'SLEEP_MADLY' | 'FRIENDS_GATHER') { return this.context.weekend.choose(id); }
+  public chooseWeekend(id: 'SECLUDED_CULTIVATE' | 'SLEEP_MADLY' | 'FRIENDS_GATHER' | 'VOLUNTARY_OVERTIME') { return this.context.weekend.choose(id); }
   /** DEV 时间控制（Release 由 UI 隐藏）。 */
   public devAdvanceTime(deltaMs: number) { this.context.clockV2.advanceDevTime(deltaMs); this.context.saveService.save(this.context.player); }
   public devJumpToHour(hour: number, minute?: number) { this.context.clockV2.jumpToHour(hour, minute ?? 0, true); this.context.saveService.save(this.context.player); }

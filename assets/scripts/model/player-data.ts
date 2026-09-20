@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -65,6 +65,7 @@ export interface PlayerDataOptions {
   readonly unlockState?: Readonly<Record<string, boolean>>;
   readonly compTime?: number;
   readonly overtimeStats?: OvertimeStats;
+  readonly overtimeFatigue?: OvertimeFatigueState;
 }
 
 export class PlayerData {
@@ -145,6 +146,7 @@ export class PlayerData {
   public unlockState: Record<string, boolean>;
   public compTime: number;
   public overtimeStats: OvertimeStats;
+  public overtimeFatigue: OvertimeFatigueState;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -208,6 +210,7 @@ export class PlayerData {
     this.unlockState = { ...(options.unlockState ?? {}) };
     this.compTime = Math.max(0, Math.floor(options.compTime ?? 0));
     this.overtimeStats = { totalSeconds: 0, paidSeconds: 0, freeSeconds: 0, sessions: 0, consecutiveDays: 0, longestStreak: 0, ...(options.overtimeStats ?? {}) };
+    this.overtimeFatigue = options.overtimeFatigue === 'EXHAUSTED' || options.overtimeFatigue === 'TIRED' ? options.overtimeFatigue : 'RESTED';
   }
 
   public static createDefault(): PlayerData {
@@ -259,6 +262,7 @@ export class PlayerData {
       unlockState: { ...this.unlockState },
       compTime: this.compTime,
       overtimeStats: { ...this.overtimeStats },
+      overtimeFatigue: this.overtimeFatigue,
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });

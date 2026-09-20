@@ -38,6 +38,7 @@ export type OvertimeSource = 'VOLUNTARY' | 'REQUESTED' | 'FORCED' | 'EMERGENCY' 
 export type OvertimeStatus = 'NONE' | 'OFFERED' | 'ACTIVE' | 'COMPLETED';
 export interface WorkTimelineEntry { id: string; kind: 'MODE_TRANSITION' | 'EVENT'; occurredAt: number; eventId?: string; }
 export interface OvertimeStats { totalSeconds: number; paidSeconds: number; freeSeconds: number; sessions: number; consecutiveDays: number; longestStreak: number; }
+export type OvertimeFatigueState = 'RESTED' | 'TIRED' | 'EXHAUSTED';
 
 /** 单个工作日的持久化状态。 */
 export interface GameDayState {
@@ -198,4 +199,6 @@ export interface GameSaveData {
   readonly performanceRemainder?: number;
   readonly compTime?: number;
   readonly overtimeStats?: OvertimeStats;
+  /** Temporary after-effects from overtime; cleared by rest/recovery, never a currency. */
+  readonly overtimeFatigue?: OvertimeFatigueState;
 }

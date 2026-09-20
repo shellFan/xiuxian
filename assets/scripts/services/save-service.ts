@@ -166,6 +166,7 @@ function migrate(raw: unknown): GameSaveData {
       consecutiveDays: isNonNegativeSafeInteger(overtimeStats.consecutiveDays) ? overtimeStats.consecutiveDays : 0,
       longestStreak: isNonNegativeSafeInteger(overtimeStats.longestStreak) ? overtimeStats.longestStreak : 0,
     },
+    overtimeFatigue: raw.overtimeFatigue === 'TIRED' || raw.overtimeFatigue === 'EXHAUSTED' ? raw.overtimeFatigue : 'RESTED',
   });
   if (merged.gameDay) {
     const day = merged.gameDay as any;

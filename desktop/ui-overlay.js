@@ -726,6 +726,7 @@
           '<button class="ux-gear" data-action="settings">⚙</button>' +
         '</div>' +
         (V2 ? V2.dayStripHtml() : '') +
+        workTodayHtml() +
         '<div class="ux-player">' +
           img('home-avatar', 'ux-player-avatar') +
           '<div>' +
@@ -767,6 +768,33 @@
   function modeBtn(mode, label, sub, emoji, cls, active) {
     return '<button class="ux-btn ux-btn--' + cls + ' ux-mode-btn' + (active ? '' : ' ux-mode-btn--off') + '" data-action="mode" data-mode="' + mode + '">' +
       '<span class="m1">' + emoji + ' ' + label + '</span><span class="m2">' + sub + '</span></button>';
+  }
+
+  /* Work Today is a projection only: it never derives time or mutates salary in the UI. */
+  function workTodayHtml() {
+    var f = facade();
+    var view;
+    if (f && typeof f.queryWorkToday === 'function') {
+      try { view = f.queryWorkToday(); } catch (e) { view = null; }
+    }
+    if (!view) {
+      /* Keep the shipped desktop shell informative while the Cocos facade wakes up. */
+      view = { countdownMs: 5 * 60 * 1000, standardWorkSeconds: 7 * 3600 + 55 * 60, overtimeSeconds: 0, freeOvertimeSeconds: 0, timeline: [] };
+    }
+    var overtime = f && typeof f.queryOvertime === 'function' ? f.queryOvertime() : null;
+    var timeline = (view.timeline || []).slice(-3).map(function (entry) {
+      return '<li>' + new Date(entry.occurredAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' ' + escHtml(entry.eventId || entry.kind) + '</li>';
+    }).join('');
+    var action = overtime && overtime.status === 'ACTIVE'
+      ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="finishOvertime">结束加班</button>'
+      : '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">今晚再卷 2 小时</button>';
+    return '<section class="ux-work-today">' +
+      '<div class="ux-work-today__headline">距离下班 <b id="WorkTodayCountdown">' + hms(view.countdownMs / 1000) + '</b></div>' +
+      '<div class="ux-work-today__grid"><span>标准工时 ' + hms(view.standardWorkSeconds) + '</span><span>加班 ' + hms(view.overtimeSeconds) + '</span><span>免费加班 ' + hms(view.freeOvertimeSeconds) + '</span></div>' +
+      (overtime ? '<div class="ux-work-today__warning">工资已经下班了，你还没有。当前 ' + (overtime.free ? '自愿奋斗（无工资）' : '有补偿加班') + '</div>' : '') +
+      '<div class="ux-work-today__actions">' + action + '</div>' +
+      (timeline ? '<details class="ux-work-today__timeline"><summary>今日时间线</summary><ul>' + timeline + '</ul></details>' : '') +
+      '</section>';
   }
 
   /* ── 6b. 任务 ── */
@@ -1371,6 +1399,26 @@
         case 'mode':
           cmdResult('changeWorkMode', '切换成功', el.dataset.mode);
           break;
+        case 'voluntaryOvertime': {
+          var fOvertime = facade();
+          try {
+            if (!fOvertime) throw new Error('游戏尚未就绪');
+            fOvertime.startVoluntaryOvertime(2 * 3600, false);
+            toast('已开启 2 小时自愿奋斗：本次没有工资补偿。', 'info');
+            refresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'finishOvertime': {
+          var fFinish = facade();
+          try {
+            if (!fFinish) throw new Error('游戏尚未就绪');
+            fFinish.finishOvertime();
+            toast('加班已结束，记得把自己也保存一下。', 'success');
+            refresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
         case 'startDefense':
           if (V2) V2.showDefenseModal();
           break;

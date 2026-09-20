@@ -87,18 +87,22 @@ export class OvertimeService {
       consecutiveDays: session.elapsedSeconds > 0 ? stats.consecutiveDays + 1 : stats.consecutiveDays,
       longestStreak: Math.max(stats.longestStreak, session.elapsedSeconds > 0 ? stats.consecutiveDays + 1 : stats.longestStreak),
     };
+    this.context.player.overtimeFatigue = fatigueForSeconds(session.elapsedSeconds);
     this.gameDay.setOvertimeState(session.source, 'COMPLETED', session.free);
     this.session = null;
   }
 
   public fatigue(): OvertimeFatigue {
-    const seconds = this.session?.elapsedSeconds ?? 0;
-    if (seconds >= 8 * 3600) return 'EXHAUSTED';
-    if (seconds >= 2 * 3600) return 'TIRED';
-    return 'RESTED';
+    return this.session ? fatigueForSeconds(this.session.elapsedSeconds) : this.context.player.overtimeFatigue;
   }
 
   private assertDuration(seconds: number): void {
     if (!Number.isSafeInteger(seconds) || seconds <= 0) throw new Error('Invalid overtime duration');
   }
+}
+
+function fatigueForSeconds(seconds: number): OvertimeFatigue {
+  if (seconds >= 8 * 3600) return 'EXHAUSTED';
+  if (seconds >= 2 * 3600) return 'TIRED';
+  return 'RESTED';
 }
