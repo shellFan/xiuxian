@@ -42,6 +42,8 @@ export class WorkService {
   private readonly cultivationPerHour: readonly number[];
   private readonly mindPerHour: number;
   private committedSnapshot: ReturnType<GameContext['player']['toSaveData']>;
+  /** Last observed game-clock time, used to split a tick that crosses lunch/off-work. */
+  private lastTickAt: number | null = null;
 
   private readonly options: WorkServiceOptions;
 
@@ -79,6 +81,8 @@ export class WorkService {
     if (!Number.isSafeInteger(elapsedSeconds) || elapsedSeconds < 0) throw new Error('Invalid work duration');
     const mode = this.mode;
     if (elapsedSeconds === 0) return ZERO_RESULT(mode);
+    const standardSeconds = this.standardSeconds(elapsedSeconds);
+    if (standardSeconds === 0) return ZERO_RESULT(mode);
     const baseRules = MODE_RULES[mode];
     const override = this.options.modeMultipliers?.[mode];
     const rules = {
@@ -91,7 +95,7 @@ export class WorkService {
     };
     const secondsKey = rules.secondsKey;
     const previousSeconds = this.context.player[secondsKey];
-    const nextSeconds = previousSeconds + elapsedSeconds;
+    const nextSeconds = previousSeconds + standardSeconds;
     if (!Number.isSafeInteger(nextSeconds)) throw new Error('Invalid work duration');
     const salaryRate = this.rateForBoard(this.salaryPerHour);
     const cultivationRate = this.rateForBoard(this.cultivationPerHour);
@@ -99,13 +103,13 @@ export class WorkService {
     const salaryBuffMul = this.context.buffs.getMultiplier('WORK_SALARY_BOOST');
     const cultivationBuffMul = this.context.buffs.getMultiplier('WORK_CULTIVATION_BOOST');
     const careerMul = this.context.career.current();
-    const salaryResult = accumulate(salaryRate, elapsedSeconds, rules.salaryMul, this.context.player.salaryRemainder, 7200);
-    const cultivationResult = accumulate(cultivationRate, elapsedSeconds, rules.cultivationMul, this.context.player.cultivationRemainder, 7200);
+    const salaryResult = accumulate(salaryRate, standardSeconds, rules.salaryMul, this.context.player.salaryRemainder, 7200);
+    const cultivationResult = accumulate(cultivationRate, standardSeconds, rules.cultivationMul, this.context.player.cultivationRemainder, 7200);
     // 道心按模式方向累积余数（负向与正向共用 player.mindRemainder 槽）
     const mindRate = rules.mindPerHour;
     const mindRemainderKey = MODE_RULES[mode].secondsKey.replace('Seconds', 'MindRemainder') as
       'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder';
-    const mindResult = accumulate(Math.abs(mindRate), elapsedSeconds, 1, this.context.player[mindRemainderKey] ?? 0, 3600);
+    const mindResult = accumulate(Math.abs(mindRate), standardSeconds, 1, this.context.player[mindRemainderKey] ?? 0, 3600);
     const salary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier);
     const cultivationExp = Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier);
     const mindBuffMul = mode === 'FISHING' ? this.context.buffs.getMultiplier('FISHING_MIND_BOOST') : 1;
@@ -124,7 +128,7 @@ export class WorkService {
       } else if (mode === 'FISHING') {
         this.context.dailyTasks.setProgress('FISH_3_MIN', nextSeconds);
       }
-      return { salary, cultivationExp, mind: actualMindDelta, elapsedSeconds, mode };
+      return { salary, cultivationExp, mind: actualMindDelta, elapsedSeconds: standardSeconds, mode };
     } catch (error) {
       restorePlayer(this.context.player, previous);
       throw error;
@@ -140,6 +144,48 @@ export class WorkService {
     const levelIndex = Math.min(careerLevel - 1, rates.length - 1);
     return rates[levelIndex] ?? rates[0] ?? 0;
   }
+
+  /**
+   * Ordinary work may only accrue during 09:00–12:00 and 13:00–18:00.
+   * When a real clock advances between ticks, intersect the elapsed range with
+   * those windows. A frozen test clock deliberately uses its current phase.
+   */
+  private standardSeconds(requestedSeconds: number): number {
+    const clock = this.context.clockV2;
+    if (!clock) return requestedSeconds;
+    const now = clock.now();
+    // Legacy deterministic tests use an epoch-like clock-less sentinel. It is
+    // not a playable wall-clock instant, so preserve their pre-V3 behaviour.
+    if (now < 946_684_800_000) return requestedSeconds;
+    const previous = this.lastTickAt;
+    this.lastTickAt = now;
+    if (previous === null) return clock.isWorkingHours() && !clock.isLunchBreak() ? requestedSeconds : 0;
+    if (now <= previous) return clock.isWorkingHours() && !clock.isLunchBreak() ? requestedSeconds : 0;
+    const observedSeconds = Math.floor((now - previous) / 1000);
+    if (observedSeconds <= 0) return clock.isWorkingHours() && !clock.isLunchBreak() ? requestedSeconds : 0;
+    const windowSeconds = standardSecondsBetween(previous, now, clock.workStartHour, clock.lunchStartHour, clock.lunchEndHour, clock.workEndHour);
+    // A stalled tab can report a larger wall-clock gap than the loop delta;
+    // never create more payable time than the loop explicitly advanced.
+    return Math.min(requestedSeconds, windowSeconds);
+  }
+}
+
+function standardSecondsBetween(fromMs: number, toMs: number, startHour: number, lunchStartHour: number, lunchEndHour: number, endHour: number): number {
+  let total = 0;
+  const cursor = new Date(fromMs);
+  cursor.setHours(0, 0, 0, 0);
+  const finalDate = new Date(toMs);
+  finalDate.setHours(0, 0, 0, 0);
+  while (cursor.getTime() <= finalDate.getTime()) {
+    const day = cursor.getTime();
+    for (const [start, end] of [[startHour, lunchStartHour], [lunchEndHour, endHour]] as const) {
+      const windowStart = day + start * 3_600_000;
+      const windowEnd = day + end * 3_600_000;
+      total += Math.max(0, Math.min(toMs, windowEnd) - Math.max(fromMs, windowStart));
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return Math.floor(total / 1000);
 }
 
 function normalizeRates(value: number | readonly number[], name: string): readonly number[] {

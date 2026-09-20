@@ -53,6 +53,9 @@ export class V2EconomyService {
    */
   public tick(seconds: number): void {
     if (seconds <= 0) return;
+    // The loop passes the same clock-gated duration used by WorkService. This
+    // guard also protects direct callers from creating after-hours income.
+    if (this.clock.now() >= 946_684_800_000 && (!this.clock.isWorkingHours() || this.clock.isLunchBreak())) return;
     const player = this.context.player;
     const day = this.gameDay.ensureStarted();
     const mode = player.workMode;

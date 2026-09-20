@@ -78,7 +78,7 @@ export class GameLoopService {
 
     // 5.5 V2 economy: activity durations, daily situation flows, inner demon, payday
     try {
-      this.context.v2Economy.tick(seconds);
+      this.context.v2Economy.tick(workResult.elapsedSeconds);
     } catch {
       // V2 economy failure must not crash the game loop
     }
