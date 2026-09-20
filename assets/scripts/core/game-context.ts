@@ -56,6 +56,7 @@ import { NpcService, WeekendService } from '../v2/npc-weekend-service';
 import { PromotionV2Service, DaySettlementService } from '../v2/v2-settlement-service';
 import { OvertimeService } from '../v3/overtime-service';
 import { WorkTodayService } from '../v3/work-today-service';
+import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import craftConfig from '../../configs/craft.json';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
@@ -168,7 +169,14 @@ export class GameContext {
         this.player = new PlayerData();
       }
     }
-    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig, kpiConfig, officeConfig, promotionConfig, achievementsConfig, dailyConfig, dailyTasksConfig);
+    const mergedAchievements = {
+      achievements: mergeUniqueById(
+        (achievementsConfig as import('../services/achievement-service').AchievementBundle).achievements,
+        OVERTIME_ACHIEVEMENTS.achievements,
+        'achievement',
+      ),
+    };
+    this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig, kpiConfig, officeConfig, promotionConfig, mergedAchievements, dailyConfig, dailyTasksConfig);
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
     });

@@ -18,7 +18,15 @@ import careerEventsConfig from '../../assets/configs/career-events.json';
 
 function createContext(): GameContext {
   const storage = new MemoryStorageAdapter();
-  return new GameContext({ saveService: new SaveService(storage), boardRows: 1, boardColumns: 3 });
+  // WorkService now gates ordinary work to the canonical 09:00–18:00 clock.
+  // Keep KPI accounting tests deterministic by constructing a normal workday.
+  const workdayMorning = new Date(2026, 0, 5, 10, 0, 0, 0).getTime();
+  return new GameContext({
+    saveService: new SaveService(storage),
+    boardRows: 1,
+    boardColumns: 3,
+    clock: { now: () => workdayMorning },
+  });
 }
 
 function testLoadsLevelOneRequirements(): void {

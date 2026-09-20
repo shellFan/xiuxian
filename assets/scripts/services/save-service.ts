@@ -163,9 +163,12 @@ function migrate(raw: unknown): GameSaveData {
       paidSeconds: isNonNegativeSafeInteger(overtimeStats.paidSeconds) ? overtimeStats.paidSeconds : 0,
       freeSeconds: isNonNegativeSafeInteger(overtimeStats.freeSeconds) ? overtimeStats.freeSeconds : 0,
       sessions: isNonNegativeSafeInteger(overtimeStats.sessions) ? overtimeStats.sessions : 0,
+      nightSessions: isNonNegativeSafeInteger(overtimeStats.nightSessions) ? overtimeStats.nightSessions : 0,
+      freeSessions: isNonNegativeSafeInteger(overtimeStats.freeSessions) ? overtimeStats.freeSessions : 0,
       consecutiveDays: isNonNegativeSafeInteger(overtimeStats.consecutiveDays) ? overtimeStats.consecutiveDays : 0,
       longestStreak: isNonNegativeSafeInteger(overtimeStats.longestStreak) ? overtimeStats.longestStreak : 0,
     },
+    lastOvertimeWorkdayStartAt: isNonNegativeSafeInteger(raw.lastOvertimeWorkdayStartAt) ? raw.lastOvertimeWorkdayStartAt : 0,
     overtimeFatigue: raw.overtimeFatigue === 'TIRED' || raw.overtimeFatigue === 'EXHAUSTED' ? raw.overtimeFatigue : 'RESTED',
   });
   if (merged.gameDay) {

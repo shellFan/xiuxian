@@ -229,7 +229,7 @@ function testV2EconomyLunchNoDurationAccumulation(): void {
   const day = context.gameDay.current();
   assert.ok(day, 'game day started during lunch');
   const total = day.durations.work + day.durations.fishing + day.durations.cultivating + day.durations.social;
-  assert.equal(total, 5, 'lunch still counts wall-clock into mode duration');
+  assert.equal(total, 0, 'lunch is outside the authorised work interval and must not accrue mode duration');
 }
 
 // ── Save migration ───────────────────────────────────────────────────────────

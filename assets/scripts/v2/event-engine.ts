@@ -97,6 +97,15 @@ export interface EventDefinition {
   readonly maxCareer?: number;
   /** 允许触发的工作模式；缺省全部。 */
   readonly allowedModes?: readonly string[];
+  /** 当天分钟窗口（0=00:00）；端点包含，start > end 表示跨午夜窗口。 */
+  readonly minMinuteOfDay?: number;
+  readonly maxMinuteOfDay?: number;
+  /** 仅在显式加班会话进行时可触发。 */
+  readonly requiresOvertime?: boolean;
+  /** 默认工作日事件不在周末触发；此字段允许周末内容。 */
+  readonly allowWeekend?: boolean;
+  /** 内容分类：夜班 Boss，供内容校验和后续 dungeon 投影使用。 */
+  readonly isNightBoss?: boolean;
   readonly conditions?: EventChoiceRequirements;
   /** 同事件再次触发冷却（秒）。 */
   readonly cooldown?: number;
@@ -128,6 +137,10 @@ export interface EventWorldState {
   weekday: number;
   /** 当前小时（0-23）。 */
   hour: number;
+  /** 当前当天分钟（0-1439）；旧调用方缺省时由 hour 推导。 */
+  minuteOfDay?: number;
+  /** 是否存在 ACTIVE 加班会话。 */
+  overtimeActive?: boolean;
   /** 今日局势 modifier ids。 */
   situationIds: string[];
   sectId: string | null;
@@ -165,8 +178,17 @@ export function checkEventConditions(def: EventDefinition, world: EventWorldStat
   if (def.maxCareer !== undefined && world.careerLevel > def.maxCareer) return false;
   if (def.allowedModes && !def.allowedModes.includes(world.workMode)) return false;
   if (!checkRequirements(def.conditions, world)) return false;
-  // 工作时段事件不进周末（周末走周末活动系统）
-  if (world.weekday === 0 || world.weekday === 6) return false;
+  const isWeekend = world.weekday === 0 || world.weekday === 6;
+  // 工作日内容不会挤入周末；周末夜班内容必须显式声明。
+  if (isWeekend && !def.allowWeekend) return false;
+  if (def.requiresOvertime && !world.overtimeActive) return false;
+  if (def.minMinuteOfDay !== undefined || def.maxMinuteOfDay !== undefined) {
+    const start = def.minMinuteOfDay ?? 0;
+    const end = def.maxMinuteOfDay ?? 1439;
+    const minute = world.minuteOfDay ?? world.hour * 60;
+    const inWindow = start <= end ? minute >= start && minute <= end : minute >= start || minute <= end;
+    if (!inWindow) return false;
+  }
   return true;
 }
 

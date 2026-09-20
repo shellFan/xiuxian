@@ -10,6 +10,7 @@ import type { GameDayService } from './game-day-service';
 import type { InnerDemonService } from './inner-demon-service';
 import type { RandomService, Rng } from './random-service';
 import eventsConfig from '../../configs/v2/events.json';
+import { OVERTIME_EVENTS, mergeUniqueById } from '../v3/overtime-content';
 import {
   type EventDefinition,
   type EventChoice,
@@ -21,7 +22,11 @@ import {
   triageOfflineEvents,
 } from './event-engine';
 
-export const EVENTS: readonly EventDefinition[] = (eventsConfig as { events: EventDefinition[] }).events;
+export const EVENTS: readonly EventDefinition[] = mergeUniqueById(
+  (eventsConfig as { events: EventDefinition[] }).events,
+  OVERTIME_EVENTS,
+  'event',
+);
 export const EVENT_MAP: ReadonlyMap<string, EventDefinition> = new Map(EVENTS.map((e) => [e.id, e]));
 
 /** NPC id（§44）。 */
@@ -73,6 +78,8 @@ export class V2EventService {
       cultivation: p.cultivationExp,
       weekday: date.weekday,
       hour: date.hour,
+      minuteOfDay: date.hour * 60 + date.minute,
+      overtimeActive: this.context.overtime.current()?.status === 'ACTIVE',
       situationIds: day?.situationIds ?? [],
       sectId: p.sectId,
       relationships: { ...p.relationships },
@@ -114,7 +121,7 @@ export class V2EventService {
       const nextDef = EVENT_MAP.get(nextId);
       if (!nextDef) continue;
       // 链下一阶段：距离上阶段 >= 半天 或 同日 4 小时后触发
-      if (nowMs - state.lastDayIndex >= 4 * 3600_000) {
+      if (nowMs - state.lastDayIndex >= 4 * 3600_000 && checkEventConditions(nextDef, this.world())) {
         this.startEvent(nextDef, nowMs);
         return this.current;
       }
@@ -201,7 +208,7 @@ export class V2EventService {
     // 链后续：直接排入当前（在线即时体验）
     if (nextId) {
       const nextDef = EVENT_MAP.get(nextId);
-      if (nextDef) this.current = nextDef;
+      if (nextDef && checkEventConditions(nextDef, this.world())) this.current = nextDef;
     }
 
     this.context.events.emit('v2EventResolved', { eventId: def.id, choiceId, success, summary });
@@ -319,4 +326,3 @@ function classifyImpact(effects: EventEffects): 'NEGATIVE' | 'NEUTRAL' | 'POSITI
   if (score > 0) return 'POSITIVE';
   return 'NEUTRAL';
 }
-

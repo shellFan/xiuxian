@@ -65,6 +65,7 @@ export interface PlayerDataOptions {
   readonly unlockState?: Readonly<Record<string, boolean>>;
   readonly compTime?: number;
   readonly overtimeStats?: OvertimeStats;
+  readonly lastOvertimeWorkdayStartAt?: number;
   readonly overtimeFatigue?: OvertimeFatigueState;
 }
 
@@ -146,6 +147,7 @@ export class PlayerData {
   public unlockState: Record<string, boolean>;
   public compTime: number;
   public overtimeStats: OvertimeStats;
+  public lastOvertimeWorkdayStartAt: number;
   public overtimeFatigue: OvertimeFatigueState;
 
   public constructor(options: PlayerDataOptions = {}) {
@@ -209,7 +211,8 @@ export class PlayerData {
     this.devTimeOffsetMs = options.devTimeOffsetMs ?? 0;
     this.unlockState = { ...(options.unlockState ?? {}) };
     this.compTime = Math.max(0, Math.floor(options.compTime ?? 0));
-    this.overtimeStats = { totalSeconds: 0, paidSeconds: 0, freeSeconds: 0, sessions: 0, consecutiveDays: 0, longestStreak: 0, ...(options.overtimeStats ?? {}) };
+    this.overtimeStats = { totalSeconds: 0, paidSeconds: 0, freeSeconds: 0, sessions: 0, nightSessions: 0, freeSessions: 0, consecutiveDays: 0, longestStreak: 0, ...(options.overtimeStats ?? {}) };
+    this.lastOvertimeWorkdayStartAt = Number.isSafeInteger(options.lastOvertimeWorkdayStartAt) && options.lastOvertimeWorkdayStartAt! >= 0 ? options.lastOvertimeWorkdayStartAt! : 0;
     this.overtimeFatigue = options.overtimeFatigue === 'EXHAUSTED' || options.overtimeFatigue === 'TIRED' ? options.overtimeFatigue : 'RESTED';
   }
 
@@ -262,6 +265,7 @@ export class PlayerData {
       unlockState: { ...this.unlockState },
       compTime: this.compTime,
       overtimeStats: { ...this.overtimeStats },
+      lastOvertimeWorkdayStartAt: this.lastOvertimeWorkdayStartAt,
       overtimeFatigue: this.overtimeFatigue,
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });

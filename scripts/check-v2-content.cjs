@@ -151,6 +151,63 @@ if (pt.dailyTitles.length < 30) fail(`dailyTitles: 需要 >=30`);
   }
 }
 
+// ── Gameplay V3 overtime content ───────────────────────────────────────────
+const overtimeContent = load('assets/configs/v3/overtime-content.json').events;
+const overtimeAchievements = load('assets/configs/v3/overtime-achievements.json').achievements;
+const baseAchievementIds = new Set(load('assets/configs/achievements.json').achievements.map((achievement) => achievement.id));
+const overtimeIds = new Set();
+const overtimeChains = new Map();
+let preOffCount = 0;
+let nightCount = 0;
+let standaloneNightCount = 0;
+let nightBossCount = 0;
+for (const event of overtimeContent) {
+  if (overtimeIds.has(event.id)) fail(`overtime: duplicate event id ${event.id}`);
+  if (eventIds.has(event.id)) fail(`overtime: event id collides with V2 event ${event.id}`);
+  overtimeIds.add(event.id);
+  if (!event.title || !event.description) fail(`overtime: ${event.id} missing text`);
+  if (!Array.isArray(event.choices) || event.choices.length < 2) fail(`overtime: ${event.id} needs at least two player choices`);
+  if (event.minMinuteOfDay === 1050 && event.maxMinuteOfDay === 1079) preOffCount += 1;
+  if (event.requiresOvertime && event.minMinuteOfDay === 1080 && event.maxMinuteOfDay === 360) {
+    nightCount += 1;
+    if (!event.chainId) standaloneNightCount += 1;
+    if (event.category === 'BOSS' && event.isNightBoss === true) nightBossCount += 1;
+  }
+  if (event.chainId) {
+    if (!overtimeChains.has(event.chainId)) overtimeChains.set(event.chainId, []);
+    overtimeChains.get(event.chainId).push(event);
+  }
+  for (const choice of event.choices ?? []) {
+    if (!choice.id || !choice.text) fail(`overtime: ${event.id} has incomplete choice`);
+    if (choice.nextEvent && !overtimeIds.has(choice.nextEvent)) {
+      // Same file is ordered by chain stage; final reference pass below resolves forward links.
+    }
+  }
+}
+for (const event of overtimeContent) {
+  for (const choice of event.choices ?? []) if (choice.nextEvent && !overtimeIds.has(choice.nextEvent)) fail(`overtime: ${event.id} points to missing ${choice.nextEvent}`);
+}
+if (preOffCount < 20) fail(`overtime: need >=20 pre-off events, got ${preOffCount}`);
+if (nightCount < 50) fail(`overtime: need >=50 total night events including chains, got ${nightCount}`);
+if (standaloneNightCount < 20) fail(`overtime: need >=20 standalone night-pool events, got ${standaloneNightCount}`);
+if (nightBossCount < 5) fail(`overtime: need >=5 night bosses, got ${nightBossCount}`);
+if (overtimeChains.size < 10) fail(`overtime: need >=10 chains, got ${overtimeChains.size}`);
+for (const [chainId, chainEvents] of overtimeChains) {
+  const stages = [...new Set(chainEvents.map((event) => event.chainStage))].sort((a, b) => a - b);
+  if (stages.length < 3 || stages[0] !== 0 || stages[1] !== 1 || stages[2] !== 2) fail(`overtime: chain ${chainId} must contain contiguous stages 0,1,2`);
+}
+const overtimeAchievementIds = new Set();
+const overtimeStats = new Set(['totalSeconds', 'paidSeconds', 'freeSeconds', 'sessions', 'nightSessions', 'freeSessions', 'consecutiveDays', 'longestStreak']);
+for (const achievement of overtimeAchievements) {
+  if (overtimeAchievementIds.has(achievement.id)) fail(`overtime achievements: duplicate id ${achievement.id}`);
+  if (baseAchievementIds.has(achievement.id)) fail(`overtime achievements: id collides with base achievement ${achievement.id}`);
+  overtimeAchievementIds.add(achievement.id);
+  if (achievement.category !== 'OVERTIME' || achievement.condition?.type !== 'OVERTIME_STAT') fail(`overtime achievements: ${achievement.id} must use OVERTIME_STAT`);
+  if (!overtimeStats.has(achievement.condition?.stat)) fail(`overtime achievements: ${achievement.id} has invalid stat`);
+  if (!Number.isSafeInteger(achievement.condition?.target) || achievement.condition.target <= 0) fail(`overtime achievements: ${achievement.id} target must be positive`);
+}
+if (overtimeAchievements.length < 15) fail(`overtime achievements: need >=15, got ${overtimeAchievements.length}`);
+
 // ── 汇总 ─────────────────────────────────────────────────────────────────────
 console.log('═══════════════════════════════════════');
 console.log('Gameplay V2 Content Check');
@@ -158,6 +215,8 @@ console.log('══════════════════════�
 console.log(`events: ${events.length} (branching ${branching}, chain events ${chainCount}, chains ${chains.size})`);
 console.log(`materials: ${items.materials.length} | techniques: ${items.techniques.length} | equipment: ${items.equipment.length} | recipes: ${items.recipes.length} | consumables: ${items.consumables.length}`);
 console.log(`situations: 42 | questions: ${pt.promotionQuestions.length} | titles: ${pt.dailyTitles.length}`);
+console.log(`Overtime V3: pre-off ${preOffCount} | night ${nightCount} | standalone night ${standaloneNightCount} | bosses ${nightBossCount} | chains ${overtimeChains.size} | achievements ${overtimeAchievements.length}`);
+console.log('Overtime V3 cross-pool IDs: verified');
 for (const w of warnings) console.log(`WARN: ${w}`);
 if (errors.length) {
   for (const e of errors) console.error(`FAIL: ${e}`);

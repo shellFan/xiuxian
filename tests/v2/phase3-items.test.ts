@@ -180,7 +180,8 @@ function testShopRefreshAndBuy(): void {
   assert.equal(context.player.salary, before - price);
   // 重复购买被拒
   assert.equal(svc.buy(target.item.itemId, price).success, false);
-  // 次日货架变化（确定性种子）
+  // 当前游戏日完成并结算后，次日货架变化（确定性种子）。
+  context.gameDay.markSettled();
   clock.advance(24 * 3600 * 1000);
   context.gameDay.ensureStarted();
   const shop2 = svc.todayShop();

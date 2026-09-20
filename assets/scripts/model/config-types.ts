@@ -105,18 +105,22 @@ export interface OfficeConfig {
 }
 export interface OfficeBundle { readonly offices: readonly OfficeConfig[]; }
 
-export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK';
+export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK' | 'OVERTIME';
 
 export type AchievementConditionType =
   | 'KPI' | 'SALARY' | 'CAREER_LEVEL' | 'EVENT_TYPE'
   | 'PROMOTION' | 'OFFICE_LEVEL' | 'MIND_FULL'
-  | 'IDLE_CLAIM' | 'SECT_JOIN' | 'TALENT_PICK' | 'WORK_SECONDS';
+  | 'IDLE_CLAIM' | 'SECT_JOIN' | 'TALENT_PICK' | 'WORK_SECONDS' | 'OVERTIME_STAT';
+
+export type OvertimeAchievementStat = 'totalSeconds' | 'paidSeconds' | 'freeSeconds' | 'sessions' | 'nightSessions' | 'freeSessions' | 'consecutiveDays' | 'longestStreak';
 
 export interface AchievementCondition {
   readonly type: AchievementConditionType;
   readonly kpiKey?: string;
   readonly target?: number;
   readonly eventType?: string;
+  /** Persisted PlayerData.overtimeStats key; valid only for OVERTIME_STAT. */
+  readonly stat?: OvertimeAchievementStat;
 }
 
 export interface AchievementConfig {
@@ -126,6 +130,7 @@ export interface AchievementConfig {
   readonly category: AchievementCategory;
   readonly condition: AchievementCondition;
   readonly reward?: import('./game-effect').GameEffect;
+  readonly hidden?: boolean;
 }
 
 export interface AchievementBundle { readonly achievements: readonly AchievementConfig[]; }

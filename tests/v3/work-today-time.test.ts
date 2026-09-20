@@ -155,9 +155,12 @@ function testV6MigrationAndImmutableRoundTrip(): void {
     paidSeconds: 0,
     freeSeconds: 0,
     sessions: 0,
+    nightSessions: 0,
+    freeSessions: 0,
     consecutiveDays: 0,
     longestStreak: 0,
   });
+  assert.equal(loaded.lastOvertimeWorkdayStartAt, 0);
   assert.equal(loaded.gameDay?.durations.incident, 0);
   assert.equal(loaded.gameDay?.durations.overtime, 0);
   assert.equal(loaded.gameDay?.overtimeSource, null);

@@ -12,6 +12,7 @@ export interface OvertimeSession {
   readonly elapsedSeconds: number;
   readonly mode: WorkMode | null;
   readonly status: 'OFFERED' | 'ACTIVE';
+  readonly startedAt: number | null;
 }
 
 /**
@@ -41,14 +42,14 @@ export class OvertimeService {
     this.assertDuration(plannedSeconds);
     if (this.session) throw new Error('已有待处理的加班');
     this.gameDay.ensureStarted();
-    this.session = { source, free, plannedSeconds, elapsedSeconds: 0, mode: null, status: 'OFFERED' };
+    this.session = { source, free, plannedSeconds, elapsedSeconds: 0, mode: null, status: 'OFFERED', startedAt: null };
     this.gameDay.setOvertimeState(source, 'OFFERED', free);
     return this.current()!;
   }
 
   public accept(mode: WorkMode): OvertimeSession {
     if (!this.session || this.session.status !== 'OFFERED') throw new Error('没有可接受的加班');
-    this.session = { ...this.session, mode, status: 'ACTIVE' };
+    this.session = { ...this.session, mode, status: 'ACTIVE', startedAt: this.clock.now() };
     this.gameDay.setOvertimeState(this.session.source, 'ACTIVE', this.session.free);
     return this.current()!;
   }
@@ -76,17 +77,31 @@ export class OvertimeService {
   public finish(): void {
     const session = this.session;
     if (!session) return;
+    if (session.status !== 'ACTIVE' || session.elapsedSeconds <= 0) {
+      this.gameDay.setOvertimeState(session.source, 'COMPLETED', session.free);
+      this.session = null;
+      return;
+    }
     const stats = this.context.player.overtimeStats;
     const totalSeconds = stats.totalSeconds + session.elapsedSeconds;
+    const workdayStartAt = this.gameDay.current()?.startedAt ?? this.clock.workdayStartTs();
+    const isNewOvertimeDay = session.elapsedSeconds > 0 && this.context.player.lastOvertimeWorkdayStartAt !== workdayStartAt;
+    const isConsecutiveWorkday = isNewOvertimeDay && workdayStartAt - this.context.player.lastOvertimeWorkdayStartAt === 24 * 3600_000;
+    const consecutiveDays = !isNewOvertimeDay
+      ? stats.consecutiveDays
+      : isConsecutiveWorkday ? stats.consecutiveDays + 1 : 1;
     this.context.player.overtimeStats = {
       ...stats,
       totalSeconds,
       paidSeconds: stats.paidSeconds + (session.free ? 0 : session.elapsedSeconds),
       freeSeconds: stats.freeSeconds + (session.free ? session.elapsedSeconds : 0),
       sessions: stats.sessions + 1,
-      consecutiveDays: session.elapsedSeconds > 0 ? stats.consecutiveDays + 1 : stats.consecutiveDays,
-      longestStreak: Math.max(stats.longestStreak, session.elapsedSeconds > 0 ? stats.consecutiveDays + 1 : stats.longestStreak),
+      nightSessions: stats.nightSessions + (session.startedAt !== null && this.clock.isNightShift(session.startedAt) ? 1 : 0),
+      freeSessions: stats.freeSessions + (session.free ? 1 : 0),
+      consecutiveDays,
+      longestStreak: Math.max(stats.longestStreak, consecutiveDays),
     };
+    if (session.elapsedSeconds > 0) this.context.player.lastOvertimeWorkdayStartAt = workdayStartAt;
     this.context.player.overtimeFatigue = fatigueForSeconds(session.elapsedSeconds);
     this.gameDay.setOvertimeState(session.source, 'COMPLETED', session.free);
     this.session = null;

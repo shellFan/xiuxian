@@ -1,0 +1,19 @@
+{
+  "achievements": [
+    { "id":"OT_VOLUNTARY", "name":"自愿奋斗", "description":"完成第一次免费加班。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"freeSeconds","target":3600}, "reward":{"cultivation":10} },
+    { "id":"OT_COMPANY_HOME", "name":"公司是我家", "description":"累计加班 8 小时。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"totalSeconds","target":28800}, "reward":{"performance":15} },
+    { "id":"OT_MOON", "name":"月亮见过我", "description":"完成一次夜间加班。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"nightSessions","target":1}, "reward":{"cultivation":8} },
+    { "id":"OT_SUN_MOON", "name":"日月同辉", "description":"累计加班 12 小时。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"totalSeconds","target":43200}, "reward":{"cultivation":30,"mind":5} },
+    { "id":"OT_LAST_SUBWAY", "name":"最后一班地铁", "description":"累计完成 3 次加班会话。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"sessions","target":3}, "reward":{"performance":12} },
+    { "id":"OT_CLEANER", "name":"保洁阿姨的熟人", "description":"连续加班 5 天。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"consecutiveDays","target":5}, "reward":{"cultivation":25} },
+    { "id":"OT_DESK_ASCENT", "name":"工位飞升", "description":"累计加班 100 小时。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"totalSeconds","target":360000}, "reward":{"cultivation":120,"performance":50} },
+    { "id":"OT_PAID_CULTIVATION", "name":"带薪修仙", "description":"累计有偿加班 1 小时。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"paidSeconds","target":3600}, "reward":{"cultivation":20} },
+    { "id":"OT_HEART_HOME", "name":"人在工位心在家", "description":"累计免费加班 2 小时。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"freeSeconds","target":7200}, "reward":{"mind":8} },
+    { "id":"OT_PROD_2AM", "name":"凌晨两点的生产环境", "description":"累计完成 5 次加班会话。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"sessions","target":5}, "reward":{"performance":20,"cultivation":20} },
+    { "id":"OT_BOSS_LEFT", "name":"老板都走了", "description":"累计加班 24 小时。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"totalSeconds","target":86400}, "hidden":true, "reward":{"mind":10} },
+    { "id":"OT_TRULY_VOLUNTARY", "name":"我真的是自愿的", "description":"完成 3 次免费加班。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"freeSessions","target":3}, "hidden":true, "reward":{"cultivation":15} },
+    { "id":"OT_CATTLE_BODY", "name":"牛马圣体", "description":"连续加班 7 天。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"longestStreak","target":7}, "hidden":true, "reward":{"performance":35,"cultivation":35} },
+    { "id":"OT_NIGHT_GUARD", "name":"公司守夜人", "description":"累计加班 48 小时。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"totalSeconds","target":172800}, "reward":{"cultivation":60} },
+    { "id":"OT_COMP_TIME", "name":"调休幻梦", "description":"累计有偿加班 8 小时。", "category":"OVERTIME", "condition":{"type":"OVERTIME_STAT","stat":"paidSeconds","target":28800}, "reward":{"mind":15,"performance":10} }
+  ]
+}

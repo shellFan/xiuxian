@@ -3,7 +3,7 @@ import type { GameEvents } from '../core/game-events';
 import type { GameEffect } from '../model/game-effect';
 
 /** Achievement category for grouping in UI */
-export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK';
+export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK' | 'OVERTIME';
 
 /** Achievement status lifecycle */
 export type AchievementStatus = 'LOCKED' | 'COMPLETED' | 'CLAIMED';
@@ -12,13 +12,16 @@ export type AchievementStatus = 'LOCKED' | 'COMPLETED' | 'CLAIMED';
 export type AchievementConditionType =
   | 'KPI' | 'SALARY' | 'CAREER_LEVEL' | 'EVENT_TYPE'
   | 'PROMOTION' | 'OFFICE_LEVEL' | 'MIND_FULL'
-  | 'IDLE_CLAIM' | 'SECT_JOIN' | 'TALENT_PICK' | 'WORK_SECONDS';
+  | 'IDLE_CLAIM' | 'SECT_JOIN' | 'TALENT_PICK' | 'WORK_SECONDS' | 'OVERTIME_STAT';
+
+export type OvertimeAchievementStat = 'totalSeconds' | 'paidSeconds' | 'freeSeconds' | 'sessions' | 'nightSessions' | 'freeSessions' | 'consecutiveDays' | 'longestStreak';
 
 export interface AchievementCondition {
   readonly type: AchievementConditionType;
   readonly kpiKey?: string;
   readonly target?: number;
   readonly eventType?: string;
+  readonly stat?: OvertimeAchievementStat;
 }
 
 export interface AchievementConfig {
@@ -28,6 +31,7 @@ export interface AchievementConfig {
   readonly category: AchievementCategory;
   readonly condition: AchievementCondition;
   readonly reward?: GameEffect;
+  readonly hidden?: boolean;
 }
 
 export interface AchievementBundle {
@@ -171,6 +175,10 @@ export class AchievementService {
       case 'EVENT_TYPE':
         // EVENT_TYPE achievements are only unlocked via notifyEventType
         return false;
+      case 'OVERTIME_STAT': {
+        if (!condition.stat || condition.target === undefined) return false;
+        return player.overtimeStats[condition.stat] >= condition.target;
+      }
       default:
         return false;
     }
