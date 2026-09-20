@@ -83,9 +83,17 @@ export class GameLoopService {
       // V2 economy failure must not crash the game loop
     }
 
+    // 5.55 An authorised after-hours session is recorded separately. It never
+    // reopens the ordinary WorkService wage path.
+    try {
+      if (this.context.overtime.current()?.status === 'ACTIVE') this.context.overtime.tick(seconds);
+    } catch {
+      // Overtime bookkeeping must not crash the game loop.
+    }
+
     // 5.6 V2 daily/weekly settlement: once per started workday after 18:00.
     try {
-      if (this.context.daySettlement.canSettle()) this.context.daySettlement.settle();
+      if (this.context.overtime.canSettleDay() && this.context.daySettlement.canSettle()) this.context.daySettlement.settle();
     } catch {
       // A settlement persistence failure must not crash the game loop.
     }

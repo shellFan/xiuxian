@@ -54,6 +54,7 @@ import { V2EventService } from '../v2/v2-event-service';
 import { V2ItemService } from '../v2/v2-item-service';
 import { NpcService, WeekendService } from '../v2/npc-weekend-service';
 import { PromotionV2Service, DaySettlementService } from '../v2/v2-settlement-service';
+import { OvertimeService } from '../v3/overtime-service';
 import craftConfig from '../../configs/craft.json';
 import achievementsConfig from '../../configs/achievements.json';
 import dailyConfig from '../../configs/daily.json';
@@ -133,6 +134,8 @@ export class GameContext {
   public readonly promotionV2: PromotionV2Service;
   /** V2 日/周结算系统。 */
   public readonly daySettlement: DaySettlementService;
+  /** V3 显式加班会话；它是下班结算的唯一阻塞条件。 */
+  public readonly overtime: OvertimeService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -199,6 +202,7 @@ export class GameContext {
     this.clockV2.setDevOffsetMs(this.player.devTimeOffsetMs ?? 0);
     this.randomV2 = options.randomV2 ?? new RandomService();
     this.gameDay = new GameDayService(this, this.clockV2, this.randomV2);
+    this.overtime = new OvertimeService(this, this.clockV2, this.gameDay);
     this.innerDemon = new InnerDemonService(this);
     this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);
     this.v2Events = new V2EventService(this, this.clockV2, this.gameDay, this.innerDemon, this.randomV2);
