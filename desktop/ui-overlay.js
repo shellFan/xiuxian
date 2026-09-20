@@ -806,6 +806,7 @@
     var html = '<div class="ux-tabs">' + TASK_TABS.map(function (t) {
       return '<button class="ux-tab' + (_taskTab === t.type ? ' ux-tab--active' : '') + '" data-tasktab="' + t.type + '">' + t.label + '</button>';
     }).join('') + '</div>';
+    var taskList = '';
 
     var configs = (data.configs || []).filter(function (c) { return c.type === _taskTab; });
     var active = (data.active || []).filter(function (t) { return !t.claimed; });
@@ -820,10 +821,10 @@
 
     activeHere.forEach(function (t) {
       var remain = t.completed ? 0 : readRemaining(t.taskId);
-      html += taskCard(t, remain, true);
+      taskList += taskCard(t, remain, true);
     });
-    available.forEach(function (c) { html += taskCard(c, c.durationSeconds, false); });
-    return html;
+    available.forEach(function (c) { taskList += taskCard(c, c.durationSeconds, false); });
+    return html + '<div class="ux-task-list">' + taskList + '</div>';
   }
 
   function taskIcon(taskOrCfg) {

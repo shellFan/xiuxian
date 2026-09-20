@@ -1125,3 +1125,160 @@
 .ux-work-today__timeline { margin-top: 8px; font-size: 12px; color: var(--text-ink-muted); }
 .ux-work-today__timeline ul { margin: 5px 0 0; padding-left: 20px; }
 @media (min-aspect-ratio: 4/3) and (min-width: 900px) { .ux-work-today { margin-inline: 28px; } .ux-work-today__grid { font-size: 14px; } }
+
+/* ═════════════════════════════════════════════════════════
+   §18. PC compact layout
+   The desktop overlay is intentionally independent from the
+   720×1280 Creator scene. A width gate also covers tall desktop windows.
+   ═════════════════════════════════════════════════════════ */
+@media (min-width: 900px) {
+  .ux-header { height: 62px; }
+  .ux-header-title { font-size: 27px; letter-spacing: 4px; }
+  .ux-back { width: 52px; font-size: 34px; }
+  .ux-close { right: 12px; width: 38px; height: 38px; border-width: 2px; font-size: 23px; }
+
+  .ux-nav { height: 74px; }
+  .ux-nav-item { gap: 1px; }
+  .ux-nav-item img { width: 34px; height: 32px; }
+  .ux-nav-item span { font-size: 15px; letter-spacing: 1px; }
+  .ux-nav-item--active::before { top: 3px; width: 58px; height: 44px; border-radius: 10px; }
+  .ux-nav-badge { top: 2px; right: calc(50% - 26px); min-width: 19px; height: 19px; padding: 0 4px; font-size: 12px; }
+
+  .ux-body { padding: 10px 18px 12px; }
+  .ux-card { padding: 12px; border-radius: 12px; }
+  .ux-card + .ux-card { margin-top: 10px; }
+  .ux-btn--sm { font-size: 18px; padding: 8px 14px; }
+  .ux-btn--md { font-size: 20px; padding: 10px 18px; }
+  .ux-btn--lg { font-size: 24px; padding: 14px 24px; letter-spacing: 2px; }
+  .ux-tabs { gap: 8px; margin-bottom: 10px; }
+  .ux-tab { height: 46px; border-radius: 9px; font-size: 19px; letter-spacing: 1px; }
+  .ux-section-ribbon { min-width: 240px; margin: 2px auto 10px; padding: 7px 24px; font-size: 21px; letter-spacing: 2px; }
+  .ux-progress { height: 18px; border-radius: 9px; }
+  .ux-reward-row { gap: 5px; font-size: 16px; line-height: 1.2; }
+  .ux-reward-row .ico { width: 21px; height: 21px; font-size: 13px; }
+
+  /* 首页：顶部信息紧凑化，角色与操作并列，而不是沿用手机纵向长页。 */
+  .ux-home {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.82fr) minmax(0, 1.18fr);
+    grid-template-areas:
+      'brand day'
+      'work work'
+      'player stats'
+      'hero panel';
+    gap: 8px 14px;
+    align-content: start;
+    min-height: 0;
+  }
+  .ux-brand { grid-area: brand; min-height: 56px; padding: 6px 8px; align-items: flex-start; }
+  .ux-brand-title { width: 250px; }
+  .ux-brand-ribbon { width: 178px; margin-top: 0; }
+  .ux-gear { top: 8px; right: 8px; width: 38px; height: 38px; border-width: 1px; font-size: 21px; }
+  .ux-day-strip { grid-area: day; min-height: 56px; margin: 0; padding: 8px 12px; border-radius: 9px; font-size: 16px; }
+  .ux-work-today { grid-area: work; margin: 0; padding: 8px 12px; border-radius: 10px; }
+  .ux-work-today__headline { font-size: 15px; }
+  .ux-work-today__headline b { font-size: 20px; }
+  .ux-work-today__grid { margin-top: 4px; gap: 4px; font-size: 12px; }
+  .ux-work-today__warning { margin-top: 4px; padding: 4px; font-size: 13px; }
+  .ux-work-today__actions { margin-top: 5px; }
+  .ux-work-today__timeline { margin-top: 4px; font-size: 11px; }
+  .ux-player { grid-area: player; gap: 10px; padding: 2px 4px; align-self: center; }
+  .ux-player-avatar { width: 64px; height: 64px; border-width: 2px; border-radius: 10px; }
+  .ux-player-name { font-size: 24px; letter-spacing: 1px; }
+  .ux-player-sub { margin-top: 2px; font-size: 16px; }
+  .ux-stats { grid-area: stats; gap: 6px; padding: 0; align-self: center; }
+  .ux-stat { min-width: 0; padding: 6px 3px; border-radius: 9px; gap: 2px; }
+  .ux-stat-label { gap: 3px; font-size: 14px; }
+  .ux-stat-value { font-size: 18px; }
+  .ux-stat-value small { font-size: 12px; }
+  .ux-quote { display: none; }
+  .ux-home-hero { grid-area: hero; margin: 0; min-width: 0; display: flex; align-items: end; justify-content: center; }
+  .ux-home-hero img { width: auto; max-width: 100%; height: min(33vh, 280px); object-fit: contain; }
+  .ux-home-panel { grid-area: panel; min-width: 0; margin: 0; gap: 7px; align-items: stretch; justify-content: center; }
+  .ux-sit-label { margin-bottom: 4px; font-size: 14px; letter-spacing: 2px; }
+  .ux-sit-chips { gap: 4px; }
+  .ux-sit-chip { padding: 3px 9px; font-size: 13px; }
+  .ux-status-ribbon { align-self: center; padding: 7px 16px; font-size: 17px; letter-spacing: 1px; }
+  .ux-rates { gap: 3px; }
+  .ux-rates-row, .ux-idle-timer { font-size: 16px; }
+  .ux-rates-row .ico { width: 22px; height: 22px; font-size: 14px; }
+  .ux-cultivate-btn { align-self: center; width: min(100%, 360px); }
+  .ux-cultivate-btn .dot { top: -6px; right: -6px; width: 20px; height: 20px; border-width: 2px; }
+  .ux-cultivate-cd { right: 12px; font-size: 16px; }
+  .ux-mode-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; width: 100%; padding-bottom: 0; }
+  .ux-mode-btn { min-width: 0; padding: 8px 5px; border-radius: 10px; gap: 2px; }
+  .ux-mode-btn .m1 { justify-content: center; font-size: 17px; letter-spacing: 0; gap: 3px; }
+  .ux-mode-btn .m2 { font-size: 13px; }
+
+  /* 列表页：卡片、图标和按钮全部收紧；任务在 PC 上并列展示。 */
+  .ux-task-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ux-task-card { gap: 10px; min-height: 104px; padding: 10px; }
+  .ux-task-card + .ux-task-card { margin-top: 0; }
+  .ux-task-icon { width: 62px; height: 62px; border-width: 2px; border-radius: 11px; }
+  .ux-task-info { gap: 3px; }
+  .ux-task-name { font-size: 20px; }
+  .ux-task-desc { font-size: 15px; line-height: 1.25; }
+  .ux-task-rewards { flex-flow: row wrap; gap: 2px 8px; margin-top: 1px; }
+  .ux-task-right { gap: 5px; }
+  .ux-task-duration { font-size: 15px; }
+  .ux-task-timebar { width: 88px; }
+
+  .ux-recipe-card { padding: 12px 14px; }
+  .ux-recipe-name { margin-bottom: 7px; font-size: 21px; }
+  .ux-recipe-flow { gap: 6px; }
+  .ux-mat { width: 64px; }
+  .ux-mat img { width: 50px; height: 50px; border-radius: 9px; }
+  .ux-mat .x, .ux-recipe-desc, .ux-recipe-count { font-size: 14px; }
+  .ux-arrow { margin: 0; font-size: 24px; }
+  .ux-recipe-result img { width: 58px; height: 58px; border-radius: 10px; }
+  .ux-recipe-desc { margin-top: 6px; }
+
+  .ux-promo-stage { gap: 9px; margin-bottom: 10px; }
+  .ux-stage-box { padding: 8px 6px; border-radius: 10px; }
+  .ux-stage-label, .ux-stage-realm { font-size: 15px; letter-spacing: 1px; }
+  .ux-stage-name { margin: 2px 0; font-size: 21px; }
+  .ux-stage-img { height: 100px; margin-top: 5px; }
+  .ux-promo-arrow { font-size: 34px; }
+  .ux-req-rows { gap: 9px; }
+  .ux-req-row { gap: 8px; }
+  .ux-req-row .ico { width: 27px; height: 27px; font-size: 17px; }
+  .ux-req-label { width: 82px; font-size: 18px; }
+  .ux-req-nums, .ux-promo-note { font-size: 15px; }
+  .ux-promo-note { margin-top: 10px; padding-top: 8px; }
+  .ux-promo-action { padding: 12px 0 2px; }
+
+  .ux-sect-card, .ux-friend-card, .ux-ach-card { gap: 10px; min-height: 88px; }
+  .ux-sect-card + .ux-sect-card, .ux-friend-card + .ux-friend-card, .ux-ach-card + .ux-ach-card { margin-top: 9px; }
+  .ux-sect-img { width: 94px; height: 78px; border-radius: 9px; }
+  .ux-sect-name, .ux-friend-name, .ux-ach-name { margin-bottom: 3px; font-size: 20px; }
+  .ux-sect-effect, .ux-friend-realm, .ux-ach-desc { margin-top: 2px; font-size: 15px; }
+  .ux-friend-avatar, .ux-ach-icon { width: 62px; height: 62px; border-width: 2px; }
+  .ux-friend-online, .ux-ach-reward { margin-top: 2px; font-size: 14px; }
+  .ux-ach-progress { min-width: 72px; padding: 7px; border-radius: 8px; font-size: 16px; }
+  .ux-ach-lock { padding: 0 5px; font-size: 27px; }
+
+  .ux-lb-head, .ux-lb-row { gap: 7px; padding: 6px 8px; }
+  .ux-lb-head, .ux-lb-realm { font-size: 15px; }
+  .ux-lb-row { min-height: 52px; }
+  .ux-lb-c1 { width: 42px; }
+  .ux-lb-c4 { width: 82px; }
+  .ux-lb-rank { width: 30px; height: 30px; font-size: 17px; }
+  .ux-lb-name, .ux-lb-score { font-size: 18px; }
+
+  .ux-more-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .ux-more-item { gap: 4px; padding: 14px 6px; }
+  .ux-more-item .mi { font-size: 20px; letter-spacing: 1px; }
+  .ux-more-item .mc { font-size: 30px; }
+  .ux-more-item .ms, .ux-about { font-size: 14px; }
+  .ux-about { margin-top: 12px; line-height: 1.45; }
+
+  .ux-popup { width: min(640px, 76%); max-height: 82%; padding: 0 14px 14px; border-radius: 14px; }
+  .ux-popup-card { padding: 12px; border-radius: 10px; }
+  .ux-event-boss { height: 150px; border-radius: 10px; }
+  .ux-event-bubble, .ux-event-option, .ux-dialog-body { font-size: 18px; }
+  .ux-event-options { margin-top: 9px; gap: 7px; }
+  .ux-event-option { gap: 8px; padding: 9px 11px; border-radius: 9px; }
+  .ux-event-option .opt-effects { font-size: 15px; }
+  .ux-toast-container { top: 76px; gap: 6px; }
+  .ux-toast { padding: 8px 16px; font-size: 17px; }
+}
