@@ -1,0 +1,14 @@
+{
+  "hasOverlay": true,
+  "hasFacade": true,
+  "bodyClass": "ux-body ux-body--home",
+  "scrollable": false,
+  "size": [
+    1601,
+    901
+  ],
+  "countdown": "15:52:56",
+  "earned": "¥0.00",
+  "agenda": 0,
+  "mode": "FISHING"
+}
