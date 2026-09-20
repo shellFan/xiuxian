@@ -185,6 +185,16 @@ export class GameFacade {
   public queryGameDay() { return this.context.gameDay.current(); }
   /** 距下班毫秒。 */
   public queryTimeUntilOffWork() { return this.context.clockV2.getTimeUntilOffWorkMs(); }
+  /** Work Today 首页的只读时间/工时投影。 */
+  public queryWorkToday() { return this.context.workToday.snapshot(); }
+  /** 当前显式加班会话（副本），供 UI 显示而非直接改状态。 */
+  public queryOvertime() { return this.context.overtime.current(); }
+  public offerOvertime(source: 'VOLUNTARY' | 'REQUESTED' | 'FORCED' | 'EMERGENCY' | 'WEEKEND' | 'COMPENSATED', free: boolean, seconds: number) {
+    return this.context.overtime.offer(source, free, seconds);
+  }
+  public acceptOvertime(mode: WorkMode) { return this.context.overtime.accept(mode); }
+  public startVoluntaryOvertime(seconds: number, paid: boolean) { return this.context.overtime.startVoluntary(seconds, paid); }
+  public finishOvertime() { this.context.overtime.finish(); }
   /** 当前游戏时间信息。 */
   public queryGameClock() {
     const d = this.context.clockV2.getGameDate();
