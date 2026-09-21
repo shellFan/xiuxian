@@ -190,6 +190,43 @@ function testFacadeExposesUnifiedWelcomeSummaryAndResumableDecisionActions(): vo
   facade.destroy();
 }
 
+function testWelcomeSummaryPreservesOfflineRewardAcrossRestartBeforeClaim(): void {
+  const storage = new MemoryStorageAdapter();
+  const clock = new FakeClock(NOW);
+  const first = new GameFacade({
+    player: new PlayerData({
+      lastSaveTime: NOW - 3_600_000,
+      pendingEvents: [{ uid: 'restart-review', eventId: 'task:restart-review', occurredAt: NOW - 1_000, priority: 'IMPORTANT' }],
+    }),
+    saveService: new SaveService(storage, DEFAULT_SAVE_KEY, clock),
+    clock,
+    board: null,
+  });
+
+  const summary = first.prepareWelcomeBackSummary();
+  assert.equal(summary.simulation.effectiveSeconds, 3_600);
+  assert.equal(summary.decisions.current?.id, 'restart-review');
+  assert.equal(first.context.player.lastSaveTime, NOW - 3_600_000, 'summary must not advance the unclaimed offline checkpoint');
+  first.destroy();
+
+  const restarted = new GameFacade({ storage, clock, board: null });
+  assert.equal(restarted.prepareOfflineDecisions().current?.id, 'restart-review', 'decision session must survive with the checkpoint');
+  const preview = restarted.queryOfflinePreview(summary.settlementId);
+  assert.equal(preview.elapsedSeconds, summary.simulation.effectiveSeconds);
+  assert.equal(preview.salary, summary.simulation.salary);
+  assert.equal(preview.cultivationExp, summary.simulation.cultivation);
+  assert.equal(preview.spiritStones, summary.simulation.spiritStones);
+
+  const claimed = restarted.claimOfflineReward(summary.settlementId);
+  assert.equal(claimed.elapsedSeconds, summary.simulation.effectiveSeconds);
+  assert.equal(claimed.salary, summary.simulation.salary);
+  assert.equal(claimed.cultivationExp, summary.simulation.cultivation);
+  assert.equal(claimed.spiritStones, summary.simulation.spiritStones);
+  assert.equal(restarted.queryOfflineIsSettled(summary.settlementId), true);
+  assert.throws(() => restarted.claimOfflineReward(summary.settlementId), /already claimed/);
+  restarted.destroy();
+}
+
 const tests = [
   testDefaultAndMigration,
   testPolicyDecisionsAndOfflineIsolation,
@@ -198,6 +235,7 @@ const tests = [
   testPolicyAndActionSaveExactlyOnceAndSurviveRestart,
   testWelcomeContentHasExactlyTwentyStableChineseWorkplaceCultivationLines,
   testFacadeExposesUnifiedWelcomeSummaryAndResumableDecisionActions,
+  testWelcomeSummaryPreservesOfflineRewardAcrossRestartBeforeClaim,
 ];
 
 for (const test of tests) {

@@ -286,11 +286,17 @@ export class GameFacade {
   public prepareWelcomeBack() { return this.context.autoPolicy.prepareWelcome(); }
   /** Unified PC welcome summary over the existing offline simulation and canonical decision session. */
   public prepareWelcomeBackSummary() {
-    // Snapshot before welcome automation/session routing saves advance lastSaveTime.
-    const settlementId = `offline-${Math.max(0, this.context.player.lastSaveTime).toString(36)}`;
+    // Snapshot before welcome automation/session routing saves, then preserve that
+    // checkpoint until the existing offline settlement transaction claims it.
+    const offlineCheckpoint = this.context.player.lastSaveTime;
+    const settlementId = `offline-${Math.max(0, offlineCheckpoint).toString(36)}`;
     const simulation = this.context.offline.previewSimulation(settlementId);
     const welcome = this.context.autoPolicy.prepareWelcome();
     const decisions = this.context.autoPolicy.prepareOfflineDecisionSession();
+    if (this.context.player.lastSaveTime !== offlineCheckpoint) {
+      this.context.player.lastSaveTime = offlineCheckpoint;
+      this.context.saveService.saveAt(this.context.player, offlineCheckpoint);
+    }
     return {
       settlementId: welcome.settlementId,
       welcomeLine: selectOfflineWelcomeLine(welcome.settlementId),

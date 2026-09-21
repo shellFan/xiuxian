@@ -698,7 +698,6 @@
       : 0;
     var pendingCount = Math.max(Number(simulation.pendingDecisionCount) || 0, decisionRemaining);
     var hasPending = decisionRemaining > 0 && !!decisions.current;
-    var autoTaskCount = (summary.autoCompletedTaskIds || []).length;
     var policyLabels = { NORMAL: '均衡', SAFE: '稳健', GRINDER: '卷王', SLACKER: '摸鱼' };
     var summaryRows = '' +
       '<div class="ux-welcome-summary-row"><span>有效时长</span><b>' + fmtDuration(simulation.effectiveSeconds) + (simulation.capped ? '（已封顶）' : '') + '</b></div>' +
@@ -706,7 +705,7 @@
       '<div class="ux-welcome-summary-row"><span>基础收益</span><b>工资 +' + fmtNum(simulation.salary) + ' · 修为 +' + fmtNum(simulation.cultivation) + ' · 灵石 +' + fmtNum(simulation.spiritStones) + '</b></div>' +
       '<div class="ux-welcome-summary-row"><span>离线活动</span><b>工作 ' + fmtDuration(simulation.workSeconds) + ' · 摸鱼 ' + fmtDuration(simulation.fishingSeconds) + ' · 修炼 ' + fmtDuration(simulation.cultivatingSeconds) + '</b></div>' +
       '<div class="ux-welcome-summary-row"><span>加班</span><b>' + fmtDuration(simulation.overtimeSeconds) + '</b></div>' +
-      '<div class="ux-welcome-summary-row"><span>自动处理</span><b>事件 ' + fmtNum(simulation.eventsAutoResolved) + ' · 任务 ' + fmtNum(autoTaskCount) + '</b></div>' +
+      '<div class="ux-welcome-summary-row"><span>自动处理</span><b>事件 ' + fmtNum(simulation.eventsAutoResolved) + ' · 任务 ' + fmtNum(simulation.tasksCompleted) + '</b></div>' +
       '<div class="ux-welcome-summary-row"><span>待你决策</span><b>' + fmtNum(pendingCount) + ' 项</b></div>' +
       '<div class="ux-welcome-summary-row"><span>新增事故</span><b>' + fmtNum(simulation.incidentsRaised) + ' 起</b></div>';
     var layer = popupLayer();

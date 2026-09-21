@@ -23,6 +23,7 @@ for (const field of [
   assert.match(source, new RegExp(`simulation\\.${field}`), `summary must render ${field}`);
 }
 assert.match(source, /summary\.welcomeLine\.text/);
+assert.match(source, /任务 ' \+ fmtNum\(simulation\.tasksCompleted\)/, 'auto task metric must use simulation result');
 assert.match(source, /'继续上班'/);
 assert.match(source, /'领取并处理破事'/);
 assert.match(source, /function showOfflineDecisionPopup\(\)/);
