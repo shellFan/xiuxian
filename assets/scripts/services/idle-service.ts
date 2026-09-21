@@ -22,6 +22,8 @@ export interface IdleSettlementResult {
 
 /** Pure resource/time input consumed by the offline policy projector. */
 export interface IdleOfflineProjection {
+  readonly settlementId: string;
+  readonly projectedAtMs: number;
   readonly elapsedSeconds: number;
   readonly effectiveSeconds: number;
   readonly capped: boolean;
@@ -29,6 +31,7 @@ export interface IdleOfflineProjection {
   readonly cultivation: number;
   readonly spiritStones: number;
   readonly duplicate: boolean;
+  readonly anomaly: boolean;
   readonly time: OfflineTimeProjection;
 }
 
@@ -52,14 +55,27 @@ export class IdleService {
   }
 
   public settle(settlementId: string): IdleSettlementResult {
+    return this.settleProjection(this.project(settlementId));
+  }
+
+  /** Applies one previously captured projection without reading the clock or recomputing rewards. */
+  public settleProjection(projection: IdleOfflineProjection): IdleSettlementResult {
+    const settlementId = projection.settlementId;
     if (typeof settlementId !== 'string' || settlementId.trim() === '') throw new Error('Invalid settlement id');
     if (this.context.player.lastIdleSettlementId === settlementId) return { ...ZERO_RESULT, duplicate: true };
-    const eligible = this.computeEligible();
-    if (eligible.anomaly) {
-      this.context.events.emit('clockAnomaly', { code: 'CLOCK_ANOMALY', now: eligible.now, lastSaveTime: this.context.player.lastSaveTime });
+    if (projection.duplicate) return { ...ZERO_RESULT, duplicate: true };
+    if (projection.anomaly) {
+      this.context.events.emit('clockAnomaly', { code: 'CLOCK_ANOMALY', now: projection.projectedAtMs, lastSaveTime: this.context.player.lastSaveTime });
       return ZERO_RESULT;
     }
-    const { salary, cultivationExp, spiritStones, elapsedSeconds, capped, now } = eligible;
+    const {
+      salary,
+      cultivation: cultivationExp,
+      spiritStones,
+      effectiveSeconds: elapsedSeconds,
+      capped,
+      projectedAtMs,
+    } = projection;
     const previous = {
       salary: this.context.player.salary,
       cultivationExp: this.context.player.cultivationExp,
@@ -78,7 +94,7 @@ export class IdleService {
       this.context.player.spiritStones += spiritStones;
       spiritStonesApplied = true;
       if (!Number.isSafeInteger(this.context.player.salary) || !Number.isSafeInteger(this.context.player.cultivationExp) || !Number.isSafeInteger(this.context.player.spiritStones)) throw new Error('Invalid idle reward');
-      this.context.saveService.saveIdleSettlement(this.context.player, settlementId, now);
+      this.context.saveService.saveIdleSettlement(this.context.player, settlementId, projectedAtMs);
     } catch (error) {
       if (spiritStonesApplied) this.context.player.spiritStones = previous.spiritStones;
       if (cultivationApplied) this.context.cultivation.rollbackIdleExperience(cultivationExp);
@@ -113,10 +129,12 @@ export class IdleService {
   /** Produces the complete capped time/resource projection without mutating player state. */
   public project(settlementId: string): IdleOfflineProjection {
     if (typeof settlementId !== 'string' || settlementId.trim() === '') throw new Error('Invalid settlement id');
-    if (this.context.player.lastIdleSettlementId === settlementId) return zeroProjection(this.context.player.lastSaveTime, true);
+    if (this.context.player.lastIdleSettlementId === settlementId) return zeroProjection(settlementId, this.context.player.lastSaveTime, true, false);
     const eligible = this.computeEligible();
-    if (eligible.anomaly) return zeroProjection(eligible.now, false);
-    return {
+    if (eligible.anomaly) return zeroProjection(settlementId, eligible.now, false, true);
+    return freezeProjection({
+      settlementId,
+      projectedAtMs: eligible.now,
       elapsedSeconds: eligible.rawElapsedSeconds,
       effectiveSeconds: eligible.elapsedSeconds,
       capped: eligible.capped,
@@ -124,14 +142,15 @@ export class IdleService {
       cultivation: eligible.cultivationExp,
       spiritStones: eligible.spiritStones,
       duplicate: false,
+      anomaly: false,
       time: eligible.projection,
-    };
+    });
   }
 
   /** Persists the settlement id (marks the offline reward as claimed) without granting a reward. */
-  public commitSettlement(settlementId: string): void {
+  public commitSettlement(settlementId: string, projectedAtMs = this.clock.now()): void {
     if (typeof settlementId !== 'string' || settlementId.trim() === '') throw new Error('Invalid settlement id');
-    this.context.saveService.saveIdleSettlement(this.context.player, settlementId, this.clock.now());
+    this.context.saveService.saveIdleSettlement(this.context.player, settlementId, projectedAtMs);
   }
 
   private computeEligible(): { salary: number; cultivationExp: number; spiritStones: number; elapsedSeconds: number; rawElapsedSeconds: number; capped: boolean; anomaly: boolean; now: number; projection: OfflineTimeProjection } {
@@ -163,8 +182,11 @@ export class IdleService {
   }
 }
 
-function zeroProjection(atMs: number, duplicate: boolean): IdleOfflineProjection {
-  return {
+function zeroProjection(settlementId: string, atMs: number, duplicate: boolean, anomaly: boolean): IdleOfflineProjection {
+  const projectedAtMs = Number.isFinite(atMs) ? atMs : 0;
+  return freezeProjection({
+    settlementId,
+    projectedAtMs,
     elapsedSeconds: 0,
     effectiveSeconds: 0,
     capped: false,
@@ -172,8 +194,16 @@ function zeroProjection(atMs: number, duplicate: boolean): IdleOfflineProjection
     cultivation: 0,
     spiritStones: 0,
     duplicate,
-    time: emptyTimeProjection(atMs),
-  };
+    anomaly,
+    time: emptyTimeProjection(projectedAtMs),
+  });
+}
+
+function freezeProjection(projection: IdleOfflineProjection): IdleOfflineProjection {
+  const segments = Object.freeze(projection.time.segments.map((segment) => Object.freeze({ ...segment })));
+  const secondsByCategory = Object.freeze({ ...projection.time.secondsByCategory });
+  const time = Object.freeze({ ...projection.time, segments, secondsByCategory });
+  return Object.freeze({ ...projection, time });
 }
 
 function emptyTimeProjection(atMs: number): OfflineTimeProjection {
