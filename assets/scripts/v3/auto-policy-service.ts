@@ -307,7 +307,7 @@ export class AutoPolicyService {
       }
     }
 
-    if (!active || (active.status === 'COMPLETED' && active.settlementId !== this.settlementId)) {
+    if (!active || active.status === 'COMPLETED') {
       const ids = uniquePendingEvents(this.context.player.pendingEvents)
         .filter((event) => !this.isOfflineDecisionHandled(event.uid))
         .sort(comparePendingEvents)
@@ -321,7 +321,7 @@ export class AutoPolicyService {
           status: 'PENDING',
         };
         changed = true;
-      } else if (active) {
+      } else if (active && active.settlementId !== this.settlementId) {
         this.context.player.offlineDecisionSession = null;
         changed = true;
       }

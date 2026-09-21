@@ -155,6 +155,34 @@ function testLaterS1JoinsExistingCappedSessionAndDisplacesP0(): void {
   assert.equal(context.player.pendingEvents.length, 13, 'displaced P0 remains canonical and unresolved');
 }
 
+function testLateCanonicalS1ReopensCompletedSameSettlementSession(): void {
+  const context = make({ assignedTasks: [task('completed-p0', 'P0', 1)] });
+  const initial = context.autoPolicy.prepareOfflineDecisionSession();
+  const settlementId = initial.session?.settlementId;
+
+  assert.deepEqual(context.autoPolicy.performOfflineDecision('offline:task:completed-p0'), {
+    success: true,
+    duplicate: false,
+  });
+  assert.equal(context.player.offlineDecisionSession?.status, 'COMPLETED');
+
+  context.player.pendingEvents.push({
+    uid: 'offline:incident:late-s1',
+    eventId: 'incident:late-s1',
+    occurredAt: 2,
+    priority: 'CRITICAL',
+  });
+  const reopened = context.autoPolicy.prepareOfflineDecisionSession();
+
+  assert.equal(reopened.session?.settlementId, settlementId, 'settlement identity remains stable');
+  assert.equal(reopened.session?.status, 'PENDING');
+  assert.equal(reopened.current?.id, 'offline:incident:late-s1');
+  assert.deepEqual(context.autoPolicy.performOfflineDecision('offline:incident:late-s1'), {
+    success: true,
+    duplicate: false,
+  });
+}
+
 function testS1OverflowUsesOneDeterministicSummaryBeyondTwelveRows(): void {
   const incidents = Array.from({ length: 13 }, (_, index) => incident(`s1-${index}`, 'S1', index + 1));
   const context = make({ incidents });
@@ -182,6 +210,7 @@ const tests = [
   testStableOrderingAndTwelveItemPresentationCap,
   testEveryS1PreemptsLowerRiskItemsInsidePresentationCap,
   testLaterS1JoinsExistingCappedSessionAndDisplacesP0,
+  testLateCanonicalS1ReopensCompletedSameSettlementSession,
   testS1OverflowUsesOneDeterministicSummaryBeyondTwelveRows,
 ];
 
