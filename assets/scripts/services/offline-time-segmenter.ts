@@ -22,6 +22,7 @@ export const OFFLINE_TIME_ZONE = 'Asia/Shanghai';
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 const SHANGHAI_OFFSET_MS = 8 * HOUR_MS;
+const JAVASCRIPT_DATE_LIMIT_MS = 8_640_000_000_000_000;
 
 /**
  * Split a half-open offline interval into logical game-time categories.
@@ -30,6 +31,9 @@ const SHANGHAI_OFFSET_MS = 8 * HOUR_MS;
 export function segmentOfflineInterval(startMs: number, endMs: number, maxSeconds: number): OfflineTimeProjection {
   if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) {
     throw new Error('Offline interval requires finite Unix epoch milliseconds');
+  }
+  if (Math.abs(startMs) > JAVASCRIPT_DATE_LIMIT_MS || Math.abs(endMs) > JAVASCRIPT_DATE_LIMIT_MS) {
+    throw new Error('Offline interval must be within the valid JavaScript Date range');
   }
   if (!Number.isFinite(maxSeconds) || maxSeconds <= 0 || !Number.isFinite(maxSeconds * 1000)) {
     throw new Error('Offline interval requires a positive finite maximum');
@@ -79,9 +83,9 @@ export function segmentOfflineInterval(startMs: number, endMs: number, maxSecond
 
 function categoryAndNextBoundary(epochMs: number): { category: OfflineTimeCategory; nextBoundaryMs: number } {
   const localMs = epochMs + SHANGHAI_OFFSET_MS;
-  const localDate = new Date(localMs);
-  const dayOfWeek = localDate.getUTCDay();
   const localDayStartMs = Math.floor(localMs / DAY_MS) * DAY_MS;
+  const localDayIndex = Math.floor(localMs / DAY_MS);
+  const dayOfWeek = ((localDayIndex + 4) % 7 + 7) % 7;
 
   if (dayOfWeek === 0 || dayOfWeek === 6) {
     return { category: 'WEEKEND', nextBoundaryMs: localDayStartMs + DAY_MS - SHANGHAI_OFFSET_MS };

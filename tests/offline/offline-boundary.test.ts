@@ -90,11 +90,16 @@ function testGlobalCapIsAppliedBeforeSplitting(): void {
 
 function testEmptyAndInvalidInputs(): void {
   const instant = shanghaiMs(2026, 9, 21, 9);
+  const dateLimitMs = 8_640_000_000_000_000;
   const empty = segmentOfflineInterval(instant, instant, 8 * 3600);
   assert.equal(empty.elapsedSeconds, 0);
   assert.deepEqual(empty.segments, []);
   assert.throws(() => segmentOfflineInterval(Number.NaN, instant, 8 * 3600), /finite Unix epoch milliseconds/);
   assert.throws(() => segmentOfflineInterval(instant, Number.POSITIVE_INFINITY, 8 * 3600), /finite Unix epoch milliseconds/);
+  assert.throws(() => segmentOfflineInterval(dateLimitMs + 1, instant, 8 * 3600), /valid JavaScript Date range/);
+  assert.throws(() => segmentOfflineInterval(-dateLimitMs - 1, instant, 8 * 3600), /valid JavaScript Date range/);
+  assert.throws(() => segmentOfflineInterval(instant, dateLimitMs + 1, 8 * 3600), /valid JavaScript Date range/);
+  assert.throws(() => segmentOfflineInterval(instant, -dateLimitMs - 1, 8 * 3600), /valid JavaScript Date range/);
   assert.throws(() => segmentOfflineInterval(instant, instant + HOUR_MS, 0), /positive finite maximum/);
 }
 
