@@ -1,5 +1,13 @@
 import type { GameContext } from '../core/game-context';
-import type { AssignedTaskPriority, AssignedTaskState, AutoPolicy, IncidentSeverity, IncidentState } from '../model/save-data';
+import type {
+  AssignedTaskPriority,
+  AssignedTaskState,
+  AutoPolicy,
+  IncidentSeverity,
+  IncidentState,
+  OfflineDecisionSession,
+  PendingEventState,
+} from '../model/save-data';
 import type { IdleOfflineProjection } from '../services/idle-service';
 
 export interface OfflineSimulationResult {
@@ -53,10 +61,40 @@ export interface WelcomeBackResult {
 
 export type WelcomeActionResult = { readonly success: true } | { readonly success: false; readonly reason: 'STALE' | 'INVALID_ACTION' };
 
+export interface OfflineDecisionItem {
+  readonly id: string;
+  readonly eventId: string;
+  readonly occurredAt: number;
+  readonly priority: PendingEventState['priority'];
+}
+
+export interface OfflineDecisionOverflowSummary {
+  readonly total: number;
+  readonly byPriority: Readonly<Partial<Record<PendingEventState['priority'], number>>>;
+}
+
+export interface OfflineDecisionPresentation {
+  readonly session: OfflineDecisionSession | null;
+  readonly current: OfflineDecisionItem | null;
+  readonly items: readonly OfflineDecisionItem[];
+  readonly overflowSummary: OfflineDecisionOverflowSummary | null;
+}
+
+export type OfflineDecisionActionResult =
+  | { readonly success: true; readonly duplicate: boolean }
+  | { readonly success: false; readonly reason: 'STALE' };
+
 const TASK_ORDER: Record<AssignedTaskPriority, number> = { P0: 0, P1: 1, P2: 2, P3: 3 };
 const INCIDENT_ORDER: Record<IncidentSeverity, number> = { S1: 0, S2: 1, S3: 2, S4: 3 };
 const MAX_WELCOME_ITEMS = 3;
 const MAX_HANDLED_IDS = 100;
+const MAX_OFFLINE_DECISION_ITEMS = 12;
+const PENDING_PRIORITY_ORDER: Record<PendingEventState['priority'], number> = {
+  CRITICAL: 0,
+  IMPORTANT: 1,
+  NORMAL: 2,
+  FLAVOR: 3,
+};
 
 /** Deterministic return-to-game automation and the welcome incident queue. */
 export class AutoPolicyService {
@@ -232,6 +270,63 @@ export class AutoPolicyService {
     };
   }
 
+  /**
+   * Creates or resumes a stable ID-only view over canonical pendingEvents.
+   * High-risk V4 work is represented in pendingEvents before the snapshot is made;
+   * the session never owns event payloads and presentation limits never truncate storage.
+   */
+  public prepareOfflineDecisionSession(): OfflineDecisionPresentation {
+    const previousSession = this.context.player.offlineDecisionSession;
+    const sameSettlement = previousSession?.settlementId === this.settlementId;
+    let changed = this.routeHighRiskItems(sameSettlement ? previousSession.pendingEventIds : []);
+    changed = this.ensureS1MinimumMitigation() || changed;
+
+    const active = this.context.player.offlineDecisionSession;
+    if (!active || (active.status === 'COMPLETED' && active.settlementId !== this.settlementId)) {
+      const ids = uniquePendingEvents(this.context.player.pendingEvents)
+        .sort(comparePendingEvents)
+        .map((event) => event.uid);
+      if (ids.length > 0) {
+        this.context.player.offlineDecisionSession = {
+          settlementId: this.settlementId,
+          pendingEventIds: ids,
+          cursor: 0,
+          resolvedEventIds: [],
+          status: 'PENDING',
+        };
+        changed = true;
+      }
+    }
+
+    if (changed) this.context.saveService.save(this.context.player);
+    return this.buildOfflineDecisionPresentation();
+  }
+
+  /** Resolves exactly the decision at the durable cursor and persists its advancement. */
+  public performOfflineDecision(pendingEventId: string): OfflineDecisionActionResult {
+    const session = this.context.player.offlineDecisionSession;
+    if (!session) return { success: false, reason: 'STALE' };
+    if (session.resolvedEventIds.includes(pendingEventId)) return { success: true, duplicate: true };
+    if (session.status !== 'PENDING' || session.pendingEventIds[session.cursor] !== pendingEventId) {
+      return { success: false, reason: 'STALE' };
+    }
+
+    const eventIndex = this.context.player.pendingEvents.findIndex((event) => event.uid === pendingEventId);
+    if (eventIndex < 0) return { success: false, reason: 'STALE' };
+
+    this.context.player.pendingEvents = this.context.player.pendingEvents.filter((_, index) => index !== eventIndex);
+    const cursor = session.cursor + 1;
+    this.context.player.offlineDecisionSession = {
+      settlementId: session.settlementId,
+      pendingEventIds: [...session.pendingEventIds],
+      cursor,
+      resolvedEventIds: [...session.resolvedEventIds, pendingEventId],
+      status: cursor >= session.pendingEventIds.length ? 'COMPLETED' : 'PENDING',
+    };
+    this.context.saveService.save(this.context.player);
+    return { success: true, duplicate: false };
+  }
+
   public performWelcomeAction(itemId: string, action: WelcomeAction): WelcomeActionResult {
     const item = this.buildItems().find((candidate) => candidate.id === itemId);
     if (!item) return { success: false, reason: 'STALE' };
@@ -253,12 +348,17 @@ export class AutoPolicyService {
 
   private buildItems(): WelcomeBreakdownItem[] {
     const handled = new Set(this.context.player.handledWelcomeItemIds);
+    const canonicalDecisionIds = new Set([
+      ...this.context.player.pendingEvents.map((event) => event.uid),
+      ...(this.context.player.offlineDecisionSession?.pendingEventIds ?? []),
+    ]);
     const seen = new Set<string>();
     const items: WelcomeBreakdownItem[] = [];
     const incidents = this.context.player.incidents.filter(isActiveIncident).sort(compareIncidents);
     const tasks = this.context.assignedTasks.open().sort(compareTasks);
 
     for (const incident of incidents) {
+      if (canonicalDecisionIds.has(`offline:incident:${incident.id}`)) continue;
       const id = `incident:${incident.id}`;
       if (handled.has(id) || seen.has(id)) continue;
       seen.add(id);
@@ -273,6 +373,7 @@ export class AutoPolicyService {
       });
     }
     for (const task of tasks) {
+      if (canonicalDecisionIds.has(`offline:task:${task.id}`)) continue;
       const id = `task:${task.id}`;
       if (handled.has(id) || seen.has(id)) continue;
       seen.add(id);
@@ -287,6 +388,86 @@ export class AutoPolicyService {
       });
     }
     return items.slice(0, MAX_WELCOME_ITEMS);
+  }
+
+  private buildOfflineDecisionPresentation(): OfflineDecisionPresentation {
+    const session = this.context.player.offlineDecisionSession;
+    if (!session) return { session: null, current: null, items: [], overflowSummary: null };
+
+    const eventById = new Map(this.context.player.pendingEvents.map((event) => [event.uid, event]));
+    const remainingIds = session.pendingEventIds.slice(session.cursor);
+    const itemEvents = remainingIds
+      .slice(0, MAX_OFFLINE_DECISION_ITEMS)
+      .map((id) => eventById.get(id))
+      .filter((event): event is PendingEventState => event !== undefined);
+    const items = itemEvents.map(toOfflineDecisionItem);
+    const overflowEvents = remainingIds
+      .slice(MAX_OFFLINE_DECISION_ITEMS)
+      .map((id) => eventById.get(id))
+      .filter((event): event is PendingEventState => event !== undefined)
+      .filter((event) => event.priority !== 'CRITICAL');
+    const byPriority: Partial<Record<PendingEventState['priority'], number>> = {};
+    for (const event of overflowEvents) byPriority[event.priority] = (byPriority[event.priority] ?? 0) + 1;
+
+    return {
+      session: cloneDecisionSession(session),
+      current: items[0] ?? null,
+      items,
+      overflowSummary: overflowEvents.length > 0 ? { total: overflowEvents.length, byPriority } : null,
+    };
+  }
+
+  private routeHighRiskItems(alreadyProjectedIds: readonly string[]): boolean {
+    const existing = new Set([
+      ...this.context.player.pendingEvents.map((event) => event.uid),
+      ...alreadyProjectedIds,
+    ]);
+    const routed: PendingEventState[] = [];
+    for (const incident of this.context.player.incidents) {
+      if (!isActiveIncident(incident) || (incident.severity !== 'S1' && incident.severity !== 'S2')) continue;
+      const uid = `offline:incident:${incident.id}`;
+      if (!existing.has(uid)) {
+        existing.add(uid);
+        routed.push({
+          uid,
+          eventId: `incident:${incident.id}`,
+          occurredAt: incident.createdAt,
+          priority: incident.severity === 'S1' ? 'CRITICAL' : 'IMPORTANT',
+        });
+      }
+    }
+    for (const task of this.context.player.assignedTasks) {
+      if (task.status !== 'OPEN' || (task.priority !== 'P0' && task.priority !== 'P1')) continue;
+      const uid = `offline:task:${task.id}`;
+      if (!existing.has(uid)) {
+        existing.add(uid);
+        routed.push({
+          uid,
+          eventId: `task:${task.id}`,
+          occurredAt: task.createdAt,
+          priority: task.priority === 'P0' ? 'CRITICAL' : 'IMPORTANT',
+        });
+      }
+    }
+    if (routed.length === 0) return false;
+    this.context.player.pendingEvents = [...this.context.player.pendingEvents, ...routed.sort(comparePendingEvents)];
+    return true;
+  }
+
+  private ensureS1MinimumMitigation(): boolean {
+    const routedS1Ids = new Set(
+      this.context.player.pendingEvents
+        .filter((event) => event.priority === 'CRITICAL' && event.eventId.startsWith('incident:'))
+        .map((event) => event.eventId.slice('incident:'.length)),
+    );
+    let changed = false;
+    this.context.player.incidents = this.context.player.incidents.map((incident) => {
+      if (!routedS1Ids.has(incident.id) || incident.severity !== 'S1' || !isActiveIncident(incident)) return incident;
+      if (incident.status === 'MITIGATING' && incident.mitigationSeconds >= 1) return incident;
+      changed = true;
+      return { ...incident, status: 'MITIGATING', mitigationSeconds: Math.max(1, incident.mitigationSeconds) };
+    });
+    return changed;
   }
 
   private markHandled(id: string): void {
@@ -316,4 +497,37 @@ function compareTasks(a: AssignedTaskState, b: AssignedTaskState): number {
 
 function compareIncidents(a: IncidentState, b: IncidentState): number {
   return INCIDENT_ORDER[a.severity] - INCIDENT_ORDER[b.severity] || b.createdAt - a.createdAt || a.id.localeCompare(b.id);
+}
+
+function comparePendingEvents(a: PendingEventState, b: PendingEventState): number {
+  return PENDING_PRIORITY_ORDER[a.priority] - PENDING_PRIORITY_ORDER[b.priority]
+    || a.occurredAt - b.occurredAt
+    || compareStableId(a.uid, b.uid);
+}
+
+function compareStableId(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+function uniquePendingEvents(events: readonly PendingEventState[]): PendingEventState[] {
+  const seen = new Set<string>();
+  return events.filter((event) => {
+    if (seen.has(event.uid)) return false;
+    seen.add(event.uid);
+    return true;
+  });
+}
+
+function toOfflineDecisionItem(event: PendingEventState): OfflineDecisionItem {
+  return { id: event.uid, eventId: event.eventId, occurredAt: event.occurredAt, priority: event.priority };
+}
+
+function cloneDecisionSession(session: OfflineDecisionSession): OfflineDecisionSession {
+  return {
+    settlementId: session.settlementId,
+    pendingEventIds: [...session.pendingEventIds],
+    cursor: session.cursor,
+    resolvedEventIds: [...session.resolvedEventIds],
+    status: session.status,
+  };
 }

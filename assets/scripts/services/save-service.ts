@@ -248,12 +248,13 @@ function normalizeOfflineDecisionSession(value: unknown): import('../model/save-
   if (!isNonNegativeSafeInteger(value.cursor) || (value.status !== 'PENDING' && value.status !== 'COMPLETED')) return null;
   const pendingEventIds = uniqueIds(value.pendingEventIds);
   const pendingIdSet = new Set(pendingEventIds);
+  const cursor = Math.min(value.cursor, pendingEventIds.length);
   return {
     settlementId: value.settlementId,
     pendingEventIds,
-    cursor: Math.min(value.cursor, pendingEventIds.length),
+    cursor,
     resolvedEventIds: uniqueIds(value.resolvedEventIds).filter((id) => pendingIdSet.has(id)),
-    status: value.status,
+    status: cursor >= pendingEventIds.length ? 'COMPLETED' : 'PENDING',
   };
 }
 

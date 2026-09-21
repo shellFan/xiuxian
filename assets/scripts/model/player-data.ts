@@ -367,12 +367,13 @@ function sanitizeOfflineDecisionSession(session: OfflineDecisionSession | null |
   if (session.status !== 'PENDING' && session.status !== 'COMPLETED') return null;
   const pendingEventIds = uniqueIds(session.pendingEventIds);
   const pendingIdSet = new Set(pendingEventIds);
+  const cursor = Math.min(session.cursor, pendingEventIds.length);
   return {
     settlementId: session.settlementId,
     pendingEventIds,
-    cursor: Math.min(session.cursor, pendingEventIds.length),
+    cursor,
     resolvedEventIds: uniqueIds(session.resolvedEventIds).filter((id) => pendingIdSet.has(id)),
-    status: session.status,
+    status: cursor >= pendingEventIds.length ? 'COMPLETED' : 'PENDING',
   };
 }
 

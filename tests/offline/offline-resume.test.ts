@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 
+import { FakeClock } from '../../assets/scripts/core/clock';
+import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import type { OfflineDecisionSession, PendingEventState } from '../../assets/scripts/model/save-data';
 import { SaveService, DEFAULT_SAVE_KEY } from '../../assets/scripts/services/save-service';
@@ -105,11 +107,64 @@ function testMissingOrInvalidSessionDefaultsToNull(): void {
   assert.equal(new PlayerData().offlineDecisionSession, null);
 }
 
+function testAcceptedActionPersistsAndResumesAtNextCursor(): void {
+  const storage = new MemoryStorageAdapter();
+  const clock = new FakeClock(400);
+  const saveService = new SaveService(storage, DEFAULT_SAVE_KEY, clock);
+  const first = new GameContext({
+    player: new PlayerData({ pendingEvents: PENDING_EVENTS, lastSaveTime: 300 }),
+    saveService,
+    clock,
+    board: null,
+  });
+  first.autoPolicy.prepareOfflineDecisionSession();
+
+  assert.deepEqual(first.autoPolicy.performOfflineDecision('pending-s1'), { success: true, duplicate: false });
+  assert.deepEqual(first.player.pendingEvents.map((event) => event.uid), ['pending-task']);
+  assert.deepEqual(first.player.offlineDecisionSession, {
+    settlementId: 'offline-8c',
+    pendingEventIds: ['pending-s1', 'pending-task'],
+    cursor: 1,
+    resolvedEventIds: ['pending-s1'],
+    status: 'PENDING',
+  });
+
+  const restarted = new GameContext({ storage, clock, board: null });
+  const resumed = restarted.autoPolicy.prepareOfflineDecisionSession();
+  assert.equal(resumed.current?.id, 'pending-task');
+  assert.equal(resumed.session?.cursor, 1);
+  assert.deepEqual(restarted.autoPolicy.performOfflineDecision('pending-s1'), { success: true, duplicate: true });
+}
+
+function testStaleIdIsRejectedAndFinalDecisionCompletes(): void {
+  const storage = new MemoryStorageAdapter();
+  const clock = new FakeClock(500);
+  const context = new GameContext({
+    player: new PlayerData({ pendingEvents: PENDING_EVENTS, lastSaveTime: 300 }),
+    saveService: new SaveService(storage, DEFAULT_SAVE_KEY, clock),
+    clock,
+    board: null,
+  });
+  context.autoPolicy.prepareOfflineDecisionSession();
+  const before = context.player.toSaveData();
+
+  assert.deepEqual(context.autoPolicy.performOfflineDecision('pending-task'), { success: false, reason: 'STALE' });
+  assert.deepEqual(context.player.toSaveData(), before);
+  assert.deepEqual(context.autoPolicy.performOfflineDecision('pending-s1'), { success: true, duplicate: false });
+  assert.deepEqual(context.autoPolicy.performOfflineDecision('pending-task'), { success: true, duplicate: false });
+  assert.equal(context.player.offlineDecisionSession?.status, 'COMPLETED');
+  assert.equal(context.player.offlineDecisionSession?.cursor, 2);
+  assert.deepEqual(context.player.pendingEvents, []);
+  assert.equal(context.autoPolicy.prepareOfflineDecisionSession().current, null);
+}
+
 const tests = [
   testDecisionSessionRoundTripsAcrossRestart,
   testSessionSnapshotsAreDeeplyIsolated,
   testMigrationRetainsOnlyStableIdsAndDropsEventCopies,
   testMissingOrInvalidSessionDefaultsToNull,
+  testAcceptedActionPersistsAndResumesAtNextCursor,
+  testStaleIdIsRejectedAndFinalDecisionCompletes,
 ];
 
 for (const test of tests) {
