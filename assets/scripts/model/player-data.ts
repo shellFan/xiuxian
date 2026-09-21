@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -74,6 +74,8 @@ export interface PlayerDataOptions {
   readonly incidents?: readonly IncidentState[];
   readonly technicalDebt?: Readonly<Record<string, number>>;
   readonly assignedTasks?: readonly AssignedTaskState[];
+  readonly autoPolicy?: AutoPolicy;
+  readonly handledWelcomeItemIds?: readonly string[];
   readonly lifetimeStats?: Readonly<Record<string, number>>;
   readonly activeBattleRun?: unknown;
 }
@@ -165,6 +167,8 @@ export class PlayerData {
   public incidents: IncidentState[];
   public technicalDebt: Record<string, number>;
   public assignedTasks: AssignedTaskState[];
+  public autoPolicy: AutoPolicy;
+  public handledWelcomeItemIds: string[];
   public lifetimeStats: Record<string, number>;
   public activeBattleRun: unknown;
 
@@ -238,6 +242,8 @@ export class PlayerData {
     this.incidents = [...(options.incidents ?? [])];
     this.technicalDebt = sanitizeDebt(options.technicalDebt);
     this.assignedTasks = [...(options.assignedTasks ?? [])];
+    this.autoPolicy = options.autoPolicy === 'ALWAYS' || options.autoPolicy === 'NEVER' ? options.autoPolicy : 'SELECTIVE';
+    this.handledWelcomeItemIds = [...new Set(options.handledWelcomeItemIds ?? [])].slice(-100);
     this.lifetimeStats = sanitizeLifetime(options.lifetimeStats);
     this.activeBattleRun = options.activeBattleRun ?? null;
   }
@@ -299,6 +305,8 @@ export class PlayerData {
       incidents: this.incidents.map((i) => ({ ...i })),
       technicalDebt: { ...this.technicalDebt },
       assignedTasks: this.assignedTasks.map((t) => ({ ...t })),
+      autoPolicy: this.autoPolicy,
+      handledWelcomeItemIds: [...this.handledWelcomeItemIds],
       lifetimeStats: { ...this.lifetimeStats },
       activeBattleRun: cloneUnknown(this.activeBattleRun),
     };

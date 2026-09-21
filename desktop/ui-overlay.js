@@ -682,6 +682,83 @@
     });
   }
 
+  /* 回归欢迎 + 事故队列。离线结算 id 由 Facade 返回，UI 不自行造时间戳。 */
+  function showWelcomeBackPopup() {
+    var f = facade();
+    if (!f || typeof f.prepareWelcomeBack !== 'function') return;
+    var welcome;
+    try { welcome = f.prepareWelcomeBack(); } catch (e) { return; }
+    if (!welcome || !welcome.settlementId) return;
+
+    var items = welcome.items || [];
+    var policyLabels = { ALWAYS: '总是托管', SELECTIVE: '选择性', NEVER: '从不托管' };
+    var itemHtml = items.map(function (item, index) {
+      var iconText = item.kind === 'INCIDENT' ? '🔥' : '📋';
+      var actionText = item.kind === 'INCIDENT' ? '我知道了' : '立即完成';
+      var routeText = item.routedByPolicy ? '<span class="ux-welcome-route">已智能分流</span>' : '';
+      return '<div class="ux-welcome-item">' +
+        '<span class="ux-welcome-icon">' + iconText + '</span>' +
+        '<div class="ux-welcome-copy"><b>' + escHtml(item.title) + '</b><span>' + escHtml(item.priority) + routeText + '</span></div>' +
+        '<button class="ux-btn ux-btn--blue ux-btn--sm" data-welcome-action="' + index + '">' + actionText + '</button>' +
+      '</div>';
+    }).join('');
+    var autoText = welcome.autoCompletedTaskIds && welcome.autoCompletedTaskIds.length
+      ? '<div class="ux-welcome-auto">托管期间已安全完成 ' + welcome.autoCompletedTaskIds.length + ' 项低风险工作</div>'
+      : '';
+    var layer = popupLayer();
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup">' +
+          '<div class="ux-header" style="height:84px;border-radius:16px 16px 0 0;margin:0 -18px 16px">' +
+            '<span class="ux-header-title">欢迎回来，牛马</span>' +
+          '</div>' +
+          '<div class="ux-popup-card">' +
+            '<div class="ux-welcome-title">离线工作简报</div>' + autoText +
+            '<div class="ux-welcome-policies">' +
+              Object.keys(policyLabels).map(function (policy) {
+                return '<button class="ux-welcome-policy' + (welcome.policy === policy ? ' is-active' : '') + '" data-policy="' + policy + '">' + policyLabels[policy] + '</button>';
+              }).join('') +
+            '</div>' +
+            '<div class="ux-welcome-note">托管策略变更将在下次回归时生效；生产事故永远由你亲自处理。</div>' +
+            '<div class="ux-welcome-list">' + (itemHtml || '<div class="ux-welcome-empty">暂无需要处理的工作波动</div>') + '</div>' +
+            '<button class="ux-btn ux-btn--gold ux-btn--md ux-welcome-continue" id="WelcomeContinueBtn">查看离线收益</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    $$('.ux-welcome-policy', layer).forEach(function (button) {
+      button.addEventListener('click', function () {
+        var policy = button.getAttribute('data-policy');
+        try {
+          f.setAutoPolicy(policy);
+          $$('.ux-welcome-policy', layer).forEach(function (candidate) { candidate.classList.remove('is-active'); });
+          button.classList.add('is-active');
+          toast('托管策略已保存，下次回归生效', 'success');
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    });
+    $$('[data-welcome-action]', layer).forEach(function (button) {
+      button.addEventListener('click', function () {
+        var item = items[Number(button.getAttribute('data-welcome-action'))];
+        if (!item) return;
+        try {
+          var result = f.performWelcomeAction(item.id, item.action);
+          if (!result || !result.success) {
+            toast('该事项状态已变化，请刷新后再试', 'error');
+            return;
+          }
+          toast(item.kind === 'INCIDENT' ? '事故已加入今日关注' : '任务处理完成', 'success');
+          showWelcomeBackPopup();
+          refresh();
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    });
+    $('#WelcomeContinueBtn').addEventListener('click', function () {
+      closePopup();
+      showOfflinePopup(welcome.settlementId);
+    });
+  }
+
   /* ═════════════════════════════════════════════════════════
      §6. Page renderers
      ═════════════════════════════════════════════════════════ */
@@ -2044,7 +2121,13 @@
     fullRefresh: fullRefresh,
     goto: function (page) { _subPage = String(page || '').toUpperCase(); fullRefresh(); },
     showAdPopup: showAdPopup,
-    showOfflinePopup: function () { showOfflinePopup('offline_' + Date.now()); },
+    showOfflinePopup: function () {
+      var f = facade();
+      if (!f || typeof f.prepareWelcomeBack !== 'function') return;
+      var welcome = f.prepareWelcomeBack();
+      showOfflinePopup(welcome.settlementId);
+    },
+    showWelcomeBackPopup: showWelcomeBackPopup,
     showDialog: showDialog,
     closePopup: closePopup,
   };
@@ -2067,7 +2150,7 @@
         console.log('[UI] GameFacade ready — switching to live data');
         _demoMode = false;
         subscribeEvents();
-        setTimeout(function () { showOfflinePopup('offline_' + Date.now()); }, 1200);
+        setTimeout(function () { showWelcomeBackPopup(); }, 1200);
         refresh();
       } else if (attempts >= 100) {
         clearInterval(poll);

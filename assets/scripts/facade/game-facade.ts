@@ -42,6 +42,8 @@ import type { CraftResult } from '../services/craft-service';
 import { RecruitmentService } from '../services/recruitment-service';
 import { MergeService, type MergeResult } from '../services/merge-service';
 import type { BoardPosition } from '../game/merge/merge-types';
+import type { AutoPolicy } from '../model/save-data';
+import type { WelcomeAction } from '../v3/auto-policy-service';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -279,6 +281,10 @@ export class GameFacade {
   }
   public completeAssignedTask(taskId: string) { return this.context.assignedTasks.complete(taskId); }
   public refuseAssignedTask(taskId: string) { return this.context.assignedTasks.refuse(taskId); }
+  /** Deterministic welcome-back payload; may apply the configured safe auto policy once. */
+  public prepareWelcomeBack() { return this.context.autoPolicy.prepareWelcome(); }
+  public setAutoPolicy(policy: AutoPolicy) { return this.context.autoPolicy.setPolicy(policy); }
+  public performWelcomeAction(itemId: string, action: WelcomeAction) { return this.context.autoPolicy.performWelcomeAction(itemId, action); }
   /** 牛马档案（终身统计）。 */
   public queryLifetimeStats() {
     const p = this.context.player;

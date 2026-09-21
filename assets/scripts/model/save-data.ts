@@ -120,6 +120,7 @@ export type TechDebtDomain = 'PAYMENT' | 'LOGIN' | 'ORDER' | 'REPORT' | 'MESSAGE
 
 export type AssignedTaskPriority = 'P0' | 'P1' | 'P2' | 'P3';
 export type AssignedTaskSource = 'BOSS' | 'COLLEAGUE' | 'PRODUCT' | 'TEST' | 'CLIENT' | 'INCIDENT' | 'SYSTEM';
+export type AutoPolicy = 'ALWAYS' | 'NEVER' | 'SELECTIVE';
 
 export interface AssignedTaskState {
   readonly id: string;
@@ -315,6 +316,10 @@ export interface GameSaveData {
   readonly technicalDebt?: Readonly<Record<string, number>>;
   /** 被指派的临时任务（含假 P0）。 */
   readonly assignedTasks?: readonly AssignedTaskState[];
+  /** Return-to-game automation preference. Old saves migrate to SELECTIVE. */
+  readonly autoPolicy?: AutoPolicy;
+  /** Welcome items explicitly handled by the player, retained for restart de-duplication. */
+  readonly handledWelcomeItemIds?: readonly string[];
   /** 终身统计（牛马档案）：累计加班秒/摸鱼秒/背锅/反击/事故/Boss 等。 */
   readonly lifetimeStats?: Readonly<Record<string, number>>;
   /** 进行中的项目战斗（V4 战斗竖切；结构由 v3/battle-service 校验）。 */

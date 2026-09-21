@@ -184,6 +184,8 @@ function migrate(raw: unknown): GameSaveData {
     incidents: Array.isArray(raw.incidents) ? (raw.incidents as unknown[]).filter(isIncidentState).map((i) => ({ ...i })) : [],
     technicalDebt: isRecord(raw.technicalDebt) ? boundedNumberRecord(raw.technicalDebt) : {},
     assignedTasks: Array.isArray(raw.assignedTasks) ? (raw.assignedTasks as unknown[]).filter(isAssignedTask).map((t) => ({ ...t })) : [],
+    autoPolicy: raw.autoPolicy === 'ALWAYS' || raw.autoPolicy === 'NEVER' || raw.autoPolicy === 'SELECTIVE' ? raw.autoPolicy : 'SELECTIVE',
+    handledWelcomeItemIds: Array.isArray(raw.handledWelcomeItemIds) ? [...new Set((raw.handledWelcomeItemIds as unknown[]).filter(isString))].slice(-100) : [],
     lifetimeStats: isRecord(raw.lifetimeStats) ? numericRecord(raw.lifetimeStats) : {},
     activeBattleRun: isRecord(raw.activeBattleRun) ? raw.activeBattleRun : null,
   });
@@ -293,7 +295,7 @@ function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultiva
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {
-  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'FIRST_RECRUIT', tutorialCompleted: data.tutorialCompleted ?? false, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })), overtimeStats: data.overtimeStats ? { ...data.overtimeStats } : undefined, activeBattleRun: cloneUnknown(data.activeBattleRun), gameDay: data.gameDay ? { ...data.gameDay, durations: { ...data.gameDay.durations }, income: { ...data.gameDay.income }, situationIds: [...data.gameDay.situationIds], settlementInputs: { ...data.gameDay.settlementInputs }, eventHistory: data.gameDay.eventHistory.map((entry) => ({ ...entry })) } : null };
+  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'FIRST_RECRUIT', tutorialCompleted: data.tutorialCompleted ?? false, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })), handledWelcomeItemIds: [...(data.handledWelcomeItemIds ?? [])], overtimeStats: data.overtimeStats ? { ...data.overtimeStats } : undefined, activeBattleRun: cloneUnknown(data.activeBattleRun), gameDay: data.gameDay ? { ...data.gameDay, durations: { ...data.gameDay.durations }, income: { ...data.gameDay.income }, situationIds: [...data.gameDay.situationIds], settlementInputs: { ...data.gameDay.settlementInputs }, eventHistory: data.gameDay.eventHistory.map((entry) => ({ ...entry })) } : null };
 }
 
 function cloneUnknown(value: unknown): unknown {

@@ -62,6 +62,7 @@ import { IncidentService } from '../v3/incident-service';
 import { TechDebtService } from '../v3/tech-debt-service';
 import { AssignedTaskService } from '../v3/assigned-task-service';
 import { BattleService } from '../v3/battle-service';
+import { AutoPolicyService } from '../v3/auto-policy-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
 import craftConfig from '../../configs/craft.json';
@@ -159,6 +160,8 @@ export class GameContext {
   public readonly techDebt: TechDebtService;
   /** V4 指派任务（假 P0 / 真事故）。 */
   public readonly assignedTasks: AssignedTaskService;
+  /** Return-to-game auto policy and welcome incident queue. */
+  public readonly autoPolicy: AutoPolicyService;
   /** V4 项目战斗竖切。 */
   public readonly battle: BattleService;
   public readonly rewardProvider: RewardProvider;
@@ -245,6 +248,7 @@ export class GameContext {
     this.responsibility = new ResponsibilityService(this);
     this.incidents = new IncidentService(this);
     this.assignedTasks = new AssignedTaskService(this);
+    this.autoPolicy = new AutoPolicyService(this);
     this.battle = new BattleService(this, options.battleRng);
     this.innerDemon = new InnerDemonService(this);
     this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);
