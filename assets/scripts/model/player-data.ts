@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -75,6 +75,7 @@ export interface PlayerDataOptions {
   readonly technicalDebt?: Readonly<Record<string, number>>;
   readonly assignedTasks?: readonly AssignedTaskState[];
   readonly autoPolicy?: AutoPolicy;
+  readonly offlineDecisionSession?: OfflineDecisionSession | null;
   readonly handledWelcomeItemIds?: readonly string[];
   readonly lifetimeStats?: Readonly<Record<string, number>>;
   readonly activeBattleRun?: unknown;
@@ -168,6 +169,7 @@ export class PlayerData {
   public technicalDebt: Record<string, number>;
   public assignedTasks: AssignedTaskState[];
   public autoPolicy: AutoPolicy;
+  public offlineDecisionSession: OfflineDecisionSession | null;
   public handledWelcomeItemIds: string[];
   public lifetimeStats: Record<string, number>;
   public activeBattleRun: unknown;
@@ -242,7 +244,8 @@ export class PlayerData {
     this.incidents = [...(options.incidents ?? [])];
     this.technicalDebt = sanitizeDebt(options.technicalDebt);
     this.assignedTasks = [...(options.assignedTasks ?? [])];
-    this.autoPolicy = options.autoPolicy === 'ALWAYS' || options.autoPolicy === 'NEVER' ? options.autoPolicy : 'SELECTIVE';
+    this.autoPolicy = isAutoPolicy(options.autoPolicy) ? options.autoPolicy : 'NORMAL';
+    this.offlineDecisionSession = sanitizeOfflineDecisionSession(options.offlineDecisionSession);
     this.handledWelcomeItemIds = [...new Set(options.handledWelcomeItemIds ?? [])].slice(-100);
     this.lifetimeStats = sanitizeLifetime(options.lifetimeStats);
     this.activeBattleRun = options.activeBattleRun ?? null;
@@ -306,6 +309,7 @@ export class PlayerData {
       technicalDebt: { ...this.technicalDebt },
       assignedTasks: this.assignedTasks.map((t) => ({ ...t })),
       autoPolicy: this.autoPolicy,
+      offlineDecisionSession: cloneOfflineDecisionSession(this.offlineDecisionSession),
       handledWelcomeItemIds: [...this.handledWelcomeItemIds],
       lifetimeStats: { ...this.lifetimeStats },
       activeBattleRun: cloneUnknown(this.activeBattleRun),
@@ -350,6 +354,40 @@ function sanitizeSession(session: OvertimeSessionState | null | undefined): Over
     status: session.status === 'ACTIVE' ? 'ACTIVE' : 'OFFERED',
     startedAt: typeof session.startedAt === 'number' ? session.startedAt : null,
   };
+}
+
+function isAutoPolicy(value: unknown): value is AutoPolicy {
+  return value === 'NORMAL' || value === 'SAFE' || value === 'GRINDER' || value === 'SLACKER';
+}
+
+function sanitizeOfflineDecisionSession(session: OfflineDecisionSession | null | undefined): OfflineDecisionSession | null {
+  if (!session || typeof session !== 'object' || typeof session.settlementId !== 'string' || session.settlementId.trim() === '') return null;
+  if (!Array.isArray(session.pendingEventIds) || !Array.isArray(session.resolvedEventIds)) return null;
+  if (!Number.isSafeInteger(session.cursor) || session.cursor < 0) return null;
+  if (session.status !== 'PENDING' && session.status !== 'COMPLETED') return null;
+  const pendingEventIds = uniqueIds(session.pendingEventIds);
+  const pendingIdSet = new Set(pendingEventIds);
+  return {
+    settlementId: session.settlementId,
+    pendingEventIds,
+    cursor: Math.min(session.cursor, pendingEventIds.length),
+    resolvedEventIds: uniqueIds(session.resolvedEventIds).filter((id) => pendingIdSet.has(id)),
+    status: session.status,
+  };
+}
+
+function cloneOfflineDecisionSession(session: OfflineDecisionSession | null): OfflineDecisionSession | null {
+  return session ? {
+    settlementId: session.settlementId,
+    pendingEventIds: [...session.pendingEventIds],
+    cursor: session.cursor,
+    resolvedEventIds: [...session.resolvedEventIds],
+    status: session.status,
+  } : null;
+}
+
+function uniqueIds(values: readonly unknown[]): string[] {
+  return [...new Set(values.filter((value): value is string => typeof value === 'string' && value.trim() !== ''))];
 }
 
 function sanitizeDebt(debt: Readonly<Record<string, number>> | undefined): Record<string, number> {

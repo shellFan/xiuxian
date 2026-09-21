@@ -120,7 +120,7 @@ export type TechDebtDomain = 'PAYMENT' | 'LOGIN' | 'ORDER' | 'REPORT' | 'MESSAGE
 
 export type AssignedTaskPriority = 'P0' | 'P1' | 'P2' | 'P3';
 export type AssignedTaskSource = 'BOSS' | 'COLLEAGUE' | 'PRODUCT' | 'TEST' | 'CLIENT' | 'INCIDENT' | 'SYSTEM';
-export type AutoPolicy = 'ALWAYS' | 'NEVER' | 'SELECTIVE';
+export type AutoPolicy = 'NORMAL' | 'SAFE' | 'GRINDER' | 'SLACKER';
 
 export interface AssignedTaskState {
   readonly id: string;
@@ -168,6 +168,15 @@ export interface PendingEventState {
   eventId: string;
   occurredAt: number;
   priority: 'CRITICAL' | 'IMPORTANT' | 'NORMAL' | 'FLAVOR';
+}
+
+/** Resumable offline-choice cursor. Event payloads remain canonical in pendingEvents. */
+export interface OfflineDecisionSession {
+  settlementId: string;
+  pendingEventIds: string[];
+  cursor: number;
+  resolvedEventIds: string[];
+  status: 'PENDING' | 'COMPLETED';
 }
 
 /** 日结算历史（保留最近 90 天，更早丢弃）。 */
@@ -316,8 +325,10 @@ export interface GameSaveData {
   readonly technicalDebt?: Readonly<Record<string, number>>;
   /** 被指派的临时任务（含假 P0）。 */
   readonly assignedTasks?: readonly AssignedTaskState[];
-  /** Return-to-game automation preference. Old saves migrate to SELECTIVE. */
+  /** Return-to-game automation preference. Legacy values are normalized during migration. */
   readonly autoPolicy?: AutoPolicy;
+  /** Resumable projection over canonical pendingEvents; stores stable IDs only. */
+  readonly offlineDecisionSession?: OfflineDecisionSession | null;
   /** Welcome items explicitly handled by the player, retained for restart de-duplication. */
   readonly handledWelcomeItemIds?: readonly string[];
   /** 终身统计（牛马档案）：累计加班秒/摸鱼秒/背锅/反击/事故/Boss 等。 */

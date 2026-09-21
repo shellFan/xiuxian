@@ -43,7 +43,7 @@ export class AutoPolicyService {
   }
 
   public setPolicy(policy: AutoPolicy): boolean {
-    if (policy !== 'ALWAYS' && policy !== 'NEVER' && policy !== 'SELECTIVE') throw new Error('Invalid auto policy');
+    if (policy !== 'NORMAL' && policy !== 'SAFE' && policy !== 'GRINDER' && policy !== 'SLACKER') throw new Error('Invalid auto policy');
     if (this.context.player.autoPolicy === policy) return false;
     this.context.player.autoPolicy = policy;
     this.prepared = false;
@@ -55,7 +55,7 @@ export class AutoPolicyService {
   public prepareWelcome(): WelcomeBackResult {
     if (!this.prepared) {
       this.prepared = true;
-      if (this.getPolicy() === 'ALWAYS') {
+      if (this.getPolicy() === 'GRINDER') {
         const eligible = this.context.assignedTasks.open()
           .filter(isLowRiskTask)
           .sort(compareTasks)
@@ -126,7 +126,7 @@ export class AutoPolicyService {
         title: task.title,
         priority: task.priority,
         action: 'COMPLETE',
-        routedByPolicy: this.getPolicy() === 'SELECTIVE' && isLowRiskTask(task),
+        routedByPolicy: this.getPolicy() === 'NORMAL' && isLowRiskTask(task),
       });
     }
     return items.slice(0, MAX_WELCOME_ITEMS);

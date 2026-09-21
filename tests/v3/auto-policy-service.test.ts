@@ -60,9 +60,9 @@ function testDefaultAndMigration(): void {
   const storage = new MemoryStorageAdapter();
   storage.setItem(DEFAULT_SAVE_KEY, JSON.stringify({ saveVersion: 8, salary: 12, autoPolicy: 'INVALID' }));
   const loaded = new SaveService(storage, DEFAULT_SAVE_KEY, new FakeClock(NOW)).load();
-  assert.equal(loaded.autoPolicy, 'SELECTIVE');
+  assert.equal(loaded.autoPolicy, 'NORMAL');
   assert.deepEqual(loaded.handledWelcomeItemIds, []);
-  assert.equal(new PlayerData().autoPolicy, 'SELECTIVE');
+  assert.equal(new PlayerData().autoPolicy, 'NORMAL');
 }
 
 function testPolicyDecisionsAndOfflineIsolation(): void {
@@ -72,7 +72,7 @@ function testPolicyDecisionsAndOfflineIsolation(): void {
   assert.equal(selective.context.player.assignedTasks.every((item) => item.status === 'OPEN'), true);
   assert.equal(selective.saveService.saves, 0);
 
-  selective.context.autoPolicy.setPolicy('NEVER');
+  selective.context.autoPolicy.setPolicy('SLACKER');
   const never = selective.context.autoPolicy.prepareWelcome();
   assert.deepEqual(never.autoCompletedTaskIds, []);
   assert.equal(selective.context.player.assignedTasks.every((item) => item.status === 'OPEN'), true);
@@ -83,7 +83,7 @@ function testPolicyDecisionsAndOfflineIsolation(): void {
     assignedTasks: [task('low2', 'P2'), task('low3', 'P3', 'INCIDENT'), task('high2', 'P1')],
     incidents: [incident('prod1')],
   });
-  always.context.autoPolicy.setPolicy('ALWAYS');
+  always.context.autoPolicy.setPolicy('GRINDER');
   always.saveService.saves = 0;
   const result = always.context.autoPolicy.prepareWelcome();
   assert.deepEqual(result.autoCompletedTaskIds, ['low2']);
@@ -126,9 +126,9 @@ function testPolicyAndActionSaveExactlyOnceAndSurviveRestart(): void {
   const clock = new FakeClock(NOW);
   const saves = new CountingSaveService(storage, DEFAULT_SAVE_KEY, clock);
   const first = new GameContext({ player: new PlayerData({ lastSaveTime: NOW - 60_000, assignedTasks: [task('persist', 'P2')] }), saveService: saves, clock, board: null });
-  assert.equal(first.autoPolicy.setPolicy('NEVER'), true);
+  assert.equal(first.autoPolicy.setPolicy('SLACKER'), true);
   assert.equal(saves.saves, 1);
-  assert.equal(first.autoPolicy.setPolicy('NEVER'), false);
+  assert.equal(first.autoPolicy.setPolicy('SLACKER'), false);
   assert.equal(saves.saves, 1);
 
   const item = first.autoPolicy.prepareWelcome().items.find((candidate) => candidate.entityId === 'persist');
@@ -137,7 +137,7 @@ function testPolicyAndActionSaveExactlyOnceAndSurviveRestart(): void {
   assert.equal(saves.saves, 2);
 
   const restarted = new GameContext({ storage, clock, board: null });
-  assert.equal(restarted.player.autoPolicy, 'NEVER');
+  assert.equal(restarted.player.autoPolicy, 'SLACKER');
   assert.equal(restarted.player.assignedTasks.find((candidate) => candidate.id === 'persist')?.status, 'DONE');
   assert.ok(restarted.player.handledWelcomeItemIds.includes('task:persist'));
 }
