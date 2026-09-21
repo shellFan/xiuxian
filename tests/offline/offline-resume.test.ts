@@ -158,7 +158,7 @@ function testStaleIdIsRejectedAndFinalDecisionCompletes(): void {
   assert.equal(context.autoPolicy.prepareOfflineDecisionSession().current, null);
 }
 
-function testHandledS1DoesNotRequeueAcrossSettlementIdsWithoutNewOfflineTime(): void {
+function testHandledS1DoesNotRequeueAfterWelcomeHistoryChurnAndRestart(): void {
   const storage = new MemoryStorageAdapter();
   const clock = new FakeClock(600);
   const saveService = new SaveService(storage, DEFAULT_SAVE_KEY, clock);
@@ -185,13 +185,17 @@ function testHandledS1DoesNotRequeueAcrossSettlementIdsWithoutNewOfflineTime(): 
   assert.deepEqual(first.autoPolicy.performOfflineDecision('offline:incident:durable-s1'), { success: true, duplicate: false });
   assert.equal(first.player.incidents[0].status, 'MITIGATING');
 
+  first.player.handledWelcomeItemIds = Array.from({ length: 101 }, (_, index) => `unrelated-welcome-${index}`);
+  saveService.save(first.player);
+  assert.equal(first.player.handledWelcomeItemIds.includes('offline:incident:durable-s1'), false);
+
   const restarted = new GameContext({ storage, clock, board: null });
   const resumed = restarted.autoPolicy.prepareOfflineDecisionSession();
 
   assert.equal(resumed.session?.status, 'COMPLETED');
   assert.equal(resumed.current, null);
   assert.deepEqual(restarted.player.pendingEvents, []);
-  assert.equal(restarted.player.handledWelcomeItemIds.includes('offline:incident:durable-s1'), true);
+  assert.equal(restarted.player.handledWelcomeItemIds.includes('offline:incident:durable-s1'), false);
 }
 
 const tests = [
@@ -201,7 +205,7 @@ const tests = [
   testMissingOrInvalidSessionDefaultsToNull,
   testAcceptedActionPersistsAndResumesAtNextCursor,
   testStaleIdIsRejectedAndFinalDecisionCompletes,
-  testHandledS1DoesNotRequeueAcrossSettlementIdsWithoutNewOfflineTime,
+  testHandledS1DoesNotRequeueAfterWelcomeHistoryChurnAndRestart,
 ];
 
 for (const test of tests) {

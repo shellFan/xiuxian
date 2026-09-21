@@ -137,11 +137,33 @@ function testEveryS1PreemptsLowerRiskItemsInsidePresentationCap(): void {
   assert.equal(context.player.pendingEvents.length, 13, 'overflow must remain canonical and unresolved');
 }
 
+function testS1OverflowUsesOneDeterministicSummaryBeyondTwelveRows(): void {
+  const incidents = Array.from({ length: 13 }, (_, index) => incident(`s1-${index}`, 'S1', index + 1));
+  const context = make({ incidents });
+
+  const presentation = context.autoPolicy.prepareOfflineDecisionSession();
+
+  assert.equal(presentation.items.length, 12, 'presentation must never render more than twelve event rows');
+  assert.equal(presentation.items.every((item) => item.eventId.startsWith('incident:')), true);
+  assert.equal(presentation.session?.pendingEventIds.length, 13, 'ID-only session retains actionable ordering');
+  assert.deepEqual(presentation.overflowSummary, {
+    total: 1,
+    byPriority: {},
+    s1: {
+      total: 1,
+      pendingEventIds: ['offline:incident:s1-12'],
+      nextPendingEventId: 'offline:incident:s1-12',
+    },
+  });
+  assert.equal(context.player.pendingEvents.length, 13, 'S1 overflow remains canonical and unresolved');
+}
+
 const tests = [
   testHighRiskOfflineWorkUsesCanonicalPendingEvents,
   testS1GetsMinimumMitigationWithoutBeingAutoResolved,
   testStableOrderingAndTwelveItemPresentationCap,
   testEveryS1PreemptsLowerRiskItemsInsidePresentationCap,
+  testS1OverflowUsesOneDeterministicSummaryBeyondTwelveRows,
 ];
 
 for (const test of tests) {

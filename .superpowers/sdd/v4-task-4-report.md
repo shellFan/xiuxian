@@ -61,3 +61,20 @@ Post-remediation verification:
 - Existing auto-policy regression tests: PASS (5 tests)
 - `npm test`: PASS (`Executed 111 test files`)
 - `npm run build`: PASS (`build:game` and `build:orchestrator`)
+
+## Second reviewer HIGH remediation
+
+Two further RED regressions were captured:
+
+- With 13 unresolved S1 incidents, the concrete row cap remained 12 but the thirteenth S1 had no presentation summary.
+- After 101 unrelated welcome actions displaced the S1 ID from the shared 100-entry FIFO, restart routed the accepted S1 again.
+
+The presentation now emits an S1 overflow summary containing only deterministic metadata: count, stable pending-event IDs, and the next overflow ID. It still renders at most 12 concrete event rows, keeps all event payloads solely in canonical `pendingEvents`, and retains the full actionable ID order in the session. Accepted offline decisions now also write a purpose-specific namespaced boolean tombstone to persisted `eventFlags`; routing, session creation, and the legacy queue honor that tombstone independently of welcome-history churn.
+
+Second-remediation verification:
+
+- Focused offline pending tests: PASS (5 tests)
+- Focused offline resume tests: PASS (7 tests)
+- Existing auto-policy regression tests: PASS (5 tests)
+- `npm test`: PASS (`Executed 111 test files`)
+- `npm run build`: PASS (`build:game` and `build:orchestrator`)

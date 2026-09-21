@@ -71,6 +71,11 @@ export interface OfflineDecisionItem {
 export interface OfflineDecisionOverflowSummary {
   readonly total: number;
   readonly byPriority: Readonly<Partial<Record<PendingEventState['priority'], number>>>;
+  readonly s1?: {
+    readonly total: number;
+    readonly pendingEventIds: readonly string[];
+    readonly nextPendingEventId: string;
+  };
 }
 
 export interface OfflineDecisionPresentation {
@@ -89,6 +94,7 @@ const INCIDENT_ORDER: Record<IncidentSeverity, number> = { S1: 0, S2: 1, S3: 2, 
 const MAX_WELCOME_ITEMS = 3;
 const MAX_HANDLED_IDS = 100;
 const MAX_OFFLINE_DECISION_ITEMS = 12;
+const OFFLINE_DECISION_HANDLED_FLAG_PREFIX = 'offlineDecisionHandled:';
 const PENDING_PRIORITY_ORDER: Record<PendingEventState['priority'], number> = {
   CRITICAL: 0,
   IMPORTANT: 1,
@@ -284,7 +290,7 @@ export class AutoPolicyService {
     const active = this.context.player.offlineDecisionSession;
     if (!active || (active.status === 'COMPLETED' && active.settlementId !== this.settlementId)) {
       const ids = uniquePendingEvents(this.context.player.pendingEvents)
-        .filter((event) => !this.context.player.handledWelcomeItemIds.includes(event.uid))
+        .filter((event) => !this.isOfflineDecisionHandled(event.uid))
         .sort(comparePendingEvents)
         .map((event) => event.uid);
       if (ids.length > 0) {
@@ -325,6 +331,7 @@ export class AutoPolicyService {
       status: cursor >= session.pendingEventIds.length ? 'COMPLETED' : 'PENDING',
     };
     this.markHandled(pendingEventId);
+    this.markOfflineDecisionHandled(pendingEventId);
     this.context.saveService.save(this.context.player);
     return { success: true, duplicate: false };
   }
@@ -360,6 +367,7 @@ export class AutoPolicyService {
     const tasks = this.context.assignedTasks.open().sort(compareTasks);
 
     for (const incident of incidents) {
+      if (this.isOfflineDecisionHandled(`offline:incident:${incident.id}`)) continue;
       if (canonicalDecisionIds.has(`offline:incident:${incident.id}`)) continue;
       const id = `incident:${incident.id}`;
       if (handled.has(id) || seen.has(id)) continue;
@@ -375,6 +383,7 @@ export class AutoPolicyService {
       });
     }
     for (const task of tasks) {
+      if (this.isOfflineDecisionHandled(`offline:task:${task.id}`)) continue;
       if (canonicalDecisionIds.has(`offline:task:${task.id}`)) continue;
       const id = `task:${task.id}`;
       if (handled.has(id) || seen.has(id)) continue;
@@ -406,16 +415,22 @@ export class AutoPolicyService {
     const overflowEvents = remainingIds
       .slice(MAX_OFFLINE_DECISION_ITEMS)
       .map((id) => eventById.get(id))
-      .filter((event): event is PendingEventState => event !== undefined)
-      .filter((event) => !isS1PendingEvent(event));
+      .filter((event): event is PendingEventState => event !== undefined);
+    const s1OverflowEvents = overflowEvents.filter(isS1PendingEvent);
+    const lowerPriorityOverflowEvents = overflowEvents.filter((event) => !isS1PendingEvent(event));
     const byPriority: Partial<Record<PendingEventState['priority'], number>> = {};
-    for (const event of overflowEvents) byPriority[event.priority] = (byPriority[event.priority] ?? 0) + 1;
+    for (const event of lowerPriorityOverflowEvents) byPriority[event.priority] = (byPriority[event.priority] ?? 0) + 1;
+    const s1 = s1OverflowEvents.length > 0 ? {
+      total: s1OverflowEvents.length,
+      pendingEventIds: s1OverflowEvents.map((event) => event.uid),
+      nextPendingEventId: s1OverflowEvents[0].uid,
+    } : undefined;
 
     return {
       session: cloneDecisionSession(session),
       current: items[0] ?? null,
       items,
-      overflowSummary: overflowEvents.length > 0 ? { total: overflowEvents.length, byPriority } : null,
+      overflowSummary: overflowEvents.length > 0 ? { total: overflowEvents.length, byPriority, ...(s1 ? { s1 } : {}) } : null,
     };
   }
 
@@ -429,7 +444,7 @@ export class AutoPolicyService {
     for (const incident of this.context.player.incidents) {
       if (!isActiveIncident(incident) || (incident.severity !== 'S1' && incident.severity !== 'S2')) continue;
       const uid = `offline:incident:${incident.id}`;
-      if (!existing.has(uid)) {
+      if (!existing.has(uid) && !this.isOfflineDecisionHandled(uid)) {
         existing.add(uid);
         routed.push({
           uid,
@@ -442,7 +457,7 @@ export class AutoPolicyService {
     for (const task of this.context.player.assignedTasks) {
       if (task.status !== 'OPEN' || (task.priority !== 'P0' && task.priority !== 'P1')) continue;
       const uid = `offline:task:${task.id}`;
-      if (!existing.has(uid)) {
+      if (!existing.has(uid) && !this.isOfflineDecisionHandled(uid)) {
         existing.add(uid);
         routed.push({
           uid,
@@ -477,6 +492,17 @@ export class AutoPolicyService {
     const ids = this.context.player.handledWelcomeItemIds.filter((item) => item !== id);
     ids.push(id);
     this.context.player.handledWelcomeItemIds = ids.slice(-MAX_HANDLED_IDS);
+  }
+
+  private isOfflineDecisionHandled(id: string): boolean {
+    return this.context.player.eventFlags[`${OFFLINE_DECISION_HANDLED_FLAG_PREFIX}${id}`] === true;
+  }
+
+  private markOfflineDecisionHandled(id: string): void {
+    this.context.player.eventFlags = {
+      ...this.context.player.eventFlags,
+      [`${OFFLINE_DECISION_HANDLED_FLAG_PREFIX}${id}`]: true,
+    };
   }
 
   private projectedTaskCount(policy: AutoPolicy): number {
