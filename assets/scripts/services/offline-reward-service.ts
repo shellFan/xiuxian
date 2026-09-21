@@ -34,7 +34,15 @@ export class OfflineRewardService {
   ) {}
 
   public preview(settlementId: string): IdleSettlementResult {
-    return this.idle.preview(settlementId);
+    const projection = this.snapshot(settlementId).simulation;
+    return {
+      salary: projection.salary,
+      cultivationExp: projection.cultivation,
+      spiritStones: projection.spiritStones,
+      elapsedSeconds: projection.effectiveSeconds,
+      capped: projection.capped,
+      duplicate: projection.duplicate,
+    };
   }
 
   /** Unified, mutation-free policy/resource projection used by the welcome summary. */

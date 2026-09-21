@@ -157,6 +157,30 @@ function testDisplayedProjectionIsTheExactNormalAndDoubleClaimSnapshot(): void {
   assert.equal(doubled.context.player.lastSaveTime, START + 3600_000, 'delayed callback keeps captured cursor');
 }
 
+function testPublicPreviewIsTheExactNormalAndDoubleClaimSnapshot(): void {
+  const normal = createContext();
+  const normalDisplayed = normal.context.offline.preview('public-normal-snapshot');
+  normal.clock.advance(3600_000);
+  const normalClaim = normal.context.offline.claimNormal('public-normal-snapshot');
+  assert.equal(normalClaim.salary, normalDisplayed.salary);
+  assert.equal(normalClaim.cultivationExp, normalDisplayed.cultivationExp);
+  assert.equal(normalClaim.effectiveSeconds, normalDisplayed.elapsedSeconds);
+  assert.equal(normal.context.player.lastSaveTime, START + 3600_000);
+
+  const provider = new DelayedRewardProvider();
+  const doubled = createContext(new MemoryStorageAdapter(), provider);
+  const doubleDisplayed = doubled.context.offline.preview('public-double-snapshot');
+  let doubleGranted = false;
+  doubled.clock.advance(3600_000);
+  doubled.context.offline.claimDouble('public-double-snapshot', (success) => { doubleGranted = success; });
+  doubled.clock.advance(3600_000);
+  provider.resolve({ status: 'granted' });
+  assert.equal(doubleGranted, true);
+  assert.equal(doubled.context.player.salary, doubleDisplayed.salary * 2);
+  assert.equal(doubled.context.player.cultivationExp, doubleDisplayed.cultivationExp * 2);
+  assert.equal(doubled.context.player.lastSaveTime, START + 3600_000);
+}
+
 function testSuccessfulDelayedDoubleCannotReplayAfterRestart(): void {
   const storage = new MemoryStorageAdapter();
   const provider = new DelayedRewardProvider();
@@ -182,6 +206,7 @@ const tests = [
   testNormalCannotSettleWhileDoubleIsInFlight,
   testDoubleCallbackRevalidatesAfterExternalSettlement,
   testDisplayedProjectionIsTheExactNormalAndDoubleClaimSnapshot,
+  testPublicPreviewIsTheExactNormalAndDoubleClaimSnapshot,
   testSuccessfulDelayedDoubleCannotReplayAfterRestart,
 ];
 
