@@ -2,6 +2,9 @@ import type { GameContext } from '../core/game-context';
 import type { IdleService, IdleSettlementResult } from './idle-service';
 import type { GameSaveData } from '../model/save-data';
 import { isRewardGranted } from './reward-provider';
+import type { OfflineSimulationResult } from '../v3/auto-policy-service';
+
+export type { OfflineSimulationResult } from '../v3/auto-policy-service';
 
 /**
  * Wraps IdleService to provide the offline reward popup flow:
@@ -29,14 +32,30 @@ export class OfflineRewardService {
     return this.idle.preview(settlementId);
   }
 
+  /** Unified, mutation-free policy/resource projection used by the welcome summary. */
+  public previewSimulation(settlementId: string): OfflineSimulationResult {
+    return this.context.autoPolicy.projectOffline(this.idle.project(settlementId));
+  }
+
   public isSettled(settlementId: string): boolean {
     return this.context.player.lastIdleSettlementId === settlementId;
   }
 
-  public claimNormal(settlementId: string): IdleSettlementResult {
+  public claimNormal(settlementId: string): OfflineSimulationResult {
     if (this.isSettled(settlementId)) throw new Error('Offline reward already claimed');
     if (this.claimedDoubleSettlementIds.has(settlementId)) throw new Error('Double reward already claimed for this settlement');
-    return this.idle.settle(settlementId);
+    const projection = this.previewSimulation(settlementId);
+    const settled = this.idle.settle(settlementId);
+    return {
+      ...projection,
+      salary: settled.salary,
+      cultivation: settled.cultivationExp,
+      cultivationExp: settled.cultivationExp,
+      spiritStones: settled.spiritStones,
+      effectiveSeconds: settled.elapsedSeconds,
+      capped: settled.capped,
+      duplicate: settled.duplicate,
+    };
   }
 
   public claimDouble(settlementId: string, onResult: (success: boolean) => void): void {
@@ -61,11 +80,11 @@ export class OfflineRewardService {
       }
       // Belt-and-suspenders: never grant a second double for the same settlement id.
       if (this.claimedDoubleSettlementIds.has(settlementId)) return;
-      const base = this.idle.preview(settlementId);
+      const base = this.previewSimulation(settlementId);
       const previous = this.context.player.toSaveData();
       try {
         if (base.salary > 0) this.context.economy.applyIdleSalary(base.salary * 2);
-        if (base.cultivationExp > 0) this.context.cultivation.applyIdleExperience(base.cultivationExp * 2);
+        if (base.cultivation > 0) this.context.cultivation.applyIdleExperience(base.cultivation * 2);
         if (base.spiritStones > 0) this.context.economy.addSpiritStones(base.spiritStones * 2);
         if (!Number.isSafeInteger(this.context.player.salary) || !Number.isSafeInteger(this.context.player.cultivationExp)) {
           throw new Error('Invalid offline reward');
@@ -84,9 +103,9 @@ export class OfflineRewardService {
         this.context.events.emit('idleSettled', {
           settlementId,
           salary: base.salary * 2,
-          cultivationExp: base.cultivationExp * 2,
+          cultivationExp: base.cultivation * 2,
           spiritStones: base.spiritStones * 2,
-          elapsedSeconds: base.elapsedSeconds,
+          elapsedSeconds: base.effectiveSeconds,
           capped: base.capped,
         });
         this.context.events.emit('offlineRewardChanged', { settlementId, doubled: true });

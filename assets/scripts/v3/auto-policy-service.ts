@@ -1,5 +1,35 @@
 import type { GameContext } from '../core/game-context';
 import type { AssignedTaskPriority, AssignedTaskState, AutoPolicy, IncidentSeverity, IncidentState } from '../model/save-data';
+import type { IdleOfflineProjection } from '../services/idle-service';
+
+export interface OfflineSimulationResult {
+  readonly elapsedSeconds: number;
+  readonly effectiveSeconds: number;
+  readonly capped: boolean;
+  readonly salary: number;
+  readonly cultivation: number;
+  readonly spiritStones: number;
+  /** Compatibility alias for existing idle reward consumers. */
+  readonly cultivationExp: number;
+  readonly duplicate: boolean;
+  readonly performance: number;
+  readonly mindDelta: number;
+  readonly workSeconds: number;
+  readonly fishingSeconds: number;
+  readonly cultivatingSeconds: number;
+  readonly overtimeSeconds: number;
+  readonly freeOvertimeSeconds: number;
+  readonly paidOvertimeSeconds: number;
+  readonly eventsAutoResolved: number;
+  readonly pendingDecisionCount: number;
+  readonly incidentsRaised: number;
+  readonly tasksCompleted: number;
+  readonly technicalDebtDelta: number;
+  readonly evidenceGained: number;
+  readonly lootGained: number;
+  readonly careerProgress: number;
+  readonly policyUsed: AutoPolicy;
+}
 
 export type WelcomeItemKind = 'ASSIGNED_TASK' | 'INCIDENT';
 export type WelcomeAction = 'COMPLETE' | 'ACKNOWLEDGE';
@@ -50,6 +80,133 @@ export class AutoPolicyService {
     this.autoCompletedTaskIds = [];
     this.context.saveService.save(this.context.player);
     return true;
+  }
+
+  /**
+   * Pure deterministic offline simulation. It deliberately projects non-resource effects only:
+   * settlement owns the sole durable salary/cultivation/spirit-stone transaction.
+   */
+  public projectOffline(input: IdleOfflineProjection): OfflineSimulationResult {
+    const policy = this.getPolicy();
+    if (input.duplicate) {
+      return {
+        elapsedSeconds: 0,
+        effectiveSeconds: 0,
+        capped: false,
+        salary: 0,
+        cultivation: 0,
+        spiritStones: 0,
+        cultivationExp: 0,
+        duplicate: true,
+        performance: 0,
+        mindDelta: 0,
+        workSeconds: 0,
+        fishingSeconds: 0,
+        cultivatingSeconds: 0,
+        overtimeSeconds: 0,
+        freeOvertimeSeconds: 0,
+        paidOvertimeSeconds: 0,
+        eventsAutoResolved: 0,
+        pendingDecisionCount: 0,
+        incidentsRaised: 0,
+        tasksCompleted: 0,
+        technicalDebtDelta: 0,
+        evidenceGained: 0,
+        lootGained: 0,
+        careerProgress: 0,
+        policyUsed: policy,
+      };
+    }
+    const categories = input.time.secondsByCategory;
+    const standardWork = categories.WORK;
+    const lunch = categories.LUNCH;
+    const afterHours = categories.AFTER_HOURS;
+    const recovery = categories.RECOVERY + categories.WEEKEND;
+    const overtimeIsFree = this.context.player.activeOvertimeSession?.free
+      ?? this.context.player.gameDay?.overtimeFree
+      ?? false;
+    const exhausted = this.context.player.overtimeFatigue === 'EXHAUSTED';
+
+    let workSeconds = 0;
+    let fishingSeconds = 0;
+    let cultivatingSeconds = 0;
+    let overtimeSeconds = 0;
+
+    switch (policy) {
+      case 'NORMAL':
+        workSeconds = standardWork;
+        fishingSeconds = lunch;
+        if (!overtimeIsFree && !exhausted) overtimeSeconds = afterHours;
+        workSeconds += overtimeSeconds;
+        cultivatingSeconds = recovery + afterHours - overtimeSeconds;
+        break;
+      case 'SAFE':
+        workSeconds = standardWork;
+        if (!overtimeIsFree && !exhausted) overtimeSeconds = afterHours;
+        workSeconds += overtimeSeconds;
+        cultivatingSeconds = recovery + lunch + afterHours - overtimeSeconds;
+        break;
+      case 'GRINDER':
+        if (!exhausted) {
+          overtimeSeconds = overtimeIsFree ? Math.min(afterHours, 2 * 3600) : afterHours;
+        }
+        workSeconds = standardWork + lunch + overtimeSeconds;
+        cultivatingSeconds = recovery + afterHours - overtimeSeconds;
+        break;
+      case 'SLACKER':
+        fishingSeconds = standardWork + lunch + afterHours;
+        cultivatingSeconds = recovery;
+        break;
+    }
+
+    const freeOvertimeSeconds = overtimeIsFree ? overtimeSeconds : 0;
+    const paidOvertimeSeconds = overtimeIsFree ? 0 : overtimeSeconds;
+    const performance = Math.max(0, Math.floor((workSeconds - freeOvertimeSeconds / 2) / 3600));
+    const rawMindDelta = Math.trunc((-2 * workSeconds - 2 * overtimeSeconds + 3 * fishingSeconds + 2 * cultivatingSeconds) / 3600);
+    const mindAfter = Math.max(0, Math.min(this.context.player.maxMind, this.context.player.mind + rawMindDelta));
+    const mindDelta = mindAfter - this.context.player.mind;
+    const pending = this.context.player.pendingEvents;
+    const autoResolvable = pending.filter((event) => event.priority === 'FLAVOR' || event.priority === 'NORMAL').length;
+    const eventsAutoResolved = policy === 'GRINDER' || policy === 'SAFE'
+      ? autoResolvable
+      : pending.filter((event) => event.priority === 'FLAVOR').length;
+    const tasksCompleted = this.projectedTaskCount(policy);
+    const technicalDebtDelta = policy === 'SAFE'
+      ? -Math.ceil(input.effectiveSeconds / (2 * 3600))
+      : policy === 'GRINDER'
+        ? Math.ceil(workSeconds / (2 * 3600)) + Math.floor(freeOvertimeSeconds / 3600)
+        : 0;
+    const evidenceGained = policy === 'SAFE' ? Math.ceil(input.effectiveSeconds / (2 * 3600)) : 0;
+    const lootGained = Math.floor(cultivatingSeconds / 3600);
+    const incidentsRaised = Math.floor((freeOvertimeSeconds + Math.max(0, technicalDebtDelta) * 1800) / (4 * 3600));
+
+    return {
+      elapsedSeconds: input.elapsedSeconds,
+      effectiveSeconds: input.effectiveSeconds,
+      capped: input.capped,
+      salary: input.salary,
+      cultivation: input.cultivation,
+      spiritStones: input.spiritStones,
+      cultivationExp: input.cultivation,
+      duplicate: input.duplicate,
+      performance,
+      mindDelta,
+      workSeconds,
+      fishingSeconds,
+      cultivatingSeconds,
+      overtimeSeconds,
+      freeOvertimeSeconds,
+      paidOvertimeSeconds,
+      eventsAutoResolved,
+      pendingDecisionCount: Math.max(0, pending.length - eventsAutoResolved),
+      incidentsRaised,
+      tasksCompleted,
+      technicalDebtDelta,
+      evidenceGained,
+      lootGained,
+      careerProgress: performance + Math.floor(input.cultivation / 10),
+      policyUsed: policy,
+    };
   }
 
   public prepareWelcome(): WelcomeBackResult {
@@ -136,6 +293,12 @@ export class AutoPolicyService {
     const ids = this.context.player.handledWelcomeItemIds.filter((item) => item !== id);
     ids.push(id);
     this.context.player.handledWelcomeItemIds = ids.slice(-MAX_HANDLED_IDS);
+  }
+
+  private projectedTaskCount(policy: AutoPolicy): number {
+    if (policy === 'SLACKER' || policy === 'SAFE') return 0;
+    const eligible = this.context.assignedTasks.open().filter(isLowRiskTask).length;
+    return Math.min(policy === 'GRINDER' ? MAX_WELCOME_ITEMS : 1, eligible);
   }
 }
 

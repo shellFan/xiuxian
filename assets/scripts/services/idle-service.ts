@@ -1,7 +1,7 @@
 import idleConfig from '../../configs/idle.json';
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
 import type { GameContext } from '../core/game-context';
-import { segmentOfflineInterval } from './offline-time-segmenter';
+import { segmentOfflineInterval, type OfflineTimeProjection } from './offline-time-segmenter';
 
 export interface IdleServiceOptions {
   readonly clock?: Clock;
@@ -18,6 +18,18 @@ export interface IdleSettlementResult {
   readonly elapsedSeconds: number;
   readonly capped: boolean;
   readonly duplicate: boolean;
+}
+
+/** Pure resource/time input consumed by the offline policy projector. */
+export interface IdleOfflineProjection {
+  readonly elapsedSeconds: number;
+  readonly effectiveSeconds: number;
+  readonly capped: boolean;
+  readonly salary: number;
+  readonly cultivation: number;
+  readonly spiritStones: number;
+  readonly duplicate: boolean;
+  readonly time: OfflineTimeProjection;
 }
 
 const ZERO_RESULT: IdleSettlementResult = { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, duplicate: false };
@@ -87,11 +99,33 @@ export class IdleService {
 
   /** Returns the would-be settlement amounts without granting or persisting (used by the offline popup preview). */
   public preview(settlementId: string): IdleSettlementResult {
+    const projection = this.project(settlementId);
+    return {
+      salary: projection.salary,
+      cultivationExp: projection.cultivation,
+      spiritStones: projection.spiritStones,
+      elapsedSeconds: projection.effectiveSeconds,
+      capped: projection.capped,
+      duplicate: projection.duplicate,
+    };
+  }
+
+  /** Produces the complete capped time/resource projection without mutating player state. */
+  public project(settlementId: string): IdleOfflineProjection {
     if (typeof settlementId !== 'string' || settlementId.trim() === '') throw new Error('Invalid settlement id');
-    if (this.context.player.lastIdleSettlementId === settlementId) return { ...ZERO_RESULT, duplicate: true };
+    if (this.context.player.lastIdleSettlementId === settlementId) return zeroProjection(this.context.player.lastSaveTime, true);
     const eligible = this.computeEligible();
-    if (eligible.anomaly) return ZERO_RESULT;
-    return { salary: eligible.salary, cultivationExp: eligible.cultivationExp, spiritStones: eligible.spiritStones, elapsedSeconds: eligible.elapsedSeconds, capped: eligible.capped, duplicate: false };
+    if (eligible.anomaly) return zeroProjection(eligible.now, false);
+    return {
+      elapsedSeconds: eligible.rawElapsedSeconds,
+      effectiveSeconds: eligible.elapsedSeconds,
+      capped: eligible.capped,
+      salary: eligible.salary,
+      cultivation: eligible.cultivationExp,
+      spiritStones: eligible.spiritStones,
+      duplicate: false,
+      time: eligible.projection,
+    };
   }
 
   /** Persists the settlement id (marks the offline reward as claimed) without granting a reward. */
@@ -100,11 +134,12 @@ export class IdleService {
     this.context.saveService.saveIdleSettlement(this.context.player, settlementId, this.clock.now());
   }
 
-  private computeEligible(): { salary: number; cultivationExp: number; spiritStones: number; elapsedSeconds: number; capped: boolean; anomaly: boolean; now: number } {
+  private computeEligible(): { salary: number; cultivationExp: number; spiritStones: number; elapsedSeconds: number; rawElapsedSeconds: number; capped: boolean; anomaly: boolean; now: number; projection: OfflineTimeProjection } {
     const now = this.clock.now();
     const deltaMilliseconds = now - this.context.player.lastSaveTime;
     if (!Number.isFinite(now) || !Number.isFinite(deltaMilliseconds) || deltaMilliseconds <= 0) {
-      return { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, anomaly: true, now };
+      const projection = emptyTimeProjection(Number.isFinite(now) ? now : 0);
+      return { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, rawElapsedSeconds: 0, capped: false, anomaly: true, now, projection };
     }
     const projection = segmentOfflineInterval(this.context.player.lastSaveTime, now, this.maxOfflineSeconds);
     const { elapsedSeconds, capped } = projection;
@@ -114,7 +149,7 @@ export class IdleService {
     const salary = Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600 * offlineGain);
     const cultivationExp = Math.floor(this.rateForBoard(this.cultivationPerHour) * elapsedSeconds / 3600 * offlineGain);
     const spiritStones = Math.floor(this.spiritStonesPerHour * elapsedSeconds / 3600 * offlineGain);
-    return { salary, cultivationExp, spiritStones, elapsedSeconds, capped, anomaly: false, now };
+    return { salary, cultivationExp, spiritStones, elapsedSeconds, rawElapsedSeconds: deltaMilliseconds / 1000, capped, anomaly: false, now, projection };
   }
 
   private rateForBoard(rates: readonly number[]): number {
@@ -126,6 +161,30 @@ export class IdleService {
     const levelIndex = Math.min(careerLevel - 1, rates.length - 1);
     return rates[levelIndex] ?? rates[0] ?? 0;
   }
+}
+
+function zeroProjection(atMs: number, duplicate: boolean): IdleOfflineProjection {
+  return {
+    elapsedSeconds: 0,
+    effectiveSeconds: 0,
+    capped: false,
+    salary: 0,
+    cultivation: 0,
+    spiritStones: 0,
+    duplicate,
+    time: emptyTimeProjection(atMs),
+  };
+}
+
+function emptyTimeProjection(atMs: number): OfflineTimeProjection {
+  return {
+    startMs: atMs,
+    effectiveEndMs: atMs,
+    elapsedSeconds: 0,
+    capped: false,
+    segments: [],
+    secondsByCategory: { WORK: 0, LUNCH: 0, AFTER_HOURS: 0, RECOVERY: 0, WEEKEND: 0 },
+  };
 }
 
 function normalizeRates(value: number | readonly number[], name: string): readonly number[] {
