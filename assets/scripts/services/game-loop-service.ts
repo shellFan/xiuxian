@@ -91,6 +91,13 @@ export class GameLoopService {
       // Overtime bookkeeping must not crash the game loop.
     }
 
+    // 5.57 V4 project battle: advances while a run is active (auto-attack engine).
+    try {
+      if (this.context.battle.current()) this.context.battle.tick(seconds);
+    } catch {
+      // Battle failure must not crash the game loop
+    }
+
     // 5.6 V2 daily/weekly settlement: once per started workday after 18:00.
     try {
       if (this.context.overtime.canSettleDay() && this.context.daySettlement.canSettle()) this.context.daySettlement.settle();

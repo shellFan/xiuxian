@@ -1,0 +1,547 @@
+{
+  "builds": [
+    {
+      "id": "build_java",
+      "name": "Java并发流",
+      "desc": "高频攻击与分身，线程就是我的剑阵。",
+      "baseHp": 140,
+      "baseAttack": 12,
+      "intervalSec": 0.9,
+      "startSkill": "skill_thread_clone",
+      "critChance": 0.05,
+      "lootBonus": 0
+    },
+    {
+      "id": "build_db",
+      "name": "数据库流",
+      "desc": "低频高伤，暴击穿透，一击锁表。",
+      "baseHp": 155,
+      "baseAttack": 16,
+      "intervalSec": 1.4,
+      "startSkill": "skill_index_sword",
+      "critChance": 0.15,
+      "lootBonus": 0
+    },
+    {
+      "id": "build_redis",
+      "name": "Redis缓存流",
+      "desc": "范围护盾与控制，稳如雪崩前的哨兵。",
+      "baseHp": 175,
+      "baseAttack": 11,
+      "intervalSec": 1.1,
+      "startSkill": "skill_cache_shield",
+      "critChance": 0.05,
+      "lootBonus": 0.05
+    },
+    {
+      "id": "build_fish",
+      "name": "摸鱼生存流",
+      "desc": "闪避恢复幸运掉落，苟到最后就是赢。",
+      "baseHp": 195,
+      "baseAttack": 9,
+      "intervalSec": 1,
+      "startSkill": "skill_toilet_flee",
+      "critChance": 0.05,
+      "lootBonus": 0.15
+    }
+  ],
+  "monsters": [
+    {
+      "id": "mon_null_pointer",
+      "name": "空指针小鬼",
+      "tier": "NORMAL",
+      "hp": 30,
+      "attack": 5,
+      "intervalSec": 1.6,
+      "exp": 10
+    },
+    {
+      "id": "mon_slow_sql",
+      "name": "慢SQL泥怪",
+      "tier": "NORMAL",
+      "hp": 45,
+      "attack": 4,
+      "intervalSec": 2,
+      "exp": 12,
+      "mechanic": "SLOW"
+    },
+    {
+      "id": "mon_cache_penetrate",
+      "name": "缓存穿透鼠",
+      "tier": "NORMAL",
+      "hp": 24,
+      "attack": 6,
+      "intervalSec": 1.2,
+      "exp": 10
+    },
+    {
+      "id": "mon_dead_loop",
+      "name": "死循环怨灵",
+      "tier": "NORMAL",
+      "hp": 38,
+      "attack": 6,
+      "intervalSec": 1.5,
+      "exp": 12
+    },
+    {
+      "id": "mon_502",
+      "name": "502妖",
+      "tier": "NORMAL",
+      "hp": 32,
+      "attack": 7,
+      "intervalSec": 1.8,
+      "exp": 11
+    },
+    {
+      "id": "mon_msg_backlog",
+      "name": "消息积压兽",
+      "tier": "NORMAL",
+      "hp": 55,
+      "attack": 3,
+      "intervalSec": 2.2,
+      "exp": 13
+    },
+    {
+      "id": "mon_disk_full",
+      "name": "磁盘满妖",
+      "tier": "NORMAL",
+      "hp": 50,
+      "attack": 5,
+      "intervalSec": 1.7,
+      "exp": 13
+    },
+    {
+      "id": "mon_thread_leak",
+      "name": "线程泄漏怪",
+      "tier": "NORMAL",
+      "hp": 40,
+      "attack": 6,
+      "intervalSec": 1.3,
+      "exp": 12,
+      "mechanic": "SUMMON_SMALL"
+    },
+    {
+      "id": "mon_lock_table",
+      "name": "锁表蛛",
+      "tier": "NORMAL",
+      "hp": 42,
+      "attack": 6,
+      "intervalSec": 1.9,
+      "exp": 12
+    },
+    {
+      "id": "mon_cert_expired",
+      "name": "证书过期鬼",
+      "tier": "NORMAL",
+      "hp": 28,
+      "attack": 8,
+      "intervalSec": 2.1,
+      "exp": 11
+    },
+    {
+      "id": "mon_req_change",
+      "name": "需求变更魔",
+      "tier": "NORMAL",
+      "hp": 36,
+      "attack": 6,
+      "intervalSec": 1.4,
+      "exp": 12
+    },
+    {
+      "id": "mon_test_regress",
+      "name": "测试回归兽",
+      "tier": "NORMAL",
+      "hp": 48,
+      "attack": 5,
+      "intervalSec": 1.6,
+      "exp": 13
+    },
+    {
+      "id": "mon_elite_race",
+      "name": "并发竞态妖将",
+      "tier": "ELITE",
+      "hp": 120,
+      "attack": 10,
+      "intervalSec": 1.4,
+      "exp": 35,
+      "mechanic": "SUMMON_SMALL"
+    },
+    {
+      "id": "mon_elite_sharding",
+      "name": "分库分表督军",
+      "tier": "ELITE",
+      "hp": 150,
+      "attack": 9,
+      "intervalSec": 1.8,
+      "exp": 40,
+      "mechanic": "SLOW"
+    },
+    {
+      "id": "mon_elite_gateway",
+      "name": "网关风暴骑士",
+      "tier": "ELITE",
+      "hp": 135,
+      "attack": 12,
+      "intervalSec": 1.5,
+      "exp": 38
+    },
+    {
+      "id": "mon_elite_dark_deploy",
+      "name": "暗发布黑手",
+      "tier": "ELITE",
+      "hp": 140,
+      "attack": 11,
+      "intervalSec": 1.6,
+      "exp": 38,
+      "mechanic": "SUMMON_SMALL"
+    },
+    {
+      "id": "boss_req_demon",
+      "name": "需求天魔",
+      "tier": "BOSS",
+      "hp": 320,
+      "attack": 14,
+      "intervalSec": 1.6,
+      "exp": 90,
+      "mechanic": "SUMMON"
+    },
+    {
+      "id": "boss_slowsql_ancestor",
+      "name": "慢SQL老祖",
+      "tier": "BOSS",
+      "hp": 380,
+      "attack": 12,
+      "intervalSec": 2,
+      "exp": 95,
+      "mechanic": "SLOW"
+    },
+    {
+      "id": "boss_oom_lord",
+      "name": "OOM魔尊",
+      "tier": "BOSS",
+      "hp": 420,
+      "attack": 16,
+      "intervalSec": 2.2,
+      "exp": 100
+    },
+    {
+      "id": "boss_cache_avalanche",
+      "name": "缓存雪崩兽王",
+      "tier": "BOSS",
+      "hp": 360,
+      "attack": 13,
+      "intervalSec": 1.5,
+      "exp": 95,
+      "mechanic": "SUMMON"
+    },
+    {
+      "id": "boss_production_incident",
+      "name": "线上事故",
+      "tier": "BOSS",
+      "hp": 450,
+      "attack": 15,
+      "intervalSec": 1.4,
+      "exp": 110,
+      "mechanic": "RANDOM"
+    }
+  ],
+  "skills": [
+    {
+      "id": "skill_null_sword",
+      "name": "空指针剑诀",
+      "desc": "对单体造成高额伤害（伤害×1.35）。",
+      "damageMul": 0.35,
+      "intervalMul": 0,
+      "evolvesTo": "skill_null_sword_v2"
+    },
+    {
+      "id": "skill_null_sword_v2",
+      "name": "空指针剑阵",
+      "desc": "剑诀大成（伤害×1.7）。",
+      "damageMul": 0.7,
+      "intervalMul": 0,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_gc",
+      "name": "GC大法",
+      "desc": "周期性清理，攻击间隔缩短（×0.85）。",
+      "damageMul": 0,
+      "intervalMul": -0.15,
+      "evolvesTo": "skill_gc_v2"
+    },
+    {
+      "id": "skill_gc_v2",
+      "name": "分代回收诀",
+      "desc": "青年代朝生暮死（间隔×0.7）。",
+      "damageMul": 0.1,
+      "intervalMul": -0.3,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_thread_clone",
+      "name": "线程分身",
+      "desc": "分身协同攻击（伤害×0.3）。",
+      "damageMul": 0.3,
+      "intervalMul": 0,
+      "evolvesTo": "skill_thread_pool"
+    },
+    {
+      "id": "skill_thread_pool",
+      "name": "线程池诀",
+      "desc": "核心线程常驻（伤害×0.55）。",
+      "damageMul": 0.55,
+      "intervalMul": 0,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_index_sword",
+      "name": "索引飞剑",
+      "desc": "命中要害（伤害×0.4，暴击+10%）。",
+      "damageMul": 0.4,
+      "intervalMul": 0,
+      "critBonus": 0.1,
+      "evolvesTo": "skill_index_composite"
+    },
+    {
+      "id": "skill_index_composite",
+      "name": "联合索引剑",
+      "desc": "覆盖索引，一剑双表（伤害×0.75，暴击+15%）。",
+      "damageMul": 0.75,
+      "intervalMul": 0,
+      "critBonus": 0.15,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_cache_shield",
+      "name": "缓存护盾",
+      "desc": "获得护盾上限（护盾+30）。",
+      "shieldBonus": 30,
+      "evolvesTo": "skill_cache_shield_v2"
+    },
+    {
+      "id": "skill_cache_shield_v2",
+      "name": "多级缓存结界",
+      "desc": "本地+分布式双重结界（护盾+60）。",
+      "shieldBonus": 60,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_dist_lock",
+      "name": "分布式锁",
+      "desc": "锁住敌人节奏（自身攻击间隔×0.9）。",
+      "damageMul": 0.1,
+      "intervalMul": -0.1,
+      "evolvesTo": "skill_dist_lock_v2"
+    },
+    {
+      "id": "skill_dist_lock_v2",
+      "name": "红锁大阵",
+      "desc": "RedLock 万无一失（伤害×0.3，间隔×0.15）。",
+      "damageMul": 0.3,
+      "intervalMul": -0.15,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_docker_clone",
+      "name": "Docker分身",
+      "desc": "容器化复制自己（伤害×0.35）。",
+      "damageMul": 0.35,
+      "intervalMul": 0,
+      "evolvesTo": "skill_k8s_swarm"
+    },
+    {
+      "id": "skill_k8s_swarm",
+      "name": "K8s编排阵",
+      "desc": "弹性伸缩，自动扩容（伤害×0.65）。",
+      "damageMul": 0.65,
+      "intervalMul": 0,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_nginx_proxy",
+      "name": "Nginx反向代理",
+      "desc": "伤害被转发分担（护盾+20，伤害×0.2）。",
+      "damageMul": 0.2,
+      "shieldBonus": 20,
+      "evolvesTo": "skill_nginx_cluster"
+    },
+    {
+      "id": "skill_nginx_cluster",
+      "name": "Nginx集群结界",
+      "desc": "负载均衡结界（护盾+45，伤害×0.35）。",
+      "damageMul": 0.35,
+      "shieldBonus": 45,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_tx_shield",
+      "name": "事务护盾",
+      "desc": "回滚伤害（护盾+40）。",
+      "shieldBonus": 40,
+      "evolvesTo": "skill_saga_shield"
+    },
+    {
+      "id": "skill_saga_shield",
+      "name": "Saga柔性事务结界",
+      "desc": "最终一致，永不破防（护盾+75）。",
+      "shieldBonus": 75,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_circuit_break",
+      "name": "熔断术",
+      "desc": "击杀回血（每击杀+6 HP）。",
+      "healPerKill": 6,
+      "evolvesTo": "skill_circuit_break_v2"
+    },
+    {
+      "id": "skill_circuit_break_v2",
+      "name": "熔断+降级双修",
+      "desc": "降级保命（每击杀+12 HP）。",
+      "healPerKill": 12,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_rate_limit",
+      "name": "限流阵",
+      "desc": "敌人攻势被削减（受到伤害-15%）。",
+      "damageReduce": 0.15,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_log_eye",
+      "name": "日志追踪眼",
+      "desc": "看穿弱点（暴击+12%）。",
+      "critBonus": 0.12,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_sql_optimize",
+      "name": "SQL优化诀",
+      "desc": "执行计划在手（伤害×0.45）。",
+      "damageMul": 0.45,
+      "intervalMul": 0,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_toilet_flee",
+      "name": "厕所遁",
+      "desc": "闪入隔间回血（每击杀+5 HP）。",
+      "healPerKill": 5,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_boss_invisibility",
+      "name": "老板隐身术",
+      "desc": "仇恨转移（受到伤害-20%）。",
+      "damageReduce": 0.2,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_coffee_burn",
+      "name": "咖啡燃血术",
+      "desc": "燃烧生命换输出（伤害×0.9，间隔×0.15）。",
+      "damageMul": 0.9,
+      "intervalMul": -0.15,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_requirement_freeze",
+      "name": "需求冻结",
+      "desc": "冻结全场（敌全体攻击间隔+40%）。",
+      "enemySlow": 0.4,
+      "evolvesTo": null
+    },
+    {
+      "id": "skill_aop_array",
+      "name": "AOP剑阵",
+      "desc": "切面环绕（伤害×0.5）。",
+      "damageMul": 0.5,
+      "intervalMul": 0,
+      "evolvesTo": null
+    }
+  ],
+  "lootTable": {
+    "NORMAL": {
+      "materialChance": 0.55,
+      "equipmentChance": 0.03,
+      "spiritStones": [
+        1,
+        3
+      ]
+    },
+    "ELITE": {
+      "materialChance": 0.9,
+      "equipmentChance": 0.12,
+      "spiritStones": [
+        4,
+        8
+      ]
+    },
+    "BOSS": {
+      "materialChance": 1,
+      "equipmentChance": 0.5,
+      "spiritStones": [
+        12,
+        24
+      ]
+    }
+  },
+  "lootMaterials": [
+    "mat_bug_crystal",
+    "mat_code_fragment",
+    "mat_stone_fragment",
+    "mat_spirit_energy",
+    "mat_page",
+    "mat_keycap",
+    "mat_server_dust"
+  ],
+  "lootEquipment": [
+    "eq_mech_keyboard",
+    "eq_gaming_mouse",
+    "eq_coffee_cup",
+    "eq_old_usb",
+    "eq_privacy_filter",
+    "eq_test_amulet",
+    "eq_lumbar_pillow",
+    "eq_vpn_token",
+    "eq_dual_monitor",
+    "eq_old_thinkpad",
+    "eq_chosen_badge",
+    "eq_red_badge"
+  ],
+  "waves": [
+    {
+      "count": 3,
+      "tiers": [
+        "NORMAL"
+      ]
+    },
+    {
+      "count": 3,
+      "tiers": [
+        "NORMAL"
+      ]
+    },
+    {
+      "count": 2,
+      "tiers": [
+        "NORMAL",
+        "ELITE"
+      ]
+    },
+    {
+      "count": 1,
+      "tiers": [
+        "ELITE"
+      ]
+    },
+    {
+      "count": 1,
+      "tiers": [
+        "BOSS"
+      ]
+    }
+  ]
+}

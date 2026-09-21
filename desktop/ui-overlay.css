@@ -1290,6 +1290,25 @@
   .ux-status-line .ux-status-ribbon { padding: 6px 14px; font-size: 14px; letter-spacing: 1px; }
   .ux-status-line .ux-idle-timer { font-size: 13px; }
 
+  /* V4 项目战斗面板（首页中栏，紧凑） */
+  .ux-battle { padding: 8px 12px; border-radius: 12px; background: linear-gradient(135deg, rgba(38,58,80,.95), rgba(28,44,62,.92)); border: 2px solid rgba(108,182,228,.4); color: #e8f2fa; }
+  .ux-battle-head { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .ux-battle-head b { color: var(--gold-hi); }
+  .ux-battle-night { font-size: 11px; padding: 1px 7px; border-radius: 7px; background: rgba(240,177,60,.18); border: 1px solid rgba(240,177,60,.5); color: var(--gold-hi); }
+  .ux-battle-lv { margin-left: auto; font-size: 12px; color: #9fb8cc; }
+  .ux-battle-php { position: relative; height: 16px; margin-top: 5px; border-radius: 8px; background: #14273a; border: 1px solid #3c5a76; overflow: hidden; }
+  .ux-battle-php i { display: block; height: 100%; background: linear-gradient(90deg, #4aae8e, #6cc3a5); transition: width .3s ease; }
+  .ux-battle-php span { position: absolute; inset: 0; text-align: center; font-size: 10.5px; line-height: 15px; color: #eaf6ff; }
+  .ux-battle-enemies { display: flex; flex-direction: column; gap: 3px; margin-top: 5px; }
+  .ux-battle-enemy { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+  .ux-battle-ename { flex: none; width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ux-battle-ehp { flex: 1; height: 8px; border-radius: 4px; background: #14273a; border: 1px solid #3c5a76; overflow: hidden; }
+  .ux-battle-ehp i { display: block; height: 100%; background: linear-gradient(90deg, #d84b3a, #e8705f); }
+  .ux-battle-enemy--boss .ux-battle-ename { color: var(--gold-hi); font-weight: 700; }
+  .ux-battle-log { margin-top: 4px; font-size: 11px; line-height: 1.5; color: #9fb8cc; min-height: 17px; }
+  .ux-battle-actions { display: flex; justify-content: flex-end; margin-top: 3px; }
+  .ux-project-btn { min-width: 128px; }
+
   /* 右栏：卡片组 */
   .ux-home-right .ux-card { padding: 8px 10px; border-radius: 11px; }
   .ux-card-title { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; letter-spacing: 1px; color: var(--text-ink); margin-bottom: 5px; }

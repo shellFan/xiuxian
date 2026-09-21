@@ -26,6 +26,10 @@ export interface SectModifiers {
   readonly performanceMultiplier: number;
   /** Optional offline (idle settlement) gain multiplier — Web V1 国企宗 离线收益+20%. */
   readonly offlineGainMultiplier?: number;
+  /** Optional multiplier applied to paid overtime compensation. Legacy configs default to 1. */
+  readonly overtimePayMultiplier?: number;
+  /** Optional multiplier applied to BUG-category event candidate weights. Legacy configs default to 1. */
+  readonly incidentRiskMultiplier?: number;
 }
 export interface SectConfig {
   readonly id: SectId;

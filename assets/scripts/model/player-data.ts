@@ -75,6 +75,7 @@ export interface PlayerDataOptions {
   readonly technicalDebt?: Readonly<Record<string, number>>;
   readonly assignedTasks?: readonly AssignedTaskState[];
   readonly lifetimeStats?: Readonly<Record<string, number>>;
+  readonly activeBattleRun?: unknown;
 }
 
 export class PlayerData {
@@ -165,6 +166,7 @@ export class PlayerData {
   public technicalDebt: Record<string, number>;
   public assignedTasks: AssignedTaskState[];
   public lifetimeStats: Record<string, number>;
+  public activeBattleRun: unknown;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -237,6 +239,7 @@ export class PlayerData {
     this.technicalDebt = sanitizeDebt(options.technicalDebt);
     this.assignedTasks = [...(options.assignedTasks ?? [])];
     this.lifetimeStats = sanitizeLifetime(options.lifetimeStats);
+    this.activeBattleRun = options.activeBattleRun ?? null;
   }
 
   public static createDefault(): PlayerData {
@@ -297,6 +300,7 @@ export class PlayerData {
       technicalDebt: { ...this.technicalDebt },
       assignedTasks: this.assignedTasks.map((t) => ({ ...t })),
       lifetimeStats: { ...this.lifetimeStats },
+      activeBattleRun: cloneUnknown(this.activeBattleRun),
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
@@ -308,6 +312,13 @@ export class PlayerData {
     if (this.mindRemainder !== 0) Object.assign(data, { mindRemainder: this.mindRemainder });
     return data;
   }
+}
+
+/** Copies JSON-shaped extension state so save snapshots cannot mutate live state. */
+function cloneUnknown(value: unknown): unknown {
+  if (value === null || typeof value !== 'object') return value;
+  if (Array.isArray(value)) return value.map((item) => cloneUnknown(item));
+  return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, cloneUnknown(item)]));
 }
 
 function normalizeRemainder(value: number | undefined): number {

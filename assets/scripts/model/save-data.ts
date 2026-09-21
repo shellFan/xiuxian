@@ -317,4 +317,6 @@ export interface GameSaveData {
   readonly assignedTasks?: readonly AssignedTaskState[];
   /** 终身统计（牛马档案）：累计加班秒/摸鱼秒/背锅/反击/事故/Boss 等。 */
   readonly lifetimeStats?: Readonly<Record<string, number>>;
+  /** 进行中的项目战斗（V4 战斗竖切；结构由 v3/battle-service 校验）。 */
+  readonly activeBattleRun?: unknown;
 }

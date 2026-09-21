@@ -7,7 +7,9 @@
         "salaryMultiplier": 1.15,
         "cultivationMultiplier": 1,
         "mindMultiplier": 0.9,
-        "performanceMultiplier": 1
+        "performanceMultiplier": 1,
+        "overtimePayMultiplier": 1.2,
+        "incidentRiskMultiplier": 1.15
       }
     },
     {
@@ -17,7 +19,9 @@
         "salaryMultiplier": 1.05,
         "cultivationMultiplier": 1,
         "mindMultiplier": 1.15,
-        "performanceMultiplier": 1
+        "performanceMultiplier": 1,
+        "overtimePayMultiplier": 0.9,
+        "incidentRiskMultiplier": 0.85
       }
     },
     {
@@ -28,7 +32,9 @@
         "cultivationMultiplier": 1,
         "mindMultiplier": 1,
         "performanceMultiplier": 1,
-        "offlineGainMultiplier": 1.2
+        "offlineGainMultiplier": 1.2,
+        "overtimePayMultiplier": 0.8,
+        "incidentRiskMultiplier": 0.7
       }
     },
     {
@@ -38,7 +44,9 @@
         "salaryMultiplier": 1,
         "cultivationMultiplier": 1.2,
         "mindMultiplier": 0.8,
-        "performanceMultiplier": 1
+        "performanceMultiplier": 1,
+        "overtimePayMultiplier": 1.35,
+        "incidentRiskMultiplier": 1.25
       }
     }
   ]

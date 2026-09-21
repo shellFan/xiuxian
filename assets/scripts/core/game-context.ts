@@ -61,6 +61,7 @@ import { ResponsibilityService } from '../v3/responsibility-service';
 import { IncidentService } from '../v3/incident-service';
 import { TechDebtService } from '../v3/tech-debt-service';
 import { AssignedTaskService } from '../v3/assigned-task-service';
+import { BattleService } from '../v3/battle-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
 import craftConfig from '../../configs/craft.json';
@@ -86,6 +87,8 @@ export interface GameContextOptions {
   readonly clock?: Clock;
   readonly careerEventClock?: Clock;
   readonly randomV2?: RandomService;
+  /** V4 战斗 rng（测试注入种子用）。 */
+  readonly battleRng?: () => number;
 }
 
 export class GameContext {
@@ -156,6 +159,8 @@ export class GameContext {
   public readonly techDebt: TechDebtService;
   /** V4 指派任务（假 P0 / 真事故）。 */
   public readonly assignedTasks: AssignedTaskService;
+  /** V4 项目战斗竖切。 */
+  public readonly battle: BattleService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -240,6 +245,7 @@ export class GameContext {
     this.responsibility = new ResponsibilityService(this);
     this.incidents = new IncidentService(this);
     this.assignedTasks = new AssignedTaskService(this);
+    this.battle = new BattleService(this, options.battleRng);
     this.innerDemon = new InnerDemonService(this);
     this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);
     this.v2Events = new V2EventService(this, this.clockV2, this.gameDay, this.innerDemon, this.randomV2);

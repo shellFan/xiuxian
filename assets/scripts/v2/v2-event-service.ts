@@ -110,7 +110,7 @@ export class V2EventService {
     if (!this.scheduler.isDue(now, dayIndex)) return this.pollChain(now);
 
     const world = this.world();
-    const def = this.scheduler.pick(EVENTS, world, this.rng, now);
+    const def = this.scheduler.pick(this.sectWeightedEvents(), world, this.rng, now);
     if (!def) {
       this.scheduler.scheduleNext(now, this.rng);
       return this.pollChain(now);
@@ -144,6 +144,19 @@ export class V2EventService {
       this.context.player.firedEvents.push(def.id);
     }
     void nowMs;
+  }
+
+  /** Sect incident risk changes BUG occurrence weights without changing other event categories. */
+  private sectWeightedEvents(): readonly EventDefinition[] {
+    const multiplier = safeMultiplier(this.context.sect.current()?.modifiers.incidentRiskMultiplier);
+    return EVENTS.map((event) => {
+      if (event.category !== 'BUG') return event;
+      const scaled = Math.max(0, event.baseWeight) * multiplier;
+      const baseWeight = Number.isFinite(scaled)
+        ? Math.min(Number.MAX_SAFE_INTEGER, scaled)
+        : Number.MAX_SAFE_INTEGER;
+      return { ...event, baseWeight };
+    });
   }
 
   /** 当前待处理事件（含离线 pending 队列头）。 */
@@ -383,4 +396,9 @@ function downgradeSeverity(severity: 'S1' | 'S2' | 'S3' | 'S4', downgrade: boole
     case 'S2': return 'S3';
     default: return 'S4';
   }
+}
+
+/** Missing legacy fields default to neutral; invalid runtime values never reach weighting. */
+function safeMultiplier(value: number | undefined): number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 1;
 }

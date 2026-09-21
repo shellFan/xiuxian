@@ -290,6 +290,29 @@ export class GameFacade {
     };
   }
 
+  // ── V4 项目战斗竖切 ──────────────────────────────────────────────────────
+
+  /** 当前战斗（含日志/掉落/三选一）。 */
+  public queryBattle() { return this.context.battle.current(); }
+  public queryBattleBuildOptions() { return this.context.battle.buildOptions(); }
+  /** 技能定义（名称/描述/进化），供三选一 UI 展示。 */
+  public queryBattleSkillDefs() { return this.context.battle.skillDefs(); }
+  public startBattleRun(source: 'PROJECT' | 'INCIDENT', buildId: string, linkedTaskId: string | null = null, linkedIncidentId: string | null = null) {
+    const run = this.context.battle.start(source, buildId, linkedTaskId, linkedIncidentId);
+    this.context.saveService.save(this.context.player);
+    return run;
+  }
+  public chooseBattleSkill(skillId: string | null) {
+    const run = this.context.battle.chooseSkill(skillId);
+    this.context.saveService.save(this.context.player);
+    return run;
+  }
+  public abandonBattleRun() { this.context.battle.abandon(); this.context.saveService.save(this.context.player); }
+  /** 清除已结束战斗的结算（UI 弹窗关闭后）。 */
+  public clearFinishedBattle() { this.context.battle.dismissFinished(); this.context.saveService.save(this.context.player); }
+  /** 已结束未查看的战斗结算（UI 弹一次后由 UI 清除查看标记）。 */
+  public queryFinishedBattle() { return this.context.battle.finished(); }
+
   /** Current sect info. */
   public querySect() { return this.context.sect.current(); }
 

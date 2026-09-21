@@ -145,7 +145,10 @@ export class OvertimeService {
   public paidOvertimeSalary(session: OvertimeSession): number {
     if (session.free || session.elapsedSeconds <= 0) return 0;
     const ratePerSecond = paidOvertimeBaseRatePerSecond(this.context);
-    return Math.floor(ratePerSecond * session.elapsedSeconds * paidOvertimeMultiplier(session.source));
+    const sectMultiplier = safeMultiplier(this.context.sect.current()?.modifiers.overtimePayMultiplier);
+    const rawPay = ratePerSecond * session.elapsedSeconds * paidOvertimeMultiplier(session.source) * sectMultiplier;
+    if (!Number.isFinite(rawPay)) return Number.MAX_SAFE_INTEGER;
+    return Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.floor(rawPay)));
   }
 
   /** Count only recorded work, not an unobserved clock jump or the planned duration. */
@@ -185,4 +188,9 @@ function paidOvertimeBaseRatePerSecond(context: GameContext): number {
   const levelIndex = Math.min(Math.max(1, context.player.careerLevel) - 1, list.length - 1);
   const perHour = list[levelIndex] ?? list[0] ?? 0;
   return perHour / 3600;
+}
+
+/** Optional config stays backward-compatible and cannot introduce an invalid runtime multiplier. */
+function safeMultiplier(value: number | undefined): number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 1;
 }

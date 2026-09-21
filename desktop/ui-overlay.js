@@ -772,16 +772,146 @@
       return modeBtn(m, meta.label, meta.sub, meta.emoji, meta.cls, mode === m);
     }).join('');
     return workTodayHtml() +
+      battleHtml() +
       '<div class="ux-earned-card" id="EarnedCard">' + earnedCardInner(hud, rates) + '</div>' +
       '<div class="ux-center-actions">' +
         '<button class="ux-btn ux-btn--gold ux-btn--sm ux-cultivate-btn" data-action="cultivate">' +
           '🔥 修炼一次' +
           (cd > 0 ? '<span class="ux-cultivate-cd">' + Math.ceil(cd) + 's</span>' : '<span class="dot"></span>') +
         '</button>' +
+        '<button class="ux-btn ux-btn--blue ux-btn--sm ux-project-btn" data-action="projectEntry">⚔ 进入项目</button>' +
         '<div class="ux-mode-row ux-mode-row--4">' + modeBtns + '</div>' +
       '</div>' +
       '<div class="ux-status-line"><span class="ux-status-ribbon">' + escHtml(homeStatusText(hud)) + '</span>' +
         '<span class="ux-idle-timer">今日挂机 <b id="IdleTimer">' + hms(sessionSeconds()) + '</b></span></div>';
+  }
+
+  /* ── V4 项目战斗（自动攻击引擎的可见层） ── */
+  function battleHtml() {
+    var f = facade();
+    var run = f && typeof f.queryBattle === 'function' ? (function () { try { return f.queryBattle(); } catch (e) { return null; } })() : null;
+    if (!run) return '';
+    var enemies = (run.enemies || []).filter(function (e) { return e.hp > 0; }).map(function (e) {
+      var pct = Math.max(0, Math.min(100, Math.round(e.hp / e.maxHp * 100)));
+      return '<div class="ux-battle-enemy' + (e.tier === 'BOSS' ? ' ux-battle-enemy--boss' : '') + '">' +
+        '<span class="ux-battle-ename">' + escHtml(e.name) + '</span>' +
+        '<span class="ux-battle-ehp"><i style="width:' + pct + '%"></i></span></div>';
+    }).join('') || '<div class="ux-battle-enemy">敌人清空中……</div>';
+    var hpPct = Math.max(0, Math.min(100, Math.round(run.playerHp / run.playerMaxHp * 100)));
+    var lastLog = (run.log || []).slice(-2).map(function (l) { return escHtml(l); }).join('<br>');
+    return '<section class="ux-battle">' +
+      '<div class="ux-battle-head"><b>⚔ 项目攻坚 ' + (run.wave + 1) + '/' + run.waveTotal + '</b>' +
+      (run.night ? '<span class="ux-battle-night">夜班 ×掉落</span>' : '') +
+      '<span class="ux-battle-lv">Lv' + run.level + ' · 击杀 ' + run.kills + '</span></div>' +
+      '<div class="ux-battle-php"><i style="width:' + hpPct + '%"></i><span>HP ' + Math.round(run.playerHp) + '/' + run.playerMaxHp + (run.shield ? ' 🛡' + run.shield : '') + '</span></div>' +
+      '<div class="ux-battle-enemies">' + enemies + '</div>' +
+      '<div class="ux-battle-log">' + lastLog + '</div>' +
+      '<div class="ux-battle-actions"><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="abandonBattle">放弃项目</button></div>' +
+      '</section>';
+  }
+
+  function maybeShowBattleModals() {
+    var f = facade();
+    if (!f) return;
+    var run = null;
+    try { run = f.queryBattle(); } catch (e) { return; }
+    // 升级三选一
+    if (run && run.skillOffers && run.skillOffers.length && !popupOpen()) {
+      var layer = popupLayer();
+      if (layer) {
+        var opts = run.skillOffers.map(function (id) {
+          var def = battleSkillDef(id);
+          var name = def ? def.name : '攻击强化';
+          var desc = def ? def.desc : '攻击 +3，朴实无华。';
+          return '<button class="ux-event-option" data-battle-skill="' + escHtml(id) + '"><span>' + escHtml(name) + '</span><span class="opt-effects">' + escHtml(desc) + '</span></button>';
+        }).join('');
+        layer.innerHTML =
+          '<div class="ux-modal-layer">' +
+            '<div class="ux-popup">' +
+              '<div class="ux-header" style="height:70px;border-radius:16px 16px 0 0;margin:0 -18px 14px"><span class="ux-header-title">升级！选择你的道</span></div>' +
+              '<div class="ux-popup-card"><div class="ux-event-options">' + opts + '</div></div>' +
+            '</div>' +
+          '</div>';
+        $$('.ux-event-option[data-battle-skill]', layer).forEach(function (b) {
+          b.addEventListener('click', function () {
+            try { f.chooseBattleSkill(b.getAttribute('data-battle-skill')); } catch (e) { toast(errMsg(e), 'error'); }
+            closePopup();
+          });
+        });
+      }
+      return;
+    }
+    // 结算弹窗（胜利/败北）
+    var done = null;
+    try { done = f.queryFinishedBattle(); } catch (e) { done = null; }
+    if (done && !popupOpen() && _battleResultShown !== done.runId) {
+      _battleResultShown = done.runId;
+      var loot = done.loot || {};
+      var lootLines = [];
+      Object.keys(loot.materials || {}).forEach(function (m) { lootLines.push(m + ' +' + loot.materials[m]); });
+      (loot.equipment || []).forEach(function (eq) { lootLines.push(eq); });
+      if (loot.spiritStones) lootLines.push('灵石 +' + loot.spiritStones);
+      var layer2 = popupLayer();
+      if (layer2) {
+        layer2.innerHTML =
+          '<div class="ux-modal-layer">' +
+            '<div class="ux-popup">' +
+              '<div class="ux-header" style="height:70px;border-radius:16px 16px 0 0;margin:0 -18px 14px"><span class="ux-header-title">' + (done.status === 'VICTORY' ? '项目交付！' : '项目失败…') + '</span></div>' +
+              '<div class="ux-popup-card">' +
+                '<div class="ux-event-bubble">' + (done.status === 'VICTORY' ? 'Boss 已被超度，东西落了一地：' : '败北亦有收获（30% 掉落）：') + '</div>' +
+                (lootLines.length ? '<div class="ux-off-rows">' + lootLines.map(function (l) { return '<div class="ux-off-row"><span class="rv">' + escHtml(l) + '</span></div>'; }).join('') + '</div>' : '<div class="ux-agenda-empty">什么都没掉。就当修炼了。</div>') +
+                '<div class="ux-dialog-actions"><button class="ux-btn ux-btn--gold ux-btn--md" id="BattleDoneOk">收下</button></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        document.getElementById('BattleDoneOk').addEventListener('click', function () {
+          try { f.clearFinishedBattle(); } catch (e) { /* noop */ }
+          closePopup();
+          refresh();
+        });
+      }
+    }
+  }
+
+  var _battleResultShown = null;
+  var _battleSkillDefs = null;
+
+  function battleSkillDef(id) {
+    if (!_battleSkillDefs) {
+      var f = facade();
+      try { _battleSkillDefs = f && f.queryBattleSkillDefs ? f.queryBattleSkillDefs() : []; } catch (e) { _battleSkillDefs = []; }
+    }
+    return (_battleSkillDefs || []).filter(function (s) { return s.id === id; })[0] || null;
+  }
+
+  function openBuildSelectModal() {
+    var f = facade();
+    if (!f || typeof f.queryBattleBuildOptions !== 'function') { toast('游戏尚未就绪', 'error'); return; }
+    var builds = f.queryBattleBuildOptions() || [];
+    var layer = popupLayer();
+    if (!layer) return;
+    var cards = builds.map(function (b) {
+      return '<button class="ux-event-option" data-battle-build="' + escHtml(b.id) + '">' +
+        '<span>' + escHtml(b.name) + '</span>' +
+        '<span class="opt-effects">' + escHtml(b.desc) + ' · HP ' + b.baseHp + ' · 攻 ' + b.baseAttack + '</span></button>';
+    }).join('');
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup">' +
+          '<div class="ux-header" style="height:70px;border-radius:16px 16px 0 0;margin:0 -18px 14px"><span class="ux-header-title">选择 Build 进入项目</span></div>' +
+          '<div class="ux-popup-card"><div class="ux-event-options">' + cards + '</div>' +
+          '<div class="ux-modal-note">5 波推进：普通 → 精英 → Boss。Boss 胜利自动完成当前待办。</div></div>' +
+        '</div>' +
+      '</div>';
+    $$('.ux-event-option[data-battle-build]', layer).forEach(function (b) {
+      b.addEventListener('click', function () {
+        try {
+          f.startBattleRun('PROJECT', b.getAttribute('data-battle-build'));
+          closePopup();
+          refresh();
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    });
   }
 
   /* 右栏：今日待办 / 购买力 / 黄历 / 最近动态（§34/§51/§53/§58） */
@@ -1675,6 +1805,17 @@
         case 'openModal':
           openHomeModal(el.dataset.modal);
           break;
+        case 'projectEntry':
+          openBuildSelectModal();
+          break;
+        case 'abandonBattle': {
+          var fAbandon = facade();
+          if (fAbandon) {
+            try { fAbandon.abandonBattleRun(); toast('你退出了项目。', 'info'); } catch (e) { toast(errMsg(e), 'error'); }
+            refresh();
+          }
+          break;
+        }
         case 'closePopup':
           closePopup();
           refresh();
@@ -1954,7 +2095,7 @@
       }, 500);
     }
 
-    /* 主刷新循环: 倒计时/冷却/事件/V2 弹窗 */
+    /* 主刷新循环: 倒计时/冷却/事件/V2 弹窗/V4 战斗弹窗 */
     setInterval(function () {
       _cdCache = {};
       if (!popupOpen()) {
@@ -1965,6 +2106,7 @@
           V2.maybeShowWeekendModal();
           V2.maybeShowSettlementModal();
         }
+        maybeShowBattleModals();
       }
     }, 1000);
   }
