@@ -682,46 +682,53 @@
     });
   }
 
-  /* 回归欢迎 + 事故队列。离线结算 id 由 Facade 返回，UI 不自行造时间戳。 */
+  /* 回归欢迎摘要。文案、模拟结果与决策会话全部由 Facade 提供。 */
   function showWelcomeBackPopup() {
     var f = facade();
-    if (!f || typeof f.prepareWelcomeBack !== 'function') return;
-    var welcome;
-    try { welcome = f.prepareWelcomeBack(); } catch (e) { return; }
-    if (!welcome || !welcome.settlementId) return;
+    if (!f || typeof f.prepareWelcomeBackSummary !== 'function') return;
+    var summary;
+    try { summary = f.prepareWelcomeBackSummary(); } catch (e) { return; }
+    if (!summary || !summary.settlementId || !summary.simulation) return;
 
-    var items = welcome.items || [];
-    var policyLabels = { ALWAYS: '总是托管', SELECTIVE: '选择性', NEVER: '从不托管' };
-    var itemHtml = items.map(function (item, index) {
-      var iconText = item.kind === 'INCIDENT' ? '🔥' : '📋';
-      var actionText = item.kind === 'INCIDENT' ? '我知道了' : '立即完成';
-      var routeText = item.routedByPolicy ? '<span class="ux-welcome-route">已智能分流</span>' : '';
-      return '<div class="ux-welcome-item">' +
-        '<span class="ux-welcome-icon">' + iconText + '</span>' +
-        '<div class="ux-welcome-copy"><b>' + escHtml(item.title) + '</b><span>' + escHtml(item.priority) + routeText + '</span></div>' +
-        '<button class="ux-btn ux-btn--blue ux-btn--sm" data-welcome-action="' + index + '">' + actionText + '</button>' +
-      '</div>';
-    }).join('');
-    var autoText = welcome.autoCompletedTaskIds && welcome.autoCompletedTaskIds.length
-      ? '<div class="ux-welcome-auto">托管期间已安全完成 ' + welcome.autoCompletedTaskIds.length + ' 项低风险工作</div>'
-      : '';
+    var simulation = summary.simulation;
+    var decisions = summary.decisions || {};
+    var session = decisions.session;
+    var decisionRemaining = session && session.status === 'PENDING'
+      ? Math.max(0, session.pendingEventIds.length - session.cursor)
+      : 0;
+    var pendingCount = Math.max(Number(simulation.pendingDecisionCount) || 0, decisionRemaining);
+    var hasPending = decisionRemaining > 0 && !!decisions.current;
+    var autoTaskCount = (summary.autoCompletedTaskIds || []).length;
+    var policyLabels = { NORMAL: '均衡', SAFE: '稳健', GRINDER: '卷王', SLACKER: '摸鱼' };
+    var summaryRows = '' +
+      '<div class="ux-welcome-summary-row"><span>有效时长</span><b>' + fmtDuration(simulation.effectiveSeconds) + (simulation.capped ? '（已封顶）' : '') + '</b></div>' +
+      '<div class="ux-welcome-summary-row"><span>托管策略</span><b>' + escHtml(policyLabels[simulation.policyUsed] || simulation.policyUsed) + '</b></div>' +
+      '<div class="ux-welcome-summary-row"><span>基础收益</span><b>工资 +' + fmtNum(simulation.salary) + ' · 修为 +' + fmtNum(simulation.cultivation) + ' · 灵石 +' + fmtNum(simulation.spiritStones) + '</b></div>' +
+      '<div class="ux-welcome-summary-row"><span>离线活动</span><b>工作 ' + fmtDuration(simulation.workSeconds) + ' · 摸鱼 ' + fmtDuration(simulation.fishingSeconds) + ' · 修炼 ' + fmtDuration(simulation.cultivatingSeconds) + '</b></div>' +
+      '<div class="ux-welcome-summary-row"><span>加班</span><b>' + fmtDuration(simulation.overtimeSeconds) + '</b></div>' +
+      '<div class="ux-welcome-summary-row"><span>自动处理</span><b>事件 ' + fmtNum(simulation.eventsAutoResolved) + ' · 任务 ' + fmtNum(autoTaskCount) + '</b></div>' +
+      '<div class="ux-welcome-summary-row"><span>待你决策</span><b>' + fmtNum(pendingCount) + ' 项</b></div>' +
+      '<div class="ux-welcome-summary-row"><span>新增事故</span><b>' + fmtNum(simulation.incidentsRaised) + ' 起</b></div>';
     var layer = popupLayer();
     layer.innerHTML =
       '<div class="ux-modal-layer">' +
-        '<div class="ux-popup">' +
+        '<div class="ux-popup ux-welcome-popup">' +
           '<div class="ux-header" style="height:84px;border-radius:16px 16px 0 0;margin:0 -18px 16px">' +
             '<span class="ux-header-title">欢迎回来，牛马</span>' +
           '</div>' +
-          '<div class="ux-popup-card">' +
-            '<div class="ux-welcome-title">离线工作简报</div>' + autoText +
-            '<div class="ux-welcome-policies">' +
-              Object.keys(policyLabels).map(function (policy) {
-                return '<button class="ux-welcome-policy' + (welcome.policy === policy ? ' is-active' : '') + '" data-policy="' + policy + '">' + policyLabels[policy] + '</button>';
-              }).join('') +
+          '<div class="ux-welcome-scroll">' +
+            '<div class="ux-popup-card">' +
+              '<div class="ux-welcome-title">离线工作简报</div>' +
+              '<div class="ux-welcome-line">' + escHtml(summary.welcomeLine.text) + '</div>' +
+              '<div class="ux-welcome-summary">' + summaryRows + '</div>' +
+              '<div class="ux-welcome-policies">' +
+                Object.keys(policyLabels).map(function (policy) {
+                  return '<button class="ux-welcome-policy' + (simulation.policyUsed === policy ? ' is-active' : '') + '" data-policy="' + policy + '">' + policyLabels[policy] + '</button>';
+                }).join('') +
+              '</div>' +
+              '<div class="ux-welcome-note">托管策略变更将在下次回归时生效；高风险破事仍由你亲自处理。</div>' +
+              '<button class="ux-btn ux-btn--gold ux-btn--md ux-welcome-continue" id="WelcomeContinueBtn">' + (hasPending ? '领取并处理破事' : '继续上班') + '</button>' +
             '</div>' +
-            '<div class="ux-welcome-note">托管策略变更将在下次回归时生效；生产事故永远由你亲自处理。</div>' +
-            '<div class="ux-welcome-list">' + (itemHtml || '<div class="ux-welcome-empty">暂无需要处理的工作波动</div>') + '</div>' +
-            '<button class="ux-btn ux-btn--gold ux-btn--md ux-welcome-continue" id="WelcomeContinueBtn">查看离线收益</button>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -737,25 +744,68 @@
         } catch (e) { toast(errMsg(e), 'error'); }
       });
     });
-    $$('[data-welcome-action]', layer).forEach(function (button) {
-      button.addEventListener('click', function () {
-        var item = items[Number(button.getAttribute('data-welcome-action'))];
-        if (!item) return;
-        try {
-          var result = f.performWelcomeAction(item.id, item.action);
-          if (!result || !result.success) {
-            toast('该事项状态已变化，请刷新后再试', 'error');
-            return;
-          }
-          toast(item.kind === 'INCIDENT' ? '事故已加入今日关注' : '任务处理完成', 'success');
-          showWelcomeBackPopup();
-          refresh();
-        } catch (e) { toast(errMsg(e), 'error'); }
-      });
-    });
     $('#WelcomeContinueBtn').addEventListener('click', function () {
+      try {
+        if ((!f.queryOfflineIsSettled || !f.queryOfflineIsSettled(summary.settlementId)) && simulation.effectiveSeconds > 0) {
+          f.claimOfflineReward(summary.settlementId);
+          toast('离线收益已领取', 'success');
+        }
+      } catch (e) {
+        toast(errMsg(e), 'error');
+        return;
+      }
+      if (hasPending) showOfflineDecisionPopup();
+      else closePopup();
+      refresh();
+    });
+  }
+
+  /* 按持久游标逐条处理 canonical pendingEvents；关闭后再次打开会从当前游标恢复。 */
+  function showOfflineDecisionPopup() {
+    var f = facade();
+    if (!f || typeof f.prepareOfflineDecisions !== 'function') return;
+    var decisions;
+    try { decisions = f.prepareOfflineDecisions(); } catch (e) { toast(errMsg(e), 'error'); return; }
+    var session = decisions && decisions.session;
+    var current = decisions && decisions.current;
+    if (!session || session.status !== 'PENDING' || !current) {
       closePopup();
-      showOfflinePopup(welcome.settlementId);
+      refresh();
+      return;
+    }
+
+    var positionText = (session.cursor + 1) + ' / ' + session.pendingEventIds.length;
+    var kind = current.eventId.indexOf('incident:') === 0 ? '生产事故' : current.eventId.indexOf('task:') === 0 ? '紧急任务' : '待办决策';
+    var actionText = current.eventId.indexOf('incident:') === 0 ? '接手事故' : current.eventId.indexOf('task:') === 0 ? '处理任务' : '确认并继续';
+    var overflowText = decisions.overflowSummary
+      ? '<div class="ux-welcome-overflow">另有 ' + fmtNum(decisions.overflowSummary.total) + ' 项排队中，将按优先级继续呈现。</div>'
+      : '';
+    var layer = popupLayer();
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup ux-welcome-popup">' +
+          '<div class="ux-header" style="height:84px;border-radius:16px 16px 0 0;margin:0 -18px 16px">' +
+            '<span class="ux-header-title">处理破事</span>' +
+          '</div>' +
+          '<div class="ux-welcome-scroll">' +
+            '<div class="ux-popup-card ux-welcome-decision">' +
+              '<div class="ux-welcome-position">' + positionText + '</div>' +
+              '<div class="ux-welcome-decision-kind">' + escHtml(kind) + ' · ' + escHtml(current.priority) + '</div>' +
+              '<div class="ux-welcome-decision-id">' + escHtml(current.eventId) + '</div>' +
+              '<div class="ux-welcome-decision-action">当前行动：' + escHtml(actionText) + '</div>' +
+              overflowText +
+              '<button class="ux-btn ux-btn--gold ux-btn--md ux-welcome-continue" data-offline-decision-action>' + escHtml(actionText) + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    $('[data-offline-decision-action]', layer).addEventListener('click', function () {
+      try {
+        var result = f.performOfflineDecision(current.id);
+        if (!result || !result.success) toast('该事项状态已变化，正在恢复进度', 'error');
+        showOfflineDecisionPopup();
+      } catch (e) { toast(errMsg(e), 'error'); }
     });
   }
 

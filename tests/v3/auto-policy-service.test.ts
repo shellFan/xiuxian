@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { GameContext } from '../../assets/scripts/core/game-context';
+import { GameFacade } from '../../assets/scripts/facade/game-facade';
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import type { AssignedTaskState, IncidentState } from '../../assets/scripts/model/save-data';
 import { SaveService, DEFAULT_SAVE_KEY } from '../../assets/scripts/services/save-service';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
+import { OFFLINE_WELCOME_CONTENT, selectOfflineWelcomeLine } from '../../assets/scripts/v3/offline-welcome-content';
 
 const NOW = 1_800_000_000_000;
 
@@ -142,12 +144,60 @@ function testPolicyAndActionSaveExactlyOnceAndSurviveRestart(): void {
   assert.ok(restarted.player.handledWelcomeItemIds.includes('task:persist'));
 }
 
+function testWelcomeContentHasExactlyTwentyStableChineseWorkplaceCultivationLines(): void {
+  const expectedIds = Array.from({ length: 20 }, (_, index) => `offline-welcome-${String(index + 1).padStart(2, '0')}`);
+  const workplaceTerms = /(工位|上班|日报|会议|需求|老板|同事|绩效|加班|项目|代码|排期|打卡|周报|办公|职场|工资|摸鱼|任务|下班)/;
+  const cultivationTerms = /(修仙|修为|道心|灵气|渡劫|闭关|飞升|功法|灵石|心魔|境界|炼丹|法器|宗门|仙途|剑|元神|真气|洞府|筑基)/;
+
+  assert.equal(OFFLINE_WELCOME_CONTENT.length, 20);
+  assert.deepEqual(OFFLINE_WELCOME_CONTENT.map((line) => line.id), expectedIds);
+  assert.equal(new Set(OFFLINE_WELCOME_CONTENT.map((line) => line.id)).size, 20);
+  assert.equal(new Set(OFFLINE_WELCOME_CONTENT.map((line) => line.text)).size, 20);
+  for (const line of OFFLINE_WELCOME_CONTENT) {
+    assert.match(line.text, /[\u3400-\u9fff]/, `${line.id} must contain Chinese copy`);
+    assert.match(line.text, workplaceTerms, `${line.id} must mention workplace life`);
+    assert.match(line.text, cultivationTerms, `${line.id} must mention cultivation`);
+  }
+  assert.deepEqual(selectOfflineWelcomeLine('offline-stable-key'), selectOfflineWelcomeLine('offline-stable-key'));
+  assert.ok(OFFLINE_WELCOME_CONTENT.includes(selectOfflineWelcomeLine('offline-stable-key')));
+}
+
+function testFacadeExposesUnifiedWelcomeSummaryAndResumableDecisionActions(): void {
+  const storage = new MemoryStorageAdapter();
+  const clock = new FakeClock(NOW);
+  const saveService = new CountingSaveService(storage, DEFAULT_SAVE_KEY, clock);
+  const facade = new GameFacade({
+    player: new PlayerData({
+      lastSaveTime: NOW - 3_600_000,
+      pendingEvents: [{ uid: 'pending-review', eventId: 'task:review', occurredAt: NOW - 1_000, priority: 'IMPORTANT' }],
+    }),
+    saveService,
+    clock,
+    board: null,
+  });
+
+  const summary = facade.prepareWelcomeBackSummary();
+  assert.equal(summary.simulation.effectiveSeconds, 3_600);
+  assert.equal(summary.simulation.policyUsed, 'NORMAL');
+  assert.ok(OFFLINE_WELCOME_CONTENT.includes(summary.welcomeLine));
+  assert.equal(summary.decisions.current?.id, 'pending-review');
+  assert.equal(summary.decisions.session?.cursor, 0);
+
+  assert.deepEqual(facade.performOfflineDecision('pending-review'), { success: true, duplicate: false });
+  const resumed = facade.prepareOfflineDecisions();
+  assert.equal(resumed.current, null);
+  assert.equal(resumed.session?.status, 'COMPLETED');
+  facade.destroy();
+}
+
 const tests = [
   testDefaultAndMigration,
   testPolicyDecisionsAndOfflineIsolation,
   testQueueCapAndDedup,
   testStaleActionRejectedWithoutMutation,
   testPolicyAndActionSaveExactlyOnceAndSurviveRestart,
+  testWelcomeContentHasExactlyTwentyStableChineseWorkplaceCultivationLines,
+  testFacadeExposesUnifiedWelcomeSummaryAndResumableDecisionActions,
 ];
 
 for (const test of tests) {

@@ -1003,9 +1003,17 @@
 .ux-off-actions .ux-btn { flex: 1; }
 
 /* 回归欢迎 / 事故队列 */
+.ux-welcome-popup { overflow: hidden; display: flex; flex-direction: column; }
+.ux-welcome-popup > .ux-header { flex: none; }
+.ux-welcome-scroll { min-height: 0; overflow-y: auto; padding-right: 3px; scrollbar-width: thin; }
 .ux-welcome-title { text-align: center; font-size: 31px; font-weight: 900; }
+.ux-welcome-line { margin: 8px 0 12px; color: #6b4f24; text-align: center; font-size: 18px; line-height: 1.5; }
 .ux-welcome-auto { margin: 10px 0; padding: 9px 12px; border-radius: 9px; background: #dcebd7; color: #38603b; text-align: center; font-size: 19px; }
-.ux-welcome-policies { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.ux-welcome-summary { display: flex; flex-direction: column; gap: 7px; padding: 10px 12px; border: 1px solid #cbb98f; border-radius: 10px; background: rgba(255, 250, 235, 0.72); }
+.ux-welcome-summary-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 16px; }
+.ux-welcome-summary-row span { flex: none; color: var(--text-ink-muted); }
+.ux-welcome-summary-row b { text-align: right; font-size: 16px; }
+.ux-welcome-policies { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
 .ux-welcome-policy { border: 2px solid #a99772; border-radius: 9px; padding: 9px 5px; background: #eee3c9; color: var(--text-ink); font-size: 18px; font-weight: 800; }
 .ux-welcome-policy.is-active { border-color: #3f789e; background: #cfe2ef; color: #244f6c; }
 .ux-welcome-note { margin: 10px 0 14px; color: var(--text-ink-muted); text-align: center; font-size: 16px; }
@@ -1018,6 +1026,12 @@
 .ux-welcome-route { margin-left: 7px; color: #3f789e !important; }
 .ux-welcome-empty { padding: 24px 10px; text-align: center; color: var(--text-ink-muted); font-size: 20px; }
 .ux-welcome-continue { width: 100%; margin-top: 16px; }
+.ux-welcome-decision { text-align: center; }
+.ux-welcome-position { color: #3f789e; font-size: 20px; font-weight: 900; letter-spacing: 2px; }
+.ux-welcome-decision-kind { margin-top: 14px; font-size: 28px; font-weight: 900; }
+.ux-welcome-decision-id { margin-top: 8px; overflow-wrap: anywhere; color: var(--text-ink-muted); font-size: 17px; }
+.ux-welcome-decision-action { margin-top: 18px; padding: 12px; border-radius: 9px; background: #eee3c9; font-size: 20px; font-weight: 800; }
+.ux-welcome-overflow { margin-top: 12px; color: var(--text-ink-muted); font-size: 15px; line-height: 1.5; }
 
 /* 通用 modal (确认对话框) */
 .ux-dialog { width: 520px; }

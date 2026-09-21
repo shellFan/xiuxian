@@ -44,6 +44,7 @@ import { MergeService, type MergeResult } from '../services/merge-service';
 import type { BoardPosition } from '../game/merge/merge-types';
 import type { AutoPolicy } from '../model/save-data';
 import type { WelcomeAction } from '../v3/auto-policy-service';
+import { selectOfflineWelcomeLine } from '../v3/offline-welcome-content';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -283,6 +284,25 @@ export class GameFacade {
   public refuseAssignedTask(taskId: string) { return this.context.assignedTasks.refuse(taskId); }
   /** Deterministic welcome-back payload; may apply the configured safe auto policy once. */
   public prepareWelcomeBack() { return this.context.autoPolicy.prepareWelcome(); }
+  /** Unified PC welcome summary over the existing offline simulation and canonical decision session. */
+  public prepareWelcomeBackSummary() {
+    // Snapshot before welcome automation/session routing saves advance lastSaveTime.
+    const settlementId = `offline-${Math.max(0, this.context.player.lastSaveTime).toString(36)}`;
+    const simulation = this.context.offline.previewSimulation(settlementId);
+    const welcome = this.context.autoPolicy.prepareWelcome();
+    const decisions = this.context.autoPolicy.prepareOfflineDecisionSession();
+    return {
+      settlementId: welcome.settlementId,
+      welcomeLine: selectOfflineWelcomeLine(welcome.settlementId),
+      simulation,
+      autoCompletedTaskIds: [...welcome.autoCompletedTaskIds],
+      decisions,
+    };
+  }
+  /** Creates or resumes the ID-only canonical pending-event decision session. */
+  public prepareOfflineDecisions() { return this.context.autoPolicy.prepareOfflineDecisionSession(); }
+  /** Accepts exactly the current canonical decision and advances its durable cursor. */
+  public performOfflineDecision(pendingEventId: string) { return this.context.autoPolicy.performOfflineDecision(pendingEventId); }
   public setAutoPolicy(policy: AutoPolicy) { return this.context.autoPolicy.setPolicy(policy); }
   public performWelcomeAction(itemId: string, action: WelcomeAction) { return this.context.autoPolicy.performWelcomeAction(itemId, action); }
   /** 牛马档案（终身统计）。 */
