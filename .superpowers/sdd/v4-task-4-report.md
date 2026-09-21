@@ -44,3 +44,20 @@ auto policy service tests passed (5 tests)
 ## Out-of-scope findings
 
 - None.
+
+## Reviewer HIGH remediation
+
+Two additional regression tests were added before the correction and failed for the expected reasons:
+
+- A handled S1 was routed again after restart because the new service instance had a different settlement ID.
+- Twelve earlier P0 items filled the presentation cap and excluded a later unresolved S1.
+
+The correction persists every accepted pending-event ID in the existing durable handled-ID field, excludes handled IDs during routing and new session projection, and prioritizes routed S1 events ahead of other `CRITICAL` items. Presentation overflow now summarizes every non-S1 overflow item deterministically, including displaced P0 items.
+
+Post-remediation verification:
+
+- Focused offline pending tests: PASS (4 tests)
+- Focused offline resume tests: PASS (7 tests)
+- Existing auto-policy regression tests: PASS (5 tests)
+- `npm test`: PASS (`Executed 111 test files`)
+- `npm run build`: PASS (`build:game` and `build:orchestrator`)

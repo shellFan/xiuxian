@@ -284,6 +284,7 @@ export class AutoPolicyService {
     const active = this.context.player.offlineDecisionSession;
     if (!active || (active.status === 'COMPLETED' && active.settlementId !== this.settlementId)) {
       const ids = uniquePendingEvents(this.context.player.pendingEvents)
+        .filter((event) => !this.context.player.handledWelcomeItemIds.includes(event.uid))
         .sort(comparePendingEvents)
         .map((event) => event.uid);
       if (ids.length > 0) {
@@ -323,6 +324,7 @@ export class AutoPolicyService {
       resolvedEventIds: [...session.resolvedEventIds, pendingEventId],
       status: cursor >= session.pendingEventIds.length ? 'COMPLETED' : 'PENDING',
     };
+    this.markHandled(pendingEventId);
     this.context.saveService.save(this.context.player);
     return { success: true, duplicate: false };
   }
@@ -405,7 +407,7 @@ export class AutoPolicyService {
       .slice(MAX_OFFLINE_DECISION_ITEMS)
       .map((id) => eventById.get(id))
       .filter((event): event is PendingEventState => event !== undefined)
-      .filter((event) => event.priority !== 'CRITICAL');
+      .filter((event) => !isS1PendingEvent(event));
     const byPriority: Partial<Record<PendingEventState['priority'], number>> = {};
     for (const event of overflowEvents) byPriority[event.priority] = (byPriority[event.priority] ?? 0) + 1;
 
@@ -421,6 +423,7 @@ export class AutoPolicyService {
     const existing = new Set([
       ...this.context.player.pendingEvents.map((event) => event.uid),
       ...alreadyProjectedIds,
+      ...this.context.player.handledWelcomeItemIds,
     ]);
     const routed: PendingEventState[] = [];
     for (const incident of this.context.player.incidents) {
@@ -500,9 +503,14 @@ function compareIncidents(a: IncidentState, b: IncidentState): number {
 }
 
 function comparePendingEvents(a: PendingEventState, b: PendingEventState): number {
-  return PENDING_PRIORITY_ORDER[a.priority] - PENDING_PRIORITY_ORDER[b.priority]
+  return Number(isS1PendingEvent(b)) - Number(isS1PendingEvent(a))
+    || PENDING_PRIORITY_ORDER[a.priority] - PENDING_PRIORITY_ORDER[b.priority]
     || a.occurredAt - b.occurredAt
     || compareStableId(a.uid, b.uid);
+}
+
+function isS1PendingEvent(event: PendingEventState): boolean {
+  return event.priority === 'CRITICAL' && event.eventId.startsWith('incident:');
 }
 
 function compareStableId(a: string, b: string): number {

@@ -121,10 +121,27 @@ function testStableOrderingAndTwelveItemPresentationCap(): void {
   assert.equal(presentation.items.some((item) => item.priority === 'CRITICAL'), true);
 }
 
+function testEveryS1PreemptsLowerRiskItemsInsidePresentationCap(): void {
+  const earlyP0s = Array.from({ length: 12 }, (_, index) => task(`early-p0-${index}`, 'P0', index + 1));
+  const context = make({
+    assignedTasks: earlyP0s,
+    incidents: [incident('later-s1', 'S1', 100)],
+  });
+
+  const presentation = context.autoPolicy.prepareOfflineDecisionSession();
+
+  assert.equal(presentation.items.length, 12);
+  assert.equal(presentation.items.some((item) => item.id === 'offline:incident:later-s1'), true);
+  assert.equal(presentation.session?.pendingEventIds[0], 'offline:incident:later-s1');
+  assert.deepEqual(presentation.overflowSummary, { total: 1, byPriority: { CRITICAL: 1 } });
+  assert.equal(context.player.pendingEvents.length, 13, 'overflow must remain canonical and unresolved');
+}
+
 const tests = [
   testHighRiskOfflineWorkUsesCanonicalPendingEvents,
   testS1GetsMinimumMitigationWithoutBeingAutoResolved,
   testStableOrderingAndTwelveItemPresentationCap,
+  testEveryS1PreemptsLowerRiskItemsInsidePresentationCap,
 ];
 
 for (const test of tests) {
