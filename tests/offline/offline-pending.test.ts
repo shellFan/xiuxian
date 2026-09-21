@@ -137,6 +137,24 @@ function testEveryS1PreemptsLowerRiskItemsInsidePresentationCap(): void {
   assert.equal(context.player.pendingEvents.length, 13, 'overflow must remain canonical and unresolved');
 }
 
+function testLaterS1JoinsExistingCappedSessionAndDisplacesP0(): void {
+  const context = make({
+    assignedTasks: Array.from({ length: 12 }, (_, index) => task(`existing-p0-${index}`, 'P0', index + 1)),
+  });
+  const initial = context.autoPolicy.prepareOfflineDecisionSession();
+  assert.equal(initial.items.length, 12);
+  assert.equal(initial.items.some((item) => item.eventId.startsWith('incident:')), false);
+
+  context.player.incidents.push(incident('later-unresolved-s1', 'S1', 100));
+  const updated = context.autoPolicy.prepareOfflineDecisionSession();
+
+  assert.equal(updated.items.length, 12);
+  assert.equal(updated.items.some((item) => item.id === 'offline:incident:later-unresolved-s1'), true);
+  assert.equal(updated.session?.pendingEventIds[0], 'offline:incident:later-unresolved-s1');
+  assert.deepEqual(updated.overflowSummary, { total: 1, byPriority: { CRITICAL: 1 } });
+  assert.equal(context.player.pendingEvents.length, 13, 'displaced P0 remains canonical and unresolved');
+}
+
 function testS1OverflowUsesOneDeterministicSummaryBeyondTwelveRows(): void {
   const incidents = Array.from({ length: 13 }, (_, index) => incident(`s1-${index}`, 'S1', index + 1));
   const context = make({ incidents });
@@ -163,6 +181,7 @@ const tests = [
   testS1GetsMinimumMitigationWithoutBeingAutoResolved,
   testStableOrderingAndTwelveItemPresentationCap,
   testEveryS1PreemptsLowerRiskItemsInsidePresentationCap,
+  testLaterS1JoinsExistingCappedSessionAndDisplacesP0,
   testS1OverflowUsesOneDeterministicSummaryBeyondTwelveRows,
 ];
 

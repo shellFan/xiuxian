@@ -192,10 +192,15 @@ function testHandledS1DoesNotRequeueAfterWelcomeHistoryChurnAndRestart(): void {
   const restarted = new GameContext({ storage, clock, board: null });
   const resumed = restarted.autoPolicy.prepareOfflineDecisionSession();
 
-  assert.equal(resumed.session?.status, 'COMPLETED');
+  assert.equal(resumed.session, null, 'zero elapsed restart must not expose a new or stale decision session');
   assert.equal(resumed.current, null);
   assert.deepEqual(restarted.player.pendingEvents, []);
   assert.equal(restarted.player.handledWelcomeItemIds.includes('offline:incident:durable-s1'), false);
+  assert.equal(
+    restarted.player.eventFlags['offlineDecisionHandled:offline:incident:durable-s1'],
+    true,
+    'accepted identity remains durable independently of settlement/session history',
+  );
 }
 
 const tests = [

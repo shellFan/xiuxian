@@ -78,3 +78,26 @@ Second-remediation verification:
 - Existing auto-policy regression tests: PASS (5 tests)
 - `npm test`: PASS (`Executed 111 test files`)
 - `npm run build`: PASS (`build:game` and `build:orchestrator`)
+
+## Third reviewer HIGH remediation
+
+Baseline for this pass was `6052ded1decef79775d225df009bfda4dbd98dbb` on `gameplay-v2`. The root-owned untracked plan at `docs/superpowers/plans/2026-09-21-v4-finalization.md` remained untouched.
+
+Two new regressions were observed RED before production changes:
+
+- A routed S1 accepted by the player remained durably handled after restart, but the historical completed session was still returned as presentation state despite no new offline elapsed work.
+- An S1 created after a 12-P0 session snapshot entered canonical `pendingEvents` but never entered the active session, so the capped presentation omitted it entirely.
+
+The correction now refreshes every active pending session from canonical unresolved events while preserving the resolved prefix and cursor. This deterministically inserts later S1 work ahead of P0 work, keeps the concrete presentation at 12 rows, and summarizes the displaced lower-priority item without removing it from canonical storage. A completed session from a prior settlement is retired when no unresolved decisions remain; the purpose-specific durable `eventFlags` tombstone continues to prevent the accepted S1 from being routed again, without introducing another event queue.
+
+Focused GREEN evidence before final verification:
+
+- Offline pending tests: PASS (6 tests)
+- Offline resume tests: PASS (7 tests)
+- Offline auto-policy tests: PASS (7 tests)
+
+Final verification:
+
+- `npm test`: PASS (`Executed 111 test files`)
+- `npm run build`: PASS (`build:game` and `build:orchestrator`)
+- `git diff --check`: PASS (line-ending conversion warnings only; no whitespace errors)

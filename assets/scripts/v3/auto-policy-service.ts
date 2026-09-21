@@ -287,7 +287,26 @@ export class AutoPolicyService {
     let changed = this.routeHighRiskItems(sameSettlement ? previousSession.pendingEventIds : []);
     changed = this.ensureS1MinimumMitigation() || changed;
 
-    const active = this.context.player.offlineDecisionSession;
+    let active = this.context.player.offlineDecisionSession;
+    if (active?.status === 'PENDING') {
+      const resolvedPrefix = active.pendingEventIds.slice(0, active.cursor);
+      const resolvedIds = new Set([...resolvedPrefix, ...active.resolvedEventIds]);
+      const pendingEventIds = uniquePendingEvents(this.context.player.pendingEvents)
+        .filter((event) => !resolvedIds.has(event.uid) && !this.isOfflineDecisionHandled(event.uid))
+        .sort(comparePendingEvents)
+        .map((event) => event.uid);
+      const refreshedIds = [...resolvedPrefix, ...pendingEventIds];
+      if (!sameIds(active.pendingEventIds, refreshedIds)) {
+        active = {
+          ...active,
+          pendingEventIds: refreshedIds,
+          status: active.cursor >= refreshedIds.length ? 'COMPLETED' : 'PENDING',
+        };
+        this.context.player.offlineDecisionSession = active;
+        changed = true;
+      }
+    }
+
     if (!active || (active.status === 'COMPLETED' && active.settlementId !== this.settlementId)) {
       const ids = uniquePendingEvents(this.context.player.pendingEvents)
         .filter((event) => !this.isOfflineDecisionHandled(event.uid))
@@ -301,6 +320,9 @@ export class AutoPolicyService {
           resolvedEventIds: [],
           status: 'PENDING',
         };
+        changed = true;
+      } else if (active) {
+        this.context.player.offlineDecisionSession = null;
         changed = true;
       }
     }
@@ -550,6 +572,10 @@ function uniquePendingEvents(events: readonly PendingEventState[]): PendingEvent
     seen.add(event.uid);
     return true;
   });
+}
+
+function sameIds(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((id, index) => id === b[index]);
 }
 
 function toOfflineDecisionItem(event: PendingEventState): OfflineDecisionItem {
