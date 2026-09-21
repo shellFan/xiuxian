@@ -1,6 +1,7 @@
 import idleConfig from '../../configs/idle.json';
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
 import type { GameContext } from '../core/game-context';
+import { segmentOfflineInterval } from './offline-time-segmenter';
 
 export interface IdleServiceOptions {
   readonly clock?: Clock;
@@ -105,9 +106,8 @@ export class IdleService {
     if (!Number.isFinite(now) || !Number.isFinite(deltaMilliseconds) || deltaMilliseconds <= 0) {
       return { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, anomaly: true, now };
     }
-    const rawSeconds = deltaMilliseconds / 1000;
-    const elapsedSeconds = Math.min(rawSeconds, this.maxOfflineSeconds);
-    const capped = rawSeconds > this.maxOfflineSeconds;
+    const projection = segmentOfflineInterval(this.context.player.lastSaveTime, now, this.maxOfflineSeconds);
+    const { elapsedSeconds, capped } = projection;
     // Sect offline gain multiplier (Web V1: 国企宗 离线收益+20%)
     const sect = this.context.sect.current();
     const offlineGain = sect?.modifiers.offlineGainMultiplier ?? 1;
