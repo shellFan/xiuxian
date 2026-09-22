@@ -236,8 +236,10 @@ function cloneSaveData(data: GameSaveData): GameSaveData {
     dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null,
     dailyTasks: (data.dailyTasks ?? []).map(t => ({ ...t })),
     dailyTaskDay: data.dailyTaskDay ?? -1,
-    tutorialStep: data.tutorialStep ?? 'FIRST_RECRUIT',
-    tutorialCompleted: data.tutorialCompleted ?? false,
+    tutorialStep: data.tutorialStep,
+    tutorialCompleted: data.tutorialCompleted,
+    tutorialVersion: data.tutorialVersion,
+    tutorialStartedAt: data.tutorialStartedAt,
     activeTasks: (data.activeTasks ?? []).map(t => ({ ...t })),
   };
 }

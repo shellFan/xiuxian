@@ -241,8 +241,10 @@ function restorePlayer(player: GameContext['player'], data: ReturnType<GameConte
   player.fishingMindRemainder = data.fishingMindRemainder ?? 0;
   player.dailyTasks = (data.dailyTasks ?? []).map((t) => ({ ...t }));
   player.dailyTaskDay = data.dailyTaskDay ?? -1;
-  player.tutorialStep = data.tutorialStep ?? 'FIRST_RECRUIT';
-  player.tutorialCompleted = data.tutorialCompleted ?? false;
+  player.tutorialStep = data.tutorialStep as string;
+  player.tutorialCompleted = data.tutorialCompleted as boolean;
+  player.tutorialVersion = data.tutorialVersion as number;
+  player.tutorialStartedAt = data.tutorialStartedAt as number;
   player.spiritStones = data.spiritStones ?? 0;
   player.lastCultivateTime = data.lastCultivateTime ?? 0;
   player.activeTasks = (data.activeTasks ?? []).map((t) => ({ ...t }));

@@ -7,8 +7,7 @@
  *   3. Wires AnimationDispatcher to facade UI event stream
  *   4. Bridges facade events → modal/toast dispatch (event→modal, error→toast)
  *   5. Manages offline reward popup lifecycle (hide→settle→show)
- *   6. Manages tutorial overlay visibility
- *   7. Provides a single destroy point for all UI subscriptions
+ *   6. Provides a single destroy point for all UI subscriptions
  *
  * Other UI components find this via SceneBindingComponent.instance
  * to access modalManager, toastManager, animationDispatcher.
@@ -102,8 +101,6 @@ export class SceneBindingComponent extends Component {
       if (!this.disposed) this.checkOfflineReward();
     });
 
-    // Check tutorial state on load
-    this.checkTutorial();
   }
 
   protected onDestroy(): void {
@@ -188,7 +185,7 @@ export class SceneBindingComponent extends Component {
           entityId,
           type: modalType,
           payload: detail,
-          dismissible: modalType !== 'TUTORIAL',
+          dismissible: true,
         });
       }
     }
@@ -229,22 +226,6 @@ export class SceneBindingComponent extends Component {
         payload: { settlementId, salary: preview.salary, cultivationExp: preview.cultivationExp, elapsedSeconds: preview.elapsedSeconds, capped: preview.capped },
         dismissible: false,
         priority: 50, // Higher priority than normal modals
-      });
-    }
-  }
-
-  // ── Tutorial ──────────────────────────────────────────────────────────────
-
-  private checkTutorial(): void {
-    if (!this.facade) return;
-    const tutorial = this.facade.queryTutorial();
-    if (!tutorial.isCompleted && tutorial.currentStep !== 'NONE') {
-      this.modalManager.enqueue({
-        entityId: 'tutorial',
-        type: 'TUTORIAL',
-        payload: { step: tutorial.currentStep, stepIndex: tutorial.stepIndex, steps: tutorial.steps },
-        dismissible: false,
-        priority: 100, // Highest priority
       });
     }
   }

@@ -149,9 +149,6 @@ export class CommonModalComponent extends Component {
       case 'DAILY_TASK_CLAIM':
         this.renderDailyTaskModal(request.payload);
         break;
-      case 'TUTORIAL':
-        this.renderTutorialModal(request.payload);
-        break;
       case 'SECT_SELECT':
         this.renderSectSelectModal(request.payload);
         break;
@@ -233,25 +230,6 @@ export class CommonModalComponent extends Component {
     this.setText(this.bodyLabel, `任务完成: ${taskId}`);
     this.setText(this.primaryButtonLabel, '领取');
     this.setText(this.secondaryButtonLabel, '关闭');
-    this.setButtonInteractable(this.primaryButton, true);
-    this.setButtonInteractable(this.secondaryButton, true);
-  }
-
-  private renderTutorialModal(payload: unknown): void {
-    const data = payload as Record<string, unknown> | undefined;
-    const step = typeof data?.step === 'string' ? data.step : '';
-    const stepNames: Record<string, string> = {
-      FIRST_RECRUIT: '第一步：招募你的第一个牛马',
-      SECOND_RECRUIT: '第二步：再招募一个牛马',
-      FIRST_MERGE: '第三步：拖拽合成两个相同等级的牛马',
-      START_WORK: '第四步：开始认真上班',
-      CHECK_KPI: '第五步：查看你的KPI进度',
-      FIRST_PROMOTION: '第六步：尝试渡劫晋升！',
-    };
-    this.setText(this.titleLabel, '新手引导');
-    this.setText(this.bodyLabel, stepNames[step] ?? `引导步骤: ${step}`);
-    this.setText(this.primaryButtonLabel, '下一步');
-    this.setText(this.secondaryButtonLabel, '跳过');
     this.setButtonInteractable(this.primaryButton, true);
     this.setButtonInteractable(this.secondaryButton, true);
   }
@@ -340,10 +318,6 @@ export class CommonModalComponent extends Component {
         }
         break;
       }
-      case 'TUTORIAL': {
-        this.facade.advanceTutorial();
-        break;
-      }
       case 'PROMOTION': {
         const options = this.facade.queryPromotionOptions();
         if (options.length > 0) {
@@ -385,11 +359,6 @@ export class CommonModalComponent extends Component {
           });
           return; // Don't dismiss yet — callback will handle it
         }
-        break;
-      }
-      case 'TUTORIAL': {
-        // Skip tutorial
-        this.facade?.skipTutorial();
         break;
       }
       default:

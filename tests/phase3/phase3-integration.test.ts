@@ -22,7 +22,6 @@ import { MemoryStorageAdapter, type StorageAdapter } from '../../assets/scripts/
 import { SaveService } from '../../assets/scripts/services/save-service';
 import { MockRewardProvider } from '../../assets/scripts/services/reward-provider';
 import { GameLoopService } from '../../assets/scripts/services/game-loop-service';
-import type { TutorialStep } from '../../assets/scripts/services/tutorial-service';
 
 const SAVE_KEY = 'game-save';
 
@@ -73,52 +72,43 @@ function testGameLoopStepOrder(): void {
   assert.ok(pcIdx < gsIdx, 'playerChanged must fire before gameSaved');
 }
 
-/** Tutorial auto-advance: FIRST_RECRUIT → SECOND_RECRUIT when career level >= 1 */
+/** V2 soft guide: the welcome hint expires without blocking normal commands. */
 function testTutorialAutoAdvanceOnRecruit(): void {
-  const { context, player } = makeContext();
-  assert.equal(player.tutorialStep, 'FIRST_RECRUIT');
+  const { context, player, clock } = makeContext();
+  assert.equal(context.tutorial.currentStep(), 'WELCOME');
   assert.equal(player.tutorialCompleted, false);
 
-  // PC V1: FIRST_RECRUIT auto-advances when careerLevel >= 1
+  // Gameplay is not a prerequisite for the welcome hint; it simply expires.
   player.careerLevel = 1;
-  const advanced = context.tutorial.checkAutoAdvance();
-  assert.equal(advanced, true);
-  assert.equal(player.tutorialStep, 'SECOND_RECRUIT');
+  assert.equal(context.tutorial.checkAutoAdvance(), false);
+  clock.advance(30_000);
+  assert.equal(context.tutorial.checkAutoAdvance(), true);
+  assert.equal(player.tutorialStep, 'FIRST_WORK');
 }
 
-/** Tutorial auto-advance: all 6 steps in sequence */
+/** V2 soft guide: all five hints observe actions and never gate them. */
 function testTutorialFullSequence(): void {
   const { context, player } = makeContext();
-  const steps: TutorialStep[] = ['FIRST_RECRUIT', 'SECOND_RECRUIT', 'FIRST_MERGE', 'START_WORK', 'CHECK_KPI', 'FIRST_PROMOTION'];
+  assert.deepEqual(context.tutorial.getSteps(), ['WELCOME', 'FIRST_WORK', 'FIRST_FISH', 'FIRST_CULTIVATE', 'FIRST_TASK']);
 
-  // Step 1: FIRST_RECRUIT — PC V1: careerLevel >= 1 (no merge board)
-  player.careerLevel = 1;
-  assert.equal(context.tutorial.checkAutoAdvance(), true);
-  assert.equal(player.tutorialStep, 'SECOND_RECRUIT');
+  context.tutorial.advance();
+  assert.equal(player.tutorialStep, 'FIRST_WORK');
 
-  // Step 2: SECOND_RECRUIT — PC V1: workSeconds > 0
-  player.workSeconds = 1;
-  assert.equal(context.tutorial.checkAutoAdvance(), true);
-  assert.equal(player.tutorialStep, 'FIRST_MERGE');
-
-  // Step 3: FIRST_MERGE — PC V1: cultivationExp >= 10
-  player.cultivationExp = 10;
-  assert.equal(context.tutorial.checkAutoAdvance(), true);
-  assert.equal(player.tutorialStep, 'START_WORK');
-
-  // Step 4: START_WORK — workMode=WORK + workSeconds > 0
   player.workMode = 'WORK';
   player.workSeconds = 1;
   assert.equal(context.tutorial.checkAutoAdvance(), true);
-  assert.equal(player.tutorialStep, 'CHECK_KPI');
+  assert.equal(player.tutorialStep, 'FIRST_FISH');
 
-  // Step 5: CHECK_KPI — KPI completed (use debug to force)
-  context.debug.completeKpi();
+  player.workMode = 'FISHING';
+  player.fishingSeconds = 1;
   assert.equal(context.tutorial.checkAutoAdvance(), true);
-  assert.equal(player.tutorialStep, 'FIRST_PROMOTION');
+  assert.equal(player.tutorialStep, 'FIRST_CULTIVATE');
 
-  // Step 6: FIRST_PROMOTION — careerLevel >= 2
-  player.careerLevel = 2;
+  player.cultivatingSeconds = 1;
+  assert.equal(context.tutorial.checkAutoAdvance(), true);
+  assert.equal(player.tutorialStep, 'FIRST_TASK');
+
+  player.kpiProgress.TASK_DONE = 1;
   assert.equal(context.tutorial.checkAutoAdvance(), true);
   assert.equal(player.tutorialCompleted, true);
   assert.equal(context.tutorial.currentStep(), 'NONE');
@@ -190,7 +180,9 @@ function testBuffWorkIntegration(): void {
 /** Save/Load round-trip preserves all Phase 3 fields */
 function testSaveLoadRoundTripPreservesPhase3Fields(): void {
   const { context, player, storage, clock } = makeContext({
-    tutorialStep: 'START_WORK',
+    tutorialVersion: 2,
+    tutorialStartedAt: 456,
+    tutorialStep: 'FIRST_CULTIVATE',
     tutorialCompleted: false,
     unlockedAchievementIds: ['ach_1'],
     claimedAchievementIds: [],
@@ -202,7 +194,9 @@ function testSaveLoadRoundTripPreservesPhase3Fields(): void {
 
   // Reload from storage
   const reloaded = new GameContext({ storage, clock });
-  assert.equal(reloaded.player.tutorialStep, 'START_WORK');
+  assert.equal(reloaded.player.tutorialVersion, 2);
+  assert.equal(reloaded.player.tutorialStartedAt, 456);
+  assert.equal(reloaded.player.tutorialStep, 'FIRST_CULTIVATE');
   assert.equal(reloaded.player.tutorialCompleted, false);
   assert.deepEqual(reloaded.player.unlockedAchievementIds, ['ach_1']);
   assert.deepEqual(reloaded.player.claimedAchievementIds, []);
@@ -259,7 +253,8 @@ function testV1ToV4Migration(): void {
   assert.equal(p.dailyTaskDay, -1);
 
   // V4+ fields default
-  assert.equal(p.tutorialStep, 'FIRST_RECRUIT', 'tutorialStep defaults to FIRST_RECRUIT');
+  assert.equal(p.tutorialStep, 'WELCOME', 'tutorialStep defaults to the V2 welcome hint');
+  assert.equal(p.tutorialVersion, 2, 'tutorialVersion defaults to the active schema');
   assert.equal(p.tutorialCompleted, false, 'tutorialCompleted defaults to false');
 
   // Save version upgraded (load migrates in memory; save persists to storage)
@@ -302,7 +297,8 @@ function testV2ToV4Migration(): void {
   assert.equal(p.dailyTaskDay, -1);
 
   // V4 fields default
-  assert.equal(p.tutorialStep, 'FIRST_RECRUIT');
+  assert.equal(p.tutorialStep, 'WELCOME');
+  assert.equal(p.tutorialVersion, 2);
   assert.equal(p.tutorialCompleted, false);
 }
 
@@ -342,7 +338,8 @@ function testV3ToV4Migration(): void {
   assert.equal(p.dailyTaskDay, 0);
 
   // V4 fields default
-  assert.equal(p.tutorialStep, 'FIRST_RECRUIT');
+  assert.equal(p.tutorialStep, 'WELCOME');
+  assert.equal(p.tutorialVersion, 2);
   assert.equal(p.tutorialCompleted, false);
 }
 
@@ -371,7 +368,9 @@ function testV4RoundTrip(): void {
     dailySignIn: { lastClaimTime: 25000, currentDay: 7 },
     dailyTasks: [{ taskId: 'dt_1', progress: 10, completed: true, claimed: true }],
     dailyTaskDay: 2,
-    tutorialStep: 'FIRST_MERGE',
+    tutorialVersion: 2,
+    tutorialStartedAt: 12_345,
+    tutorialStep: 'FIRST_CULTIVATE',
     tutorialCompleted: false,
     lastSaveTime: 30_000,
     workers: [{ id: 'w1', level: 3, row: 1, column: 2 }],
@@ -403,7 +402,9 @@ function testV4RoundTrip(): void {
   assert.equal(reloaded.dailyTasks[0].completed, true);
   assert.equal(reloaded.dailyTasks[0].claimed, true);
   assert.equal(reloaded.dailyTaskDay, 2);
-  assert.equal(reloaded.tutorialStep, 'FIRST_MERGE');
+  assert.equal(reloaded.tutorialVersion, 2);
+  assert.equal(reloaded.tutorialStartedAt, 12_345);
+  assert.equal(reloaded.tutorialStep, 'FIRST_CULTIVATE');
   assert.equal(reloaded.tutorialCompleted, false);
   assert.equal(reloaded.workers.length, 1);
   assert.equal(reloaded.workers[0].level, 3);
@@ -446,7 +447,8 @@ function testNoVersionMigration(): void {
   assert.equal(context.player.salary, 42);
   assert.equal(context.player.mind, 60);
   assert.equal(context.player.careerLevel, 1, 'defaults careerLevel');
-  assert.equal(context.player.tutorialStep, 'FIRST_RECRUIT', 'defaults tutorialStep');
+  assert.equal(context.player.tutorialStep, 'WELCOME', 'defaults tutorialStep');
+  assert.equal(context.player.tutorialVersion, 2, 'defaults tutorialVersion');
   assert.equal(context.player.tutorialCompleted, false, 'defaults tutorialCompleted');
 }
 
@@ -457,7 +459,8 @@ function testCorruptedJsonMigration(): void {
   const context = new GameContext({ storage });
   assert.equal(context.player.salary, 0);
   assert.equal(context.player.careerLevel, 1);
-  assert.equal(context.player.tutorialStep, 'FIRST_RECRUIT');
+  assert.equal(context.player.tutorialStep, 'WELCOME');
+  assert.equal(context.player.tutorialVersion, 2);
 }
 
 /** Future version rejected → default player */
@@ -477,8 +480,8 @@ function testFutureVersionMigration(): void {
 const tests: Array<{ name: string; fn: () => void }> = [
   // Part 1: Integration
   { name: 'GameLoop step order', fn: testGameLoopStepOrder },
-  { name: 'Tutorial auto-advance on recruit', fn: testTutorialAutoAdvanceOnRecruit },
-  { name: 'Tutorial full 6-step sequence', fn: testTutorialFullSequence },
+  { name: 'Tutorial welcome hint expires softly', fn: testTutorialAutoAdvanceOnRecruit },
+  { name: 'Tutorial full V2 soft-guide sequence', fn: testTutorialFullSequence },
   { name: 'Debug skipTutorial integration', fn: testDebugSkipTutorialIntegration },
   { name: 'Debug promote integration', fn: testDebugPromoteIntegration },
   { name: 'DailyTask integration with work', fn: testDailyTaskIntegrationWithWork },

@@ -6,6 +6,7 @@ import { SaveService } from '../../assets/scripts/services/save-service';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { GameContext } from '../../assets/scripts/core/game-context';
 import { FixedClock } from '../../assets/scripts/core/clock';
+import { SaveServiceV2 } from '../../assets/scripts/services/save-service-v2';
 
 function testNewPlayerUsesDefaults(): void {
   const storage = new MemoryStorageAdapter();
@@ -276,6 +277,46 @@ function testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer(): void {
   }
 }
 
+function testV2SnapshotsAndBackupRestorePreserveTutorialStateExactly(): void {
+  const storage = new MemoryStorageAdapter();
+  const service = new SaveServiceV2(storage, { saveKey: 'game-save', clock: new FixedClock(9_999) });
+  const first = new PlayerData({
+    salary: 1,
+    tutorialVersion: 2,
+    tutorialStartedAt: 4_101,
+    tutorialStep: 'FIRST_CULTIVATE',
+    tutorialCompleted: false,
+  });
+  service.save(first);
+  const second = new PlayerData({
+    salary: 2,
+    tutorialVersion: 2,
+    tutorialStartedAt: 8_202,
+    tutorialStep: 'FIRST_TASK',
+    tutorialCompleted: true,
+  });
+  service.save(second);
+
+  assert.equal(service.restoreFromBackup(), true);
+  const restored = service.load();
+  assert.deepEqual(
+    {
+      tutorialVersion: restored.tutorialVersion,
+      tutorialStartedAt: restored.tutorialStartedAt,
+      tutorialStep: restored.tutorialStep,
+      tutorialCompleted: restored.tutorialCompleted,
+    },
+    {
+      tutorialVersion: 2,
+      tutorialStartedAt: 4_101,
+      tutorialStep: 'FIRST_CULTIVATE',
+      tutorialCompleted: false,
+    },
+  );
+  assert.notEqual(restored.tutorialStep, 'FIRST_RECRUIT');
+  assert.deepEqual(service.getLatestCommittedSnapshot(), restored);
+}
+
 testNewPlayerUsesDefaults();
 testSavesAndRestoresPlayerAndWorkers();
 testSuccessfulSavesRecordMonotonicInjectedTime();
@@ -295,4 +336,5 @@ testPhaseTwoDefaultsSurvivePlayerRoundTrip();
 testGameContextRestoresSavedPlayerAndBoard();
 testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer();
 testLocalStorageAdapterRequiresExplicitCocosStorageInjection();
+testV2SnapshotsAndBackupRestorePreserveTutorialStateExactly();
 console.log('save tests passed');

@@ -226,7 +226,7 @@ test('buildTutorialViewModel: returns tutorial data', () => {
   assert.equal(typeof vm.stepIndex, 'number');
   assert.equal(typeof vm.totalSteps, 'number');
   assert.ok(Array.isArray(vm.steps));
-  assert.equal(vm.totalSteps, 6); // FIRST_RECRUIT through FIRST_PROMOTION
+  assert.equal(vm.totalSteps, 5); // V2 soft guide: WELCOME through FIRST_TASK
 });
 
 // ── SectViewModel ───────────────────────────────────────────────────────────

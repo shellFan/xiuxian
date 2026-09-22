@@ -198,6 +198,8 @@ function restorePlayer(player: import('../model/player-data').PlayerData, data: 
   player.mind = data.mind;
   player.performance = data.performance;
   player.claimedAchievementIds = [...(data.claimedAchievementIds ?? [])];
-  player.tutorialStep = data.tutorialStep ?? 'FIRST_RECRUIT';
-  player.tutorialCompleted = data.tutorialCompleted ?? false;
+  player.tutorialStep = data.tutorialStep as string;
+  player.tutorialCompleted = data.tutorialCompleted as boolean;
+  player.tutorialVersion = data.tutorialVersion as number;
+  player.tutorialStartedAt = data.tutorialStartedAt as number;
 }

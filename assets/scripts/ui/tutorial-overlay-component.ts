@@ -46,7 +46,7 @@ interface NodeLike {
 const STEP_INFO: Record<ActiveTutorialStep | 'NONE', { title: string; hint: string }> = {
   WELCOME: {
     title: '欢迎入职修仙公司',
-    hint: '上班、摸鱼、修炼与任务都可自由体验；引导不会阻挡操作。',
+    hint: '先随便逛逛：上班、摸鱼、修炼和任务都能直接点，引导不会挡住任何操作。',
   },
   FIRST_WORK: {
     title: '先上会儿班',
@@ -182,13 +182,6 @@ export class TutorialOverlayComponent extends Component {
 
   private onSkip(): void {
     if (!this.facade || this.disposed) return;
-    SceneBindingComponent.instance?.showModal({
-      entityId: 'tutorial-skip',
-      type: 'CONFIRM',
-      payload: { message: '确定跳过新手教程？' },
-      dismissible: true,
-    });
-    // The modal will call back; we also skip directly as a fallback
     this.facade.skipTutorial();
     this.hide();
     SceneBindingComponent.instance?.showToast('已跳过教程', 'INFO');

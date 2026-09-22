@@ -120,7 +120,7 @@ test('E2E: new save creation produces valid default state', () => {
   assert.strictEqual(snap.workMode, 'FISHING', 'New game starts in FISHING mode');
   assert.strictEqual(snap.workerCount, 0, 'New game starts with no workers');
   assert.strictEqual(snap.officeLevel, 1, 'New game starts at office level 1');
-  assert.strictEqual(snap.tutorialStep, 'FIRST_RECRUIT', 'New game starts at FIRST_RECRUIT tutorial');
+  assert.strictEqual(snap.tutorialStep, 'WELCOME', 'New game starts at the V2 welcome hint');
   assert.strictEqual(snap.tutorialCompleted, false, 'Tutorial not completed initially');
 
   // Validate no NaN / Infinity / negative

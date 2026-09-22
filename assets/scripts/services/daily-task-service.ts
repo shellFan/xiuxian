@@ -217,8 +217,10 @@ function restorePlayer(player: import('../model/player-data').PlayerData, data: 
   player.dailySignIn = data.dailySignIn ? { ...data.dailySignIn } : null;
   player.dailyTasks = (data.dailyTasks ?? []).map((t) => ({ ...t }));
   player.dailyTaskDay = data.dailyTaskDay ?? -1;
-  player.tutorialStep = data.tutorialStep ?? 'FIRST_RECRUIT';
-  player.tutorialCompleted = data.tutorialCompleted ?? false;
+  player.tutorialStep = data.tutorialStep as string;
+  player.tutorialCompleted = data.tutorialCompleted as boolean;
+  player.tutorialVersion = data.tutorialVersion as number;
+  player.tutorialStartedAt = data.tutorialStartedAt as number;
   player.spiritStones = data.spiritStones ?? 0;
   player.lastCultivateTime = data.lastCultivateTime ?? 0;
   player.activeTasks = (data.activeTasks ?? []).map((t) => ({ ...t }));

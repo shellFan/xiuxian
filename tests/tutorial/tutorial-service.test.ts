@@ -4,6 +4,9 @@ import { GameContext } from '../../assets/scripts/core/game-context';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
+import type { StorageAdapter } from '../../assets/scripts/services/storage-adapter';
+import { SaveService } from '../../assets/scripts/services/save-service';
+import { WorkService } from '../../assets/scripts/services/work-service';
 
 function makeContext(player = new PlayerData()): { context: GameContext; clock: FakeClock } {
   const clock = new FakeClock(1_000);
@@ -124,11 +127,51 @@ function testInvalidDirectPlayerStateIsNormalizedOnce(): void {
   assert.equal(player.tutorialStartedAt, 1_000);
 }
 
+function testWorkRollbackRestoresEveryTutorialFieldExactly(): void {
+  const durable = new MemoryStorageAdapter();
+  const baselinePlayer = new PlayerData({
+    tutorialVersion: 2,
+    tutorialStartedAt: 321,
+    tutorialStep: 'FIRST_FISH',
+    tutorialCompleted: false,
+  });
+  new SaveService(durable, 'game-save', () => 1_000).save(baselinePlayer);
+  const failingStorage: StorageAdapter = {
+    getItem: (key) => durable.getItem(key),
+    setItem: () => { throw new Error('quota exceeded'); },
+    removeItem: () => undefined,
+  };
+  const clock = new FakeClock(1_000);
+  const context = new GameContext({ player: baselinePlayer, saveService: new SaveService(failingStorage, 'game-save', clock), clock });
+  const work = new WorkService(context);
+  context.player.tutorialVersion = 99;
+  context.player.tutorialStartedAt = 999;
+  context.player.tutorialStep = 'WELCOME';
+  context.player.tutorialCompleted = true;
+
+  assert.throws(() => work.save(), /quota exceeded/);
+  assert.deepEqual(
+    {
+      tutorialVersion: context.player.tutorialVersion,
+      tutorialStartedAt: context.player.tutorialStartedAt,
+      tutorialStep: context.player.tutorialStep,
+      tutorialCompleted: context.player.tutorialCompleted,
+    },
+    {
+      tutorialVersion: 2,
+      tutorialStartedAt: 321,
+      tutorialStep: 'FIRST_FISH',
+      tutorialCompleted: false,
+    },
+  );
+}
+
 testNewPlayerStartsVersionedWelcomeGuide();
 testGuidesAdvanceAfterTheirAction();
 testAlternateActionDoesNotLockTheGuide();
 testEveryHintExpiresAfterThirtyGameSeconds();
 testSkipIsPersistentAndIdempotent();
 testInvalidDirectPlayerStateIsNormalizedOnce();
+testWorkRollbackRestoresEveryTutorialFieldExactly();
 
 console.log('tutorial service tests passed');
