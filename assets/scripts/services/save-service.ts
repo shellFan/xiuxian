@@ -93,7 +93,7 @@ function migrate(raw: unknown, now: number): GameSaveData {
   if (!isRecord(raw) || (raw.saveVersion !== undefined && (!isFiniteNumber(raw.saveVersion) || raw.saveVersion > CURRENT_SAVE_VERSION))) {
     throw new Error('Unsupported save data');
   }
-  const workers = Array.isArray(raw.workers) ? raw.workers.filter(isWorker).map((worker) => ({ ...worker })) : [];
+  const workers = sanitizeWorkers(raw.workers);
   const maxWorkerLevel = isNonNegativeSafeInteger(raw.maxWorkerLevel) ? raw.maxWorkerLevel : workers.reduce((max, worker) => Math.max(max, worker.level), 0);
   const tutorialCompleted = raw.tutorialCompleted === true
     || (raw.tutorialVersion === TUTORIAL_VERSION && raw.tutorialStep === 'NONE');
@@ -123,8 +123,8 @@ function migrate(raw: unknown, now: number): GameSaveData {
     promotionFailCount: isNonNegativeSafeInteger(raw.promotionFailCount) ? raw.promotionFailCount : 0,
     officeLevel: isPositiveSafeInteger(raw.officeLevel) ? raw.officeLevel : 1,
     lastIdleSettlementId: typeof raw.lastIdleSettlementId === 'string' ? raw.lastIdleSettlementId : null,
-    unlockedAchievementIds: Array.isArray(raw.unlockedAchievementIds) ? (raw.unlockedAchievementIds as unknown[]).filter(isString) : [],
-    claimedAchievementIds: Array.isArray(raw.claimedAchievementIds) ? (raw.claimedAchievementIds as unknown[]).filter(isString) : [],
+    unlockedAchievementIds: uniqueIds(Array.isArray(raw.unlockedAchievementIds) ? raw.unlockedAchievementIds : []),
+    claimedAchievementIds: uniqueIds(Array.isArray(raw.claimedAchievementIds) ? raw.claimedAchievementIds : []),
     dailySignIn: isDailySignInState(raw.dailySignIn) ? { lastClaimTime: raw.dailySignIn.lastClaimTime, currentDay: raw.dailySignIn.currentDay } : null,
     dailyTasks: Array.isArray(raw.dailyTasks) ? raw.dailyTasks.filter(isDailyTaskState) : [],
     dailyTaskDay: typeof raw.dailyTaskDay === 'number' && Number.isSafeInteger(raw.dailyTaskDay) && raw.dailyTaskDay >= -1 ? raw.dailyTaskDay : -1,
@@ -153,30 +153,25 @@ function migrate(raw: unknown, now: number): GameSaveData {
   }
   // ── Gameplay V2 (saveVersion 6): old saves migrate with safe defaults ──
   // V2 fields with safe defaults for old saves (readonly — assign via mutable copy).
+  const ownedTechniques = uniqueIds(Array.isArray(raw.ownedTechniques) ? raw.ownedTechniques : []);
+  const ownedEquipment = uniqueIds(Array.isArray(raw.ownedEquipment) ? raw.ownedEquipment : []);
+  const pendingEvents = sanitizePendingEvents(raw.pendingEvents);
   const v2: V2Fields = {
-    gameDay: isRecord(raw.gameDay) ? (raw.gameDay as unknown as GameSaveData['gameDay']) : null,
+    gameDay: normalizeGameDay(raw.gameDay),
     innerDemon: isNonNegativeSafeInteger(raw.innerDemon) ? raw.innerDemon : 0,
-    activeDemons: Array.isArray(raw.activeDemons) ? (raw.activeDemons as unknown[]).filter(isString) : [],
+    activeDemons: uniqueIds(Array.isArray(raw.activeDemons) ? raw.activeDemons : []),
     materials: isRecord(raw.materials) ? numericRecord(raw.materials) : {},
-    ownedTechniques: Array.isArray(raw.ownedTechniques) ? (raw.ownedTechniques as unknown[]).filter(isString) : [],
+    ownedTechniques,
     techniqueLevels: isRecord(raw.techniqueLevels) ? numericRecord(raw.techniqueLevels) : {},
-    equippedTechniques: Array.isArray(raw.equippedTechniques)
-      ? (raw.equippedTechniques as unknown[]).map((item) => (isString(item) ? item : null))
-      : [null, null, null],
-    ownedEquipment: Array.isArray(raw.ownedEquipment) ? (raw.ownedEquipment as unknown[]).filter(isString) : [],
-    equippedEquipment: isRecord(raw.equippedEquipment)
-      ? (Object.fromEntries(
-          Object.entries(raw.equippedEquipment).filter(([, v]) => isString(v) || v === null),
-        ) as Record<string, string | null>)
-      : {},
+    equippedTechniques: normalizeEquippedTechniques(raw.equippedTechniques, ownedTechniques),
+    ownedEquipment,
+    equippedEquipment: normalizeEquippedEquipment(raw.equippedEquipment, ownedEquipment),
     relationships: isRecord(raw.relationships) ? boundedNumberRecord(raw.relationships) : {},
     eventFlags: isRecord(raw.eventFlags) ? booleanRecord(raw.eventFlags) : {},
     eventChainState: isRecord(raw.eventChainState) ? (raw.eventChainState as GameSaveData['eventChainState']) : {},
     eventCooldowns: isRecord(raw.eventCooldowns) ? numericRecord(raw.eventCooldowns) : {},
-    firedEvents: Array.isArray(raw.firedEvents) ? (raw.firedEvents as unknown[]).filter(isString) : [],
-    pendingEvents: Array.isArray(raw.pendingEvents)
-      ? (raw.pendingEvents as unknown[]).filter(isPendingEvent).map((e) => ({ ...e }))
-      : [],
+    firedEvents: uniqueIds(Array.isArray(raw.firedEvents) ? raw.firedEvents : []),
+    pendingEvents,
     dailyHistory: Array.isArray(raw.dailyHistory) ? (raw.dailyHistory as GameSaveData['dailyHistory']) : [],
     weeklyHistory: Array.isArray(raw.weeklyHistory) ? (raw.weeklyHistory as GameSaveData['weeklyHistory']) : [],
     devTimeOffsetMs: isNonNegativeSafeInteger(raw.devTimeOffsetMs) ? raw.devTimeOffsetMs : 0,
@@ -201,24 +196,25 @@ function migrate(raw: unknown, now: number): GameSaveData {
     lastOvertimeWorkdayStartAt: isNonNegativeSafeInteger(raw.lastOvertimeWorkdayStartAt) ? raw.lastOvertimeWorkdayStartAt : 0,
     overtimeFatigue: raw.overtimeFatigue === 'TIRED' || raw.overtimeFatigue === 'EXHAUSTED' ? raw.overtimeFatigue : 'RESTED',
   });
-  if (merged.gameDay) {
-    const day = merged.gameDay as any;
-    if (!isRecord(day.durations) || !isNonNegativeSafeInteger(day.dayIndex) || !isNonNegativeSafeInteger(day.weekday) || day.weekday > 6) merged.gameDay = null;
-    else merged.gameDay = { ...day, durations: { work: 0, fishing: 0, cultivating: 0, social: 0, meeting: 0, lunch: 0, overtime: 0, incident: 0, ...day.durations }, overtimeSource: day.overtimeSource ?? null, overtimeStatus: day.overtimeStatus ?? 'NONE', overtimeFree: day.overtimeFree === true, settlementInputs: { paidFishingSalary: isNonNegativeSafeInteger(day.settlementInputs?.paidFishingSalary) ? day.settlementInputs.paidFishingSalary : 0 }, eventHistory: Array.isArray(day.eventHistory) ? day.eventHistory.filter((entry: unknown) => isRecord(entry) && typeof entry.id === 'string' && (entry.kind === 'MODE_TRANSITION' || entry.kind === 'EVENT') && isNonNegativeSafeInteger(entry.occurredAt)).map((entry: any) => ({ ...entry })) : [] };
-  }
   // ── Gameplay V4 (saveVersion 8): 职场地狱字段，旧存档安全默认值 ──
+  const assignedTasks = sanitizeUniqueRecords(raw.assignedTasks, isAssignedTask);
+  const incidents = sanitizeUniqueRecords(raw.incidents, isIncidentState);
   Object.assign(merged, {
-    activeOvertimeSession: isOvertimeSessionState(raw.activeOvertimeSession) ? raw.activeOvertimeSession : null,
-    evidence: Array.isArray(raw.evidence) ? (raw.evidence as unknown[]).filter(isEvidenceItem).map((e) => ({ ...e })) : [],
-    responsibilityCases: Array.isArray(raw.responsibilityCases) ? (raw.responsibilityCases as unknown[]).filter(isResponsibilityCase).map((c) => ({ ...c })) : [],
-    incidents: Array.isArray(raw.incidents) ? (raw.incidents as unknown[]).filter(isIncidentState).map((i) => ({ ...i })) : [],
+    activeOvertimeSession: normalizeOvertimeSession(raw.activeOvertimeSession),
+    evidence: sanitizeUniqueRecords(raw.evidence, isEvidenceItem),
+    responsibilityCases: sanitizeUniqueRecords(raw.responsibilityCases, isResponsibilityCase),
+    incidents,
     technicalDebt: isRecord(raw.technicalDebt) ? boundedNumberRecord(raw.technicalDebt) : {},
-    assignedTasks: Array.isArray(raw.assignedTasks) ? (raw.assignedTasks as unknown[]).filter(isAssignedTask).map((t) => ({ ...t })) : [],
+    assignedTasks,
     autoPolicy: migrateAutoPolicy(raw.autoPolicy),
-    offlineDecisionSession: normalizeOfflineDecisionSession(raw.offlineDecisionSession),
+    offlineDecisionSession: normalizeOfflineDecisionSession(raw.offlineDecisionSession, new Set(pendingEvents.map((event) => event.uid))),
     handledWelcomeItemIds: Array.isArray(raw.handledWelcomeItemIds) ? [...new Set((raw.handledWelcomeItemIds as unknown[]).filter(isString))].slice(-100) : [],
     lifetimeStats: isRecord(raw.lifetimeStats) ? numericRecord(raw.lifetimeStats) : {},
-    activeBattleRun: isRecord(raw.activeBattleRun) ? raw.activeBattleRun : null,
+    activeBattleRun: normalizeBattleRun(
+      raw.activeBattleRun,
+      new Set(assignedTasks.map((task) => task.id)),
+      new Set(incidents.map((incident) => incident.id)),
+    ),
   });
   return merged;
 }
@@ -248,6 +244,167 @@ type V2Fields = {
   socialSeconds: number;
 };
 
+const EVIDENCE_TYPES = new Set<unknown>(['GIT_LOG', 'CHAT_RECORD', 'REQUIREMENT_DOC', 'MEETING_NOTE', 'EMAIL', 'TEST_REPORT', 'DEPLOY_LOG', 'MONITOR_LOG', 'RISK_CONFIRMATION', 'TICKET_HISTORY']);
+const INCIDENT_TYPES = new Set<unknown>(['PAYMENT_FAILURE', 'DATABASE_LOCK', 'SLOW_SQL', 'REDIS_OUTAGE', 'CACHE_AVALANCHE', 'NGINX_502', 'DISK_FULL', 'CPU_HIGH', 'OOM', 'MESSAGE_BACKLOG', 'CERT_EXPIRED', 'THIRD_PARTY_FAILURE', 'BAD_DEPLOY', 'CONFIG_ERROR']);
+const INCIDENT_SEVERITIES = new Set<unknown>(['S1', 'S2', 'S3', 'S4']);
+const INCIDENT_STATUSES = new Set<unknown>(['DETECTED', 'MITIGATING', 'RECOVERED', 'POSTMORTEM_DONE', 'CLOSED']);
+const RESPONSIBILITY_STATUSES = new Set<unknown>(['OPEN', 'DISPUTED', 'PLAYER_ACCEPTED', 'PLAYER_CLEARED', 'RESOLVED']);
+const ASSIGNED_TASK_PRIORITIES = new Set<unknown>(['P0', 'P1', 'P2', 'P3']);
+const ASSIGNED_TASK_SOURCES = new Set<unknown>(['BOSS', 'COLLEAGUE', 'PRODUCT', 'TEST', 'CLIENT', 'INCIDENT', 'SYSTEM']);
+const ASSIGNED_TASK_STATUSES = new Set<unknown>(['OPEN', 'DONE', 'REFUSED', 'EXPIRED']);
+
+function sanitizeWorkers(value: unknown): WorkerSaveData[] {
+  if (!Array.isArray(value)) return [];
+  const ids = new Set<string>();
+  const positions = new Set<string>();
+  const result: WorkerSaveData[] = [];
+  for (const worker of value) {
+    if (!isWorker(worker) || !isPositiveSafeInteger(worker.level) || worker.level > 6
+      || !isNonNegativeSafeInteger(worker.row) || !isNonNegativeSafeInteger(worker.column)) continue;
+    const position = `${worker.row}:${worker.column}`;
+    if (ids.has(worker.id) || positions.has(position)) continue;
+    ids.add(worker.id);
+    positions.add(position);
+    result.push({ ...worker });
+  }
+  return result;
+}
+
+function sanitizePendingEvents(value: unknown): import('../model/save-data').PendingEventState[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<string>();
+  const result: import('../model/save-data').PendingEventState[] = [];
+  for (const event of value) {
+    if (!isPendingEvent(event) || seen.has(event.uid)) continue;
+    seen.add(event.uid);
+    result.push({ ...event });
+  }
+  return result;
+}
+
+function sanitizeUniqueRecords<T extends { readonly id: string }>(value: unknown, predicate: (item: unknown) => item is T): T[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<string>();
+  const result: T[] = [];
+  for (const item of value) {
+    if (!predicate(item) || item.id.trim() === '' || seen.has(item.id)) continue;
+    seen.add(item.id);
+    result.push({ ...item });
+  }
+  return result;
+}
+
+function normalizeEquippedTechniques(value: unknown, owned: readonly string[]): (string | null)[] {
+  const allowed = new Set(owned);
+  const source = Array.isArray(value) ? value : [];
+  return [0, 1, 2].map((index) => typeof source[index] === 'string' && allowed.has(source[index] as string) ? source[index] as string : null);
+}
+
+function normalizeEquippedEquipment(value: unknown, owned: readonly string[]): Record<string, string | null> {
+  if (!isRecord(value)) return {};
+  const allowed = new Set(owned);
+  const result: Record<string, string | null> = {};
+  for (const [slot, item] of Object.entries(value)) {
+    if (item === null) result[slot] = null;
+    else if (typeof item === 'string') result[slot] = allowed.has(item) ? item : null;
+  }
+  return result;
+}
+
+function normalizeGameDay(value: unknown): GameSaveData['gameDay'] {
+  if (!isRecord(value) || !isPositiveSafeInteger(value.dayIndex) || !isNonNegativeSafeInteger(value.weekday) || value.weekday > 6
+    || !isNonNegativeSafeInteger(value.startedAt)) return null;
+  const durations = isRecord(value.durations) ? value.durations : {};
+  const income = isRecord(value.income) ? value.income : {};
+  const settlementInputs = isRecord(value.settlementInputs) ? value.settlementInputs : {};
+  const duration = (key: string) => isNonNegativeSafeInteger(durations[key]) ? durations[key] : 0;
+  const amount = (key: string) => isNonNegativeSafeInteger(income[key]) ? income[key] : 0;
+  const overtimeSource = value.overtimeSource === null || value.overtimeSource === 'VOLUNTARY' || value.overtimeSource === 'REQUESTED'
+    || value.overtimeSource === 'FORCED' || value.overtimeSource === 'EMERGENCY' || value.overtimeSource === 'WEEKEND'
+    || value.overtimeSource === 'COMPENSATED' ? value.overtimeSource : null;
+  const overtimeStatus = value.overtimeStatus === 'OFFERED' || value.overtimeStatus === 'ACTIVE' || value.overtimeStatus === 'COMPLETED'
+    ? value.overtimeStatus : 'NONE';
+  return {
+    dayIndex: value.dayIndex,
+    weekday: value.weekday,
+    startedAt: value.startedAt,
+    settled: value.settled === true,
+    durations: {
+      work: duration('work'), fishing: duration('fishing'), cultivating: duration('cultivating'), social: duration('social'),
+      meeting: duration('meeting'), lunch: duration('lunch'), overtime: duration('overtime'), incident: duration('incident'),
+    },
+    income: { salary: amount('salary'), cultivation: amount('cultivation'), performance: amount('performance') },
+    eventsHandled: isNonNegativeSafeInteger(value.eventsHandled) ? value.eventsHandled : 0,
+    materialsGained: isNonNegativeSafeInteger(value.materialsGained) ? value.materialsGained : 0,
+    situationIds: uniqueIds(Array.isArray(value.situationIds) ? value.situationIds : []),
+    overtimeSource,
+    overtimeStatus,
+    overtimeFree: value.overtimeFree === true,
+    settlementInputs: { paidFishingSalary: isNonNegativeSafeInteger(settlementInputs.paidFishingSalary) ? settlementInputs.paidFishingSalary : 0 },
+    eventHistory: Array.isArray(value.eventHistory) ? value.eventHistory.filter(isWorkTimelineEntry).map((entry) => ({ ...entry })) : [],
+  };
+}
+
+function isWorkTimelineEntry(value: unknown): value is import('../model/save-data').WorkTimelineEntry {
+  return isRecord(value) && typeof value.id === 'string' && (value.kind === 'MODE_TRANSITION' || value.kind === 'EVENT')
+    && isNonNegativeSafeInteger(value.occurredAt) && (value.eventId === undefined || typeof value.eventId === 'string');
+}
+
+function isWorkMode(value: unknown): value is import('../model/save-data').WorkMode {
+  return value === 'WORK' || value === 'FISHING' || value === 'CULTIVATING' || value === 'SOCIAL';
+}
+
+function normalizeBattleRun(value: unknown, taskIds: ReadonlySet<string>, incidentIds: ReadonlySet<string>): unknown {
+  if (!isRecord(value) || typeof value.runId !== 'string' || value.runId.trim() === ''
+    || (value.source !== 'PROJECT' && value.source !== 'INCIDENT') || typeof value.buildId !== 'string' || value.buildId.trim() === ''
+    || typeof value.night !== 'boolean' || !isPositiveSafeInteger(value.dayIndex)
+    || (value.status !== 'FIGHTING' && value.status !== 'VICTORY' && value.status !== 'DEFEAT')
+    || !isNonNegativeSafeInteger(value.wave) || !isPositiveSafeInteger(value.waveTotal) || value.wave > value.waveTotal
+    || !isNonNegativeSafeInteger(value.playerHp) || !isPositiveSafeInteger(value.playerMaxHp) || value.playerHp > value.playerMaxHp
+    || !isNonNegativeSafeInteger(value.shield) || !isPositiveSafeInteger(value.attack) || !isPositiveFinite(value.intervalSec)
+    || !isFiniteNumber(value.critChance) || value.critChance < 0 || value.critChance > 1
+    || !isPositiveSafeInteger(value.level) || !isNonNegativeSafeInteger(value.exp) || !isPositiveSafeInteger(value.expNext)
+    || !Array.isArray(value.skills) || !value.skills.every(isString)
+    || !(value.skillOffers === null || (Array.isArray(value.skillOffers) && value.skillOffers.every(isString)))
+    || !Array.isArray(value.enemies) || !value.enemies.every(isBattleEnemy)
+    || !isNonNegativeSafeInteger(value.kills) || !isBattleLoot(value.loot)
+    || typeof value.rewardsClaimed !== 'boolean' || !Array.isArray(value.log) || !value.log.every(isString)) return null;
+  const linkedTaskId = typeof value.linkedTaskId === 'string' && taskIds.has(value.linkedTaskId) ? value.linkedTaskId : null;
+  const linkedIncidentId = typeof value.linkedIncidentId === 'string' && incidentIds.has(value.linkedIncidentId) ? value.linkedIncidentId : null;
+  return {
+    ...value,
+    linkedTaskId,
+    linkedIncidentId,
+    skills: uniqueIds(value.skills),
+    skillOffers: value.skillOffers === null ? null : uniqueIds(value.skillOffers),
+    enemies: value.enemies.map((enemy) => ({ ...enemy })),
+    loot: {
+      ...(value.loot as Record<string, unknown>),
+      materials: { ...((value.loot as Record<string, unknown>).materials as Record<string, number>) },
+      equipment: uniqueIds((value.loot as Record<string, unknown>).equipment as unknown[]),
+    },
+    log: [...value.log],
+  };
+}
+
+function isBattleEnemy(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return typeof value.uid === 'string' && typeof value.defId === 'string' && typeof value.name === 'string'
+    && (value.tier === 'NORMAL' || value.tier === 'ELITE' || value.tier === 'BOSS')
+    && isNonNegativeSafeInteger(value.hp) && isPositiveSafeInteger(value.maxHp) && value.hp <= value.maxHp
+    && isNonNegativeSafeInteger(value.attack) && isPositiveFinite(value.intervalSec) && isFiniteNonNegativeNumber(value.attackTimer);
+}
+
+function isBattleLoot(value: unknown): boolean {
+  if (!isRecord(value) || !isRecord(value.materials) || !Array.isArray(value.equipment) || !value.equipment.every(isString)
+    || !isNonNegativeSafeInteger(value.spiritStones) || !isNonNegativeSafeInteger(value.expGained)) return false;
+  return Object.values(value.materials).every(isNonNegativeSafeInteger);
+}
+
+function isPositiveFinite(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0;
+}
+
 function boundedNumberRecord(value: Record<string, unknown>): Record<string, number> {
   return Object.fromEntries(
     Object.entries(value).filter(([, v]) => typeof v === 'number' && Number.isFinite(v)).map(([k, v]) => [k, Math.max(-100, Math.min(100, v as number))]),
@@ -272,13 +429,17 @@ function migrateAutoPolicy(value: unknown): import('../model/save-data').AutoPol
   return 'NORMAL';
 }
 
-function normalizeOfflineDecisionSession(value: unknown): import('../model/save-data').OfflineDecisionSession | null {
+function normalizeOfflineDecisionSession(value: unknown, canonicalPendingIds?: ReadonlySet<string>): import('../model/save-data').OfflineDecisionSession | null {
   if (!isRecord(value) || typeof value.settlementId !== 'string' || value.settlementId.trim() === '') return null;
   if (!Array.isArray(value.pendingEventIds) || !Array.isArray(value.resolvedEventIds)) return null;
   if (!isNonNegativeSafeInteger(value.cursor) || (value.status !== 'PENDING' && value.status !== 'COMPLETED')) return null;
-  const pendingEventIds = uniqueIds(value.pendingEventIds);
+  const originalIds = uniqueIds(value.pendingEventIds);
+  const originalCursor = Math.min(value.cursor, originalIds.length);
+  const resolvedPrefix = originalIds.slice(0, originalCursor);
+  const unresolvedSuffix = originalIds.slice(originalCursor).filter((id) => !canonicalPendingIds || canonicalPendingIds.has(id));
+  const pendingEventIds = [...resolvedPrefix, ...unresolvedSuffix];
   const pendingIdSet = new Set(pendingEventIds);
-  const cursor = Math.min(value.cursor, pendingEventIds.length);
+  const cursor = resolvedPrefix.length;
   return {
     settlementId: value.settlementId,
     pendingEventIds,
@@ -292,22 +453,30 @@ function uniqueIds(values: readonly unknown[]): string[] {
   return [...new Set(values.filter((value): value is string => typeof value === 'string' && value.trim() !== ''))];
 }
 
-function isOvertimeSessionState(value: unknown): value is import('../model/save-data').OvertimeSessionState {
-  if (!isRecord(value)) return false;
+function normalizeOvertimeSession(value: unknown): import('../model/save-data').OvertimeSessionState | null {
+  if (!isRecord(value)) return null;
   const source = value.source;
   const sourceOk = source === 'VOLUNTARY' || source === 'REQUESTED' || source === 'FORCED' || source === 'EMERGENCY' || source === 'WEEKEND' || source === 'COMPENSATED';
-  return sourceOk
-    && typeof value.free === 'boolean'
-    && isPositiveSafeInteger(value.plannedSeconds)
-    && isNonNegativeSafeInteger(value.elapsedSeconds)
-    && (value.status === 'OFFERED' || value.status === 'ACTIVE')
-    && (value.startedAt === null || isNonNegativeSafeInteger(value.startedAt));
+  if (!sourceOk || typeof value.free !== 'boolean' || !isPositiveSafeInteger(value.plannedSeconds)
+    || !isNonNegativeSafeInteger(value.elapsedSeconds) || (value.status !== 'OFFERED' && value.status !== 'ACTIVE')) return null;
+  if (value.status === 'ACTIVE') {
+    if (!isWorkMode(value.mode) || !isNonNegativeSafeInteger(value.startedAt)) return null;
+  }
+  return {
+    source,
+    free: value.free,
+    plannedSeconds: value.plannedSeconds,
+    elapsedSeconds: Math.min(value.elapsedSeconds, value.plannedSeconds),
+    mode: value.status === 'ACTIVE' ? value.mode as import('../model/save-data').WorkMode : null,
+    status: value.status,
+    startedAt: value.status === 'ACTIVE' ? value.startedAt as number : null,
+  };
 }
 
 function isEvidenceItem(value: unknown): value is import('../model/save-data').EvidenceItemState {
   if (!isRecord(value)) return false;
   return typeof value.id === 'string'
-    && typeof value.type === 'string'
+    && EVIDENCE_TYPES.has(value.type)
     && typeof value.label === 'string'
     && isNonNegativeSafeInteger(value.dayIndex)
     && isNonNegativeSafeInteger(value.createdAt);
@@ -321,17 +490,23 @@ function isResponsibilityCase(value: unknown): value is import('../model/save-da
     && typeof value.sourceNpc === 'string'
     && typeof value.actualOwnerNpc === 'string'
     && typeof value.cause === 'string'
-    && typeof value.status === 'string';
+    && typeof value.blamedPlayer === 'boolean'
+    && INCIDENT_SEVERITIES.has(value.severity)
+    && RESPONSIBILITY_STATUSES.has(value.status)
+    && Array.isArray(value.evidenceIds)
+    && value.evidenceIds.every(isString)
+    && isFiniteNumber(value.performanceDelta)
+    && isRecord(value.relationshipEffects);
 }
 
 function isIncidentState(value: unknown): value is import('../model/save-data').IncidentState {
   if (!isRecord(value)) return false;
   return typeof value.id === 'string'
-    && typeof value.type === 'string'
-    && typeof value.severity === 'string'
+    && INCIDENT_TYPES.has(value.type)
+    && INCIDENT_SEVERITIES.has(value.severity)
     && isPositiveSafeInteger(value.dayIndex)
     && isNonNegativeSafeInteger(value.createdAt)
-    && typeof value.status === 'string'
+    && INCIDENT_STATUSES.has(value.status)
     && typeof value.forcedRelease === 'boolean'
     && typeof value.riskConfirmed === 'boolean'
     && isNonNegativeSafeInteger(value.mitigationSeconds);
@@ -341,11 +516,15 @@ function isAssignedTask(value: unknown): value is import('../model/save-data').A
   if (!isRecord(value)) return false;
   return typeof value.id === 'string'
     && typeof value.title === 'string'
-    && typeof value.priority === 'string'
-    && typeof value.source === 'string'
+    && ASSIGNED_TASK_PRIORITIES.has(value.priority)
+    && ASSIGNED_TASK_SOURCES.has(value.source)
     && isPositiveSafeInteger(value.createdDay)
     && isNonNegativeSafeInteger(value.createdAt)
-    && typeof value.status === 'string'
+    && ASSIGNED_TASK_STATUSES.has(value.status)
+    && isNonNegativeSafeInteger(value.rewardSalary)
+    && isFiniteNumber(value.rewardPerformance)
+    && isNonNegativeSafeInteger(value.rewardCultivation)
+    && isFiniteNumber(value.rewardMind)
     && typeof value.isFakeP0 === 'boolean';
 }
 

@@ -278,7 +278,7 @@ export class GameFacade {
   public clearCaseWithEvidence(caseId: string) { return this.context.responsibility.clearWithEvidence(caseId); }
   /** 活跃事故 + 最近事故历史。 */
   public queryIncidentState() {
-    return { active: this.context.incidents.active(), recent: this.context.incidents.all().slice(-6), risk: this.context.incidents.currentRisk() };
+    return { active: this.context.incidents.presentableActive(), recent: this.context.incidents.all().slice(-6), risk: this.context.incidents.currentRisk() };
   }
   public mitigateIncident(incidentId: string, minutes: number) { return this.context.incidents.mitigate(incidentId, Math.max(0, Math.floor(minutes)) * 60); }
   public recoverIncident(incidentId: string, summary?: string) { return this.context.incidents.recover(incidentId, summary); }

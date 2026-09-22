@@ -45,6 +45,31 @@ export interface EventResolutionResult {
   readonly effectsApplied: EventEffects;
 }
 
+export type PresentationKind = 'S1' | 'PENDING' | 'PROMOTION' | 'TUTORIAL_CRITICAL' | 'WORKPLACE' | 'DAILY' | 'INFO';
+export interface PresentationCandidate {
+  readonly id: string;
+  readonly kind: PresentationKind;
+}
+
+const PRESENTATION_PRIORITY: Readonly<Record<PresentationKind, number>> = {
+  S1: 7,
+  PENDING: 6,
+  PROMOTION: 5,
+  TUTORIAL_CRITICAL: 4,
+  WORKPLACE: 3,
+  DAILY: 2,
+  INFO: 1,
+};
+
+/** Selects one item from canonical owners without copying or consuming their records. */
+export function selectNextPresentation<T extends PresentationCandidate>(candidates: readonly T[]): T | null {
+  let selected: T | null = null;
+  for (const candidate of candidates) {
+    if (!selected || PRESENTATION_PRIORITY[candidate.kind] > PRESENTATION_PRIORITY[selected.kind]) selected = candidate;
+  }
+  return selected;
+}
+
 export class V2EventService {
   private scheduler: EventScheduler;
   private rng: Rng;
@@ -137,7 +162,11 @@ export class V2EventService {
     return null;
   }
 
-  private startEvent(def: EventDefinition, nowMs: number): void {
+  private startEvent(def: EventDefinition, nowMs: number, devBypass = false): void {
+    if (!devBypass && isS1Event(def) && this.isInsideFirstFiveMinutes(nowMs)) {
+      this.enqueuePending(def, nowMs);
+      return;
+    }
     this.current = def;
     // onceEver 立即记录
     if (def.onceEver && !this.context.player.firedEvents.includes(def.id)) {
@@ -162,12 +191,15 @@ export class V2EventService {
   /** 当前待处理事件（含离线 pending 队列头）。 */
   public currentEvent(): EventDefinition | null {
     if (this.current) return this.current;
-    const pending = this.context.player.pendingEvents;
-    if (pending.length > 0) {
-      const head = pending[0];
-      return EVENT_MAP.get(head.eventId) ?? null;
+    const now = this.clock.now();
+    const presentable: EventDefinition[] = [];
+    for (const pending of this.context.player.pendingEvents) {
+      const def = EVENT_MAP.get(pending.eventId);
+      if (!def) continue;
+      if (isS1Event(def) && this.isInsideFirstFiveMinutes(now)) continue;
+      presentable.push(def);
     }
-    return null;
+    return presentable.find(isS1Event) ?? presentable[0] ?? null;
   }
 
   /** 当前事件的可用选择（Build 隐藏选项过滤）。 */
@@ -221,9 +253,8 @@ export class V2EventService {
       this.current = null;
     } else {
       const pending = this.context.player.pendingEvents;
-      if (pending.length > 0 && pending[0].eventId === def.id) {
-        this.context.player.pendingEvents = pending.slice(1);
-      }
+      const resolvedIndex = pending.findIndex((event) => event.eventId === def.id);
+      if (resolvedIndex >= 0) this.context.player.pendingEvents = pending.filter((_, index) => index !== resolvedIndex);
     }
 
     // 链后续：直接排入当前（在线即时体验）
@@ -370,8 +401,24 @@ export class V2EventService {
   public forceTrigger(eventId: string): boolean {
     const def = EVENT_MAP.get(eventId);
     if (!def) return false;
-    this.startEvent(def, this.clock.now());
+    this.startEvent(def, this.clock.now(), true);
     return true;
+  }
+
+  private isInsideFirstFiveMinutes(now: number): boolean {
+    const startedAt = this.context.player.tutorialStartedAt;
+    return Number.isFinite(startedAt) && startedAt >= 0 && now >= startedAt && now < startedAt + 300_000;
+  }
+
+  private enqueuePending(def: EventDefinition, now: number): void {
+    const pending = this.context.player.pendingEvents;
+    if (pending.some((event) => event.eventId === def.id)) return;
+    this.context.player.pendingEvents = [...pending, {
+      uid: `protected:${def.id}:${now}`,
+      eventId: def.id,
+      occurredAt: now,
+      priority: def.priority,
+    }];
   }
 }
 
@@ -401,4 +448,12 @@ function downgradeSeverity(severity: 'S1' | 'S2' | 'S3' | 'S4', downgrade: boole
 /** Missing legacy fields default to neutral; invalid runtime values never reach weighting. */
 function safeMultiplier(value: number | undefined): number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 1;
+}
+
+function isS1Event(def: EventDefinition): boolean {
+  const effects = [
+    def.effects,
+    ...(def.choices ?? []).flatMap((choice) => [choice.effects, choice.successEffects, choice.failureEffects]),
+  ];
+  return effects.some((effect) => effect?.raiseIncident?.severity === 'S1');
 }

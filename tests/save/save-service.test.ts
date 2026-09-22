@@ -258,23 +258,28 @@ function testGameContextRestoresSavedPlayerAndBoard(): void {
   assert.equal(context.board!.getWorker({ row: 0, column: 1 })?.level, 2);
 }
 
-function testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer(): void {
-  const invalidWorkers = [
+function testGameContextRepairsSemanticallyInvalidWorkersLocally(): void {
+  const repairableWorkers = [
     [{ id: 'duplicate', level: 1, row: 0, column: 0 }, { id: 'duplicate', level: 1, row: 0, column: 1 }],
     [{ id: 'fractional-position', level: 1, row: 0.5, column: 0 }],
-    [{ id: 'out-of-bounds', level: 1, row: 1, column: 0 }],
     [{ id: 'invalid-level', level: 0, row: 0, column: 0 }],
     [{ id: 'too-strong', level: 7, row: 0, column: 0 }],
   ];
 
-  for (const workers of invalidWorkers) {
+  for (const workers of repairableWorkers) {
     const storage = new MemoryStorageAdapter();
     storage.setItem('game-save', JSON.stringify({ saveVersion: CURRENT_SAVE_VERSION, salary: 80, maxWorkerLevel: 2, workers }));
     const context = new GameContext({ saveService: new SaveService(storage), boardRows: 1, boardColumns: 2 });
-    assert.equal(context.player.salary, 0);
-    assert.equal(context.player.maxWorkerLevel, 0);
-    assert.equal(context.board!.occupiedCount, 0);
+    assert.equal(context.player.salary, 80, 'worker corruption must not wipe independent player progress');
+    assert.ok(context.board!.occupiedCount <= 1);
   }
+
+  const storage = new MemoryStorageAdapter();
+  storage.setItem('game-save', JSON.stringify({ saveVersion: CURRENT_SAVE_VERSION, salary: 80, maxWorkerLevel: 2, workers: [
+    { id: 'out-of-custom-board', level: 1, row: 1, column: 0 },
+  ] }));
+  const context = new GameContext({ saveService: new SaveService(storage), boardRows: 1, boardColumns: 2 });
+  assert.equal(context.player.salary, 0, 'custom board bounds remain enforced by GameContext');
 }
 
 function testV2SnapshotsAndBackupRestorePreserveTutorialStateExactly(): void {
@@ -317,6 +322,75 @@ function testV2SnapshotsAndBackupRestorePreserveTutorialStateExactly(): void {
   assert.deepEqual(service.getLatestCommittedSnapshot(), restored);
 }
 
+function testCorruptNestedStateIsRepairedLocallyWithoutWipingValidProgress(): void {
+  const storage = new MemoryStorageAdapter();
+  storage.setItem('game-save', JSON.stringify({
+    saveVersion: CURRENT_SAVE_VERSION,
+    salary: 777,
+    cultivationExp: 88,
+    workMode: 'UNKNOWN',
+    workers: [
+      { id: 'worker-ok', level: 1, row: 0, column: 0 },
+      { id: 'worker-ok', level: 2, row: 0, column: 1 },
+      { id: 'worker-other', level: 2, row: 0, column: 0 },
+    ],
+    pendingEvents: [
+      { uid: 'pending-ok', eventId: 'incident_s2', occurredAt: 10, priority: 'NORMAL' },
+      { uid: 'pending-ok', eventId: 'incident_s3', occurredAt: 11, priority: 'IMPORTANT' },
+      { uid: 'pending-bad-enum', eventId: 'incident_s1', occurredAt: 12, priority: 'URGENT' },
+      { uid: 'pending-bad-time', eventId: 'incident_s1', occurredAt: -1, priority: 'CRITICAL' },
+    ],
+    offlineDecisionSession: {
+      settlementId: 'offline-corrupt',
+      pendingEventIds: ['pending-ok', 'missing', 'pending-ok'],
+      cursor: 1,
+      resolvedEventIds: ['pending-ok', 'missing'],
+      status: 'PENDING',
+    },
+    activeOvertimeSession: {
+      source: 'REQUESTED', free: true, plannedSeconds: 60, elapsedSeconds: 600,
+      mode: 'WORK', status: 'ACTIVE', startedAt: 20,
+    },
+    incidents: [
+      { id: 'inc-ok', type: 'PAYMENT_FAILURE', severity: 'S2', dayIndex: 1, createdAt: 20, status: 'DETECTED', forcedRelease: false, riskConfirmed: false, mitigationSeconds: 0 },
+      { id: 'inc-ok', type: 'OOM', severity: 'S3', dayIndex: 1, createdAt: 21, status: 'DETECTED', forcedRelease: false, riskConfirmed: false, mitigationSeconds: 0 },
+      { id: 'inc-bad', type: 'ALIENS', severity: 'S9', dayIndex: 1, createdAt: 22, status: 'EXPLODED', forcedRelease: false, riskConfirmed: false, mitigationSeconds: 0 },
+    ],
+    assignedTasks: [
+      { id: 'task-ok', title: '保留', priority: 'P1', source: 'BOSS', createdDay: 1, createdAt: 30, status: 'OPEN', rewardSalary: 1, rewardPerformance: 2, rewardCultivation: 3, rewardMind: 4, isFakeP0: false },
+      { id: 'task-bad', title: '坏枚举', priority: 'PX', source: 'VOID', createdDay: 1, createdAt: 31, status: 'BROKEN', rewardSalary: 1, rewardPerformance: 2, rewardCultivation: 3, rewardMind: 4, isFakeP0: false },
+    ],
+    ownedTechniques: ['tech_focus'],
+    equippedTechniques: ['tech_focus', 'missing-tech', null],
+    ownedEquipment: ['eq_keyboard'],
+    equippedEquipment: { DESK: 'eq_keyboard', BADGE: 'missing-equipment' },
+    activeBattleRun: {
+      runId: 'broken-run', source: 'PROJECT', linkedTaskId: 'missing-task', linkedIncidentId: null,
+      buildId: 'build_db', night: false, dayIndex: 1, status: 'FIGHTING', wave: -1, waveTotal: 5,
+      playerHp: -10, playerMaxHp: 100, shield: 0, attack: 10, intervalSec: 1, critChance: 0.1,
+      level: 1, exp: 0, expNext: 30, skills: [], skillOffers: null, enemies: [], kills: 0,
+      loot: { materials: {}, equipment: [], spiritStones: 0, expGained: 0 }, rewardsClaimed: false, log: [],
+    },
+  }));
+
+  const loaded = new SaveService(storage, 'game-save', () => 4_102).load();
+  assert.equal(loaded.salary, 777, 'valid independent progress survives local repair');
+  assert.equal(loaded.cultivationExp, 88);
+  assert.equal(loaded.workMode, 'FISHING');
+  assert.deepEqual(loaded.workers, [{ id: 'worker-ok', level: 1, row: 0, column: 0 }], 'duplicate ids and occupied positions are removed locally');
+  assert.deepEqual(loaded.pendingEvents?.map((event) => event.uid), ['pending-ok']);
+  assert.deepEqual(loaded.offlineDecisionSession, {
+    settlementId: 'offline-corrupt', pendingEventIds: ['pending-ok'], cursor: 1,
+    resolvedEventIds: ['pending-ok'], status: 'COMPLETED',
+  });
+  assert.equal(loaded.activeOvertimeSession?.elapsedSeconds, 60, 'elapsed overtime is clamped to its possible duration');
+  assert.deepEqual(loaded.incidents?.map((incident) => incident.id), ['inc-ok']);
+  assert.deepEqual(loaded.assignedTasks?.map((task) => task.id), ['task-ok']);
+  assert.deepEqual(loaded.equippedTechniques, ['tech_focus', null, null]);
+  assert.deepEqual(loaded.equippedEquipment, { DESK: 'eq_keyboard', BADGE: null });
+  assert.equal(loaded.activeBattleRun, null, 'impossible battle numerics are discarded without wiping the save');
+}
+
 testNewPlayerUsesDefaults();
 testSavesAndRestoresPlayerAndWorkers();
 testSuccessfulSavesRecordMonotonicInjectedTime();
@@ -334,7 +408,8 @@ testTutorialMigrationIsIdempotentAndRepairsTimestampOnce();
 testMissingAndUnknownTutorialStepsUseWelcome();
 testPhaseTwoDefaultsSurvivePlayerRoundTrip();
 testGameContextRestoresSavedPlayerAndBoard();
-testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer();
+testGameContextRepairsSemanticallyInvalidWorkersLocally();
 testLocalStorageAdapterRequiresExplicitCocosStorageInjection();
 testV2SnapshotsAndBackupRestorePreserveTutorialStateExactly();
+testCorruptNestedStateIsRepairedLocallyWithoutWipingValidProgress();
 console.log('save tests passed');

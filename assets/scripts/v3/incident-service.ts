@@ -54,6 +54,16 @@ export class IncidentService {
     return this.all().find((i) => i.status === 'DETECTED' || i.status === 'MITIGATING') ?? null;
   }
 
+  /** Presentation-only projection; canonical S1 incident state is never removed. */
+  public presentableActive(): IncidentState | null {
+    const incident = this.active();
+    if (!incident || incident.severity !== 'S1') return incident;
+    const startedAt = this.context.player.tutorialStartedAt;
+    const now = this.context.clockV2.now();
+    if (Number.isFinite(startedAt) && startedAt >= 0 && now >= startedAt && now < startedAt + 300_000) return null;
+    return incident;
+  }
+
   public raise(input: RaiseIncidentInput): IncidentState {
     if (this.active()) throw new Error('已有未恢复的事故');
     const day = Math.max(1, this.context.player.gameDay?.dayIndex ?? 1);

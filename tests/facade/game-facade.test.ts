@@ -21,6 +21,7 @@ import { SaveServiceV2, validateSaveData } from '../../assets/scripts/services/s
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import type { DailyTaskState, ActiveTaskState } from '../../assets/scripts/model/save-data';
+import { FakeClock } from '../../assets/scripts/core/clock';
 
 // ── GameSnapshot ────────────────────────────────────────────────────────────
 
@@ -505,6 +506,23 @@ test('GameFacade: snapshot returns valid data', () => {
   assert.strictEqual(snap.careerLevel, 1);
   assert.strictEqual(snap.mind, 100);
   assert.strictEqual(snap.workMode, 'FISHING');
+  facade.destroy();
+});
+
+test('GameFacade: UI incident projection withholds first-five-minute S1 without hiding canonical state', () => {
+  const clock = new FakeClock(1_000);
+  const player = new PlayerData({
+    tutorialStartedAt: 1_000,
+    incidents: [{
+      id: 'facade-s1', type: 'PAYMENT_FAILURE', severity: 'S1', dayIndex: 1, createdAt: 1_000,
+      status: 'DETECTED', forcedRelease: false, riskConfirmed: false, mitigationSeconds: 0,
+    }],
+  });
+  const facade = new GameFacade({ player, clock, storage: new MemoryStorageAdapter(), board: null });
+  assert.equal(facade.context.incidents.active()?.id, 'facade-s1', 'business access remains canonical');
+  assert.equal(facade.queryIncidentState().active, null, 'UI projection is protected during the persisted window');
+  clock.advance(300_000);
+  assert.equal(facade.queryIncidentState().active?.id, 'facade-s1');
   facade.destroy();
 });
 

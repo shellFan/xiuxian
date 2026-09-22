@@ -16,6 +16,7 @@ import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adap
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import { FixedRandomProvider } from '../../assets/scripts/core/random-provider';
 import { SaveServiceV2, DEFAULT_SAVE_KEY, BACKUP_SAVE_KEY } from '../../assets/scripts/services/save-service-v2';
+import { mulberry32, RandomService } from '../../assets/scripts/v2/random-service';
 
 function createFacade(storage: MemoryStorageAdapter, clock: FakeClock): GameFacade {
   return new GameFacade({
@@ -168,5 +169,168 @@ test('Save Stress: save/load preserves state across promotions', () => {
     facade.save();
     const reloaded = new GameFacade({ storage, clock, debugProtection: { isProduction: false } });
     assert.strictEqual(reloaded.context.player.careerLevel, level + 1, `After reload, should be level ${level + 1}`);
+  }
+});
+
+// ── 6. V4.1 deterministic mixed-operation save/load ────────────────────────
+
+const V41_STRESS_SEED = 4102;
+const V41_STRESS_START = Date.parse('2026-09-21T09:00:00+08:00');
+
+function createV41StressFacade(storage: MemoryStorageAdapter, clock: FakeClock, battleSeed: number): GameFacade {
+  return new GameFacade({
+    storage,
+    clock,
+    careerEventClock: clock,
+    board: null,
+    modeSwitchCooldownMs: 0,
+    randomV2: new RandomService(mulberry32(V41_STRESS_SEED)),
+    randomProvider: { next: mulberry32(V41_STRESS_SEED) },
+    battleRng: mulberry32(battleSeed),
+    autoSaveIntervalSeconds: 0,
+    debugProtection: { isProduction: false },
+  });
+}
+
+function rewardSnapshot(facade: GameFacade): unknown {
+  const player = facade.context.player;
+  return {
+    salary: player.salary,
+    cultivationExp: player.cultivationExp,
+    spiritStones: player.spiritStones,
+    performance: player.performance,
+    materials: { ...player.materials },
+    ownedEquipment: [...player.ownedEquipment],
+    ownedTechniques: [...player.ownedTechniques],
+    battleRewardsClaimed: (player.activeBattleRun as { rewardsClaimed?: unknown } | null)?.rewardsClaimed ?? null,
+  };
+}
+
+function assertFiniteTree(value: unknown, path = 'save'): void {
+  if (typeof value === 'number') {
+    assert.ok(Number.isFinite(value), `${path} must not contain NaN/Infinity`);
+    return;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertFiniteTree(item, `${path}[${index}]`));
+    return;
+  }
+  if (value && typeof value === 'object') {
+    for (const [key, item] of Object.entries(value)) assertFiniteTree(item, `${path}.${key}`);
+  }
+}
+
+function assertStressInvariants(facade: GameFacade, clock: FakeClock, iteration: number): void {
+  const player = facade.context.player;
+  assertFiniteTree(player.toSaveData());
+  for (const [name, value] of Object.entries({
+    salary: player.salary,
+    cultivationExp: player.cultivationExp,
+    spiritStones: player.spiritStones,
+    performance: player.performance,
+    mind: player.mind,
+    lastSaveTime: player.lastSaveTime,
+  })) assert.ok(value >= 0, `operation ${iteration}: ${name} must be nonnegative`);
+  assert.ok(player.lastSaveTime <= clock.now(), `operation ${iteration}: save time cannot create negative elapsed time`);
+  if (player.gameDay) {
+    for (const [name, elapsed] of Object.entries(player.gameDay.durations)) {
+      assert.ok(elapsed >= 0, `operation ${iteration}: ${name} elapsed must be nonnegative`);
+    }
+  }
+  if (player.activeOvertimeSession) {
+    assert.ok(player.activeOvertimeSession.elapsedSeconds >= 0);
+    assert.ok(player.activeOvertimeSession.elapsedSeconds <= player.activeOvertimeSession.plannedSeconds);
+  }
+  assert.equal(new Set(player.pendingEvents.map((event) => event.uid)).size, player.pendingEvents.length, 'pending IDs remain unique');
+  assert.equal(new Set(player.ownedEquipment).size, player.ownedEquipment.length, 'equipment IDs remain unique');
+  for (const item of Object.values(player.equippedEquipment)) {
+    assert.ok(item === null || player.ownedEquipment.includes(item), `operation ${iteration}: equipped item must be owned`);
+  }
+  const run = player.activeBattleRun as { linkedTaskId?: unknown; linkedIncidentId?: unknown } | null;
+  if (typeof run?.linkedTaskId === 'string') assert.ok(player.assignedTasks.some((task) => task.id === run.linkedTaskId));
+  if (typeof run?.linkedIncidentId === 'string') assert.ok(player.incidents.some((incident) => incident.id === run.linkedIncidentId));
+}
+
+test('Save Stress: seed 4102 survives 100 mixed operations with save/load after every operation', () => {
+  const storage = new MemoryStorageAdapter();
+  const clock = new FakeClock(V41_STRESS_START);
+  const operationRng = mulberry32(V41_STRESS_SEED);
+  const operationCounts = new Map<string, number>();
+  const equipment = [
+    { id: 'eq_mech_keyboard', slot: 'DESK' as const },
+    { id: 'eq_chosen_badge', slot: 'BADGE' as const },
+    { id: 'eq_anc_noise', slot: 'ACCESSORY' as const },
+  ];
+  let facade = createV41StressFacade(storage, clock, V41_STRESS_SEED);
+
+  for (let iteration = 0; iteration < 100; iteration += 1) {
+    const operation = ['work', 'fish', 'event', 'equipment', 'battle', 'offline', 'pending'][Math.floor(operationRng() * 7)];
+    operationCounts.set(operation, (operationCounts.get(operation) ?? 0) + 1);
+    clock.advance(1_000);
+
+    switch (operation) {
+      case 'work':
+        facade.changeWorkMode('WORK');
+        facade.gameLoop.tick(1);
+        break;
+      case 'fish':
+        facade.changeWorkMode('FISHING');
+        facade.gameLoop.tick(1);
+        break;
+      case 'event': {
+        assert.equal(facade.devForceEvent('incident_s2'), true);
+        const choice = facade.queryV2CurrentChoices()[iteration % Math.max(1, facade.queryV2CurrentChoices().length)];
+        facade.resolveV2Event(choice?.id ?? null);
+        break;
+      }
+      case 'equipment': {
+        const selected = equipment[iteration % equipment.length];
+        facade.context.v2Items.grantEquipment(selected.id);
+        assert.equal(facade.v2EquipItem(selected.slot, selected.id), true);
+        break;
+      }
+      case 'battle': {
+        facade.context.gameDay.ensureStarted();
+        const finished = facade.queryFinishedBattle();
+        if (finished) facade.clearFinishedBattle();
+        const active = facade.queryBattle();
+        if (!active) facade.startBattleRun('PROJECT', 'build_db');
+        const running = facade.queryBattle();
+        if (running?.skillOffers) facade.chooseBattleSkill(running.skillOffers[0]);
+        facade.context.battle.tick(30);
+        break;
+      }
+      case 'offline': {
+        clock.advance(60_000);
+        const settlementId = `stress-offline-${iteration}`;
+        const result = facade.claimOfflineReward(settlementId);
+        assert.equal(result.duplicate, false);
+        assert.throws(() => facade.claimOfflineReward(settlementId), /already claimed/, 'offline rewards are exactly once');
+        break;
+      }
+      case 'pending': {
+        const uid = `stress-pending-${iteration}`;
+        facade.context.player.pendingEvents.push({ uid, eventId: 'incident_s2', occurredAt: clock.now(), priority: 'NORMAL' });
+        const presentation = facade.prepareOfflineDecisions();
+        const currentId = presentation.current?.id;
+        assert.ok(currentId);
+        const resolved = facade.performOfflineDecision(currentId);
+        assert.deepEqual(resolved, { success: true, duplicate: false });
+        assert.deepEqual(facade.performOfflineDecision(currentId), { success: true, duplicate: true }, 'pending decision rewards/actions cannot repeat');
+        break;
+      }
+    }
+
+    facade.save();
+    const beforeReload = rewardSnapshot(facade);
+    facade.destroy();
+    facade = createV41StressFacade(storage, clock, V41_STRESS_SEED + iteration + 1);
+    assert.deepEqual(rewardSnapshot(facade), beforeReload, `operation ${iteration}: reload must not duplicate or lose rewards`);
+    assertStressInvariants(facade, clock, iteration);
+  }
+
+  facade.destroy();
+  for (const operation of ['work', 'fish', 'event', 'equipment', 'battle', 'offline', 'pending']) {
+    assert.ok((operationCounts.get(operation) ?? 0) > 0, `seed 4102 must exercise ${operation}`);
   }
 });
