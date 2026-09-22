@@ -1,8 +1,8 @@
 /**
- * TutorialOverlayComponent — WEB V1 new-player onboarding overlay.
+ * TutorialOverlayComponent — non-blocking first-day guidance.
  *
- * Shows step-by-step guidance for the first 6 tutorial steps:
- *   FIRST_RECRUIT → SECOND_RECRUIT → FIRST_MERGE → START_WORK → CHECK_KPI → FIRST_PROMOTION
+ * Shows five short hints. The overlay never acts as a command precondition;
+ * gameplay remains available while a hint is visible.
  *
  * Subscribes to TUTORIAL_CHANGED events and auto-updates.
  * Player can advance (confirm) or skip the tutorial entirely.
@@ -17,7 +17,7 @@ import {
   type TutorialViewModel,
 } from './view-models';
 import type { GameFacade } from '../facade/game-facade';
-import type { TutorialStep } from '../services/tutorial-service';
+import type { ActiveTutorialStep } from '../services/tutorial-service';
 
 const { ccclass } = _decorator;
 const property = (value: unknown): any => {
@@ -43,30 +43,26 @@ interface NodeLike {
 
 // ── Step descriptions ───────────────────────────────────────────────────────
 
-const STEP_INFO: Record<TutorialStep | 'NONE', { title: string; hint: string }> = {
-  FIRST_RECRUIT: {
-    title: '招募第一位员工',
-    hint: '点击空位招募你的第一位员工吧！',
+const STEP_INFO: Record<ActiveTutorialStep | 'NONE', { title: string; hint: string }> = {
+  WELCOME: {
+    title: '欢迎入职修仙公司',
+    hint: '上班、摸鱼、修炼与任务都可自由体验；引导不会阻挡操作。',
   },
-  SECOND_RECRUIT: {
-    title: '招募第二位员工',
-    hint: '继续招募，让团队壮大起来！',
+  FIRST_WORK: {
+    title: '先上会儿班',
+    hint: '试试“上班”，工资与绩效会随工作推进。',
   },
-  FIRST_MERGE: {
-    title: '首次合成升级',
-    hint: '将两个相同等级的员工拖拽到一起，合成更高级的员工！',
+  FIRST_FISH: {
+    title: '也可以摸鱼',
+    hint: '切到“摸鱼”喘口气；你随时可以选择其他行动。',
   },
-  START_WORK: {
-    title: '开始工作',
-    hint: '点击"工作"按钮，开始赚取灵石！',
+  FIRST_CULTIVATE: {
+    title: '职场也能修仙',
+    hint: '尝试一次修炼，积累修为并照顾好道心。',
   },
-  CHECK_KPI: {
-    title: '查看KPI',
-    hint: '打开KPI面板，查看你的绩效目标！',
-  },
-  FIRST_PROMOTION: {
-    title: '首次晋升',
-    hint: '前往晋升页面，尝试渡劫晋升！',
+  FIRST_TASK: {
+    title: '接个任务试试',
+    hint: '打开任务并选择一项开始；不想做也可以继续探索。',
   },
   NONE: {
     title: '教程完成',
@@ -166,7 +162,7 @@ export class TutorialOverlayComponent extends Component {
     this.show();
 
     // Step info
-    const info = STEP_INFO[vm.currentStep] ?? STEP_INFO.NONE;
+    const info = STEP_INFO[vm.currentStep as ActiveTutorialStep | 'NONE'] ?? STEP_INFO.NONE;
     if (this.titleLabel) this.titleLabel.string = info.title;
     if (this.hintLabel) this.hintLabel.string = info.hint;
 

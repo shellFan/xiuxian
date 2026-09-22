@@ -36,6 +36,8 @@ export interface PlayerDataOptions {
   readonly dailyTaskDay?: number;
   readonly tutorialStep?: string;
   readonly tutorialCompleted?: boolean;
+  readonly tutorialVersion?: number;
+  readonly tutorialStartedAt?: number;
   readonly spiritStones?: number;
   readonly lastCultivateTime?: number;
   readonly activeTasks?: readonly ActiveTaskState[];
@@ -129,6 +131,8 @@ export class PlayerData {
   public dailyTaskDay: number;
   public tutorialStep: string;
   public tutorialCompleted: boolean;
+  public tutorialVersion: number;
+  public tutorialStartedAt: number;
   public spiritStones: number;
   public lastCultivateTime: number;
   public activeTasks: ActiveTaskState[];
@@ -206,8 +210,10 @@ export class PlayerData {
     this.dailySignIn = options.dailySignIn ?? null;
     this.dailyTasks = (options.dailyTasks ?? []).map((t) => ({ ...t }));
     this.dailyTaskDay = options.dailyTaskDay ?? -1;
-    this.tutorialStep = options.tutorialStep ?? 'FIRST_RECRUIT';
+    this.tutorialStep = options.tutorialStep ?? 'WELCOME';
     this.tutorialCompleted = options.tutorialCompleted ?? false;
+    this.tutorialVersion = options.tutorialVersion ?? 2;
+    this.tutorialStartedAt = options.tutorialStartedAt ?? Number.NaN;
     this.spiritStones = options.spiritStones ?? 0;
     this.lastCultivateTime = options.lastCultivateTime ?? 0;
     this.activeTasks = (options.activeTasks ?? []).map((t) => ({ ...t }));
@@ -273,6 +279,8 @@ export class PlayerData {
       dailyTaskDay: this.dailyTaskDay,
       tutorialStep: this.tutorialStep,
       tutorialCompleted: this.tutorialCompleted,
+      tutorialVersion: this.tutorialVersion,
+      tutorialStartedAt: this.tutorialStartedAt,
       spiritStones: this.spiritStones,
       lastCultivateTime: this.lastCultivateTime,
       activeTasks: this.activeTasks.map((t) => ({ ...t })),

@@ -272,6 +272,10 @@ export interface GameSaveData {
   readonly dailyTaskDay?: number;
   readonly tutorialStep?: string;
   readonly tutorialCompleted?: boolean;
+  /** Active onboarding schema. Version 2 is the soft first-day guide. */
+  readonly tutorialVersion?: number;
+  /** Game-clock epoch milliseconds at which onboarding first started. */
+  readonly tutorialStartedAt?: number;
   readonly spiritStones?: number;
   readonly lastCultivateTime?: number;
   readonly activeTasks?: readonly ActiveTaskState[];

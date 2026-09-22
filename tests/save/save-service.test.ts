@@ -10,7 +10,7 @@ import { FixedClock } from '../../assets/scripts/core/clock';
 function testNewPlayerUsesDefaults(): void {
   const storage = new MemoryStorageAdapter();
   const service = new SaveService(storage, 'game-save', () => 123);
-  assert.deepEqual(service.load(), PlayerData.createDefault().toSaveData());
+  assert.deepEqual(service.load(), new PlayerData({ tutorialStartedAt: 123 }).toSaveData());
 }
 
 function testSavesAndRestoresPlayerAndWorkers(): void {
@@ -55,6 +55,18 @@ function testSuccessfulSavesRecordMonotonicInjectedTime(): void {
   assert.equal(service.load().lastSaveTime, 120);
 }
 
+function testSavingFreshPlayerPersistsFiniteTutorialEpoch(): void {
+  const storage = new MemoryStorageAdapter();
+  const service = new SaveService(storage, 'game-save', () => 4_101);
+  service.save(PlayerData.createDefault());
+  const persisted = JSON.parse(storage.getItem('game-save') ?? '{}') as Record<string, unknown>;
+  assert.equal(persisted.tutorialStartedAt, 4_101);
+  const loaded = service.load();
+  assert.equal(loaded.tutorialVersion, 2);
+  assert.equal(loaded.tutorialStep, 'WELCOME');
+  assert.equal(loaded.tutorialStartedAt, 4_101);
+}
+
 function testSaveServiceAcceptsSharedClock(): void {
   const storage = new MemoryStorageAdapter();
   const service = new SaveService(storage, 'game-save', new FixedClock(321));
@@ -76,11 +88,11 @@ function testFailedSaveDoesNotChangeInMemorySaveTime(): void {
 
 function testEmptyAndInvalidStorageBecomeNewPlayer(): void {
   const storage = new MemoryStorageAdapter();
-  const service = new SaveService(storage);
+  const service = new SaveService(storage, 'game-save', () => 123);
   storage.setItem('game-save', '');
-  assert.deepEqual(service.load(), PlayerData.createDefault().toSaveData());
+  assert.deepEqual(service.load(), new PlayerData({ tutorialStartedAt: 123 }).toSaveData());
   storage.setItem('game-save', '{not-json');
-  assert.deepEqual(service.load(), PlayerData.createDefault().toSaveData());
+  assert.deepEqual(service.load(), new PlayerData({ tutorialStartedAt: 123 }).toSaveData());
 }
 
 function testMigratesOlderVersionAndDefaultsMissingFields(): void {
@@ -117,7 +129,7 @@ function testIgnoresMalformedWorkersAndRejectsFutureSaves(): void {
   ] }));
   assert.deepEqual(new SaveService(storage).load().workers, [{ id: 'valid', level: 1, row: 0, column: 0 }]);
   storage.setItem('game-save', JSON.stringify({ saveVersion: CURRENT_SAVE_VERSION + 1, salary: 99 }));
-  assert.deepEqual(new SaveService(storage).load(), PlayerData.createDefault().toSaveData());
+  assert.deepEqual(new SaveService(storage, 'game-save', () => 123).load(), new PlayerData({ tutorialStartedAt: 123 }).toSaveData());
 }
 
 function testInvalidPlayerScalarsFallBackToSafeDefaults(): void {
@@ -149,6 +161,76 @@ function testMigratedInvalidSaveTimeCanBeReplacedByNextSave(): void {
   service.save(player);
   assert.equal(player.lastSaveTime, 500);
   assert.equal(service.load().lastSaveTime, 500);
+}
+
+function testMigratesLegacyTutorialStatesToVersionTwoWelcome(): void {
+  const legacySteps = ['FIRST_RECRUIT', 'SECOND_RECRUIT', 'FIRST_MERGE', 'START_WORK', 'CHECK_KPI', 'FIRST_PROMOTION'];
+  for (const tutorialStep of legacySteps) {
+    const storage = new MemoryStorageAdapter();
+    storage.setItem('game-save', JSON.stringify({ saveVersion: 8, tutorialStep, tutorialCompleted: false }));
+    const loaded = new SaveService(storage, 'game-save', () => 4_101).load();
+    assert.equal(loaded.tutorialVersion, 2);
+    assert.equal(loaded.tutorialStep, 'WELCOME');
+    assert.equal(loaded.tutorialCompleted, false);
+    assert.equal(loaded.tutorialStartedAt, 4_101);
+  }
+}
+
+function testCompletedTutorialTakesPrecedenceAndNeverReopens(): void {
+  const storage = new MemoryStorageAdapter();
+  storage.setItem('game-save', JSON.stringify({
+    saveVersion: 8,
+    tutorialVersion: 1,
+    tutorialStep: 'FIRST_RECRUIT',
+    tutorialCompleted: true,
+    tutorialStartedAt: 200,
+  }));
+  const service = new SaveService(storage, 'game-save', () => 4_101);
+  const loaded = service.load();
+  assert.equal(loaded.tutorialVersion, 2);
+  assert.equal(loaded.tutorialStep, 'NONE');
+  assert.equal(loaded.tutorialCompleted, true);
+  assert.equal(loaded.tutorialStartedAt, 200);
+
+  const player = new PlayerData(loaded);
+  service.save(player);
+  const reloaded = service.load();
+  assert.equal(reloaded.tutorialStep, 'NONE');
+  assert.equal(reloaded.tutorialCompleted, true);
+}
+
+function testTutorialMigrationIsIdempotentAndRepairsTimestampOnce(): void {
+  const storage = new MemoryStorageAdapter();
+  storage.setItem('game-save', JSON.stringify({
+    saveVersion: 8,
+    tutorialVersion: 2,
+    tutorialStep: 'FIRST_FISH',
+    tutorialCompleted: false,
+    tutorialStartedAt: Number.NaN,
+  }));
+  let now = 4_101;
+  const service = new SaveService(storage, 'game-save', () => now);
+  const migrated = service.load();
+  assert.equal(migrated.tutorialVersion, 2);
+  assert.equal(migrated.tutorialStep, 'FIRST_FISH');
+  assert.equal(migrated.tutorialStartedAt, 4_101);
+  const persistedMigration = JSON.parse(storage.getItem('game-save') ?? '{}') as Record<string, unknown>;
+  assert.equal(persistedMigration.tutorialStartedAt, 4_101);
+
+  now = 9_999;
+  const reloaded = service.load();
+  assert.equal(reloaded.tutorialStep, 'FIRST_FISH');
+  assert.equal(reloaded.tutorialStartedAt, 4_101);
+}
+
+function testMissingAndUnknownTutorialStepsUseWelcome(): void {
+  for (const tutorialStep of [undefined, 'UNKNOWN', 42]) {
+    const storage = new MemoryStorageAdapter();
+    storage.setItem('game-save', JSON.stringify({ saveVersion: 8, tutorialVersion: 2, tutorialStep }));
+    const loaded = new SaveService(storage, 'game-save', () => 4_101).load();
+    assert.equal(loaded.tutorialStep, 'WELCOME');
+    assert.equal(loaded.tutorialVersion, 2);
+  }
 }
 
 function testLocalStorageAdapterRequiresExplicitCocosStorageInjection(): void {
@@ -197,6 +279,7 @@ function testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer(): void {
 testNewPlayerUsesDefaults();
 testSavesAndRestoresPlayerAndWorkers();
 testSuccessfulSavesRecordMonotonicInjectedTime();
+testSavingFreshPlayerPersistsFiniteTutorialEpoch();
 testSaveServiceAcceptsSharedClock();
 testFailedSaveDoesNotChangeInMemorySaveTime();
 testEmptyAndInvalidStorageBecomeNewPlayer();
@@ -204,6 +287,10 @@ testMigratesOlderVersionAndDefaultsMissingFields();
 testIgnoresMalformedWorkersAndRejectsFutureSaves();
 testInvalidPlayerScalarsFallBackToSafeDefaults();
 testMigratedInvalidSaveTimeCanBeReplacedByNextSave();
+testMigratesLegacyTutorialStatesToVersionTwoWelcome();
+testCompletedTutorialTakesPrecedenceAndNeverReopens();
+testTutorialMigrationIsIdempotentAndRepairsTimestampOnce();
+testMissingAndUnknownTutorialStepsUseWelcome();
 testPhaseTwoDefaultsSurvivePlayerRoundTrip();
 testGameContextRestoresSavedPlayerAndBoard();
 testGameContextRejectsSemanticallyInvalidWorkersAsNewPlayer();

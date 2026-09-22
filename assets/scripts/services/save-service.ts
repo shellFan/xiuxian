@@ -4,6 +4,8 @@ import type { StorageAdapter } from './storage-adapter';
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
 
 export const DEFAULT_SAVE_KEY = 'game-save';
+const TUTORIAL_VERSION = 2;
+const TUTORIAL_STEPS = new Set(['WELCOME', 'FIRST_WORK', 'FIRST_FISH', 'FIRST_CULTIVATE', 'FIRST_TASK', 'NONE']);
 
 export class SaveService {
   private latestSnapshot: GameSaveData | null = null;
@@ -14,12 +16,18 @@ export class SaveService {
   ) {}
 
   public load(): GameSaveData {
+    const now = this.currentTime();
     const raw = this.storage.getItem(this.key);
-    if (!raw || !raw.trim()) return this.commitLoaded(PlayerData.createDefault().toSaveData());
+    if (!raw || !raw.trim()) return this.commitLoaded(this.newPlayerSave(now));
     try {
-      return this.commitLoaded(migrate(JSON.parse(raw)));
+      const parsed = JSON.parse(raw) as unknown;
+      const data = migrate(parsed, now);
+      if (tutorialMigrationChanged(parsed, data)) {
+        try { this.storage.setItem(this.key, JSON.stringify(data)); } catch { /* load remains usable if migration cannot be persisted */ }
+      }
+      return this.commitLoaded(data);
     } catch {
-      return this.commitLoaded(PlayerData.createDefault().toSaveData());
+      return this.commitLoaded(this.newPlayerSave(now));
     }
   }
 
@@ -37,9 +45,11 @@ export class SaveService {
   public saveAt(player: PlayerData, timestamp: number): void {
     if (!Number.isFinite(timestamp)) throw new Error('Invalid save time');
     const saveTime = Math.max(player.lastSaveTime, timestamp);
-    const data = { ...player.toSaveData(), lastSaveTime: saveTime };
+    const tutorial = normalizeTutorialState(player, Math.max(0, timestamp));
+    const data = { ...player.toSaveData(), ...tutorial, lastSaveTime: saveTime };
     this.storage.setItem(this.key, JSON.stringify(data));
     this.latestSnapshot = cloneSaveData(data);
+    applyTutorialState(player, tutorial);
     player.lastSaveTime = saveTime;
   }
 
@@ -47,9 +57,11 @@ export class SaveService {
     if (typeof settlementId !== 'string' || settlementId.trim() === '') throw new Error('Invalid settlement id');
     if (!Number.isFinite(timestamp)) throw new Error('Invalid save time');
     const saveTime = Math.max(player.lastSaveTime, timestamp);
-    const data = { ...player.toSaveData(), lastIdleSettlementId: settlementId, lastSaveTime: saveTime };
+    const tutorial = normalizeTutorialState(player, Math.max(0, timestamp));
+    const data = { ...player.toSaveData(), ...tutorial, lastIdleSettlementId: settlementId, lastSaveTime: saveTime };
     this.storage.setItem(this.key, JSON.stringify(data));
     this.latestSnapshot = cloneSaveData(data);
+    applyTutorialState(player, tutorial);
     player.lastIdleSettlementId = settlementId;
     player.lastSaveTime = saveTime;
   }
@@ -66,14 +78,30 @@ export class SaveService {
     this.latestSnapshot = cloneSaveData(data);
     return cloneSaveData(data);
   }
+
+  private currentTime(): number {
+    const now = typeof this.clockOrNow === 'function' ? this.clockOrNow() : this.clockOrNow.now();
+    return Number.isFinite(now) && now >= 0 ? now : 0;
+  }
+
+  private newPlayerSave(now: number): GameSaveData {
+    return new PlayerData({ tutorialVersion: TUTORIAL_VERSION, tutorialStartedAt: now }).toSaveData();
+  }
 }
 
-function migrate(raw: unknown): GameSaveData {
+function migrate(raw: unknown, now: number): GameSaveData {
   if (!isRecord(raw) || (raw.saveVersion !== undefined && (!isFiniteNumber(raw.saveVersion) || raw.saveVersion > CURRENT_SAVE_VERSION))) {
     throw new Error('Unsupported save data');
   }
   const workers = Array.isArray(raw.workers) ? raw.workers.filter(isWorker).map((worker) => ({ ...worker })) : [];
   const maxWorkerLevel = isNonNegativeSafeInteger(raw.maxWorkerLevel) ? raw.maxWorkerLevel : workers.reduce((max, worker) => Math.max(max, worker.level), 0);
+  const tutorialCompleted = raw.tutorialCompleted === true
+    || (raw.tutorialVersion === TUTORIAL_VERSION && raw.tutorialStep === 'NONE');
+  const tutorialStep = tutorialCompleted
+    ? 'NONE'
+    : raw.tutorialVersion === TUTORIAL_VERSION && typeof raw.tutorialStep === 'string' && TUTORIAL_STEPS.has(raw.tutorialStep) && raw.tutorialStep !== 'NONE'
+      ? raw.tutorialStep
+      : 'WELCOME';
   const data: GameSaveData = {
     saveVersion: CURRENT_SAVE_VERSION,
     salary: isNonNegativeSafeInteger(raw.salary) ? raw.salary : 0,
@@ -100,8 +128,10 @@ function migrate(raw: unknown): GameSaveData {
     dailySignIn: isDailySignInState(raw.dailySignIn) ? { lastClaimTime: raw.dailySignIn.lastClaimTime, currentDay: raw.dailySignIn.currentDay } : null,
     dailyTasks: Array.isArray(raw.dailyTasks) ? raw.dailyTasks.filter(isDailyTaskState) : [],
     dailyTaskDay: typeof raw.dailyTaskDay === 'number' && Number.isSafeInteger(raw.dailyTaskDay) && raw.dailyTaskDay >= -1 ? raw.dailyTaskDay : -1,
-    tutorialStep: typeof raw.tutorialStep === 'string' ? raw.tutorialStep : 'FIRST_RECRUIT',
-    tutorialCompleted: typeof raw.tutorialCompleted === 'boolean' ? raw.tutorialCompleted : false,
+    tutorialStep,
+    tutorialCompleted,
+    tutorialVersion: TUTORIAL_VERSION,
+    tutorialStartedAt: isFiniteNonNegativeNumber(raw.tutorialStartedAt) ? raw.tutorialStartedAt : now,
     spiritStones: isNonNegativeSafeInteger(raw.spiritStones) ? raw.spiritStones : 0,
     lastCultivateTime: isNonNegativeSafeInteger(raw.lastCultivateTime) ? raw.lastCultivateTime : 0,
     activeTasks: Array.isArray(raw.activeTasks) ? raw.activeTasks.filter(isActiveTaskState) : [],
@@ -323,7 +353,7 @@ function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultiva
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {
-  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'FIRST_RECRUIT', tutorialCompleted: data.tutorialCompleted ?? false, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })), pendingEvents: (data.pendingEvents ?? []).map((event) => ({ ...event })), handledWelcomeItemIds: [...(data.handledWelcomeItemIds ?? [])], offlineDecisionSession: data.offlineDecisionSession ? { ...data.offlineDecisionSession, pendingEventIds: [...data.offlineDecisionSession.pendingEventIds], resolvedEventIds: [...data.offlineDecisionSession.resolvedEventIds] } : null, overtimeStats: data.overtimeStats ? { ...data.overtimeStats } : undefined, activeBattleRun: cloneUnknown(data.activeBattleRun), gameDay: data.gameDay ? { ...data.gameDay, durations: { ...data.gameDay.durations }, income: { ...data.gameDay.income }, situationIds: [...data.gameDay.situationIds], settlementInputs: { ...data.gameDay.settlementInputs }, eventHistory: data.gameDay.eventHistory.map((entry) => ({ ...entry })) } : null };
+  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'WELCOME', tutorialCompleted: data.tutorialCompleted ?? false, tutorialVersion: data.tutorialVersion ?? TUTORIAL_VERSION, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })), pendingEvents: (data.pendingEvents ?? []).map((event) => ({ ...event })), handledWelcomeItemIds: [...(data.handledWelcomeItemIds ?? [])], offlineDecisionSession: data.offlineDecisionSession ? { ...data.offlineDecisionSession, pendingEventIds: [...data.offlineDecisionSession.pendingEventIds], resolvedEventIds: [...data.offlineDecisionSession.resolvedEventIds] } : null, overtimeStats: data.overtimeStats ? { ...data.overtimeStats } : undefined, activeBattleRun: cloneUnknown(data.activeBattleRun), gameDay: data.gameDay ? { ...data.gameDay, durations: { ...data.gameDay.durations }, income: { ...data.gameDay.income }, situationIds: [...data.gameDay.situationIds], settlementInputs: { ...data.gameDay.settlementInputs }, eventHistory: data.gameDay.eventHistory.map((entry) => ({ ...entry })) } : null };
 }
 
 function cloneUnknown(value: unknown): unknown {
@@ -338,6 +368,46 @@ function isWorker(value: unknown): value is WorkerSaveData {
 }
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+function isFiniteNonNegativeNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+interface TutorialState {
+  readonly tutorialVersion: number;
+  readonly tutorialStep: string;
+  readonly tutorialCompleted: boolean;
+  readonly tutorialStartedAt: number;
+}
+
+function normalizeTutorialState(player: PlayerData, now: number): TutorialState {
+  const completed = player.tutorialCompleted
+    || (player.tutorialVersion === TUTORIAL_VERSION && player.tutorialStep === 'NONE');
+  const tutorialStep = completed
+    ? 'NONE'
+    : player.tutorialVersion === TUTORIAL_VERSION && TUTORIAL_STEPS.has(player.tutorialStep) && player.tutorialStep !== 'NONE'
+      ? player.tutorialStep
+      : 'WELCOME';
+  return {
+    tutorialVersion: TUTORIAL_VERSION,
+    tutorialStep,
+    tutorialCompleted: completed,
+    tutorialStartedAt: isFiniteNonNegativeNumber(player.tutorialStartedAt) ? player.tutorialStartedAt : now,
+  };
+}
+
+function applyTutorialState(player: PlayerData, state: TutorialState): void {
+  player.tutorialVersion = state.tutorialVersion;
+  player.tutorialStep = state.tutorialStep;
+  player.tutorialCompleted = state.tutorialCompleted;
+  player.tutorialStartedAt = state.tutorialStartedAt;
+}
+function tutorialMigrationChanged(raw: unknown, data: GameSaveData): boolean {
+  if (!isRecord(raw)) return true;
+  return raw.tutorialVersion !== data.tutorialVersion
+    || raw.tutorialStep !== data.tutorialStep
+    || raw.tutorialCompleted !== data.tutorialCompleted
+    || raw.tutorialStartedAt !== data.tutorialStartedAt;
 }
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);

@@ -1,67 +1,58 @@
 {
-  "schemaVersion": 1,
-  "status": "PHASE4_CANDIDATE",
-  "runtimeEnabled": false,
+  "schemaVersion": 2,
+  "status": "ACTIVE",
+  "runtimeEnabled": true,
+  "hintDurationSeconds": 30,
   "steps": [
     {
-      "id": "FIRST_RECRUIT",
-      "title": "先招一只牛马",
-      "body": "点击招募，放入第一只牛马。",
-      "highlightTarget": "recruitButton",
+      "id": "WELCOME",
+      "title": "欢迎入职修仙公司",
+      "body": "上班、摸鱼、修炼与任务都可自由体验；引导不会阻挡操作。",
+      "highlightTarget": "homeActions",
       "pointerPosition": "above",
-      "allowSkip": false,
-      "blockInput": true,
-      "completionHint": "完成首次招募"
-    },
-    {
-      "id": "SECOND_RECRUIT",
-      "title": "再招一只",
-      "body": "再招一只牛马，准备合成。",
-      "highlightTarget": "recruitButton",
-      "pointerPosition": "above",
-      "allowSkip": true,
-      "blockInput": true,
-      "completionHint": "完成第二次招募"
-    },
-    {
-      "id": "FIRST_MERGE",
-      "title": "合成同级牛马",
-      "body": "把两只同级牛马拖到一起。",
-      "highlightTarget": "mergeBoard",
-      "pointerPosition": "right",
-      "allowSkip": true,
-      "blockInput": true,
-      "completionHint": "完成首次合成"
-    },
-    {
-      "id": "START_WORK",
-      "title": "开始上班",
-      "body": "点击工作并积累工作时间。",
-      "highlightTarget": "workModeToggle",
-      "pointerPosition": "above",
-      "allowSkip": true,
-      "blockInput": true,
-      "completionHint": "累计工作秒数大于0"
-    },
-    {
-      "id": "CHECK_KPI",
-      "title": "查看KPI",
-      "body": "手动打开KPI卷宗，看看下一步目标。",
-      "highlightTarget": "kpiWidget",
-      "pointerPosition": "below",
-      "allowSkip": true,
-      "blockInput": true,
-      "completionHint": "手动打开当前KPI"
-    },
-    {
-      "id": "FIRST_PROMOTION",
-      "title": "准备晋升",
-      "body": "条件达成后手动打开答辩，完成第一次晋升。",
-      "highlightTarget": "promotionButton",
-      "pointerPosition": "left",
       "allowSkip": true,
       "blockInput": false,
-      "completionHint": "完成首次晋升"
+      "completionHint": "继续或停留30秒"
+    },
+    {
+      "id": "FIRST_WORK",
+      "title": "先上会儿班",
+      "body": "试试“上班”，工资与绩效会随工作推进。",
+      "highlightTarget": "workButton",
+      "pointerPosition": "above",
+      "allowSkip": true,
+      "blockInput": false,
+      "completionHint": "开始上班或停留30秒"
+    },
+    {
+      "id": "FIRST_FISH",
+      "title": "也可以摸鱼",
+      "body": "切到“摸鱼”喘口气；你随时可以选择其他行动。",
+      "highlightTarget": "fishButton",
+      "pointerPosition": "above",
+      "allowSkip": true,
+      "blockInput": false,
+      "completionHint": "开始摸鱼或停留30秒"
+    },
+    {
+      "id": "FIRST_CULTIVATE",
+      "title": "职场也能修仙",
+      "body": "尝试一次修炼，积累修为并照顾好道心。",
+      "highlightTarget": "cultivateButton",
+      "pointerPosition": "above",
+      "allowSkip": true,
+      "blockInput": false,
+      "completionHint": "完成修炼或停留30秒"
+    },
+    {
+      "id": "FIRST_TASK",
+      "title": "接个任务试试",
+      "body": "打开任务并选择一项开始；不想做也可以继续探索。",
+      "highlightTarget": "taskCard",
+      "pointerPosition": "below",
+      "allowSkip": true,
+      "blockInput": false,
+      "completionHint": "开始任务或停留30秒"
     }
   ]
 }
