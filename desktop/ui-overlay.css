@@ -1300,6 +1300,8 @@
   .ux-home-center .ux-work-today__grid { margin-top: 5px; gap: 4px; font-size: 12px; }
   .ux-home-center .ux-work-today__warning { margin-top: 5px; padding: 5px; font-size: 13px; }
   .ux-home-center .ux-work-today__actions { margin-top: 6px; gap: 8px; }
+  .ux-home-center .ux-work-today--dusk { border-color: rgba(224, 144, 42, .72); background: linear-gradient(135deg, rgba(255,244,216,.97), rgba(244,207,160,.9)); box-shadow: 0 0 16px rgba(224, 144, 42, .18); }
+  .ux-home-center .ux-work-today--dusk .ux-wt-sub { color: #8a4f20; font-weight: 700; }
   .ux-btn--ghost { background: rgba(165, 175, 186, .18); border: 1px solid var(--gray-border); color: var(--text-ink); }
 
   /* 中栏：今日已赚 */

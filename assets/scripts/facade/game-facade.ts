@@ -198,6 +198,14 @@ export class GameFacade {
   public acceptOvertime(mode: WorkMode) { return this.context.overtime.accept(mode); }
   public startVoluntaryOvertime(seconds: number, paid: boolean) { return this.context.overtime.startVoluntary(seconds, paid); }
   public finishOvertime() { this.context.overtime.finish(); }
+  /** Decline a pending overtime request without recording work, fatigue, or rewards. */
+  public declineOvertime(): { success: boolean; reason?: string } {
+    const session = this.context.overtime.current();
+    if (!session || session.status !== 'OFFERED') return { success: false, reason: '没有可拒绝的加班' };
+    this.context.overtime.finish();
+    this.context.saveService.save(this.context.player);
+    return { success: true };
+  }
   /** 当前游戏时间信息。 */
   public queryGameClock() {
     const d = this.context.clockV2.getGameDate();

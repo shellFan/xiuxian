@@ -1118,13 +1118,14 @@
     var overtime = f && typeof f.queryOvertime === 'function' ? f.queryOvertime() : null;
     var g = f && typeof f.queryGameClock === 'function' ? (function () { try { return f.queryGameClock(); } catch (e) { return null; } })() : null;
     var weekend = !!(g && g.isWeekend);
+    var preOffWork = !weekend && view.countdownMs > 0 && view.countdownMs <= 5 * 60 * 1000;
     var headline;
     if (weekend) {
       headline = '<div class="ux-work-today__headline">距离周一 <b>' + hms(timeUntilMondayMs() / 1000) + '</b><small class="ux-wt-sub">肉身自由。</small></div>';
     } else {
       var pct = Math.max(0, Math.min(100, Math.round((view.standardWorkSeconds || 0) / (8 * 3600) * 100)));
       headline = '<div class="ux-work-today__headline">距离下班 <b id="WorkTodayCountdown">' + hms(view.countdownMs / 1000) + '</b>' +
-        '<small class="ux-wt-sub">今天已熬过去 ' + pct + '%</small></div>' +
+        '<small class="ux-wt-sub">' + (preOffWork ? '下班前气氛：有人开始收拾东西了' : '今天已熬过去 ' + pct + '%') + '</small></div>' +
         '<div class="ux-wt-bar"><i style="width:' + pct + '%"></i></div>';
     }
     var overtimeBit = '';
@@ -1134,13 +1135,24 @@
         ? '免费加班 ' + hms(view.freeOvertimeSeconds || 0) + ' · 额外工资 ¥0.00 —— 工资已经下班了，你还没有。'
         : '带薪加班中 · 1.5×工资结算') + '</div>';
       action = '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="finishOvertime">结束加班</button>';
+    } else if (overtime && overtime.status === 'OFFERED') {
+      overtimeBit = '<div class="ux-work-today__warning">老板问：今晚免费再留 ' + hms(overtime.plannedSeconds) + '？额外工资仍是 ¥0.00。</div>';
+      action = '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="acceptFreeOvertime">接受</button>' +
+        '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="declineOvertime">婉拒，准时下班</button>';
+    } else if (!weekend && view.countdownMs <= 0) {
+      overtimeBit = '<div class="ux-work-today__warning">下班时间到。先结算今天，再把工位还给夜色。</div>';
+      action = f && typeof f.queryCanSettleDay === 'function' && f.queryCanSettleDay()
+        ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="doSettle">查看今日结算</button>'
+        : '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>今日已结算</button>';
     } else if (!weekend) {
       overtimeBit = '<div class="ux-work-today__grid"><span>标准工时 ' + hms(view.standardWorkSeconds) + '</span><span>加班 ' + hms(view.overtimeSeconds) + '</span><span>免费加班 ' + hms(view.freeOvertimeSeconds) + '</span></div>';
-      action = '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">今晚再卷 2 小时</button>';
+      action = preOffWork
+        ? '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="requestFreeOvertime">处理加班询问</button>'
+        : '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">今晚再卷 2 小时</button>';
     } else {
       action = '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">主动渡劫（加班 2h）</button>';
     }
-    return '<section class="ux-work-today">' + headline + overtimeBit +
+    return '<section class="ux-work-today' + (preOffWork ? ' ux-work-today--dusk' : '') + '">' + headline + overtimeBit +
       '<div class="ux-work-today__actions">' + action +
       '<button class="ux-btn ux-btn--sm ux-btn--ghost" data-action="openModal" data-modal="timeline">今日时间线</button></div>' +
       '</section>';
@@ -1914,6 +1926,38 @@
             if (!fOvertime) throw new Error('游戏尚未就绪');
             fOvertime.startVoluntaryOvertime(2 * 3600, false);
             toast('已开启 2 小时自愿奋斗：本次没有工资补偿。', 'info');
+            refresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'requestFreeOvertime': {
+          var fRequestOvertime = facade();
+          try {
+            if (!fRequestOvertime) throw new Error('游戏尚未就绪');
+            fRequestOvertime.offerOvertime('REQUESTED', true, 2 * 3600);
+            toast('老板的免费加班询问已摆到桌面上，选择权在你。', 'info');
+            refresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'acceptFreeOvertime': {
+          var fAcceptOvertime = facade();
+          try {
+            if (!fAcceptOvertime) throw new Error('游戏尚未就绪');
+            var currentMode = fAcceptOvertime.snapshot().workMode;
+            fAcceptOvertime.acceptOvertime(currentMode);
+            toast('已接受免费加班。额外工资 ¥0.00。', 'info');
+            refresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'declineOvertime': {
+          var fDeclineOvertime = facade();
+          try {
+            if (!fDeclineOvertime) throw new Error('游戏尚未就绪');
+            var declineResult = fDeclineOvertime.declineOvertime();
+            if (!declineResult.success) throw new Error(declineResult.reason || '当前无法拒绝');
+            toast('已婉拒免费加班。准时下班也是一种修行。', 'success');
             refresh();
           } catch (e) { toast(errMsg(e), 'error'); }
           break;
