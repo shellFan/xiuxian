@@ -128,6 +128,7 @@ function runFirstDay(choiceBranch: 0 | 1): FirstDayResult {
     const declined = facade.declineOvertime();
     assert.equal(declined.success, true, 'a first-day player may decline requested free overtime');
     assert.equal(facade.queryOvertime(), null);
+    assert.equal(facade.queryOvertimeStatus().status, 'COMPLETED', 'the declined decision remains projected after its session closes');
     assert.deepEqual(facade.context.player.overtimeStats, overtimeStatsBefore, 'declining records no worked overtime or reward');
 
     clock.set(Date.parse('2026-09-21T18:00:00+08:00'));

@@ -192,6 +192,15 @@ export class GameFacade {
   public queryWorkToday() { return this.context.workToday.snapshot(); }
   /** 当前显式加班会话（副本），供 UI 显示而非直接改状态。 */
   public queryOvertime() { return this.context.overtime.current(); }
+  /** 今日加班决策状态；会话结束后仍保留 COMPLETED，防止 UI 重复发起询问。 */
+  public queryOvertimeStatus() {
+    const day = this.context.gameDay.current();
+    return {
+      source: day?.overtimeSource ?? null,
+      status: day?.overtimeStatus ?? 'NONE',
+      free: day?.overtimeFree ?? false,
+    };
+  }
   public offerOvertime(source: 'VOLUNTARY' | 'REQUESTED' | 'FORCED' | 'EMERGENCY' | 'WEEKEND' | 'COMPENSATED', free: boolean, seconds: number) {
     return this.context.overtime.offer(source, free, seconds);
   }

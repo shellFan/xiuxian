@@ -1116,6 +1116,10 @@
       view = { countdownMs: 5 * 60 * 1000, standardWorkSeconds: 7 * 3600 + 55 * 60, overtimeSeconds: 0, freeOvertimeSeconds: 0, timeline: [] };
     }
     var overtime = f && typeof f.queryOvertime === 'function' ? f.queryOvertime() : null;
+    var overtimeStatus = overtime ? { source: overtime.source, status: overtime.status, free: overtime.free } : null;
+    if (f && typeof f.queryOvertimeStatus === 'function') {
+      try { overtimeStatus = f.queryOvertimeStatus(); } catch (e) { /* retain active-session projection */ }
+    }
     var g = f && typeof f.queryGameClock === 'function' ? (function () { try { return f.queryGameClock(); } catch (e) { return null; } })() : null;
     var weekend = !!(g && g.isWeekend);
     var preOffWork = !weekend && view.countdownMs > 0 && view.countdownMs <= 5 * 60 * 1000;
@@ -1146,9 +1150,13 @@
         : '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>今日已结算</button>';
     } else if (!weekend) {
       overtimeBit = '<div class="ux-work-today__grid"><span>标准工时 ' + hms(view.standardWorkSeconds) + '</span><span>加班 ' + hms(view.overtimeSeconds) + '</span><span>免费加班 ' + hms(view.freeOvertimeSeconds) + '</span></div>';
-      action = preOffWork
-        ? '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="requestFreeOvertime">处理加班询问</button>'
-        : '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">今晚再卷 2 小时</button>';
+      if (preOffWork && overtimeStatus && overtimeStatus.status === 'COMPLETED') {
+        action = '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>加班询问已处理</button>';
+      } else {
+        action = preOffWork
+          ? '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="requestFreeOvertime">处理加班询问</button>'
+          : '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">今晚再卷 2 小时</button>';
+      }
     } else {
       action = '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">主动渡劫（加班 2h）</button>';
     }
