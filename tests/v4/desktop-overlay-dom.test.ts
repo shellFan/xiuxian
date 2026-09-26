@@ -58,13 +58,9 @@ async function runInElectron(): Promise<void> {
         settleCalls: 0,
         salary: 288,
         selectorCalls: 0,
-        pendingPrepareCalls: 0,
-        modalOpenCalls: [],
         presentations: {
           s1: null,
           pending: null,
-          promotion: null,
-          tutorial: null,
           workplace: null,
           daily: null,
           info: null
@@ -81,7 +77,6 @@ async function runInElectron(): Promise<void> {
         maybeShowSettlementModal: function () { this.open('DAILY'); },
         showDefenseModal: function () { this.open('PROMOTION'); },
         open: function (kind) {
-          window.__overlayContract.modalOpenCalls.push(kind);
           this.host.popupLayer().innerHTML = '<div class="ux-modal-layer" data-v2-stub="' + kind + '"></div>';
         }
       };
@@ -110,12 +105,7 @@ async function runInElectron(): Promise<void> {
           var pending = window.__overlayContract.presentations.pending;
           return pending ? { session: pending.session, current: pending.current, items: [pending.current], overflowSummary: null } : { session: null, current: null, items: [], overflowSummary: null };
         },
-        prepareOfflineDecisions: function () {
-          window.__overlayContract.pendingPrepareCalls += 1;
-          return this.queryOfflineDecisions();
-        },
-        queryPromotionCheckV2: function () { return window.__overlayContract.presentations.promotion; },
-        queryTutorial: function () { return window.__overlayContract.presentations.tutorial; },
+        prepareOfflineDecisions: function () { return this.queryOfflineDecisions(); },
         queryV2CurrentEvent: function () { return window.__overlayContract.presentations.workplace; },
         queryWeekendChosen: function () { return !window.__overlayContract.presentations.daily; },
         queryWeekendOptions: function () { return window.__overlayContract.presentations.daily ? [{ id: 'REST', name: '休息', description: '恢复' }] : []; },
@@ -185,60 +175,111 @@ async function runInElectron(): Promise<void> {
     await win.webContents.executeJavaScript(`document.querySelector('[data-action="doSettle"]').click()`);
     assert.equal(await win.webContents.executeJavaScript(`window.__overlayContract.settleCalls`), 1);
 
-    const priorityResult = await win.webContents.executeJavaScript(`(function () {
-      var state = window.__overlayContract;
-      state.canSettle = false;
-      state.presentations = {
-        s1: { id: 'incident-s1', severity: 'S1', status: 'DETECTED' },
-        pending: {
-          session: { settlementId: 'offline-1', pendingEventIds: ['pending-1'], cursor: 0, resolvedEventIds: [], status: 'PENDING' },
-          current: { id: 'pending-1', eventId: 'task:p0', occurredAt: 1, priority: 'CRITICAL' }
+    const lifecycleWin = win;
+    await lifecycleWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(
+      `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body><div id="UiOverlay"></div></body></html>`,
+    )}`);
+    const playerModule = join(process.cwd(), 'tests', '.compiled', 'assets', 'scripts', 'model', 'player-data.js');
+    const storageModule = join(process.cwd(), 'tests', '.compiled', 'assets', 'scripts', 'services', 'storage-adapter.js');
+    const clockModule = join(process.cwd(), 'tests', '.compiled', 'assets', 'scripts', 'core', 'clock.js');
+    const lifecycleSetup = await lifecycleWin.webContents.executeJavaScript(`(function () { try {
+      var GameFacade = require(${JSON.stringify(facadeModule)}).GameFacade;
+      var PlayerData = require(${JSON.stringify(playerModule)}).PlayerData;
+      var MemoryStorageAdapter = require(${JSON.stringify(storageModule)}).MemoryStorageAdapter;
+      var FakeClock = require(${JSON.stringify(clockModule)}).FakeClock;
+      var player = new PlayerData({
+        lastSaveTime: 1000,
+        tutorialStartedAt: 1,
+        pendingEvents: [{ uid: 'pending-real', eventId: 'task:p0-real', occurredAt: 900, priority: 'CRITICAL' }],
+        offlineDecisionSession: {
+          settlementId: 'offline-rs', pendingEventIds: ['pending-real'], cursor: 0,
+          resolvedEventIds: [], status: 'PENDING'
         },
-        promotion: { id: 'promotion-1', allowed: true, presentationPending: true },
-        tutorial: { id: 'tutorial-1', currentStep: 'WELCOME', isCompleted: false, critical: true },
-        workplace: { id: 'workplace-1', title: '临时需求', category: 'WORKPLACE', choices: [] },
-        daily: { id: 'daily-1', dayIndex: 1 },
-        info: { id: 'info-1', title: '普通消息', type: 'INFO', effects: {} }
+        incidents: [{
+          id: 'incident-real', type: 'PAYMENT_FAILURE', severity: 'S1', dayIndex: 1, createdAt: 800,
+          status: 'DETECTED', forcedRelease: false, riskConfirmed: false, mitigationSeconds: 0
+        }]
+      });
+      var gameFacade = new GameFacade({
+        player: player, clock: new FakeClock(600000), storage: new MemoryStorageAdapter(), board: null
+      });
+      if (!gameFacade.devForceEvent('incident_s2')) throw new Error('actual workplace event fixture unavailable');
+      var selected = [];
+      var realSelector = gameFacade.queryNextPresentation.bind(gameFacade);
+      gameFacade.queryNextPresentation = function (candidates) {
+        var result = realSelector(candidates);
+        if (result) selected.push({ id: result.id, kind: result.kind });
+        return result;
       };
-      var order = ['S1', 'PENDING', 'PROMOTION', 'TUTORIAL_CRITICAL', 'WORKPLACE', 'DAILY', 'INFO'];
-      var keys = ['s1', 'pending', 'promotion', 'tutorial', 'workplace', 'daily', 'info'];
-      var opened = [];
-      var lowerStatePreserved = true;
-      var exactlyOneEachTime = true;
-      var selectorCallsBefore = state.selectorCalls;
-      var pendingPrepareCalls = [];
-      for (var i = 0; i < order.length; i += 1) {
-        var lowerBefore = keys.slice(i + 1).map(function (key) { return JSON.stringify(state.presentations[key]); });
-        var openCountBefore = state.modalOpenCalls.length;
-        window.UiOverlay.dispatchNextModal();
-        var layer = document.querySelector('#PopupLayer .ux-modal-layer');
-        opened.push(layer && layer.getAttribute('data-presentation-kind'));
-        pendingPrepareCalls.push(state.pendingPrepareCalls);
-        exactlyOneEachTime = exactlyOneEachTime && document.querySelectorAll('#PopupLayer .ux-modal-layer').length === 1
-          && state.modalOpenCalls.length - openCountBefore <= 1;
-        lowerStatePreserved = lowerStatePreserved && keys.slice(i + 1).every(function (key, index) {
-          return JSON.stringify(state.presentations[key]) === lowerBefore[index];
-        });
-        window.UiOverlay.closePopup();
-        state.presentations[keys[i]] = null;
-      }
+      window.__LIFECYCLE__ = { facade: gameFacade, player: player, selected: selected };
+      window.__GAME_FACADE__ = gameFacade;
+      window.V2UI = {
+        init: function (host) { this.host = host; },
+        situationHtml: function () { return ''; },
+        promotionPageHtml: function () { return ''; },
+        maybeShowV2EventModal: function () {
+          this.host.popupLayer().innerHTML = '<div class="ux-modal-layer"><div data-actual-workplace>workplace</div></div>';
+        },
+        maybeShowWeekendModal: function () {},
+        maybeShowSettlementModal: function () {},
+        showDefenseModal: function () {}
+      };
       return {
-        opened: opened,
-        expected: order,
-        exactlyOneEachTime: exactlyOneEachTime,
-        lowerStatePreserved: lowerStatePreserved,
-        pendingPrepareCalls: pendingPrepareCalls,
-        selectorCalls: state.selectorCalls - selectorCallsBefore
+        promotionKeys: Object.keys(gameFacade.queryPromotionCheckV2()).sort(),
+        tutorialKeys: Object.keys(gameFacade.queryTutorial()).sort()
       };
+    } catch (error) { return { error: error && error.stack ? error.stack : String(error) }; } })()`);
+    assert.equal(lifecycleSetup.error, undefined, lifecycleSetup.error);
+    assert.equal(lifecycleSetup.promotionKeys.includes('presentationPending'), false, 'actual promotion facade shape has no fabricated persistence flag');
+    assert.equal(lifecycleSetup.tutorialKeys.includes('critical'), false, 'actual tutorial facade shape has no fabricated critical flag');
+
+    const lifecycleLoaded = await lifecycleWin.webContents.executeJavaScript(`(function () {
+      try { (0, eval)(${JSON.stringify(overlay)}); return { ok: true }; }
+      catch (error) { return { ok: false, message: error && error.stack ? error.stack : String(error) }; }
     })()`);
-    assert.deepEqual(priorityResult.opened, priorityResult.expected, 'desktop dispatch follows S1 > pending > promotion > tutorial > workplace > daily > info');
-    assert.equal(priorityResult.exactlyOneEachTime, true, 'desktop dispatch opens exactly one modal per pass');
-    assert.equal(priorityResult.lowerStatePreserved, true, 'opening a higher-priority modal does not consume lower canonical facade projections');
-    assert.deepEqual(priorityResult.pendingPrepareCalls.slice(0, 2), [0, 1], 'pending preparation is deferred until the pending modal actually wins arbitration');
-    assert.equal(priorityResult.selectorCalls, 7, 'every desktop dispatch pass delegates arbitration to GameFacade');
+    assert.equal(lifecycleLoaded.ok, true, lifecycleLoaded.message);
+    await waitFor(lifecycleWin, `document.querySelector('[data-presentation-kind="S1"]') !== null`);
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    const startup = await lifecycleWin.webContents.executeJavaScript(`({
+      kind: document.querySelector('#PopupLayer .ux-modal-layer') && document.querySelector('#PopupLayer .ux-modal-layer').getAttribute('data-presentation-kind'),
+      modalCount: document.querySelectorAll('#PopupLayer .ux-modal-layer').length,
+      hasWelcome: document.querySelector('#WelcomeContinueBtn') !== null,
+      pendingCurrent: window.__LIFECYCLE__.facade.queryOfflineDecisions().current,
+      workplaceCurrent: window.__LIFECYCLE__.facade.queryV2CurrentEvent()
+    })`);
+    assert.equal(startup.kind, 'S1', 'startup arbitration must keep the actual S1 above welcome and pending');
+    assert.equal(startup.modalCount, 1, 'startup opens exactly one modal');
+    assert.equal(startup.hasWelcome, false, 'the delayed welcome cannot overwrite an open S1');
+    assert.equal(startup.pendingCurrent.id, 'pending-real', 'the canonical pending decision survives S1 presentation');
+    assert.equal(startup.workplaceCurrent.id, 'incident_s2', 'the canonical workplace event survives S1 presentation');
+
+    await lifecycleWin.webContents.executeJavaScript(`
+      window.__LIFECYCLE__.player.incidents[0].status = 'RECOVERED';
+      document.querySelector('.ux-dialog-actions .ux-btn').click();
+    `);
+    await waitFor(lifecycleWin, `document.querySelector('#WelcomeContinueBtn') !== null`);
+    await lifecycleWin.webContents.executeJavaScript(`document.querySelector('#WelcomeContinueBtn').click()`);
+    await waitFor(lifecycleWin, `document.querySelector('[data-offline-decision-action]') !== null`);
+    await lifecycleWin.webContents.executeJavaScript(`document.querySelector('[data-offline-decision-action]').click()`);
+    await waitFor(lifecycleWin, `document.querySelector('[data-actual-workplace]') !== null`);
+
+    const lifecycleResult = await lifecycleWin.webContents.executeJavaScript(`({
+      selected: window.__LIFECYCLE__.selected,
+      pendingStatus: window.__LIFECYCLE__.player.offlineDecisionSession.status,
+      pendingEvents: window.__LIFECYCLE__.player.pendingEvents.map(function (event) { return event.uid; }),
+      modalCount: document.querySelectorAll('#PopupLayer .ux-modal-layer').length
+    })`);
+    assert.deepEqual(
+      lifecycleResult.selected.slice(0, 4).map((entry: { id: string }) => entry.id),
+      ['incident:incident-real', 'startup:welcome', 'pending:pending-real', 'workplace:incident_s2'],
+      'close/continue/resolve redispatches the retained actual projections through one facade arbitration path',
+    );
+    assert.equal(lifecycleResult.pendingStatus, 'COMPLETED');
+    assert.deepEqual(lifecycleResult.pendingEvents, []);
+    assert.equal(lifecycleResult.modalCount, 1, 'each lifecycle transition keeps exactly one modal open');
 
     console.log('desktop overlay DOM contract tests passed');
-    win.destroy();
+    lifecycleWin.destroy();
     app.quit();
   } catch (error) {
     console.error(error);

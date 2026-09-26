@@ -475,10 +475,23 @@
 
   function popupLayer() { return $('#PopupLayer'); }
 
+  var _startupWelcomePending = false;
+  var _modalRedispatchScheduled = false;
+
+  function scheduleModalRedispatch() {
+    if (_modalRedispatchScheduled) return;
+    _modalRedispatchScheduled = true;
+    setTimeout(function () {
+      _modalRedispatchScheduled = false;
+      dispatchNextModal();
+    }, 0);
+  }
+
   function closePopup() {
     var layer = popupLayer();
     if (layer) layer.innerHTML = '';
     _adTimer && clearInterval(_adTimer); _adTimer = null;
+    scheduleModalRedispatch();
   }
 
   function popupOpen() {
@@ -504,8 +517,6 @@
     var candidates = [];
     var incidentState = null;
     var decisions = null;
-    var promotion = null;
-    var tutorial = null;
     var workplace = null;
     var canSettle = false;
     var weekend = null;
@@ -515,8 +526,6 @@
 
     try { incidentState = f.queryIncidentState ? f.queryIncidentState() : null; } catch (e) { incidentState = null; }
     try { decisions = f.queryOfflineDecisions ? f.queryOfflineDecisions() : null; } catch (e) { decisions = null; }
-    try { promotion = f.queryPromotionCheckV2 ? f.queryPromotionCheckV2() : null; } catch (e) { promotion = null; }
-    try { tutorial = f.queryTutorial ? f.queryTutorial() : null; } catch (e) { tutorial = null; }
     try { workplace = f.queryV2CurrentEvent ? f.queryV2CurrentEvent() : null; } catch (e) { workplace = null; }
     try { canSettle = !!(f.queryCanSettleDay && f.queryCanSettleDay()); } catch (e) { canSettle = false; }
     try {
@@ -542,21 +551,21 @@
         },
       });
     }
+    if (_startupWelcomePending) {
+      candidates.push({
+        id: 'startup:welcome', kind: 'PENDING', projection: null,
+        open: function () {
+          _startupWelcomePending = false;
+          showWelcomeBackPopup();
+        },
+      });
+    }
     if (decisions && decisions.session && decisions.session.status === 'PENDING' && decisions.current) {
       candidates.push({ id: 'pending:' + decisions.current.id, kind: 'PENDING', projection: decisions.current, open: showOfflineDecisionPopup });
     }
-    /* Promotion/tutorial only participate when there is an actual current UI attempt. */
+    /* Promotion/tutorial participate only as an actual current UI attempt. */
     if (requestedAttempt && requestedAttempt.kind === 'PROMOTION') candidates.push(requestedAttempt);
-    else if (promotion && promotion.presentationPending) {
-      candidates.push({ id: String(promotion.id || 'promotion'), kind: 'PROMOTION', projection: promotion, open: function () { if (V2) V2.showDefenseModal(); } });
-    }
     if (requestedAttempt && requestedAttempt.kind === 'TUTORIAL_CRITICAL') candidates.push(requestedAttempt);
-    else if (tutorial && tutorial.critical) {
-      candidates.push({
-        id: String(tutorial.id || tutorial.currentStep || 'tutorial'), kind: 'TUTORIAL_CRITICAL', projection: tutorial,
-        open: function () { showDialog('关键指引', escHtml(tutorial.message || '完成当前指引后即可继续。'), [{ label: '知道了', cls: 'gold' }]); },
-      });
-    }
     if (workplace) candidates.push({ id: 'workplace:' + workplace.id, kind: 'WORKPLACE', projection: workplace, open: function () { if (V2) V2.maybeShowV2EventModal(); } });
     if (canSettle || weekend) {
       candidates.push({
@@ -846,8 +855,7 @@
         toast(errMsg(e), 'error');
         return;
       }
-      if (hasPending) showOfflineDecisionPopup();
-      else closePopup();
+      closePopup();
       refresh();
     });
   }
@@ -896,7 +904,8 @@
       try {
         var result = f.performOfflineDecision(current.id);
         if (!result || !result.success) toast('该事项状态已变化，正在恢复进度', 'error');
-        showOfflineDecisionPopup();
+        closePopup();
+        refresh();
       } catch (e) { toast(errMsg(e), 'error'); }
     });
   }
@@ -2353,7 +2362,10 @@
         console.log('[UI] GameFacade ready — switching to live data');
         _demoMode = false;
         subscribeEvents();
-        setTimeout(function () { showWelcomeBackPopup(); }, 1200);
+        setTimeout(function () {
+          _startupWelcomePending = true;
+          dispatchNextModal();
+        }, 1200);
         refresh();
       } else if (attempts >= 100) {
         clearInterval(poll);
