@@ -58,6 +58,7 @@ async function runInElectron(): Promise<void> {
         settleCalls: 0,
         salary: 288,
         selectorCalls: 0,
+        pendingPrepareCalls: 0,
         modalOpenCalls: [],
         presentations: {
           s1: null,
@@ -105,9 +106,13 @@ async function runInElectron(): Promise<void> {
           return realSelector.call(this, candidates);
         },
         queryIncidentState: function () { return { active: window.__overlayContract.presentations.s1, recent: [], risk: 0 }; },
-        prepareOfflineDecisions: function () {
+        queryOfflineDecisions: function () {
           var pending = window.__overlayContract.presentations.pending;
           return pending ? { session: pending.session, current: pending.current, items: [pending.current], overflowSummary: null } : { session: null, current: null, items: [], overflowSummary: null };
+        },
+        prepareOfflineDecisions: function () {
+          window.__overlayContract.pendingPrepareCalls += 1;
+          return this.queryOfflineDecisions();
         },
         queryPromotionCheckV2: function () { return window.__overlayContract.presentations.promotion; },
         queryTutorial: function () { return window.__overlayContract.presentations.tutorial; },
@@ -201,12 +206,14 @@ async function runInElectron(): Promise<void> {
       var lowerStatePreserved = true;
       var exactlyOneEachTime = true;
       var selectorCallsBefore = state.selectorCalls;
+      var pendingPrepareCalls = [];
       for (var i = 0; i < order.length; i += 1) {
         var lowerBefore = keys.slice(i + 1).map(function (key) { return JSON.stringify(state.presentations[key]); });
         var openCountBefore = state.modalOpenCalls.length;
         window.UiOverlay.dispatchNextModal();
         var layer = document.querySelector('#PopupLayer .ux-modal-layer');
         opened.push(layer && layer.getAttribute('data-presentation-kind'));
+        pendingPrepareCalls.push(state.pendingPrepareCalls);
         exactlyOneEachTime = exactlyOneEachTime && document.querySelectorAll('#PopupLayer .ux-modal-layer').length === 1
           && state.modalOpenCalls.length - openCountBefore <= 1;
         lowerStatePreserved = lowerStatePreserved && keys.slice(i + 1).every(function (key, index) {
@@ -220,12 +227,14 @@ async function runInElectron(): Promise<void> {
         expected: order,
         exactlyOneEachTime: exactlyOneEachTime,
         lowerStatePreserved: lowerStatePreserved,
+        pendingPrepareCalls: pendingPrepareCalls,
         selectorCalls: state.selectorCalls - selectorCallsBefore
       };
     })()`);
     assert.deepEqual(priorityResult.opened, priorityResult.expected, 'desktop dispatch follows S1 > pending > promotion > tutorial > workplace > daily > info');
     assert.equal(priorityResult.exactlyOneEachTime, true, 'desktop dispatch opens exactly one modal per pass');
     assert.equal(priorityResult.lowerStatePreserved, true, 'opening a higher-priority modal does not consume lower canonical facade projections');
+    assert.deepEqual(priorityResult.pendingPrepareCalls.slice(0, 2), [0, 1], 'pending preparation is deferred until the pending modal actually wins arbitration');
     assert.equal(priorityResult.selectorCalls, 7, 'every desktop dispatch pass delegates arbitration to GameFacade');
 
     console.log('desktop overlay DOM contract tests passed');

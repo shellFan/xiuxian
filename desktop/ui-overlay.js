@@ -514,7 +514,7 @@
     var finishedBattle = null;
 
     try { incidentState = f.queryIncidentState ? f.queryIncidentState() : null; } catch (e) { incidentState = null; }
-    try { decisions = f.prepareOfflineDecisions ? f.prepareOfflineDecisions() : null; } catch (e) { decisions = null; }
+    try { decisions = f.queryOfflineDecisions ? f.queryOfflineDecisions() : null; } catch (e) { decisions = null; }
     try { promotion = f.queryPromotionCheckV2 ? f.queryPromotionCheckV2() : null; } catch (e) { promotion = null; }
     try { tutorial = f.queryTutorial ? f.queryTutorial() : null; } catch (e) { tutorial = null; }
     try { workplace = f.queryV2CurrentEvent ? f.queryV2CurrentEvent() : null; } catch (e) { workplace = null; }

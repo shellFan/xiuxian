@@ -333,6 +333,25 @@ export class GameFacade {
   }
   /** Creates or resumes the ID-only canonical pending-event decision session. */
   public prepareOfflineDecisions() { return this.context.autoPolicy.prepareOfflineDecisionSession(); }
+  /** Read-only pending-decision projection used while modal priority is being arbitrated. */
+  public queryOfflineDecisions() {
+    const canonicalSession = this.context.player.offlineDecisionSession;
+    if (!canonicalSession) return { session: null, current: null, items: [], overflowSummary: null };
+    const session = {
+      settlementId: canonicalSession.settlementId,
+      pendingEventIds: [...canonicalSession.pendingEventIds],
+      cursor: canonicalSession.cursor,
+      resolvedEventIds: [...canonicalSession.resolvedEventIds],
+      status: canonicalSession.status,
+    };
+    const byId = new Map(this.context.player.pendingEvents.map((event) => [event.uid, event]));
+    const items = session.pendingEventIds
+      .slice(session.cursor)
+      .map((id) => byId.get(id))
+      .filter((event): event is NonNullable<typeof event> => event !== undefined)
+      .map((event) => ({ id: event.uid, eventId: event.eventId, occurredAt: event.occurredAt, priority: event.priority }));
+    return { session, current: items[0] ?? null, items, overflowSummary: null };
+  }
   /** Accepts exactly the current canonical decision and advances its durable cursor. */
   public performOfflineDecision(pendingEventId: string) { return this.context.autoPolicy.performOfflineDecision(pendingEventId); }
   public setAutoPolicy(policy: AutoPolicy) { return this.context.autoPolicy.setPolicy(policy); }

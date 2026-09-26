@@ -533,6 +533,17 @@ test('GameFacade: UI presentation boundary selects canonical projections by prio
   facade.destroy();
 });
 
+test('GameFacade: pending presentation query is read-only and never prepares a decision session', () => {
+  const pendingEvent = { uid: 'pending-read-only', eventId: 'task:p0', occurredAt: 123, priority: 'IMPORTANT' as const };
+  const player = new PlayerData({ pendingEvents: [pendingEvent], offlineDecisionSession: null });
+  const facade = new GameFacade({ player, storage: new MemoryStorageAdapter(), board: null });
+
+  assert.deepEqual(facade.queryOfflineDecisions(), { session: null, current: null, items: [], overflowSummary: null });
+  assert.equal(player.offlineDecisionSession, null, 'read-only arbitration must not create the durable session');
+  assert.deepEqual(player.pendingEvents, [pendingEvent], 'read-only arbitration must not rewrite canonical pending events');
+  facade.destroy();
+});
+
 test('GameFacade: UI incident projection withholds first-five-minute S1 without hiding canonical state', () => {
   const clock = new FakeClock(1_000);
   const player = new PlayerData({
