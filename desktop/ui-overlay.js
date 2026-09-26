@@ -486,6 +486,99 @@
     return !!layer && layer.innerHTML !== '';
   }
 
+  function markPresentation(kind) {
+    var layer = popupLayer();
+    var modal = layer && $('.ux-modal-layer', layer);
+    if (modal) modal.setAttribute('data-presentation-kind', kind);
+  }
+
+  /*
+   * One-shot arbitration over the current canonical Facade projections.
+   * Candidates are rebuilt on every pass and are never retained or consumed here;
+   * their owning services remain the sole source of truth.
+   */
+  function dispatchNextModal(requestedAttempt) {
+    if (popupOpen()) return null;
+    var f = facade();
+    if (!f || typeof f.queryNextPresentation !== 'function') return null;
+    var candidates = [];
+    var incidentState = null;
+    var decisions = null;
+    var promotion = null;
+    var tutorial = null;
+    var workplace = null;
+    var canSettle = false;
+    var weekend = null;
+    var info = null;
+    var battle = null;
+    var finishedBattle = null;
+
+    try { incidentState = f.queryIncidentState ? f.queryIncidentState() : null; } catch (e) { incidentState = null; }
+    try { decisions = f.prepareOfflineDecisions ? f.prepareOfflineDecisions() : null; } catch (e) { decisions = null; }
+    try { promotion = f.queryPromotionCheckV2 ? f.queryPromotionCheckV2() : null; } catch (e) { promotion = null; }
+    try { tutorial = f.queryTutorial ? f.queryTutorial() : null; } catch (e) { tutorial = null; }
+    try { workplace = f.queryV2CurrentEvent ? f.queryV2CurrentEvent() : null; } catch (e) { workplace = null; }
+    try { canSettle = !!(f.queryCanSettleDay && f.queryCanSettleDay()); } catch (e) { canSettle = false; }
+    try {
+      var clock = f.queryGameClock ? f.queryGameClock() : null;
+      var weekendOptions = f.queryWeekendOptions ? f.queryWeekendOptions() : null;
+      var weekendChosen = f.queryWeekendChosen ? f.queryWeekendChosen() : true;
+      if (clock && clock.isWeekend && !weekendChosen && weekendOptions && weekendOptions.length) weekend = weekendOptions;
+    } catch (e) { weekend = null; }
+    try { info = f.queryCurrentEvent ? f.queryCurrentEvent() : null; } catch (e) { info = null; }
+    try { battle = f.queryBattle ? f.queryBattle() : null; } catch (e) { battle = null; }
+    try { finishedBattle = f.queryFinishedBattle ? f.queryFinishedBattle() : null; } catch (e) { finishedBattle = null; }
+
+    var activeIncident = incidentState && incidentState.active;
+    if (activeIncident && activeIncident.severity === 'S1') {
+      candidates.push({
+        id: 'incident:' + activeIncident.id,
+        kind: 'S1',
+        projection: activeIncident,
+        open: function () {
+          showDialog('S1 生产事故', '<b>' + escHtml(activeIncident.type || activeIncident.id) + '</b><br>事故仍保留在正式状态中，请立即进入处置流程。', [
+            { label: '立即处理', cls: 'gold' },
+          ]);
+        },
+      });
+    }
+    if (decisions && decisions.session && decisions.session.status === 'PENDING' && decisions.current) {
+      candidates.push({ id: 'pending:' + decisions.current.id, kind: 'PENDING', projection: decisions.current, open: showOfflineDecisionPopup });
+    }
+    /* Promotion/tutorial only participate when there is an actual current UI attempt. */
+    if (requestedAttempt && requestedAttempt.kind === 'PROMOTION') candidates.push(requestedAttempt);
+    else if (promotion && promotion.presentationPending) {
+      candidates.push({ id: String(promotion.id || 'promotion'), kind: 'PROMOTION', projection: promotion, open: function () { if (V2) V2.showDefenseModal(); } });
+    }
+    if (requestedAttempt && requestedAttempt.kind === 'TUTORIAL_CRITICAL') candidates.push(requestedAttempt);
+    else if (tutorial && tutorial.critical) {
+      candidates.push({
+        id: String(tutorial.id || tutorial.currentStep || 'tutorial'), kind: 'TUTORIAL_CRITICAL', projection: tutorial,
+        open: function () { showDialog('关键指引', escHtml(tutorial.message || '完成当前指引后即可继续。'), [{ label: '知道了', cls: 'gold' }]); },
+      });
+    }
+    if (workplace) candidates.push({ id: 'workplace:' + workplace.id, kind: 'WORKPLACE', projection: workplace, open: function () { if (V2) V2.maybeShowV2EventModal(); } });
+    if (canSettle || weekend) {
+      candidates.push({
+        id: canSettle ? 'daily:settlement' : 'daily:weekend', kind: 'DAILY', projection: canSettle ? f.queryGameDay() : weekend,
+        open: function () { if (V2) { if (canSettle) V2.maybeShowSettlementModal(); else V2.maybeShowWeekendModal(); } },
+      });
+    }
+    if (info || (battle && battle.skillOffers && battle.skillOffers.length) || finishedBattle) {
+      candidates.push({
+        id: info ? 'info:' + info.id : 'info:battle', kind: 'INFO', projection: info || finishedBattle || battle,
+        open: function () { if (info) maybeShowEventPopup(); else maybeShowBattleModals(); },
+      });
+    }
+    if (requestedAttempt && requestedAttempt.kind !== 'PROMOTION' && requestedAttempt.kind !== 'TUTORIAL_CRITICAL') candidates.push(requestedAttempt);
+
+    var selected = f.queryNextPresentation(candidates);
+    if (!selected) return null;
+    selected.open();
+    markPresentation(selected.kind);
+    return selected.projection || null;
+  }
+
   /* 通用对话框 */
   function showDialog(title, bodyHtml, actions) {
     var layer = popupLayer();
@@ -2021,7 +2114,15 @@
           break;
         }
         case 'startDefense':
-          if (V2) V2.showDefenseModal();
+          if (V2) {
+            var fPromotion = facade();
+            var promotionProjection = null;
+            try { promotionProjection = fPromotion && fPromotion.queryPromotionCheckV2 ? fPromotion.queryPromotionCheckV2() : null; } catch (e) { promotionProjection = null; }
+            dispatchNextModal({
+              id: 'promotion:requested', kind: 'PROMOTION', projection: promotionProjection,
+              open: function () { V2.showDefenseModal(); },
+            });
+          }
           break;
         case 'doSettle': {
           var fSettle = facade();
@@ -2231,6 +2332,7 @@
     showWelcomeBackPopup: showWelcomeBackPopup,
     showDialog: showDialog,
     closePopup: closePopup,
+    dispatchNextModal: dispatchNextModal,
   };
 
   /* ═════════════════════════════════════════════════════════
@@ -2284,13 +2386,7 @@
       _cdCache = {};
       if (!popupOpen()) {
         refresh();
-        maybeShowEventPopup();
-        if (V2) {
-          V2.maybeShowV2EventModal();
-          V2.maybeShowWeekendModal();
-          V2.maybeShowSettlementModal();
-        }
-        maybeShowBattleModals();
+        dispatchNextModal();
       }
     }, 1000);
   }
