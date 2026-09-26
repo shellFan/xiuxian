@@ -45,6 +45,7 @@ import type { BoardPosition } from '../game/merge/merge-types';
 import type { AutoPolicy } from '../model/save-data';
 import type { WelcomeAction } from '../v3/auto-policy-service';
 import { selectOfflineWelcomeLine } from '../v3/offline-welcome-content';
+import { selectNextPresentation, type PresentationCandidate } from '../v2/v2-event-service';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -228,6 +229,10 @@ export class GameFacade {
   public queryV2CurrentEvent() { return this.context.v2Events.currentEvent(); }
   public queryV2CurrentChoices() { return this.context.v2Events.currentChoices(); }
   public resolveV2Event(choiceId: string | null) { return this.context.v2Events.choose(choiceId); }
+  /** UI-only arbitration over projections supplied by their canonical owners. */
+  public queryNextPresentation<T extends PresentationCandidate>(canonicalOwnerProjections: readonly T[]): T | null {
+    return selectNextPresentation(canonicalOwnerProjections);
+  }
   /** V2 物品系统。 */
   public queryMaterialCount(id: string) { return this.context.v2Items.materialCount(id); }
   public queryAllMaterials() { return ({ ...this.context.player.materials }); }
@@ -278,7 +283,11 @@ export class GameFacade {
   public clearCaseWithEvidence(caseId: string) { return this.context.responsibility.clearWithEvidence(caseId); }
   /** 活跃事故 + 最近事故历史。 */
   public queryIncidentState() {
-    return { active: this.context.incidents.presentableActive(), recent: this.context.incidents.all().slice(-6), risk: this.context.incidents.currentRisk() };
+    const canonicalActive = this.context.incidents.active();
+    const active = this.context.incidents.presentableActive();
+    const hiddenActiveId = canonicalActive && !active ? canonicalActive.id : null;
+    const recent = this.context.incidents.all().filter((incident) => incident.id !== hiddenActiveId).slice(-6);
+    return { active, recent, risk: this.context.incidents.currentRisk() };
   }
   public mitigateIncident(incidentId: string, minutes: number) { return this.context.incidents.mitigate(incidentId, Math.max(0, Math.floor(minutes)) * 60); }
   public recoverIncident(incidentId: string, summary?: string) { return this.context.incidents.recover(incidentId, summary); }

@@ -509,6 +509,30 @@ test('GameFacade: snapshot returns valid data', () => {
   facade.destroy();
 });
 
+test('GameFacade: UI presentation boundary selects canonical projections by priority without consuming them', () => {
+  const facade = new GameFacade({ storage: new MemoryStorageAdapter(), board: null });
+  const canonicalProjections = [
+    { id: 'info', kind: 'INFO' as const },
+    { id: 'daily', kind: 'DAILY' as const },
+    { id: 'workplace', kind: 'WORKPLACE' as const },
+    { id: 'tutorial', kind: 'TUTORIAL_CRITICAL' as const },
+    { id: 'promotion', kind: 'PROMOTION' as const },
+    { id: 'pending', kind: 'PENDING' as const },
+    { id: 's1', kind: 'S1' as const },
+  ];
+  const expected = ['s1', 'pending', 'promotion', 'tutorial', 'workplace', 'daily', 'info'];
+  let remaining = [...canonicalProjections];
+
+  for (const id of expected) {
+    const selected = facade.queryNextPresentation(remaining);
+    assert.equal(selected?.id, id);
+    assert.strictEqual(selected, canonicalProjections.find((candidate) => candidate.id === id), 'facade returns the canonical owner projection');
+    remaining = remaining.filter((candidate) => candidate !== selected);
+  }
+  assert.deepEqual(canonicalProjections.map((candidate) => candidate.id), ['info', 'daily', 'workplace', 'tutorial', 'promotion', 'pending', 's1']);
+  facade.destroy();
+});
+
 test('GameFacade: UI incident projection withholds first-five-minute S1 without hiding canonical state', () => {
   const clock = new FakeClock(1_000);
   const player = new PlayerData({
@@ -521,8 +545,28 @@ test('GameFacade: UI incident projection withholds first-five-minute S1 without 
   const facade = new GameFacade({ player, clock, storage: new MemoryStorageAdapter(), board: null });
   assert.equal(facade.context.incidents.active()?.id, 'facade-s1', 'business access remains canonical');
   assert.equal(facade.queryIncidentState().active, null, 'UI projection is protected during the persisted window');
-  clock.advance(300_000);
-  assert.equal(facade.queryIncidentState().active?.id, 'facade-s1');
+  assert.deepEqual(facade.queryIncidentState().recent, [], 'the protected active S1 cannot leak through recent incidents');
+  assert.equal(facade.context.player.incidents[0]?.id, 'facade-s1', 'presentation filtering does not mutate canonical incidents');
+  clock.advance(299_999);
+  assert.equal(facade.queryIncidentState().active, null);
+  assert.deepEqual(facade.queryIncidentState().recent, []);
+  clock.advance(1);
+  assert.equal(facade.queryIncidentState().active?.id, 'facade-s1', 'the half-open protection window releases at exactly 300000ms');
+  assert.deepEqual(facade.queryIncidentState().recent.map((incident) => incident.id), ['facade-s1']);
+  facade.destroy();
+});
+
+test('GameFacade: DEV force-event path bypasses first-five-minute S1 presentation protection', () => {
+  const clock = new FakeClock(1_000);
+  const facade = new GameFacade({
+    player: new PlayerData({ tutorialStartedAt: 1_000 }),
+    clock,
+    storage: new MemoryStorageAdapter(),
+    board: null,
+  });
+
+  assert.equal(facade.devForceEvent('wp_incident_boss_random'), true);
+  assert.equal(facade.queryV2CurrentEvent()?.id, 'wp_incident_boss_random');
   facade.destroy();
 });
 
