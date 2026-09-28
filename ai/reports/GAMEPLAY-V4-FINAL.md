@@ -1,169 +1,164 @@
 =============================================
-牛马修仙传 GAMEPLAY V4 ALPHA HANDOFF
+牛马修仙传 GAMEPLAY V4 — FINAL ALPHA HANDOFF
 =============================================
+生成日期: 2026-09-29（基于真实运行与全量门禁，非旧报告转写）
 
-BRANCH: gameplay-v2 (延续 web-v1-playable 基线 6cd2a7b 的正确开发分支)
-START HEAD: 670eace (fix(v3): harden overtime and event guards)
-FINAL HEAD: 见 git log（本轮 4 个新提交：e9885d9 / 92c43f8 / 721ac4b / 报告提交）
-REMOTE HEAD: push 后见 origin/gameplay-v2
+BRANCH: gameplay-v2
+START HEAD: 32e5d6e5b7ff30e1205b6db033bc340d8251e0cc（本轮收尾起点，含方案 B 首页）
+FINAL HEAD: 见 git log 顶部（本轮新增提交列表见 COMMITS；报告随最后一批提交入库）
+REMOTE HEAD: push 后经 fetch 校验 LOCAL == origin/gameplay-v2
 
-COMMITS:
-- feat(v4): workplace hell domain services and save v8 migration (e9885d9)
-- feat(v4): workplace hell event content with evidence-gated choices (92c43f8)
-- feat(v4): PC single-screen dashboard, unified career titles, richer settlement (721ac4b)
-- docs(v4): master audit and alpha handoff (本轮最后提交)
+COMMITS（本轮 Alpha Polish 收尾，按实际改动拆分）:
+- fix(v4): 数组/迭代器展开改 Array.from，修复 Web 构建战斗零敌人（BLOCKER）
+- fix(v4.1): 教程软引导桌面桥接 + 欢迎/引导文案与样式（含 <60s 离线不弹简报、claim 失败必关弹窗）
+- docs(v4.1): FIRST-10/FIRST-30 重写 + 新增 FIRST-DAY-EXPERIENCE（移除 Merge 首玩路径）
+- docs(v4.1): V4.1-CURRENT-STATE / GAMEPLAY-V4-FINAL / V4-BALANCE-FINAL / V4.1-ALPHA-POLISH + 计划文件
+- test(v4.1): 桌面软引导桥接回归（home-layout.test.ts 断言）
 
 =============================================
 AUDIT
 =============================================
 EXISTING SYSTEMS REUSED: 时钟/工作日/局势/加班/结算/事件引擎/NPC/心魔/晋升/物品/合成/成就/离线/存档框架
-PARTIAL SYSTEMS COMPLETED: 加班持久化+发薪、工资记账、局势权重、事件池扩展、结算增强、周末加班接点
-NEW SYSTEMS: Evidence / Responsibility / Incident / TechDebt / AssignedTask / NPC 记忆旗标 / 首页 PC Dashboard
-LEGACY REMOVED: 无删除（board 已于 PC V1 断开，保持隔离）
-LEGACY ISOLATED: MergeBoard(board=null)/Recruitment/Worker 仅存兼容层，Runtime 不走，UI 不可见
-STILL MISSING: Dungeon/Combat/Boss/Loot 战斗竖切（仓库从未实现，本轮未开工）
+COMPLETED IN V4: 战斗（Dungeon/Boss/Build/Loot/技能三选一/事故与任务副本）、职场地狱域
+  （证据/责任/甩锅/抢功/改需/上线地狱/事故/复盘/技术债/指派任务）、离线 AutoPolicy、
+  Welcome Back 可恢复会话、存档 V8 迁移与压力修复
+NEW IN V4.1: 教程 V2 软引导（版本化/可跳过/不拦截）、首日五分钟 S1 保护、桌面弹窗生命周期仲裁、
+  PC 方案 B 首页（1280×720 单屏）、教程桌面只读引导条
+LEGACY ISOLATED: MergeBoard(board=null)/Recruitment/Worker 仅存兼容层；首玩路径不经 Merge
+  （first-day-reachability.test.ts: facade.context.board === null）
+LEGACY REMOVED: 无删除
 
 =============================================
 CORE LOOP
 =============================================
 WORKDAY: ✅ 09:00-18:00 真实流逝 + 午休 12-13 + 下班倒计时 + 今日进度%
-REALTIME SALARY: ✅ 逐 tick 计薪（projection=UI 只读；真账=loop 内 WorkService），并全额入 gameDay.income
-FISHING: ✅ 带薪摸鱼：实时工资 + settlementInputs.paidFishingSalary + 首页摸鱼收益行
-CULTIVATION: ✅ CULTIVATING 模式 ×2.0 修为 / 修炼一次按钮
-TASK: ✅ V1 领取任务 + V4 指派任务（P0-P3、来源、假 P0）
-OVERTIME: ✅ VOLUNTARY/REQUESTED/FORCED/EMERGENCY/WEEKEND/COMPENSATED 六源 + 免费加班 0 工资反差文案
-WEEKEND: ✅ 距周一倒计时 + 周末四选一（含主动渡劫加班）+ 周末老板"在吗"
-EVENT: ✅ 245 个事件（129 V2 + 70 V3加班 + 46 V4职场），6 条 V4 多阶段链
-PROJECT: ⚠️ 以任务/事故/技术债形式存在；无独立 ProjectService（记录在案）
-COMBAT: ❌ MISSING（见 AUDIT）
-LOOT: ⚠️ 事件掉落（材料/功法/法宝/消耗品）；无战斗掉落
-SETTLEMENT: ✅ 日结算 exactly-once + V4 全量字段 + 周五周结算
+REALTIME SALARY: ✅ 逐 tick 计薪，全额入 gameDay.income；UI 只读投影
+FISHING: ✅ 带薪摸鱼 0.6× 工资 + 道心 +36/h + paidFishingSalary 结算输入
+CULTIVATION: ✅ 修炼一次（+2~6 修为，冷却）+ CULTIVATING 挂机 ×2.0
+TASK: ✅ V1 任务页（日常/工作/修炼）+ V4 指派任务（P0-P3、假 P0、来源）
+EVENT: ✅ 129 V2 + V3 加班 + 47 V4 职场事件，10 条链（content:check 输出）
+OVERTIME: ✅ 六源加班 + 免费加班 0 工资 + 可明确拒绝（拒绝后不复现、零记账）
+WEEKEND: ✅ 距周一倒计时 + 四选一安排
+PROJECT: ✅ 项目页（Build 四选）+ 战斗与任务/事故联动（Boss 胜利自动完成待办）
+COMBAT: ✅ 五波推进（普通→精英→Boss）、21 种怪物、技能三选一、掉落；真实截图 first-combat.png
+LOOT: ✅ 战斗掉落（材料/法宝/灵石）exactly-once 结算持久化（v4-battle.test.ts + first-day-reachability）
+SETTLEMENT: ✅ 日结算 exactly-once + 称号/评级 + 周五周结算
+
+=============================================
+OFFLINE
+=============================================
+AUTOPOLICY: ✅ NORMAL/SAFE/GRINDER/SLACKER 四策略，欢迎弹窗内可切换（auto-policy.png）
+BOUNDARY SPLIT: ✅ Asia/Shanghai 09:00/12:00/13:00/18:00/午夜/周末边界切分离线时段
+8H CAP: ✅ 离线收益全局 8 小时封顶
+PREVIEW/CLAIM: ✅ 同快照；正常/双倍领取互斥；异步广告回调防重
+WELCOME BACK: ✅ 可恢复简报 + 文案 20 条稳定 ID；<60s 离线且无待决不再弹简报（本轮修复）
+PENDING RESUME: ✅ canonical pendingEvents 唯一存储；持久游标逐条处理（desktop-overlay-dom.test.ts）
 
 =============================================
 WORKPLACE
 =============================================
-RESPONSIBILITY: ✅ ResponsibilityCase（OPEN→PLAYER_ACCEPTED/PLAYER_CLEARED/RESOLVED），绩效/关系/NPC 记忆落地
-EVIDENCE: ✅ 10 类型（GIT_LOG/CHAT_RECORD/REQUIREMENT_DOC/…），事件选择授予、requirement 门控解锁选项
-BLAME: ✅ 接口报错甩锅链 4 阶段 + 绩效面谈 + 复盘会定责；证据反击/背锅分支，无证据反驳失败
-CREDIT STEAL: ✅ 抢功链 3 阶段（算了/当场说明/投屏提交记录/记在心里 → 后续求助事件）
-REQUIREMENT CHANGE: ✅ 需求改单链 3 阶段（打开原需求文档→产品沉默；口头争辩 50%）
-EMERGENCY RELEASE: ✅ 上线地狱链 3 阶段（17:40 客户明天要看 → 5 选项 → 凌晨发布 → 事故/风险确认单反杀）
-INCIDENT: ✅ 14 类型 S1-S4、DETECTED→MITIGATING→RECOVERED→CLOSED、最低处置时长门槛、work-today 事故时段
-POSTMORTEM: ✅ 复盘链 3 阶段（"不是追责"→"代码谁写的"→6 选项含拿证据/沉默），结案回写 rootCause
-TECHNICAL DEBT: ✅ 7 领域 0-100；赶工/跳测试/强行上线加债；还债消耗专注；债推高 currentRisk
-NPC MEMORY: ✅ mem:<NPC>:<FLAG>（BLAMED_PLAYER_SUCCEEDED/BLAME_FAILED/STOLE_CREDIT/PLAYER_HELPED）被后续事件引用
-MULTI-DAY CHAINS: ✅ 链阶段 4 小时间隔跨天推进；复盘/结案/ fame 事件次日触发
+INCIDENT: ✅ 14 类型 S1-S4 全生命周期；首五分钟非 DEV S1 展示保护（300000ms 半开区间）
+EVIDENCE: ✅ 证据袋（角色卡入口）23 个证据门控选项
+RESPONSIBILITY/BLAME/POSTMORTEM: ✅ 背锅/反击/复盘全链
+TECH DEBT: ✅ 7 领域；60 天矩阵三策略 viable（BALANCED 最优 5496 分）
+NPC MEMORY: ✅ mem:<NPC>:<FLAG> 跨事件引用
 
 =============================================
 COMBAT
 =============================================
-MONSTERS/ELITES/BOSSES/SKILLS/EVOLUTIONS/BUILDS/EQUIPMENT-FROM-COMBAT: ❌ 未实现（MISSING，本轮明确记录）
-EQUIPMENT(现有): ✅ 30 件法宝（DESK/BADGE/ACCESSORY 槽）+ 30 功法 + 27 材料，事件/合成/商店获取
-PROJECT INTEGRATION: ⚠️ 以"当前任务→事件/事故"间接成立
-INCIDENT INTEGRATION: ✅ 事故→应急指派任务→处置时长→复盘（无 Dungeon，用任务链表达）
+MONSTERS/ELITES/BOSSES: ✅ 21 怪物（12 普通/4 精英/5 Boss），五波确定性推进
+SKILL CHOICE: ✅ 升级暂停 + 三选一（skillOffers 挂起，tick break）
+BUILD: ✅ 4 个 Build（Java并发流/数据库事务宗/缓存击穿掌/摸鱼养生流）
+LOOT: ✅ 材料表 + Boss 掉落 + rewardsClaimed exactly-once
+NIGHT FATIGUE: ✅ 夜班攻击倍率与掉落加成
+RUNTIME PROOF: ✅ 修复后真实 Electron：第 1 波 3 敌人、击杀累计、Lv2 升级、offers 挂起
+  （probe 日志 + first-combat.png）；修复前为「第 N/5 波：（空敌人列表）」零敌人空转
+任务/事故副本: ✅ startBattleRun('PROJECT'|'INCIDENT', linkedTaskId/linkedIncidentId)
 
 =============================================
 CAREER
 =============================================
-LEVELS: ✅ 10 级统一体系（实习牛马/正式牛马/骨干牛马/小组骨干/项目骨干/部门骨干/部门主管/部门经理/高级经理/区域副总监），旧称谓全仓清零（configs 内 0 命中）
-PROMOTION: ✅ V2 渡劫答辩（exp/绩效/KPI/道心组合 + 答辩 Q&A）
-CAREER CHOICES: ⚠️ 部分接入（promotionModifier/旗标；高级选项按 minCareer 门控已在事件中生效）
-L7+ MANAGEMENT EVENTS: ✅ wp_mgmt_team_ot（今晚大家辛苦一下/砍需求/重新排期/我留下你们走）+ wp_mgmt_sub_incident（我负责/先查根因/保护下属/责任到人）
+PROMOTION: ✅ 条件门控 + 渡劫答辩三题（V2）；平衡 D8 首次晋升（PASS）
+SECT: ✅ 四宗门加成；TECHNIQUES/EQUIPMENT: ✅ 功法三槽 + 法宝三槽
+KPI: ✅ 首日任务链完成即计入
 
 =============================================
-SETTLEMENT
+BALANCE
 =============================================
-DAILY: ✅ exactly-once；工资/修为/绩效/工时四维 + 摸鱼/加班(免费/有偿)/塞活/背锅/反击/事故/证据
-WEEKLY: ✅ 周五自动周结算（保留原有）
-TIMELINE: ✅ gameDay.eventHistory + 首页最近动态 + 全量 Modal
-PAID FISHING: ✅
-OVERTIME: ✅ 免费/有偿分列
-BLAME: ✅
-INCIDENT: ✅
-SHARE CARD: ❌ 未做（P2）
+见 ai/reports/V4-BALANCE-FINAL.md（真实模拟输出）。
+7/30/60 天矩阵 + 8 项判据：六项 PASS；FREE_OVERTIME 35h / AD_FREQ 7天 / AD_ECONOMY 30.84% 三项 WARN，
+OVERALL WARN——如实保留。ALWAYS_DOMINANCE 0%、NEVER_VIABLE 0%、MIND_LOCK 0d、DEAD_END 0。
+
+=============================================
+ONBOARDING
+=============================================
+TUTORIAL V2: ✅ tutorialVersion=2；WELCOME→FIRST_WORK→FIRST_FISH→FIRST_CULTIVATE→FIRST_TASK；
+  观察式推进（读真实行为计数）、30 游戏秒超时、可跳过且跳过=正常完成终态；
+  旧档迁移幂等（completed 永保持；旧未完成步骤→WELCOME）
+DESKTOP BRIDGE: ✅ 首页场景只读引导条 [data-tutorial-hint]（pointer-events:none，完成后不再现）
+DOCS: ✅ FIRST-10-MINUTES / FIRST-30-MINUTES / FIRST-DAY-EXPERIENCE 全部为当前玩法
+S1 PROTECTION: ✅ tutorialStartedAt 后 300000ms 半开窗口；canonical 保留、展示 withheld；DEV forceTrigger 绕过
+
+=============================================
+PC UI
+=============================================
+SCHEME B HOME: ✅ 1280×720 单屏无纵向滚动（home-layout.test.ts 三分辨率断言）
+ACTION SELECTOR: ✅ 四动作卡选择器 + 详情面板联动；默认选中跟随当前状态
+NAV: ✅ 首页/任务/项目/修仙/晋升/更多 六项；合成收纳于更多
+MODAL ARBITRATION: ✅ 单一队列走 facade.queryNextPresentation；
+  S1>Pending>Promotion>TutorialCritical>Workplace>Daily>Info；
+  Pending 仲裁阶段只读投影，选中后才 prepare（ed4e934/2978d2e/dd3fae3/28dda9f/1b79e76）
 
 =============================================
 SAVE
 =============================================
-VERSION: 8
-MIGRATION: ✅ v7→v8 安全默认 + V4 字段消毒（corrupt session 丢弃）
-OVERTIME RESTORE: ✅ activeOvertimeSession 跨重启恢复（有测试）
-INCIDENT RESTORE: ✅ incidents[] 持久化
-DUNGEON RESTORE: N/A
-PENDING DECISION: ✅ pendingEvents 队列（CRITICAL/IMPORTANT 留给玩家）
-OLD SAVE: ✅ v1→v8 全链迁移测试通过
-EXACTLY ONCE: ✅ 日结算先标记再入账 + 付费加班重复 finish 不重复发薪（有测试）
+STRESS: ✅ seed 4102 × 100 次混合 save/load
+CORRUPT REPAIR: ✅ 损坏 pending/battle/overtime/未知枚举/错型/重复ID/不可能数值 → 局部修复保留其余状态
+FIRST-DAY HARDENING: ✅ 54d0bad（首日存档加固 + 展示策略）
+ISOLATED BATTLE SAVE: ✅ 战斗存档隔离与损坏拦截（54d0bad 之前批次）
 
 =============================================
-BALANCE（30/60 天模拟，5 画像）
+TEST
 =============================================
-| 画像 | 结算日 | 职级 | 工资 | 修为 | 绩效 | 道心 | 心魔 | 功法 | 法宝 | 材料种 | NPC均 |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| CASUAL(摸鱼流) | 30 | L5 | 19901 | 22745 | 635 | 100 | 56 | 1 | 1 | 9 | 36.8 |
-| NORMAL(均衡) | 30 | L5 | 19596 | 18765 | 581 | 55 | 85 | 1 | 1 | 11 | 32.3 |
-| NORMAL(60天) | 60 | L7 | 103344 | 109213 | 1212 | 71 | 85 | 1 | 1 | 11 | 60.5 |
-| HARDCORE(卷王) | 30 | L5 | 10084 | 6390 | 570 | 45 | 75 | 0 | 1 | 9 | 7.5 |
-| NO_AD(修炼流) | 30 | L5 | 17158 | 21789 | 635 | 55 | 85 | 1 | 1 | 9 | 36.8 |
-| SOCIAL(社交流) | 30 | L5 | 20190 | 21295 | 566 | 100 | 38 | 1 | 0 | 11 | 40.7 |
-升级节奏: CASUAL L2@D3 L5@D24；NORMAL L2@D10 L5@D25；60天 L7@D50
-不变量: 全画像无 NaN/越界/负值；同 seed 可复现 ✅
-OVERTIME RATE: 免费加班会话可选/可拒（本 sim 未模拟拒绝分支）—— 加班率约束依赖事件池与疲劳代价，建议下轮把
-ALWAYS/NEVER/SELECTIVE_OVERTIME 三画像加入 balance-sim 后再下结论（记录为 STILL PARTIAL）
+npm run build:game: ✅ PASS
+npm run content:check: ✅ PASS（129 V2 events；V3 20/50/boss 6/chains 10；V4 47/6/weekend 2/mgmt 2）
+npm run gameplay-v2:check: ✅ PASS（legacy merge check merge-free）
+npm test: ✅ PASS — Executed 118 test files
+npm run release:check: ✅ PASS — Executed 118 test files
+npm run pc:check: ✅ PASS（场景组件注册齐全 + bundle 新于源码）
+npm run pc:build: ✅ PASS（Cocos Creator 3.8.4；exit 36 wrapper 已确认 fresh artifact）
+npm run pc:pack:portable: ✅ PASS（见 RUNTIME）
 
 =============================================
-QUALITY
+RUNTIME
 =============================================
-TYPECHECK: ✅ tsc -p tsconfig.game.json 无错误
-TESTS: ✅ 101 个测试文件全绿（新增 tests/v4/v4-workplace.test.ts 16 项）
-CONTENT CHECK: ✅（三池 ID 唯一、链连续性、证据/指派/案件数量下限）
-BALANCE CHECK: ✅ 内置 balance-simulation 通过
-PC CHECK: ✅ pc-overlay-layout / work-today-overlay 静态断言 + Electron 实测
-COCOS BUILD: ✅ pc:build 28s 构建成功（accepting exit 36 artifact note）
-ELECTRON: ✅ 真实运行时 GAME_READY + 数据接入 + 截图
+真实 Electron（开发构建）: GAME_READY / GAME_DIV=true / CANVAS=true / 720x1280
+真实 Electron（打包 EXE）: 生成 dist/牛马修仙传-win32-x64/牛马修仙传.exe，
+  SHA-256 = 4486DC32DB9B964BABF636EA93C47AFA1D8834D091576F59223B2B5E371B0C66，
+  实机启动日志：[Electron] ✅ GAME_READY received from renderer + Storage initialized +
+  GameFacade initialized + All systems wired + 自动存档 Save successful
+截图: ai/reports/screenshots/v4.1/ 11 张真实运行截图（全部 SHA-256 唯一）：
+  first-launch / first-work / first-fishing / first-task / first-project / first-combat /
+  first-event / first-1755 / first-offwork / welcome-back / auto-policy
+  捕获脚本: capture-v41-final.cjs 与 recapture-combat.cjs（screenshots 目录被 .gitignore
+  忽略，脚本与 PNG 同目录留存于本地工作区，不入库）
 
 =============================================
-RUNTIME（Electron 真实运行时）
+ISSUES（本轮发现并处置）
 =============================================
-HOME 1280x720: ✅ 一屏、无纵向滚动（scrollable=false 实测）
-HOME 1600x900: ✅ 无滚动
-HOME 1920x1080: ✅ 无滚动
-WORK/FISHING/1755/FREE-OVERTIME/WEEKEND/BLAME/SETTLEMENT: 截图于 ai/reports/screenshots/
-SCREENSHOTS: home-1280x720.png / home-1600x900.png / home-1920x1080.png / home-work.png /
-  home-fishing.png / home-1755.png / home-free-overtime.png / blame-event.png /
-  blame-evidence.png / agenda-assigned.png / daily-settlement.png + 状态 json
-说明: 截图均为真实 Electron 运行时画面；事件弹窗内容取自当前事件队列
-（部分截图被自然触发的随机事件弹窗覆盖，属正常玩法表现）。
-
-=============================================
-ISSUES
-=============================================
-BLOCKER: 无
-HIGH:
-  - 战斗/副本竖切缺失（MISSING，决定推迟：主环优先，避免一晚上塞一个假战斗）
-  - 加班率/周末加班率的长期平衡未用三画像模拟锁定
-MEDIUM:
-  - 周末事件内容量 2（目标 12+）
-  - 复盘无独立场景页（用事件链表达）
-  - 离线回来"你离开期间发生了N件破事"欢迎页未做
-LOW:
-  - 分享卡、公司图鉴、牛马档案页 UI 未做（lifetimeStats 数据层已就绪）
-  - ui-mock-data/board 等 legacy 字段仍在（不进 Runtime）
-MANUAL_REQUIRED:
-  - 1280×720 下人工目测一轮各页面排版（自动截图已提供基线）
-  - pc:pack 打包冒烟（electron-packager）
+BLOCKER-1（已修复）: Cocos Web 构建把 `[...map.values()]` 转译为 `[].concat(map.values())`，
+  concat 不展开迭代器 → 战斗 spawnWave 候选恒空 → 敌人零生成、战斗秒胜空转。
+  修复：battle-service.ts / merge-board.ts / cocos-audio-backend.ts 四处改 Array.from。
+  （单测用 tsc/ES2020 不转译所以此前全绿——运行时验证的价值正在于此）
+BLOCKER-2（已修复）: 全新存档启动即弹「欢迎回来」简报（离线 1 秒），点击「继续上班」时
+  claimOfflineReward 对过短离线抛异常且不关闭弹窗 → 玩家永久卡在启动弹窗。
+  修复：<60s 且无待决不弹简报 + claim 失败也强制关闭弹窗。
+HIGH-1（已修复，前一轮）: V2 事件「知道了」按钮绑定选择器错配 → 事件弹窗无法关闭（1b79e76）。
+HIGH-2（已修复，前一轮）: queryWorkToday 在 gameDay=null 时抛 TypeError（f5890ca）。
 
 =============================================
 FINAL VERDICT
 =============================================
-CORE LOOP PLAYABLE: ✅
-MULTI-DAY PLAYABLE: ✅（跨天链 + 存档 v8 + exactly-once）
-WORKPLACE CHOICES MEANINGFUL: ✅（证据决定反击成败、假P0/真P0、背锅 vs 反杀、上线 vs 拒绝）
-COMBAT PLAYABLE: ❌（下轮）
-BUILD VARIETY: ⚠️（功法/法宝装配已有差异；战斗 Build 无）
-CAREER PLAYABLE: ✅
-MANAGEMENT PLAYABLE: ✅（L7+ 两个管理层事件 + 团队加班/保护旗标与成就）
-PC HOME SINGLE SCREEN: ✅（1280×720 实测无滚动）
-SAVE SAFE: ✅
-BALANCE ACCEPTABLE: ✅（不变量全绿；加班率待三画像专项）
-READY FOR HUMAN ALPHA PLAYTEST: ✅（PC 单机 Alpha 可开测）
-=============================================
+ALPHA READY FOR HUMAN PLAYTEST。
+核心循环（工作/摸鱼/修炼/任务/事件/项目战斗/结算）、离线托管、首日保护、存档韧性、
+PC 单屏 UI 均有真实运行证据；遗留为 4 个场景截图 MANUAL_REQUIRED 与 3 项平衡 WARN（不阻塞）。
