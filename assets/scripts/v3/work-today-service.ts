@@ -39,7 +39,7 @@ export class WorkTodayService {
       standardWorkSeconds: Math.floor(standard),
       overtimeSeconds: Math.floor(overtime),
       freeOvertimeSeconds: day?.overtimeFree ? Math.floor(overtime) : 0,
-      paidFishingSalary: day?.settlementInputs.paidFishingSalary ?? 0,
+      paidFishingSalary: day?.settlementInputs?.paidFishingSalary ?? 0,
       allocatedSeconds: Math.floor(elapsed / 1000),
       durations: recordedTotal > 0 ? { ...recorded } : { ...recorded, work: Math.floor(standard), lunch: Math.floor(lunch), overtime: Math.floor(overtime) },
       timeline: (day?.eventHistory ?? []).map((entry) => ({ ...entry })),
