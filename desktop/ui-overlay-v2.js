@@ -237,7 +237,8 @@
           '</div>' +
         '</div>' +
       '</div>';
-    H.$$('.ux-event-option[data-vevent-choice]', layer).forEach(function (b) {
+    /* 绑定必须覆盖两类按钮：带选项的 .ux-event-option 与无选项事件的「知道了」（ux-btn）。 */
+    H.$$('[data-vevent-choice]', layer).forEach(function (b) {
       b.addEventListener('click', function () {
         var choiceId = b.getAttribute('data-vevent-choice');
         var result;
