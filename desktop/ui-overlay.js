@@ -801,6 +801,8 @@
       ? Math.max(0, session.pendingEventIds.length - session.cursor)
       : 0;
     var pendingCount = Math.max(Number(simulation.pendingDecisionCount) || 0, decisionRemaining);
+    /* 离线不足 60 秒且没有待决策内容时不弹简报——没有可领取或决策的事项。 */
+    if ((simulation.effectiveSeconds || 0) < 60 && pendingCount === 0) return;
     var hasPending = decisionRemaining > 0 && !!decisions.current;
     var policyLabels = { NORMAL: '均衡', SAFE: '稳健', GRINDER: '卷王', SLACKER: '摸鱼' };
     var summaryRows = '' +
@@ -854,8 +856,8 @@
           toast('离线收益已领取', 'success');
         }
       } catch (e) {
+        /* 领取失败（如离线时长过短）也必须关闭简报，绝不能把玩家卡在启动弹窗里 */
         toast(errMsg(e), 'error');
-        return;
       }
       closePopup();
       refresh();
@@ -1135,7 +1137,7 @@
     }
 
     return '<section class="ux-work-today ux-scene ux-scene--' + phase + (_cultivateFx && Date.now() - _cultivateFx.at < 2600 ? ' ux-scene--blessing' : '') + '">' +
-      chips + earned + battleBanner +
+      chips + earned + battleBanner + tutorialHintHtml() +
       '<div class="ux-scene-main">' + headline + '</div>' +
       '<div class="ux-scene-strip">' + stripLeft + '<div class="ux-scene-strip-actions">' + stripRight + '</div></div>' +
     '</section>';
@@ -1309,6 +1311,28 @@
   function cultivateFxHtml() {
     if (!_cultivateFx || Date.now() - _cultivateFx.at >= 4000) return '';
     return '<div class="ux-detail-fx"><span class="fx-chip">💧 修为 +' + _cultivateFx.exp + '</span><span class="fx-chip">☯ 道心 +1</span></div>';
+  }
+
+  /* 教程 V2 软引导（桌面桥接）：只读展示当前步骤，文案随服务状态更新，绝不拦截输入 */
+  var TUTORIAL_HINTS = {
+    WELCOME: '欢迎入职牛马修仙传！白天上班，晚上渡劫——先活过今天。',
+    FIRST_WORK: '点「努力工作」开始搬砖，赚取工资与修为。',
+    FIRST_FISH: '试试「带薪摸鱼」，公司为你的道心买单。',
+    FIRST_CULTIVATE: '点「开始修炼」，工位上也能引气入体。',
+    FIRST_TASK: '打开「任务」，接下第一个真实任务。',
+  };
+
+  function tutorialHintHtml() {
+    var t = null;
+    var f = facade();
+    if (f && typeof f.queryTutorial === 'function') {
+      try { t = f.queryTutorial(); } catch (e) { t = null; }
+    }
+    if (!t || t.isCompleted) return '';
+    var copy = TUTORIAL_HINTS[t.currentStep];
+    if (!copy) return '';
+    return '<div class="ux-tutorial-hint" data-tutorial-hint data-step="' + escHtml(t.currentStep) + '">' +
+      '<span class="tag">新手引导</span><span class="txt">' + escHtml(copy) + '</span></div>';
   }
 
   /* ── V4 项目战斗（自动攻击引擎的可见层） ── */

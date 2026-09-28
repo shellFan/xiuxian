@@ -1463,6 +1463,37 @@
   .ux-scene-battle { position: absolute; z-index: 2; top: 42px; left: 12px; max-width: 46%; }
   .ux-scene-battle .arr { font-size: 11.5px; }
 
+  /* 教程 V2 软引导条：只读提示，不拦截输入（Task 2 桌面桥接） */
+  .ux-tutorial-hint {
+    position: absolute;
+    z-index: 2;
+    top: 42px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 46%;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(240, 177, 60, 0.2);
+    border: 1px solid rgba(240, 210, 140, 0.5);
+    color: #ffd97a;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .ux-tutorial-hint .tag {
+    flex: none;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: rgba(255, 217, 122, 0.25);
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .ux-tutorial-hint .txt { overflow: hidden; text-overflow: ellipsis; }
+
   .ux-scene-strip { position: relative; z-index: 2; display: flex; align-items: center; gap: 8px; margin: 0 12px 10px; }
   .ux-scene-strip .ux-status-ribbon { padding: 5px 14px; font-size: 12.5px; letter-spacing: 1px; background: rgba(11, 42, 66, 0.55); border-color: rgba(240, 210, 140, 0.28); box-shadow: none; }
   .ux-scene-strip .ux-btn { font-size: 14px; padding: 6px 12px; }

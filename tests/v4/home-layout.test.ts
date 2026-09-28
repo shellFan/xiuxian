@@ -104,6 +104,7 @@ async function runInElectron(): Promise<void> {
         queryCurrentEvent: function () { return null; },
         queryFinishedBattle: function () { return null; },
         queryNextPresentation: function () { return null; },
+        queryTutorial: function () { return { currentStep: window.__home.tutorialStep || 'WELCOME', isCompleted: !!window.__home.tutorialCompleted, steps: ['WELCOME', 'FIRST_WORK', 'FIRST_FISH', 'FIRST_CULTIVATE', 'FIRST_TASK'], stepIndex: 0 }; },
       };
       return { ok: true };
     } catch (error) { return { ok: false, message: error && error.stack ? error.stack : String(error) }; } })()`);
@@ -111,6 +112,26 @@ async function runInElectron(): Promise<void> {
     step('overlay eval done');
     await waitFor(win, `document.querySelector('[data-select-action="WORK"]') !== null`);
     step('home rendered');
+
+    /* 教程 V2 软引导在桌面端可见且不拦截输入（V4.1 Task 1/2） */
+    const hint = await win.webContents.executeJavaScript(`({
+      visible: document.querySelector('[data-tutorial-hint]') !== null,
+      step: (document.querySelector('[data-tutorial-hint]') || {}).getAttribute ? document.querySelector('[data-tutorial-hint]').getAttribute('data-step') : null,
+      blocking: getComputedStyle(document.querySelector('[data-tutorial-hint]')).pointerEvents !== 'none'
+    })`);
+    assert.equal(hint.visible, true, 'fresh save shows the soft guidance hint on desktop');
+    assert.equal(hint.step, 'WELCOME', 'fresh save starts at WELCOME');
+    assert.equal(hint.blocking, false, 'hint never captures input (advisory only)');
+    await win.webContents.executeJavaScript(`
+      window.__home.tutorialCompleted = true;
+      window.UiOverlay.refresh();
+    `);
+    assert.equal(
+      await win.webContents.executeJavaScript(`document.querySelector('[data-tutorial-hint]') !== null`),
+      false,
+      'completed tutorial never shows the hint again',
+    );
+    await win.webContents.executeJavaScript(`window.__home.tutorialCompleted = false;`);
 
     /* 1. 三个分辨率单屏无滚动（§169/§170） */
     const viewports: Array<[string, number, number]> = [['1280', 1280, 720], ['1600', 1600, 900], ['1920', 1920, 1080]];
