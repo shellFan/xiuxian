@@ -101,7 +101,7 @@ export class CocosAudioBackend implements AudioBackend {
 
     // Concurrency check: drop if too many active SFX
     const active = this.activeSfx.get(id) ?? [];
-    const totalActive = [...this.activeSfx.values()].reduce((sum, ids) => sum + ids.length, 0);
+    const totalActive = Array.from(this.activeSfx.values()).reduce((sum, ids) => sum + ids.length, 0);
     if (totalActive >= this.maxConcurrentSfx) return;
 
     const path = this.resolvePath(id);

@@ -55,7 +55,7 @@ export class MergeBoard {
     this.validateWorker(worker);
     const key = this.key(this.requireCell(position));
     if (this.workers.has(key)) throw new Error(`Cell ${key} is occupied`);
-    if ([...this.workers.values()].some((candidate) => candidate.id === worker.id)) {
+    if (Array.from(this.workers.values()).some((candidate) => candidate.id === worker.id)) {
       throw new Error(`Worker ${worker.id} is already on the board`);
     }
     this.workers.set(key, worker);

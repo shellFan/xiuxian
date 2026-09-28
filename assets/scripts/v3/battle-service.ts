@@ -149,7 +149,7 @@ export class BattleService {
 
   /** 技能定义表（三选一 UI 展示用）。 */
   public skillDefs(): readonly SkillDef[] {
-    return [...SKILL_MAP.values()];
+    return Array.from(SKILL_MAP.values());
   }
 
   /** 是否允许开本：工作日工作时段 / 加班会话 / 周末主动渡劫（随 gameDay 存在即可）。 */
@@ -373,7 +373,7 @@ export class BattleService {
     run.enemies = [];
     for (let i = 0; i < wave.count; i += 1) {
       const tier = wave.tiers[Math.min(i, wave.tiers.length - 1)];
-      const candidates = [...MONSTER_MAP.values()].filter((m) => m.tier === tier);
+      const candidates = Array.from(MONSTER_MAP.values()).filter((m) => m.tier === tier);
       const def = candidates[Math.floor(this.rng() * candidates.length)];
       if (def) this.addEnemy(run, def.id);
     }
