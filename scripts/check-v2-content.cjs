@@ -305,12 +305,21 @@ const v5Windows = {
   veteran: v5Events.filter((e) => e.actor === 'VETERAN').length,
   hr: v5Events.filter((e) => e.actor === 'HR').length,
   weekend: v5Events.filter((e) => e.window === 'weekend').length,
-  preOff: v5Events.filter((e) => e.window === 'preOff').length,
+  preOff: v5Events.filter((e) => e.window === 'preOff' || e.id.startsWith('ms_1755_') || e.steps.some((step) => /17:5\d/.test(step.text))).length,
   incident: v5Events.filter((e) => e.conversation === 'conv_incident').length,
   positive: v5Events.filter((e) => e.id.startsWith('ms_pos_')).length,
   funny: v5Events.filter((e) => e.id.startsWith('ms_fun_')).length,
 };
 if (v5Events.length < 120) fail('v5 messenger: need >=120 events, got ' + v5Events.length);
+if (v5Windows.boss < 20 || v5Windows.product < 20 || v5Windows.tester < 12 || v5Windows.ops < 12 || v5Windows.hr < 8 || v5Windows.client < 12 || v5Windows.junior + v5Windows.veteran < 16) {
+  fail('v5 messenger: actor coverage does not meet the authored-content floor');
+}
+if (v5Chained < 40) fail('v5 messenger: need >=40 multi-step reply chains, got ' + v5Chained);
+if (v5Windows.weekend < 15) fail('v5 messenger: need >=15 weekend events, got ' + v5Windows.weekend);
+if (v5Windows.preOff < 20) fail('v5 messenger: need >=20 17:55/pre-off events, got ' + v5Windows.preOff);
+if (v5Windows.incident < 20) fail('v5 messenger: need >=20 incident conversation events, got ' + v5Windows.incident);
+if (v5Windows.positive < 20) fail('v5 messenger: need >=20 positive events, got ' + v5Windows.positive);
+if (v5Windows.funny < 30) fail('v5 messenger: need >=30 humorous events, got ' + v5Windows.funny);
 
 // ── 汇总 ─────────────────────────────────────────────────────────────────────
 console.log('═══════════════════════════════════════');
