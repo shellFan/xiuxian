@@ -169,7 +169,15 @@
 
   /* ── DEV 面板（§169/§170） ── */
 
-  var DEV_VISIBLE = true;
+  // Portable Electron serves the release through localhost too, so host name
+  // is never a DEV signal. The panel requires an explicit launch override.
+  var DEV_VISIBLE = (function () {
+    try {
+      return typeof location !== 'undefined' && /[?&]dev=1/.test(location.search);
+    } catch (e) {
+      return false;
+    }
+  })();
 
   function renderDev() {
     if (!DEV_VISIBLE) return H.emptyState('🚫', 'DEV 面板未开放', 'Release 构建');
