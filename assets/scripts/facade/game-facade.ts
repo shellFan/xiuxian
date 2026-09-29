@@ -191,6 +191,32 @@ export class GameFacade {
   public queryTimeUntilOffWork() { return this.context.clockV2.getTimeUntilOffWorkMs(); }
   /** Work Today 首页的只读时间/工时投影。 */
   public queryWorkToday() { return this.context.workToday.snapshot(); }
+
+  // ── V5 飞剑传书（WorkplaceMessenger） ──
+
+  /** 首页/顶栏未读徽标。 */
+  public queryMessengerBadge() { return this.context.messenger.badge(); }
+  /** 消息中心会话列表。 */
+  public queryConversations() { return this.context.messenger.conversationsView(); }
+  /** 某会话消息列表（含待回复选项）。 */
+  public queryMessages(conversationId: string) { return this.context.messenger.messagesView(conversationId); }
+  /** 打开会话（标记已读）。 */
+  public markConversationRead(conversationId: string) { this.context.messenger.markConversationRead(conversationId); }
+  /** 回复消息（效果落地走 StoryDirector.applyEffects）。 */
+  public replyToMessage(messageId: string, replyId: string) {
+    const result = this.context.messenger.reply(messageId, replyId);
+    if (result.ok && result.effects) {
+      this.context.storyDirector.applyEffects(result.effects, this.context.clockV2.now());
+      this.context.saveService.save(this.context.player);
+    }
+    return result;
+  }
+  /** typing 状态（「正在输入……」）。 */
+  public queryTyping() { return this.context.messenger.typing(); }
+  /** 今日计划 vs 实际（§26/§27）。 */
+  public queryDailyPlanReality() { return this.context.storyDirector.planReality(); }
+  /** 待回复的消息数（有决策权的消息）。 */
+  public queryPendingReplyCount() { return this.context.messenger.pendingReplies().length; }
   /** 当前显式加班会话（副本），供 UI 显示而非直接改状态。 */
   public queryOvertime() { return this.context.overtime.current(); }
   /** 今日加班决策状态；会话结束后仍保留 COMPLETED，防止 UI 重复发起询问。 */

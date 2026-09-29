@@ -1,0 +1,832 @@
+{
+  "events": [
+    {
+      "id": "ms_1755_001",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "HIGH",
+      "weight": 9,
+      "window": "preOff",
+      "cooldownDays": 3,
+      "steps": [{ "sender": "老板", "text": "在吗？" }],
+      "replies": [
+        { "id": "a", "text": "老板您说。", "effects": { "mind": -1, "nextEvent": { "eventId": "ms_1755_001_b", "delayMinutes": 2 } } },
+        { "id": "b", "text": "在的，正收拾东西。", "effects": { "mind": 1, "nextEvent": { "eventId": "ms_1755_001_b", "delayMinutes": 2 } } },
+        { "id": "c", "text": "明天处理。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 3, "npc": [["BOSS", -2]], "achievementKey": "read_no_reply" } },
+        { "id": "d", "text": "去他的，我下班了。", "tag": "ASSERTIVE", "minCareerLevel": 4, "effects": { "mind": 5, "npc": [["BOSS", -5]], "dialogFlag": "ASSERTIVE", "achievementKey": "read_no_reply" } }
+      ]
+    },
+    {
+      "id": "ms_1755_001_b",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "HIGH",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [
+        { "sender": "老板", "text": "没什么大事。" },
+        { "sender": "老板", "text": "就是客户那边希望今晚能上线。", "delayMinutes": 1 }
+      ],
+      "replies": [
+        { "id": "a", "text": "今晚能上，但风险请您确认。", "tag": "PROFESSIONAL", "effects": { "npc": [["BOSS", 2]], "evidence": [["RISK_CONFIRMATION", "17:55 上线风险确认"]], "techDebt": [["release", 8]], "reality": { "text": "17:55 接下临时上线", "kind": "OVERTIME" }, "nextEvent": { "eventId": "ms_inc_release_night", "delayMinutes": 80 } } },
+        { "id": "b", "text": "我先确认测试覆盖，半小时内答复。", "tag": "PROFESSIONAL", "effects": { "npc": [["BOSS", 1]], "task": { "title": "确认今晚上线测试覆盖", "priority": "P1", "source": "BOSS" } } },
+        { "id": "c", "text": "今天不行，明天一早第一优先。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 3, "npc": [["BOSS", -3]], "achievementKey": "refuse_release" } }
+      ]
+    },
+    {
+      "id": "ms_1755_002",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "HIGH",
+      "weight": 7,
+      "window": "preOff",
+      "cooldownDays": 3,
+      "steps": [{ "sender": "产品经理", "text": "客户临时说，今天这个交互要改回来。" }],
+      "replies": [
+        { "id": "a", "text": "变更走流程，明天评审后处理。", "tag": "PROFESSIONAL", "effects": { "npc": [["PRODUCT", -1]], "mind": 1, "evidence": [["REQUIREMENT_CONFIRMATION", "变更流程声明"]] } },
+        { "id": "b", "text": "（17:55 的变更，是给下班之路设的路障）", "effects": { "mind": -2, "innerDemon": 2, "reality": { "text": "17:55 接收需求回退", "kind": "CHANGE" }, "task": { "title": "回退客户交互改动", "priority": "P1", "source": "PRODUCT" } } },
+        { "id": "c", "text": "谁答应客户的谁改。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 3, "npc": [["PRODUCT", -4]], "achievementKey": "refuse_release" } }
+      ]
+    },
+    {
+      "id": "ms_1755_003",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "HIGH",
+      "weight": 6,
+      "window": "preOff",
+      "cooldownDays": 3,
+      "steps": [{ "sender": "测试小哥", "text": "回归还剩一半，你要走吗？我要不要继续跑？" }],
+      "replies": [
+        { "id": "a", "text": "继续跑，我陪你等结果。", "effects": { "npc": [["TESTER", 3]], "mind": -2, "reality": { "text": "陪测试跑完回归", "kind": "OVERTIME" } } },
+        { "id": "b", "text": "主流程跑完就行，小问题明天修。", "tag": "PROFESSIONAL", "effects": { "npc": [["TESTER", 2]], "mind": 2 } },
+        { "id": "c", "text": "有主流程阻断再叫我，我先撤了。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 3, "npc": [["TESTER", -1]] } }
+      ]
+    },
+    {
+      "id": "ms_1755_004",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "HIGH",
+      "weight": 5,
+      "window": "preOff",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "运维老哥", "text": "监控曲线有点抖，下班前你再扫一眼代码有没有异常提交。" }],
+      "replies": [
+        { "id": "a", "text": "今天的提交都查过了，没有危险操作。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 2]], "mind": 1 } },
+        { "id": "b", "text": "我再查一遍，查完发你结论。", "effects": { "npc": [["OPS", 3]], "task": { "title": "下班前复查今日提交", "priority": "P2", "source": "SYSTEM" } } }
+      ]
+    },
+    {
+      "id": "ms_1755_005",
+      "conversation": "conv_junior",
+      "actor": "JUNIOR",
+      "priority": "NORMAL",
+      "weight": 6,
+      "window": "preOff",
+      "cooldownDays": 3,
+      "minRelation": 25,
+      "steps": [{ "sender": "小师妹", "text": "楼下烧烤，老板说今天早走的人他请！" }],
+      "replies": [
+        { "id": "a", "text": "老板居然请烧烤？这饼能吃！走！", "effects": { "npc": [["JUNIOR", 3], ["BOSS", 2]], "mind": 6 } },
+        { "id": "b", "text": "（警惕：免费烧烤背后通常是代码）", "effects": { "mind": 2, "innerDemon": 1, "nextEvent": { "eventId": "ms_1755_005_b", "delayMinutes": 10 } } }
+      ]
+    },
+    {
+      "id": "ms_1755_005_b",
+      "conversation": "conv_junior",
+      "actor": "JUNIOR",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "小师妹", "text": "果然，老板说边吃边聊明天的排期……" }],
+      "replies": [
+        { "id": "a", "text": "（我就说！烧烤是饼的酱料）", "effects": { "mind": 1, "innerDemon": 2, "reality": { "text": "烧烤摊听排期", "kind": "MEETING" } } },
+        { "id": "b", "text": "吃可以，聊排期明天上班聊。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 3, "npc": [["BOSS", -1]] } }
+      ]
+    },
+    {
+      "id": "ms_1755_006",
+      "conversation": "conv_project",
+      "actor": "VETERAN",
+      "priority": "NORMAL",
+      "weight": 5,
+      "window": "preOff",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "老油条", "text": "都别急，17:55 的需求，99% 活不过明天上午。" }],
+      "replies": [
+        { "id": "a", "text": "（老油条定律：等一晚，需求自己会撤回）", "effects": { "mind": 3, "npc": [["VETERAN", 1]], "dialogFlag": "OLD_TIMER" } },
+        { "id": "b", "text": "可要是那 1% 呢？", "effects": { "npc": [["VETERAN", 1]], "mind": -1, "nextEvent": { "eventId": "ms_1755_006_b", "delayMinutes": 15 } } }
+      ]
+    },
+    {
+      "id": "ms_1755_006_b",
+      "conversation": "conv_project",
+      "actor": "VETERAN",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "老油条", "text": "那 1% 叫事故，不叫需求。走流程处理。" }],
+      "replies": [
+        { "id": "a", "text": "（姜还是老的辣）", "effects": { "mind": 2, "npc": [["VETERAN", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_1755_007",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "HIGH",
+      "weight": 5,
+      "window": "preOff",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "客户方丈", "text": "今天五点五十五了，你们下班了吗？我们领导想看进度。" }],
+      "replies": [
+        { "id": "a", "text": "进度文档刚发您邮箱，含今日完成项。", "tag": "PROFESSIONAL", "effects": { "npc": [["CLIENT", 1]], "evidence": [["DEADLINE_CONFIRMATION", "进度文档确认"]] } },
+        { "id": "b", "text": "还在岗，有话请讲。", "effects": { "mind": -1, "nextEvent": { "eventId": "ms_client_004", "delayMinutes": 5 } } }
+      ]
+    },
+    {
+      "id": "ms_1755_008",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 5,
+      "window": "preOff",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "老板", "text": "今天都早点走。这周大家辛苦了。" }],
+      "replies": [
+        { "id": "a", "text": "谢谢老板！老板大义！", "effects": { "npc": [["BOSS", 3]], "mind": 8 } },
+        { "id": "b", "text": "（幸福来得太突然，先确认不是演习）", "effects": { "mind": 5, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_1755_009",
+      "conversation": "conv_hr",
+      "actor": "HR",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "preOff",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "HR仙子", "text": "温馨提示：今日加班人数已统计。各位理性加班，健康第一。" }],
+      "replies": [
+        { "id": "a", "text": "（理性加班：HR 修辞学的巅峰之作）", "effects": { "mind": 1, "innerDemon": 1 } },
+        { "id": "b", "text": "收到，准时下班走起。", "effects": { "mind": 3, "achievementKey": "leave_on_time" } }
+      ]
+    },
+    {
+      "id": "ms_1755_010",
+      "conversation": "conv_project",
+      "actor": "PRODUCT",
+      "priority": "HIGH",
+      "weight": 5,
+      "window": "preOff",
+      "cooldownDays": 4,
+      "situationBoost": "project",
+      "steps": [{ "sender": "产品经理", "text": "下周计划提前对一下，今晚谁有空？" }],
+      "replies": [
+        { "id": "a", "text": "明天早上对，今晚大家有事。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 3, "npc": [["PRODUCT", -1]] } },
+        { "id": "b", "text": "我在线，语音十分钟。", "effects": { "npc": [["PRODUCT", 2]], "mind": -2, "reality": { "text": "17:55 腾讯会议", "kind": "MEETING" } } }
+      ]
+    },
+    {
+      "id": "ms_1755_011",
+      "conversation": "conv_veteran",
+      "actor": "VETERAN",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "preOff",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "老油条", "text": "五分钟定律：现在答应的事，六点前一定后悔。再撑五分钟再回。" }],
+      "replies": [
+        { "id": "a", "text": "（正在实践老油条定律）", "effects": { "mind": 2, "npc": [["VETERAN", 1]] } },
+        { "id": "b", "text": "已经回了，来不及了。", "effects": { "mind": -1, "npc": [["VETERAN", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_1755_012",
+      "conversation": "conv_incident",
+      "actor": "OPS",
+      "priority": "HIGH",
+      "weight": 3,
+      "window": "preOff",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "运维老哥", "text": "值班交接前最后巡检：一切正常。今天可以安心走。" }],
+      "replies": [
+        { "id": "a", "text": "（运维的一句话，胜过十次打卡）", "effects": { "mind": 4, "npc": [["OPS", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_wkd_001",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "HIGH",
+      "weight": 5,
+      "window": "weekend",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "老板", "text": "在吗？" }],
+      "replies": [
+        { "id": "a", "text": "装死。", "effects": { "mind": 3, "npc": [["BOSS", -1]], "achievementKey": "read_no_reply" } },
+        { "id": "b", "text": "什么事？", "effects": { "nextEvent": { "eventId": "ms_wkd_001_b", "delayMinutes": 5 } } },
+        { "id": "c", "text": "周一说。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 3, "npc": [["BOSS", -2]] } },
+        { "id": "d", "text": "接电话。", "effects": { "mind": -2, "nextEvent": { "eventId": "ms_wkd_001_b", "delayMinutes": 2 } } }
+      ]
+    },
+    {
+      "id": "ms_wkd_001_b",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "老板", "text": "下周有个客户来，你露个面就行。不算加班，算你机灵。" }],
+      "replies": [
+        { "id": "a", "text": "（「不算加班」的加班，是老板的语言艺术）", "effects": { "mind": -2, "npc": [["BOSS", 1]], "reality": { "text": "周末客户露面", "kind": "OVERTIME" } } },
+        { "id": "b", "text": "露面可以，调休记一天。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 3, "npc": [["BOSS", -1]], "evidence": [["DEADLINE_CONFIRMATION", "调休一天约定"]], "achievementKey": "weekend_refuse" } }
+      ]
+    },
+    {
+      "id": "ms_wkd_002",
+      "conversation": "conv_junior",
+      "actor": "JUNIOR",
+      "priority": "NORMAL",
+      "weight": 5,
+      "window": "weekend",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "小师妹", "text": "周末的云比周一的好看。" }],
+      "replies": [
+        { "id": "a", "text": "云好看的前提，是不用看工作群。", "effects": { "mind": 3, "npc": [["JUNIOR", 1]] } },
+        { "id": "b", "text": "（正在阳台看云，顺便回工作消息）", "effects": { "mind": 1, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_wkd_003",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "HIGH",
+      "weight": 3,
+      "window": "weekend",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "运维老哥", "text": "周末告警响了，S1，能上吗？" }],
+      "replies": [
+        { "id": "a", "text": "上！十分钟后到。", "effects": { "npc": [["OPS", 3]], "incident": { "type": "S1_WEEKEND", "severity": "S1", "source": "OPS" }, "incidentDungeon": { "incidentType": "S1_WEEKEND_BOSS" }, "achievementKey": "real_p0", "reality": { "text": "周末 S1 出警", "kind": "INCIDENT" } } },
+        { "id": "b", "text": "我在外，一小时到，先按预案止血。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 2]], "incident": { "type": "S1_WEEKEND", "severity": "S1", "source": "OPS" } } },
+        { "id": "c", "text": "（周末 S1，是修仙界的天劫，躲不掉的）", "effects": { "mind": -2, "innerDemon": 3 } }
+      ]
+    },
+    {
+      "id": "ms_wkd_004",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "weekend",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "产品经理", "text": "周末愉快～（非工作话题）这家咖啡店不错。" }],
+      "replies": [
+        { "id": "a", "text": "（确认过是纯聊天，可放心回复）", "effects": { "mind": 3, "npc": [["PRODUCT", 2]] } },
+        { "id": "b", "text": "（周末的消息都要先用读码器扫一遍）", "effects": { "mind": 1, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_wkd_005",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "weekend",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "客户方丈", "text": "范老师，周末打扰。周一早会要个进度报告。" }],
+      "replies": [
+        { "id": "a", "text": "周一早上九点前发您。", "tag": "PROFESSIONAL", "effects": { "evidence": [["DEADLINE_CONFIRMATION", "周一报告承诺"]], "task": { "title": "周一晨会进度报告", "priority": "P2", "source": "CLIENT" } } },
+        { "id": "b", "text": "（报告可以写，周末必须在）", "effects": { "mind": 1, "task": { "title": "周末撰写进度报告", "priority": "P2", "source": "CLIENT" } } }
+      ]
+    },
+    {
+      "id": "ms_wkd_006",
+      "conversation": "conv_veteran",
+      "actor": "VETERAN",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "weekend",
+      "cooldownDays": 5,
+      "minRelation": 30,
+      "steps": [{ "sender": "老油条", "text": "钓鱼去了，手机静音。你要不要学？" }],
+      "replies": [
+        { "id": "a", "text": "学！手机静音这门课我要修满学分。", "effects": { "mind": 4, "npc": [["VETERAN", 1]], "achievementKey": "weekend_refuse" } },
+        { "id": "b", "text": "鱼可以钓，消息我也顺便看了……", "effects": { "mind": -1, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_wkd_007",
+      "conversation": "conv_company",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "weekend",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "老板", "text": "【大群】祝大家周末愉快，好好休息。" }],
+      "replies": [
+        { "id": "a", "text": "（老板的祝福，大概率没有附件）", "effects": { "mind": 2 } },
+        { "id": "b", "text": "谢谢老板，周末愉快！", "effects": { "mind": 2, "npc": [["BOSS", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_wkd_008",
+      "conversation": "conv_junior",
+      "actor": "JUNIOR",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "weekend",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "小师妹", "text": "楼下烧烤？" }],
+      "replies": [
+        { "id": "a", "text": "烤！周一的烦恼周一说。", "effects": { "mind": 5, "npc": [["JUNIOR", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_inc_001",
+      "conversation": "conv_incident",
+      "actor": "OPS",
+      "priority": "CRITICAL",
+      "weight": 6,
+      "window": "any",
+      "cooldownDays": 3,
+      "steps": [{ "sender": "运维老哥", "text": "生产挂了。" }],
+      "replies": [
+        { "id": "a", "text": "拉事故群，我十分钟后上线。", "effects": { "npc": [["OPS", 3]], "incident": { "type": "PROD_DOWN", "severity": "S1", "source": "OPS" }, "incidentDungeon": { "incidentType": "PROD_DOWN_BOSS" }, "achievementKey": "real_p0", "reality": { "text": "响应生产事故", "kind": "INCIDENT" } } },
+        { "id": "b", "text": "先按预案止血：降级 + 扩容。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 2]], "incident": { "type": "PROD_DOWN", "severity": "S2", "source": "OPS" }, "task": { "title": "执行降级扩容预案", "priority": "P0", "source": "SYSTEM" } } },
+        { "id": "ignore", "text": "（装没看见——S1 可不行）", "effects": { "mind": -4, "npc": [["OPS", -5], ["BOSS", -3]], "innerDemon": 4, "incident": { "type": "PROD_DOWN", "severity": "S1", "source": "OPS" }, "achievementKey": "s1_ignored" } }
+      ]
+    },
+    {
+      "id": "ms_inc_002",
+      "conversation": "conv_incident",
+      "actor": "BOSS",
+      "priority": "CRITICAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "老板", "text": "什么情况？影响多大？多久恢复？" }],
+      "replies": [
+        { "id": "a", "text": "影响 30% 用户，预计 40 分钟恢复，每小时同步。", "tag": "PROFESSIONAL", "effects": { "npc": [["BOSS", 3]], "evidence": [["TIMELINE", "事故影响面与恢复预估"]], "performance": 1 } },
+        { "id": "b", "text": "正在查，一有结论马上汇报。", "effects": { "npc": [["BOSS", 1]], "mind": -2 } }
+      ]
+    },
+    {
+      "id": "ms_inc_003",
+      "conversation": "conv_incident",
+      "actor": "TESTER",
+      "priority": "HIGH",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "测试小哥", "text": "我在测试环境复现了！操作路径是：下单 → 退款 → 再下单。" }],
+      "replies": [
+        { "id": "a", "text": "关键复现路径！按这个查代码。", "effects": { "npc": [["TESTER", 3]], "task": { "title": "按复现路径修复", "priority": "P0", "source": "TESTER" } } }
+      ]
+    },
+    {
+      "id": "ms_inc_004",
+      "conversation": "conv_incident",
+      "actor": "VETERAN",
+      "priority": "HIGH",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "老油条", "text": "这块范大牛之前改过。" }],
+      "replies": [
+        { "id": "a", "text": "我看看，是我的我认。", "effects": { "responsibility": { "title": "生产事故责任界定", "blamedBy": "VETERAN", "publicVisibility": true }, "reality": { "text": "事故群里被点名", "kind": "BLAME" }, "task": { "title": "修复自己引入的问题", "priority": "P0", "source": "SYSTEM" } } },
+        { "id": "b", "text": "Git 记录显示最后修改人不是我。", "requiresEvidence": "GIT_LOG", "tag": "EVIDENCE_MASTER", "effects": { "mind": 2, "npc": [["VETERAN", -3]], "evidence": [["GIT_LOG", "Git 自证记录"]], "achievementKey": "evidence_counter" } },
+        { "id": "c", "text": "@老油条 你昨天不是刚改的吗？", "effects": { "npc": [["VETERAN", -4], ["TESTER", -1]], "mind": 1, "nextEvent": { "eventId": "ms_col_blame_chain", "delayMinutes": 8 } } },
+        { "id": "d", "text": "先恢复服务，责任复盘再谈。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 3], ["TESTER", 2]], "performance": 2 } },
+        { "id": "e", "text": "（已读不回，但屏幕在燃烧）", "effects": { "mind": -3, "npc": [["VETERAN", -2], ["OPS", -2]], "innerDemon": 3 } }
+      ]
+    },
+    {
+      "id": "ms_inc_005",
+      "conversation": "conv_incident",
+      "actor": "OPS",
+      "priority": "HIGH",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "服务恢复了。监控归位，告警清零。" }],
+      "replies": [
+        { "id": "a", "text": "辛苦了！我在群里同步：已恢复。", "effects": { "npc": [["OPS", 3]], "mind": 4, "evidence": [["TIMELINE", "恢复确认时间线"]], "nextEvent": { "eventId": "ms_inc_005_b", "delayMinutes": 60 } } }
+      ]
+    },
+    {
+      "id": "ms_inc_005_b",
+      "conversation": "conv_incident",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "老板", "text": "大家辛苦了。今天的问题明天复盘一下。" }],
+      "replies": [
+        { "id": "a", "text": "收到，我准备时间线和根因。", "effects": { "task": { "title": "准备复盘材料", "priority": "P1", "source": "BOSS" }, "reality": { "text": "接下复盘任务", "kind": "WORK" }, "dialogFlag": "POSTMORTEM_DUE" } }
+      ]
+    },
+    {
+      "id": "ms_inc_006",
+      "conversation": "conv_incident",
+      "actor": "OPS",
+      "priority": "CRITICAL",
+      "weight": 4,
+      "window": "lateNight",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "运维老哥", "text": "502 天魔现世，网关成片阵亡。" }],
+      "replies": [
+        { "id": "a", "text": "进入线上禁地，开打。", "effects": { "npc": [["OPS", 2]], "incidentDungeon": { "incidentType": "GATEWAY_502_BOSS" }, "achievementKey": "real_p0", "reality": { "text": "深夜讨伐 502 天魔", "kind": "INCIDENT" } } },
+        { "id": "b", "text": "切备用线路，我先上，你盯流量。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 3]], "incident": { "type": "GATEWAY_502", "severity": "S1", "source": "OPS" } } }
+      ]
+    },
+    {
+      "id": "ms_inc_007",
+      "conversation": "conv_incident",
+      "actor": "TESTER",
+      "priority": "HIGH",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "测试小哥", "text": "缓存雪崩兽王出没，读接口全线超时。" }],
+      "replies": [
+        { "id": "a", "text": "加限流 + 空值缓存，我上。", "effects": { "incidentDungeon": { "incidentType": "CACHE_STAMPEDE_BOSS" }, "achievementKey": "real_p0" } },
+        { "id": "b", "text": "重启缓存集群，预热白名单。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 2]], "incident": { "type": "CACHE_STAMPEDE", "severity": "S2", "source": "TESTER" } } }
+      ]
+    },
+    {
+      "id": "ms_inc_008",
+      "conversation": "conv_incident",
+      "actor": "VETERAN",
+      "priority": "HIGH",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "老油条", "text": "死锁双尊出现了，两个事务互相锁，数据库全线等待。" }],
+      "replies": [
+        { "id": "a", "text": "杀掉其中一个事务，我来。", "effects": { "incidentDungeon": { "incidentType": "DEADLOCK_BOSS" }, "achievementKey": "real_p0" } },
+        { "id": "b", "text": "按锁等待顺序整理日志，找环。", "tag": "PROFESSIONAL", "effects": { "npc": [["VETERAN", 2]], "task": { "title": "分析死锁日志", "priority": "P0", "source": "SYSTEM" } } }
+      ]
+    },
+    {
+      "id": "ms_inc_client_report",
+      "conversation": "conv_incident",
+      "actor": "OPS",
+      "priority": "HIGH",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "客户反馈属实，机房侧网络抖动，已切备用线路。" }],
+      "replies": [
+        { "id": "a", "text": "收到，我回复客户。", "effects": { "npc": [["OPS", 2], ["CLIENT", 1]], "evidence": [["TIMELINE", "网络抖动处置记录"]] } }
+      ]
+    },
+    {
+      "id": "ms_inc_release_night",
+      "conversation": "conv_incident",
+      "actor": "OPS",
+      "priority": "CRITICAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "临时上线的版本出事了：新接口把老订单查挂了。" }],
+      "replies": [
+        { "id": "a", "text": "回滚！回滚按钮在哪！", "effects": { "npc": [["OPS", 2]], "incident": { "type": "RELEASE_NIGHT", "severity": "S1", "source": "SYSTEM" }, "techDebt": [["release", 6]], "reality": { "text": "夜间临时上线引发放大事故", "kind": "INCIDENT" }, "nextEvent": { "eventId": "ms_inc_005_b", "delayMinutes": 90 } } },
+        { "id": "b", "text": "先降级新接口，保老订单。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 3]], "incident": { "type": "RELEASE_NIGHT", "severity": "S2", "source": "SYSTEM" }, "task": { "title": "降级新接口保主流程", "priority": "P0", "source": "SYSTEM" }, "nextEvent": { "eventId": "ms_inc_005_b", "delayMinutes": 90 } } }
+      ]
+    },
+    {
+      "id": "ms_inc_release_watch",
+      "conversation": "conv_incident",
+      "actor": "OPS",
+      "priority": "HIGH",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "发布监控正常，流量平稳。今晚稳了。" }],
+      "replies": [
+        { "id": "a", "text": "（稳了两个字，是夜里最温柔的话）", "effects": { "mind": 4, "npc": [["OPS", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_pos_001",
+      "conversation": "conv_junior",
+      "actor": "JUNIOR",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "小师妹", "text": "给你带了杯奶茶，半糖去冰，放你桌上了～" }],
+      "replies": [
+        { "id": "a", "text": "（半糖去冰都记得，这才是真·灵宠）", "effects": { "mind": 6, "npc": [["JUNIOR", 3]] } },
+        { "id": "b", "text": "谢啦！下次我请。", "effects": { "mind": 5, "npc": [["JUNIOR", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_pos_002",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "测试小哥", "text": "你的功能我提前帮你过了一遍，没问题，放心上线。" }],
+      "replies": [
+        { "id": "a", "text": "（测试的「没问题」，是职场最动听的情话）", "effects": { "mind": 6, "npc": [["TESTER", 3]] } },
+        { "id": "b", "text": "大恩不言谢，中午加个鸡腿。", "effects": { "mind": 5, "npc": [["TESTER", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_pos_003",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "产品经理", "text": "客户那边我挡住了，说你版本排得满，让他走正常排期。" }],
+      "replies": [
+        { "id": "a", "text": "（产品替你挡刀，是稀有掉落）", "effects": { "mind": 6, "npc": [["PRODUCT", 3]] } },
+        { "id": "b", "text": "多谢！回头把排期文档做得更细，帮你说话有底气。", "tag": "PROFESSIONAL", "effects": { "mind": 4, "npc": [["PRODUCT", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_pos_004",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "老板", "text": "今天别加班了，都早点回去。" }],
+      "replies": [
+        { "id": "a", "text": "（老板的恩赐，接住就是了）", "effects": { "mind": 7, "npc": [["BOSS", 2]] } },
+        { "id": "b", "text": "好嘞！老板也早点休息。", "effects": { "mind": 6, "npc": [["BOSS", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_pos_005",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "运维老哥", "text": "查清楚了，昨晚那个锅不是开发的，是机房空调漏水。" }],
+      "replies": [
+        { "id": "a", "text": "（运维的真相，是牛马的救命稻草）", "effects": { "mind": 6, "npc": [["OPS", 3]] } },
+        { "id": "b", "text": "太重要了，这个结论我转发群里。", "effects": { "mind": 5, "npc": [["OPS", 2]], "evidence": [["OPS_LOG", "机房空调责任结论"]] } }
+      ]
+    },
+    {
+      "id": "ms_pos_006",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "客户方丈", "text": "这期上线的功能，我们领导非常满意，说你们很专业。" }],
+      "replies": [
+        { "id": "a", "text": "（甲方夸专业，绩效会说话）", "effects": { "mind": 6, "performance": 3, "npc": [["CLIENT", 2], ["BOSS", 1]] } },
+        { "id": "b", "text": "谢谢，下一期我们做得更好。", "effects": { "mind": 5, "performance": 2 } }
+      ]
+    },
+    {
+      "id": "ms_pos_007",
+      "conversation": "conv_veteran",
+      "actor": "VETERAN",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 6,
+      "minRelation": 25,
+      "steps": [{ "sender": "老油条", "text": "昨天你不在，那个锅我帮你顶了，跟老板说是历史遗留。" }],
+      "replies": [
+        { "id": "a", "text": "（老油条的三层 coatings：甩锅、抢功、替你顶锅）", "effects": { "mind": 6, "npc": [["VETERAN", 4]] } },
+        { "id": "b", "text": "记下了，这份情我会还。", "effects": { "mind": 5, "npc": [["VETERAN", 3]] } }
+      ]
+    },
+    {
+      "id": "ms_pos_008",
+      "conversation": "conv_junior",
+      "actor": "JUNIOR",
+      "priority": "NORMAL",
+      "weight": 2,
+      "window": "any",
+      "cooldownDays": 8,
+      "minRelation": 45,
+      "steps": [{ "sender": "小师妹", "text": "刚才群里说你改坏的时候，我就在你旁边。不是范哥的问题，我昨天全程看到是你帮我配环境。" }],
+      "replies": [
+        { "id": "a", "text": "（证人出现！这是修仙界的证据之光）", "effects": { "mind": 8, "npc": [["JUNIOR", 4]], "evidence": [["WITNESS", "小师妹的目击证词"]], "achievementKey": "witness_saved" } },
+        { "id": "b", "text": "谢谢你。这份证据比十次渡劫都珍贵。", "effects": { "mind": 7, "npc": [["JUNIOR", 3]], "evidence": [["WITNESS", "小师妹的目击证词"]] } }
+      ]
+    },
+    {
+      "id": "ms_pos_009",
+      "conversation": "conv_company",
+      "actor": "HR",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 7,
+      "steps": [{ "sender": "HR仙子", "text": "【大群】本月牛马之星：技术一组 范大牛。奖品：额外调休一天。" }],
+      "replies": [
+        { "id": "a", "text": "（调休一天，比奖金还实在）", "effects": { "mind": 7, "performance": 2, "npc": [["HR", 1], ["BOSS", 1]] } },
+        { "id": "b", "text": "谢谢公司和同事们！", "effects": { "mind": 5 } }
+      ]
+    },
+    {
+      "id": "ms_pos_010",
+      "conversation": "conv_incident",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 2,
+      "window": "any",
+      "cooldownDays": 7,
+      "steps": [{ "sender": "运维老哥", "text": "复盘结论：根因是容量预估不足，不是人的问题。流程建议已提。" }],
+      "replies": [
+        { "id": "a", "text": "（「不是人的问题」，复盘会的稀有台词）", "effects": { "mind": 6, "npc": [["OPS", 2]] } },
+        { "id": "b", "text": "谢谢老哥仗义执言。", "effects": { "mind": 5, "npc": [["OPS", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_fun_001",
+      "conversation": "conv_company",
+      "actor": "VETERAN",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "any",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "老油条", "text": "【撤回了一条消息】" }],
+      "replies": [
+        { "id": "a", "text": "（撤回速度 0.3 秒，但我已经看到了）", "effects": { "mind": 3, "evidence": [["CHAT_RECORD", "撤回前瞥见的内容摘要"]] } },
+        { "id": "b", "text": "撤回了什么？在线等，挺急的。", "effects": { "mind": 2, "npc": [["VETERAN", 1]], "nextEvent": { "eventId": "ms_fun_001_b", "delayMinutes": 3 } } }
+      ]
+    },
+    {
+      "id": "ms_fun_001_b",
+      "conversation": "conv_company",
+      "actor": "VETERAN",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "老油条", "text": "发错群了，没什么。" }],
+      "replies": [
+        { "id": "a", "text": "（「发错群了」，职场三大经典话术之一）", "effects": { "mind": 2, "evidence": [["CHAT_RECORD", "「发错群了」现场记录"]], "achievementKey": "recall_evidence" } }
+      ]
+    },
+    {
+      "id": "ms_fun_002",
+      "conversation": "conv_company",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [
+        { "sender": "产品经理", "text": "这个锅先让范大牛背一下" },
+        { "sender": "产品经理", "text": "【撤回了一条消息】", "delayMinutes": 0 },
+        { "sender": "产品经理", "text": "发错群了。", "delayMinutes": 1 }
+      ],
+      "replies": [
+        { "id": "a", "text": "（看到了。完整看到了。）", "effects": { "mind": 2, "npc": [["PRODUCT", -3]], "evidence": [["CHAT_SCREENSHOT", "「让范大牛背锅」撤回截图"]], "achievementKey": "recall_evidence" } },
+        { "id": "b", "text": "产品经理，你撤回的那条，我帮你@全群了。", "tag": "ASSERTIVE", "minCareerLevel": 4, "effects": { "mind": 4, "npc": [["PRODUCT", -6]], "evidence": [["CHAT_SCREENSHOT", "撤回内容截图"]], "achievementKey": "recall_evidence" } }
+      ]
+    },
+    {
+      "id": "ms_fun_003",
+      "conversation": "conv_company",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "测试小哥", "text": "今日灵异事件：代码没改，功能自己好了。" }],
+      "replies": [
+        { "id": "a", "text": "（量子波动修仙：观测即修复）", "effects": { "mind": 3, "npc": [["TESTER", 1]] } },
+        { "id": "b", "text": "别高兴太早，它会自己坏回去的。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 2, "npc": [["TESTER", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_fun_004",
+      "conversation": "conv_company",
+      "actor": "JUNIOR",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "小师妹", "text": "刚看到一只猫蹲在工位上，像在 code review。" }],
+      "replies": [
+        { "id": "a", "text": "让它看，猫的评审意见比产品的靠谱。", "effects": { "mind": 3, "npc": [["JUNIOR", 1]] } },
+        { "id": "b", "text": "（橘猫：本公司唯一的职能猫，负责治愈）", "effects": { "mind": 3 } }
+      ]
+    },
+    {
+      "id": "ms_fun_005",
+      "conversation": "conv_project",
+      "actor": "VETERAN",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "老油条", "text": "需求文档第 48 页和第 52 页自相矛盾，产品说都有道理。" }],
+      "replies": [
+        { "id": "a", "text": "薛定谔的需求：实现哪边，另一边都是错的。", "effects": { "mind": 3, "npc": [["VETERAN", 1], ["PRODUCT", -1]] } },
+        { "id": "b", "text": "让产品掷硬币，我们记录结果作为需求确认。", "tag": "PROFESSIONAL", "effects": { "mind": 2, "evidence": [["REQUIREMENT_CONFIRMATION", "硬币决定的「需求确认」"]] } }
+      ]
+    },
+    {
+      "id": "ms_fun_006",
+      "conversation": "conv_company",
+      "actor": "HR",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "HR仙子", "text": "温馨提示：工位绿植领养活动开始，每桌一盆多肉。" }],
+      "replies": [
+        { "id": "a", "text": "（多肉：唯一能在加班环境存活的生灵）", "effects": { "mind": 2 } },
+        { "id": "b", "text": "领养了，取名「 deadline 」，希望它比真的坚强。", "effects": { "mind": 3, "npc": [["HR", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_fun_007",
+      "conversation": "conv_project",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "测试小哥", "text": "需求评审会结论：「下次再讨论」。" }],
+      "replies": [
+        { "id": "a", "text": "（「下次再讨论」=「永远不会讨论」的古文雅译）", "effects": { "mind": 2, "npc": [["TESTER", 1]], "innerDemon": 1 } },
+        { "id": "b", "text": "一小时的会，结论为零，这很职场。", "effects": { "mind": 2, "reality": { "text": "一小时会议零结论", "kind": "MEETING" } } }
+      ]
+    },
+    {
+      "id": "ms_fun_008",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "老板", "text": "我年轻时一个人干三个人的活，你们现在条件太好了。" }],
+      "replies": [
+        { "id": "a", "text": "所以现在我们三个人干十个人的活，条件确实变好了。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 3, "npc": [["BOSS", -1]] } },
+        { "id": "b", "text": "老板身体真好。", "effects": { "mind": 2, "npc": [["BOSS", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_fun_009",
+      "conversation": "conv_company",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "lateNight",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "运维老哥", "text": "凌晨三点，服务器很安静，我也很困。" }],
+      "replies": [
+        { "id": "a", "text": "（凌晨三点的守望者，灵网的第一道护心镜）", "effects": { "mind": 2, "npc": [["OPS", 2]] } },
+        { "id": "b", "text": "辛苦了，明天我带咖啡。", "effects": { "mind": 2, "npc": [["OPS", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_fun_010",
+      "conversation": "conv_project",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "产品经理", "text": "Logo 放大同时缩小一点，要有呼吸感。" }],
+      "replies": [
+        { "id": "a", "text": "放大同时缩小，这是要突破物理定律。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 3, "npc": [["PRODUCT", -1]] } },
+        { "id": "b", "text": "（先放大，再缩小，最终没改，呼吸感达成）", "effects": { "mind": 2 } }
+      ]
+    },
+    {
+      "id": "ms_fun_011",
+      "conversation": "conv_company",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 2,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "客户方丈", "text": "这个功能要「赋能」我们的「生态」，形成「闭环」。" }],
+      "replies": [
+        { "id": "a", "text": "（赋能、生态、闭环——甲方三件套齐了）", "effects": { "mind": 2, "innerDemon": 1 } },
+        { "id": "b", "text": "好的，我们先把「闭环」的「口」找准。", "tag": "PROFESSIONAL", "effects": { "mind": 1, "npc": [["CLIENT", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_fun_012",
+      "conversation": "conv_junior",
+      "actor": "JUNIOR",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "小师妹", "text": "梦到代码全删了重写，第二天居然全都通过了。" }],
+      "replies": [
+        { "id": "a", "text": "（预知梦：牛马的被动技能）", "effects": { "mind": 3, "npc": [["JUNIOR", 1]] } },
+        { "id": "b", "text": "下次梦到彩票号码，拜托。", "effects": { "mind": 3, "npc": [["JUNIOR", 1]] } }
+      ]
+    }
+  ]
+}

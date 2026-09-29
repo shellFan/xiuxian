@@ -1,0 +1,389 @@
+{
+  "events": [
+    {
+      "id": "ms_test_001",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "HIGH",
+      "weight": 7,
+      "window": "any",
+      "cooldownDays": 3,
+      "steps": [{ "sender": "测试小哥", "text": "有个问题确认一下，你改过支付那块吗？" }],
+      "replies": [
+        { "id": "a", "text": "上周动过配置读取，怎么了？", "effects": { "nextEvent": { "eventId": "ms_test_001_b", "delayMinutes": 4 } } },
+        { "id": "b", "text": "没有，怎么了？", "effects": { "nextEvent": { "eventId": "ms_test_001_b", "delayMinutes": 4 } } }
+      ]
+    },
+    {
+      "id": "ms_test_001_b",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "HIGH",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "测试小哥", "text": "预览环境支付一直失败，我还没提bug，你先看看是不是配置。" }],
+      "replies": [
+        { "id": "a", "text": "谢谢提前打招呼，我看配置。", "effects": { "npc": [["TESTER", 3]], "task": { "title": "自查支付配置问题", "priority": "P1", "source": "TESTER" }, "reality": { "text": "测试提前通气，自查支付配置", "kind": "WORK" } } },
+        { "id": "b", "text": "直接提单吧，我按单处理。", "tag": "PROFESSIONAL", "effects": { "npc": [["TESTER", 2]], "task": { "title": "处理支付失败 bug 单", "priority": "P1", "source": "TESTER" } } }
+      ]
+    },
+    {
+      "id": "ms_test_002",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "HIGH",
+      "weight": 6,
+      "window": "workday",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "测试小哥", "text": "@范大牛 这个 P0 是你改出来的吗？" }],
+      "replies": [
+        { "id": "a", "text": "我看看，是我的我认。", "effects": { "npc": [["TESTER", 2]], "task": { "title": "认领 P0 排查", "priority": "P0", "source": "TESTER" }, "reality": { "text": "认领 P0 排查", "kind": "WORK" } } },
+        { "id": "b", "text": "Git 记录显示最后修改人不是我。", "requiresEvidence": "GIT_LOG", "tag": "EVIDENCE_MASTER", "effects": { "npc": [["TESTER", 1]], "mind": 2, "evidence": [["GIT_LOG", "Git 提交记录自证"]], "achievementKey": "evidence_counter" } },
+        { "id": "c", "text": "@同事 你昨天不是刚改的吗？", "effects": { "npc": [["VETERAN", -3], ["TESTER", -1]], "mind": 1, "nextEvent": { "eventId": "ms_col_blame_chain", "delayMinutes": 10 } } },
+        { "id": "d", "text": "先别找人，先恢复服务。", "tag": "PROFESSIONAL", "effects": { "npc": [["TESTER", 3], ["OPS", 2]], "performance": 1 } },
+        { "id": "ignore", "text": "已读不回。", "effects": { "mind": 1, "npc": [["TESTER", -4]], "achievementKey": "read_no_reply" } }
+      ]
+    },
+    {
+      "id": "ms_test_003",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 6,
+      "window": "preOff",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "测试小哥", "text": "P0！！！" }],
+      "replies": [
+        { "id": "a", "text": "？？截图呢？现象呢？", "effects": { "nextEvent": { "eventId": "ms_test_003_b", "delayMinutes": 3 } } },
+        { "id": "b", "text": "（心跳骤停）来了来了。", "effects": { "mind": -3, "innerDemon": 2, "nextEvent": { "eventId": "ms_test_003_b", "delayMinutes": 3 } } }
+      ]
+    },
+    {
+      "id": "ms_test_003_b",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "测试小哥", "text": "预览环境的按钮颜色不对……抱歉，是样式问题。" }],
+      "replies": [
+        { "id": "a", "text": "这TM是P0？", "tag": "ASSERTIVE", "minCareerLevel": 1, "effects": { "mind": 2, "npc": [["TESTER", -1]], "achievementKey": "fake_p0_spotted" } },
+        { "id": "b", "text": "（虚惊一场，血压还给压回去了）", "effects": { "mind": -1, "innerDemon": 1, "achievementKey": "fake_p0_spotted" } },
+        { "id": "c", "text": "下次分级写清楚，预警也分真假。", "tag": "PROFESSIONAL", "effects": { "npc": [["TESTER", 1]], "mind": 1 } }
+      ]
+    },
+    {
+      "id": "ms_test_004",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "HIGH",
+      "weight": 5,
+      "window": "any",
+      "cooldownDays": 5,
+      "situationBoost": "incident",
+      "steps": [{ "sender": "测试小哥", "text": "生产也在报错！预览那个不是误报，是同一个问题！" }],
+      "replies": [
+        { "id": "a", "text": "收到！这不是 P0，这是 P-1！马上拉事故群。", "effects": { "npc": [["TESTER", 3], ["OPS", 2]], "incident": { "type": "PAYMENT_FAILURE", "severity": "S1", "source": "TESTER" }, "achievementKey": "real_p0" } },
+        { "id": "b", "text": "把报错堆栈和影响面发我。", "tag": "PROFESSIONAL", "effects": { "npc": [["TESTER", 2]], "task": { "title": "按堆栈定位生产报错", "priority": "P0", "source": "TESTER" } } }
+      ]
+    },
+    {
+      "id": "ms_test_005",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 5,
+      "window": "workday",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "测试小哥", "text": "你这个需求的验收标准文档里有吗？我按什么测？" }],
+      "replies": [
+        { "id": "a", "text": "PRD 3.2 节，我标给你。", "effects": { "npc": [["TESTER", 2]], "evidence": [["REQUIREMENT_CONFIRMATION", "验收标准定位"]] } },
+        { "id": "b", "text": "（被测试反向追问验收标准，是当代开发的成人礼）", "effects": { "mind": 1, "npc": [["TESTER", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_test_006",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 5,
+      "minRelation": 25,
+      "steps": [{ "sender": "测试小哥", "text": "这个不是 P0，我先降级成 P2，你按排期来就行。" }],
+      "replies": [
+        { "id": "a", "text": "义父！", "effects": { "npc": [["TESTER", 3]], "mind": 4 } },
+        { "id": "b", "text": "谢了，回头请你喝奶茶。", "effects": { "npc": [["TESTER", 2]], "mind": 3 } }
+      ]
+    },
+    {
+      "id": "ms_test_007",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "测试小哥", "text": "回归全部通过了，你这个版本质量可以。" }],
+      "replies": [
+        { "id": "a", "text": "双赢：你不用加班，我不用渡劫。", "effects": { "npc": [["TESTER", 3]], "mind": 4, "performance": 1 } },
+        { "id": "b", "text": "辛苦了，回归单我请你吃饭。", "effects": { "npc": [["TESTER", 2]], "mind": 3 } }
+      ]
+    },
+    {
+      "id": "ms_test_008",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "afterHours",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "测试小哥", "text": "下班了还打扰，生产有个偶现问题，明天能来早点一起看吗？" }],
+      "replies": [
+        { "id": "a", "text": "可以，八点半我到。", "effects": { "npc": [["TESTER", 3]], "task": { "title": "早上与测试联查偶现问题", "priority": "P1", "source": "TESTER" }, "reality": { "text": "约早班联查偶现问题", "kind": "WORK" } } },
+        { "id": "b", "text": "先打日志埋点，明早直接看数据。", "tag": "PROFESSIONAL", "effects": { "npc": [["TESTER", 2]], "task": { "title": "为偶现问题加日志埋点", "priority": "P2", "source": "TESTER" } } }
+      ]
+    },
+    {
+      "id": "ms_test_009",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 7,
+      "steps": [{ "sender": "测试小哥", "text": "你们开发的「修复完成」和测试的「验证通过」，是不是两个平行宇宙的语言？" }],
+      "replies": [
+        { "id": "a", "text": "从今天起统一为「自测通过 + 冒烟通过」。", "tag": "PROFESSIONAL", "effects": { "npc": [["TESTER", 3]], "performance": 1 } },
+        { "id": "b", "text": "（宇宙大战， daily 上演）", "effects": { "mind": 1, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_test_010",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "steps": [{ "sender": "测试小哥", "text": "泄露一个消息：明天老板要看你们组的演示，别掉链子。" }],
+      "replies": [
+        { "id": "a", "text": "情报费已到账（一杯奶茶）。", "effects": { "npc": [["TESTER", 2], ["JUNIOR", 1]], "mind": 3, "dialogFlag": "INSIDER_INFO" } },
+        { "id": "b", "text": "谢了兄弟，今晚我把演示再过一遍。", "effects": { "npc": [["TESTER", 2]], "task": { "title": "预演明日演示", "priority": "P1", "source": "TESTER" } } }
+      ]
+    },
+    {
+      "id": "ms_test_011",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "weekend",
+      "cooldownDays": 9,
+      "steps": [{ "sender": "测试小哥", "text": "周末加班吗？我一个人在工位，有点渗人。" }],
+      "replies": [
+        { "id": "a", "text": "我不加，你注意安全，早点回。", "effects": { "mind": 2, "npc": [["TESTER", 2]], "achievementKey": "weekend_refuse" } },
+        { "id": "b", "text": "我也在，一起点外卖。", "effects": { "mind": -2, "npc": [["TESTER", 3]], "reality": { "text": "周末陪测试加班", "kind": "OVERTIME" } } }
+      ]
+    },
+    {
+      "id": "ms_test_012",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "steps": [{ "sender": "测试小哥", "text": "你上次教我的抓包技巧太好用了，测出三个隐藏bug。" }],
+      "replies": [
+        { "id": "a", "text": "教学相长，你测出来的坑也少让我背。", "effects": { "npc": [["TESTER", 3]], "mind": 3 } },
+        { "id": "b", "text": "（技术输出是最划算的投资）", "effects": { "mind": 2, "performance": 1 } }
+      ]
+    },
+    {
+      "id": "ms_ops_001",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "HIGH",
+      "weight": 6,
+      "window": "any",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "运维老哥", "text": "你刚才是不是动配置了？" }],
+      "replies": [
+        { "id": "a", "text": "没动生产，我只改了预览。", "effects": { "nextEvent": { "eventId": "ms_ops_001_b", "delayMinutes": 3 } } },
+        { "id": "b", "text": "动了，发布脚本有个参数调错了，马上回滚。", "effects": { "npc": [["OPS", 2]], "techDebt": [["ops", 4]], "task": { "title": "回滚误改配置", "priority": "P0", "source": "SYSTEM" } } },
+        { "id": "ignore", "text": "已读不回。", "effects": { "mind": 1, "npc": [["OPS", -3]] } }
+      ]
+    },
+    {
+      "id": "ms_ops_001_b",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "HIGH",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "那生产网关为什么 5xx 了？你那边有发布吗？" }],
+      "replies": [
+        { "id": "a", "text": "我没有发布。我拉监控，一起看。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 3]], "incident": { "type": "GATEWAY_5XX", "severity": "S2", "source": "OPS" } } },
+        { "id": "b", "text": "（此时此刻，恰如彼时彼刻——先自证清白）", "effects": { "mind": -2, "npc": [["OPS", -1]], "evidence": [["OPS_LOG", "发布记录自证"]] } }
+      ]
+    },
+    {
+      "id": "ms_ops_002",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "HIGH",
+      "weight": 5,
+      "window": "lateNight",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "运维老哥", "text": "生产挂了。OOM，内存曲线像珠穆朗玛。" }],
+      "replies": [
+        { "id": "a", "text": "拉事故群，我十分钟后上线。", "effects": { "npc": [["OPS", 3]], "incident": { "type": "OOM", "severity": "S1", "source": "OPS" }, "incidentDungeon": { "incidentType": "OOM_BOSS" }, "achievementKey": "real_p0", "reality": { "text": "凌晨上线处理 OOM", "kind": "INCIDENT" } } },
+        { "id": "b", "text": "先重启止血，根因天亮再查。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 3]], "techDebt": [["ops", 3]], "incident": { "type": "OOM", "severity": "S2", "source": "OPS" } } }
+      ]
+    },
+    {
+      "id": "ms_ops_003",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 5,
+      "window": "workday",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "运维老哥", "text": "你这个服务一天重启八次，是在锻炼吗？" }],
+      "replies": [
+        { "id": "a", "text": "内存泄漏，我今晚修。", "effects": { "npc": [["OPS", 2]], "task": { "title": "修复内存泄漏", "priority": "P1", "source": "SYSTEM" }, "techDebt": [["perf", 5]] } },
+        { "id": "b", "text": "它在修炼金刚不坏之身。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 2, "npc": [["OPS", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_ops_004",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 6,
+      "minRelation": 30,
+      "steps": [{ "sender": "运维老哥", "text": "跟你说，老板下午在群里发的监控大盘，其实是我截的美化图。" }],
+      "replies": [
+        { "id": "a", "text": "（美化过的曲线，也是职场保护色）", "effects": { "mind": 2, "npc": [["OPS", 1]], "dialogFlag": "INSIDER_INFO" } },
+        { "id": "b", "text": "下次别美化，把告警阈值调对，我们都轻松。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 2]], "techDebt": [["ops", -3]] } }
+      ]
+    },
+    {
+      "id": "ms_ops_005",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 6,
+      "minRelation": 40,
+      "steps": [{ "sender": "运维老哥", "text": "出了事叫我，恢复速度给你拉满。兄弟之间不用说谢谢。" }],
+      "replies": [
+        { "id": "a", "text": "（关系到位，事故都变得温柔）", "effects": { "mind": 3, "npc": [["OPS", 1]], "dialogFlag": "OPS_ALLY" } },
+        { "id": "b", "text": "下辈子做运维，这辈子谢谢你。", "effects": { "mind": 3, "npc": [["OPS", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_ops_006",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 7,
+      "steps": [{ "sender": "运维老哥", "text": "证书明天到期，你们域名要换，别忘了。" }],
+      "replies": [
+        { "id": "a", "text": "收到，我列进发布清单。", "effects": { "npc": [["OPS", 2]], "task": { "title": "跟进域名证书更换", "priority": "P2", "source": "SYSTEM" } } },
+        { "id": "b", "text": "（运维的每一次提醒，都是事故的预葬礼）", "effects": { "mind": 1, "npc": [["OPS", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_ops_007",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "afterHours",
+      "cooldownDays": 7,
+      "steps": [{ "sender": "运维老哥", "text": "今晚我值班，你们有发布的抓紧，出事我兜底。" }],
+      "replies": [
+        { "id": "a", "text": "那我把小版本发一下，谢了。", "effects": { "npc": [["OPS", 2]], "performance": 1, "reality": { "text": "蹭运维值班发布小版本", "kind": "WORK" } } },
+        { "id": "b", "text": "算了，不折腾，周内再发。", "effects": { "mind": 3, "npc": [["OPS", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_ops_008",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "HIGH",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "situationBoost": "incident",
+      "steps": [{ "sender": "运维老哥", "text": "慢 SQL 老祖又出来了，数据库连接池快被吸干了。" }],
+      "replies": [
+        { "id": "a", "text": "我去看执行计划，这个 Boss 我来打。", "effects": { "npc": [["OPS", 2]], "incidentDungeon": { "incidentType": "SLOW_SQL_BOSS" }, "achievementKey": "real_p0" } },
+        { "id": "b", "text": "先限流止血，我改索引。", "tag": "PROFESSIONAL", "effects": { "npc": [["OPS", 2]], "techDebt": [["perf", 2]], "task": { "title": "优化慢 SQL 索引", "priority": "P0", "source": "SYSTEM" } } }
+      ]
+    },
+    {
+      "id": "ms_ops_009",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 8,
+      "steps": [{ "sender": "运维老哥", "text": "月度报告：你们组的事故率全公司第一。恭喜？" }],
+      "replies": [
+        { "id": "a", "text": "（这个第一，领得比绩效还沉）", "effects": { "mind": -3, "innerDemon": 3 } },
+        { "id": "b", "text": "下个月还你一个倒数第一。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 2, "npc": [["OPS", 1]] } }
+      ]
+    },
+    {
+      "id": "ms_ops_010",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 9,
+      "steps": [{ "sender": "运维老哥", "text": "教你一招：发布前先看告警大盘，能避开八成事故。" }],
+      "replies": [
+        { "id": "a", "text": "受教了，老哥。", "effects": { "npc": [["OPS", 2]], "mind": 2, "dialogFlag": "TECH_EXPERT" } },
+        { "id": "b", "text": "（运维的生存智慧，都是事故喂出来的）", "effects": { "mind": 1, "dialogFlag": "TECH_EXPERT" } }
+      ]
+    },
+    {
+      "id": "ms_ops_011",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "weekend",
+      "cooldownDays": 10,
+      "steps": [{ "sender": "运维老哥", "text": "周末值班中。机房空调坏了，服务器在蒸桑拿。" }],
+      "replies": [
+        { "id": "a", "text": "需要我远程做什么吗？", "effects": { "npc": [["OPS", 2]], "task": { "title": "远程协助机房降温处置", "priority": "P2", "source": "SYSTEM" } } },
+        { "id": "b", "text": "（服务器先于人享福了）", "effects": { "mind": 1, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_ops_012",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 9,
+      "steps": [{ "sender": "运维老哥", "text": "给你留了个后门权限，仅限事故时用。别告诉我老板。" }],
+      "replies": [
+        { "id": "a", "text": "（职场信任的最高形态：一个不上墙的权限）", "effects": { "mind": 3, "npc": [["OPS", 2]], "dialogFlag": "OPS_ALLY" } },
+        { "id": "b", "text": "不用后门，有事我走流程喊你。", "tag": "PROFESSIONAL", "effects": { "mind": 1, "npc": [["OPS", 1]] } }
+      ]
+    }
+  ]
+}

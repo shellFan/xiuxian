@@ -35,7 +35,7 @@ export const EVENTS: readonly EventDefinition[] = mergeUniqueById(
 export const EVENT_MAP: ReadonlyMap<string, EventDefinition> = new Map(EVENTS.map((e) => [e.id, e]));
 
 /** NPC id（§44）。 */
-export type NpcId = 'BOSS' | 'PRODUCT' | 'TESTER' | 'JUNIOR' | 'VETERAN' | 'HR';
+export type NpcId = 'BOSS' | 'PRODUCT' | 'TESTER' | 'JUNIOR' | 'VETERAN' | 'HR' | 'OPS' | 'CLIENT';
 
 export interface EventResolutionResult {
   readonly eventId: string;
@@ -45,19 +45,21 @@ export interface EventResolutionResult {
   readonly effectsApplied: EventEffects;
 }
 
-export type PresentationKind = 'S1' | 'PENDING' | 'PROMOTION' | 'TUTORIAL_CRITICAL' | 'WORKPLACE' | 'DAILY' | 'INFO';
+export type PresentationKind = 'S1' | 'PENDING' | 'PROMOTION' | 'TUTORIAL_CRITICAL' | 'CRITICAL_MESSAGE' | 'WORKPLACE' | 'DAILY' | 'NORMAL_MESSAGE' | 'INFO';
 export interface PresentationCandidate {
   readonly id: string;
   readonly kind: PresentationKind;
 }
 
 const PRESENTATION_PRIORITY: Readonly<Record<PresentationKind, number>> = {
-  S1: 7,
-  PENDING: 6,
-  PROMOTION: 5,
-  TUTORIAL_CRITICAL: 4,
-  WORKPLACE: 3,
-  DAILY: 2,
+  S1: 9,
+  PENDING: 8,
+  PROMOTION: 7,
+  TUTORIAL_CRITICAL: 6,
+  CRITICAL_MESSAGE: 5,
+  WORKPLACE: 4,
+  DAILY: 3,
+  NORMAL_MESSAGE: 2,
   INFO: 1,
 };
 

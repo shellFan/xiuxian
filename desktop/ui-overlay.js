@@ -972,6 +972,8 @@
         '<span class="ux-topbar-npc-line">' + escHtml(npcDynamicLine(hud)) + '</span></div>' +
       (pending > 0 ? '<button class="ux-topbar-pending" data-action="openPending" title="点击处理">🚨 ' + pending + ' 件破事待处理</button>' : '') +
       '<nav class="ux-topbar-shortcuts">' +
+        '<button class="ux-shortcut" data-action="openMessenger"><span class="sc-ico">📨</span><span>飞剑</span>' +
+        (messengerBadgeCount() > 0 ? '<span class="ux-shortcut-badge">' + messengerBadgeCount() + '</span>' : '') + '</button>' +
         '<button class="ux-shortcut" data-nav="TASKS"><span class="sc-ico">📜</span><span>任务</span></button>' +
         '<button class="ux-shortcut" data-nav="PROJECT"><span class="sc-ico">⚔️</span><span>项目</span></button>' +
         '<button class="ux-shortcut" data-action="goto" data-page="npc"><span class="sc-ico">🧑‍🤝‍🧑</span><span>人际</span></button>' +
@@ -1463,10 +1465,32 @@
     });
   }
 
-  /* 右栏（§43~§51）：今日待办 / 最近动态 / 今日生活（购买力+黄历合并） */
+  /* 右栏（§43~§51）：今日待办 / 飞剑传书 Widget / 最近动态 / 今日生活（购买力+黄历合并） */
   function homeRightHtml(hud) {
     void hud;
-    return agendaHtml() + recentTimelineHtml() + todayLifeHtml();
+    return agendaHtml() + messengerWidgetHtml() + recentTimelineHtml() + todayLifeHtml();
+  }
+
+  /* V5 飞剑传书 Widget（§37）：紧凑入口，2 条预览 + 查看，不撑高首页 */
+  function messengerWidgetHtml() {
+    var f = facade();
+    var badge = f && typeof f.queryMessengerBadge === 'function' ? (function () { try { return f.queryMessengerBadge(); } catch (e) { return null; } })() : null;
+    if (!badge) return '';
+    var previews = '';
+    var conversations = f && typeof f.queryConversations === 'function' ? (function () { try { return f.queryConversations(); } catch (e) { return []; } })() : [];
+    var withUnread = conversations.filter(function (c) { return c.unreadCount > 0; }).slice(0, 2);
+    for (var i = 0; i < withUnread.length; i++) {
+      previews += '<div class="ux-msg-preview"><span class="mp-title">' + escHtml(withUnread[i].title) +
+        (withUnread[i].unreadCount > 1 ? ' <b>' + withUnread[i].unreadCount + '</b>' : '') +
+        '</span><span class="mp-text">' + escHtml(String(withUnread[i].lastPreview || '').slice(0, 30)) + '</span></div>';
+    }
+    if (!previews) previews = '<div class="ux-msg-preview"><span class="mp-text">灵网安静，无人传书。</span></div>';
+    return '<div class="ux-card ux-messenger-widget">' +
+      '<div class="ux-card-title">📨 飞剑传书' +
+      (badge.totalUnread > 0 ? ' <span class="ux-msg-badge' + (badge.hasCritical ? ' critical' : '') + '">' + badge.totalUnread + '</span>' : '') +
+      '<button class="ux-card-more" data-action="openMessenger">查看</button></div>' +
+      previews +
+    '</div>';
   }
 
   function homeStatusText(hud) {
@@ -1526,6 +1550,13 @@
     } catch (e) { /* noop */ }
     try { if (f.queryV2CurrentEvent && f.queryV2CurrentEvent()) n += 1; } catch (e) { /* noop */ }
     return n;
+  }
+
+  /* 飞剑传书未读数（顶栏徽标） */
+  function messengerBadgeCount() {
+    var f = facade();
+    if (!f || typeof f.queryMessengerBadge !== 'function') return 0;
+    try { return f.queryMessengerBadge().totalUnread; } catch (e) { return 0; }
   }
 
   function dayPick(mod) {
@@ -1809,6 +1840,64 @@
 
   function matTile(name, label) {
     return '<div class="ux-mat">' + img(name) + '<span class="x" style="font-weight:700">' + label + '</span></div>';
+  }
+
+  /* ── 6c-1. 飞剑传书（V5 消息中心，§36：左 30% 会话 / 右 70% 聊天） ── */
+
+  var _messengerActiveConversation = null;
+  var _messengerReplyMessageId = null;
+
+  function renderMessenger() {
+    var f = facade();
+    if (!f || typeof f.queryConversations !== 'function') return emptyState('📨', '飞剑传书未就绪', '灵网正在接入……');
+    var conversations = (function () { try { return f.queryConversations(); } catch (e) { return []; } })();
+    if (!_messengerActiveConversation && conversations.length) _messengerActiveConversation = conversations[0].id;
+    var activeId = _messengerActiveConversation;
+    var listHtml = conversations.map(function (c) {
+      return '<button class="ux-conv' + (c.id === activeId ? ' is-active' : '') +
+        (c.unreadCount > 0 ? ' has-unread' : '') + '" data-open-conversation="' + escHtml(c.id) + '">' +
+        '<span class="ux-conv-avatar">' + escHtml(c.avatar === 'group' ? '👥' : c.avatar === 'system' ? '📡' : '🧑') + '</span>' +
+        '<span class="ux-conv-main"><span class="ux-conv-title">' + escHtml(c.title) + '</span>' +
+        '<span class="ux-conv-last">' + escHtml(String(c.lastPreview || '').slice(0, 24)) + '</span></span>' +
+        '<span class="ux-conv-side">' + (c.unreadCount > 0 ? '<b class="ux-msg-badge">' + c.unreadCount + '</b>' : '') +
+        '<i>' + (c.lastMessageAt ? new Date(c.lastMessageAt).toTimeString().slice(0, 5) : '') + '</i></span>' +
+        '</button>';
+    }).join('');
+
+    var messages = activeId ? (function () { try { return f.queryMessages(activeId); } catch (e) { return []; } })() : [];
+    var convTitle = (conversations.filter(function (c) { return c.id === activeId; })[0] || {}).title || '';
+    var typing = f && typeof f.queryTyping === 'function' ? (function () { try { return f.queryTyping(); } catch (e) { return null; } })() : null;
+    var typingHtml = typing && typing.conversationId === activeId ? '<div class="ux-chat-typing">对方正在输入……</div>' : '';
+    if (!_messengerReplyMessageId) {
+      var pendingMsg = messages.filter(function (m) { return m.options && m.options.length; })[0];
+      if (pendingMsg) _messengerReplyMessageId = pendingMsg.id;
+    }
+    var chatHtml = messages.map(function (m) {
+      if (m.recalled) return '<div class="ux-chat-row system"><span class="ux-chat-recall">撤回了一条消息</span></div>';
+      var mine = m.content.indexOf('【我】') >= 0;
+      var body = escHtml(m.content).replace('【我】', '</span><span class="ux-chat-mine-tag">【我】');
+      var replyBlock = '';
+      if (m.options && m.options.length && _messengerReplyMessageId === m.id) {
+        replyBlock = '<div class="ux-reply-options">' + m.options.map(function (o) {
+          return '<button class="ux-reply-option" data-reply="' + escHtml(o.id) + '" data-message="' + escHtml(m.id) + '">' +
+            (o.tag ? '<span class="ux-reply-tag">' + escHtml(o.tag) + '</span>' : '') + escHtml(o.text) + '</button>';
+        }).join('') + '</div>';
+      }
+      return '<div class="ux-chat-row' + (mine ? ' mine' : '') + '">' +
+        '<span class="ux-chat-sender">' + escHtml(m.senderName) + ' · ' + new Date(m.timestamp).toTimeString().slice(0, 5) + '</span>' +
+        '<span class="ux-chat-bubble">' + body + '</span>' + replyBlock + '</div>';
+    }).join('') || '<div class="ux-chat-empty">暂无传书。灵网安静。</div>';
+    var typingRow = typingHtml;
+    return '<div class="ux-messenger">' +
+      '<aside class="ux-messenger-list">' + listHtml + '</aside>' +
+      '<section class="ux-messenger-chat">' +
+        '<div class="ux-chat-title">' + escHtml(convTitle) + '</div>' +
+        '<div class="ux-chat-scroll" id="MessengerChatScroll">' + chatHtml + typingRow + '</div>' +
+        '<div class="ux-chat-footer" id="MessengerReplyBar">' +
+          (_messengerReplyMessageId ? '<span class="ux-reply-hint">选择你的回复：</span>' : '<span class="ux-reply-hint">有飞剑待处理时，回复选项会出现在这里。</span>') +
+        '</div>' +
+      '</section>' +
+    '</div>';
   }
 
   /* ── 6c-2. 项目（V4 战斗主场，首页只留入口横幅） ── */
@@ -2179,6 +2268,7 @@
 
   var PAGE_TITLES = {
     HOME: '', TASKS: '任务', PROJECT: '项目攻坚', CULTIVATION: '修仙', PROMOTION: '晋升渡劫', MORE: '更多',
+    MESSENGER: '飞剑传书',
     SECT: '宗门页', LEADERBOARD: '排行榜', FRIENDS: '好友', ACHIEVEMENTS: '成就', SETTINGS: '设置',
     TECHNIQUES: '功法', EQUIPMENT: '法宝', NPC: '人际关系', SETTLEMENT: '下班结算', DEV: 'DEV 面板',
   };
@@ -2192,6 +2282,7 @@
       case 'TASKS': return renderTasks();
       case 'PROJECT': return renderProject();
       case 'CULTIVATION': return renderCultivation();
+      case 'MESSENGER': return renderMessenger();
       case 'CRAFT': return renderCraft();
       case 'PROMOTION': {
         var hudP = readHUD();
@@ -2285,9 +2376,35 @@
     if (!overlay) return;
 
     overlay.onclick = function (e) {
-      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab]') : null;
+      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab]') : null;
       if (!el) return;
 
+      if (el.dataset.reply) {
+        var fReply = facade();
+        if (fReply && typeof fReply.replyToMessage === 'function') {
+          try {
+            var replyResult = fReply.replyToMessage(el.dataset.message, el.dataset.reply);
+            if (replyResult && replyResult.ok) {
+              toast('已回复。灵网归于平静。', 'success');
+              _messengerReplyMessageId = null;
+            } else {
+              toast((replyResult && replyResult.reason) || '回复失败', 'error');
+            }
+          } catch (err) { toast(errMsg(err), 'error'); }
+        }
+        refresh();
+        return;
+      }
+      if (el.dataset.openConversation) {
+        _messengerActiveConversation = el.dataset.openConversation;
+        _messengerReplyMessageId = null;
+        var fOpen = facade();
+        if (fOpen && typeof fOpen.markConversationRead === 'function') {
+          try { fOpen.markConversationRead(_messengerActiveConversation); } catch (err) { /* noop */ }
+        }
+        refresh();
+        return;
+      }
       if (el.dataset.selectAction) {
         /* 动作选择器：只切换详情，不发命令（§28） */
         _selectedAction = el.dataset.selectAction;
@@ -2323,6 +2440,12 @@
           break;
         case 'settings':
           _subPage = 'SETTINGS';
+          fullRefresh();
+          break;
+        case 'openMessenger':
+          _subPage = 'MESSENGER';
+          _messengerActiveConversation = null;
+          _messengerReplyMessageId = null;
           fullRefresh();
           break;
         case 'gotoTasks':

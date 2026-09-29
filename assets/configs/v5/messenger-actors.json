@@ -1,0 +1,27 @@
+{
+  "actors": [
+    { "id": "BOSS", "name": "老板", "title": "部门总监", "typingSeconds": 3, "avatar": "face-zhangsan" },
+    { "id": "PRODUCT", "name": "产品经理", "title": "需求化身", "typingSeconds": 2, "avatar": "face-tutou" },
+    { "id": "TESTER", "name": "测试小哥", "title": "bug猎人", "typingSeconds": 1, "avatar": "face-ceshi" },
+    { "id": "JUNIOR", "name": "小师妹", "title": "入职一年", "typingSeconds": 1, "avatar": "face-xiaoshimei" },
+    { "id": "VETERAN", "name": "老油条", "title": "十年司龄", "typingSeconds": 4, "avatar": "face-zhangsan" },
+    { "id": "HR", "name": "HR仙子", "title": "人心管理", "typingSeconds": 3, "avatar": "face-xiaoshimei" },
+    { "id": "OPS", "name": "运维老哥", "title": "灵网守护", "typingSeconds": 1, "avatar": "face-ceshi" },
+    { "id": "CLIENT", "name": "客户方丈", "title": "甲方真身", "typingSeconds": 5, "avatar": "face-tutou" },
+    { "id": "SYSTEM", "name": "飞剑传书", "title": "公司灵网", "typingSeconds": 0, "avatar": "system" }
+  ],
+  "conversations": [
+    { "id": "conv_boss", "type": "BOSS", "title": "老板", "avatar": "face-zhangsan", "participants": ["BOSS"], "priority": "HIGH" },
+    { "id": "conv_product", "type": "PRIVATE", "title": "产品经理", "avatar": "face-tutou", "participants": ["PRODUCT"], "priority": "HIGH" },
+    { "id": "conv_tester", "type": "PRIVATE", "title": "测试小哥", "avatar": "face-ceshi", "participants": ["TESTER"], "priority": "NORMAL" },
+    { "id": "conv_junior", "type": "PRIVATE", "title": "小师妹", "avatar": "face-xiaoshimei", "participants": ["JUNIOR"], "priority": "LOW" },
+    { "id": "conv_veteran", "type": "PRIVATE", "title": "老油条", "avatar": "face-zhangsan", "participants": ["VETERAN"], "priority": "NORMAL" },
+    { "id": "conv_hr", "type": "PRIVATE", "title": "HR仙子", "avatar": "face-xiaoshimei", "participants": ["HR"], "priority": "NORMAL" },
+    { "id": "conv_ops", "type": "PRIVATE", "title": "运维老哥", "avatar": "face-ceshi", "participants": ["OPS"], "priority": "HIGH" },
+    { "id": "conv_client", "type": "CLIENT", "title": "客户方丈", "avatar": "face-tutou", "participants": ["CLIENT"], "priority": "HIGH" },
+    { "id": "conv_project", "type": "PROJECT", "title": "项目群·灵网开发一组", "avatar": "group", "participants": ["BOSS", "PRODUCT", "TESTER", "JUNIOR", "VETERAN", "OPS"], "priority": "HIGH" },
+    { "id": "conv_incident", "type": "INCIDENT", "title": "事故群·线上救火队", "avatar": "group", "participants": ["BOSS", "PRODUCT", "TESTER", "VETERAN", "OPS"], "priority": "CRITICAL" },
+    { "id": "conv_company", "type": "GROUP", "title": "公司大群·牛马修仙界", "avatar": "group", "participants": ["BOSS", "PRODUCT", "TESTER", "JUNIOR", "VETERAN", "HR", "OPS", "CLIENT"], "priority": "NORMAL" },
+    { "id": "conv_system", "type": "SYSTEM", "title": "灵网系统通知", "avatar": "system", "participants": ["SYSTEM"], "priority": "LOW" }
+  ]
+}

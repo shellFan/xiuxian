@@ -1,0 +1,895 @@
+{
+  "events": [
+    {
+      "id": "ms_boss_001",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "HIGH",
+      "weight": 8,
+      "window": "any",
+      "cooldownDays": 3,
+      "steps": [{ "sender": "老板", "text": "在吗？" }],
+      "replies": [
+        { "id": "a", "text": "在的老板，您说。", "effects": { "npc": [["BOSS", 1]], "mind": -1, "nextEvent": { "eventId": "ms_boss_001_b", "delayMinutes": 3 } } },
+        { "id": "b", "text": "刚看到，什么事？", "effects": { "nextEvent": { "eventId": "ms_boss_001_b", "delayMinutes": 3 } } },
+        { "id": "ignore", "text": "已读不回", "effects": { "mind": 2, "npc": [["BOSS", -2]], "nextEvent": { "eventId": "ms_boss_001_c", "delayMinutes": 6 } } }
+      ]
+    },
+    {
+      "id": "ms_boss_001_b",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "HIGH",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "老板", "text": "也没什么大事。就是客户那边，希望今晚能上线。" }],
+      "replies": [
+        { "id": "a", "text": "今晚能上，但风险请您确认。", "effects": { "npc": [["BOSS", 1]], "performance": 2, "techDebt": [["release", 8]], "evidence": [["RISK_CONFIRMATION", "老板确认上线风险"]], "nextEvent": { "eventId": "ms_inc_release_night", "delayMinutes": 90 } } },
+        { "id": "b", "text": "我先评估一下影响面，一小时后给您结论。", "effects": { "npc": [["BOSS", 2]], "evidence": [["DEADLINE_CONFIRMATION", "承诺一小时内给评估"]], "task": { "title": "评估客户临时上线影响面", "priority": "P1", "source": "BOSS" } } },
+        { "id": "c", "text": "好的老板。", "effects": { "npc": [["BOSS", 2]], "mind": -3, "techDebt": [["release", 10]], "nextEvent": { "eventId": "ms_inc_release_night", "delayMinutes": 60 } } },
+        { "id": "d", "text": "去他的，我今天不加。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 5, "npc": [["BOSS", -6]], "dialogFlag": "ASSERTIVE", "reality": { "text": "当面拒绝了老板的临时上线", "kind": "OVERTIME" } } }
+      ]
+    },
+    {
+      "id": "ms_boss_001_c",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [
+        { "sender": "老板", "text": "？" },
+        { "sender": "老板", "text": "看到回复一下。" }
+      ],
+      "replies": [
+        { "id": "a", "text": "抱歉刚在忙，您说。", "effects": { "npc": [["BOSS", -1]], "nextEvent": { "eventId": "ms_boss_001_b", "delayMinutes": 3 } } },
+        { "id": "b", "text": "继续已读不回。", "effects": { "mind": 2, "npc": [["BOSS", -3]], "achievementKey": "read_no_reply" } }
+      ]
+    },
+    {
+      "id": "ms_boss_002",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 6,
+      "window": "workday",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "老板", "text": "这个事情不复杂吧？" }],
+      "replies": [
+        { "id": "a", "text": "需求文档三页，接口十二个，今晚？", "tag": "PROFESSIONAL", "minCareerLevel": 2, "effects": { "npc": [["BOSS", 2]], "mind": -2, "dialogFlag": "PROFESSIONAL" } },
+        { "id": "b", "text": "挑战可以，工期也要挑战一下。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "npc": [["BOSS", -1]], "mind": 2, "performance": 1 } },
+        { "id": "c", "text": "好的老板，不复杂。", "effects": { "npc": [["BOSS", 2]], "mind": -3, "techDebt": [["scope", 6]] } },
+        { "id": "d", "text": "我把拆解发您，您看哪块砍。", "effects": { "npc": [["BOSS", 3]], "performance": 2, "task": { "title": "输出技术拆解与工时评估", "priority": "P2", "source": "BOSS" } } }
+      ]
+    },
+    {
+      "id": "ms_boss_003",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 5,
+      "window": "workday",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "老板", "text": "年轻人要敢于挑战自己。上个月说的那个通用中台，你牵头搞一下。" }],
+      "replies": [
+        { "id": "a", "text": "好的，我先出方案。", "effects": { "npc": [["BOSS", 2]], "task": { "title": "牵头通用中台方案", "priority": "P1", "source": "BOSS" } } },
+        { "id": "b", "text": "中台的范围和资源，能先对齐一下吗？", "tag": "PROFESSIONAL", "effects": { "npc": [["BOSS", 3]], "evidence": [["REQUIREMENT_CONFIRMATION", "中台范围确认记录"]], "performance": 2 } },
+        { "id": "c", "text": "（默默把「中台」记进心里的饼图鉴）", "effects": { "mind": 1, "innerDemon": 2 } }
+      ]
+    },
+    {
+      "id": "ms_boss_004",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "老板", "text": "周末有没有空？有个小事。" }],
+      "replies": [
+        { "id": "a", "text": "什么事？如果是线上问题随时叫我。", "effects": { "npc": [["BOSS", 2]], "nextEvent": { "eventId": "ms_boss_004_b", "delayMinutes": 5 } } },
+        { "id": "b", "text": "周末有事，走不开。", "effects": { "mind": 3, "npc": [["BOSS", -3]], "achievementKey": "weekend_refuse" } },
+        { "id": "ignore", "text": "装死，不回。", "effects": { "mind": 3, "npc": [["BOSS", -2]], "achievementKey": "read_no_reply" } }
+      ]
+    },
+    {
+      "id": "ms_boss_004_b",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "老板", "text": "客户想周末来看个演示，你准备一下就好，不急。" }],
+      "replies": [
+        { "id": "a", "text": "收到，我远程准备。", "effects": { "npc": [["BOSS", 2]], "task": { "title": "准备客户周末演示", "priority": "P2", "source": "BOSS" } } },
+        { "id": "b", "text": "演示材料我让小师妹搭把手。", "effects": { "npc": [["BOSS", 1], ["JUNIOR", 1]], "reality": { "text": "拉小师妹一起准备演示", "kind": "WORK" } } }
+      ]
+    },
+    {
+      "id": "ms_boss_005",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "HIGH",
+      "weight": 5,
+      "window": "preOff",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "老板", "text": "下班前到我办公室来一趟。" }],
+      "replies": [
+        { "id": "a", "text": "好的，马上到。", "effects": { "mind": -2, "nextEvent": { "eventId": "ms_boss_005_b", "delayMinutes": 10 } } },
+        { "id": "b", "text": "老板，明天一早行吗？我手头有个东西正到关键处。", "tag": "PROFESSIONAL", "effects": { "npc": [["BOSS", -1]], "mind": 2, "nextEvent": { "eventId": "ms_boss_005_c", "delayMinutes": 8 } } }
+      ]
+    },
+    {
+      "id": "ms_boss_005_b",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "老板", "text": "最近做得不错。下个季度的晋升名单，我准备报你。" }],
+      "replies": [
+        { "id": "a", "text": "谢谢老板！我继续加油。", "effects": { "npc": [["BOSS", 3]], "mind": 6, "dialogFlag": "BOSS_BACKING" } },
+        { "id": "b", "text": "（表面平静，内心已经开始渡劫预演）", "effects": { "npc": [["BOSS", 2]], "mind": 4, "innerDemon": 3 } }
+      ]
+    },
+    {
+      "id": "ms_boss_005_c",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "老板", "text": "行。那明天说。也不是大事。" }],
+      "replies": [
+        { "id": "a", "text": "（是一句「不是大事」让人心更慌）", "effects": { "mind": -1, "innerDemon": 2 } }
+      ]
+    },
+    {
+      "id": "ms_boss_006",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 5,
+      "window": "workday",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "老板", "text": "客户夸你了，说你响应快。继续保持。" }],
+      "replies": [
+        { "id": "a", "text": "谢谢老板，应该的。", "effects": { "npc": [["BOSS", 2]], "performance": 1 } },
+        { "id": "b", "text": "响应快是因为需求没改过（小声）。", "tag": "ASSERTIVE", "minCareerLevel": 4, "effects": { "mind": 3, "npc": [["BOSS", 1], ["PRODUCT", -1]] } }
+      ]
+    },
+    {
+      "id": "ms_boss_007",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "HIGH",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 5,
+      "situationBoost": "kpi",
+      "steps": [{ "sender": "老板", "text": "这个季度绩效面谈提前一下，你准备准备。" }],
+      "replies": [
+        { "id": "a", "text": "好的，我整理一下这季度的产出。", "effects": { "npc": [["BOSS", 1]], "task": { "title": "整理季度绩效材料", "priority": "P2", "source": "BOSS" } } },
+        { "id": "b", "text": "（绩效周到了，是福不是祸）", "effects": { "mind": -2, "innerDemon": 2 } }
+      ]
+    },
+    {
+      "id": "ms_boss_008",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "afterHours",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "老板", "text": "【转发】《如何把公司当成家》，共勉。" }],
+      "replies": [
+        { "id": "a", "text": "收到，谢谢老板。", "effects": { "npc": [["BOSS", 1]], "mind": -1 } },
+        { "id": "b", "text": "（把公司当成家，就是把老板当成房东）", "effects": { "mind": 2, "innerDemon": 1 } },
+        { "id": "c", "text": "老板，家里是不给我发工资的。", "tag": "ASSERTIVE", "minCareerLevel": 5, "effects": { "mind": 5, "npc": [["BOSS", -4]], "dialogFlag": "ASSERTIVE" } }
+      ]
+    },
+    {
+      "id": "ms_boss_009",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "minRelation": 20,
+      "steps": [{ "sender": "老板", "text": "有个内部机会，新项目缺个技术负责人。你有没有兴趣了解一下？" }],
+      "replies": [
+        { "id": "a", "text": "有兴趣，您给我讲讲。", "effects": { "npc": [["BOSS", 3]], "performance": 2, "dialogFlag": "PROMO_TRACK" } },
+        { "id": "b", "text": "谢谢老板，我想先把手头项目做稳。", "tag": "PROFESSIONAL", "effects": { "npc": [["BOSS", 1]], "mind": 2 } }
+      ]
+    },
+    {
+      "id": "ms_boss_010",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "HIGH",
+      "weight": 4,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "老板", "text": "刚接到投诉，说我们接口很慢。你去看看，优先级很高。" }],
+      "replies": [
+        { "id": "a", "text": "收到，我先查监控定位。", "effects": { "npc": [["BOSS", 2]], "task": { "title": "排查接口性能投诉", "priority": "P0", "source": "BOSS" }, "techDebt": [["perf", 3]] } },
+        { "id": "b", "text": "有具体接口和时间段吗？我先要个复现路径。", "tag": "PROFESSIONAL", "effects": { "npc": [["BOSS", 3]], "evidence": [["REQUIREMENT_CONFIRMATION", "性能投诉定位信息"]], "task": { "title": "按复现路径排查性能问题", "priority": "P1", "source": "BOSS" } } },
+        { "id": "c", "text": "让运维先看网关日志，我同时查代码。", "effects": { "npc": [["BOSS", 2], ["OPS", 2]], "task": { "title": "联合排查接口性能", "priority": "P1", "source": "BOSS" } } }
+      ]
+    },
+    {
+      "id": "ms_boss_011",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "lateNight",
+      "cooldownDays": 9,
+      "steps": [{ "sender": "老板", "text": "还没睡？注意身体。明天的事明天说。" }],
+      "replies": [
+        { "id": "a", "text": "（老板居然也有这一面）", "effects": { "npc": [["BOSS", 3]], "mind": 4 } },
+        { "id": "b", "text": "在收尾，马上睡。", "effects": { "npc": [["BOSS", 2]], "mind": 2 } }
+      ]
+    },
+    {
+      "id": "ms_boss_012",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "HIGH",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 7,
+      "situationBoost": "incident",
+      "steps": [{ "sender": "老板", "text": "刚才那个事故，客户点名要听解释。你把时间线整理给我。" }],
+      "replies": [
+        { "id": "a", "text": "时间线我马上整理，含监控截图。", "effects": { "npc": [["BOSS", 2]], "evidence": [["TIMELINE", "事故时间线"]], "task": { "title": "整理事故时间线", "priority": "P0", "source": "BOSS" } } },
+        { "id": "b", "text": "先对齐事实，再谈解释。监控和日志都在。", "tag": "EVIDENCE_MASTER", "effects": { "npc": [["BOSS", 2]], "evidence": [["TIMELINE", "事故时间线"], ["CHAT_RECORD", "群里时间线对齐"]], "dialogFlag": "EVIDENCE_MASTER" } }
+      ]
+    },
+    {
+      "id": "ms_boss_013",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 10,
+      "minRelation": 30,
+      "steps": [{ "sender": "老板", "text": "跟你说个事，别外传。公司明年战略要转方向，你手头的项目要早做打算。" }],
+      "replies": [
+        { "id": "a", "text": "明白，谢谢老板提前说。", "effects": { "npc": [["BOSS", 2]], "dialogFlag": "INSIDER_INFO" } },
+        { "id": "b", "text": "（战略转向，饼要换口味了）", "effects": { "mind": -1, "innerDemon": 2, "dialogFlag": "INSIDER_INFO" } }
+      ]
+    },
+    {
+      "id": "ms_boss_014",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "老板", "text": "下周一晨会你来讲一下项目进展，十分钟即可。" }],
+      "replies": [
+        { "id": "a", "text": "好的，我准备个简版。", "effects": { "npc": [["BOSS", 1]], "task": { "title": "准备晨会项目进展汇报", "priority": "P2", "source": "BOSS" }, "reality": { "text": "接了晨会汇报", "kind": "MEETING" } } },
+        { "id": "b", "text": "十分钟讲不完，我申请十五分钟。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "npc": [["BOSS", 2]], "mind": 1 } }
+      ]
+    },
+    {
+      "id": "ms_boss_015",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "weekend",
+      "cooldownDays": 9,
+      "steps": [{ "sender": "老板", "text": "周一早上快捷酒店会议室，客户的人要来，你到场。" }],
+      "replies": [
+        { "id": "a", "text": "（周末的会议室，是牛马的第二个工位）", "effects": { "mind": -3, "npc": [["BOSS", 2]], "reality": { "text": "周末到场客户会前准备", "kind": "OVERTIME" } } },
+        { "id": "b", "text": "老板，周末有自己的安排，材料我可以提前备好，现场让老油条顶一下行吗？", "effects": { "mind": 3, "npc": [["BOSS", -2], ["VETERAN", 1]], "achievementKey": "weekend_refuse" } }
+      ]
+    },
+    {
+      "id": "ms_boss_016",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 7,
+      "steps": [{ "sender": "老板", "text": "招个新人你来带，能分担你一半的活。" }],
+      "replies": [
+        { "id": "a", "text": "好啊，正好有活分出去。", "effects": { "npc": [["BOSS", 2]], "task": { "title": "带新人熟悉项目", "priority": "P2", "source": "BOSS" } } },
+        { "id": "b", "text": "带新人本身是第几个一半的活？", "tag": "ASSERTIVE", "minCareerLevel": 4, "effects": { "mind": 2, "npc": [["BOSS", 1]], "performance": 1 } }
+      ]
+    },
+    {
+      "id": "ms_boss_017",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "steps": [{ "sender": "老板", "text": "【链接】《优秀程序员的自我修养》，看完写个心得，周五前。" }],
+      "replies": [
+        { "id": "a", "text": "收到。", "effects": { "task": { "title": "写《自我修养》读后心得", "priority": "P3", "source": "BOSS" } } },
+        { "id": "b", "text": "（书单越来越长，头发越来越短）", "effects": { "mind": 1, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_boss_018",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "HIGH",
+      "weight": 3,
+      "window": "preOff",
+      "cooldownDays": 8,
+      "situationBoost": "deadline",
+      "steps": [{ "sender": "老板", "text": "今晚版本发布，你盯一下，出问题直接处理。" }],
+      "replies": [
+        { "id": "a", "text": "收到，我盯发布。", "effects": { "npc": [["BOSS", 2]], "performance": 2, "reality": { "text": "盯今晚版本发布", "kind": "OVERTIME" }, "nextEvent": { "eventId": "ms_inc_release_watch", "delayMinutes": 120 } } },
+        { "id": "b", "text": "发布清单和回滚预案发我一份，我按流程盯。", "tag": "PROFESSIONAL", "effects": { "npc": [["BOSS", 3]], "evidence": [["RISK_CONFIRMATION", "发布与回滚预案确认"]], "reality": { "text": "按流程盯发布", "kind": "OVERTIME" } } },
+        { "id": "c", "text": "今晚有安排，测试小哥在，他盯我远程支持。", "effects": { "mind": 2, "npc": [["BOSS", -2], ["TESTER", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_boss_019",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 12,
+      "minRelation": 40,
+      "steps": [{ "sender": "老板", "text": "私底下问你一句，你觉得团队现在最大的问题是什么？" }],
+      "replies": [
+        { "id": "a", "text": "需求变更太频繁，大家疲于奔命。", "tag": "ASSERTIVE", "effects": { "npc": [["BOSS", 3]], "mind": 2, "performance": 2 } },
+        { "id": "b", "text": "问题不大，就是人有点少。", "effects": { "npc": [["BOSS", 2]] } },
+        { "id": "c", "text": "最大的问题是把「能扛」当成「没问题」。", "minCareerLevel": 5, "effects": { "npc": [["BOSS", 4]], "mind": 3, "dialogFlag": "MANAGER" } }
+      ]
+    },
+    {
+      "id": "ms_boss_020",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "any",
+      "cooldownDays": 7,
+      "steps": [{ "sender": "老板", "text": "【转发】刚开完的管理会，利好消息：下午茶预算批了。" }],
+      "replies": [
+        { "id": "a", "text": "谢谢老板！奶茶自由了。", "effects": { "npc": [["BOSS", 2]], "mind": 4 } },
+        { "id": "b", "text": "（下午茶预算，加班时的碳水化合物）", "effects": { "mind": 2, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_prod_001",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "HIGH",
+      "weight": 8,
+      "window": "any",
+      "cooldownDays": 3,
+      "steps": [{ "sender": "产品经理", "text": "昨天那个需求今天能上吗？" }],
+      "replies": [
+        { "id": "a", "text": "嗯，今天能做。", "effects": { "npc": [["PRODUCT", 2]], "mind": -2, "techDebt": [["scope", 6]], "task": { "title": "今日上线昨日需求", "priority": "P1", "source": "PRODUCT" }, "nextEvent": { "eventId": "ms_prod_001_b", "delayMinutes": 90 } } },
+        { "id": "b", "text": "先给需求文档。", "effects": { "npc": [["PRODUCT", -2]], "mind": 1, "evidence": [["REQUIREMENT_DOC", "产品需求文档"]], "task": { "title": "按需求文档排期", "priority": "P2", "source": "PRODUCT" } } },
+        { "id": "c", "text": "简单你来。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 3, "npc": [["PRODUCT", -12]], "dialogFlag": "ASSERTIVE", "achievementKey": "assertive_reply" } },
+        { "id": "d", "text": "我评估一下，下午给时间。", "effects": { "npc": [["PRODUCT", 1]], "task": { "title": "评估昨日需求工时", "priority": "P2", "source": "PRODUCT" }, "evidence": [["DEADLINE_CONFIRMATION", "下午给排期的承诺"]] } }
+      ]
+    },
+    {
+      "id": "ms_prod_001_b",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "产品经理", "text": "话说客户刚又提了个小点，顺便一起上了呗，很简单的。" }],
+      "replies": [
+        { "id": "a", "text": "「顺便」两个字是需求界最大的谎言。变更走流程，我评估。", "tag": "PROFESSIONAL", "minCareerLevel": 2, "effects": { "npc": [["PRODUCT", -1]], "evidence": [["REQUIREMENT_CONFIRMATION", "拒绝口头加需求"]], "mind": 2 } },
+        { "id": "b", "text": "行吧，一起上了。", "effects": { "mind": -3, "techDebt": [["scope", 8]], "reality": { "text": "又吞了一个口头变更", "kind": "CHANGE" }, "task": { "title": "连带实现客户追加小点", "priority": "P1", "source": "PRODUCT" } } }
+      ]
+    },
+    {
+      "id": "ms_prod_002",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "HIGH",
+      "weight": 7,
+      "window": "workday",
+      "cooldownDays": 3,
+      "steps": [{ "sender": "产品经理", "text": "就按昨天说的做。" }],
+      "replies": [
+        { "id": "a", "text": "「昨天说的」具体是哪句？我引用给你确认。", "tag": "EVIDENCE_MASTER", "effects": { "npc": [["PRODUCT", -1]], "evidence": [["REQUIREMENT_CONFIRMATION", "聊天记录需求确认"]], "dialogFlag": "EVIDENCE_MASTER" } },
+        { "id": "b", "text": "好，按我理解的做了。", "effects": { "mind": -1, "nextEvent": { "eventId": "ms_prod_002_b", "delayMinutes": 120 } } },
+        { "id": "c", "text": "文字发我一遍，我按文字做。", "effects": { "npc": [["PRODUCT", 1]], "evidence": [["REQUIREMENT_CONFIRMATION", "产品文字确认"]] } }
+      ]
+    },
+    {
+      "id": "ms_prod_002_b",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "HIGH",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "产品经理", "text": "诶不是这个意思，客户要的是另一边。" }],
+      "replies": [
+        { "id": "a", "text": "（没有文字确认，锅已到账）", "effects": { "mind": -3, "npc": [["PRODUCT", -2]], "techDebt": [["scope", 5]], "reality": { "text": "因口头需求返工", "kind": "CHANGE" } } },
+        { "id": "b", "text": "（还好我留了确认记录）这次按新口径做，变更算一次需求变更。", "requiresEvidence": "REQUIREMENT_CONFIRMATION", "effects": { "npc": [["PRODUCT", -3]], "mind": 1, "evidence": [["REQUIREMENT_CONFIRMATION", "变更前后对照"]], "achievementKey": "req_confirm_save" } }
+      ]
+    },
+    {
+      "id": "ms_prod_003",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 6,
+      "window": "workday",
+      "cooldownDays": 4,
+      "steps": [{ "sender": "产品经理", "text": "这个很简单吧？就改个按钮颜色的事。" }],
+      "replies": [
+        { "id": "a", "text": "按钮颜色简单，按钮背后的十个接口不简单。", "tag": "PROFESSIONAL", "effects": { "npc": [["PRODUCT", -1]], "mind": 1 } },
+        { "id": "b", "text": "行，颜色我改，交互逻辑另算。", "effects": { "npc": [["PRODUCT", 1]], "task": { "title": "调整按钮颜色", "priority": "P3", "source": "PRODUCT" } } },
+        { "id": "c", "text": "（「很简单」出现频率与实际复杂度成正比）", "effects": { "mind": 1, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_prod_004",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "HIGH",
+      "weight": 6,
+      "window": "workday",
+      "cooldownDays": 4,
+      "situationBoost": "project",
+      "steps": [{ "sender": "产品经理", "text": "客户说体验不好，你们看看是不是技术问题。" }],
+      "replies": [
+        { "id": "a", "text": "具体哪一步体验不好？有录屏吗？", "tag": "PROFESSIONAL", "effects": { "npc": [["PRODUCT", 1]], "task": { "title": "按录屏排查体验问题", "priority": "P2", "source": "PRODUCT" } } },
+        { "id": "b", "text": "技术没问题，是设计问题。设计也是你们产品的。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 2, "npc": [["PRODUCT", -4]] } },
+        { "id": "c", "text": "我先自查一遍，一小时后同步结论。", "effects": { "npc": [["PRODUCT", 2]], "task": { "title": "自查客户体验反馈", "priority": "P2", "source": "PRODUCT" } } }
+      ]
+    },
+    {
+      "id": "ms_prod_005",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 5,
+      "window": "lunch",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "产品经理", "text": "午休时间方便对个需求吗？五分钟。" }],
+      "replies": [
+        { "id": "a", "text": "午休是法定修仙时间。下午两点，我请你咖啡。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 3, "npc": [["PRODUCT", -1]] } },
+        { "id": "b", "text": "行，就五分钟。", "effects": { "npc": [["PRODUCT", 2]], "mind": -2, "nextEvent": { "eventId": "ms_prod_005_b", "delayMinutes": 15 } } }
+      ]
+    },
+    {
+      "id": "ms_prod_005_b",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "产品经理", "text": "（四十分钟后）对了还有三个关联改动一起说下……" }],
+      "replies": [
+        { "id": "a", "text": "（说好的五分钟，是职场最大的虚构文学）", "effects": { "mind": -2, "innerDemon": 2, "reality": { "text": "五分钟对需求变成四十分钟", "kind": "MEETING" } } },
+        { "id": "b", "text": "剩下三个明天约正式时间，我下午有排期。", "tag": "PROFESSIONAL", "effects": { "npc": [["PRODUCT", -1]], "mind": 2 } }
+      ]
+    },
+    {
+      "id": "ms_prod_006",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "产品经理", "text": "我帮你跟老板说了，这个需求你不加班也能做完。" }],
+      "replies": [
+        { "id": "a", "text": "谢谢，但「不加班也能做完」和「不用加班」是两句话。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 2, "npc": [["PRODUCT", -2]] } },
+        { "id": "b", "text": "多谢美言。排期我按正常工时来。", "effects": { "npc": [["PRODUCT", 1]], "mind": 1 } }
+      ]
+    },
+    {
+      "id": "ms_prod_007",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 6,
+      "minRelation": 20,
+      "steps": [{ "sender": "产品经理", "text": "跟你说实话，这个需求是被客户逼的，我也不想做。" }],
+      "replies": [
+        { "id": "a", "text": "理解，那我们先把风险列出来给客户。", "tag": "PROFESSIONAL", "effects": { "npc": [["PRODUCT", 3]], "evidence": [["RISK_CONFIRMATION", "与产品共同确认风险清单"]], "mind": 1 } },
+        { "id": "b", "text": "（原来你也是牛马）", "effects": { "mind": 2, "npc": [["PRODUCT", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_prod_008",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "HIGH",
+      "weight": 5,
+      "window": "preOff",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "产品经理", "text": "客户说今晚能不能上？" }],
+      "replies": [
+        { "id": "a", "text": "可以，只上已测部分，其余明天。", "tag": "PROFESSIONAL", "effects": { "npc": [["PRODUCT", 2]], "evidence": [["RISK_CONFIRMATION", "部分上线范围确认"]], "reality": { "text": "执行部分上线", "kind": "OVERTIME" } } },
+        { "id": "b", "text": "不可以。测试没跑完，出了问题谁负责？", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 3, "npc": [["PRODUCT", -3]], "achievementKey": "refuse_release" } },
+        { "id": "c", "text": "需要测试。让测试小哥加急跑一轮主流程。", "effects": { "npc": [["PRODUCT", 1], ["TESTER", 2]], "task": { "title": "协调加急回归主流程", "priority": "P1", "source": "PRODUCT" } } },
+        { "id": "d", "text": "风险自担确认发我，我上。", "effects": { "npc": [["PRODUCT", 2]], "evidence": [["RISK_CONFIRMATION", "客户与产品风险自担确认"]], "techDebt": [["release", 10]], "reality": { "text": "风险自担强行上线", "kind": "OVERTIME" }, "nextEvent": { "eventId": "ms_inc_release_night", "delayMinutes": 100 } } }
+      ]
+    },
+    {
+      "id": "ms_prod_009",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "产品经理", "text": "【文档】新版本 PRD，今天评审。" }],
+      "replies": [
+        { "id": "a", "text": "收到，我提评审意见。", "effects": { "task": { "title": "评审新版本 PRD", "priority": "P2", "source": "PRODUCT" }, "reality": { "text": "参加 PRD 评审", "kind": "MEETING" } } },
+        { "id": "b", "text": "（PRD 三十页，工期三页）", "effects": { "mind": 1, "innerDemon": 1, "task": { "title": "评审新版本 PRD", "priority": "P2", "source": "PRODUCT" } } }
+      ]
+    },
+    {
+      "id": "ms_prod_010",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "产品经理", "text": "这个需求没有改，一直都是这样的。" }],
+      "replies": [
+        { "id": "a", "text": "（转发三天前聊天）这里你说的是 A 方案，白纸黑字。", "requiresEvidence": "REQUIREMENT_CONFIRMATION", "tag": "EVIDENCE_MASTER", "effects": { "npc": [["PRODUCT", -3]], "mind": 3, "evidence": [["CHAT_RECORD", "需求前后对照聊天记录"]], "achievementKey": "evidence_counter" } },
+        { "id": "b", "text": "可能是我们理解有偏差，我拉个会对齐。", "effects": { "npc": [["PRODUCT", 1]], "reality": { "text": "拉会对齐需求理解", "kind": "MEETING" } } },
+        { "id": "c", "text": "（沉默，但把这段聊天截图了）", "effects": { "mind": 1, "evidence": [["CHAT_SCREENSHOT", "需求口径聊天截图"]] } }
+      ]
+    },
+    {
+      "id": "ms_prod_011",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 7,
+      "minRelation": -100,
+      "maxRelation": -30,
+      "steps": [{ "sender": "产品经理", "text": "（关系冰冷期）所有需求走正式文档，口头一律不认。" }],
+      "replies": [
+        { "id": "a", "text": "求之不得，正式流程对大家都好。", "tag": "PROFESSIONAL", "effects": { "mind": 2, "evidence": [["REQUIREMENT_CONFIRMATION", "正式流程确立"]] } },
+        { "id": "b", "text": "（关系差了，流程反而严了，证据反而多了）", "effects": { "mind": 1, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_prod_012",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "产品经理", "text": "老板说这个功能要做出「高级感」，你体会一下。" }],
+      "replies": [
+        { "id": "a", "text": "「高级感」的验收标准是什么？", "tag": "PROFESSIONAL", "effects": { "npc": [["PRODUCT", 1]], "evidence": [["REQUIREMENT_CONFIRMATION", "高级感验收标准"]] } },
+        { "id": "b", "text": "（玄学需求，建议改名「随机感」）", "effects": { "mind": 2, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_prod_013",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 7,
+      "steps": [{ "sender": "产品经理", "text": "帮忙看个东西，不用改，就看一眼能不能做。" }],
+      "replies": [
+        { "id": "a", "text": "能做，但要两天。", "effects": { "npc": [["PRODUCT", 1]] } },
+        { "id": "b", "text": "「就看一眼」之后通常是「顺便改一下」。我先声明：本次仅评估。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 2, "npc": [["PRODUCT", -1]], "evidence": [["REQUIREMENT_CONFIRMATION", "仅评估不实施的声明"]] } }
+      ]
+    },
+    {
+      "id": "ms_prod_014",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "minRelation": 30,
+      "steps": [{ "sender": "产品经理", "text": "刚把客户挡回去了，今晚不用上线，安心下班。" }],
+      "replies": [
+        { "id": "a", "text": "大恩不言谢，明天请你喝奶茶。", "effects": { "npc": [["PRODUCT", 3]], "mind": 6 } },
+        { "id": "b", "text": "（原来产品挡刀的时候，也挺帅）", "effects": { "mind": 5, "npc": [["PRODUCT", 2]] } }
+      ]
+    },
+    {
+      "id": "ms_prod_015",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "产品经理", "text": "竞品上线了个功能，我们是不是也跟一个？" }],
+      "replies": [
+        { "id": "a", "text": "先看数据，再谈跟进。", "tag": "PROFESSIONAL", "effects": { "npc": [["PRODUCT", 2]], "performance": 1 } },
+        { "id": "b", "text": "跟，必须跟，卷死他们。", "effects": { "mind": -1, "techDebt": [["scope", 5]], "task": { "title": "竞品功能跟进预研", "priority": "P3", "source": "PRODUCT" } } }
+      ]
+    },
+    {
+      "id": "ms_prod_016",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "steps": [{ "sender": "产品经理", "text": "需求文档我写好了，就是有点长，你挑重点看。" }],
+      "replies": [
+        { "id": "a", "text": "「有点长」=「没有重点」。我标问题清单发你。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 1, "npc": [["PRODUCT", -1]], "task": { "title": "标记 PRD 问题清单", "priority": "P2", "source": "PRODUCT" } } },
+        { "id": "b", "text": "好的，我看。", "effects": { "task": { "title": "通读 PRD 并确认范围", "priority": "P2", "source": "PRODUCT" } } }
+      ]
+    },
+    {
+      "id": "ms_prod_017",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "产品经理", "text": "刚和老板对完了，这个项目提前一周上线。" }],
+      "replies": [
+        { "id": "a", "text": "提前一周 = 砍范围还是加人？我两样都听。", "tag": "PROFESSIONAL", "minCareerLevel": 3, "effects": { "npc": [["PRODUCT", 1]], "mind": 1, "evidence": [["DEADLINE_CONFIRMATION", "提前一周上线确认"]] } },
+        { "id": "b", "text": "（提前上线，等于把渡劫期提前一周）", "effects": { "mind": -3, "innerDemon": 3, "evidence": [["DEADLINE_CONFIRMATION", "提前一周上线确认"]], "task": { "title": "按新 deadline 重排计划", "priority": "P1", "source": "PRODUCT" } } }
+      ]
+    },
+    {
+      "id": "ms_prod_018",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 7,
+      "steps": [{ "sender": "产品经理", "text": "这个文案你来定吧，你文笔好。" }],
+      "replies": [
+        { "id": "a", "text": "产品经理的需求边界，从文案开始瓦解。", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 2, "npc": [["PRODUCT", -1]] } },
+        { "id": "b", "text": "行，我顺手写了。", "effects": { "npc": [["PRODUCT", 1]], "task": { "title": "代拟功能文案", "priority": "P3", "source": "PRODUCT" } } }
+      ]
+    },
+    {
+      "id": "ms_prod_019",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 9,
+      "steps": [{ "sender": "产品经理", "text": "刚刚会议结论：需求不改，deadline 不变，资源不加。" }],
+      "replies": [
+        { "id": "a", "text": "三角形的三个角都焊死了，物理学家来了也得加班。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 2, "npc": [["PRODUCT", -1]], "evidence": [["MEETING_NOTE", "三角约束会议纪要"]] } },
+        { "id": "b", "text": "收到，我按现有资源重排优先级。", "tag": "PROFESSIONAL", "effects": { "task": { "title": "按约束重排优先级", "priority": "P1", "source": "PRODUCT" } } }
+      ]
+    },
+    {
+      "id": "ms_prod_020",
+      "conversation": "conv_product",
+      "actor": "PRODUCT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "weekend",
+      "cooldownDays": 10,
+      "steps": [{ "sender": "产品经理", "text": "周末打扰了，客户周一要看原型，帮我看眼交互顺不顺？" }],
+      "replies": [
+        { "id": "a", "text": "发过来，十分钟。", "effects": { "npc": [["PRODUCT", 2]], "reality": { "text": "周末帮看交互", "kind": "FAVOR" } } },
+        { "id": "b", "text": "周一早上九点前给你，今天陪家人。", "effects": { "mind": 3, "npc": [["PRODUCT", -1]], "achievementKey": "weekend_refuse" } }
+      ]
+    },
+    {
+      "id": "ms_client_001",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "HIGH",
+      "weight": 5,
+      "window": "any",
+      "cooldownDays": 5,
+      "steps": [{ "sender": "客户方丈", "text": "范老师现在方便吗？" }],
+      "replies": [
+        { "id": "a", "text": "方便的，您说。", "effects": { "mind": -1, "nextEvent": { "eventId": "ms_client_001_b", "delayMinutes": 4 } } },
+        { "id": "b", "text": "刚开会，半小时后回复您。", "tag": "PROFESSIONAL", "effects": { "mind": 1, "task": { "title": "回复客户咨询", "priority": "P2", "source": "CLIENT" } } },
+        { "id": "ignore", "text": "已读不回。", "effects": { "mind": 2, "innerDemon": 1, "nextEvent": { "eventId": "ms_client_001_c", "delayMinutes": 30 } } }
+      ]
+    },
+    {
+      "id": "ms_client_001_b",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "客户方丈", "text": "很简单的一个小改动，把导出加个批量模式。" }],
+      "replies": [
+        { "id": "a", "text": "批量导出涉及权限与数据量，我评估后给您排期。", "tag": "PROFESSIONAL", "effects": { "evidence": [["REQUIREMENT_CONFIRMATION", "批量导出需求评估承诺"]], "task": { "title": "评估批量导出需求", "priority": "P2", "source": "CLIENT" } } },
+        { "id": "b", "text": "好的，本周内安排。", "effects": { "mind": -1, "task": { "title": "实现批量导出", "priority": "P2", "source": "CLIENT" } } }
+      ]
+    },
+    {
+      "id": "ms_client_001_c",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 0,
+      "cooldownDays": 0,
+      "steps": [{ "sender": "客户方丈", "text": "范老师？方便的时候回个电。" }],
+      "replies": [
+        { "id": "a", "text": "（客户方丈的第二条飞剑，杀伤力翻倍）", "effects": { "mind": -2, "npc": [["CLIENT", -2]], "task": { "title": "回电客户", "priority": "P1", "source": "CLIENT" } } }
+      ]
+    },
+    {
+      "id": "ms_client_002",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "HIGH",
+      "weight": 4,
+      "window": "any",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "客户方丈", "text": "这个版本做得不错，感谢。" }],
+      "replies": [
+        { "id": "a", "text": "谢谢认可，团队一起做的。", "effects": { "npc": [["CLIENT", 2], ["BOSS", 1]], "mind": 5, "performance": 2 } },
+        { "id": "b", "text": "（被甲方夸奖，本季度稀有掉落）", "effects": { "mind": 6, "performance": 1 } }
+      ]
+    },
+    {
+      "id": "ms_client_003",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "HIGH",
+      "weight": 4,
+      "window": "workday",
+      "cooldownDays": 6,
+      "steps": [{ "sender": "客户方丈", "text": "上次说的那个问题解决了吗？我们领导在问。" }],
+      "replies": [
+        { "id": "a", "text": "已解决，附验证截图。", "effects": { "npc": [["CLIENT", 2]], "evidence": [["CHAT_SCREENSHOT", "问题解决验证截图"]] } },
+        { "id": "b", "text": "正在解决，今天内给您结论。", "effects": { "npc": [["CLIENT", 1]], "evidence": [["DEADLINE_CONFIRMATION", "今日内解决的承诺"]], "task": { "title": "今日内解决客户问题", "priority": "P0", "source": "CLIENT" } } }
+      ]
+    },
+    {
+      "id": "ms_client_004",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "HIGH",
+      "weight": 3,
+      "window": "preOff",
+      "cooldownDays": 7,
+      "steps": [{ "sender": "客户方丈", "text": "明早九点要看到新报表，能赶上吗？" }],
+      "replies": [
+        { "id": "a", "text": "（明早九点 = 今晚通宵的雅称）", "effects": { "mind": -4, "innerDemon": 3, "reality": { "text": "通宵赶客户报表", "kind": "OVERTIME" }, "task": { "title": "通宵完成新报表", "priority": "P0", "source": "CLIENT" } } },
+        { "id": "b", "text": "数据口径先确认，报表明晚前给。", "tag": "PROFESSIONAL", "effects": { "evidence": [["DEADLINE_CONFIRMATION", "明晚交付的重新承诺"]], "task": { "title": "确认口径后交付报表", "priority": "P1", "source": "CLIENT" } } },
+        { "id": "c", "text": "赶不上。最早后天上午。", "tag": "ASSERTIVE", "minCareerLevel": 4, "effects": { "mind": 2, "npc": [["CLIENT", -2], ["BOSS", -1]], "achievementKey": "refuse_deadline" } }
+      ]
+    },
+    {
+      "id": "ms_client_005",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "steps": [{ "sender": "客户方丈", "text": "我们把需求文档发你们了，一共两百页，周末看看。" }],
+      "replies": [
+        { "id": "a", "text": "（两百页的需求，读完后头皮发麻）", "effects": { "mind": -3, "innerDemon": 2, "task": { "title": "通读两百页需求文档", "priority": "P1", "source": "CLIENT" } } },
+        { "id": "b", "text": "文档收到，我们按章节拆分评审，下周给反馈计划。", "tag": "PROFESSIONAL", "effects": { "task": { "title": "拆分评审客户需求文档", "priority": "P2", "source": "CLIENT" } } }
+      ]
+    },
+    {
+      "id": "ms_client_006",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 8,
+      "steps": [{ "sender": "客户方丈", "text": "你们那个系统，能不能做成抖音那样？" }],
+      "replies": [
+        { "id": "a", "text": "可以，先准备一个亿。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 4, "npc": [["CLIENT", -1]] } },
+        { "id": "b", "text": "您具体想要哪部分体验？我拆解可行性。", "tag": "PROFESSIONAL", "effects": { "npc": [["CLIENT", 1]], "task": { "title": "拆解类抖音体验可行性", "priority": "P3", "source": "CLIENT" } } }
+      ]
+    },
+    {
+      "id": "ms_client_007",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "weekend",
+      "cooldownDays": 9,
+      "steps": [{ "sender": "客户方丈", "text": "周末愉快！顺便问下，周一能演示新功能吗？" }],
+      "replies": [
+        { "id": "a", "text": "周末愉快！演示可以，功能下版本。", "tag": "PROFESSIONAL", "effects": { "mind": 1, "evidence": [["DEADLINE_CONFIRMATION", "演示与新功能范围确认"]] } },
+        { "id": "b", "text": "（周末愉快后面必跟工作，这是甲方修辞学）", "effects": { "mind": -1, "innerDemon": 1 } }
+      ]
+    },
+    {
+      "id": "ms_client_008",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "HIGH",
+      "weight": 3,
+      "window": "lateNight",
+      "cooldownDays": 9,
+      "steps": [{ "sender": "客户方丈", "text": "系统是不是挂了？我们这边刷不出来了。" }],
+      "replies": [
+        { "id": "a", "text": "马上确认，稍等。", "effects": { "task": { "title": "紧急确认系统可用性", "priority": "P0", "source": "CLIENT" }, "nextEvent": { "eventId": "ms_inc_client_report", "delayMinutes": 15 } } },
+        { "id": "b", "text": "已转运维值班处理，我同步跟进。", "effects": { "npc": [["OPS", 2]], "task": { "title": "跟进客户报障处理", "priority": "P0", "source": "CLIENT" } } }
+      ]
+    },
+    {
+      "id": "ms_client_009",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 8,
+      "steps": [{ "sender": "客户方丈", "text": "合同里写的交付标准，再发我一份。" }],
+      "replies": [
+        { "id": "a", "text": "（甲方开始翻合同 = 信号不好）", "effects": { "mind": -2, "innerDemon": 2 } },
+        { "id": "b", "text": "已发，另外把当前进度对照标准做了一页摘要。", "tag": "PROFESSIONAL", "effects": { "npc": [["CLIENT", 1]], "evidence": [["DEADLINE_CONFIRMATION", "交付标准对照摘要"]] } }
+      ]
+    },
+    {
+      "id": "ms_client_010",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "steps": [{ "sender": "客户方丈", "text": "跟你们老板说，这期做完，下一期还有个大项目。" }],
+      "replies": [
+        { "id": "a", "text": "已转达老板。（饼来自上游）", "effects": { "npc": [["BOSS", 1], ["CLIENT", 1]], "mind": 1 } },
+        { "id": "b", "text": "好的，我们先把这期做扎实。", "tag": "PROFESSIONAL", "effects": { "npc": [["CLIENT", 2]], "performance": 1 } }
+      ]
+    },
+    {
+      "id": "ms_client_011",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 2,
+      "window": "workday",
+      "cooldownDays": 10,
+      "steps": [{ "sender": "客户方丈", "text": "小范啊，你服务态度好，下次需求直接找你行不行？" }],
+      "replies": [
+        { "id": "a", "text": "需求请走产品经理统一接口，这样对您的交付质量更有保障。", "tag": "PROFESSIONAL", "effects": { "npc": [["CLIENT", 1], ["PRODUCT", 2]], "evidence": [["REQUIREMENT_CONFIRMATION", "需求入口统一约定"]] } },
+        { "id": "b", "text": "行啊。（从此走上需求直达快车，没有回程票）", "effects": { "mind": -2, "techDebt": [["scope", 6]] } }
+      ]
+    },
+    {
+      "id": "ms_client_012",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 2,
+      "window": "any",
+      "cooldownDays": 10,
+      "steps": [{ "sender": "客户方丈", "text": "听说你们加班很厉害，年轻人要注意身体啊。" }],
+      "replies": [
+        { "id": "a", "text": "谢谢关心，主要是您的需求很有挑战性。", "tag": "ASSERTIVE", "minCareerLevel": 4, "effects": { "mind": 3, "npc": [["CLIENT", -1]] } },
+        { "id": "b", "text": "谢谢方丈，我们会注意的。", "effects": { "mind": 1, "npc": [["CLIENT", 1]] } }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -81,6 +81,13 @@ export interface PlayerDataOptions {
   readonly handledWelcomeItemIds?: readonly string[];
   readonly lifetimeStats?: Readonly<Record<string, number>>;
   readonly activeBattleRun?: unknown;
+  readonly conversations?: readonly MessengerConversationState[];
+  readonly messages?: readonly MessengerMessageState[];
+  readonly storyDirector?: StoryDirectorState;
+  readonly firstWeekStory?: FirstWeekStoryState;
+  readonly dialogFlags?: Readonly<Record<string, boolean>>;
+  readonly dailyPlan?: readonly string[];
+  readonly dailyReality?: readonly DailyRealityEntryState[];
 }
 
 export class PlayerData {
@@ -177,6 +184,13 @@ export class PlayerData {
   public handledWelcomeItemIds: string[];
   public lifetimeStats: Record<string, number>;
   public activeBattleRun: unknown;
+  public conversations: MessengerConversationState[];
+  public messages: MessengerMessageState[];
+  public storyDirector: StoryDirectorState;
+  public firstWeekStory: FirstWeekStoryState;
+  public dialogFlags: Record<string, boolean>;
+  public dailyPlan: string[];
+  public dailyReality: DailyRealityEntryState[];
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -255,6 +269,16 @@ export class PlayerData {
     this.handledWelcomeItemIds = [...new Set(options.handledWelcomeItemIds ?? [])].slice(-100);
     this.lifetimeStats = sanitizeLifetime(options.lifetimeStats);
     this.activeBattleRun = options.activeBattleRun ?? null;
+    this.conversations = [...(options.conversations ?? [])];
+    this.messages = [...(options.messages ?? [])];
+    this.storyDirector = (options.storyDirector ?? {
+      storyBudget: 0, interruptBudget: 0, tension: 0, lastMessageAt: 0, lastMajorEventAt: 0,
+      recentActors: {}, activeChains: [], unresolvedCases: [], firedKeys: [],
+    }) as StoryDirectorState;
+    this.firstWeekStory = options.firstWeekStory ?? { completed: false, doneSteps: [] };
+    this.dialogFlags = { ...(options.dialogFlags ?? {}) };
+    this.dailyPlan = [...(options.dailyPlan ?? [])];
+    this.dailyReality = [...(options.dailyReality ?? [])];
   }
 
   public static createDefault(): PlayerData {
@@ -321,6 +345,13 @@ export class PlayerData {
       handledWelcomeItemIds: [...this.handledWelcomeItemIds],
       lifetimeStats: { ...this.lifetimeStats },
       activeBattleRun: cloneUnknown(this.activeBattleRun),
+      conversations: this.conversations.map((c) => ({ ...c, participants: [...c.participants] })),
+      messages: this.messages.map((m) => ({ ...m })),
+      storyDirector: JSON.parse(JSON.stringify(this.storyDirector)) as StoryDirectorState,
+      firstWeekStory: { ...this.firstWeekStory, doneSteps: [...this.firstWeekStory.doneSteps] },
+      dialogFlags: { ...this.dialogFlags },
+      dailyPlan: [...this.dailyPlan],
+      dailyReality: this.dailyReality.map((r) => ({ ...r })),
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });

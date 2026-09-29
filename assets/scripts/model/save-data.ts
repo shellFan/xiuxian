@@ -1,4 +1,4 @@
-export const CURRENT_SAVE_VERSION = 8;
+export const CURRENT_SAVE_VERSION = 9;
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -339,4 +339,106 @@ export interface GameSaveData {
   readonly lifetimeStats?: Readonly<Record<string, number>>;
   /** 进行中的项目战斗（V4 战斗竖切；结构由 v3/battle-service 校验）。 */
   readonly activeBattleRun?: unknown;
+
+  // ── V5 飞剑传书（WorkplaceMessenger；saveVersion 9） ──
+  /** 会话列表（内容受容量上限约束，由 messenger-service 归档）。 */
+  readonly conversations?: readonly MessengerConversationState[];
+  /** 消息列表（每会话滚动窗口 + 关键证据摘要）。 */
+  readonly messages?: readonly MessengerMessageState[];
+  /** 剧情导演状态：预算/张力/最近发言者/活动链。 */
+  readonly storyDirector?: StoryDirectorState;
+  /** 首周剧情（老玩家直接标记完成，不重跑）。 */
+  readonly firstWeekStory?: FirstWeekStoryState;
+  /** 对话风格旗标（ASSERTIVE/PROFESSIONAL/EVIDENCE_MASTER/…），解锁高级回复。 */
+  readonly dialogFlags?: Readonly<Record<string, boolean>>;
+  /** 今日计划 vs 实际（09:00 生成计划，全天追加实际）。 */
+  readonly dailyPlan?: readonly string[];
+  readonly dailyReality?: readonly DailyRealityEntryState[];
+}
+
+export type MessengerConversationType =
+  | 'PRIVATE' | 'GROUP' | 'SYSTEM' | 'PROJECT' | 'INCIDENT' | 'BOSS' | 'CLIENT';
+
+export interface MessengerConversationState {
+  readonly id: string;
+  readonly type: MessengerConversationType;
+  readonly title: string;
+  readonly avatar: string;
+  readonly participants: readonly string[];
+  readonly unreadCount: number;
+  readonly lastMessageAt: number;
+  readonly pinned: boolean;
+  readonly muted: boolean;
+  readonly priority: 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
+  readonly relatedProjectId?: string;
+  readonly relatedIncidentId?: string;
+  readonly relatedTaskId?: string;
+}
+
+export type MessengerMessageType =
+  | 'TEXT' | 'MENTION' | 'SYSTEM' | 'TASK' | 'INCIDENT' | 'EVIDENCE'
+  | 'IMAGE_PLACEHOLDER' | 'RECALL' | 'NOTICE' | 'CALL';
+
+export interface MessengerReplyOptionState {
+  readonly id: string;
+  readonly text: string;
+  readonly tag?: string;
+}
+
+export interface MessengerMessageState {
+  readonly id: string;
+  readonly conversationId: string;
+  readonly senderId: string;
+  readonly senderName: string;
+  readonly timestamp: number;
+  readonly content: string;
+  readonly messageType: MessengerMessageType;
+  readonly read: boolean;
+  /** 待回复选项（挂在最新一条待决策消息上；事件 id + step 引用 config）。 */
+  readonly replyOptions?: readonly MessengerReplyOptionState[];
+  readonly replyEventId?: string;
+  readonly replyStepId?: string;
+  readonly evidenceType?: string;
+  /** 关联实体（incident/case/task 等稳定 ID）。 */
+  readonly relatedEntity?: Readonly<Record<string, string>>;
+  readonly expiresAt?: number;
+  readonly replyToMessageId?: string;
+  /** 已撤回：普通玩家不可再看全文，已获证据保留摘要。 */
+  readonly recalled?: boolean;
+  /** 玩家是否已经看过（撤回取证规则用）。 */
+  readonly seen?: boolean;
+  /** 幂等键：chainId + stepId + gameDayId，防时间跳转重复触发。 */
+  readonly idempotencyKey?: string;
+}
+
+export interface ActiveMessageChainState {
+  readonly chainId: string;
+  readonly stepId: string;
+  readonly gameDayId: number;
+  readonly nextStepAt: number;
+}
+
+export interface StoryDirectorState {
+  readonly storyBudget: number;
+  readonly interruptBudget: number;
+  readonly tension: number;
+  readonly lastMessageAt: number;
+  readonly lastMajorEventAt: number;
+  /** npcId/actorId → 上次主动消息时间戳（限频）。 */
+  readonly recentActors: Readonly<Record<string, number>>;
+  readonly activeChains: readonly ActiveMessageChainState[];
+  readonly unresolvedCases: readonly string[];
+  /** 已触发的幂等键窗口（近期，防时间跳转重复）。 */
+  readonly firedKeys: readonly string[];
+}
+
+export interface FirstWeekStoryState {
+  readonly completed: boolean;
+  readonly doneSteps: readonly string[];
+}
+
+export interface DailyRealityEntryState {
+  readonly time: number;
+  readonly text: string;
+  readonly kind: 'WORK' | 'FAVOR' | 'MEETING' | 'INCIDENT' | 'OVERTIME' | 'CHANGE' | 'BLAME' | 'REST';
 }

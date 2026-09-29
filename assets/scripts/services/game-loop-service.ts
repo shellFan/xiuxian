@@ -140,6 +140,21 @@ export class GameLoopService {
       // Assigned-task expiry must not crash the game loop
     }
 
+    // 8.6 V5 飞剑传书：剧情导演调度（预算/时间窗/多步续发/超时已读不回）。
+    try {
+      this.context.messenger.ensureInitialized();
+      this.context.storyDirector.tick(this.context.clockV2.now());
+      // 09:00 开工时刷新每日计划（每个自然日只触发一次）
+      const gameDate = this.context.clockV2.getGameDate();
+      const planStamp = `v5plan:${gameDate.dayNumber}`;
+      if (!this.context.player.eventFlags?.[planStamp] && this.context.gameDay.dayIndex() > 0) {
+        this.context.player.eventFlags = { ...(this.context.player.eventFlags ?? {}), [planStamp]: true };
+        this.context.storyDirector.beginWorkday();
+      }
+    } catch {
+      // V5 story director failure must not crash the game loop
+    }
+
     // 9. Tutorial auto-advance check
     try {
       this.context.tutorial.checkAutoAdvance();

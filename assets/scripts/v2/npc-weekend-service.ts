@@ -14,8 +14,8 @@ import type { GameClockV2 } from './v2-clock';
 import type { GameDayService } from './game-day-service';
 import type { InnerDemonService } from './inner-demon-service';
 
-export type NpcId = 'BOSS' | 'PRODUCT' | 'TESTER' | 'JUNIOR' | 'VETERAN' | 'HR';
-export const NPC_IDS: readonly NpcId[] = ['BOSS', 'PRODUCT', 'TESTER', 'JUNIOR', 'VETERAN', 'HR'];
+export type NpcId = 'BOSS' | 'PRODUCT' | 'TESTER' | 'JUNIOR' | 'VETERAN' | 'HR' | 'OPS' | 'CLIENT';
+export const NPC_IDS: readonly NpcId[] = ['BOSS', 'PRODUCT', 'TESTER', 'JUNIOR', 'VETERAN', 'HR', 'OPS', 'CLIENT'];
 
 export interface NpcDef {
   readonly id: NpcId;
@@ -34,6 +34,8 @@ export const NPCS: readonly NpcDef[] = [
   { id: 'JUNIOR', name: '摸鱼小师妹', title: '炼气四层·入职一年', description: '摸鱼天赋异禀，运气好到离谱。总在正确的时间出现在错误的地方。', influence: '摸鱼 / 材料 / 情报' },
   { id: 'VETERAN', name: '老油条前辈', title: '元婴三层·十年司龄', description: '见过四任老板。他的茶杯里泡的不是茶，是历史。', influence: '隐藏功法 / 甩锅 / 情报' },
   { id: 'HR', name: 'HR仙子', title: '化神一层·人心管理', description: '微笑是她的法器。她知道每个人的薪资，没人知道她的。', influence: '晋升窗口 / 裁员 / 工资' },
+  { id: 'OPS', name: '运维老哥', title: '金丹圆满·灵网守护', description: '凌晨三点的守望者。他的手机永远比闹钟先响。', influence: '事故恢复 / on-call / 配置回滚' },
+  { id: 'CLIENT', name: '客户方丈', title: '渡劫初期·甲方真身', description: '「很简单的一个小改动」是他的口头禅。他的需求像天书，deadline 像神谕。', influence: '临时上线 / 需求来源 / 验收' },
 ];
 
 export type RelationshipStage = 'HOSTILE' | 'COLD' | 'NORMAL' | 'FRIENDLY' | 'TRUSTED';

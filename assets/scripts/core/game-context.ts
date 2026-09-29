@@ -60,6 +60,8 @@ import { EvidenceService } from '../v3/evidence-service';
 import { ResponsibilityService } from '../v3/responsibility-service';
 import { IncidentService } from '../v3/incident-service';
 import { TechDebtService } from '../v3/tech-debt-service';
+import { MessengerService } from '../v5/messenger-service';
+import { StoryDirectorService } from '../v5/story-director';
 import { AssignedTaskService } from '../v3/assigned-task-service';
 import { BattleService } from '../v3/battle-service';
 import { AutoPolicyService } from '../v3/auto-policy-service';
@@ -164,6 +166,10 @@ export class GameContext {
   public readonly autoPolicy: AutoPolicyService;
   /** V4 项目战斗竖切。 */
   public readonly battle: BattleService;
+  /** V5 飞剑传书：消息/会话/回复路由。 */
+  public readonly messenger: MessengerService;
+  /** V5 剧情导演：预算/时间窗/首周节拍。 */
+  public readonly storyDirector: StoryDirectorService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -250,6 +256,8 @@ export class GameContext {
     this.assignedTasks = new AssignedTaskService(this);
     this.autoPolicy = new AutoPolicyService(this);
     this.battle = new BattleService(this, options.battleRng);
+    this.messenger = new MessengerService(this);
+    this.storyDirector = new StoryDirectorService(this, this.messenger);
     this.innerDemon = new InnerDemonService(this);
     this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);
     this.v2Events = new V2EventService(this, this.clockV2, this.gameDay, this.innerDemon, this.randomV2);

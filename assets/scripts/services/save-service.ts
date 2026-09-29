@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData } from '../model/save-data';
+import { CURRENT_SAVE_VERSION, type ActiveMessageChainState, type DailyRealityEntryState, type FirstWeekStoryState, type GameSaveData, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type WorkerSaveData } from '../model/save-data';
 import { PlayerData } from '../model/player-data';
 import type { StorageAdapter } from './storage-adapter';
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
@@ -215,8 +215,82 @@ function migrate(raw: unknown, now: number): GameSaveData {
       new Set(assignedTasks.map((task) => task.id)),
       new Set(incidents.map((incident) => incident.id)),
     ),
+    conversations: normalizeConversations(raw.conversations),
+    messages: normalizeMessages(raw.messages),
+    storyDirector: normalizeStoryDirector(raw.storyDirector),
+    firstWeekStory: normalizeFirstWeekStory(raw.firstWeekStory, data.careerLevel, data.gameDay?.dayIndex ?? 0),
+    dialogFlags: sanitizeFlagRecord(raw.dialogFlags),
+    dailyPlan: Array.isArray(raw.dailyPlan) ? (raw.dailyPlan as unknown[]).filter(isString).slice(0, 8) : [],
+    dailyReality: Array.isArray(raw.dailyReality) ? (raw.dailyReality as unknown[]).filter(isDailyRealityEntry).slice(-40) : [],
   });
   return merged;
+}
+
+// ── V5 飞剑传书 save v9 迁移（§49/§96：旧档无损加载，messages 初始化为空） ──
+
+function normalizeConversations(value: unknown): MessengerConversationState[] {
+  if (!Array.isArray(value)) {
+    // 首次进入 V5：由 MessengerService.ensureInitialized 按内容配置生成默认会话。
+    return [];
+  }
+  return (value as unknown[]).filter((item): item is MessengerConversationState => {
+    if (!isRecord(item) || typeof item.id !== 'string' || typeof item.title !== 'string') return false;
+    return typeof item.unreadCount === 'number' && item.unreadCount >= 0 && typeof item.lastMessageAt === 'number';
+  }).slice(0, 64);
+}
+
+function normalizeMessages(value: unknown): MessengerMessageState[] {
+  if (!Array.isArray(value)) return [];
+  return (value as unknown[]).filter((item): item is MessengerMessageState => {
+    if (!isRecord(item) || typeof item.id !== 'string' || typeof item.conversationId !== 'string') return false;
+    return typeof item.timestamp === 'number' && Number.isSafeInteger(item.timestamp)
+      && typeof item.content === 'string' && typeof item.read === 'boolean';
+  }).slice(-600);
+}
+
+function normalizeStoryDirector(value: unknown): StoryDirectorState {
+  const fallback: StoryDirectorState = {
+    storyBudget: 0, interruptBudget: 0, tension: 0, lastMessageAt: 0, lastMajorEventAt: 0,
+    recentActors: {}, activeChains: [], unresolvedCases: [], firedKeys: [],
+  };
+  if (!isRecord(value)) return fallback;
+  return {
+    storyBudget: isNonNegativeSafeInteger(value.storyBudget) ? value.storyBudget : 0,
+    interruptBudget: isNonNegativeSafeInteger(value.interruptBudget) ? value.interruptBudget : 0,
+    tension: isFiniteNumber(value.tension) ? Math.max(0, Math.min(10, value.tension)) : 0,
+    lastMessageAt: isFiniteNonNegativeNumber(value.lastMessageAt) ? value.lastMessageAt : 0,
+    lastMajorEventAt: isFiniteNonNegativeNumber(value.lastMajorEventAt) ? value.lastMajorEventAt : 0,
+    recentActors: isRecord(value.recentActors) ? numericRecord(value.recentActors) : {},
+    activeChains: Array.isArray(value.activeChains)
+      ? (value.activeChains as unknown[]).filter((chain): chain is ActiveMessageChainState => isRecord(chain)
+        && typeof chain.chainId === 'string' && typeof chain.stepId === 'string'
+        && isPositiveSafeInteger(chain.gameDayId) && isFiniteNonNegativeNumber(chain.nextStepAt)).slice(0, 32)
+      : [],
+    unresolvedCases: Array.isArray(value.unresolvedCases) ? (value.unresolvedCases as unknown[]).filter(isString).slice(0, 24) : [],
+    firedKeys: Array.isArray(value.firedKeys) ? (value.firedKeys as unknown[]).filter(isString).slice(-240) : [],
+  };
+}
+
+function normalizeFirstWeekStory(value: unknown, careerLevel: number, dayIndex: number): FirstWeekStoryState {
+  // 老玩家（career > 1 或 day > 7）不重跑首周（§96）。
+  if (!isRecord(value)) return { completed: careerLevel > 1 || dayIndex > 7, doneSteps: [] };
+  const doneSteps = Array.isArray(value.doneSteps) ? (value.doneSteps as unknown[]).filter(isString).slice(0, 24) : [];
+  return { completed: value.completed === true || careerLevel > 1 || dayIndex > 7, doneSteps };
+}
+
+function sanitizeFlagRecord(value: unknown): Readonly<Record<string, boolean>> {
+  if (!isRecord(value)) return {};
+  const out: Record<string, boolean> = {};
+  for (const [key, val] of Object.entries(value)) {
+    if (typeof key === 'string' && key.length > 0 && key.length <= 64 && typeof val === 'boolean') out[key] = val;
+  }
+  return out;
+}
+
+function isDailyRealityEntry(value: unknown): value is DailyRealityEntryState {
+  if (!isRecord(value) || typeof value.text !== 'string' || !isFiniteNonNegativeNumber(value.time)) return false;
+  const kinds = ['WORK', 'FAVOR', 'MEETING', 'INCIDENT', 'OVERTIME', 'CHANGE', 'BLAME', 'REST'];
+  return typeof value.kind === 'string' && kinds.includes(value.kind);
 }
 
 /** Non-optional V2 fields set by migrate() for old saves. */
