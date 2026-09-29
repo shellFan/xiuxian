@@ -20,7 +20,7 @@ import { DebugProtection } from '../../assets/scripts/services/debug-protection'
 import { SaveServiceV2, validateSaveData } from '../../assets/scripts/services/save-service-v2';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { PlayerData } from '../../assets/scripts/model/player-data';
-import type { DailyTaskState, ActiveTaskState } from '../../assets/scripts/model/save-data';
+import { CURRENT_SAVE_VERSION, type DailyTaskState, type ActiveTaskState } from '../../assets/scripts/model/save-data';
 import { FakeClock } from '../../assets/scripts/core/clock';
 
 // ── GameSnapshot ────────────────────────────────────────────────────────────
@@ -428,7 +428,7 @@ test('SaveServiceV2: load returns default when empty', () => {
   const storage = new MemoryStorageAdapter();
   const service = new SaveServiceV2(storage);
   const data = service.load();
-  assert.strictEqual(data.saveVersion, 8); // V4 workplace schema bumped 7 → 8
+  assert.strictEqual(data.saveVersion, CURRENT_SAVE_VERSION);
   assert.strictEqual(data.salary, 0);
 });
 

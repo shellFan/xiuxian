@@ -18,6 +18,8 @@ import {
 
 /** 每会话消息滚动窗口（§50）。 */
 const MESSAGES_PER_CONVERSATION = 120;
+/** 关键剧情/证据摘要的独立硬上限。 */
+const ARCHIVED_SUMMARIES_PER_CONVERSATION = 20;
 /** 幂等键窗口大小（防时间跳转重复触发）。 */
 const FIRED_KEYS_LIMIT = 240;
 /** 待回复消息超时（游戏毫秒）：超时自动按「已读不回」的后续事件处理。 */
@@ -97,7 +99,7 @@ export class MessengerService {
         player.messages = [
           ...(player.messages ?? []),
           {
-            id: `msg_v5_welcome_${Date.now().toString(36)}`,
+            id: `msg_v5_welcome_d${player.gameDay?.dayIndex ?? 1}_l${player.careerLevel}`,
             conversationId: 'conv_system',
             senderId: 'SYSTEM',
             senderName: '飞剑传书',
@@ -178,8 +180,8 @@ export class MessengerService {
     if (!conv) return;
     const messages = player.messages ?? [];
     for (const m of messages) {
-      if (m.conversationId === conversationId && !m.read) {
-        player.messages = (player.messages ?? []).map((x) => (x.id === m.id ? { ...x, read: true, seen: true } : x));
+      if (m.conversationId === conversationId && !m.seen) {
+        player.messages = (player.messages ?? []).map((x) => (x.id === m.id ? { ...x, seen: true } : x));
       }
     }
     player.conversations = (player.conversations ?? []).map((c) =>
@@ -208,7 +210,7 @@ export class MessengerService {
       : undefined;
 
     const message: MessengerMessageState = {
-      id: `msg_${Date.now().toString(36)}_${Math.floor(Math.random() * 1e6).toString(36)}`,
+      id: this.messageId(event.id, 'root', nowMs),
       conversationId,
       senderId: event.actor,
       senderName,
@@ -264,7 +266,7 @@ export class MessengerService {
       if (!step) continue;
       const actor = messengerActorById(event.actor);
       const message: MessengerMessageState = {
-        id: `msg_${Date.now().toString(36)}_${Math.floor(Math.random() * 1e6).toString(36)}`,
+        id: this.messageId(event.id, chain.stepId, nowMs),
         conversationId: event.conversation,
         senderId: event.actor,
         senderName: step.sender ?? actor?.name ?? event.actor,
@@ -401,22 +403,36 @@ export class MessengerService {
     }
     let changed = false;
     const kept: MessengerMessageState[] = [];
-    byConversation.forEach((list, conversationId) => {
-      if (list.length <= MESSAGES_PER_CONVERSATION) {
-        kept.push(...list);
-        return;
-      }
-      changed = true;
+    byConversation.forEach((list) => {
       const sorted = [...list].sort((a, b) => a.timestamp - b.timestamp);
-      const overflow = sorted.slice(0, sorted.length - MESSAGES_PER_CONVERSATION);
-      for (const m of overflow) {
-        if (m.evidenceType || m.replyEventId) {
-          kept.push({ ...m, content: m.recalled ? '撤回了一条消息' : `${m.content.slice(0, 40)}……（已归档）`, replyOptions: undefined });
-        }
-      }
-      kept.push(...sorted.slice(sorted.length - MESSAGES_PER_CONVERSATION));
-      void conversationId;
+      const existingSummaries = sorted.filter((m) => m.archived);
+      const live = sorted.filter((m) => !m.archived);
+      const overflow = live.slice(0, Math.max(0, live.length - MESSAGES_PER_CONVERSATION));
+      if (overflow.length > 0 || existingSummaries.length > ARCHIVED_SUMMARIES_PER_CONVERSATION) changed = true;
+      const newSummaries = overflow
+        .filter((m) => m.evidenceType || m.replyEventId)
+        .map((m) => ({
+          ...m,
+          content: m.recalled ? '撤回了一条消息' : `${m.content.slice(0, 40)}……（已归档）`,
+          archived: true,
+          replyOptions: undefined,
+          replyEventId: undefined,
+          replyStepId: undefined,
+        }));
+      kept.push(
+        ...[...existingSummaries, ...newSummaries].slice(-ARCHIVED_SUMMARIES_PER_CONVERSATION),
+        ...live.slice(-MESSAGES_PER_CONVERSATION),
+      );
     });
     if (changed) player.messages = kept.sort((a, b) => a.timestamp - b.timestamp);
+  }
+
+  /** 同一游戏状态必得相同 ID；相同时间的多条同源消息用稳定序号去重。 */
+  private messageId(eventId: string, stepId: string, nowMs: number): string {
+    const prefix = `msg_${eventId}_${stepId}_${nowMs}`;
+    let sequence = 0;
+    const ids = new Set((this.context.player.messages ?? []).map((message) => message.id));
+    while (ids.has(`${prefix}_${sequence}`)) sequence += 1;
+    return `${prefix}_${sequence}`;
   }
 }

@@ -407,6 +407,8 @@ export interface MessengerMessageState {
   readonly recalled?: boolean;
   /** 玩家是否已经看过（撤回取证规则用）。 */
   readonly seen?: boolean;
+  /** 受容量限制后保留的关键剧情/证据摘要，不再作为可回复原消息。 */
+  readonly archived?: boolean;
   /** 幂等键：chainId + stepId + gameDayId，防时间跳转重复触发。 */
   readonly idempotencyKey?: string;
 }

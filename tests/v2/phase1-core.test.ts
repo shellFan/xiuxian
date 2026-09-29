@@ -12,6 +12,7 @@ import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { SaveService, DEFAULT_SAVE_KEY } from '../../assets/scripts/services/save-service';
+import { CURRENT_SAVE_VERSION } from '../../assets/scripts/model/save-data';
 import { FakeClock } from '../../assets/scripts/core/clock';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -266,7 +267,7 @@ function testOldSaveMigrationV2Fields(): void {
   storage.setItem(DEFAULT_SAVE_KEY, JSON.stringify(v1Save));
   const saveService = new SaveService(storage);
   const loaded = saveService.load();
-  assert.equal(loaded.saveVersion, 8, 'migrated to v8');
+  assert.equal(loaded.saveVersion, CURRENT_SAVE_VERSION, 'migrated to the current save version');
   assert.equal(loaded.innerDemon, 0);
   assert.deepEqual(loaded.materials, {});
   assert.equal(loaded.gameDay, null);
@@ -279,7 +280,7 @@ function testCorruptSaveFallsBackToDefault(): void {
   storage.setItem(DEFAULT_SAVE_KEY, '{broken json');
   const saveService = new SaveService(storage);
   const loaded = saveService.load();
-  assert.equal(loaded.saveVersion, 8);
+  assert.equal(loaded.saveVersion, CURRENT_SAVE_VERSION);
   assert.equal(loaded.salary, 0);
 }
 

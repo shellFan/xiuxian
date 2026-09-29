@@ -88,6 +88,64 @@ function testDeliveryReplyAndEffects(): void {
   }
 }
 
+/** 阅读会话只清除未读徽标；待决策消息仍必须可以回复。 */
+function testOpeningConversationDoesNotResolvePendingReply(): void {
+  const { facade, clock } = makeFacade();
+  try {
+    facade.context.messenger.ensureInitialized();
+    const event = require('../../assets/scripts/v5/messenger-content').messengerEventById('ms_boss_001');
+    assert.ok(event);
+    facade.context.messenger.deliverEvent(event, clock.now(), 'test:open-before-reply');
+    facade.markConversationRead('conv_boss');
+    const pending = facade.queryMessages('conv_boss').find((m) => m.options.length > 0);
+    assert.ok(pending, 'opening a conversation must not consume its reply options');
+    assert.equal(facade.replyToMessage(pending.id, 'ignore').ok, true, 'visible option remains actionable after opening');
+  } finally {
+    facade.destroy();
+  }
+}
+
+/** 游戏时间相同、事件相同的确定性投递不得依赖系统时间或 Math.random。 */
+function testMessageIdsAreDeterministicAndUnique(): void {
+  const first = makeFacade();
+  const second = makeFacade();
+  try {
+    const event = require('../../assets/scripts/v5/messenger-content').messengerEventById('ms_boss_001');
+    assert.ok(event);
+    first.facade.context.messenger.ensureInitialized();
+    second.facade.context.messenger.ensureInitialized();
+    first.facade.context.messenger.deliverEvent(event, first.clock.now());
+    second.facade.context.messenger.deliverEvent(event, second.clock.now());
+    const one = first.facade.queryMessages('conv_boss')[0]?.id;
+    const two = second.facade.queryMessages('conv_boss')[0]?.id;
+    assert.equal(one, two, 'equivalent seeded runs generate the same message ID');
+    first.facade.context.messenger.deliverEvent(event, first.clock.now());
+    const ids = first.facade.queryMessages('conv_boss').map((m) => m.id);
+    assert.equal(new Set(ids).size, ids.length, 'same-tick deliveries retain unique IDs');
+  } finally {
+    first.facade.destroy();
+    second.facade.destroy();
+  }
+}
+
+/** 每个会话的活动记录与关键剧情摘要都必须有硬上限。 */
+function testConversationHistoryHasHardArchiveCap(): void {
+  const { facade, clock } = makeFacade();
+  try {
+    const event = require('../../assets/scripts/v5/messenger-content').messengerEventById('ms_boss_001');
+    assert.ok(event);
+    facade.context.messenger.ensureInitialized();
+    for (let index = 0; index < 145; index += 1) {
+      facade.context.messenger.deliverEvent(event, clock.now() + index);
+    }
+    const history = facade.context.player.messages.filter((m) => m.conversationId === 'conv_boss');
+    assert.ok(history.length <= 140, `history cap is bounded (actual ${history.length})`);
+    assert.ok(history.some((m) => m.archived), 'important historical messages are retained as bounded summaries');
+  } finally {
+    facade.destroy();
+  }
+}
+
 function testSaveMigrationV9KeepsOldSaves(): void {
   const clock = new FakeClock(MONDAY_0900);
   // 模拟 V4.1 存档（saveVersion 8，无任何 V5 字段）
@@ -142,6 +200,9 @@ function testNoScrollWithMessengerWidget(): void {
 testContentIntegrity();
 testContentValidationCatchesBrokenChains();
 testDeliveryReplyAndEffects();
+testOpeningConversationDoesNotResolvePendingReply();
+testMessageIdsAreDeterministicAndUnique();
+testConversationHistoryHasHardArchiveCap();
 testSaveMigrationV9KeepsOldSaves();
 testNoScrollWithMessengerWidget();
 console.log('v5 messenger foundation tests passed');

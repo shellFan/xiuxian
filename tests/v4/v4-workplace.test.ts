@@ -4,6 +4,7 @@ import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { SaveService, DEFAULT_SAVE_KEY } from '../../assets/scripts/services/save-service';
+import { CURRENT_SAVE_VERSION } from '../../assets/scripts/model/save-data';
 
 function at(day: number, hour: number, minute = 0): number {
   return new Date(2026, 8, day, hour, minute, 0, 0).getTime();
@@ -222,7 +223,7 @@ function testSaveV8MigrationFromV7(): void {
     eventFlags: { legacy_flag: true },
   }));
   const loaded = new SaveService(storage).load();
-  assert.equal(loaded.saveVersion, 8);
+  assert.equal(loaded.saveVersion, CURRENT_SAVE_VERSION);
   assert.equal(loaded.salary, 500);
   assert.deepEqual(loaded.evidence, []);
   assert.deepEqual(loaded.responsibilityCases, []);
