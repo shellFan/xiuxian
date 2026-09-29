@@ -217,6 +217,26 @@ export class GameFacade {
   public queryDailyPlanReality() { return this.context.storyDirector.planReality(); }
   /** 待回复的消息数（有决策权的消息）。 */
   public queryPendingReplyCount() { return this.context.messenger.pendingReplies().length; }
+  /** 待进入的事故副本（消息链生成的线上禁地，§31）。 */
+  public queryPendingIncidentDungeon(): { readonly incidentType: string } | null {
+    const pending = (this.context.player as unknown as { pendingIncidentDungeon?: string }).pendingIncidentDungeon;
+    return pending ? { incidentType: pending } : null;
+  }
+  /** 进入事故副本：用现有战斗系统开一局 INCIDENT run，清除待办入口。 */
+  public startIncidentDungeon(incidentType: string) {
+    const builds = this.queryBattleBuildOptions();
+    const map: Record<string, string> = {
+      OOM_BOSS: 'build_redis', SLOW_SQL_BOSS: 'build_db', CACHE_STAMPEDE_BOSS: 'build_redis',
+      GATEWAY_502_BOSS: 'build_java', DEADLOCK_BOSS: 'build_db', PROD_DOWN_BOSS: 'build_java',
+      S1_WEEKEND_BOSS: 'build_fish', RELEASE_NIGHT_BOSS: 'build_java',
+    };
+    const buildId = map[incidentType] ?? builds[0]?.id;
+    if (!buildId) throw new Error('没有可用的 Build');
+    const run = this.startBattleRun('INCIDENT', buildId);
+    delete (this.context.player as unknown as { pendingIncidentDungeon?: string }).pendingIncidentDungeon;
+    this.save();
+    return run;
+  }
   /** 当前显式加班会话（副本），供 UI 显示而非直接改状态。 */
   public queryOvertime() { return this.context.overtime.current(); }
   /** 今日加班决策状态；会话结束后仍保留 COMPLETED，防止 UI 重复发起询问。 */

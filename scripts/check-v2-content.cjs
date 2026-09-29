@@ -214,7 +214,7 @@ const workplaceContent = workplaceBundle.events;
 const workplaceAchievements = workplaceBundle.achievements ?? [];
 const workplaceIds = new Set();
 const workplaceChains = new Map();
-const EVIDENCE_TYPES = new Set(['GIT_LOG', 'CHAT_RECORD', 'REQUIREMENT_DOC', 'MEETING_NOTE', 'EMAIL', 'TEST_REPORT', 'DEPLOY_LOG', 'MONITOR_LOG', 'RISK_CONFIRMATION', 'TICKET_HISTORY']);
+const EVIDENCE_TYPES = new Set(['GIT_LOG', 'CHAT_RECORD', 'REQUIREMENT_DOC', 'MEETING_NOTE', 'EMAIL', 'TEST_REPORT', 'DEPLOY_LOG', 'MONITOR_LOG', 'RISK_CONFIRMATION', 'TICKET_HISTORY', 'CHAT_SCREENSHOT', 'VOICE_SUMMARY', 'REQUIREMENT_CONFIRMATION', 'DEADLINE_CONFIRMATION', 'OPS_LOG', 'TIMELINE', 'WITNESS']);
 let evidenceGated = 0;
 let evidenceGranted = 0;
 let assignTaskEffects = 0;
@@ -269,6 +269,49 @@ for (const achievement of workplaceAchievements) {
   workplaceAchievementIds.add(achievement.id);
 }
 
+// ── V5 飞剑传书内容校验（§90） ────────────────────────────────────────────────
+const v5ActorIds = new Set(load('assets/configs/v5/messenger-actors.json').actors.map((a) => a.id));
+const v5ConversationDefs = load('assets/configs/v5/messenger-actors.json').conversations;
+const v5ConversationIds = new Set(v5ConversationDefs.map((c) => c.id));
+const v5Events = [
+  ...load('assets/configs/v5/messenger-events-core.json').events,
+  ...load('assets/configs/v5/messenger-events-team.json').events,
+  ...load('assets/configs/v5/messenger-events-people.json').events,
+  ...load('assets/configs/v5/messenger-events-windows.json').events,
+];
+const v5Seen = new Set();
+for (const ev of v5Events) {
+  if (v5Seen.has(ev.id)) fail('v5 messenger: duplicate event id ' + ev.id);
+  v5Seen.add(ev.id);
+  if (!v5ConversationIds.has(ev.conversation)) fail('v5 messenger: ' + ev.id + ' unknown conversation ' + ev.conversation);
+  if (!v5ActorIds.has(ev.actor)) fail('v5 messenger: ' + ev.id + ' unknown actor ' + ev.actor);
+  if (!ev.steps || ev.steps.length === 0) fail('v5 messenger: ' + ev.id + ' has no steps');
+  for (const reply of ev.replies ?? []) {
+    if (!reply.id || !reply.text) fail('v5 messenger: ' + ev.id + ' reply missing id/text');
+    const next = reply.effects?.nextEvent?.eventId;
+    if (next && !v5Events.some((x) => x.id === next)) fail('v5 messenger: ' + ev.id + ' broken nextEvent -> ' + next);
+    if (reply.requiresEvidence && !EVIDENCE_TYPES.has(reply.requiresEvidence)) fail('v5 messenger: ' + ev.id + '/' + reply.id + ' unknown evidence gate');
+  }
+}
+const v5Replies = v5Events.reduce((sum, e) => sum + (e.replies ?? []).length, 0);
+const v5Chained = v5Events.filter((e) => (e.replies ?? []).some((r) => r.effects?.nextEvent)).length;
+const v5Windows = {
+  boss: v5Events.filter((e) => e.actor === 'BOSS').length,
+  product: v5Events.filter((e) => e.actor === 'PRODUCT').length,
+  client: v5Events.filter((e) => e.actor === 'CLIENT').length,
+  tester: v5Events.filter((e) => e.actor === 'TESTER').length,
+  ops: v5Events.filter((e) => e.actor === 'OPS').length,
+  junior: v5Events.filter((e) => e.actor === 'JUNIOR').length,
+  veteran: v5Events.filter((e) => e.actor === 'VETERAN').length,
+  hr: v5Events.filter((e) => e.actor === 'HR').length,
+  weekend: v5Events.filter((e) => e.window === 'weekend').length,
+  preOff: v5Events.filter((e) => e.window === 'preOff').length,
+  incident: v5Events.filter((e) => e.conversation === 'conv_incident').length,
+  positive: v5Events.filter((e) => e.id.startsWith('ms_pos_')).length,
+  funny: v5Events.filter((e) => e.id.startsWith('ms_fun_')).length,
+};
+if (v5Events.length < 120) fail('v5 messenger: need >=120 events, got ' + v5Events.length);
+
 // ── 汇总 ─────────────────────────────────────────────────────────────────────
 console.log('═══════════════════════════════════════');
 console.log('Gameplay V2 Content Check');
@@ -280,6 +323,9 @@ console.log(`Overtime V3: pre-off ${preOffCount} | night ${nightCount} | standal
 console.log('Overtime V3 cross-pool IDs: verified');
 console.log(`Workplace V4: events ${workplaceContent.length} | chains ${workplaceChains.size} | evidence options ${evidenceGated + evidenceGranted} | assignTask ${assignTaskEffects} | case/incident ${openCaseEffects + raiseIncidentEffects} | weekend ${weekendEvents} | mgmt ${managementEvents} | achievements ${workplaceAchievements.length}`);
 console.log('Workplace V4 cross-pool IDs: verified');
+console.log();
+console.log('Messenger V5: actors ' + v5ActorIds.size + ' | conversations ' + v5ConversationIds.size + ' | events ' + v5Events.length + ' | replies ' + v5Replies + ' | chained ' + v5Chained + ' | weekend ' + v5Windows.weekend + ' | preOff ' + v5Windows.preOff + ' | incident ' + v5Windows.incident + ' | positive ' + v5Windows.positive + ' | funny ' + v5Windows.funny);
+console.log('Messenger V5 cross-pool IDs: verified');
 for (const w of warnings) console.log(`WARN: ${w}`);
 if (errors.length) {
   for (const e of errors) console.error(`FAIL: ${e}`);

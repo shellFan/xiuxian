@@ -531,6 +531,15 @@
     try { workplace = f.queryV2CurrentEvent ? f.queryV2CurrentEvent() : null; } catch (e) { workplace = null; }
     try { canSettle = !!(f.queryCanSettleDay && f.queryCanSettleDay()); } catch (e) { canSettle = false; }
     try {
+      var msgBadge = f.queryMessengerBadge ? f.queryMessengerBadge() : null;
+      if (msgBadge && msgBadge.hasCritical) {
+        candidates.push({
+          id: 'criticalmsg:' + msgBadge.criticalUnread, kind: 'CRITICAL_MESSAGE', projection: msgBadge,
+          open: function () { if (V2 && typeof V2.maybeShowCriticalMessage === 'function') V2.maybeShowCriticalMessage(); else showDialog('📨 飞剑传书 · 关键消息', '事故群/老板有 <b>' + msgBadge.criticalUnread + '</b> 条未读，请进入飞剑传书处理。', [{ label: '知道了', cls: 'gold' }]); },
+        });
+      }
+    } catch (e) { /* messenger badge failure must not block arbitration */ }
+    try {
       var clock = f.queryGameClock ? f.queryGameClock() : null;
       var weekendOptions = f.queryWeekendOptions ? f.queryWeekendOptions() : null;
       var weekendChosen = f.queryWeekendChosen ? f.queryWeekendChosen() : true;
@@ -826,6 +835,7 @@
               '<div class="ux-welcome-title">离线工作简报</div>' +
               '<div class="ux-welcome-line">' + escHtml(summary.welcomeLine.text) + '</div>' +
               '<div class="ux-welcome-summary">' + summaryRows + '</div>' +
+      (welcomeMessengerLine(summary) || '') +
               '<div class="ux-welcome-policies">' +
                 Object.keys(policyLabels).map(function (policy) {
                   return '<button class="ux-welcome-policy' + (simulation.policyUsed === policy ? ' is-active' : '') + '" data-policy="' + policy + '">' + policyLabels[policy] + '</button>';
@@ -838,7 +848,21 @@
         '</div>' +
       '</div>';
 
-    $$('.ux-welcome-policy', layer).forEach(function (button) {
+  /* V5：欢迎简报的飞剑传书摘要行（§94） */
+  function welcomeMessengerLine(summary) {
+    var f = facade();
+    if (!f || typeof f.queryMessengerBadge !== 'function') return '';
+    try {
+      var messages = (f.context.player.messages ?? []);
+      var away = summary.simulation && summary.simulation.effectiveSeconds ? summary.simulation.effectiveSeconds : 0;
+      var received = messages.filter(function (m) { return away > 0; }).length;
+      if (received <= 0) return '';
+      return '<div class="ux-welcome-line" style="margin-top:10px">📨 离线期间飞剑传书已抵达 ' + received +
+        ' 条；重要破事已进入待决策队列，S1 永远优先。</div>';
+    } catch (e) { return ''; }
+  }
+
+  $$('.ux-welcome-policy', layer).forEach(function (button) {
       button.addEventListener('click', function () {
         var policy = button.getAttribute('data-policy');
         try {
@@ -1091,6 +1115,7 @@
     /* 今日局势 chips（§98~§102）：场景左上，最多 3 + N */
     var chips = '';
     if (V2) {
+      var dungeonBanner = V2 && typeof V2.messengerIncidentBannerHtml === 'function' ? V2.messengerIncidentBannerHtml() : '';
       var sit = null;
       try { sit = f && typeof f.queryDailySituation === 'function' ? f.queryDailySituation() : null; } catch (e) { sit = null; }
       if (sit && sit.company) {
@@ -1139,7 +1164,7 @@
     }
 
     return '<section class="ux-work-today ux-scene ux-scene--' + phase + (_cultivateFx && Date.now() - _cultivateFx.at < 2600 ? ' ux-scene--blessing' : '') + '">' +
-      chips + earned + battleBanner + tutorialHintHtml() +
+      chips + earned + dungeonBanner + battleBanner + tutorialHintHtml() +
       '<div class="ux-scene-main">' + headline + '</div>' +
       '<div class="ux-scene-strip">' + stripLeft + '<div class="ux-scene-strip-actions">' + stripRight + '</div></div>' +
     '</section>';
@@ -2535,6 +2560,18 @@
         case 'projectEntry':
           openBuildSelectModal();
           break;
+        case 'openIncidentDungeon': {
+          var fDungeon = facade();
+          if (!fDungeon || typeof fDungeon.startIncidentDungeon !== 'function') { toast('线上禁地未就绪', 'error'); break; }
+          try {
+            fDungeon.startIncidentDungeon(el.dataset.incident || '');
+            toast('进入线上禁地！Boss 已现身。', 'success');
+            _screen = 'PROJECT';
+            _subPage = null;
+            fullRefresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
         case 'abandonBattle': {
           var fAbandon = facade();
           if (fAbandon) {
@@ -2778,6 +2815,12 @@
     refresh: refresh,
     fullRefresh: fullRefresh,
     goto: function (page) { _subPage = String(page || '').toUpperCase(); fullRefresh(); },
+    openMessenger: function (conversationId) {
+      _screen = 'HOME'; _subPage = 'MESSENGER';
+      _messengerActiveConversation = conversationId || null;
+      _messengerReplyMessageId = null;
+      fullRefresh();
+    },
     showAdPopup: showAdPopup,
     showOfflinePopup: function () {
       var f = facade();

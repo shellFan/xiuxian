@@ -8,10 +8,47 @@
       "weight": 7,
       "window": "any",
       "cooldownDays": 3,
-      "steps": [{ "sender": "小师妹", "text": "早啊范大牛，今天产品经理脸色不太对。" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "早啊范大牛，今天产品经理脸色不太对。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "多谢预警，我先把需求文档都存档。", "tag": "PROFESSIONAL", "effects": { "npc": [["JUNIOR", 2]], "mind": 2, "evidence": [["REQUIREMENT_DOC", "提前存档的需求文档"]], "dialogFlag": "INSIDER_INFO" } },
-        { "id": "b", "text": "他脸色一直不太对，可能是修的仙比较苦。", "effects": { "mind": 2, "npc": [["JUNIOR", 1]] } }
+        {
+          "id": "a",
+          "text": "多谢预警，我先把需求文档都存档。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                2
+              ]
+            ],
+            "mind": 2,
+            "evidence": [
+              [
+                "REQUIREMENT_DOC",
+                "提前存档的需求文档"
+              ]
+            ],
+            "dialogFlag": "INSIDER_INFO"
+          }
+        },
+        {
+          "id": "b",
+          "text": "他脸色一直不太对，可能是修的仙比较苦。",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "JUNIOR",
+                1
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -22,10 +59,39 @@
       "weight": 6,
       "window": "lunch",
       "cooldownDays": 3,
-      "steps": [{ "sender": "小师妹", "text": "楼下新开的麻辣烫，走不走？" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "楼下新开的麻辣烫，走不走？"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "走！修仙不误吃饭。", "effects": { "npc": [["JUNIOR", 2]], "mind": 4 } },
-        { "id": "b", "text": "你先去，我把这段代码收个尾。", "effects": { "npc": [["JUNIOR", 1]], "mind": -1 } }
+        {
+          "id": "a",
+          "text": "走！修仙不误吃饭。",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                2
+              ]
+            ],
+            "mind": 4
+          }
+        },
+        {
+          "id": "b",
+          "text": "你先去，我把这段代码收个尾。",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                1
+              ]
+            ],
+            "mind": -1
+          }
+        }
       ]
     },
     {
@@ -37,10 +103,35 @@
       "window": "workday",
       "cooldownDays": 4,
       "minRelation": 30,
-      "steps": [{ "sender": "小师妹", "text": "我听说老板等会可能找你，先别急着走。" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "我听说老板等会可能找你，先别急着走。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "情报费已付（一根烤肠）。谢谢！", "effects": { "npc": [["JUNIOR", 3]], "mind": 2, "dialogFlag": "INSIDER_INFO" } },
-        { "id": "b", "text": "（17:30 的预警，价值半小时心跳）", "effects": { "mind": -1, "innerDemon": 1 } }
+        {
+          "id": "a",
+          "text": "情报费已付（一根烤肠）。谢谢！",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                3
+              ]
+            ],
+            "mind": 2,
+            "dialogFlag": "INSIDER_INFO"
+          }
+        },
+        {
+          "id": "b",
+          "text": "（17:30 的预警，价值半小时心跳）",
+          "effects": {
+            "mind": -1,
+            "innerDemon": 1
+          }
+        }
       ]
     },
     {
@@ -51,11 +142,60 @@
       "weight": 5,
       "window": "workday",
       "cooldownDays": 4,
-      "steps": [{ "sender": "小师妹", "text": "帮我看个问题，就五分钟。" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "帮我看个问题，就五分钟。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "好，发我看看。", "effects": { "npc": [["JUNIOR", 3]], "nextEvent": { "eventId": "ms_jun_004_b", "delayMinutes": 20 }, "reality": { "text": "帮小师妹看问题", "kind": "FAVOR" } } },
-        { "id": "b", "text": "这会儿实在腾不出手，你提单我下午看。", "tag": "PROFESSIONAL", "effects": { "npc": [["JUNIOR", -1]], "mind": 1, "task": { "title": "下午处理小师妹提的问题单", "priority": "P3", "source": "JUNIOR" } } },
-        { "id": "c", "text": "（五分钟，是求助者的计量单位，不是时间单位）", "effects": { "mind": 1, "innerDemon": 1 } }
+        {
+          "id": "a",
+          "text": "好，发我看看。",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                3
+              ]
+            ],
+            "nextEvent": {
+              "eventId": "ms_jun_004_b",
+              "delayMinutes": 20
+            },
+            "reality": {
+              "text": "帮小师妹看问题",
+              "kind": "FAVOR"
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "这会儿实在腾不出手，你提单我下午看。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                -1
+              ]
+            ],
+            "mind": 1,
+            "task": {
+              "title": "下午处理小师妹提的问题单",
+              "priority": "P3",
+              "source": "JUNIOR"
+            }
+          }
+        },
+        {
+          "id": "c",
+          "text": "（五分钟，是求助者的计量单位，不是时间单位）",
+          "effects": {
+            "mind": 1,
+            "innerDemon": 1
+          }
+        }
       ]
     },
     {
@@ -65,10 +205,45 @@
       "priority": "NORMAL",
       "weight": 0,
       "cooldownDays": 0,
-      "steps": [{ "sender": "小师妹", "text": "呜呜，越看越复杂，好像是我环境没配好……" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "呜呜，越看越复杂，好像是我环境没配好……"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "环境问题而已，我给你写个配置文档，以后照着配。", "tag": "PROFESSIONAL", "effects": { "npc": [["JUNIOR", 4]], "mind": 2, "task": { "title": "写环境配置文档", "priority": "P3", "source": "JUNIOR" } } },
-        { "id": "b", "text": "（帮忙的尽头，是写文档）", "effects": { "mind": 1, "npc": [["JUNIOR", 2]] } }
+        {
+          "id": "a",
+          "text": "环境问题而已，我给你写个配置文档，以后照着配。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                4
+              ]
+            ],
+            "mind": 2,
+            "task": {
+              "title": "写环境配置文档",
+              "priority": "P3",
+              "source": "JUNIOR"
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "（帮忙的尽头，是写文档）",
+          "effects": {
+            "mind": 1,
+            "npc": [
+              [
+                "JUNIOR",
+                2
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -79,10 +254,39 @@
       "weight": 4,
       "window": "afterHours",
       "cooldownDays": 5,
-      "steps": [{ "sender": "小师妹", "text": "还没走？给你带了个面包，放你桌上了。" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "还没走？给你带了个面包，放你桌上了。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（加班的深夜，碳水是最强的治愈术）", "effects": { "npc": [["JUNIOR", 3]], "mind": 5 } },
-        { "id": "b", "text": "谢谢！明天请你喝奶茶。", "effects": { "npc": [["JUNIOR", 2]], "mind": 4 } }
+        {
+          "id": "a",
+          "text": "（加班的深夜，碳水是最强的治愈术）",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                3
+              ]
+            ],
+            "mind": 5
+          }
+        },
+        {
+          "id": "b",
+          "text": "谢谢！明天请你喝奶茶。",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                2
+              ]
+            ],
+            "mind": 4
+          }
+        }
       ]
     },
     {
@@ -93,10 +297,47 @@
       "weight": 4,
       "window": "workday",
       "cooldownDays": 5,
-      "steps": [{ "sender": "小师妹", "text": "产品是不是又改需求了？我看见他抱着电脑往老板办公室去了。" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "产品是不是又改需求了？我看见他抱着电脑往老板办公室去了。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "情报确认，我先把手头提交了。", "tag": "PROFESSIONAL", "effects": { "npc": [["JUNIOR", 2]], "mind": 1, "evidence": [["REQUIREMENT_DOC", "变更前代码与文档快照"]] } },
-        { "id": "b", "text": "（小师妹：人形雷达）", "effects": { "mind": 1, "npc": [["JUNIOR", 1]], "dialogFlag": "INSIDER_INFO" } }
+        {
+          "id": "a",
+          "text": "情报确认，我先把手头提交了。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                2
+              ]
+            ],
+            "mind": 1,
+            "evidence": [
+              [
+                "REQUIREMENT_DOC",
+                "变更前代码与文档快照"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "b",
+          "text": "（小师妹：人形雷达）",
+          "effects": {
+            "mind": 1,
+            "npc": [
+              [
+                "JUNIOR",
+                1
+              ]
+            ],
+            "dialogFlag": "INSIDER_INFO"
+          }
+        }
       ]
     },
     {
@@ -107,10 +348,44 @@
       "weight": 3,
       "window": "any",
       "cooldownDays": 6,
-      "steps": [{ "sender": "小师妹", "text": "范大牛，问你个技术问题可以吗？百度了半小时没懂。" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "范大牛，问你个技术问题可以吗？百度了半小时没懂。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "来，语音讲给你听。", "effects": { "npc": [["JUNIOR", 3]], "mind": 1 } },
-        { "id": "b", "text": "发我，我写个例子给你。", "tag": "PROFESSIONAL", "effects": { "npc": [["JUNIOR", 2]], "task": { "title": "给小师妹写技术示例", "priority": "P3", "source": "JUNIOR" } } }
+        {
+          "id": "a",
+          "text": "来，语音讲给你听。",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                3
+              ]
+            ],
+            "mind": 1
+          }
+        },
+        {
+          "id": "b",
+          "text": "发我，我写个例子给你。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                2
+              ]
+            ],
+            "task": {
+              "title": "给小师妹写技术示例",
+              "priority": "P3",
+              "source": "JUNIOR"
+            }
+          }
+        }
       ]
     },
     {
@@ -121,10 +396,39 @@
       "weight": 3,
       "window": "weekend",
       "cooldownDays": 7,
-      "steps": [{ "sender": "小师妹", "text": "周末还看代码？卷王是你，卷王还是你。" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "周末还看代码？卷王是你，卷王还是你。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "这不是卷，这是我自愿的渡劫。（凡尔赛）", "effects": { "mind": 2, "npc": [["JUNIOR", 1]] } },
-        { "id": "b", "text": "你不也是在线吗，彼此彼此。", "effects": { "mind": 2, "npc": [["JUNIOR", 1]] } }
+        {
+          "id": "a",
+          "text": "这不是卷，这是我自愿的渡劫。（凡尔赛）",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "JUNIOR",
+                1
+              ]
+            ]
+          }
+        },
+        {
+          "id": "b",
+          "text": "你不也是在线吗，彼此彼此。",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "JUNIOR",
+                1
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -136,10 +440,37 @@
       "window": "any",
       "cooldownDays": 7,
       "minRelation": 40,
-      "steps": [{ "sender": "小师妹", "text": "偷偷说，我听说老板准备提拔一个人，好像在技术组里选。" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "偷偷说，我听说老板准备提拔一个人，好像在技术组里选。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "情报收到，该干嘛干嘛，是金子总会发光。", "tag": "PROFESSIONAL", "effects": { "npc": [["JUNIOR", 2]], "mind": 2, "dialogFlag": "PROMO_TRACK" } },
-        { "id": "b", "text": "（心跳加速，但表面稳如老狗）", "effects": { "mind": 3, "innerDemon": 2, "dialogFlag": "PROMO_TRACK" } }
+        {
+          "id": "a",
+          "text": "情报收到，该干嘛干嘛，是金子总会发光。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "npc": [
+              [
+                "JUNIOR",
+                2
+              ]
+            ],
+            "mind": 2,
+            "dialogFlag": "PROMO_TRACK"
+          }
+        },
+        {
+          "id": "b",
+          "text": "（心跳加速，但表面稳如老狗）",
+          "effects": {
+            "mind": 3,
+            "innerDemon": 2,
+            "dialogFlag": "PROMO_TRACK"
+          }
+        }
       ]
     },
     {
@@ -150,9 +481,26 @@
       "weight": 3,
       "window": "any",
       "cooldownDays": 8,
-      "steps": [{ "sender": "小师妹", "text": "今天食堂居然有糖醋排骨，冲鸭！" }],
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "今天食堂居然有糖醋排骨，冲鸭！"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "排骨修仙，立地成佛。冲！", "effects": { "mind": 3, "npc": [["JUNIOR", 1]] } }
+        {
+          "id": "a",
+          "text": "排骨修仙，立地成佛。冲！",
+          "effects": {
+            "mind": 3,
+            "npc": [
+              [
+                "JUNIOR",
+                1
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -163,11 +511,66 @@
       "weight": 6,
       "window": "any",
       "cooldownDays": 4,
-      "steps": [{ "sender": "老油条", "text": "兄弟帮我看个问题，就五分钟。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "兄弟帮我看个问题，就五分钟。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "来，贴代码。", "effects": { "npc": [["VETERAN", 2]], "nextEvent": { "eventId": "ms_vet_001_b", "delayMinutes": 25 }, "reality": { "text": "帮老油条看问题", "kind": "FAVOR" } } },
-        { "id": "b", "text": "提单吧，我排今天下午。", "tag": "PROFESSIONAL", "effects": { "npc": [["VETERAN", -1]], "task": { "title": "下午处理老油条的问题单", "priority": "P2", "source": "VETERAN" } } },
-        { "id": "c", "text": "你五分钟你来。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 2, "npc": [["VETERAN", -4]] } }
+        {
+          "id": "a",
+          "text": "来，贴代码。",
+          "effects": {
+            "npc": [
+              [
+                "VETERAN",
+                2
+              ]
+            ],
+            "nextEvent": {
+              "eventId": "ms_vet_001_b",
+              "delayMinutes": 25
+            },
+            "reality": {
+              "text": "帮老油条看问题",
+              "kind": "FAVOR"
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "提单吧，我排今天下午。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "npc": [
+              [
+                "VETERAN",
+                -1
+              ]
+            ],
+            "task": {
+              "title": "下午处理老油条的问题单",
+              "priority": "P2",
+              "source": "VETERAN"
+            }
+          }
+        },
+        {
+          "id": "c",
+          "text": "你五分钟你来。",
+          "tag": "ASSERTIVE",
+          "minCareerLevel": 3,
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                -4
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -177,10 +580,55 @@
       "priority": "NORMAL",
       "weight": 0,
       "cooldownDays": 0,
-      "steps": [{ "sender": "老油条", "text": "（半小时后）其实这个问题，牵扯到三年前的一个祖传方法……" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "（半小时后）其实这个问题，牵扯到三年前的一个祖传方法……"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（五分钟 → 半小时 → 祖传代码 → 事故，一条龙服务）", "effects": { "mind": -3, "innerDemon": 2, "techDebt": [["legacy", 4]], "reality": { "text": "五分钟帮忙变成半小时祖传代码考古", "kind": "FAVOR" }, "nextEvent": { "eventId": "ms_vet_001_c", "delayMinutes": 30 } } },
-        { "id": "b", "text": "打住。这个问题单独立项，我按排期处理。", "tag": "PROFESSIONAL", "minCareerLevel": 2, "effects": { "mind": 2, "npc": [["VETERAN", -1]], "task": { "title": "立项处理祖传方法问题", "priority": "P2", "source": "VETERAN" } } }
+        {
+          "id": "a",
+          "text": "（五分钟 → 半小时 → 祖传代码 → 事故，一条龙服务）",
+          "effects": {
+            "mind": -3,
+            "innerDemon": 2,
+            "techDebt": [
+              [
+                "legacy",
+                4
+              ]
+            ],
+            "reality": {
+              "text": "五分钟帮忙变成半小时祖传代码考古",
+              "kind": "FAVOR"
+            },
+            "nextEvent": {
+              "eventId": "ms_vet_001_c",
+              "delayMinutes": 30
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "打住。这个问题单独立项，我按排期处理。",
+          "tag": "PROFESSIONAL",
+          "minCareerLevel": 2,
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                -1
+              ]
+            ],
+            "task": {
+              "title": "立项处理祖传方法问题",
+              "priority": "P2",
+              "source": "VETERAN"
+            }
+          }
+        }
       ]
     },
     {
@@ -190,10 +638,61 @@
       "priority": "NORMAL",
       "weight": 0,
       "cooldownDays": 0,
-      "steps": [{ "sender": "老油条", "text": "刚才那改动一上预览，测试说支付挂了……你赶紧看看。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "刚才那改动一上预览，测试说支付挂了……你赶紧看看。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（帮忙的尽头是背锅）先把我的改动摘出来验证。", "effects": { "mind": -4, "npc": [["VETERAN", -2]], "techDebt": [["legacy", 6]], "incident": { "type": "PAYMENT_FAILURE", "severity": "S2", "source": "SYSTEM" }, "reality": { "text": "帮忙引火烧身", "kind": "INCIDENT" } } },
-        { "id": "b", "text": "停。回滚你的改动，我们按规范来：单独立项、评审、测试。", "tag": "PROFESSIONAL", "minCareerLevel": 3, "effects": { "mind": 2, "npc": [["VETERAN", -1]], "task": { "title": "规范立项修复祖传问题", "priority": "P2", "source": "VETERAN" } } }
+        {
+          "id": "a",
+          "text": "（帮忙的尽头是背锅）先把我的改动摘出来验证。",
+          "effects": {
+            "mind": -4,
+            "npc": [
+              [
+                "VETERAN",
+                -2
+              ]
+            ],
+            "techDebt": [
+              [
+                "legacy",
+                6
+              ]
+            ],
+            "incident": {
+              "type": "PAYMENT_FAILURE",
+              "severity": "S2",
+              "source": "SYSTEM"
+            },
+            "reality": {
+              "text": "帮忙引火烧身",
+              "kind": "INCIDENT"
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "停。回滚你的改动，我们按规范来：单独立项、评审、测试。",
+          "tag": "PROFESSIONAL",
+          "minCareerLevel": 3,
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                -1
+              ]
+            ],
+            "task": {
+              "title": "规范立项修复祖传问题",
+              "priority": "P2",
+              "source": "VETERAN"
+            }
+          }
+        }
       ]
     },
     {
@@ -205,10 +704,41 @@
       "window": "workday",
       "cooldownDays": 4,
       "minRelation": 20,
-      "steps": [{ "sender": "老油条", "text": "教你一招：让产品在群里把需求再确认一遍，以后甩锅有证据。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "教你一招：让产品在群里把需求再确认一遍，以后甩锅有证据。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "受教，这就去钓鱼（合规意义上）。", "effects": { "npc": [["VETERAN", 2]], "mind": 2, "dialogFlag": "EVIDENCE_MASTER" } },
-        { "id": "b", "text": "谢谢老哥，改天请你喝最贵的茶。", "effects": { "npc": [["VETERAN", 2]], "mind": 2, "dialogFlag": "EVIDENCE_MASTER" } }
+        {
+          "id": "a",
+          "text": "受教，这就去钓鱼（合规意义上）。",
+          "effects": {
+            "npc": [
+              [
+                "VETERAN",
+                2
+              ]
+            ],
+            "mind": 2,
+            "dialogFlag": "EVIDENCE_MASTER"
+          }
+        },
+        {
+          "id": "b",
+          "text": "谢谢老哥，改天请你喝最贵的茶。",
+          "effects": {
+            "npc": [
+              [
+                "VETERAN",
+                2
+              ]
+            ],
+            "mind": 2,
+            "dialogFlag": "EVIDENCE_MASTER"
+          }
+        }
       ]
     },
     {
@@ -219,10 +749,40 @@
       "weight": 4,
       "window": "workday",
       "cooldownDays": 5,
-      "steps": [{ "sender": "老油条", "text": "真假 P0 一招辨：让你十分钟内响应的是真 P0，让你感动的是假 P0。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "真假 P0 一招辨：让你十分钟内响应的是真 P0，让你感动的是假 P0。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（职场相对论，学到了）", "effects": { "mind": 2, "npc": [["VETERAN", 1]], "dialogFlag": "OLD_TIMER" } },
-        { "id": "b", "text": "那让你加班到天亮的呢？", "effects": { "npc": [["VETERAN", 1]], "mind": 1 } }
+        {
+          "id": "a",
+          "text": "（职场相对论，学到了）",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                1
+              ]
+            ],
+            "dialogFlag": "OLD_TIMER"
+          }
+        },
+        {
+          "id": "b",
+          "text": "那让你加班到天亮的呢？",
+          "effects": {
+            "npc": [
+              [
+                "VETERAN",
+                1
+              ]
+            ],
+            "mind": 1
+          }
+        }
       ]
     },
     {
@@ -233,11 +793,68 @@
       "weight": 4,
       "window": "any",
       "cooldownDays": 5,
-      "steps": [{ "sender": "老油条", "text": "昨天那个问题我已经协助处理好了。（对老板说的）" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "昨天那个问题我已经协助处理好了。（对老板说的）"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（他说的「协助」，是我熬到凌晨两点）", "effects": { "mind": -2, "npc": [["VETERAN", -3]], "achievementKey": "credit_stolen" } },
-        { "id": "b", "text": "补充一下，核心修复是我提交的，commit 在这里。", "requiresEvidence": "GIT_LOG", "tag": "EVIDENCE_MASTER", "effects": { "mind": 3, "npc": [["VETERAN", -4], ["BOSS", 1]], "evidence": [["GIT_LOG", "核心修复 commit 自证"]], "achievementKey": "credit_fight_back" } },
-        { "id": "c", "text": "又来？", "minCareerLevel": 3, "effects": { "mind": 2, "npc": [["VETERAN", -3]], "dialogFlag": "ASSERTIVE" } }
+        {
+          "id": "a",
+          "text": "（他说的「协助」，是我熬到凌晨两点）",
+          "effects": {
+            "mind": -2,
+            "npc": [
+              [
+                "VETERAN",
+                -3
+              ]
+            ],
+            "achievementKey": "credit_stolen"
+          }
+        },
+        {
+          "id": "b",
+          "text": "补充一下，核心修复是我提交的，commit 在这里。",
+          "requiresEvidence": "GIT_LOG",
+          "tag": "EVIDENCE_MASTER",
+          "effects": {
+            "mind": 3,
+            "npc": [
+              [
+                "VETERAN",
+                -4
+              ],
+              [
+                "BOSS",
+                1
+              ]
+            ],
+            "evidence": [
+              [
+                "GIT_LOG",
+                "核心修复 commit 自证"
+              ]
+            ],
+            "achievementKey": "credit_fight_back"
+          }
+        },
+        {
+          "id": "c",
+          "text": "又来？",
+          "minCareerLevel": 3,
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                -3
+              ]
+            ],
+            "dialogFlag": "ASSERTIVE"
+          }
+        }
       ]
     },
     {
@@ -249,10 +866,40 @@
       "window": "workday",
       "cooldownDays": 6,
       "minRelation": 30,
-      "steps": [{ "sender": "老油条", "text": "看在你帮我修过三次环境的份上，这个锅我替你背了。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "看在你帮我修过三次环境的份上，这个锅我替你背了。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（四十年修仙，不如一次背锅的情义）", "effects": { "mind": 5, "npc": [["VETERAN", 3]] } },
-        { "id": "b", "text": "这锅还是我来，你上次帮我够多了。", "tag": "PROFESSIONAL", "effects": { "mind": 2, "npc": [["VETERAN", 4]] } }
+        {
+          "id": "a",
+          "text": "（四十年修仙，不如一次背锅的情义）",
+          "effects": {
+            "mind": 5,
+            "npc": [
+              [
+                "VETERAN",
+                3
+              ]
+            ]
+          }
+        },
+        {
+          "id": "b",
+          "text": "这锅还是我来，你上次帮我够多了。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                4
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -263,10 +910,40 @@
       "weight": 3,
       "window": "any",
       "cooldownDays": 6,
-      "steps": [{ "sender": "老油条", "text": "我经历过四任老板。总结：饼的口味在变，饼还是饼。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "我经历过四任老板。总结：饼的口味在变，饼还是饼。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（历史学得再好，饼来了还是得吃）", "effects": { "mind": 2, "npc": [["VETERAN", 1]], "innerDemon": 1 } },
-        { "id": "b", "text": "第四任老板的饼，是什么口味？", "effects": { "npc": [["VETERAN", 1]], "mind": 2 } }
+        {
+          "id": "a",
+          "text": "（历史学得再好，饼来了还是得吃）",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                1
+              ]
+            ],
+            "innerDemon": 1
+          }
+        },
+        {
+          "id": "b",
+          "text": "第四任老板的饼，是什么口味？",
+          "effects": {
+            "npc": [
+              [
+                "VETERAN",
+                1
+              ]
+            ],
+            "mind": 2
+          }
+        }
       ]
     },
     {
@@ -278,10 +955,41 @@
       "window": "workday",
       "cooldownDays": 6,
       "minRelation": 40,
-      "steps": [{ "sender": "老油条", "text": "那个评审你别硬顶，散会后再私下和老板说，效果翻倍。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "那个评审你别硬顶，散会后再私下和老板说，效果翻倍。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（老油条的职场孙子兵法）", "effects": { "mind": 2, "npc": [["VETERAN", 2]], "performance": 1 } },
-        { "id": "b", "text": "道理我懂，但会上不说，会上就没机会了。", "tag": "ASSERTIVE", "effects": { "mind": 2, "npc": [["VETERAN", 1]] } }
+        {
+          "id": "a",
+          "text": "（老油条的职场孙子兵法）",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                2
+              ]
+            ],
+            "performance": 1
+          }
+        },
+        {
+          "id": "b",
+          "text": "道理我懂，但会上不说，会上就没机会了。",
+          "tag": "ASSERTIVE",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                1
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -292,10 +1000,39 @@
       "weight": 3,
       "window": "weekend",
       "cooldownDays": 7,
-      "steps": [{ "sender": "老油条", "text": "周末我是绝对不会看工作群的。这是我的底线。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "周末我是绝对不会看工作群的。这是我的底线。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（然后他秒回了老板的消息）", "effects": { "mind": 2, "npc": [["VETERAN", 1]] } },
-        { "id": "b", "text": "老哥，你的底线是弹性的。", "effects": { "mind": 2, "npc": [["VETERAN", 1]] } }
+        {
+          "id": "a",
+          "text": "（然后他秒回了老板的消息）",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                1
+              ]
+            ]
+          }
+        },
+        {
+          "id": "b",
+          "text": "老哥，你的底线是弹性的。",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                1
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -308,10 +1045,29 @@
       "cooldownDays": 7,
       "minRelation": -100,
       "maxRelation": -40,
-      "steps": [{ "sender": "老油条", "text": "（关系破裂后）以后各干各的，我的问题你少管，你的锅我不背。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "（关系破裂后）以后各干各的，我的问题你少管，你的锅我不背。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（互不添麻烦协议，达成）", "effects": { "mind": 1, "innerDemon": 2 } },
-        { "id": "b", "text": "行，公事公办。", "tag": "PROFESSIONAL", "effects": { "mind": 1 } }
+        {
+          "id": "a",
+          "text": "（互不添麻烦协议，达成）",
+          "effects": {
+            "mind": 1,
+            "innerDemon": 2
+          }
+        },
+        {
+          "id": "b",
+          "text": "行，公事公办。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "mind": 1
+          }
+        }
       ]
     },
     {
@@ -323,10 +1079,42 @@
       "window": "any",
       "cooldownDays": 8,
       "minRelation": 50,
-      "steps": [{ "sender": "老油条", "text": "我把十年的避坑笔记发你了。我退休前，你是唯一的传承人。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "我把十年的避坑笔记发你了。我退休前，你是唯一的传承人。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（传承的不只是笔记，是牛马的护身符）", "effects": { "mind": 6, "npc": [["VETERAN", 3]], "dialogFlag": "OLD_TIMER", "achievementKey": "veteran_legacy" } },
-        { "id": "b", "text": "老哥，等你退休，茶杯传给我。", "effects": { "mind": 4, "npc": [["VETERAN", 3]], "dialogFlag": "OLD_TIMER" } }
+        {
+          "id": "a",
+          "text": "（传承的不只是笔记，是牛马的护身符）",
+          "effects": {
+            "mind": 6,
+            "npc": [
+              [
+                "VETERAN",
+                3
+              ]
+            ],
+            "dialogFlag": "OLD_TIMER",
+            "achievementKey": "veteran_legacy"
+          }
+        },
+        {
+          "id": "b",
+          "text": "老哥，等你退休，茶杯传给我。",
+          "effects": {
+            "mind": 4,
+            "npc": [
+              [
+                "VETERAN",
+                3
+              ]
+            ],
+            "dialogFlag": "OLD_TIMER"
+          }
+        }
       ]
     },
     {
@@ -337,9 +1125,26 @@
       "weight": 3,
       "window": "workday",
       "cooldownDays": 8,
-      "steps": [{ "sender": "老油条", "text": "新来的实习生问我什么是「祖传代码」，我说：就是你前辈的前辈，留给你的试炼。" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "新来的实习生问我什么是「祖传代码」，我说：就是你前辈的前辈，留给你的试炼。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "试炼之外还有渡劫，等他改到第三年就懂了。", "effects": { "mind": 2, "npc": [["VETERAN", 1]] } }
+        {
+          "id": "a",
+          "text": "试炼之外还有渡劫，等他改到第三年就懂了。",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                1
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -350,10 +1155,41 @@
       "weight": 3,
       "window": "afterHours",
       "cooldownDays": 8,
-      "steps": [{ "sender": "老油条", "text": "走了走了，再不走赶不上末班地铁了。要不要一起？" }],
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "走了走了，再不走赶不上末班地铁了。要不要一起？"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "一起，今天不渡劫了。", "effects": { "mind": 4, "npc": [["VETERAN", 2]], "reality": { "text": "准时下班赶地铁", "kind": "REST" } } },
-        { "id": "b", "text": "你先走，我把这个收个尾。", "effects": { "mind": -2, "reality": { "text": "留下来收尾", "kind": "OVERTIME" } } }
+        {
+          "id": "a",
+          "text": "一起，今天不渡劫了。",
+          "effects": {
+            "mind": 4,
+            "npc": [
+              [
+                "VETERAN",
+                2
+              ]
+            ],
+            "reality": {
+              "text": "准时下班赶地铁",
+              "kind": "REST"
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "你先走，我把这个收个尾。",
+          "effects": {
+            "mind": -2,
+            "reality": {
+              "text": "留下来收尾",
+              "kind": "OVERTIME"
+            }
+          }
+        }
       ]
     },
     {
@@ -364,10 +1200,38 @@
       "weight": 5,
       "window": "workday",
       "cooldownDays": 5,
-      "steps": [{ "sender": "HR仙子", "text": "有空聊两分钟吗？关于你的绩效。" }],
+      "steps": [
+        {
+          "sender": "HR仙子",
+          "text": "有空聊两分钟吗？关于你的绩效。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "方便，您说。", "effects": { "mind": -2, "innerDemon": 2, "nextEvent": { "eventId": "ms_hr_001_b", "delayMinutes": 15 } } },
-        { "id": "b", "text": "下午三点后都可以。", "tag": "PROFESSIONAL", "effects": { "mind": -1, "task": { "title": "参加 HR 绩效沟通", "priority": "P2", "source": "HR" } } }
+        {
+          "id": "a",
+          "text": "方便，您说。",
+          "effects": {
+            "mind": -2,
+            "innerDemon": 2,
+            "nextEvent": {
+              "eventId": "ms_hr_001_b",
+              "delayMinutes": 15
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "下午三点后都可以。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "mind": -1,
+            "task": {
+              "title": "参加 HR 绩效沟通",
+              "priority": "P2",
+              "source": "HR"
+            }
+          }
+        }
       ]
     },
     {
@@ -377,10 +1241,39 @@
       "priority": "NORMAL",
       "weight": 0,
       "cooldownDays": 0,
-      "steps": [{ "sender": "HR仙子", "text": "是好事～这季度你的产出排名靠前，留意下晋升窗口的准备材料。" }],
+      "steps": [
+        {
+          "sender": "HR仙子",
+          "text": "是好事～这季度你的产出排名靠前，留意下晋升窗口的准备材料。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "谢谢！材料我这就准备。", "effects": { "mind": 5, "npc": [["HR", 2]], "task": { "title": "准备晋升窗口材料", "priority": "P2", "source": "HR" } } },
-        { "id": "b", "text": "（HR 的「两分钟」，是修仙界最漫长的两分钟）", "effects": { "mind": 3, "innerDemon": 1 } }
+        {
+          "id": "a",
+          "text": "谢谢！材料我这就准备。",
+          "effects": {
+            "mind": 5,
+            "npc": [
+              [
+                "HR",
+                2
+              ]
+            ],
+            "task": {
+              "title": "准备晋升窗口材料",
+              "priority": "P2",
+              "source": "HR"
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "（HR 的「两分钟」，是修仙界最漫长的两分钟）",
+          "effects": {
+            "mind": 3,
+            "innerDemon": 1
+          }
+        }
       ]
     },
     {
@@ -391,10 +1284,38 @@
       "weight": 4,
       "window": "workday",
       "cooldownDays": 6,
-      "steps": [{ "sender": "HR仙子", "text": "公司团建定在下周五，全天，地点待定。请提前安排工作。" }],
+      "steps": [
+        {
+          "sender": "HR仙子",
+          "text": "公司团建定在下周五，全天，地点待定。请提前安排工作。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "收到。（用一天团建换一天写代码，账不好算）", "effects": { "mind": 1, "reality": { "text": "占用下周五团建", "kind": "MEETING" } } },
-        { "id": "b", "text": "下周五有版本发布，能换时间吗？", "tag": "PROFESSIONAL", "effects": { "npc": [["HR", 1]], "mind": 2 } }
+        {
+          "id": "a",
+          "text": "收到。（用一天团建换一天写代码，账不好算）",
+          "effects": {
+            "mind": 1,
+            "reality": {
+              "text": "占用下周五团建",
+              "kind": "MEETING"
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "下周五有版本发布，能换时间吗？",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "npc": [
+              [
+                "HR",
+                1
+              ]
+            ],
+            "mind": 2
+          }
+        }
       ]
     },
     {
@@ -405,10 +1326,25 @@
       "weight": 3,
       "window": "any",
       "cooldownDays": 8,
-      "steps": [{ "sender": "HR仙子", "text": "你的社保基数调整表发你邮箱了，查收确认。" }],
+      "steps": [
+        {
+          "sender": "HR仙子",
+          "text": "你的社保基数调整表发你邮箱了，查收确认。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "收到，谢谢。", "effects": {} },
-        { "id": "b", "text": "（HR 的消息，永远礼貌而不可拒绝）", "effects": { "mind": 1 } }
+        {
+          "id": "a",
+          "text": "收到，谢谢。",
+          "effects": {}
+        },
+        {
+          "id": "b",
+          "text": "（HR 的消息，永远礼貌而不可拒绝）",
+          "effects": {
+            "mind": 1
+          }
+        }
       ]
     },
     {
@@ -419,10 +1355,35 @@
       "weight": 3,
       "window": "workday",
       "cooldownDays": 9,
-      "steps": [{ "sender": "HR仙子", "text": "提醒一下：本季度加班时长统计中。请注意劳逸结合，也注意数据呈现。" }],
+      "steps": [
+        {
+          "sender": "HR仙子",
+          "text": "提醒一下：本季度加班时长统计中。请注意劳逸结合，也注意数据呈现。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（翻译：加班太多了，收着点）", "effects": { "mind": 1, "innerDemon": 1 } },
-        { "id": "b", "text": "收到，我会注意节奏。", "tag": "PROFESSIONAL", "effects": { "mind": 2, "npc": [["HR", 1]] } }
+        {
+          "id": "a",
+          "text": "（翻译：加班太多了，收着点）",
+          "effects": {
+            "mind": 1,
+            "innerDemon": 1
+          }
+        },
+        {
+          "id": "b",
+          "text": "收到，我会注意节奏。",
+          "tag": "PROFESSIONAL",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "HR",
+                1
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -434,10 +1395,40 @@
       "window": "any",
       "cooldownDays": 9,
       "minRelation": 25,
-      "steps": [{ "sender": "HR仙子", "text": "私下说：晋升答辩最好带一个「量化收益」的案例，评委吃这套。" }],
+      "steps": [
+        {
+          "sender": "HR仙子",
+          "text": "私下说：晋升答辩最好带一个「量化收益」的案例，评委吃这套。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "太感谢了，这就去整理数据。", "effects": { "mind": 4, "npc": [["HR", 2]], "task": { "title": "整理量化收益案例", "priority": "P2", "source": "HR" }, "dialogFlag": "PROMO_TRACK" } },
-        { "id": "b", "text": "（仙子虽是 HR，渡劫攻略却比谁都实用）", "effects": { "mind": 3, "dialogFlag": "PROMO_TRACK" } }
+        {
+          "id": "a",
+          "text": "太感谢了，这就去整理数据。",
+          "effects": {
+            "mind": 4,
+            "npc": [
+              [
+                "HR",
+                2
+              ]
+            ],
+            "task": {
+              "title": "整理量化收益案例",
+              "priority": "P2",
+              "source": "HR"
+            },
+            "dialogFlag": "PROMO_TRACK"
+          }
+        },
+        {
+          "id": "b",
+          "text": "（仙子虽是 HR，渡劫攻略却比谁都实用）",
+          "effects": {
+            "mind": 3,
+            "dialogFlag": "PROMO_TRACK"
+          }
+        }
       ]
     },
     {
@@ -448,10 +1439,26 @@
       "weight": 2,
       "window": "any",
       "cooldownDays": 10,
-      "steps": [{ "sender": "HR仙子", "text": "员工满意度问卷发你了，匿名。" }],
+      "steps": [
+        {
+          "sender": "HR仙子",
+          "text": "员工满意度问卷发你了，匿名。"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "（匿名问卷：说真话的最后一道防线）", "effects": { "mind": 1, "innerDemon": 1 } },
-        { "id": "b", "text": "已填，谢谢。", "effects": {} }
+        {
+          "id": "a",
+          "text": "（匿名问卷：说真话的最后一道防线）",
+          "effects": {
+            "mind": 1,
+            "innerDemon": 1
+          }
+        },
+        {
+          "id": "b",
+          "text": "已填，谢谢。",
+          "effects": {}
+        }
       ]
     },
     {
@@ -462,10 +1469,40 @@
       "weight": 2,
       "window": "workday",
       "cooldownDays": 10,
-      "steps": [{ "sender": "HR仙子", "text": "下月培训报名开始了，有想上的课程吗？" }],
+      "steps": [
+        {
+          "sender": "HR仙子",
+          "text": "下月培训报名开始了，有想上的课程吗？"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "架构设计的那个，帮我留个名额。", "effects": { "mind": 2, "task": { "title": "报名架构设计培训", "priority": "P3", "source": "HR" } } },
-        { "id": "b", "text": "有没有「如何优雅拒绝加班」的课程？", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 3, "npc": [["HR", 1]] } }
+        {
+          "id": "a",
+          "text": "架构设计的那个，帮我留个名额。",
+          "effects": {
+            "mind": 2,
+            "task": {
+              "title": "报名架构设计培训",
+              "priority": "P3",
+              "source": "HR"
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "有没有「如何优雅拒绝加班」的课程？",
+          "tag": "ASSERTIVE",
+          "minCareerLevel": 3,
+          "effects": {
+            "mind": 3,
+            "npc": [
+              [
+                "HR",
+                1
+              ]
+            ]
+          }
+        }
       ]
     },
     {
@@ -476,10 +1513,33 @@
       "weight": 2,
       "window": "any",
       "cooldownDays": 12,
-      "steps": [{ "sender": "HR仙子", "text": "生日快乐呀！蛋糕券已发你邮箱～" }],
+      "steps": [
+        {
+          "sender": "HR仙子",
+          "text": "生日快乐呀！蛋糕券已发你邮箱～"
+        }
+      ],
       "replies": [
-        { "id": "a", "text": "谢谢！公司还记得我的生日，感动。", "effects": { "mind": 5, "npc": [["HR", 2]] } },
-        { "id": "b", "text": "（蛋糕券：公司温情的最低成本实现）", "effects": { "mind": 3 } }
+        {
+          "id": "a",
+          "text": "谢谢！公司还记得我的生日，感动。",
+          "effects": {
+            "mind": 5,
+            "npc": [
+              [
+                "HR",
+                2
+              ]
+            ]
+          }
+        },
+        {
+          "id": "b",
+          "text": "（蛋糕券：公司温情的最低成本实现）",
+          "effects": {
+            "mind": 3
+          }
+        }
       ]
     },
     {
@@ -490,11 +1550,396 @@
       "weight": 0,
       "cooldownDays": 0,
       "steps": [
-        { "sender": "老油条", "text": "我昨天确实改过，但合并是你审的。代码评审记录在群里。" }
+        {
+          "sender": "老油条",
+          "text": "我昨天确实改过，但合并是你审的。代码评审记录在群里。"
+        }
       ],
       "replies": [
-        { "id": "a", "text": "（评审通过不代表逻辑正确，但记录就是记录）", "effects": { "mind": -2, "responsibility": { "title": "支付失败责任界定", "blamedBy": "VETERAN", "publicVisibility": true }, "reality": { "text": "群内被指支付失败责任", "kind": "BLAME" } } },
-        { "id": "b", "text": "评审意见我当时写过两条风险，都有记录。现在先修，复盘再定责。", "requiresEvidence": "CHAT_RECORD", "tag": "EVIDENCE_MASTER", "effects": { "mind": 2, "npc": [["VETERAN", -2], ["TESTER", 1]], "evidence": [["CHAT_RECORD", "评审风险意见记录"]], "achievementKey": "evidence_counter" } }
+        {
+          "id": "a",
+          "text": "（评审通过不代表逻辑正确，但记录就是记录）",
+          "effects": {
+            "mind": -2,
+            "responsibility": {
+              "title": "支付失败责任界定",
+              "blamedBy": "VETERAN",
+              "publicVisibility": true
+            },
+            "reality": {
+              "text": "群内被指支付失败责任",
+              "kind": "BLAME"
+            }
+          }
+        },
+        {
+          "id": "b",
+          "text": "评审意见我当时写过两条风险，都有记录。现在先修，复盘再定责。",
+          "requiresEvidence": "CHAT_RECORD",
+          "tag": "EVIDENCE_MASTER",
+          "effects": {
+            "mind": 2,
+            "npc": [
+              [
+                "VETERAN",
+                -2
+              ],
+              [
+                "TESTER",
+                1
+              ]
+            ],
+            "evidence": [
+              [
+                "CHAT_RECORD",
+                "评审风险意见记录"
+              ]
+            ],
+            "achievementKey": "evidence_counter"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ms_pos_011",
+      "conversation": "conv_veteran",
+      "actor": "VETERAN",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 7,
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "我把那个假 P0 在群里接了，你安心写代码。这种事让我来。"
+        }
+      ],
+      "replies": [
+        {
+          "id": "a",
+          "text": "（老油条的挡刀，有时比证据更有用）",
+          "effects": {
+            "mind": 5,
+            "npc": [
+              [
+                "VETERAN",
+                3
+              ]
+            ]
+          }
+        },
+        {
+          "id": "b",
+          "text": "下次教我，我也想帮你挡。",
+          "effects": {
+            "mind": 4,
+            "npc": [
+              [
+                "VETERAN",
+                3
+              ]
+            ],
+            "dialogFlag": "OLD_TIMER"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ms_pos_012",
+      "conversation": "conv_boss",
+      "actor": "BOSS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "workday",
+      "cooldownDays": 8,
+      "steps": [
+        {
+          "sender": "老板",
+          "text": "上周你提的流程改进，我批了。下周一开始试行。"
+        }
+      ],
+      "replies": [
+        {
+          "id": "a",
+          "text": "谢谢老板！我会跟进落地效果。",
+          "effects": {
+            "mind": 5,
+            "npc": [
+              [
+                "BOSS",
+                3
+              ]
+            ],
+            "performance": 3
+          }
+        },
+        {
+          "id": "b",
+          "text": "（提意见居然被采纳，本季度第二稀有）",
+          "effects": {
+            "mind": 4,
+            "performance": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ms_pos_013",
+      "conversation": "conv_ops",
+      "actor": "OPS",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 7,
+      "steps": [
+        {
+          "sender": "运维老哥",
+          "text": "容量扩了，你们组的服务配额翻倍，随便造。"
+        }
+      ],
+      "replies": [
+        {
+          "id": "a",
+          "text": "（资源到位，事故减半，兄弟大恩）",
+          "effects": {
+            "mind": 5,
+            "npc": [
+              [
+                "OPS",
+                3
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ms_pos_014",
+      "conversation": "conv_tester",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "steps": [
+        {
+          "sender": "测试小哥",
+          "text": "那个线上问题查清了：是第三方接口超时，跟你们代码无关。"
+        }
+      ],
+      "replies": [
+        {
+          "id": "a",
+          "text": "（第三方：职场背锅界的永恒王者）",
+          "effects": {
+            "mind": 5,
+            "npc": [
+              [
+                "TESTER",
+                2
+              ]
+            ],
+            "evidence": [
+              [
+                "TEST_REPORT",
+                "第三方超时结论报告"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ms_pos_015",
+      "conversation": "conv_junior",
+      "actor": "JUNIOR",
+      "priority": "NORMAL",
+      "weight": 3,
+      "window": "any",
+      "cooldownDays": 8,
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "我把自己整理的新人手册发你了，里面有给开发避坑的专门一章。"
+        }
+      ],
+      "replies": [
+        {
+          "id": "a",
+          "text": "（反向教学：小师妹也在保护开发）",
+          "effects": {
+            "mind": 4,
+            "npc": [
+              [
+                "JUNIOR",
+                2
+              ]
+            ],
+            "evidence": [
+              [
+                "REQUIREMENT_DOC",
+                "新人避坑手册"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ms_pos_016",
+      "conversation": "conv_hr",
+      "actor": "HR",
+      "priority": "NORMAL",
+      "weight": 2,
+      "window": "any",
+      "cooldownDays": 9,
+      "steps": [
+        {
+          "sender": "HR仙子",
+          "text": "你的加班调休额度我帮你申下来了，下周可以用。"
+        }
+      ],
+      "replies": [
+        {
+          "id": "a",
+          "text": "谢谢！这就是最好的福利。",
+          "effects": {
+            "mind": 6,
+            "npc": [
+              [
+                "HR",
+                2
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ms_pos_017",
+      "conversation": "conv_client",
+      "actor": "CLIENT",
+      "priority": "NORMAL",
+      "weight": 2,
+      "window": "any",
+      "cooldownDays": 9,
+      "steps": [
+        {
+          "sender": "客户方丈",
+          "text": "下季度的预算批了，续约没问题。你们继续。"
+        }
+      ],
+      "replies": [
+        {
+          "id": "a",
+          "text": "（续约=饭碗稳固，普天同庆）",
+          "effects": {
+            "mind": 6,
+            "npc": [
+              [
+                "CLIENT",
+                1
+              ],
+              [
+                "BOSS",
+                1
+              ]
+            ],
+            "performance": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ms_pos_018",
+      "conversation": "conv_project",
+      "actor": "VETERAN",
+      "priority": "NORMAL",
+      "weight": 2,
+      "window": "any",
+      "cooldownDays": 9,
+      "steps": [
+        {
+          "sender": "老油条",
+          "text": "产品改需求了，我第一时间拉了评审，没让你们白干。"
+        }
+      ],
+      "replies": [
+        {
+          "id": "a",
+          "text": "（老油条的高光时刻：用十年功力护住一班的工期）",
+          "effects": {
+            "mind": 5,
+            "npc": [
+              [
+                "VETERAN",
+                3
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ms_pos_019",
+      "conversation": "conv_junior",
+      "actor": "JUNIOR",
+      "priority": "NORMAL",
+      "weight": 2,
+      "window": "any",
+      "cooldownDays": 10,
+      "steps": [
+        {
+          "sender": "小师妹",
+          "text": "范大牛，觉得你最近状态不太好，记得准点下班，天塌不下来。"
+        }
+      ],
+      "replies": [
+        {
+          "id": "a",
+          "text": "收到，今天就走。（有人惦记的感觉，是道心外挂）",
+          "effects": {
+            "mind": 6,
+            "npc": [
+              [
+                "JUNIOR",
+                2
+              ]
+            ],
+            "achievementKey": "leave_on_time"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ms_pos_020",
+      "conversation": "conv_company",
+      "actor": "TESTER",
+      "priority": "NORMAL",
+      "weight": 2,
+      "window": "any",
+      "cooldownDays": 10,
+      "steps": [
+        {
+          "sender": "测试小哥",
+          "text": "【大群】本季度质量之星：我们的开发组。零 P1 事故，可喜可贺！"
+        }
+      ],
+      "replies": [
+        {
+          "id": "a",
+          "text": "（零 P1，这是全组一起修来的福报）",
+          "effects": {
+            "mind": 6,
+            "performance": 2,
+            "npc": [
+              [
+                "TESTER",
+                2
+              ]
+            ]
+          }
+        }
       ]
     }
   ]

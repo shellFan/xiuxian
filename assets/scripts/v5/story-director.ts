@@ -86,9 +86,10 @@ export class StoryDirectorService {
     const minuteOfDay = clock.hour * 60 + clock.minute;
     if (director.interruptBudget <= 0) return;
 
-    // 首周剧本优先（V5-5）
+    // 首周剧本优先（§20）：首周未完成时，当日节拍未触发完之前不跑随机池。
     if (!player.firstWeekStory?.completed) {
       if (this.tryFirstWeekBeat(nowMs, day.dayIndex, minuteOfDay)) return;
+      if (!this.firstWeekDayDone(day.dayIndex, minuteOfDay)) return;
     }
 
     // 消息间隔
@@ -187,6 +188,10 @@ export class StoryDirectorService {
       } catch { /* 事故创建失败不阻塞 */ }
     }
     if (effects.incidentDungeon) {
+      // 记录待进入的事故副本（UI 横幅入口 → startBattleRun('INCIDENT')，§31）。
+      player.eventFlags = { ...player.eventFlags, ['v5_dungeon_pending']: true };
+      player.eventFlags = { ...player.eventFlags, ['v5_dungeon_type']: true };
+      (player as unknown as { pendingIncidentDungeon?: string }).pendingIncidentDungeon = effects.incidentDungeon.incidentType;
       this.context.events.emit('messengerIncidentDungeon', { incidentType: effects.incidentDungeon.incidentType });
     }
     if (effects.overtime) {
@@ -199,6 +204,21 @@ export class StoryDirectorService {
     }
     if (effects.reality) {
       this.messenger.appendReality({ time: nowMs, text: effects.reality.text, kind: effects.reality.kind });
+    }
+    // 群聊甩锅 → ResponsibilityCase（§12/§32）：公开可见，证据反杀走现有 acceptBlame/clearWithEvidence。
+    if (effects.responsibility) {
+      try {
+        const cased = this.context.responsibility.openCase({
+          sourceNpc: (effects.responsibility.blamedBy === 'CLIENT' ? 'CLIENT' : effects.responsibility.blamedBy) as never,
+          actualOwnerNpc: effects.responsibility.blamedBy as never,
+          blamedPlayer: true,
+          cause: effects.responsibility.title,
+          severity: 'S2',
+        });
+        const directorNow = player.storyDirector!;
+        player.storyDirector = { ...directorNow, unresolvedCases: [...directorNow.unresolvedCases, cased.id].slice(-24) };
+        this.context.events.emit('messengerBlame', { caseId: cased.id, title: effects.responsibility.title });
+      } catch { /* 立案失败不阻塞消息流 */ }
     }
     if (effects.nextEvent) {
       const followup = messengerEventById(effects.nextEvent.eventId);
@@ -272,6 +292,13 @@ export class StoryDirectorService {
       plan.push(pool[Math.floor(rng.next() * pool.length)]);
     }
     return plan;
+  }
+
+  /** 首周当日节拍是否全部到达过触发窗口（到达后放行随机池，避免首周死板）。 */
+  private firstWeekDayDone(dayIndex: number, minuteOfDay: number): boolean {
+    const beats = FIRST_WEEK_BEATS[dayIndex] ?? [];
+    const done = this.context.player.firstWeekStory?.doneSteps ?? [];
+    return beats.every((beat) => done.includes(beat.stepId) || minuteOfDay >= beat.minMinute + 30);
   }
 
   /** 首周剧本（§20）：D1-D7 的定时节拍，每拍触发一次即销毁。 */

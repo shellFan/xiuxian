@@ -481,12 +481,21 @@
               (view.durations.overtime ? '⚡ 加班 ' + dur(view.durations.overtime) + (view.freeOvertimeSeconds ? '（免费）' : '（有补偿）') + '<br>' : '') +
               '⚡ 事件 ' + view.eventsHandled + ' · 材料 ' + view.materialsGained + ' 份' +
             '</div>' +
-            ((view.paidFishingSalary || view.blamesTaken || view.blameCounters || view.incidents || view.assignedTasksDone) ?
+            ((view.paidFishingSalary || view.blamesTaken || view.blameCounters || view.incidents || view.assignedTasksDone || view.messageCount) ?
               '<div class="ux-recipe-desc" style="margin-top:8px;line-height:1.9">' +
                 (view.paidFishingSalary ? '🐟 带薪摸鱼收入 <b style="color:var(--green-lo)">¥' + Number(view.paidFishingSalary).toFixed(2) + '</b><br>' : '') +
                 (view.assignedTasksDone || view.assignedTasksRefused ? '📋 塞来的活：完成 ' + (view.assignedTasksDone || 0) + ' · 拒绝 ' + (view.assignedTasksRefused || 0) + '<br>' : '') +
                 (view.blamesTaken || view.blameCounters ? '🛡️ 背锅 ' + (view.blamesTaken || 0) + ' 次 · 成功反击 ' + (view.blameCounters || 0) + ' 次<br>' : '') +
                 (view.incidents ? '🔥 生产事故 ' + view.incidents + ' 次 · 证据 +' + (view.evidenceGained || 0) + '<br>' : '') +
+                (view.messageCount ? '📨 飞剑 ' + view.messageCount + ' 条 · 已读不回 ' + (view.readNoReplyCount || 0) + ' 次<br>' : '') +
+              '</div>' : '') +
+            ((view.dailyPlan && view.dailyPlan.length) ?
+              '<div class="ux-recipe-desc" style="margin-top:8px"><b>【早上计划】</b><br>' +
+                view.dailyPlan.map(function (item) { return '· ' + H.escHtml(item); }).join('<br>') +
+                ((view.dailyReality && view.dailyReality.length) ?
+                  '<br><b>【实际发生】</b><br>' +
+                  view.dailyReality.map(function (entry) { return '· ' + H.escHtml(entry.text); }).join('<br>')
+                  : '') +
               '</div>' : '') +
             '<div class="ux-work-today__warning">' + H.escHtml(view.statusText || '') + '</div>' +
             '<div class="ux-dialog-actions"><button class="ux-btn ux-btn--gold ux-btn--md" id="SettleOk">明天见</button></div>' +
@@ -502,6 +511,59 @@
 
   /* ── 公共 API：宿主调用 ── */
 
+  /* ── V5 飞剑传书：关键消息强打断弹窗（§8：仅事故群/老板私聊） ── */
+
+  var _criticalMessageShownKey = '';
+
+  function maybeShowCriticalMessage() {
+    var badge = fQuery('queryMessengerBadge');
+    if (!badge || !badge.hasCritical) return;
+    var key = 'crit:' + badge.criticalUnread;
+    if (key === _criticalMessageShownKey) return;
+    _criticalMessageShownKey = key;
+    var conversations = fQuery('queryConversations') || [];
+    var critical = conversations.filter(function (c) { return c.unreadCount > 0 && (c.type === 'INCIDENT' || c.type === 'BOSS'); });
+    var rows = critical.map(function (c) {
+      return '<button class="ux-event-option" data-critical-conv="' + H.escHtml(c.id) + '">' +
+        '<span>' + H.escHtml(c.title) + '</span>' +
+        '<span class="opt-effects">' + H.escHtml(String(c.lastPreview || '').slice(0, 26)) + '</span></button>';
+    }).join('');
+    var layer = H.popupLayer();
+    if (!layer) return;
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup">' +
+          '<div class="ux-header" style="height:84px;border-radius:16px 16px 0 0;margin:0 -18px 16px">' +
+            '<span class="ux-header-title">📨 飞剑传书 · 关键消息</span>' +
+          '</div>' +
+          '<div class="ux-popup-card">' +
+            '<div class="ux-event-bubble">事故群或老板私聊有待处理的消息。</div>' +
+            '<div class="ux-event-options">' + rows + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    H.$$('[data-critical-conv]', layer).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var conv = b.getAttribute('data-critical-conv');
+        H.closePopup();
+        if (window.UiOverlay && window.UiOverlay.openMessenger) window.UiOverlay.openMessenger(conv);
+        else { window.__MESSENGER_JUMP__ = conv; }
+        H.refresh();
+      });
+    });
+  }
+
+  /* ── V5 事故副本入口横幅（§31：聊天→Incident→线上禁地→Boss） ── */
+
+  function messengerIncidentBannerHtml() {
+    var run = fQuery('queryBattle');
+    if (run) return '';
+    var pending = fQuery('queryPendingIncidentDungeon');
+    if (!pending) return '';
+    return '<button class="ux-scene-battle" data-action="openIncidentDungeon" data-incident="' + H.escHtml(pending.incidentType) + '">' +
+      '⚔ 线上禁地开启 · ' + H.escHtml(pending.incidentType) + '<span class="arr">进入现场 ›</span></button>';
+  }
+
   window.V2UI = {
     init: function (host) { H = host; },
     __H: function () { return Object.keys(H).map(function (k) { return k + ':' + typeof H[k]; }).join(','); },
@@ -516,6 +578,8 @@
     maybeShowV2EventModal: maybeShowV2EventModal,
     maybeShowWeekendModal: maybeShowWeekendModal,
     maybeShowSettlementModal: maybeShowSettlementModal,
+    maybeShowCriticalMessage: maybeShowCriticalMessage,
+    messengerIncidentBannerHtml: messengerIncidentBannerHtml,
     promotionPageHtml: promotionPageHtml,
     showDefenseModal: showDefenseModal,
   };

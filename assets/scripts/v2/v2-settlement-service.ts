@@ -262,6 +262,14 @@ export interface DailySettlementView {
   readonly incidents?: number;
   /** 当日获得的证据数。 */
   readonly evidenceGained?: number;
+  // ── V5 飞剑传书日结（§26/§27） ──
+  /** 早上计划（原文）。 */
+  readonly dailyPlan?: readonly string[];
+  /** 今天实际发生（时间线摘要）。 */
+  readonly dailyReality?: readonly { time: number; text: string; kind: string }[];
+  /** 当日消息数 / 已读不回数。 */
+  readonly messageCount?: number;
+  readonly readNoReplyCount?: number;
 }
 
 export class DaySettlementService {
@@ -335,6 +343,10 @@ export class DaySettlementService {
       blameCounters: p.responsibilityCases.filter((c) => c.status === 'PLAYER_CLEARED' && c.createdDay === day.dayIndex).length,
       incidents: p.incidents.filter((i) => i.dayIndex === day.dayIndex).length,
       evidenceGained: p.evidence.filter((e) => e.dayIndex === day.dayIndex).length,
+      dailyPlan: [...(p.dailyPlan ?? [])],
+      dailyReality: (p.dailyReality ?? []).map((r) => ({ time: r.time, text: r.text, kind: r.kind })),
+      messageCount: (p.messages ?? []).filter((m) => m.timestamp >= day.startedAt && m.timestamp <= this.clock.now()).length,
+      readNoReplyCount: p.lifetimeStats['msg_ach:read_no_reply'] ?? 0,
     };
 
     try {

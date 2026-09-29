@@ -58,6 +58,8 @@ export interface MessengerEffectDef {
   readonly nextEvent?: { readonly eventId: string; readonly delayMinutes: number };
   /** 追加“今日实际”条目。 */
   readonly reality?: { readonly text: string; readonly kind: 'WORK' | 'FAVOR' | 'MEETING' | 'INCIDENT' | 'OVERTIME' | 'CHANGE' | 'BLAME' | 'REST' };
+  /** 群聊甩锅 → ResponsibilityCase（§12）。 */
+  readonly responsibility?: { readonly title: string; readonly blamedBy: string; readonly publicVisibility?: boolean };
   /** 消息成就计数键（+1）。 */
   readonly achievementKey?: string;
 }

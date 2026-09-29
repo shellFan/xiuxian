@@ -92,6 +92,25 @@ export class MessengerService {
       const day = player.gameDay?.dayIndex ?? 1;
       const firstWeekCompleted = player.careerLevel > 1 || day > 7;
       player.firstWeekStory = { completed: firstWeekCompleted, doneSteps: [] };
+      // 老玩家上线礼（§97）：不弹长教程，一条系统通知 + 软提示。
+      if (firstWeekCompleted) {
+        player.messages = [
+          ...(player.messages ?? []),
+          {
+            id: `msg_v5_welcome_${Date.now().toString(36)}`,
+            conversationId: 'conv_system',
+            senderId: 'SYSTEM',
+            senderName: '飞剑传书',
+            timestamp: this.context.clockV2.now(),
+            content: '「飞剑传书已接入公司灵网。」以后老板、产品、测试的破事都会先飞到这里。重要消息会强提醒，普通消息……你懂的，可以已读不回。',
+            messageType: 'NOTICE',
+            read: false,
+          } as MessengerMessageState,
+        ];
+        player.conversations = (player.conversations ?? []).map((c) =>
+          c.id === 'conv_system' ? { ...c, unreadCount: c.unreadCount + 1, lastMessageAt: this.context.clockV2.now() } : c,
+        );
+      }
     }
     if (!player.dialogFlags) player.dialogFlags = {};
     if (!player.dailyPlan) player.dailyPlan = [];
@@ -188,11 +207,6 @@ export class MessengerService {
         .map((reply) => ({ id: reply.id, text: reply.text, tag: reply.tag }))
       : undefined;
 
-    // 同一会话已有未回复的决策消息时，新决策消息排队为低优先（不覆盖）。
-    const hasPendingSameConv = (player.messages ?? []).some(
-      (m) => m.conversationId === conversationId && m.replyOptions && !m.read,
-    );
-
     const message: MessengerMessageState = {
       id: `msg_${Date.now().toString(36)}_${Math.floor(Math.random() * 1e6).toString(36)}`,
       conversationId,
@@ -202,7 +216,7 @@ export class MessengerService {
       content: lastStep.text,
       messageType: event.priority === 'CRITICAL' ? 'INCIDENT' : event.actor === 'SYSTEM' ? 'SYSTEM' : 'TEXT',
       read: false,
-      replyOptions: hasPendingSameConv ? undefined : options,
+      replyOptions: options,
       replyEventId: options ? event.id : undefined,
       replyStepId: options ? 'final' : undefined,
       idempotencyKey,
