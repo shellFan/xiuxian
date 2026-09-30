@@ -3,6 +3,7 @@ import messengerEventsCoreConfig from '../../configs/v5/messenger-events-core.js
 import messengerEventsTeamConfig from '../../configs/v5/messenger-events-team.json';
 import messengerEventsPeopleConfig from '../../configs/v5/messenger-events-people.json';
 import messengerEventsWindowsConfig from '../../configs/v5/messenger-events-windows.json';
+import messengerTaskRuntimeConfig from '../../configs/v5/task-runtime-events.json';
 
 /**
  * V5 飞剑传书 — 内容模型与装载校验。
@@ -127,6 +128,7 @@ function loadBundle(): MessengerContentBundle {
   mergePart(target, messengerEventsTeamConfig as MessengerContentPart);
   mergePart(target, messengerEventsPeopleConfig as MessengerContentPart);
   mergePart(target, messengerEventsWindowsConfig as MessengerContentPart);
+  mergePart(target, messengerTaskRuntimeConfig as MessengerContentPart);
   return { actors: target.actors, conversations: target.conversations, events: target.events };
 }
 

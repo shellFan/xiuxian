@@ -1,0 +1,244 @@
+{
+  "events": [
+    { "id": "ms_task_java_01", "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "灵网日志", "text": "日志发现NullPointerException，任务中途出现意外。" }],
+      "replies": [
+        { "id": "a", "text": "加个空判断（耗时少，技术债 +2）", "effects": { "techDebt": [["legacy", 2]], "mind": -1 } },
+        { "id": "b", "text": "追根因（耗时 +20 分钟，技术债 -3）", "tag": "PROFESSIONAL", "effects": { "mind": 2, "techDebt": [["legacy", -3]], "performance": 1 } },
+        { "id": "c", "text": "先重启服务（任务推进，未来事故概率 +）", "effects": { "mind": -2, "techDebt": [["ops", 3]] } }
+      ] },
+    { "id": "ms_task_java_02", "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "灵网日志", "text": "接口响应突然变慢，慢SQL出现。" }],
+      "replies": [
+        { "id": "a", "text": "加索引（技术债 -2）", "effects": { "techDebt": [["perf", -2]], "performance": 1 } },
+        { "id": "b", "text": "改写SQL（耗时 +15 分钟）", "tag": "PROFESSIONAL", "effects": { "mind": -1, "performance": 2 } },
+        { "id": "c", "text": "加缓存（Redis护盾，技术债 +1）", "effects": { "techDebt": [["perf", 1]] } },
+        { "id": "d", "text": "先扩大超时时间（未来怪物权重 +）", "effects": { "techDebt": [["perf", 4]] } }
+      ] },
+    { "id": "ms_task_java_03", "conversation": "conv_veteran", "actor": "VETERAN", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "老油条", "text": "兄弟帮我看一下，就五分钟。" }],
+      "replies": [
+        { "id": "a", "text": "帮忙（当前任务暂停 15 分钟）", "effects": { "npc": [["VETERAN", 2]], "mind": -1, "reality": { "text": "任务中被同事打断帮忙", "kind": "FAVOR" } } },
+        { "id": "b", "text": "拒绝（继续任务）", "effects": { "mind": 1, "npc": [["VETERAN", -2]] } },
+        { "id": "c", "text": "让他提单", "tag": "PROFESSIONAL", "effects": { "npc": [["VETERAN", 1]], "performance": 1 } }
+      ] },
+    { "id": "ms_task_java_04", "conversation": "conv_incident", "actor": "OPS", "priority": "HIGH", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "Full GC 频繁，你们内存泄漏了？" }],
+      "replies": [
+        { "id": "a", "text": "dump 分析（耗时 +30 分钟，技术债 -4）", "tag": "PROFESSIONAL", "effects": { "techDebt": [["perf", -4]], "mind": 1 } },
+        { "id": "b", "text": "重启顶一晚（事故概率 +）", "effects": { "techDebt": [["ops", 5]], "mind": -2 } }
+      ] },
+    { "id": "ms_task_java_05", "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "灵网日志", "text": "MQ 消息堆积 10w+，消费者挂了。" }],
+      "replies": [
+        { "id": "a", "text": "扩容消费者（耗时 +20 分钟）", "tag": "PROFESSIONAL", "effects": { "performance": 2 } },
+        { "id": "b", "text": "丢弃低优先级消息（技术债 +3）", "effects": { "techDebt": [["ops", 3]] } }
+      ] },
+    { "id": "ms_task_fe_01", "conversation": "conv_tester", "actor": "TESTER", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "测试小哥", "text": "页面白屏了，控制台一堆红。" }],
+      "replies": [
+        { "id": "a", "text": "查控制台报错（耗时 +10 分钟）", "tag": "PROFESSIONAL", "effects": { "mind": 1, "performance": 1 } },
+        { "id": "b", "text": "回滚上一个版本（技术债 +2）", "effects": { "techDebt": [["release", 2]] } }
+      ] },
+    { "id": "ms_task_fe_02", "conversation": "conv_product", "actor": "PRODUCT", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "产品经理", "text": "接口字段改了，前端页面显示不对了。" }],
+      "replies": [
+        { "id": "a", "text": "改适配层（技术债 +1，产品 +2）", "effects": { "npc": [["PRODUCT", 2]], "techDebt": [["scope", 1]] } },
+        { "id": "b", "text": "让后端兼容旧字段（甩给后端）", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 2, "npc": [["PRODUCT", -1]] } }
+      ] },
+    { "id": "ms_task_fe_03", "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "灵网日志", "text": "Webpack 构建爆炸：内存溢出。" }],
+      "replies": [
+        { "id": "a", "text": "升 Node 版本（耗时 +15 分钟，技术债 -2）", "tag": "PROFESSIONAL", "effects": { "techDebt": [["legacy", -2]] } },
+        { "id": "b", "text": "重启构建机（未来事故概率 +）", "effects": { "techDebt": [["ops", 2]] } }
+      ] },
+    { "id": "ms_task_fe_04", "conversation": "conv_client", "actor": "CLIENT", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "客户方丈", "text": "你们这个按钮，在 IE 上点不动。" }],
+      "replies": [
+        { "id": "a", "text": "「我们已放弃 IE，建议升级浏览器。」", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 3, "npc": [["CLIENT", -2]] } },
+        { "id": "b", "text": "写 polyfill（耗时 +25 分钟）", "effects": { "mind": -1, "techDebt": [["legacy", 3]] } }
+      ] },
+    { "id": "ms_task_fe_05", "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "灵网日志", "text": "首屏加载 8 秒，性能分崩离析。" }],
+      "replies": [
+        { "id": "a", "text": "懒加载 + 分包（耗时 +30 分钟，技术债 -3）", "tag": "PROFESSIONAL", "effects": { "techDebt": [["perf", -3]], "performance": 2 } },
+        { "id": "b", "text": "加个 Loading 动画掩盖（技术债 +2）", "effects": { "techDebt": [["perf", 2]], "mind": 1 } }
+      ] },
+    { "id": "ms_task_qa_01", "conversation": "conv_tester", "actor": "TESTER", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "测试小哥", "text": "这个 bug 我复现不出来了，你改了什么？" }],
+      "replies": [
+        { "id": "a", "text": "提供完整操作路径（耗时 +10 分钟）", "tag": "PROFESSIONAL", "effects": { "mind": 1, "npc": [["TESTER", 2]] } },
+        { "id": "b", "text": "「复现不了就是没有了」（埋雷）", "effects": { "mind": 1, "techDebt": [["qa", 4]] } }
+      ] },
+    { "id": "ms_task_qa_02", "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "灵网日志", "text": "测试环境挂了，数据库连接不上。" }],
+      "replies": [
+        { "id": "a", "text": "找运维恢复（耗时 +20 分钟）", "effects": { "npc": [["OPS", 1]] } },
+        { "id": "b", "text": "用本地环境先顶（技术债 +2）", "effects": { "techDebt": [["qa", 2]] } }
+      ] },
+    { "id": "ms_task_qa_03", "conversation": "conv_boss", "actor": "BOSS", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "老板", "text": "自动化覆盖率多少？为什么每次上线还手测？" }],
+      "replies": [
+        { "id": "a", "text": "汇报真实数据 + 补齐计划（绩效 +2）", "tag": "PROFESSIONAL", "effects": { "performance": 2, "mind": -1 } },
+        { "id": "b", "text": "「覆盖率不重要，重要的是质量」（胡说八道）", "effects": { "mind": 2, "npc": [["BOSS", -1]] } }
+      ] },
+    { "id": "ms_task_qa_04", "conversation": "conv_project", "actor": "TESTER", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "测试小哥", "text": "边界值测出一个大 bug：0 元下单成功。" }],
+      "replies": [
+        { "id": "a", "text": "立即修复（耗时 +40 分钟，绩效 +3）", "tag": "PROFESSIONAL", "effects": { "performance": 3, "mind": 1 } },
+        { "id": "b", "text": "先记录，发版后修（事故概率 +）", "effects": { "techDebt": [["qa", 5]], "mind": -2 } }
+      ] },
+    { "id": "ms_task_qa_05", "conversation": "conv_tester", "actor": "TESTER", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "测试小哥", "text": "回归测试全挂了，你提交前跑过吗？" }],
+      "replies": [
+        { "id": "a", "text": "道歉 + 修复（耗时 +30 分钟）", "effects": { "mind": -2, "performance": 1 } },
+        { "id": "b", "text": "拉群对齐「提交前必须跑回归」流程", "tag": "PROFESSIONAL", "minCareerLevel": 3, "effects": { "performance": 2, "npc": [["TESTER", 3]] } }
+      ] },
+    { "id": "ms_task_ops_01", "conversation": "conv_system", "actor": "SYSTEM", "priority": "HIGH", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "灵网告警", "text": "CPU 100%，持续 5 分钟。" }],
+      "replies": [
+        { "id": "a", "text": "查进程定位（耗时 +15 分钟，技术债 -2）", "tag": "PROFESSIONAL", "effects": { "techDebt": [["perf", -2]] } },
+        { "id": "b", "text": "重启实例（技术债 +2）", "effects": { "techDebt": [["ops", 2]] } }
+      ] },
+    { "id": "ms_task_ops_02", "conversation": "conv_ops", "actor": "OPS", "priority": "HIGH", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "证书今天到期，续了吗？" }],
+      "replies": [
+        { "id": "a", "text": "立即续（耗时 +10 分钟，运维 +2）", "effects": { "npc": [["OPS", 2]], "mind": 1 } },
+        { "id": "b", "text": "（明天的我会处理的）", "effects": { "mind": -1, "techDebt": [["ops", 4]] } }
+      ] },
+    { "id": "ms_task_ops_03", "conversation": "conv_incident", "actor": "OPS", "priority": "HIGH", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "K8s Pod CrashLoop，起不来了。" }],
+      "replies": [
+        { "id": "a", "text": "查 crash 日志（耗时 +20 分钟，技术债 -2）", "tag": "PROFESSIONAL", "effects": { "techDebt": [["ops", -2]] } },
+        { "id": "b", "text": "回滚上个镜像（技术债 +1）", "effects": { "techDebt": [["release", 1]] } }
+      ] },
+    { "id": "ms_task_ops_04", "conversation": "conv_incident", "actor": "OPS", "priority": "HIGH", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "监控报警风暴，50 条/分钟。" }],
+      "replies": [
+        { "id": "a", "text": "静音 30 分钟，逐个排查（绩效 +2）", "tag": "PROFESSIONAL", "effects": { "performance": 2, "mind": -2 } },
+        { "id": "b", "text": "全静音（道心 +2，风险 +）", "effects": { "mind": 2, "techDebt": [["ops", 5]] } }
+      ] },
+    { "id": "ms_task_ops_05", "conversation": "conv_project", "actor": "VETERAN", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "老油条", "text": "发布失败了，回滚按钮是灰的。" }],
+      "replies": [
+        { "id": "a", "text": "手动回滚（耗时 +25 分钟，技术债 -1）", "tag": "PROFESSIONAL", "effects": { "techDebt": [["release", -1]] } },
+        { "id": "b", "text": "「往前修，不回滚」（豪赌）", "effects": { "mind": 2, "techDebt": [["release", 6]] } }
+      ] },
+    { "id": "ms_task_gen_01", "conversation": "conv_product", "actor": "PRODUCT", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "产品经理", "text": "这个字段能不能顺便改一下？" }],
+      "replies": [
+        { "id": "a", "text": "改（任务 +30 分钟，技术债 +2，产品 +2）", "effects": { "npc": [["PRODUCT", 2]], "techDebt": [["scope", 2]], "mind": -1 } },
+        { "id": "b", "text": "另开需求", "tag": "PROFESSIONAL", "effects": { "task": { "title": "字段调整", "priority": "P2", "source": "PRODUCT" } } },
+        { "id": "c", "text": "让他找老板", "tag": "ASSERTIVE", "minCareerLevel": 2, "effects": { "mind": 2, "npc": [["PRODUCT", -2]] } },
+        { "id": "ignore", "text": "装作没听见", "effects": { "mind": 1, "npc": [["PRODUCT", -1]], "achievementKey": "read_no_reply" } }
+      ] },
+    { "id": "ms_task_gen_02", "conversation": "conv_project", "actor": "TESTER", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "测试小哥", "text": "@范大牛 这个 P0 是你改出来的吗？" }],
+      "replies": [
+        { "id": "a", "text": "我看看，是我的我认。", "effects": { "npc": [["TESTER", 2]], "mind": -1 } },
+        { "id": "b", "text": "Git 记录显示最后修改人不是我。", "requiresEvidence": "GIT_LOG", "tag": "EVIDENCE_MASTER", "effects": { "mind": 2, "npc": [["TESTER", 1]], "achievementKey": "evidence_counter" } },
+        { "id": "c", "text": "先别找人，先恢复服务。", "tag": "PROFESSIONAL", "effects": { "npc": [["TESTER", 3], ["OPS", 2]] } }
+      ] },
+    { "id": "ms_task_gen_03", "conversation": "conv_boss", "actor": "BOSS", "priority": "HIGH", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "老板", "text": "客户那边着急，能不能提前交付？" }],
+      "replies": [
+        { "id": "a", "text": "砍范围可以，赶工不行。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 3, "npc": [["BOSS", -1]], "performance": 2 } },
+        { "id": "b", "text": "加人加资源可以商量。", "tag": "PROFESSIONAL", "effects": { "npc": [["BOSS", 2]], "performance": 1 } },
+        { "id": "c", "text": "好的老板（加班 +1h，道心 -3）", "effects": { "mind": -3, "reality": { "text": "答应提前交付", "kind": "OVERTIME" } } }
+      ] },
+    { "id": "ms_task_gen_04", "conversation": "conv_hr", "actor": "HR", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "HR仙子", "text": "你的加班数据有点高，注意休息哦。" }],
+      "replies": [
+        { "id": "a", "text": "谢谢关心，我会注意的。", "effects": { "mind": 2, "npc": [["HR", 1]] } },
+        { "id": "b", "text": "（加班是老板的爱，HR 的关怀是绩效的前奏）", "effects": { "mind": 1, "innerDemon": 1 } }
+      ] },
+    { "id": "ms_task_gen_05", "conversation": "conv_junior", "actor": "JUNIOR", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "小师妹", "text": "任务做到哪了？要不要帮忙？" }],
+      "replies": [
+        { "id": "a", "text": "帮忙查资料（任务加速，好感 +2）", "effects": { "npc": [["JUNIOR", 2]], "mind": 1 } },
+        { "id": "b", "text": "你忙你的，我快好了。", "effects": { "mind": 1, "npc": [["JUNIOR", 1]] } }
+      ] },
+    { "id": "ms_task_gen_06", "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "灵网日志", "text": "技术债阈值告警：scope 域已超载。" }],
+      "replies": [
+        { "id": "a", "text": "本任务内还清一部分（耗时 +20 分钟，债 -3）", "tag": "PROFESSIONAL", "effects": { "techDebt": [["scope", -3]] } },
+        { "id": "b", "text": "（债务是未来的自己的事）", "effects": { "mind": 1, "techDebt": [["scope", 2]] } }
+      ] },
+    { "id": "ms_task_gen_07", "conversation": "conv_veteran", "actor": "VETERAN", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "老油条", "text": "这个需求有坑，我十年前踩过。" }],
+      "replies": [
+        { "id": "a", "text": "请教（耗时 +10 分钟，避坑 = 技术 -2）", "tag": "PROFESSIONAL", "effects": { "npc": [["VETERAN", 2]], "techDebt": [["legacy", -2]] } },
+        { "id": "b", "text": "时代变了，老古董。", "tag": "ASSERTIVE", "minCareerLevel": 4, "effects": { "mind": 2, "npc": [["VETERAN", -3]] } }
+      ] },
+    { "id": "ms_task_gen_08", "conversation": "conv_client", "actor": "CLIENT", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "客户方丈", "text": "进度如何？我们领导在问。" }],
+      "replies": [
+        { "id": "a", "text": "发进度报告（耗时 +10 分钟，客户 +2）", "tag": "PROFESSIONAL", "effects": { "npc": [["CLIENT", 2]], "mind": -1 } },
+        { "id": "b", "text": "（已读不回，让子弹飞一会儿）", "effects": { "mind": 2, "npc": [["CLIENT", -1]], "achievementKey": "read_no_reply" } }
+      ] },
+    { "id": "ms_task_gen_09", "conversation": "conv_project", "actor": "PRODUCT", "priority": "HIGH", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "产品经理", "text": "需求评审通过了，但 deadline 提前了两天。" }],
+      "replies": [
+        { "id": "a", "text": "确认新 deadline（留下证据）", "tag": "PROFESSIONAL", "effects": { "evidence": [["DEADLINE_CONFIRMATION", "提前交付确认"]], "mind": -2 } },
+        { "id": "b", "text": "「提前可以，请砍三个需求。」", "tag": "ASSERTIVE", "minCareerLevel": 4, "effects": { "mind": 3, "npc": [["PRODUCT", -2]], "performance": 2 } }
+      ] },
+    { "id": "ms_task_gen_10", "conversation": "conv_company", "actor": "JUNIOR", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "小师妹", "text": "帮你带了咖啡，加油！" }],
+      "replies": [
+        { "id": "a", "text": "（咖啡因是牛马的灵力）", "effects": { "mind": 3, "npc": [["JUNIOR", 1]] } }
+      ] },
+    { "id": "ms_task_gen_11", "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "灵网日志", "text": "代码评审发现一处隐患：魔法数字遍布。" }],
+      "replies": [
+        { "id": "a", "text": "提成常量（耗时 +15 分钟，债 -2）", "tag": "PROFESSIONAL", "effects": { "techDebt": [["legacy", -2]] } },
+        { "id": "b", "text": "能跑就行（债 +1）", "effects": { "techDebt": [["legacy", 1]] } }
+      ] },
+    { "id": "ms_task_gen_12", "conversation": "conv_veteran", "actor": "VETERAN", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "老油条", "text": "任务被打断三次了吧？去会议室锁上门。" }],
+      "replies": [
+        { "id": "a", "text": "（会议室是最后的净土）", "effects": { "mind": 2, "npc": [["VETERAN", 1]] } }
+      ] },
+    { "id": "ms_task_gen_13", "conversation": "conv_boss", "actor": "BOSS", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "老板", "text": "这个任务做完给你加鸡腿。" }],
+      "replies": [
+        { "id": "a", "text": "（鸡腿自由的幻想）", "effects": { "mind": 2 } },
+        { "id": "b", "text": "书面写进绩效最好。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 1, "npc": [["BOSS", -1]], "evidence": [["DEADLINE_CONFIRMATION", "老板承诺鸡腿"]] } }
+      ] },
+    { "id": "ms_task_gen_14", "conversation": "conv_project", "actor": "TESTER", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "测试小哥", "text": "你的任务产出我提前过了一遍，没问题。" }],
+      "replies": [
+        { "id": "a", "text": "（测试的「没问题」是最好的安心）", "effects": { "mind": 3, "npc": [["TESTER", 2]] } }
+      ] },
+    { "id": "ms_task_gen_15", "conversation": "conv_ops", "actor": "OPS", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "你任务要用的测试库我帮你恢复了。" }],
+      "replies": [
+        { "id": "a", "text": "谢了，改天请你喝奶茶。", "effects": { "mind": 2, "npc": [["OPS", 2]] } }
+      ] },
+    { "id": "ms_task_gen_16", "conversation": "conv_product", "actor": "PRODUCT", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "产品经理", "text": "这个任务做了有什么用？能给客户演示吗？" }],
+      "replies": [
+        { "id": "a", "text": "技术债就是利息，现在还最便宜。", "tag": "ASSERTIVE", "minCareerLevel": 3, "effects": { "mind": 2, "npc": [["PRODUCT", 1]] } },
+        { "id": "b", "text": "（我也想知道做了有什么用）", "effects": { "mind": 1, "innerDemon": 1 } }
+      ] },
+    { "id": "ms_task_gen_17", "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "灵网日志", "text": "上下文切换计数：3。脑子缓存失效。" }],
+      "replies": [
+        { "id": "a", "text": "（效率 -10%，30 分钟。这是现代职场的税）", "effects": { "mind": -1, "innerDemon": 1 } }
+      ] },
+    { "id": "ms_task_gen_18", "conversation": "conv_hr", "actor": "HR", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "HR仙子", "text": "这个任务的产出可以写进晋升材料。" }],
+      "replies": [
+        { "id": "a", "text": "（HR 的提示要听，材料要留）", "effects": { "mind": 2, "npc": [["HR", 1]], "performance": 1 } }
+      ] },
+    { "id": "ms_task_gen_19", "conversation": "conv_veteran", "actor": "VETERAN", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "老油条", "text": "你的任务快超时了吧？教你一招：拆小步提交。" }],
+      "replies": [
+        { "id": "a", "text": "（十年功力，一句话传给你）", "effects": { "mind": 2, "npc": [["VETERAN", 2]] } }
+      ] },
+    { "id": "ms_task_gen_20", "conversation": "conv_project", "actor": "OPS", "priority": "NORMAL", "weight": 0, "cooldownDays": 0,
+      "steps": [{ "sender": "运维老哥", "text": "你任务里那个配置我备份了，出事随时回滚。" }],
+      "replies": [
+        { "id": "a", "text": "（运维的备份 = 职场的安全带）", "effects": { "mind": 2, "npc": [["OPS", 2]] } }
+      ] }
+  ]
+}

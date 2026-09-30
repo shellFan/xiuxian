@@ -304,6 +304,30 @@ export class StoryDirectorService {
     return plan;
   }
 
+  /** §47/§166~171：按职业加权挑选任务运行时事件（职业 60% / 通用池兜底）。 */
+  private taskRuntimeEvent(): MessengerEventDef | null {
+    const def = this.context.profession?.def();
+    const professionPrefixes: Record<string, string[]> = {
+      JAVA_BACKEND: ['ms_task_java_', 'ms_task_gen_'],
+      FRONTEND: ['ms_task_fe_', 'ms_task_gen_'],
+      QA: ['ms_task_qa_', 'ms_task_gen_'],
+      DEVOPS: ['ms_task_ops_', 'ms_task_gen_'],
+      DBA: ['ms_task_java_', 'ms_task_gen_'],
+      PRODUCT_OWNER: ['ms_task_gen_'],
+    };
+    const prefixes = professionPrefixes[this.context.profession?.currentId() ?? 'JAVA_BACKEND'] ?? ['ms_task_gen_'];
+    const primary = prefixes[0];
+    const pool = MESSENGER_CONTENT.events.filter((e) => e.weight === 0 && (e.id.startsWith(primary) || (this.rng() < 0.4 && e.id.startsWith(prefixes[1]))));
+    const fallback = MESSENGER_CONTENT.events.filter((e) => e.id === 'ms_task_milestone');
+    const candidates = pool.length > 0 ? pool : fallback;
+    if (candidates.length === 0) return null;
+    return candidates[Math.floor(this.rng() * candidates.length)];
+  }
+
+  private rng(): number {
+    return this.context.randomV2.next();
+  }
+
   /** 首周当日节拍是否全部到达过触发窗口（到达后放行随机池，避免首周死板）。 */
   private firstWeekDayDone(dayIndex: number, minuteOfDay: number): boolean {
     const beats = FIRST_WEEK_BEATS[dayIndex] ?? [];

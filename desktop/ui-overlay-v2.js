@@ -369,7 +369,19 @@
     if (check.workdaysRequired > 0) {
       rows += H.reqRow('performance', '工作天数', check.workdaysCurrent, check.workdaysRequired, check.workdaysOk, 'blue');
     }
+    var gaps = [];
+    var gExp = Math.max(0, reqExp - hud.cultivationExp);
+    if (gExp > 0) gaps.push('修为 ' + gExp);
+    (kpi.items || []).forEach(function (item) {
+      var rest = Math.max(0, item.target - item.progress);
+      if (rest > 0) gaps.push(H.kpiShortLabel(item.type) + ' ' + rest);
+    });
+    var mindRest = Math.max(0, 30 - hud.mind);
+    if (mindRest > 0) gaps.push('道心 ' + mindRest);
     var reqHtml = '<div class="ux-card"><div class="ux-req-rows">' + rows + '</div>' +
+      (gaps.length ? '<div class="ux-promo-next"><b>【我现在应该干什么】</b><i>距离晋升还差：' + H.escHtml(gaps.join(' · ')) + '</i>' +
+        '<button class="ux-btn ux-btn--gold ux-btn--sm" data-nav="TASKS">去做任务</button>' +
+        '<button class="ux-btn ux-btn--blue ux-btn--sm" data-nav="CULTIVATION">去修炼</button></div>' : '') +
       '<div class="ux-promo-note">满足全部条件后开启渡劫答辩 · 3 题随机，60 分通过</div></div>';
     var btn;
     if (check.allowed) {
