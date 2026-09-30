@@ -1394,28 +1394,90 @@
   }
 
   /* ── V4 项目战斗（自动攻击引擎的可见层） ── */
+  /* V5.5 §15~§25：项目攻坚三栏战斗（左：玩家/中：敌人/右：项目信息 + 底部日志/技能） */
+  function battleSkillCn(id) {
+    var def = battleSkillDef(id);
+    return def ? def.name : id;
+  }
+
+  function materialCn(id) {
+    var f = facade();
+    var name = null;
+    if (f && typeof f.queryMaterialName === 'function') {
+      try { name = f.queryMaterialName(id); } catch (e) { name = null; }
+    }
+    return name || id;
+  }
+
   function battleHtml() {
     var f = facade();
     var run = f && typeof f.queryBattle === 'function' ? (function () { try { return f.queryBattle(); } catch (e) { return null; } })() : null;
     if (!run) return '';
+    var profDef = f && typeof f.queryProfessionDef === 'function' ? (function () { try { return f.queryProfessionDef(); } catch (e) { return null; } })() : null;
+    var profName = profDef ? profDef.name + ' · ' + profDef.title : '未觉醒';
+
+    // 左栏：玩家
+    var hpPct = Math.max(0, Math.min(100, Math.round(run.playerHp / run.playerMaxHp * 100)));
+    var playerCol =
+      '<div class="ux-bt-col ux-bt-player">' +
+        '<div class="ux-bt-label">侠士</div>' +
+        '<div class="ux-bt-player-name">' + escHtml(profName) + '</div>' +
+        '<div class="ux-bt-player-level">Lv.' + run.level + '<small>' + run.exp + '/' + run.expNext + ' exp</small></div>' +
+        '<div class="ux-bt-hpbar"><i style="width:' + hpPct + '%"></i><span>' + Math.round(run.playerHp) + '/' + run.playerMaxHp + '</span></div>' +
+        (run.shield > 0 ? '<div class="ux-bt-shield">🛡 护盾 ' + run.shield + '</div>' : '') +
+        '<div class="ux-bt-stats">攻 ' + run.attack + ' · 攻速 ' + Number(run.intervalSec).toFixed(1) + 's · 暴击 ' + Math.round(run.critChance * 100) + '%</div>' +
+      '</div>';
+
+    // 中栏：敌人卡 + 飘字容器
     var enemies = (run.enemies || []).filter(function (e) { return e.hp > 0; }).map(function (e) {
       var pct = Math.max(0, Math.min(100, Math.round(e.hp / e.maxHp * 100)));
-      return '<div class="ux-battle-enemy' + (e.tier === 'BOSS' ? ' ux-battle-enemy--boss' : '') + '">' +
-        '<span class="ux-battle-ename">' + escHtml(e.name) + '</span>' +
-        '<span class="ux-battle-ehp"><i style="width:' + pct + '%"></i></span></div>';
-    }).join('') || '<div class="ux-battle-enemy">敌人清空中……</div>';
-    var hpPct = Math.max(0, Math.min(100, Math.round(run.playerHp / run.playerMaxHp * 100)));
-    var lastLog = (run.log || []).slice(-2).map(function (l) { return escHtml(l); }).join('<br>');
-    return '<section class="ux-battle">' +
-      '<div class="ux-battle-head"><b>⚔ 项目攻坚 ' + (run.wave + 1) + '/' + run.waveTotal + '</b>' +
-      (run.night ? '<span class="ux-battle-night">夜班 ×掉落</span>' : '') +
-      '<span class="ux-battle-lv">Lv' + run.level + ' · 击杀 ' + run.kills + '</span></div>' +
-      '<div class="ux-battle-php"><i style="width:' + hpPct + '%"></i><span>HP ' + Math.round(run.playerHp) + '/' + run.playerMaxHp + (run.shield ? ' 🛡' + run.shield : '') + '</span></div>' +
-      '<div class="ux-battle-enemies">' + enemies + '</div>' +
-      '<div class="ux-battle-log">' + lastLog + '</div>' +
-      '<div class="ux-battle-actions"><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="abandonBattle">放弃项目</button></div>' +
-      '</section>';
+      var bossCls = e.tier === 'BOSS' ? ' is-boss' : e.tier === 'ELITE' ? ' is-elite' : '';
+      var mech = e.mechanic === 'SLOW' ? ' · 减速' : e.mechanic === 'SUMMON' ? ' · 召唤' : e.mechanic === 'SUMMON_SMALL' ? ' · 召唤' : '';
+      return '<div class="ux-bt-enemy' + bossCls + '" data-enemy-uid="' + escHtml(e.uid) + '">' +
+        '<span class="ux-bt-enemy-face">' + (e.tier === 'BOSS' ? '👹' : e.tier === 'ELITE' ? '👺' : '🐛') + '</span>' +
+        '<span class="ux-bt-enemy-name">' + escHtml(e.name) + (bossCls ? ' ⚠' : '') + escHtml(mech) + '</span>' +
+        '<span class="ux-bt-enemy-hp"><i style="width:' + pct + '%"></i><em>' + Math.round(e.hp) + '/' + e.maxHp + '</em></span>' +
+        '<span class="ux-float-layer"></span>' +
+      '</div>';
+    }).join('') || '<div class="ux-bt-clearing">这一波清空了，下一波马上来……</div>';
+
+    // 右栏：项目信息
+    var wavePct = Math.round((run.wave / run.waveTotal) * 100);
+    var lootRows = [];
+    var mats = run.loot ? run.loot.materials : {};
+    Object.keys(mats).forEach(function (id) { lootRows.push('📜 ' + escHtml(materialCn(id)) + ' ×' + mats[id]); });
+    (run.loot ? run.loot.equipment : []).forEach(function (id) { lootRows.push('🎽 ' + escHtml(materialCn(id))); });
+    if (run.loot && run.loot.spiritStones) lootRows.push('💎 灵石 ×' + run.loot.spiritStones);
+    var projectCol =
+      '<div class="ux-bt-col ux-bt-project">' +
+        '<div class="ux-bt-label">项目</div>' +
+        '<div class="ux-bt-wavebar"><i style="width:' + wavePct + '%"></i><span>第 ' + (run.wave + 1) + '/' + run.waveTotal + ' 波</span></div>' +
+        '<div class="ux-bt-build">Build: ' + escHtml(run.buildId) + '</div>' +
+        (run.night ? '<div class="ux-bt-night">🌙 夜班 · 掉落加成</div>' : '') +
+        '<div class="ux-bt-kills">击杀 ' + run.kills + '</div>' +
+        (lootRows.length ? '<div class="ux-bt-loot">' + lootRows.join('<br>') + '</div>' : '<div class="ux-bt-loot ux-bt-loot--empty">暂无掉落</div>') +
+        '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="abandonBattle">放弃项目</button>' +
+      '</div>';
+
+    // 底部：日志 + 技能快捷（CD 由 UI 层每秒刷新）
+    var logLines = (run.log || []).slice(-30).map(function (l) { return '<div class="ux-bt-logline">' + escHtml(l) + '</div>'; }).join('');
+    var skillBtns = (run.skills || []).slice(0, 4).map(function (id) {
+      return '<button class="ux-bt-skill" data-action="battleSkill" data-skill="' + escHtml(id) + '">' + escHtml(battleSkillCn(id)) + '</button>';
+    }).join('');
+
+    return '<section class="ux-battle2">' +
+      '<div class="ux-battle2-grid">' +
+        playerCol +
+        '<div class="ux-bt-col ux-bt-arena"><div class="ux-bt-label">战场</div><div class="ux-bt-enemies">' + enemies + '</div></div>' +
+        projectCol +
+      '</div>' +
+      '<div class="ux-battle2-bottom">' +
+        '<div class="ux-bt-skills">' + (skillBtns || '<span class="ux-bt-skill-hint">战斗技能在升级三选一中解锁</span>') + '</div>' +
+        '<div class="ux-bt-log" id="BattleLog">' + logLines + '</div>' +
+      '</div>' +
+    '</section>';
   }
+
 
   function maybeShowBattleModals() {
     var f = facade();
@@ -2419,6 +2481,7 @@
     body.innerHTML = renderCurrent();
     body.scrollTop = scrollTop;
     bindEvents();
+    if (currentPage() === 'PROJECT') spawnBattleFloats();
   }
 
   function fullRefresh() { renderShell(); }
@@ -2426,6 +2489,39 @@
   /* ── 事件绑定 (委托) ── */
 
   var _settings = { sfx: true, bgm: true, notify: false };
+
+
+  /* V5.5 §18：战斗飘字——从新增日志行提取伤害数字，向敌人卡注入上飘淡出元素。 */
+  var _battleLogSeen = 0;
+  function spawnBattleFloats() {
+    var f = facade();
+    if (!f || typeof f.queryBattle !== 'function') return;
+    var run = null;
+    try { run = f.queryBattle(); } catch (e) { return; }
+    if (!run || !run.log) { _battleLogSeen = 0; return; }
+    var log = run.log;
+    if (log.length <= _battleLogSeen) { _battleLogSeen = log.length; return; }
+    var fresh = log.slice(_battleLogSeen);
+    _battleLogSeen = log.length;
+    var cards = document.querySelectorAll('.ux-bt-enemy');
+    if (!cards.length) return;
+    var idx = 0;
+    fresh.forEach(function (line) {
+      var m = line.match(/造成 (d+) 点伤害/);
+      var heal = line.match(/回复 (d+)/);
+      var crit = /暴击/.test(line);
+      if (!m && !heal) return;
+      var card = cards[idx % cards.length];
+      idx += 1;
+      var layer = card.querySelector('.ux-float-layer');
+      if (!layer) return;
+      var el = document.createElement('span');
+      el.className = 'ux-bt-float' + (crit ? ' crit' : '') + (heal ? ' heal' : '');
+      el.textContent = crit ? '-' + m[1] + '!' : (heal ? '+' + heal[1] : '-' + m[1]);
+      layer.appendChild(el);
+      setTimeout(function () { el.remove(); }, 800);
+    });
+  }
 
   function bindEvents() {
     var overlay = $('#UiOverlay');
@@ -2616,6 +2712,15 @@
             _subPage = null;
             fullRefresh();
           } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'battleSkill': {
+          var fSkill = facade();
+          if (!fSkill || typeof fSkill.castBattleSkill !== 'function') break;
+          try {
+            fSkill.castBattleSkill(el.dataset.skill);
+            refresh();
+          } catch (eSkill) { toast(errMsg(eSkill), 'error'); }
           break;
         }
         case 'abandonBattle': {

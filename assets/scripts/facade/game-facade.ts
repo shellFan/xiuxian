@@ -291,6 +291,18 @@ export class GameFacade {
   }
   /** V2 物品系统。 */
   public queryMaterialCount(id: string) { return this.context.v2Items.materialCount(id); }
+  /** V5.5 §26：材料/装备中文名（禁止内部 ID 直接展示）。 */
+  public queryMaterialName(id: string): string | null {
+    try { return this.context.v2Items.materialName(id); } catch { return null; }
+  }
+  /** V5.5 §20：主动释放战斗技能（挂现有 BattleService，CD 在 UI 层）。 */
+  public castBattleSkill(skillId: string) {
+    const run = this.queryBattle();
+    if (!run) throw new Error('没有进行中的战斗');
+    if (!run.skills.includes(skillId)) throw new Error('尚未领悟该技能');
+    this.context.battle.castSkill(skillId);
+    this.save();
+  }
   public queryAllMaterials() { return ({ ...this.context.player.materials }); }
   public queryOwnedTechniques() { return [...this.context.player.ownedTechniques]; }
   public queryTechniqueLevels() { return ({ ...this.context.player.techniqueLevels }); }

@@ -203,6 +203,17 @@ export class BattleService {
     return run;
   }
 
+  /** V5.5 §20：主动释放技能——立即结算一次攻击步，并触发技能（若有定义行为）。 */
+  public castSkill(skillId: string): void {
+    const run = this.current();
+    if (!run) throw new Error('没有进行中的战斗');
+    if (!run.skills.includes(skillId)) throw new Error('尚未领悟该技能');
+    const player = this.playerSkillStats(run);
+    this.stepOnce(run, player, player.intervalSec);
+    run.log.push('你主动发动【' + (SKILL_MAP.get(skillId)?.name ?? skillId) + '】');
+    this.persist(run);
+  }
+
   /** GameLoop 每 tick 调用（§ 核心自动战斗）。 */
   public tick(seconds: number): void {
     const run = this.current();

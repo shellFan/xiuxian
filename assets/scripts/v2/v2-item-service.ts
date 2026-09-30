@@ -149,6 +149,17 @@ export class V2ItemService {
     this.context.events.emit('materialChanged', { materialId: id, total: p.materials[id] });
   }
 
+  /** V5.5 §26：材料/装备中文名（玩家可见 UI 禁止内部 ID）。 */
+  public materialName(id: string): string {
+    const mat = MATERIAL_MAP.get(id);
+    if (mat) return mat.name;
+    const equipment = EQUIPMENT_MAP.get(id);
+    if (equipment) return equipment.name;
+    const consumable = CONSUMABLE_MAP.get(id);
+    if (consumable) return consumable.name;
+    return id;
+  }
+
   public materialCount(id: string): number {
     return this.context.player.materials[id] ?? 0;
   }
