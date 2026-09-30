@@ -1820,3 +1820,73 @@
     transition: none !important;
   }
 }
+
+/* ═════════════════════════════════════════════════════════
+   §20. V5.5 职业选择（§12：选择你的牛马道途）
+   ═════════════════════════════════════════════════════════ */
+.ux-prof-select {
+  max-width: 1700px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  min-height: 100%;
+}
+.ux-prof-head {
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: #ffd97a;
+  text-shadow: 0 2px 12px rgba(240, 177, 60, 0.4);
+}
+.ux-prof-sub { font-size: 14px; color: #b9c8d4; letter-spacing: 2px; }
+.ux-prof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 1240px;
+}
+@media (min-width: 1500px) { .ux-prof-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.ux-prof-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 16px 14px;
+  border-radius: 14px;
+  border: 2px solid rgba(240, 210, 140, 0.3);
+  background: linear-gradient(165deg, rgba(28, 69, 104, 0.9), rgba(11, 42, 66, 0.95));
+  color: #eef4fa;
+  text-align: left;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  min-height: 190px;
+}
+.ux-prof-card:hover:not(.is-locked) { transform: translateY(-3px); border-color: #f8cf62; box-shadow: 0 8px 24px rgba(240, 177, 60, 0.3); }
+.ux-prof-card.is-locked { opacity: 0.45; filter: grayscale(0.6); cursor: default; }
+.ux-prof-card .pc-name { font-size: 21px; font-weight: 900; letter-spacing: 2px; color: #ffd97a; }
+.ux-prof-card .pc-title { font-size: 13px; color: #9fe8c8; font-weight: 700; }
+.ux-prof-card .pc-desc { font-size: 12.5px; line-height: 1.6; color: #c9d8e4; flex: 1; }
+.ux-prof-card .pc-traits { display: flex; flex-wrap: wrap; gap: 4px; }
+.ux-prof-card .pc-traits i {
+  font-style: normal;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: rgba(240, 177, 60, 0.14);
+  border: 1px solid rgba(240, 210, 140, 0.35);
+  color: #ffd97a;
+}
+.ux-prof-card .pc-lock {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 11px;
+  color: #8fa8bc;
+  border: 1px solid rgba(143, 168, 188, 0.4);
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+.ux-prof-note { font-size: 12.5px; color: #8fa8bc; text-align: center; }

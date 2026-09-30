@@ -421,7 +421,7 @@
     var f = facade();
     var args = Array.prototype.slice.call(arguments, 1);
     if (!f || typeof f[name] !== 'function') {
-      toast('演示模式：' + name, 'info');
+      console.warn('[overlay] command unavailable:', name);
       return;
     }
     try {
@@ -445,7 +445,7 @@
   function cmdResult(name, okMsg) {
     var f = facade();
     var args = Array.prototype.slice.call(arguments, 2);
-    if (!f || typeof f[name] !== 'function') { toast('演示模式：' + name, 'info'); return; }
+    if (!f || typeof f[name] !== 'function') { console.warn('[overlay] command unavailable:', name); return; }
     try {
       var r = f[name].apply(f, args);
       if (r && r.success === false) toast(r.reason || '操作失败', 'error');
@@ -942,6 +942,36 @@
      §6. Page renderers
      ═════════════════════════════════════════════════════════ */
 
+  /* ── 6a-0. 职业选择（V5.5 §12：选择你的牛马道途） ── */
+
+  function professionSelected() {
+    var f = facade();
+    if (!f || typeof f.isProfessionSelected !== 'function') return true;
+    try { return f.isProfessionSelected(); } catch (e) { return true; }
+  }
+
+  function renderProfessionSelect() {
+    var f = facade();
+    var views = f && typeof f.queryProfessions === 'function' ? (function () { try { return f.queryProfessions(); } catch (e) { return []; } })() : [];
+    var cards = views.map(function (p) {
+      var locked = p.locked;
+      return '<button class="ux-prof-card ux-prof-card--' + escHtml(p.color) + (locked ? ' is-locked' : '') +
+        '" data-choose-profession="' + escHtml(p.id) + '"' + (locked ? ' disabled' : '') + '>' +
+        '<span class="pc-name">' + escHtml(p.name) + '</span>' +
+        '<span class="pc-title">【' + escHtml(p.title) + '】</span>' +
+        '<span class="pc-desc">' + escHtml(p.description) + '</span>' +
+        '<span class="pc-traits">' + p.traits.map(function (t) { return '<i>' + escHtml(t) + '</i>'; }).join('') + '</span>' +
+        (locked ? '<span class="pc-lock">敬请期待</span>' : (p.selected ? '<span class="pc-lock">当前职业</span>' : '')) +
+      '</button>';
+    }).join('');
+    return '<div class="ux-prof-select">' +
+      '<div class="ux-prof-head">选择你的牛马道途</div>' +
+      '<div class="ux-prof-sub">职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。</div>' +
+      '<div class="ux-prof-grid">' + cards + '</div>' +
+      '<div class="ux-prof-note">检测到你多年搬砖经验，默认觉醒：Java后端·代码剑修。可免费更换一次。</div>' +
+    '</div>';
+  }
+
   /* ── 6a. 首页（方案 B：左右分栏 + 中央时间场景 + 动作选择器 + 动态详情） ── */
 
   /* V2 UI 桥接（ui-overlay-v2.js） */
@@ -961,6 +991,7 @@
   function renderHome() {
     var hud = readHUD();
     if (!hud) return emptyState('⏳', '加载中...', '正在唤醒游戏数据');
+    if (!professionSelected()) return renderProfessionSelect();
     return '' +
       '<div class="ux-home">' +
         homeTopbarHtml(hud) +
@@ -2401,9 +2432,24 @@
     if (!overlay) return;
 
     overlay.onclick = function (e) {
-      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab]') : null;
+      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab]') : null;
       if (!el) return;
 
+      if (el.dataset.chooseProfession) {
+        var fProf = facade();
+        if (fProf && typeof fProf.chooseProfession === 'function') {
+          try {
+            var profResult = fProf.chooseProfession(el.dataset.chooseProfession);
+            if (profResult.success) {
+              toast('道途已定！开始你的牛马修仙之旅。', 'success');
+              fullRefresh();
+            } else {
+              toast(profResult.reason || '选择失败', 'error');
+            }
+          } catch (err) { toast(errMsg(err), 'error'); }
+        }
+        return;
+      }
       if (el.dataset.reply) {
         var fReply = facade();
         if (fReply && typeof fReply.replyToMessage === 'function') {
@@ -2486,7 +2532,7 @@
         }
         case 'cultivate': {
           var fCult = facade();
-          if (!fCult || typeof fCult.cultivate !== 'function') { toast('演示模式：cultivate', 'info'); break; }
+          if (!fCult || typeof fCult.cultivate !== 'function') { console.warn('[overlay] cultivate unavailable'); break; }
           try {
             var rCult = fCult.cultivate();
             _cultivateFx = {
@@ -2705,7 +2751,7 @@
         case 'promote': {
           var promo = readPromotion();
           var f = facade();
-          if (!f) { toast('演示模式：promote', 'info'); break; }
+          if (!f) { console.warn('[overlay] promote unavailable'); break; }
           try {
             var r = f.promote(promo.optionId);
             if (r.success) toast('渡劫成功！晋升 ' + (r.newLevel ? 'Lv.' + r.newLevel : ''), 'success');
@@ -2716,7 +2762,7 @@
         }
         case 'promoRetry': {
           var pf = facade();
-          if (!pf) { toast('演示模式：retry', 'info'); break; }
+          if (!pf) { console.warn('[overlay] promo retry unavailable'); break; }
           showAdPopup({
             onComplete: function () {
               try {

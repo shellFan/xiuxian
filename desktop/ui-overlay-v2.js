@@ -386,7 +386,7 @@
 
   function showDefenseModal() {
     var f = H.facade();
-    if (!f) { H.toast('演示模式：答辩', 'info'); return; }
+    if (!f) { console.warn('[overlay] defense unavailable'); return; }
     var questions;
     try { questions = f.startPromotionDefense(); } catch (e) { H.toast(H.errMsg(e), 'error'); return; }
     var layer = H.popupLayer();

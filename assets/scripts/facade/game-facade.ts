@@ -217,6 +217,16 @@ export class GameFacade {
   public queryDailyPlanReality() { return this.context.storyDirector.planReality(); }
   /** 待回复的消息数（有决策权的消息）。 */
   public queryPendingReplyCount() { return this.context.messenger.pendingReplies().length; }
+  // ── V5.5 职业系统 ──
+  /** 职业选择视图（新档「选择你的牛马道途」，§12）。 */
+  public queryProfessions() { return this.context.profession.views(); }
+  /** 当前职业 ID（旧档默认 JAVA_BACKEND）。 */
+  public queryProfession() { return this.context.profession.currentId(); }
+  public queryProfessionDef() { return this.context.profession.def(); }
+  public isProfessionSelected() { return this.context.profession.isSelected(); }
+  public chooseProfession(id: string) { const r = this.context.profession.choose(id); if (r.success) this.save(); return r; }
+  public rechooseProfessionOnce(id: string) { const r = this.context.profession.rechooseOnce(id); if (r.success) this.save(); return r; }
+  public queryProfessionLevel() { return { level: this.context.profession.level(), exp: this.context.profession.exp(), toNext: this.context.profession.expToNext() }; }
   /** 待进入的事故副本（消息链生成的线上禁地，§31）。 */
   public queryPendingIncidentDungeon(): { readonly incidentType: string } | null {
     const pending = (this.context.player as unknown as { pendingIncidentDungeon?: string }).pendingIncidentDungeon;

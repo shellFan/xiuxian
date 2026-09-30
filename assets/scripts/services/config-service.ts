@@ -233,7 +233,7 @@ function validateDaily(daily: Record<string, unknown>): void {
   });
 }
 
-const VALID_DAILY_TASK_TYPES = ['MERGE_5', 'WORK_10_MIN', 'FISH_3_MIN', 'EVENT_3', 'KPI_COMPLETE', 'PROMOTION_1'];
+const VALID_DAILY_TASK_TYPES = ['CULTIVATE_3', 'WORK_10_MIN', 'FISH_3_MIN', 'EVENT_3', 'KPI_COMPLETE', 'PROMOTION_1', 'MERGE_5'];
 
 function validateDailyTasks(dailyTasks: Record<string, unknown>): void {
   if (!Array.isArray(dailyTasks.tasks)) fail('dailyTasks.tasks must be an array');

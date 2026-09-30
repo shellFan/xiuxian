@@ -66,7 +66,7 @@ export class DailyTaskService {
       const cfg = this.configMap.get(state.taskId);
       return {
         taskId: state.taskId,
-        type: cfg?.type ?? 'MERGE_5',
+        type: cfg?.type ?? 'CULTIVATE_3',
         name: cfg?.name ?? state.taskId,
         description: cfg?.description ?? '',
         progress: state.progress,

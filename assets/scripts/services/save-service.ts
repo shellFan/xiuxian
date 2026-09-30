@@ -222,6 +222,12 @@ function migrate(raw: unknown, now: number): GameSaveData {
     dialogFlags: sanitizeFlagRecord(raw.dialogFlags),
     dailyPlan: Array.isArray(raw.dailyPlan) ? (raw.dailyPlan as unknown[]).filter(isString).slice(0, 8) : [],
     dailyReality: Array.isArray(raw.dailyReality) ? (raw.dailyReality as unknown[]).filter(isDailyRealityEntry).slice(-40) : [],
+    // ── V5.5 职业（§14：旧档无 profession 默认 JAVA_BACKEND；显式字符串才保留） ──
+    profession: typeof raw.profession === 'string' && raw.profession.length > 0 && raw.profession.length <= 32
+      ? raw.profession
+      : 'JAVA_BACKEND',
+    professionExp: isNonNegativeSafeInteger(raw.professionExp) ? raw.professionExp : 0,
+    professionFreeRechooseUsed: raw.professionFreeRechooseUsed === true,
   });
   return merged;
 }

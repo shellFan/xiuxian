@@ -227,7 +227,8 @@ export class BattleService {
     if (enemies.length > 0) {
       const target = enemies[0];
       const crit = this.rng() < player.critChance;
-      const damage = Math.max(1, Math.floor(player.attack * (crit ? 1.8 : 1)));
+      const specialtyMul = this.context.profession?.specialtyMultiplier(target.defId) ?? 1;
+      const damage = Math.max(1, Math.floor(player.attack * specialtyMul * (crit ? 1.8 : 1)));
       target.hp = Math.max(0, target.hp - damage);
       run.log.push(`${crit ? '暴击！' : ''}你对${target.name}造成 ${damage} 伤害`);
       if (target.hp <= 0) this.onEnemyKilled(run, target, player);
@@ -371,9 +372,13 @@ export class BattleService {
     if (run.wave >= run.waveTotal) return;
     const wave = WAVES[run.wave];
     run.enemies = [];
+    const professionPool = this.context.profession?.def().monsters ?? [];
     for (let i = 0; i < wave.count; i += 1) {
       const tier = wave.tiers[Math.min(i, wave.tiers.length - 1)];
-      const candidates = Array.from(MONSTER_MAP.values()).filter((m) => m.tier === tier);
+      let candidates = Array.from(MONSTER_MAP.values()).filter((m) => m.tier === tier);
+      // V5.5 职业怪池优先：本职业相关怪物 60% 概率优先出（§4/§95）。
+      const specialty = professionPool.length > 0 ? candidates.filter((m) => professionPool.includes(m.id)) : [];
+      if (specialty.length > 0 && this.rng() < 0.6) candidates = specialty;
       const def = candidates[Math.floor(this.rng() * candidates.length)];
       if (def) this.addEnemy(run, def.id);
     }

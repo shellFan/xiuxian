@@ -1,4 +1,4 @@
-export const CURRENT_SAVE_VERSION = 9;
+export const CURRENT_SAVE_VERSION = 10;
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -354,6 +354,11 @@ export interface GameSaveData {
   /** 今日计划 vs 实际（09:00 生成计划，全天追加实际）。 */
   readonly dailyPlan?: readonly string[];
   readonly dailyReality?: readonly DailyRealityEntryState[];
+
+  // ── V5.5 职业系统（saveVersion 10；旧档迁移默认 JAVA_BACKEND，§14） ──
+  readonly profession?: string;
+  readonly professionExp?: number;
+  readonly professionFreeRechooseUsed?: boolean;
 }
 
 export type MessengerConversationType =

@@ -152,7 +152,7 @@ export interface DailyBundle {
   readonly graceHours: number;
 }
 
-export type DailyTaskType = 'MERGE_5' | 'WORK_10_MIN' | 'FISH_3_MIN' | 'EVENT_3' | 'KPI_COMPLETE' | 'PROMOTION_1';
+export type DailyTaskType = 'CULTIVATE_3' | 'WORK_10_MIN' | 'FISH_3_MIN' | 'EVENT_3' | 'KPI_COMPLETE' | 'PROMOTION_1' | 'MERGE_5';
 
 export interface DailyTaskConfig {
   readonly id: string;

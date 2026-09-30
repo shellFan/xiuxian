@@ -88,6 +88,9 @@ export interface PlayerDataOptions {
   readonly dialogFlags?: Readonly<Record<string, boolean>>;
   readonly dailyPlan?: readonly string[];
   readonly dailyReality?: readonly DailyRealityEntryState[];
+  readonly profession?: string;
+  readonly professionExp?: number;
+  readonly professionFreeRechooseUsed?: boolean;
 }
 
 export class PlayerData {
@@ -191,6 +194,9 @@ export class PlayerData {
   public dialogFlags: Record<string, boolean>;
   public dailyPlan: string[];
   public dailyReality: DailyRealityEntryState[];
+  public profession?: string;
+  public professionExp: number;
+  public professionFreeRechooseUsed: boolean;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -279,6 +285,9 @@ export class PlayerData {
     this.dialogFlags = { ...(options.dialogFlags ?? {}) };
     this.dailyPlan = [...(options.dailyPlan ?? [])];
     this.dailyReality = [...(options.dailyReality ?? [])];
+    this.profession = options.profession;
+    this.professionExp = options.professionExp ?? 0;
+    this.professionFreeRechooseUsed = options.professionFreeRechooseUsed === true;
   }
 
   public static createDefault(): PlayerData {
@@ -352,6 +361,9 @@ export class PlayerData {
       dialogFlags: { ...this.dialogFlags },
       dailyPlan: [...this.dailyPlan],
       dailyReality: this.dailyReality.map((r) => ({ ...r })),
+      profession: this.profession,
+      professionExp: this.professionExp,
+      professionFreeRechooseUsed: this.professionFreeRechooseUsed,
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
