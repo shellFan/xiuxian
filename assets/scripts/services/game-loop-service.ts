@@ -40,6 +40,8 @@ export class GameLoopService {
 
   public tick(deltaSeconds: number): void {
     if (!this.running || !Number.isFinite(deltaSeconds) || deltaSeconds <= 0) return;
+    // V5.5 §139：前台游玩时间倍率（游戏时间 16× 真实时间，一个工作日 ≈ 34 真实分钟）。
+    try { this.context.clockV2.advancePlayTime(deltaSeconds * 1000); } catch { /* clock scale must not crash loop */ }
     this.accumulatedSeconds += deltaSeconds;
     const interval = this.tickIntervalSeconds;
     while (this.accumulatedSeconds >= interval - GameLoopService.EPSILON) {

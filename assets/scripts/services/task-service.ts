@@ -49,23 +49,26 @@ const DEFAULT_MAX_ACTIVE_TASKS = 3;
 
 /** Default task pool for the core gameplay. */
 const DEFAULT_TASKS: readonly TaskConfig[] = [
-  // Web V1 设计图任务（日常任务页展示的四条）
-  { id: 'task_daily_report', type: 'DAILY', name: '写日报', description: '完成今天的工作日报', durationSeconds: 10, rewardSalary: 10, rewardCultivation: 30, rewardSpiritStones: 0, rewardPerformance: 5 },
-  { id: 'task_fix_bug', type: 'DAILY', name: '修复线上Bug', description: '紧急修复生产环境问题', durationSeconds: 30, rewardSalary: 30, rewardCultivation: 60, rewardSpiritStones: 0, rewardPerformance: 15, rewardMind: -5 },
-  { id: 'task_paid_fish', type: 'DAILY', name: '带薪摸鱼', description: '合理摸鱼，恢复状态', durationSeconds: 15, rewardSalary: 0, rewardCultivation: 5, rewardSpiritStones: 0, rewardMind: 15 },
-  { id: 'task_useless_meeting', type: 'DAILY', name: '参加无效会议', description: '听不懂但开完的会议', durationSeconds: 20, rewardSalary: 0, rewardCultivation: 0, rewardSpiritStones: 0, rewardPerformance: 10, rewardMind: -10 },
-  { id: 'daily_checkin', type: 'DAILY', name: '每日签到', description: '完成每日签到', durationSeconds: 10, rewardSalary: 50, rewardCultivation: 10, rewardSpiritStones: 5 },
-  { id: 'daily_cultivate', type: 'DAILY', name: '修炼日常', description: '完成修炼日常任务', durationSeconds: 15, rewardSalary: 30, rewardCultivation: 20, rewardSpiritStones: 3 },
-  { id: 'daily_report', type: 'DAILY', name: '日报周报', description: '提交日报周报', durationSeconds: 20, rewardSalary: 40, rewardCultivation: 5, rewardSpiritStones: 2 },
-  { id: 'work_meeting', type: 'WORK', name: '部门会议', description: '参加部门会议', durationSeconds: 15, rewardSalary: 60, rewardCultivation: 5, rewardSpiritStones: 2 },
-  { id: 'work_overtime', type: 'WORK', name: '加班赶工', description: '加班完成紧急需求', durationSeconds: 25, rewardSalary: 100, rewardCultivation: 0, rewardSpiritStones: 5 },
-  { id: 'work_review', type: 'WORK', name: '代码审查', description: '审查同事的代码', durationSeconds: 20, rewardSalary: 40, rewardCultivation: 10, rewardSpiritStones: 3 },
-  { id: 'cultivation_meditate', type: 'CULTIVATION', name: '打坐修炼', description: '静心打坐修炼', durationSeconds: 10, rewardSalary: 0, rewardCultivation: 30, rewardSpiritStones: 5 },
-  { id: 'cultivation_breathing', type: 'CULTIVATION', name: '吐纳练气', description: '吐纳练气增强修为', durationSeconds: 15, rewardSalary: 0, rewardCultivation: 50, rewardSpiritStones: 3 },
-  { id: 'cultivation_scripture', type: 'CULTIVATION', name: '参悟功法', description: '参悟功法提升境界', durationSeconds: 30, rewardSalary: 0, rewardCultivation: 100, rewardSpiritStones: 10 },
-  { id: 'event_boss', type: 'EVENT', name: '老板视察', description: '应对老板突然视察', durationSeconds: 15, rewardSalary: 80, rewardCultivation: 0, rewardSpiritStones: 8 },
-  { id: 'event_team_building', type: 'EVENT', name: '团建活动', description: '参加公司团建', durationSeconds: 20, rewardSalary: 30, rewardCultivation: 10, rewardSpiritStones: 5 },
-  { id: 'event_mentor', type: 'EVENT', name: '前辈指点', description: '获得前辈指点', durationSeconds: 10, rewardSalary: 0, rewardCultivation: 40, rewardSpiritStones: 8 },
+  // V5.5 §39~§44：时长分级 QUICK(5-15min)/SHORT(15-45min)/MEDIUM(45-120min)/LONG(2-4h)/EPIC(4-8h)，单位游戏秒。
+  // 来源真实（产品/测试/老板/自己计划），奖励以工资+绩效为主，灵石稀有（§79）。
+  { id: 'task_daily_report', type: 'DAILY', name: '写日报', description: '把今天的摸鱼写成「阶段性成果」', durationSeconds: 20 * 60, rewardSalary: 20, rewardCultivation: 10, rewardSpiritStones: 0, rewardPerformance: 6 },
+  { id: 'task_fix_bug', type: 'DAILY', name: '修复线上登录异常', description: '紧急修复生产环境问题，可能触发线上事故', durationSeconds: 2 * 3600, rewardSalary: 90, rewardCultivation: 40, rewardSpiritStones: 0, rewardPerformance: 18, rewardMind: -5 },
+  { id: 'task_paid_fish', type: 'DAILY', name: '带薪摸鱼', description: '合理摸鱼，恢复状态', durationSeconds: 30 * 60, rewardSalary: 10, rewardCultivation: 5, rewardSpiritStones: 0, rewardMind: 15 },
+  { id: 'task_useless_meeting', type: 'DAILY', name: '参加无效会议', description: '听不懂但开完的会议，结论是下次再讨论', durationSeconds: 60 * 60, rewardSalary: 15, rewardCultivation: 0, rewardSpiritStones: 0, rewardPerformance: 10, rewardMind: -10 },
+  { id: 'daily_checkin', type: 'DAILY', name: '每日签到', description: '签到领灵石（QUICK）', durationSeconds: 5 * 60, rewardSalary: 10, rewardCultivation: 5, rewardSpiritStones: 2 },
+  { id: 'daily_cultivate', type: 'DAILY', name: '修炼日常', description: '打坐调息 15 分钟', durationSeconds: 15 * 60, rewardSalary: 5, rewardCultivation: 40, rewardSpiritStones: 1 },
+  { id: 'daily_report', type: 'DAILY', name: '日报周报', description: '周报是日报的套娃', durationSeconds: 25 * 60, rewardSalary: 22, rewardCultivation: 8, rewardSpiritStones: 0 },
+  { id: 'task_confirm_requirement', type: 'DAILY', name: '需求文档确认', description: '让产品在群里白纸黑字确认一遍（SHORT）', durationSeconds: 20 * 60, rewardSalary: 18, rewardCultivation: 8, rewardSpiritStones: 0, rewardPerformance: 6 },
+  { id: 'task_sql_optimize', type: 'WORK', name: '慢 SQL 优化', description: '给慢查询加索引，DBA 感谢你（MEDIUM）', durationSeconds: 90 * 60, rewardSalary: 80, rewardCultivation: 30, rewardSpiritStones: 1, rewardPerformance: 14 },
+  { id: 'task_api_dev', type: 'WORK', name: '开发业务接口', description: '普通增删改查 + 联调（MEDIUM）', durationSeconds: 100 * 60, rewardSalary: 95, rewardCultivation: 35, rewardSpiritStones: 1, rewardPerformance: 15 },
+  { id: 'task_write_tests', type: 'WORK', name: '补充单元测试', description: '覆盖率是遮羞布，但要有（MEDIUM）', durationSeconds: 80 * 60, rewardSalary: 70, rewardCultivation: 30, rewardSpiritStones: 0, rewardPerformance: 12 },
+  { id: 'work_meeting', type: 'WORK', name: '跨部门对齐会', description: '一小时的会，结论是下周再开一个会（MEDIUM）', durationSeconds: 60 * 60, rewardSalary: 40, rewardCultivation: 5, rewardSpiritStones: 0, rewardPerformance: 8, rewardMind: -8 },
+  { id: 'work_overtime', type: 'WORK', name: '加班赶工', description: '紧急需求的代价（LONG）', durationSeconds: 3 * 3600, rewardSalary: 200, rewardCultivation: 20, rewardSpiritStones: 2, rewardMind: -12 },
+  { id: 'work_review', type: 'WORK', name: '代码审查', description: '审查同事的代码，写下「LGTM」之外的话（SHORT）', durationSeconds: 30 * 60, rewardSalary: 35, rewardCultivation: 12, rewardSpiritStones: 0, rewardPerformance: 10 },
+  { id: 'task_module_dev', type: 'WORK', name: '开发业务模块', description: '核心功能模块开发（LONG）', durationSeconds: 3.5 * 3600, rewardSalary: 260, rewardCultivation: 60, rewardSpiritStones: 2, rewardPerformance: 25 },
+  { id: 'task_incident_repair', type: 'WORK', name: '生产事故修复', description: 'EPIC：核心功能挂了，全组等你的 diff', durationSeconds: 6 * 3600, rewardSalary: 420, rewardCultivation: 90, rewardSpiritStones: 3, rewardPerformance: 35, rewardMind: -15 },
+  { id: 'task_system_migration', type: 'WORK', name: '系统迁移', description: 'EPIC：老系统迁移新框架，技术债清零机会', durationSeconds: 7 * 3600, rewardSalary: 480, rewardCultivation: 120, rewardSpiritStones: 3, rewardPerformance: 40 },
+  { id: 'cultivation_meditate', type: 'CULTIVATION', name: '打坐修炼', description: '工位结界内静心（SHORT）', durationSeconds: 15 * 60, rewardSalary: 0, rewardCultivation: 45, rewardSpiritStones: 1 },
 ];
 
 export class TaskService {
@@ -183,6 +186,18 @@ export class TaskService {
         task.completed = true;
         completedTaskIds.push(task.taskId);
         this.context.events.emit('taskCompleted', { taskId: task.taskId, taskType: task.taskType });
+        continue;
+      }
+      // V5.5 §47：任务进行到一半时发一次里程碑事件（0~N 个过程事件的骨架）。
+      const progressKey = `v5_task_milestone:${task.taskId}`;
+      if (!this.context.player.eventFlags?.[progressKey]
+        && elapsed / task.durationSeconds >= 0.5) {
+        this.context.player.eventFlags = { ...this.context.player.eventFlags, [progressKey]: true };
+        this.context.events.emit('taskMilestone', {
+          taskId: task.taskId,
+          taskName: task.name,
+          progress: Math.round((elapsed / task.durationSeconds) * 100),
+        });
       }
     }
 

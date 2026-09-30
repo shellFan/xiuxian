@@ -22,6 +22,8 @@ export interface GameClockV2Options {
   readonly lunchStartHour?: number;
   /** 午休结束小时（默认 13）。 */
   readonly lunchEndHour?: number;
+  /** V5.5 §139~§141：游玩时间倍率（前台运行时游戏时间加速倍数）。默认 16 → 一个工作日 ≈ 34 真实分钟。 */
+  readonly playTimeScale?: number;
 }
 
 export interface GameDateInfo {
@@ -45,6 +47,9 @@ export class GameClockV2 {
 
   /** DEV 时间偏移（毫秒）。持久化在存档 devTimeOffsetMs。 */
   private devOffsetMs = 0;
+  /** V5.5 前台游玩加速偏移（毫秒，不持久化：离线收益走真实时间，§142~§143）。 */
+  private playOffsetMs = 0;
+  private readonly playTimeScale: number;
 
   public constructor(options: GameClockV2Options = {}) {
     this.clock = options.clock ?? DEFAULT_CLOCK;
@@ -52,16 +57,23 @@ export class GameClockV2 {
     this.workEndHour = options.workEndHour ?? 18;
     this.lunchStartHour = options.lunchStartHour ?? 12;
     this.lunchEndHour = options.lunchEndHour ?? 13;
+    this.playTimeScale = options.playTimeScale ?? 1;
   }
 
   /** 当前游戏时间戳（含 DEV 偏移）。 */
   public now(): number {
-    return this.clock.now() + this.devOffsetMs;
+    return this.clock.now() + this.devOffsetMs + this.playOffsetMs;
   }
 
   /** 不含 DEV 偏移的真实时间戳（用于保存真实 lastSaveTime 基准）。 */
   public realNow(): number {
     return this.clock.now();
+  }
+
+  /** V5.5 §139：游戏循环每 tick 调用，按倍率推进前台游玩时间（离线仍走真实时间）。 */
+  public advancePlayTime(deltaRealMs: number): void {
+    if (!Number.isFinite(deltaRealMs) || deltaRealMs <= 0) return;
+    this.playOffsetMs += Math.floor(deltaRealMs * (this.playTimeScale - 1));
   }
 
   // ── DEV 时间加速 ──────────────────────────────────────────────────────────

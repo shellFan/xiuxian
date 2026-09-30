@@ -89,6 +89,8 @@ export interface GameContextOptions {
   readonly randomProvider?: import('./random-provider').RandomProvider;
   readonly rewardProvider?: RewardProvider;
   readonly clock?: Clock;
+  /** V5.5 §139：前台游玩时间倍率（生产 16；测试默认 1）。 */
+  readonly playTimeScale?: number;
   readonly careerEventClock?: Clock;
   readonly randomV2?: RandomService;
   /** V4 战斗 rng（测试注入种子用）。 */
@@ -246,7 +248,7 @@ export class GameContext {
     this.friends = new FriendsService(this);
     this.craft = new CraftService(this, craftConfig as import('../services/craft-service').CraftConfig);
     // ── Gameplay V2 services ──
-    this.clockV2 = new GameClockV2({ clock: options.clock });
+    this.clockV2 = new GameClockV2({ clock: options.clock, playTimeScale: options.playTimeScale });
     this.clockV2.setDevOffsetMs(this.player.devTimeOffsetMs ?? 0);
     this.randomV2 = options.randomV2 ?? new RandomService();
     this.gameDay = new GameDayService(this, this.clockV2, this.randomV2);

@@ -309,7 +309,7 @@ export class MessengerService {
       const player2 = player as unknown as { lifetimeStats?: Record<string, number> };
       player2.lifetimeStats = { ...(player2.lifetimeStats ?? {}), [key]: (player2.lifetimeStats?.[key] ?? 0) + 1 };
     }
-    this.context.events.emit('messengerReplied', { eventId: event.id, replyId, effects: reply.effects ?? {} });
+    this.context.events.emit('messengerReplied', { eventId: event.id, replyId, effects: (reply.effects ?? {}) as unknown as Record<string, unknown> });
     return { ok: true, effects: reply.effects ?? {} };
   }
 

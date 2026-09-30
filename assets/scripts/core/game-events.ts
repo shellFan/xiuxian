@@ -54,7 +54,65 @@ export interface TaskClaimedEvent { readonly taskId: string; readonly taskType: 
 export interface SpiritStonesChangedEvent { readonly amount: number; readonly total: number; }
 export interface ItemCraftedEvent { readonly recipeId: string; readonly recipeName: string; }
 
+export interface TaskMilestoneEvent {
+  readonly taskId: string;
+  readonly taskName: string;
+  readonly progress: number;
+}
+
+export interface MessengerChangedEvent {
+  readonly conversationId?: string;
+  readonly critical?: boolean;
+}
+
+export interface MessengerRepliedEvent {
+  readonly eventId: string;
+  readonly replyId: string;
+  readonly effects: Record<string, unknown>;
+}
+
+export interface MessengerIncidentEvent {
+  readonly type: string;
+  readonly severity: string;
+  readonly source: string;
+}
+
+export interface MessengerIncidentDungeonEvent {
+  readonly incidentType: string;
+}
+
+export interface MessengerBlameEvent {
+  readonly caseId: string;
+  readonly title?: string;
+}
+
+export interface ProfessionChosenEvent {
+  readonly profession: string;
+  readonly rechose?: boolean;
+}
+
+export interface ProfessionExpGainedEvent {
+  readonly amount: number;
+  readonly total: number;
+  readonly level: number;
+}
+
+export interface EvidenceGainedEvent {
+  readonly type: string;
+  readonly label: string;
+}
+
 export interface GameEvents extends Record<string, unknown> {
+  readonly taskMilestone: TaskMilestoneEvent;
+  readonly messengerChanged: MessengerChangedEvent;
+  readonly messengerReplied: MessengerRepliedEvent;
+  readonly messengerIncident: MessengerIncidentEvent;
+  readonly messengerIncidentDungeon: MessengerIncidentDungeonEvent;
+  readonly messengerBlame: MessengerBlameEvent;
+  readonly criticalMessage: { readonly eventId: string };
+  readonly professionChosen: ProfessionChosenEvent;
+  readonly professionExpGained: ProfessionExpGainedEvent;
+  readonly evidenceGained: EvidenceGainedEvent;
   /** @deprecated No merge board in PC V1. */
   readonly workerRecruited: WorkerRecruitedEvent;
   readonly gameSaved: GameSavedEvent;

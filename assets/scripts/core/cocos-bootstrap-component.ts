@@ -87,7 +87,7 @@ export class CocosBootstrapComponent extends Component {
     console.log('[BOOT] Storage initialized');
 
     // Initialize GameFacade as the single business entry point
-    this._facade = new GameFacade({ storage });
+    this._facade = new GameFacade({ storage, playTimeScale: 16 });
     console.log('[BOOT] GameFacade initialized');
 
     // Expose facade on window for DOM overlay UI access

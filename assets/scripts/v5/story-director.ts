@@ -43,7 +43,17 @@ export class StoryDirectorService {
   public constructor(
     private readonly context: GameContext,
     private readonly messenger: MessengerService,
-  ) {}
+  ) {
+    // §47/§52：任务里程碑 → 飞剑传书任务事件（统一走 messenger，不另建弹窗系统）。
+    this.context.events.on('taskMilestone', (payload: { taskId: string; taskName: string; progress: number }) => {
+      const nowMs = this.context.clockV2.now();
+      const event = messengerEventById('ms_task_milestone');
+      if (event) {
+        const key = `taskms:${payload.taskId}:${this.context.player.gameDay?.dayIndex ?? 1}`;
+        this.messenger.deliverEvent(event, nowMs, key);
+      }
+    });
+  }
 
   /** 新的一天：重置预算 + 生成今日计划（09:00 由 tick 首次触发）。 */
   public beginWorkday(): void {
