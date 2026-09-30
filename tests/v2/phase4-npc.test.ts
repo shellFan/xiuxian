@@ -25,8 +25,9 @@ function makeCtx(clock: FakeClock): GameContext {
 }
 
 function testNpcDefs(): void {
-  assert.equal(NPCS.length, 6, '6 core NPCs (§44)');
-  assert.deepEqual(NPCS.map((n) => n.id), ['BOSS', 'PRODUCT', 'TESTER', 'JUNIOR', 'VETERAN', 'HR']);
+  // V5.5 扩容：6 位核心 + OPS/CLIENT（飞剑传书新增运维与客户，§22/§41）
+  assert.equal(NPCS.length, 8, '8 core NPCs (§44 + V5 OPS/CLIENT)');
+  assert.deepEqual(NPCS.map((n) => n.id), ['BOSS', 'PRODUCT', 'TESTER', 'JUNIOR', 'VETERAN', 'HR', 'OPS', 'CLIENT']);
   for (const n of NPCS) assert.ok(n.name && n.description && n.influence);
 }
 
@@ -58,9 +59,9 @@ function testRelationshipClampAndEffects(): void {
   assert.equal(npc.bugEventWeightMul(), 0.8);
   npc.change('JUNIOR', 65);
   assert.equal(npc.materialMul(), 1.25);
-  // 视图
+  // 视图（V5.5：8 位核心 NPC）
   const views = npc.views();
-  assert.equal(views.length, 6);
+  assert.equal(views.length, 8);
   assert.equal(views[0].stageLabel, '敌视');
 }
 

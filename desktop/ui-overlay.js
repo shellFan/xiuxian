@@ -990,9 +990,14 @@
     var inBattle = false;
     try { inBattle = !!f.queryBattle(); } catch (e) { inBattle = false; }
     var professionChosen = professionSelected();
-    var journeyDone = f.context ? (f.context.player.firstWeekStory || {}) : {};
-    var doneSteps = journeyDone.doneSteps || [];
-    return { snap: snap, promotion: promotion, runningTask: runningTask, inBattle: inBattle, professionChosen: professionChosen, doneSteps: doneSteps, dayIndex: (f.context.player.gameDay || {}).dayIndex || 1 };
+    var dayIndex = 1;
+    var doneSteps = [];
+    if (f && f.context && f.context.player) {
+      var journeyDone = f.context.player.firstWeekStory || {};
+      doneSteps = journeyDone.doneSteps || [];
+      dayIndex = (f.context.player.gameDay || {}).dayIndex || 1;
+    }
+    return { snap: snap, promotion: promotion, runningTask: runningTask, inBattle: inBattle, professionChosen: professionChosen, doneSteps: doneSteps, dayIndex: dayIndex };
   }
 
   function journeyGuideHtml() {

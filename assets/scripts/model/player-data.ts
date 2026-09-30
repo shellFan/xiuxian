@@ -285,7 +285,7 @@ export class PlayerData {
     this.dialogFlags = { ...(options.dialogFlags ?? {}) };
     this.dailyPlan = [...(options.dailyPlan ?? [])];
     this.dailyReality = [...(options.dailyReality ?? [])];
-    this.profession = options.profession;
+    this.profession = options.profession ?? 'JAVA_BACKEND';
     this.professionExp = options.professionExp ?? 0;
     this.professionFreeRechooseUsed = options.professionFreeRechooseUsed === true;
   }
