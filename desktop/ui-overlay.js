@@ -27,10 +27,12 @@
 
   var PLAYER_NAME = '范大牛';
 
+  /* V5.5 §75：任务页新分类——今日工作 / 修仙支线 / 临时塞活 */
   var TASK_TABS = [
-    { type: 'DAILY',       label: '日常任务' },
-    { type: 'WORK',        label: '工作任务' },
-    { type: 'CULTIVATION', label: '修炼任务' },
+    { type: 'WORK',        label: '今日工作' },
+    { type: 'DAILY',       label: '今日工作·日常' },
+    { type: 'CULTIVATION', label: '修仙支线' },
+    { type: 'EVENT',       label: '临时塞活' },
   ];
 
   var TASK_TYPE_ICONS = { DAILY: '📅', WORK: '💼', CULTIVATION: '🧘', EVENT: '🎉' };
