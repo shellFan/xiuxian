@@ -976,70 +976,39 @@
 
   /* ── 6a-1. 今日修仙目标（V5.5 §86~§94：Journey Guide / NextGoal） ── */
 
-  function journeyState() {
-    var f = facade();
-    if (!f || typeof f.snapshot !== 'function') return null;
-    var snap = null;
-    try { snap = f.snapshot(); } catch (e) { return null; }
-    if (!snap) return null;
-    var promotion = null;
-    try { promotion = f.queryPromotionCheck ? f.queryPromotionCheck() : null; } catch (e) { promotion = null; }
-    var active = null;
-    try { active = f.queryActiveTasks ? f.queryActiveTasks() : []; } catch (e) { active = []; }
-    var runningTask = (active || []).filter(function (t) { return !t.completed && !t.claimed; })[0] || null;
-    var inBattle = false;
-    try { inBattle = !!f.queryBattle(); } catch (e) { inBattle = false; }
-    var professionChosen = professionSelected();
-    var dayIndex = 1;
-    var doneSteps = [];
-    if (f && f.context && f.context.player) {
-      var journeyDone = f.context.player.firstWeekStory || {};
-      doneSteps = journeyDone.doneSteps || [];
-      dayIndex = (f.context.player.gameDay || {}).dayIndex || 1;
-    }
-    return { snap: snap, promotion: promotion, runningTask: runningTask, inBattle: inBattle, professionChosen: professionChosen, doneSteps: doneSteps, dayIndex: dayIndex };
-  }
-
   function journeyGuideHtml() {
-    var st = journeyState();
-    if (!st || !st.professionChosen) return '';
-    var goal = null;
-    var g = fnull();
-    function fnull() { return null; }
     var f = facade();
-    if (!st.inBattle && st.runningTask) {
-      var pct = Math.min(99, Math.round(((st.runningTask.durationSeconds - 0) / Math.max(1, st.runningTask.durationSeconds)) * 100));
-      try {
-        var remain = f.queryTaskRemaining ? f.queryTaskRemaining(st.runningTask.taskId) : 0;
-        pct = Math.min(99, Math.max(0, Math.round((1 - remain / Math.max(1, st.runningTask.durationSeconds)) * 100)));
-      } catch (e) { /* keep 50 */ }
-      goal = { icon: '📋', text: '主线：' + st.runningTask.name, sub: '进度 ' + pct + '% · 完成可领工资与绩效', action: 'goto', page: 'TASKS', btn: '继续任务' };
-    } else if (!st.inBattle && st.dayIndex <= 2) {
-      goal = { icon: '⚔️', text: '进入第一个项目，击败你的第一个 Bug', sub: '战斗消耗工作时间，掉落材料与法宝', action: 'goto', page: 'PROJECT', btn: '进入项目' };
-    } else if (st.promotion && st.promotion.allowed) {
-      goal = { icon: '🏯', text: '晋升条件全部达成！', sub: '渡劫答辩三题，通过即晋升', action: 'goto', page: 'PROMOTION', btn: '参加晋升答辩' };
-    } else {
-      var hour = 12;
-      try { var gclock = f.queryGameClock(); hour = gclock ? gclock.hour : 12; } catch (e) { /* keep 12 */ }
-      if (hour >= 17) {
-        goal = { icon: '🌆', text: '接近下班：处理职场事件或准备结算', sub: '17:55 的飞剑通常不是好事', action: 'goto', page: 'HOME', btn: '回到首页' };
-      } else if (st.snap.workMode !== 'WORK') {
-        goal = { icon: '💼', text: '先上会儿班，工资和绩效按分钟入账', sub: '摸鱼养道心，但工资要靠搬砖', action: 'select', page: 'WORK', btn: '开始工作' };
-      } else {
-        goal = { icon: '📜', text: '今天暂时没人塞活。', sub: '推荐：接一个任务 / 摸鱼 / 修炼', action: 'goto', page: 'TASKS', btn: '找点活干' };
-      }
-    }
-    if (!goal) return '';
-    var attrs = goal.action === 'select'
+    if (!f || typeof f.queryNowGoal !== 'function') return '';
+    var goals = [];
+    try { goals = f.queryGoals() || []; } catch (e) { return ''; }
+    var now = goals[0];
+    if (!now) return '';
+    var attrs = now.action === 'select'
       ? 'data-select-action="WORK"'
-      : 'data-goto-page="' + escHtml(goal.page) + '"';
+      : (now.page ? 'data-goto-page="' + escHtml(now.page) + '"' : '');
     return '<button class="ux-journey" ' + attrs + '>' +
-      '<span class="jg-icon">' + goal.icon + '</span>' +
-      '<span class="jg-main"><b>' + escHtml(goal.text) + '</b><i>' + escHtml(goal.sub) + '</i></span>' +
-      '<span class="jg-btn">' + escHtml(goal.btn) + ' ›</span>' +
+      '<span class="jg-icon">' + now.icon + '</span>' +
+      '<span class="jg-main"><b>' + escHtml(now.text) + '</b><i>' + escHtml(now.sub) + '</i></span>' +
+      '<span class="jg-btn">' + escHtml(now.btn) + ' ›</span>' +
     '</button>';
   }
 
+  /* V5.6 §5.3：Today Capacity Widget */
+  function todayCapacityHtml() {
+    var f = facade();
+    if (!f || typeof f.queryTodayCapacity !== 'function') return '';
+    var cap = null;
+    try { cap = f.queryTodayCapacity(); } catch (e) { return ''; }
+    if (!cap) return '';
+    var hm = function (m) { return Math.floor(m / 60) + 'h' + String(Math.round(m % 60)).padStart(2, '0') + 'm'; };
+    return '<div class="ux-capacity' + (cap.overload ? ' overload' : '' ) + '">' +
+      '<span class="cap-label">今日容量</span>' +
+      '<span class="cap-item">剩余工时 <b>' + hm(cap.remainingWorkMinutes) + '</b></span>' +
+      '<span class="cap-item">剩余计划 <b>' + hm(cap.remainingPlanMinutes) + '</b></span>' +
+      '<span class="cap-item">预计下班 <b>' + cap.projectedOffWorkTime + '</b></span>' +
+      (cap.overload ? '<span class="cap-warn">' + escHtml(cap.advice) + '</span>' : '') +
+    '</div>';
+  }
   /* ── 6a. 首页（方案 B：左右分栏 + 中央时间场景 + 动作选择器 + 动态详情） ── */
 
 
@@ -1151,7 +1120,7 @@
 
   /* 中栏（§12~§41）：时间场景 / 动作选择器 / 动作详情 */
   function homeCenterHtml(hud) {
-    return workSceneHtml(hud) + journeyGuideHtml() + actionSelectorHtml(hud) + actionDetailHtml(hud);
+    return workSceneHtml(hud) + todayCapacityHtml() + journeyGuideHtml() + actionSelectorHtml(hud) + actionDetailHtml(hud);
   }
 
   /* 中栏顶部：办公室场景 + 下班倒计时 + 今日已赚浮层（§12~§20） */
@@ -1608,16 +1577,12 @@
     var victory = done.status === 'VICTORY';
 
     /* 决策选项（§29~§34 六种结局方向）：胜利走领导/产品线，失败走补救线。 */
-    var decisions = victory ? [
-      { id: 'delay', label: '领导：延期两天，把问题解决干净。', fx: { mind: 4, performance: -2, note: 'deadline +2d · 技术债下降机会' } },
-      { id: 'addreq', label: '产品：客户又加了三个需求。', fx: { mind: -3, note: '新增 3 个 Task · 项目阶段延长', tasks: 3 } },
-      { id: 'risk', label: '老板：今晚必须上线（风险自担）。', fx: { performance: 5, techDebt: 8, note: '风险上线 · 未来事故概率 +' } },
-      { id: 'early', label: '领导：做得不错，提前上线！', fx: { performance: 8, salary: 60, note: '绩效 · 工资 · 稀有掉落' } }
-    ] : [
-      { id: 'bugfix', label: '测试：还有 7 个 Bug。进入 BUG_FIX 阶段。', fx: { mind: -2, note: 'BUG_FIX 阶段 · 修复后重新评估' } },
-      { id: 'cancel', label: '客户：这个功能不要了。（需求作废）', fx: { mind: -5, note: '已完成任务作废 · 无效劳动 +1' } },
-      { id: 'salvage', label: '领导：败了也先上线，边跑边修。', fx: { techDebt: 10, performance: 2, note: '带病上线 · 技术债 +' } }
-    ];
+    var decisions = (function () {
+      if (f && typeof f.queryPendingProjectDecisions === 'function') {
+        try { return f.queryPendingProjectDecisions().map(function (d) { return { id: d.id, label: d.label, fx: { note: d.note } }; }); } catch (e) { return []; }
+      }
+      return [];
+    })();
 
     var optionHtml = decisions.map(function (d, i) {
       return '<button class="ux-event-option" data-project-decision="' + escHtml(d.id) + '" data-decision-idx="' + i + '">' +
@@ -1646,22 +1611,13 @@
         var idx = Number(btn.getAttribute('data-decision-idx'));
         var decision = decisions[idx];
         try {
-          if (decision.fx.mind) f.context.player.mind = Math.max(0, Math.min(f.context.player.maxMind, f.context.player.mind + decision.fx.mind));
-          if (decision.fx.performance) f.context.player.performance = Math.max(0, f.context.player.performance + decision.fx.performance);
-          if (decision.fx.salary) f.context.economy.applyIdleSalary(decision.fx.salary);
-          if (decision.fx.techDebt) f.context.techDebt.add('release', decision.fx.techDebt);
-          for (var t = 0; t < (decision.fx.tasks || 0); t++) {
-            try {
-              f.context.assignedTasks.assign({
-                title: '客户追加需求 #' + (t + 1),
-                priority: t === 0 ? 'P1' : 'P2',
-                source: 'PRODUCT',
-              });
-            } catch (eAssign) { /* best-effort */ }
+          if (typeof f.resolveProjectDecision === 'function') {
+            var r = f.resolveProjectDecision(decision.id);
+            toast(r.ok ? (decision.label.slice(0, 22) + '……') : (r.reason || '决策失败'), r.ok ? 'info' : 'error');
+          } else {
+            toast('项目系统未就绪', 'error');
           }
-          if (decision.fx.salary) f.context.gameDay.addIncome('salary', decision.fx.salary);
           f.clearFinishedBattle();
-          toast(decision.label.slice(0, 18) + '……', 'info');
         } catch (eApply) { toast(errMsg(eApply), 'error'); }
         closePopup();
         refresh();
