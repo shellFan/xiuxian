@@ -106,7 +106,7 @@ function testMigrationContract(): void {
   const saveService = fs.readFileSync(path.resolve(process.cwd(), 'assets/scripts/services/save-service.ts'), 'utf8');
   const saveData = fs.readFileSync(path.resolve(process.cwd(), 'assets/scripts/model/save-data.ts'), 'utf8');
   assert.match(saveService, /profession: typeof raw\.profession/, 'legacy saves default JAVA_BACKEND');
-  assert.match(saveData, /CURRENT_SAVE_VERSION = 10/, 'save v10');
+  assert.match(saveData, /CURRENT_SAVE_VERSION = 11/, 'save v11');
   assert.match(saveData, /readonly profession\?: string/, 'save model carries profession');
   console.log('save migration contract passed');
 }
