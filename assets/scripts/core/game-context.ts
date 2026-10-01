@@ -62,6 +62,10 @@ import { IncidentService } from '../v3/incident-service';
 import { TechDebtService } from '../v3/tech-debt-service';
 import { MessengerService } from '../v5/messenger-service';
 import { ProfessionService } from '../v5/profession-service';
+import { TaskRuntimeDirector } from '../v56/task-runtime-director';
+import { DailyPlannerService } from '../v56/daily-planner-service';
+import { ProjectService } from '../v56/project-service';
+import { GoalDirectorService } from '../v56/goal-director-service';
 import { StoryDirectorService } from '../v5/story-director';
 import { AssignedTaskService } from '../v3/assigned-task-service';
 import { BattleService } from '../v3/battle-service';
@@ -175,6 +179,14 @@ export class GameContext {
   public readonly storyDirector: StoryDirectorService;
   /** V5.5 职业系统：影响怪物/技能/任务/专精。 */
   public readonly profession: ProfessionService;
+  /** V5.6 任务运行时导演。 */
+  public readonly taskRuntimeDirector: TaskRuntimeDirector;
+  /** V5.6 每日计划与容量。 */
+  public readonly dailyPlanner: DailyPlannerService;
+  /** V5.6 项目状态机。 */
+  public readonly projectService: ProjectService;
+  /** V5.6 目标导演。 */
+  public readonly goalDirector: GoalDirectorService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -264,6 +276,10 @@ export class GameContext {
     this.messenger = new MessengerService(this);
     this.storyDirector = new StoryDirectorService(this, this.messenger);
     this.profession = new ProfessionService(this);
+    this.taskRuntimeDirector = new TaskRuntimeDirector(this);
+    this.dailyPlanner = new DailyPlannerService(this);
+    this.projectService = new ProjectService(this);
+    this.goalDirector = new GoalDirectorService(this);
     this.innerDemon = new InnerDemonService(this);
     this.v2Economy = new V2EconomyService(this, this.clockV2, this.gameDay, this.innerDemon);
     this.v2Events = new V2EventService(this, this.clockV2, this.gameDay, this.innerDemon, this.randomV2);

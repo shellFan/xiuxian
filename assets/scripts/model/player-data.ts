@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -88,6 +88,8 @@ export interface PlayerDataOptions {
   readonly dialogFlags?: Readonly<Record<string, boolean>>;
   readonly dailyPlan?: readonly string[];
   readonly dailyReality?: readonly DailyRealityEntryState[];
+  readonly fatigue?: number;
+  readonly project?: ProjectState | null;
   readonly profession?: string;
   readonly professionExp?: number;
   readonly professionFreeRechooseUsed?: boolean;
@@ -194,6 +196,8 @@ export class PlayerData {
   public dialogFlags: Record<string, boolean>;
   public dailyPlan: string[];
   public dailyReality: DailyRealityEntryState[];
+  public fatigue: number;
+  public project: ProjectState | null;
   public profession?: string;
   public professionExp: number;
   public professionFreeRechooseUsed: boolean;
@@ -285,6 +289,8 @@ export class PlayerData {
     this.dialogFlags = { ...(options.dialogFlags ?? {}) };
     this.dailyPlan = [...(options.dailyPlan ?? [])];
     this.dailyReality = [...(options.dailyReality ?? [])];
+    this.fatigue = Math.max(0, Math.min(100, options.fatigue ?? 0));
+    this.project = options.project ? { ...options.project } : null;
     this.profession = options.profession ?? 'JAVA_BACKEND';
     this.professionExp = options.professionExp ?? 0;
     this.professionFreeRechooseUsed = options.professionFreeRechooseUsed === true;
@@ -361,6 +367,8 @@ export class PlayerData {
       dialogFlags: { ...this.dialogFlags },
       dailyPlan: [...this.dailyPlan],
       dailyReality: this.dailyReality.map((r) => ({ ...r })),
+      fatigue: this.fatigue,
+      project: this.project ? { ...this.project, linkedTaskIds: [...this.project.linkedTaskIds], linkedIncidentIds: [...this.project.linkedIncidentIds], decisionHistory: this.project.decisionHistory.map((d) => ({ ...d })) } : null,
       profession: this.profession,
       professionExp: this.professionExp,
       professionFreeRechooseUsed: this.professionFreeRechooseUsed,

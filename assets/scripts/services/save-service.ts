@@ -1,3 +1,4 @@
+import type { ProjectState } from '../model/save-data';
 import { CURRENT_SAVE_VERSION, type ActiveMessageChainState, type DailyRealityEntryState, type FirstWeekStoryState, type GameSaveData, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type WorkerSaveData } from '../model/save-data';
 import { PlayerData } from '../model/player-data';
 import type { StorageAdapter } from './storage-adapter';
@@ -222,6 +223,9 @@ function migrate(raw: unknown, now: number): GameSaveData {
     dialogFlags: sanitizeFlagRecord(raw.dialogFlags),
     dailyPlan: Array.isArray(raw.dailyPlan) ? (raw.dailyPlan as unknown[]).filter(isString).slice(0, 8) : [],
     dailyReality: Array.isArray(raw.dailyReality) ? (raw.dailyReality as unknown[]).filter(isDailyRealityEntry).slice(-40) : [],
+    // ── V5.6（saveVersion 11）：fatigue/project 归一化，旧档安全默认（§25） ──
+    fatigue: normalizeFatigue(raw.fatigue),
+    project: normalizeProject(raw.project),
     // ── V5.5 职业（§14：旧档无 profession 默认 JAVA_BACKEND；显式字符串才保留） ──
     profession: typeof raw.profession === 'string' && raw.profession.length > 0 && raw.profession.length <= 32
       ? raw.profession
@@ -291,6 +295,48 @@ function sanitizeFlagRecord(value: unknown): Readonly<Record<string, boolean>> {
     if (typeof key === 'string' && key.length > 0 && key.length <= 64 && typeof val === 'boolean') out[key] = val;
   }
   return out;
+}
+
+function normalizeFatigue(value: unknown): number {
+  if (!isFiniteNumber(value)) return 0;
+  return Math.max(0, Math.min(100, Math.floor(value)));
+}
+
+function normalizeProject(value: unknown): ProjectState | null {
+  if (!isRecord(value) || typeof value.id !== 'string' || typeof value.name !== 'string'
+    || typeof value.status !== 'string') return null;
+  const lifecycle = ['PLANNING', 'DEVELOPMENT', 'TESTING', 'BUG_FIX', 'READY_TO_RELEASE',
+    'RELEASING', 'PRODUCTION', 'DELAYED', 'CANCELLED', 'FAILED', 'COMPLETED'];
+  if (!lifecycle.includes(value.status)) return null;
+  const num = (x: unknown, def: number) => (isFiniteNumber(x) ? x : def);
+  return {
+    id: value.id,
+    name: value.name,
+    type: typeof value.type === 'string' ? value.type : 'GENERIC',
+    status: value.status as ProjectState['status'],
+    startedAt: num(value.startedAt, 0),
+    deadlineAt: num(value.deadlineAt, 0),
+    plannedMinutes: num(value.plannedMinutes, 0),
+    spentMinutes: num(value.spentMinutes, 0),
+    progress: Math.max(0, Math.min(100, num(value.progress, 0))),
+    techDebt: Math.max(0, num(value.techDebt, 0)),
+    bugCount: Math.max(0, num(value.bugCount, 0)),
+    criticalBugCount: Math.max(0, num(value.criticalBugCount, 0)),
+    requirementCount: Math.max(0, num(value.requirementCount, 0)),
+    requirementChanges: Math.max(0, num(value.requirementChanges, 0)),
+    risk: Math.max(0, num(value.risk, 0)),
+    releaseRisk: Math.max(0, num(value.releaseRisk, 0)),
+    clientRelation: num(value.clientRelation, 0),
+    bossPressure: num(value.bossPressure, 0),
+    linkedTaskIds: Array.isArray(value.linkedTaskIds) ? (value.linkedTaskIds as unknown[]).filter(isString) : [],
+    linkedIncidentIds: Array.isArray(value.linkedIncidentIds) ? (value.linkedIncidentIds as unknown[]).filter(isString) : [],
+    battleStage: Math.max(0, num(value.battleStage, 0)),
+    decisionHistory: Array.isArray(value.decisionHistory)
+      ? (value.decisionHistory as unknown[]).filter((d): d is import('../model/save-data').ProjectDecisionRecord =>
+          isRecord(d) && typeof d.decisionId === 'string' && typeof d.label === 'string').slice(0, 32)
+      : [],
+    wastedWorkMinutes: Math.max(0, num(value.wastedWorkMinutes, 0)),
+  };
 }
 
 function isDailyRealityEntry(value: unknown): value is DailyRealityEntryState {

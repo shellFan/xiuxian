@@ -1,4 +1,4 @@
-export const CURRENT_SAVE_VERSION = 10;
+export const CURRENT_SAVE_VERSION = 11;
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -225,6 +225,22 @@ export interface ActiveTaskState {
   rewardMind?: number;
   completed: boolean;
   claimed: boolean;
+  // ── V5.6 Task Runtime Director（§4；全部可选，旧档迁移安全） ──
+  readonly runtimeSeed?: number;
+  readonly runtimeStage?: 'ACTIVE' | 'PAUSED' | 'BLOCKED' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  readonly runtimeEventIds?: readonly string[];
+  readonly runtimeNextTriggerProgress?: number;
+  readonly runtimePauseUntil?: number;
+  readonly runtimePausedSeconds?: number;
+  readonly runtimeAddedSeconds?: number;
+  readonly runtimeReducedSeconds?: number;
+  readonly interruptionCount?: number;
+  readonly blockedReason?: string;
+  readonly deadlineAt?: number;
+  readonly foreground?: boolean;
+  readonly ownerNpcId?: string;
+  readonly projectId?: string;
+  readonly contextSwitchCount?: number;
 }
 
 /** @deprecated Board/merge system worker data. PC V1 does not use workers on a grid. */
@@ -359,6 +375,12 @@ export interface GameSaveData {
   readonly profession?: string;
   readonly professionExp?: number;
   readonly professionFreeRechooseUsed?: boolean;
+
+  // ── V5.6 Workday Director（saveVersion 11，§5/§18/§7） ──
+  /** 身体疲劳 0~100（与 Mind 分离：Mind=心理，Fatigue=身体）。 */
+  readonly fatigue?: number;
+  /** 进行中的项目状态机（ProjectService）。 */
+  readonly project?: ProjectState | null;
 }
 
 export type MessengerConversationType =
@@ -448,4 +470,44 @@ export interface DailyRealityEntryState {
   readonly time: number;
   readonly text: string;
   readonly kind: 'WORK' | 'FAVOR' | 'MEETING' | 'INCIDENT' | 'OVERTIME' | 'CHANGE' | 'BLAME' | 'REST';
+}
+
+
+// ── V5.6 项目状态机（§7） ──
+
+export type ProjectLifecycle =
+  | 'PLANNING' | 'DEVELOPMENT' | 'TESTING' | 'BUG_FIX' | 'READY_TO_RELEASE'
+  | 'RELEASING' | 'PRODUCTION' | 'DELAYED' | 'CANCELLED' | 'FAILED' | 'COMPLETED';
+
+export interface ProjectDecisionRecord {
+  readonly decisionId: string;
+  readonly label: string;
+  readonly dayIndex: number;
+  readonly at: number;
+}
+
+export interface ProjectState {
+  readonly id: string;
+  readonly name: string;
+  readonly type: string;
+  status: ProjectLifecycle;
+  readonly startedAt: number;
+  deadlineAt: number;
+  plannedMinutes: number;
+  spentMinutes: number;
+  progress: number;
+  techDebt: number;
+  bugCount: number;
+  criticalBugCount: number;
+  requirementCount: number;
+  requirementChanges: number;
+  risk: number;
+  releaseRisk: number;
+  clientRelation: number;
+  bossPressure: number;
+  readonly linkedTaskIds: readonly string[];
+  readonly linkedIncidentIds: readonly string[];
+  battleStage: number;
+  decisionHistory: readonly ProjectDecisionRecord[];
+  wastedWorkMinutes: number;
 }

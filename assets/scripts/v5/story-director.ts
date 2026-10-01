@@ -78,7 +78,8 @@ export class StoryDirectorService {
       interruptBudget: budget,
       tension: hell ? 3 : 1,
     };
-    player.dailyPlan = this.rollDailyPlan(rng);
+    // V5.6：计划生成统一走 DailyPlanner（3~5 条带分钟）。
+    this.context.dailyPlanner.beginWorkday();
     player.dailyReality = [];
   }
 
@@ -291,18 +292,6 @@ export class StoryDirectorService {
     });
   }
 
-  private rollDailyPlan(rng: { next(): number }): string[] {
-    const pool = [
-      '修复登录接口偶发报错', '写接口 B 的单元测试', '摸鱼一小时养道心',
-      '评审产品 PRD', '排查线上慢查询', '整理本周技术债', '准时 18:00 下班',
-    ];
-    const count = 2 + Math.floor(rng.next() * 2);
-    const plan: string[] = [];
-    for (let i = 0; i < count; i += 1) {
-      plan.push(pool[Math.floor(rng.next() * pool.length)]);
-    }
-    return plan;
-  }
 
   /** §47/§166~171：按职业加权挑选任务运行时事件（职业 60% / 通用池兜底）。 */
   private taskRuntimeEvent(): MessengerEventDef | null {

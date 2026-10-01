@@ -1,0 +1,126 @@
+import type { GameContext } from '../core/game-context';
+
+/**
+ * V5.6 P0-5：GoalDirector（§8）。
+ * 分层输出 NOW/TODAY/PROJECT/CAREER/PROFESSION/LONG_TERM。
+ * 推荐而非强制（§8.7）。优先级：Incident > P0 > Deadline imminent > Active task >
+ * Project > Promotion > Profession > Daily plan > Optional。
+ */
+
+export interface GoalView {
+  readonly layer: 'NOW' | 'TODAY' | 'PROJECT' | 'CAREER' | 'PROFESSION' | 'LONG_TERM';
+  readonly priority: number;
+  readonly icon: string;
+  readonly text: string;
+  readonly sub: string;
+  readonly action: 'goto' | 'select' | 'none';
+  readonly page?: string;
+  readonly btn: string;
+}
+
+export class GoalDirectorService {
+  public constructor(private readonly context: GameContext) {}
+
+  public goals(): GoalView[] {
+    const goals: GoalView[] = [];
+    const f = this.context;
+    const player = f.player;
+
+    // NOW：事故 > P0 > 活跃任务
+    try {
+      const incident = f.incidents.presentableActive?.() ?? null;
+      if (incident) {
+        goals.push({ layer: 'NOW', priority: 10, icon: '🚨', text: `🔴 P0线上事故：${incident.type}`, sub: '全组等你，进入事故处置', action: 'goto', page: 'HOME', btn: '立即处理' });
+      }
+    } catch { /* noop */ }
+    const pendingCritical = player.activeTasks.find((t) => !t.completed && !t.claimed && t.foreground);
+    if (pendingCritical) {
+      const remain = f.taskRuntimeDirector
+        ? Math.max(0, Math.round(f.taskRuntimeDirector.remainingSeconds(pendingCritical, f.clockV2.now()) / 60))
+        : 0;
+      goals.push({ layer: 'NOW', priority: 7, icon: '📋', text: `继续：${pendingCritical.name}`, sub: `剩余约 ${remain} 分钟 · 完成可领工资绩效`, action: 'goto', page: 'TASKS', btn: '继续任务' });
+    }
+
+    // TODAY：DailyPlanner capacity
+    try {
+      const cap = f.dailyPlanner.capacity();
+      goals.push({
+        layer: 'TODAY', priority: 5,
+        icon: cap.overload ? '⏰' : '📅',
+        text: cap.overload ? `今天大概率走不了：预计${cap.projectedOffWorkTime}下班` : `预计${cap.projectedOffWorkTime}下班`,
+        sub: `剩余工时 ${Math.floor(cap.remainingWorkMinutes / 60)}h${cap.remainingWorkMinutes % 60}m · 剩余计划 ${Math.floor(cap.remainingPlanMinutes / 60)}h${cap.remainingPlanMinutes % 60}m`,
+        action: 'none', btn: cap.overload ? '考虑砍需求' : '按计划推进',
+      });
+    } catch { /* planner not ready */ }
+
+    // PROJECT
+    const project = f.projectService?.current() ?? null;
+    if (project && !['COMPLETED', 'CANCELLED', 'FAILED'].includes(project.status)) {
+      goals.push({
+        layer: 'PROJECT', priority: 4,
+        icon: '⚔️', text: `${project.name}：${project.status}`,
+        sub: `进度 ${project.progress}% · Bug ${project.bugCount} · 债 ${Math.round(project.techDebt)}`,
+        action: 'goto', page: 'PROJECT', btn: '进入项目',
+      });
+    }
+
+    // CAREER：晋升差距
+    try {
+      const promo = f.promotionV2.check();
+      if (promo) {
+        const gaps: string[] = [];
+        const career = f.career.current();
+        if (!promo.cultivationOk && career) {
+          const rest = Math.max(0, (career.requiredExp ?? 0) - player.cultivationExp);
+          if (rest > 0) gaps.push(`修为 ${rest}`);
+        }
+        if (promo.workdaysRequired > 0 && promo.workdaysCurrent < promo.workdaysRequired) {
+          gaps.push(`工作 ${promo.workdaysRequired - promo.workdaysCurrent} 天`);
+        }
+        if (!promo.mindOk) gaps.push('道心 30');
+        goals.push({
+          layer: 'CAREER', priority: 3,
+          icon: '🏯',
+          text: gaps.length ? `距离晋升还差：${gaps.join(' · ')}` : '晋升条件已达成！',
+          sub: '渡劫答辩三题，60 分通过',
+          action: 'goto', page: 'PROMOTION', btn: gaps.length ? '查看差距' : '参加答辩',
+        });
+      }
+    } catch { /* noop */ }
+
+    // PROFESSION
+    try {
+      const level = f.profession.level();
+      const toNext = f.profession.expToNext();
+      const def = f.profession.def();
+      if (toNext > 0) {
+        goals.push({
+          layer: 'PROFESSION', priority: 2,
+          icon: '🗡️', text: `${def.name} ${def.title} Lv${level}`,
+          sub: `经验 ${f.profession.exp()}/${f.profession.exp() + toNext} · 完成 Java 任务可升级`,
+          action: 'goto', page: 'TASKS', btn: '做职业任务',
+        });
+      }
+    } catch { /* noop */ }
+
+    // LONG_TERM
+    try {
+      const career = f.career.current();
+      const next = f.career.get((career ? career.level : 1) + 2) ?? null;
+      goals.push({
+        layer: 'LONG_TERM', priority: 1,
+        icon: '🌤️',
+        text: `长期目标：${next ? next.name : '更高职级'}`,
+        sub: `当前职级进度 ${player.careerLevel} / 10`,
+        action: 'none', btn: '脚踏实地',
+      });
+    } catch { /* noop */ }
+
+    return goals.sort((a, b) => b.priority - a.priority);
+  }
+
+  /** NOW 层单独输出（首页横幅）。 */
+  public nowGoal(): GoalView | null {
+    return this.goals()[0] ?? null;
+  }
+}

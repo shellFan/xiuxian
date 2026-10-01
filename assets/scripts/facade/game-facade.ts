@@ -227,6 +227,42 @@ export class GameFacade {
   public chooseProfession(id: string) { const r = this.context.profession.choose(id); if (r.success) this.save(); return r; }
   public rechooseProfessionOnce(id: string) { const r = this.context.profession.rechooseOnce(id); if (r.success) this.save(); return r; }
   public queryProfessionLevel() { return { level: this.context.profession.level(), exp: this.context.profession.exp(), toNext: this.context.profession.expToNext() }; }
+  // ── V5.6 Workday Director ──
+  public queryTodayCapacity() { return this.context.dailyPlanner.capacity(); }
+  public queryPlanVsReality() { return this.context.dailyPlanner.planVsReality(); }
+  public queryGoals() { return this.context.goalDirector.goals(); }
+  public queryNowGoal() { return this.context.goalDirector.nowGoal(); }
+  public queryTaskRuntime(taskId: string) {
+    const task = this.context.player.activeTasks.find((t) => t.taskId === taskId);
+    if (!task) return null;
+    return {
+      stage: task.runtimeStage ?? 'ACTIVE',
+      progress: this.context.taskRuntimeDirector.progress(task, this.context.clockV2.now()),
+      remainingMinutes: Math.round(this.context.taskRuntimeDirector.remainingSeconds(task, this.context.clockV2.now()) / 60),
+      blockedReason: task.blockedReason,
+      interruptionCount: task.interruptionCount ?? 0,
+      foreground: task.foreground !== false,
+    };
+  }
+  public pauseTask(taskId: string) { this.context.taskRuntimeDirector.pauseTask(taskId, '玩家手动暂停'); this.save(); }
+  public resumeTask(taskId: string) { this.context.taskRuntimeDirector.resumeTask(taskId); this.save(); }
+  public switchTask(taskId: string) { const r = this.context.taskRuntimeDirector.switchTask(taskId); this.save(); return r; }
+  public resolveTaskRuntimeEvent(messageId: string, replyId: string) {
+    const message = this.context.player.messages.find((m) => m.id === messageId);
+    if (message?.replyEventId && this.context.taskRuntimeDirector.hasPendingEventForEvent(message.replyEventId)) {
+      return this.context.taskRuntimeDirector.resolveByMessageReplyEvent(message.replyEventId, replyId);
+    }
+    return this.replyToMessage(messageId, replyId);
+  }
+  public queryPendingProjectDecisions() {
+    const project = this.context.projectService.current();
+    if (!project) return [];
+    const victory = this.context.battle.finished()?.status === 'VICTORY';
+    return this.context.projectService.decisions(victory).map((d) => ({ id: d.id, label: d.label, note: d.note }));
+  }
+  public resolveProjectDecision(decisionId: string) { return this.context.projectService.resolveDecision(decisionId); }
+  public queryProject() { return this.context.projectService.current(); }
+  public queryFatigue() { return this.context.player.fatigue ?? 0; }
   /** 待进入的事故副本（消息链生成的线上禁地，§31）。 */
   public queryPendingIncidentDungeon(): { readonly incidentType: string } | null {
     const pending = (this.context.player as unknown as { pendingIncidentDungeon?: string }).pendingIncidentDungeon;
