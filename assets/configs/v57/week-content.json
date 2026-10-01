@@ -1,0 +1,113 @@
+{
+  "firstWeekStory": {
+    "1": {
+      "id": "week1_mon",
+      "theme": "初入仙门",
+      "steps": [
+        { "id": "w1m_intro", "atMinute": 545, "conversation": "conv_boss", "actor": "BOSS", "priority": "NORMAL", "sender": "领导", "text": "今天第一天，先熟悉下环境。中午自我介绍一下。", "replies": [ { "id": "a", "text": "认真准备自我介绍", "effects": { "performance": 1 } }, { "id": "b", "text": "摸过去就行", "effects": { "mind": 1 } } ] },
+        { "id": "w1m_first_task", "atMinute": 660, "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "sender": "系统", "text": "你接到了第一个正式任务。万事开头难。", "replies": [ { "id": "a", "text": "全力以赴", "effects": { "performance": 1 } } ] },
+        { "id": "w1m_first_bug", "atMinute": 930, "conversation": "conv_tester", "actor": "TESTER", "priority": "NORMAL", "sender": "测试仙子", "text": "你的代码有个小Bug，别慌，都这样过来的。", "replies": [ { "id": "a", "text": "马上修复（认真复盘）", "effects": { "performance": 1, "reality": { "text": "为第一天的小Bug复盘了20分钟", "kind": "WORK" } } }, { "id": "b", "text": "「不可能，我本地是好的」", "effects": { "mind": -1, "performance": -1 } } ] },
+        { "id": "w1m_offwork", "atMinute": 1075, "conversation": "conv_veteran", "actor": "VETERAN", "priority": "NORMAL", "sender": "老油条", "text": "第一天居然准时下班了？要么你是神仙，要么……明天再说。", "replies": [ { "id": "a", "text": "「明天见！」", "effects": { "mind": 2 } } ] }
+      ]
+    },
+    "2": {
+      "id": "week1_tue",
+      "theme": "这个顺手帮一下",
+      "steps": [
+        { "id": "w1t_favor", "atMinute": 610, "conversation": "conv_veteran", "actor": "VETERAN", "priority": "NORMAL", "sender": "老油条", "text": "兄弟，帮我看一下这个问题，就五分钟。", "replies": [ { "id": "a", "text": "帮忙（实际40分钟）", "effects": { "npc": [["VETERAN", 3]], "mind": -1, "reality": { "text": "帮老油条看了『五分钟』问题（40分钟）", "kind": "FAVOR" } } }, { "id": "b", "text": "「我手头有活」", "effects": { "npc": [["VETERAN", -2]], "mind": 1 } } ] },
+        { "id": "w1t_favor2", "atMinute": 960, "conversation": "conv_junior", "actor": "JUNIOR", "priority": "NORMAL", "sender": "新人", "text": "前辈，这个工具怎么配啊？文档我看不懂。", "replies": [ { "id": "a", "text": "耐心教他", "effects": { "npc": [["JUNIOR", 2]], "performance": 1, "reality": { "text": "教新人配工具（20分钟）", "kind": "FAVOR" } } }, { "id": "b", "text": "「看文档」", "effects": { "npc": [["JUNIOR", -1]] } } ] }
+      ]
+    },
+    "3": {
+      "id": "week1_wed",
+      "theme": "需求真的没变",
+      "steps": [
+        { "id": "w1w_req", "atMinute": 640, "conversation": "conv_product", "actor": "PRODUCT", "priority": "HIGH", "sender": "产品真君", "text": "需求没变，只是实现方式调整了一下。你之前做的那版……推倒吧。", "replies": [ { "id": "a", "text": "要求更新需求文档", "tag": "PROFESSIONAL", "effects": { "evidence": [["REQUIREMENT", "周三需求变更记录"]], "reality": { "text": "要求产品补需求变更文档（15分钟）", "kind": "CHANGE" } } }, { "id": "b", "text": "口头答应", "effects": { "mind": -2, "reality": { "text": "默默接受了推倒重来（45分钟）", "kind": "CHANGE" } } }, { "id": "c", "text": "找领导确认优先级", "effects": { "npc": [["BOSS", -1]], "evidence": [["REQUIREMENT", "领导优先级确认记录"]] } } ] },
+        { "id": "w1w_evidence", "atMinute": 990, "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "sender": "系统", "text": "你保存的需求文档已经攒了三版。证据，是牛马唯一的护身符。", "replies": [ { "id": "a", "text": "（默默整理证据链）", "effects": { "evidence": [["REQUIREMENT", "需求文档三版存档"]] } } ] }
+      ]
+    },
+    "4": {
+      "id": "week1_thu",
+      "theme": "线上事故",
+      "steps": [
+        { "id": "w1th_alarm", "atMinute": 650, "conversation": "conv_incident", "actor": "OPS", "priority": "CRITICAL", "sender": "运维老哥", "text": "线上事故！核心接口500，拉应急群！", "replies": [ { "id": "a", "text": "立即响应", "effects": { "performance": 2, "reality": { "text": "参与线上事故应急（40分钟）", "kind": "INCIDENT" } } }, { "id": "b", "text": "等定位结果", "effects": { "performance": -1 } } ] },
+        { "id": "w1th_postmortem", "atMinute": 1020, "conversation": "conv_boss", "actor": "BOSS", "priority": "HIGH", "sender": "领导", "text": "复盘开始。我们不追责——那么，这段代码是谁写的？", "replies": [ { "id": "a", "text": "主动认领并给改进方案", "effects": { "performance": 2, "mind": -1 } }, { "id": "b", "text": "拿出时间线证据自证", "effects": { "performance": 1 } }, { "id": "c", "text": "沉默", "effects": { "performance": -2, "mind": -2 } } ] }
+      ]
+    },
+    "5": {
+      "id": "week1_fri",
+      "theme": "17:55",
+      "steps": [
+        { "id": "w1f_typing", "atMinute": 1071, "conversation": "conv_boss", "actor": "BOSS", "priority": "HIGH", "sender": "领导", "text": "（老板正在输入……）", "replies": [ { "id": "a", "text": "（屏住呼吸）", "effects": {} } ] }
+      ]
+    },
+    "6": {
+      "id": "week1_sat",
+      "theme": "周末（有概率被召回）",
+      "steps": [
+        { "id": "w1sa_call", "atMinute": 720, "conversation": "conv_boss", "actor": "BOSS", "priority": "NORMAL", "sender": "领导", "text": "（周六下午，手机震动）「在吗？」", "replies": [ { "id": "a", "text": "回消息：马上上线", "effects": { "mind": -3, "overtime": { "source": "BOSS", "free": true, "seconds": 7200 } } }, { "id": "b", "text": "关静音，继续睡", "effects": { "npc": [["BOSS", -1]], "mind": 3 } } ] }
+      ]
+    },
+    "7": {
+      "id": "week1_sun",
+      "theme": "周结算",
+      "steps": [
+        { "id": "w1su_settle", "atMinute": 600, "conversation": "conv_system", "actor": "SYSTEM", "priority": "NORMAL", "sender": "系统", "text": "第一周结束了。本周牛马周报已生成。", "replies": [ { "id": "a", "text": "查看周报", "effects": {} } ] }
+      ]
+    }
+  },
+  "weeklyHooks": [
+    "支付系统将在下周一上线。",
+    "老板似乎准备找你聊晋升的事。",
+    "测试仙子最近对你的态度有所改变。",
+    "祖传后台系统的监控曲线最近有点不对劲。",
+    "产品真君又攒了一份『小』需求。",
+    "你的职业经验距离升级只差一步了。"
+  ],
+  "dailySituations": [
+    { "id": "sit_normal", "name": "平常日", "desc": "普普通通的一天。", "weight": 30, "interruptBudget": [3, 6], "effects": {} },
+    { "id": "sit_chill", "name": "清闲日", "desc": "没有会，没有deadline，世界难得安静。", "weight": 12, "interruptBudget": [1, 3], "effects": { "mindRecoveryMul": 1.3 } },
+    { "id": "sit_meeting_hell", "name": "会议地狱", "desc": "今天3~4场会，你的工位空了大半。", "weight": 8, "interruptBudget": [6, 10], "effects": { "meetingMinutes": 120 } },
+    { "id": "sit_incident_day", "name": "事故之日", "desc": "监控曲线一早就开始跳舞。", "weight": 6, "interruptBudget": [6, 10], "effects": { "incidentChanceMul": 1.8 } },
+    { "id": "sit_deadline_day", "name": "DeadLine日", "desc": "今天不交付，明天就得走人（不是辞职那种）。", "weight": 8, "interruptBudget": [4, 7], "effects": { "taskEfficiency": 0.1, "fatigueGainMul": 1.2 } },
+    { "id": "sit_boss_present", "name": "老板亲临", "desc": "大老板今天巡场，所有人坐姿+200%。", "weight": 5, "interruptBudget": [4, 7], "effects": { "performanceMul": 1.1, "fishingRiskMul": 1.5 } },
+    { "id": "sit_client_visit", "name": "客户来访", "desc": "客户来公司参观，全员进入表演模式。", "weight": 5, "interruptBudget": [4, 7], "effects": { "performanceMul": 1.05 } },
+    { "id": "sit_release_day", "name": "发布日", "desc": "今天上线。技术债越高，今天越刺激。", "weight": 8, "interruptBudget": [6, 10], "effects": { "incidentChanceMul": 1.5 } },
+    { "id": "sit_payday", "name": "发薪日", "desc": "工资到账，苦难有了回报（的一部分）。", "weight": 6, "interruptBudget": [3, 6], "effects": { "mindRecoveryMul": 1.2 } },
+    { "id": "sit_friday", "name": "星期五", "desc": "熬过今天就是周末。", "weight": 6, "interruptBudget": [3, 6], "effects": { "mindRecoveryMul": 1.1 } },
+    { "id": "sit_monday", "name": "星期一", "desc": "周一的精神状态堪比渡劫失败。", "weight": 6, "interruptBudget": [3, 6], "effects": { "fatigueGainMul": 1.15 } },
+    { "id": "sit_team_building", "name": "团建日", "desc": "占用周末的『福利』，名为团建，实为加班。", "weight": 4, "interruptBudget": [2, 4], "effects": { "mindChange": -2 } }
+  ],
+  "weeklyGoalPool": [
+    { "id": "wg_project_stage", "name": "推进 2 个项目阶段", "type": "PROJECT_STAGE", "target": 2, "reward": { "professionExp": 60 } },
+    { "id": "wg_boss", "name": "击败 1 个 Boss", "type": "BOSS_KILL", "target": 1, "reward": { "professionExp": 50 } },
+    { "id": "wg_ontime", "name": "准点下班 2 天", "type": "ONTIME_DAYS", "target": 2, "reward": { "professionExp": 40 } },
+    { "id": "wg_techdebt", "name": "技术债下降 10", "type": "TECH_DEBT_DOWN", "target": 10, "reward": { "professionExp": 50 } },
+    { "id": "wg_help", "name": "帮助同事 2 次", "type": "HELP_COUNT", "target": 2, "reward": { "professionExp": 40 } },
+    { "id": "wg_prof_tasks", "name": "完成 5 个职业任务", "type": "PROFESSION_TASKS", "target": 5, "reward": { "professionExp": 60 } },
+    { "id": "wg_loot", "name": "获得 3 件新装备", "type": "LOOT_COUNT", "target": 3, "reward": { "professionExp": 40 } },
+    { "id": "wg_evidence", "name": "收集 2 份证据", "type": "EVIDENCE_COUNT", "target": 2, "reward": { "professionExp": 40 } }
+  ],
+  "secretEvents": [
+    { "id": "sec_ontime_immortal", "name": "准点下班仙尊", "condition": { "type": "ONTIME_STREAK", "days": 5 }, "text": "连续5天17:55前消失，老板已经开始怀疑你发现了公司的传送阵。", "reward": { "professionExp": 100, "spiritStones": 50 } },
+    { "id": "sec_drink_buddy", "name": "老油条的酒局", "condition": { "type": "HELP_NPC", "npcId": "VETERAN", "count": 3 }, "text": "老油条难得请客：『走，楼下撸串，我请。今天不聊工作。』", "reward": { "mind": 15, "npc": [["VETERAN", 5]] } },
+    { "id": "sec_evidence_master", "name": "证据链大师", "condition": { "type": "EVIDENCE_TOTAL", "count": 15 }, "text": "你的需求文档柜比产品经理的还厚。没人敢随便甩锅给你了。", "reward": { "professionExp": 80 } },
+    { "id": "sec_legacy_awakens", "name": "祖传代码老祖苏醒", "condition": { "type": "TECH_DEBT", "value": 100 }, "text": "技术债突破100。祖传后台深夜发出低语：『该……还债了。』", "reward": { "professionExp": 60, "incidentRisk": 10 } },
+    { "id": "sec_cyber_merit", "name": "赛博功德", "condition": { "type": "WEEKEND_ONLINE", "days": 2 }, "text": "周末凌晨还在线。系统授予你『赛博功德+1』，虽然没人看得见。", "reward": { "professionExp": 50 } },
+    { "id": "sec_boss_slayer", "name": "屠龙者", "condition": { "type": "BOSS_KILLS", "count": 10 }, "text": "十个Boss倒在你剑下。它们生前的遗言高度一致：『这不是Bug，是特性。』", "reward": { "professionExp": 120 } },
+    { "id": "sec_fish_king", "name": "摸鱼之王", "condition": { "type": "FISH_TOTAL_HOURS", "hours": 20 }, "text": "累计摸鱼20小时。茶水间为你立了一座无形的碑。", "reward": { "mind": 20 } },
+    { "id": "sec_blame_returner", "name": "反甩锅宗师", "condition": { "type": "BLAME_RETURNED", "count": 5 }, "text": "五次精准反杀。项目组的锅现在见到你会自动绕道。", "reward": { "professionExp": 80 } }
+  ],
+  "companyProfiles": [
+    { "id": "COMP_MIN_PRIVATE", "name": "民企宗", "desc": "灵活，流程少，加班概率高。老板的想法一天三变。", "overtimeChanceMul": 1.2, "meetingMinutesMul": 0.8, "salaryMul": 1.0, "default": true },
+    { "id": "COMP_FOREIGN", "name": "外企宗", "desc": "会议多，加班相对少，飞剑偶尔说英文。", "overtimeChanceMul": 0.7, "meetingMinutesMul": 1.4, "salaryMul": 1.2 },
+    { "id": "COMP_STATE", "name": "国企宗", "desc": "流程完备，材料为王，审批如渡劫。", "overtimeChanceMul": 0.6, "meetingMinutesMul": 1.2, "salaryMul": 0.9 },
+    { "id": "COMP_BIGTECH", "name": "大厂宗", "desc": "项目多，技术复杂，绩效压力高。", "overtimeChanceMul": 1.3, "meetingMinutesMul": 1.0, "salaryMul": 1.35 }
+  ],
+  "professionTitles": {
+    "JAVA_BACKEND": ["实习剑修", "初级代码剑修", "代码剑修", "资深代码剑修", "JVM尊者", "架构剑圣", "代码剑仙"],
+    "FRONTEND": ["切图学徒", "界面符师", "界面符修", "资深符修", "CSS阵法宗师", "像素剑圣", "界面符仙"],
+    "QA": ["提单童子", "找茬行者", "天劫审判官", "资深审判官", "质量门神", "Bug猎人王", "审判仙尊"],
+    "DEVOPS": ["值班新丁", "救火队员", "云巅阵法师", "资深阵法师", "SRE尊者", "稳定性剑圣", "云巅老祖"]
+  }
+}

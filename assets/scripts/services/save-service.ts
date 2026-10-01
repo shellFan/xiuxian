@@ -1,5 +1,5 @@
 import type { ProjectState } from '../model/save-data';
-import { CURRENT_SAVE_VERSION, type ActiveMessageChainState, type DailyRealityEntryState, type FirstWeekStoryState, type GameSaveData, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type WorkerSaveData } from '../model/save-data';
+import { CURRENT_SAVE_VERSION, type ActiveMessageChainState, type DailyRealityEntryState, type FirstWeekStoryState, type GameSaveData, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type WorkerSaveData, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState } from '../model/save-data';
 import { PlayerData } from '../model/player-data';
 import type { StorageAdapter } from './storage-adapter';
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
@@ -226,14 +226,102 @@ function migrate(raw: unknown, now: number): GameSaveData {
     // ── V5.6（saveVersion 11）：fatigue/project 归一化，旧档安全默认（§25） ──
     fatigue: normalizeFatigue(raw.fatigue),
     project: normalizeProject(raw.project),
-    // ── V5.5 职业（§14：旧档无 profession 默认 JAVA_BACKEND；显式字符串才保留） ──
+    // ── V5.5 职业（§14：v10 前旧档默认 JAVA_BACKEND；新档保持未选 → 职业选择首屏） ──
     profession: typeof raw.profession === 'string' && raw.profession.length > 0 && raw.profession.length <= 32
       ? raw.profession
-      : 'JAVA_BACKEND',
+      : ((isFiniteNumber(raw.saveVersion) && raw.saveVersion >= 1 && raw.saveVersion < 10) ? 'JAVA_BACKEND' : undefined),
     professionExp: isNonNegativeSafeInteger(raw.professionExp) ? raw.professionExp : 0,
     professionFreeRechooseUsed: raw.professionFreeRechooseUsed === true,
+    // ── V5.7（saveVersion 12）：深度与留存字段，旧档安全默认 ──
+    skillEvolutions: sanitizeStringRecord(raw.skillEvolutions),
+    synergyDiscovered: isStringArray(raw.synergyDiscovered) ? raw.synergyDiscovered.slice(0, 64) : [],
+    npcMemories: normalizeNpcMemories(raw.npcMemories),
+    weekStory: normalizeWeekStory(raw.weekStory),
+    weeklyGoals: normalizeWeeklyGoals(raw.weeklyGoals),
+    projectHistory: normalizeProjectHistory(raw.projectHistory),
+    codex: normalizeCodex(raw.codex),
+    bossPity: sanitizeNumberRecord(raw.bossPity),
+    dailySituation: isString(raw.dailySituation) && raw.dailySituation.length <= 48 ? raw.dailySituation : 'sit_normal',
+    companyProfile: isString(raw.companyProfile) && raw.companyProfile.length <= 48 ? raw.companyProfile : 'COMP_MIN_PRIVATE',
+    secretEventsDone: isStringArray(raw.secretEventsDone) ? raw.secretEventsDone.slice(0, 64) : [],
+    weekSettlementReady: raw.weekSettlementReady === true,
+    fatigueForcedRest: raw.fatigueForcedRest === true,
+    professionPerksGranted: isStringArray(raw.professionPerksGranted) ? raw.professionPerksGranted.slice(0, 128) : [],
   });
   return merged;
+}
+
+// ── V5.7 归一化 ──
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(isString);
+}
+
+function sanitizeStringRecord(value: unknown): Record<string, string> {
+  if (!isRecord(value)) return {};
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(value)) {
+    if (isString(k) && isString(v) && k.length <= 64 && v.length <= 64) out[k] = v;
+  }
+  return out;
+}
+
+function sanitizeNumberRecord(value: unknown): Record<string, number> {
+  if (!isRecord(value)) return {};
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(value)) {
+    if (isString(k) && isFiniteNumber(v) && v >= 0) out[k] = Math.floor(v);
+  }
+  return out;
+}
+
+function normalizeNpcMemories(value: unknown): Record<string, NpcMemoryState> {
+  if (!isRecord(value)) return {};
+  const out: Record<string, import('../model/save-data').NpcMemoryState> = {};
+  for (const [npcId, mem] of Object.entries(value)) {
+    if (!isRecord(mem) || !isStringArray(mem.flags) || !Array.isArray(mem.entries)) continue;
+    const entries = (mem.entries as unknown[]).filter((e): e is { dayIndex: number; kind: string; text: string } =>
+      isRecord(e) && isFiniteNumber(e.dayIndex) && isString(e.kind) && isString(e.text)).slice(-12)
+      .map((e) => ({ dayIndex: e.dayIndex, kind: e.kind, text: e.text.slice(0, 160) }));
+    out[npcId] = { flags: mem.flags.slice(0, 16), entries };
+  }
+  return out;
+}
+
+function normalizeWeekStory(value: unknown): WeekStoryState {
+  if (!isRecord(value)) return { weekIndex: 1, doneSteps: [] };
+  return {
+    weekIndex: isFiniteNumber(value.weekIndex) && value.weekIndex >= 1 ? Math.floor(value.weekIndex) : 1,
+    doneSteps: isStringArray(value.doneSteps) ? value.doneSteps.slice(0, 64) : [],
+  };
+}
+
+function normalizeWeeklyGoals(value: unknown): WeeklyGoalsState | null {
+  if (!isRecord(value) || !isStringArray(value.goalIds) || value.goalIds.length === 0) return null;
+  return {
+    weekIndex: isFiniteNumber(value.weekIndex) ? Math.max(1, Math.floor(value.weekIndex)) : 1,
+    goalIds: value.goalIds.slice(0, 8),
+    progress: sanitizeNumberRecord(value.progress),
+    claimed: value.claimed === true,
+  };
+}
+
+function normalizeProjectHistory(value: unknown): ProjectHistoryRecordState[] {
+  if (!Array.isArray(value)) return [];
+  return (value as unknown[]).filter((item): item is ProjectHistoryRecordState => {
+    if (!isRecord(item) || !isString(item.id) || !isString(item.name) || !isString(item.ending)) return false;
+    return isFiniteNumber(item.completedDayIndex) && isFiniteNumber(item.techDebt);
+  }).slice(-40).map((item) => ({ ...item }));
+}
+
+function normalizeCodex(value: unknown): CodexState {
+  if (!isRecord(value)) return { monsters: [], bosses: [], equipment: [], events: [] };
+  return {
+    monsters: isStringArray(value.monsters) ? value.monsters.slice(0, 256) : [],
+    bosses: isStringArray(value.bosses) ? value.bosses.slice(0, 64) : [],
+    equipment: isStringArray(value.equipment) ? value.equipment.slice(0, 256) : [],
+    events: isStringArray(value.events) ? value.events.slice(0, 128) : [],
+  };
 }
 
 // ── V5 飞剑传书 save v9 迁移（§49/§96：旧档无损加载，messages 初始化为空） ──

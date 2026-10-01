@@ -29,8 +29,8 @@ export const MODE_RULES: Record<WorkMode, {
   cultivationMul: number;
   mindPerHour: number;
 }> = {
-  WORK: { secondsKey: 'workSeconds', salaryMul: 1.3, cultivationMul: 0.8, mindPerHour: -12 },
-  FISHING: { secondsKey: 'fishingSeconds', salaryMul: 0.6, cultivationMul: 1.1, mindPerHour: 36 },
+  WORK: { secondsKey: 'workSeconds', salaryMul: 1.3, cultivationMul: 0.8, mindPerHour: -10 },
+  FISHING: { secondsKey: 'fishingSeconds', salaryMul: 0.6, cultivationMul: 1.1, mindPerHour: 40 },
   CULTIVATING: { secondsKey: 'cultivatingSeconds', salaryMul: 0.3, cultivationMul: 2.0, mindPerHour: -9 },
   SOCIAL: { secondsKey: 'socialSeconds', salaryMul: 0.5, cultivationMul: 0.6, mindPerHour: 24 },
 };

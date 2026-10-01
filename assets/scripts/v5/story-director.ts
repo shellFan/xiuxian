@@ -141,6 +141,17 @@ export class StoryDirectorService {
     if (effects.npc) {
       for (const [npcId, delta] of effects.npc) {
         this.context.npc.change(npcId as never, delta);
+        // V5.7：NPC 记忆 + 周目标（帮助同事）
+        try {
+          if (delta >= 2) {
+            this.context.npcMemory.remember(npcId, 'HELPED_ME', '剧情事件中你帮了他');
+            const stats = this.context.player.lifetimeStats;
+            this.context.player.lifetimeStats = { ...stats, helpsGiven: (stats.helpsGiven ?? 0) + 1 };
+            this.context.week.recordProgress('HELP_COUNT', 1);
+          } else if (delta <= -2) {
+            this.context.npcMemory.remember(npcId, 'REFUSED_ME', '剧情事件中你拒绝了他');
+          }
+        } catch { /* V5.7 hooks must not block message flow */ }
       }
     }
     if (effects.memory) {
@@ -151,6 +162,7 @@ export class StoryDirectorService {
     if (effects.evidence) {
       for (const [type, label] of effects.evidence) {
         this.context.evidence.grant(type as never, label);
+        try { this.context.week.recordProgress('EVIDENCE_COUNT', 1); } catch { /* goal hook */ }
         this.context.events.emit('evidenceGained', { type, label });
       }
     }

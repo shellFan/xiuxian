@@ -1,0 +1,2833 @@
+{
+  "monsters": [
+    {
+      "id": "mon_full_gc",
+      "name": "Full GC怨灵",
+      "tier": "NORMAL",
+      "hp": 46,
+      "attack": 7,
+      "intervalSec": 2.2,
+      "exp": 12
+    },
+    {
+      "id": "mon_thread_pool_burst",
+      "name": "线程池爆满兽",
+      "tier": "NORMAL",
+      "hp": 40,
+      "attack": 8,
+      "intervalSec": 1.8,
+      "exp": 11
+    },
+    {
+      "id": "mon_tx_rollback",
+      "name": "事务回滚鬼",
+      "tier": "NORMAL",
+      "hp": 44,
+      "attack": 7,
+      "intervalSec": 2,
+      "exp": 12
+    },
+    {
+      "id": "mon_conn_pool_dry",
+      "name": "连接池枯竭怪",
+      "tier": "NORMAL",
+      "hp": 38,
+      "attack": 7,
+      "intervalSec": 1.9,
+      "exp": 10
+    },
+    {
+      "id": "mon_api_timeout",
+      "name": "接口超时幽灵",
+      "tier": "NORMAL",
+      "hp": 34,
+      "attack": 8,
+      "intervalSec": 1.7,
+      "exp": 10
+    },
+    {
+      "id": "mon_idempotent_clone",
+      "name": "幂等复制体",
+      "tier": "NORMAL",
+      "hp": 30,
+      "attack": 6,
+      "intervalSec": 1.5,
+      "exp": 9
+    },
+    {
+      "id": "mon_serial_err",
+      "name": "序列化异常灵",
+      "tier": "NORMAL",
+      "hp": 28,
+      "attack": 6,
+      "intervalSec": 1.6,
+      "exp": 8
+    },
+    {
+      "id": "mon_dist_lock_ghost",
+      "name": "分布式锁幻影",
+      "tier": "NORMAL",
+      "hp": 36,
+      "attack": 8,
+      "intervalSec": 2,
+      "exp": 11
+    },
+    {
+      "id": "mon_config_lost",
+      "name": "配置中心失联妖",
+      "tier": "NORMAL",
+      "hp": 32,
+      "attack": 7,
+      "intervalSec": 1.8,
+      "exp": 9
+    },
+    {
+      "id": "mon_feign_timeout",
+      "name": "Feign超时兽",
+      "tier": "NORMAL",
+      "hp": 35,
+      "attack": 8,
+      "intervalSec": 1.8,
+      "exp": 10
+    },
+    {
+      "id": "mon_spring_circle",
+      "name": "Spring循环依赖蛇",
+      "tier": "NORMAL",
+      "hp": 42,
+      "attack": 7,
+      "intervalSec": 2.2,
+      "exp": 12
+    },
+    {
+      "id": "mon_data_corrupt",
+      "name": "线上数据错乱魔",
+      "tier": "NORMAL",
+      "hp": 48,
+      "attack": 9,
+      "intervalSec": 2.4,
+      "exp": 13
+    },
+    {
+      "id": "mon_jvm_stack",
+      "name": "栈溢出深渊",
+      "tier": "NORMAL",
+      "hp": 40,
+      "attack": 8,
+      "intervalSec": 2,
+      "exp": 11
+    },
+    {
+      "id": "mon_elite_gc",
+      "name": "GC停顿妖将",
+      "tier": "ELITE",
+      "hp": 130,
+      "attack": 12,
+      "intervalSec": 2.4,
+      "exp": 26,
+      "mechanic": "SLOW"
+    },
+    {
+      "id": "mon_white_screen_imp",
+      "name": "白屏妖",
+      "tier": "NORMAL",
+      "hp": 28,
+      "attack": 7,
+      "intervalSec": 1.6,
+      "exp": 9
+    },
+    {
+      "id": "mon_cors_demon",
+      "name": "CORS跨域魔",
+      "tier": "NORMAL",
+      "hp": 34,
+      "attack": 8,
+      "intervalSec": 1.8,
+      "exp": 10
+    },
+    {
+      "id": "mon_css_misalign",
+      "name": "CSS错位怪",
+      "tier": "NORMAL",
+      "hp": 26,
+      "attack": 6,
+      "intervalSec": 1.5,
+      "exp": 8
+    },
+    {
+      "id": "mon_safari_compat",
+      "name": "Safari兼容兽",
+      "tier": "NORMAL",
+      "hp": 38,
+      "attack": 8,
+      "intervalSec": 2,
+      "exp": 11
+    },
+    {
+      "id": "mon_node_version",
+      "name": "Node版本冲突魔",
+      "tier": "NORMAL",
+      "hp": 30,
+      "attack": 7,
+      "intervalSec": 1.7,
+      "exp": 9
+    },
+    {
+      "id": "mon_npm_hell",
+      "name": "NPM依赖地狱",
+      "tier": "NORMAL",
+      "hp": 44,
+      "attack": 8,
+      "intervalSec": 2.1,
+      "exp": 12
+    },
+    {
+      "id": "mon_webpack_blast",
+      "name": "Webpack爆炸兽",
+      "tier": "NORMAL",
+      "hp": 40,
+      "attack": 9,
+      "intervalSec": 1.9,
+      "exp": 11
+    },
+    {
+      "id": "mon_vite_cache",
+      "name": "Vite缓存妖",
+      "tier": "NORMAL",
+      "hp": 28,
+      "attack": 7,
+      "intervalSec": 1.6,
+      "exp": 9
+    },
+    {
+      "id": "mon_promise_uncaught",
+      "name": "Promise未捕获灵",
+      "tier": "NORMAL",
+      "hp": 32,
+      "attack": 8,
+      "intervalSec": 1.7,
+      "exp": 10
+    },
+    {
+      "id": "mon_rerender_loop",
+      "name": "无限重渲染魔",
+      "tier": "NORMAL",
+      "hp": 42,
+      "attack": 8,
+      "intervalSec": 2,
+      "exp": 12
+    },
+    {
+      "id": "mon_memory_leak_fe",
+      "name": "内存泄漏兽",
+      "tier": "NORMAL",
+      "hp": 40,
+      "attack": 7,
+      "intervalSec": 2.1,
+      "exp": 11
+    },
+    {
+      "id": "mon_first_paint_turtle",
+      "name": "首屏加载龟",
+      "tier": "NORMAL",
+      "hp": 50,
+      "attack": 6,
+      "intervalSec": 2.6,
+      "exp": 13
+    },
+    {
+      "id": "mon_field_mutation",
+      "name": "接口字段突变妖",
+      "tier": "NORMAL",
+      "hp": 30,
+      "attack": 8,
+      "intervalSec": 1.6,
+      "exp": 10
+    },
+    {
+      "id": "mon_cdn_ghost",
+      "name": "CDN缓存幻影",
+      "tier": "NORMAL",
+      "hp": 26,
+      "attack": 6,
+      "intervalSec": 1.5,
+      "exp": 8
+    },
+    {
+      "id": "mon_zindex_lord",
+      "name": "Z-Index天尊",
+      "tier": "ELITE",
+      "hp": 120,
+      "attack": 12,
+      "intervalSec": 2.2,
+      "exp": 25,
+      "mechanic": "SUMMON_SMALL"
+    },
+    {
+      "id": "mon_flaky_bug",
+      "name": "偶现Bug妖",
+      "tier": "NORMAL",
+      "hp": 30,
+      "attack": 7,
+      "intervalSec": 1.7,
+      "exp": 9
+    },
+    {
+      "id": "mon_not_reproducible",
+      "name": "无法复现魔",
+      "tier": "NORMAL",
+      "hp": 36,
+      "attack": 8,
+      "intervalSec": 1.9,
+      "exp": 11
+    },
+    {
+      "id": "mon_env_mismatch",
+      "name": "环境不一致兽",
+      "tier": "NORMAL",
+      "hp": 34,
+      "attack": 7,
+      "intervalSec": 1.8,
+      "exp": 10
+    },
+    {
+      "id": "mon_edge_case",
+      "name": "边界条件鬼",
+      "tier": "NORMAL",
+      "hp": 28,
+      "attack": 7,
+      "intervalSec": 1.5,
+      "exp": 9
+    },
+    {
+      "id": "mon_dirty_data",
+      "name": "脏数据妖",
+      "tier": "NORMAL",
+      "hp": 32,
+      "attack": 8,
+      "intervalSec": 1.7,
+      "exp": 10
+    },
+    {
+      "id": "mon_test_env_crash",
+      "name": "测试环境崩坏魔",
+      "tier": "NORMAL",
+      "hp": 42,
+      "attack": 8,
+      "intervalSec": 2,
+      "exp": 12
+    },
+    {
+      "id": "mon_autotest_fail",
+      "name": "自动化脚本失败兽",
+      "tier": "NORMAL",
+      "hp": 38,
+      "attack": 8,
+      "intervalSec": 1.9,
+      "exp": 11
+    },
+    {
+      "id": "mon_req_scope_change",
+      "name": "需求口径变更妖",
+      "tier": "NORMAL",
+      "hp": 30,
+      "attack": 7,
+      "intervalSec": 1.7,
+      "exp": 9
+    },
+    {
+      "id": "mon_dev_says_fine",
+      "name": "「我这边没问题」怪",
+      "tier": "NORMAL",
+      "hp": 34,
+      "attack": 8,
+      "intervalSec": 1.8,
+      "exp": 10
+    },
+    {
+      "id": "mon_p0_abuse",
+      "name": "P0滥用魔",
+      "tier": "NORMAL",
+      "hp": 40,
+      "attack": 9,
+      "intervalSec": 2,
+      "exp": 12
+    },
+    {
+      "id": "mon_missed_test",
+      "name": "漏测风险兽",
+      "tier": "NORMAL",
+      "hp": 36,
+      "attack": 8,
+      "intervalSec": 1.9,
+      "exp": 11
+    },
+    {
+      "id": "mon_concurrency_ghost",
+      "name": "并发幽灵",
+      "tier": "NORMAL",
+      "hp": 38,
+      "attack": 8,
+      "intervalSec": 2,
+      "exp": 11
+    },
+    {
+      "id": "mon_weak_net",
+      "name": "弱网妖",
+      "tier": "NORMAL",
+      "hp": 28,
+      "attack": 6,
+      "intervalSec": 1.6,
+      "exp": 9
+    },
+    {
+      "id": "mon_timezone_bug",
+      "name": "时区Bug魔",
+      "tier": "NORMAL",
+      "hp": 32,
+      "attack": 7,
+      "intervalSec": 1.8,
+      "exp": 10
+    },
+    {
+      "id": "mon_data_pollution",
+      "name": "数据污染魔",
+      "tier": "NORMAL",
+      "hp": 44,
+      "attack": 8,
+      "intervalSec": 2.2,
+      "exp": 12
+    },
+    {
+      "id": "mon_mock_distort",
+      "name": "Mock失真妖",
+      "tier": "ELITE",
+      "hp": 115,
+      "attack": 11,
+      "intervalSec": 2.1,
+      "exp": 24,
+      "mechanic": "SUMMON_SMALL"
+    },
+    {
+      "id": "mon_cpu_100",
+      "name": "CPU100%魔",
+      "tier": "NORMAL",
+      "hp": 40,
+      "attack": 9,
+      "intervalSec": 1.9,
+      "exp": 11
+    },
+    {
+      "id": "mon_pod_crash",
+      "name": "Pod崩溃妖",
+      "tier": "NORMAL",
+      "hp": 36,
+      "attack": 8,
+      "intervalSec": 1.8,
+      "exp": 10
+    },
+    {
+      "id": "mon_container_oom",
+      "name": "容器OOM魔",
+      "tier": "NORMAL",
+      "hp": 42,
+      "attack": 8,
+      "intervalSec": 2,
+      "exp": 12
+    },
+    {
+      "id": "mon_alert_storm_beast",
+      "name": "报警风暴兽",
+      "tier": "NORMAL",
+      "hp": 46,
+      "attack": 9,
+      "intervalSec": 2.2,
+      "exp": 13
+    },
+    {
+      "id": "mon_dns_ghost",
+      "name": "DNS幽灵",
+      "tier": "NORMAL",
+      "hp": 28,
+      "attack": 7,
+      "intervalSec": 1.6,
+      "exp": 9
+    },
+    {
+      "id": "mon_net_jitter",
+      "name": "网络抖动妖",
+      "tier": "NORMAL",
+      "hp": 32,
+      "attack": 8,
+      "intervalSec": 1.7,
+      "exp": 10
+    },
+    {
+      "id": "mon_log_burst",
+      "name": "日志爆盘魔",
+      "tier": "NORMAL",
+      "hp": 38,
+      "attack": 8,
+      "intervalSec": 1.9,
+      "exp": 11
+    },
+    {
+      "id": "mon_deploy_fail",
+      "name": "发布失败兽",
+      "tier": "NORMAL",
+      "hp": 40,
+      "attack": 8,
+      "intervalSec": 2,
+      "exp": 11
+    },
+    {
+      "id": "mon_rollback_fail",
+      "name": "回滚失败魔",
+      "tier": "NORMAL",
+      "hp": 44,
+      "attack": 9,
+      "intervalSec": 2.1,
+      "exp": 12
+    },
+    {
+      "id": "mon_config_drift",
+      "name": "配置漂移鬼",
+      "tier": "NORMAL",
+      "hp": 30,
+      "attack": 7,
+      "intervalSec": 1.7,
+      "exp": 9
+    },
+    {
+      "id": "mon_node_notready",
+      "name": "节点NotReady妖",
+      "tier": "NORMAL",
+      "hp": 36,
+      "attack": 8,
+      "intervalSec": 1.8,
+      "exp": 10
+    },
+    {
+      "id": "mon_image_pull_fail",
+      "name": "镜像拉取失败兽",
+      "tier": "NORMAL",
+      "hp": 34,
+      "attack": 7,
+      "intervalSec": 1.8,
+      "exp": 10
+    },
+    {
+      "id": "mon_port_conflict",
+      "name": "端口冲突怪",
+      "tier": "NORMAL",
+      "hp": 26,
+      "attack": 6,
+      "intervalSec": 1.5,
+      "exp": 8
+    },
+    {
+      "id": "mon_clock_drift",
+      "name": "时钟漂移魔",
+      "tier": "NORMAL",
+      "hp": 28,
+      "attack": 7,
+      "intervalSec": 1.6,
+      "exp": 9
+    },
+    {
+      "id": "mon_lb_unbalance",
+      "name": "负载均衡失衡兽",
+      "tier": "NORMAL",
+      "hp": 40,
+      "attack": 8,
+      "intervalSec": 2,
+      "exp": 11
+    },
+    {
+      "id": "mon_health_fakealive",
+      "name": "健康检查假死妖",
+      "tier": "NORMAL",
+      "hp": 32,
+      "attack": 7,
+      "intervalSec": 1.8,
+      "exp": 10
+    },
+    {
+      "id": "boss_deadlock_twins",
+      "name": "死锁双尊",
+      "tier": "BOSS",
+      "hp": 620,
+      "attack": 13,
+      "intervalSec": 2.2,
+      "exp": 90,
+      "twin": true
+    },
+    {
+      "id": "boss_white_screen",
+      "name": "白屏天魔",
+      "tier": "BOSS",
+      "hp": 900,
+      "attack": 16,
+      "intervalSec": 2.6,
+      "exp": 80
+    },
+    {
+      "id": "boss_compat_ancestor",
+      "name": "兼容性老祖",
+      "tier": "BOSS",
+      "hp": 820,
+      "attack": 14,
+      "intervalSec": 2.4,
+      "exp": 75
+    },
+    {
+      "id": "boss_dep_hell",
+      "name": "依赖地狱魔尊",
+      "tier": "BOSS",
+      "hp": 880,
+      "attack": 15,
+      "intervalSec": 2.5,
+      "exp": 78
+    },
+    {
+      "id": "boss_first_paint",
+      "name": "首屏性能巨兽",
+      "tier": "BOSS",
+      "hp": 950,
+      "attack": 14,
+      "intervalSec": 2.3,
+      "exp": 80
+    },
+    {
+      "id": "boss_irreproducible",
+      "name": "无法复现仙尊",
+      "tier": "BOSS",
+      "hp": 800,
+      "attack": 15,
+      "intervalSec": 2.4,
+      "exp": 78
+    },
+    {
+      "id": "boss_flaky_demon",
+      "name": "偶现Bug魔王",
+      "tier": "BOSS",
+      "hp": 840,
+      "attack": 16,
+      "intervalSec": 2.2,
+      "exp": 76
+    },
+    {
+      "id": "boss_regression_beast",
+      "name": "回归复活兽",
+      "tier": "BOSS",
+      "hp": 780,
+      "attack": 14,
+      "intervalSec": 2.4,
+      "exp": 75
+    },
+    {
+      "id": "boss_p0_judge",
+      "name": "P0审判官",
+      "tier": "BOSS",
+      "hp": 900,
+      "attack": 15,
+      "intervalSec": 2.6,
+      "exp": 80
+    },
+    {
+      "id": "boss_502_demon",
+      "name": "502天魔",
+      "tier": "BOSS",
+      "hp": 860,
+      "attack": 16,
+      "intervalSec": 2.5,
+      "exp": 78
+    },
+    {
+      "id": "boss_k8s_avalanche",
+      "name": "K8s雪崩兽",
+      "tier": "BOSS",
+      "hp": 920,
+      "attack": 14,
+      "intervalSec": 2.4,
+      "exp": 80
+    },
+    {
+      "id": "boss_cert_ancestor",
+      "name": "证书过期老祖",
+      "tier": "BOSS",
+      "hp": 700,
+      "attack": 13,
+      "intervalSec": 2,
+      "exp": 75
+    },
+    {
+      "id": "boss_alert_storm_lord",
+      "name": "报警风暴魔尊",
+      "tier": "BOSS",
+      "hp": 880,
+      "attack": 15,
+      "intervalSec": 2.5,
+      "exp": 78
+    }
+  ],
+  "builds": [
+    {
+      "id": "build_jvm",
+      "name": "JVM调优流",
+      "desc": "GC与堆内存掌控，持续输出与自我恢复。",
+      "baseHp": 165,
+      "baseAttack": 12,
+      "intervalSec": 1,
+      "startSkill": "skill_gc",
+      "critChance": 0.06,
+      "lootBonus": 0.04,
+      "profession": "JAVA_BACKEND"
+    },
+    {
+      "id": "build_spring",
+      "name": "Spring生态流",
+      "desc": "AOP剑阵与事务结界，越到后期越稳。",
+      "baseHp": 170,
+      "baseAttack": 13,
+      "intervalSec": 1.1,
+      "startSkill": "skill_aop_array",
+      "critChance": 0.07,
+      "lootBonus": 0.03,
+      "profession": "JAVA_BACKEND"
+    },
+    {
+      "id": "build_reactive",
+      "name": "响应式流",
+      "desc": "状态一变，技能连锁触发。",
+      "baseHp": 145,
+      "baseAttack": 13,
+      "intervalSec": 0.9,
+      "startSkill": "skill_reactive_chain",
+      "critChance": 0.08,
+      "lootBonus": 0.03,
+      "profession": "FRONTEND"
+    },
+    {
+      "id": "build_css",
+      "name": "CSS阵法流",
+      "desc": "AOE覆盖一切错位。",
+      "baseHp": 150,
+      "baseAttack": 12,
+      "intervalSec": 1,
+      "startSkill": "skill_css_array",
+      "critChance": 0.07,
+      "lootBonus": 0.04,
+      "profession": "FRONTEND"
+    },
+    {
+      "id": "build_browser",
+      "name": "浏览器兼容流",
+      "desc": "控制与Debuff，让怪物动弹不得。",
+      "baseHp": 160,
+      "baseAttack": 11,
+      "intervalSec": 1.1,
+      "startSkill": "skill_polyfill",
+      "critChance": 0.06,
+      "lootBonus": 0.05,
+      "profession": "FRONTEND"
+    },
+    {
+      "id": "build_perf",
+      "name": "性能优化流",
+      "desc": "攻击越久越快，持久战之王。",
+      "baseHp": 155,
+      "baseAttack": 12,
+      "intervalSec": 1,
+      "startSkill": "skill_lazy_load",
+      "critChance": 0.07,
+      "lootBonus": 0.03,
+      "profession": "FRONTEND"
+    },
+    {
+      "id": "build_node",
+      "name": "Node工具链流",
+      "desc": "技能重置与复制，资源永不枯竭。",
+      "baseHp": 150,
+      "baseAttack": 13,
+      "intervalSec": 1,
+      "startSkill": "skill_bundle_split",
+      "critChance": 0.07,
+      "lootBonus": 0.04,
+      "profession": "FRONTEND"
+    },
+    {
+      "id": "build_automation",
+      "name": "自动化流",
+      "desc": "脚本自己会跑，技能自动触发。",
+      "baseHp": 150,
+      "baseAttack": 12,
+      "intervalSec": 1,
+      "startSkill": "skill_auto_script",
+      "critChance": 0.07,
+      "lootBonus": 0.04,
+      "profession": "QA"
+    },
+    {
+      "id": "build_boundary",
+      "name": "边界猎杀流",
+      "desc": "Boss越残血，你越兴奋。",
+      "baseHp": 150,
+      "baseAttack": 13,
+      "intervalSec": 1.1,
+      "startSkill": "skill_boundary_eye",
+      "critChance": 0.08,
+      "lootBonus": 0.03,
+      "profession": "QA"
+    },
+    {
+      "id": "build_regression",
+      "name": "回归流",
+      "desc": "同一个技能，反复释放。",
+      "baseHp": 160,
+      "baseAttack": 12,
+      "intervalSec": 1,
+      "startSkill": "skill_regression_wave",
+      "critChance": 0.06,
+      "lootBonus": 0.05,
+      "profession": "QA"
+    },
+    {
+      "id": "build_stress",
+      "name": "压力测试流",
+      "desc": "怪越多，你越强。",
+      "baseHp": 155,
+      "baseAttack": 11,
+      "intervalSec": 1,
+      "startSkill": "skill_stress_storm",
+      "critChance": 0.06,
+      "lootBonus": 0.05,
+      "profession": "QA"
+    },
+    {
+      "id": "build_evidence",
+      "name": "证据审判流",
+      "desc": "Debuff叠加， weaknesses 无处可藏。",
+      "baseHp": 150,
+      "baseAttack": 13,
+      "intervalSec": 1.1,
+      "startSkill": "skill_test_report",
+      "critChance": 0.07,
+      "lootBonus": 0.04,
+      "profession": "QA"
+    },
+    {
+      "id": "build_docker",
+      "name": "容器流",
+      "desc": "召唤与分身，一个人就是一支队伍。",
+      "baseHp": 160,
+      "baseAttack": 12,
+      "intervalSec": 1,
+      "startSkill": "skill_docker_clone",
+      "critChance": 0.06,
+      "lootBonus": 0.04,
+      "profession": "DEVOPS"
+    },
+    {
+      "id": "build_k8s",
+      "name": "K8s自愈流",
+      "desc": "自动恢复，打不死的小强。",
+      "baseHp": 175,
+      "baseAttack": 11,
+      "intervalSec": 1.1,
+      "startSkill": "skill_self_heal",
+      "critChance": 0.05,
+      "lootBonus": 0.05,
+      "profession": "DEVOPS"
+    },
+    {
+      "id": "build_monitor",
+      "name": "监控流",
+      "desc": "预判Boss技能，提前布防。",
+      "baseHp": 155,
+      "baseAttack": 12,
+      "intervalSec": 1,
+      "startSkill": "skill_prometheus",
+      "critChance": 0.07,
+      "lootBonus": 0.04,
+      "profession": "DEVOPS"
+    },
+    {
+      "id": "build_dr",
+      "name": "灾备流",
+      "desc": "免死金牌，容灾第一。",
+      "baseHp": 170,
+      "baseAttack": 11,
+      "intervalSec": 1.1,
+      "startSkill": "skill_alert_shield",
+      "critChance": 0.05,
+      "lootBonus": 0.06,
+      "profession": "DEVOPS"
+    },
+    {
+      "id": "build_nginx",
+      "name": "Nginx流量流",
+      "desc": "反射与转移伤害，四两拨千斤。",
+      "baseHp": 160,
+      "baseAttack": 13,
+      "intervalSec": 1,
+      "startSkill": "skill_nginx_proxy",
+      "critChance": 0.06,
+      "lootBonus": 0.04,
+      "profession": "DEVOPS"
+    }
+  ],
+  "skills": [
+    {
+      "id": "skill_hot_fix",
+      "name": "热修复剑法",
+      "desc": "线上问题当场修（伤害×1.5）。",
+      "kind": "ACTIVE",
+      "profession": "FRONTEND",
+      "damageMul": 0.5
+    },
+    {
+      "id": "skill_css_array",
+      "name": "CSS万剑阵",
+      "desc": "对所有敌人造成伤害。",
+      "kind": "ACTIVE",
+      "profession": "FRONTEND",
+      "damageMul": 0.3,
+      "aoe": true
+    },
+    {
+      "id": "skill_devtools",
+      "name": "神行DevTools",
+      "desc": "看清弱点，暴击提升。",
+      "kind": "ACTIVE",
+      "profession": "FRONTEND",
+      "critBonus": 0.08
+    },
+    {
+      "id": "skill_reactive_chain",
+      "name": "响应式连锁",
+      "desc": "击杀后攻速提升（间隔×0.8）。",
+      "kind": "ACTIVE",
+      "profession": "FRONTEND",
+      "intervalMul": -0.2
+    },
+    {
+      "id": "skill_lazy_load",
+      "name": "懒加载缩地",
+      "desc": "越打越快（间隔×0.85）。",
+      "kind": "ACTIVE",
+      "profession": "FRONTEND",
+      "intervalMul": -0.15
+    },
+    {
+      "id": "skill_sourmap_eye",
+      "name": "SourceMap天眼",
+      "desc": "暴露Boss弱点（暴击+10%）。",
+      "kind": "ACTIVE",
+      "profession": "FRONTEND",
+      "critBonus": 0.1
+    },
+    {
+      "id": "skill_polyfill",
+      "name": "万世Polyfill罩",
+      "desc": "兼容一切（减伤10%）。",
+      "kind": "ACTIVE",
+      "profession": "FRONTEND",
+      "damageReduce": 0.1
+    },
+    {
+      "id": "skill_tree_shake",
+      "name": "摇树优化斩",
+      "desc": "斩掉冗余（伤害×1.4）。",
+      "kind": "ACTIVE",
+      "profession": "FRONTEND",
+      "damageMul": 0.4
+    },
+    {
+      "id": "skill_bundle_split",
+      "name": "分包遁法",
+      "desc": "击杀回血（+3/杀）。",
+      "kind": "ACTIVE",
+      "profession": "FRONTEND",
+      "healPerKill": 3
+    },
+    {
+      "id": "skill_assert_thunder",
+      "name": "断言雷法",
+      "desc": "断言命中（伤害×1.55）。",
+      "kind": "ACTIVE",
+      "profession": "QA",
+      "damageMul": 0.55
+    },
+    {
+      "id": "skill_boundary_eye",
+      "name": "边界值天眼",
+      "desc": "看穿弱点（暴击+12%）。",
+      "kind": "ACTIVE",
+      "profession": "QA",
+      "critBonus": 0.12
+    },
+    {
+      "id": "skill_auto_script",
+      "name": "灵犀自动化",
+      "desc": "攻速提升（间隔×0.82）。",
+      "kind": "ACTIVE",
+      "profession": "QA",
+      "intervalMul": -0.18
+    },
+    {
+      "id": "skill_regression_wave",
+      "name": "回归波",
+      "desc": "全体回归测试（AOE伤害×0.35）。",
+      "kind": "ACTIVE",
+      "profession": "QA",
+      "damageMul": 0.35,
+      "aoe": true
+    },
+    {
+      "id": "skill_mock_seal",
+      "name": "Mock封印术",
+      "desc": "减速敌人（敌方间隔+20%）。",
+      "kind": "ACTIVE",
+      "profession": "QA",
+      "enemySlow": 0.2
+    },
+    {
+      "id": "skill_stress_storm",
+      "name": "压测风暴",
+      "desc": "敌人越多伤害越高。",
+      "kind": "ACTIVE",
+      "profession": "QA",
+      "damageMul": 0.25
+    },
+    {
+      "id": "skill_flaky_hunt",
+      "name": "偶现追猎",
+      "desc": "追击漏网之鱼（暴击+9%）。",
+      "kind": "ACTIVE",
+      "profession": "QA",
+      "critBonus": 0.09
+    },
+    {
+      "id": "skill_test_report",
+      "name": "审判报告书",
+      "desc": "记录一切（减伤8%，暴击+5%）。",
+      "kind": "ACTIVE",
+      "profession": "QA",
+      "damageReduce": 0.08,
+      "critBonus": 0.05
+    },
+    {
+      "id": "skill_gray_release",
+      "name": "灰度放行诀",
+      "desc": "小步快跑（减伤6%）。",
+      "kind": "ACTIVE",
+      "profession": "QA",
+      "damageReduce": 0.06
+    },
+    {
+      "id": "skill_prometheus",
+      "name": "天眼监控阵",
+      "desc": "预判敌人行动（暴击+8%）。",
+      "kind": "ACTIVE",
+      "profession": "DEVOPS",
+      "critBonus": 0.08
+    },
+    {
+      "id": "skill_ansible",
+      "name": "万偶部署符",
+      "desc": "批量处理（AOE伤害×0.32）。",
+      "kind": "ACTIVE",
+      "profession": "DEVOPS",
+      "damageMul": 0.32,
+      "aoe": true
+    },
+    {
+      "id": "skill_rollback_knife",
+      "name": "回滚快刀",
+      "desc": "一刀回滚（伤害×1.45）。",
+      "kind": "ACTIVE",
+      "profession": "DEVOPS",
+      "damageMul": 0.45
+    },
+    {
+      "id": "skill_shell_sword",
+      "name": "Shell剑意",
+      "desc": "一行命令（伤害×1.35）。",
+      "kind": "ACTIVE",
+      "profession": "DEVOPS",
+      "damageMul": 0.35
+    },
+    {
+      "id": "skill_alert_shield",
+      "name": "告警护盾",
+      "desc": "护盾+25。",
+      "kind": "ACTIVE",
+      "profession": "DEVOPS",
+      "shieldBonus": 25
+    },
+    {
+      "id": "skill_self_heal",
+      "name": "自愈阵法",
+      "desc": "击杀回血（+4/杀）。",
+      "kind": "ACTIVE",
+      "profession": "DEVOPS",
+      "healPerKill": 4
+    },
+    {
+      "id": "pass_null_check",
+      "name": "空指针直觉",
+      "desc": "被动：暴击+6%。",
+      "kind": "PASSIVE",
+      "profession": "JAVA_BACKEND",
+      "critBonus": 0.06
+    },
+    {
+      "id": "pass_final_zone",
+      "name": "final稳定域",
+      "desc": "被动：减伤7%。",
+      "kind": "PASSIVE",
+      "profession": "JAVA_BACKEND",
+      "damageReduce": 0.07
+    },
+    {
+      "id": "pass_jit_warmup",
+      "name": "JIT预热",
+      "desc": "被动：攻速提升（间隔×0.9）。",
+      "kind": "PASSIVE",
+      "profession": "JAVA_BACKEND",
+      "intervalMul": -0.1
+    },
+    {
+      "id": "pass_connection_pool",
+      "name": "连接复用",
+      "desc": "被动：击杀回血+2。",
+      "kind": "PASSIVE",
+      "profession": "JAVA_BACKEND",
+      "healPerKill": 2
+    },
+    {
+      "id": "pass_index_cache",
+      "name": "索引缓存",
+      "desc": "被动：伤害+12%。",
+      "kind": "PASSIVE",
+      "profession": "JAVA_BACKEND",
+      "damageMul": 0.12
+    },
+    {
+      "id": "pass_thread_isolation",
+      "name": "线程隔离",
+      "desc": "被动：每波获得护盾。",
+      "kind": "PASSIVE",
+      "profession": "JAVA_BACKEND",
+      "shieldPerWave": 15
+    },
+    {
+      "id": "pass_gc_tuning",
+      "name": "GC调优心得",
+      "desc": "被动：攻速提升（间隔×0.88）。",
+      "kind": "PASSIVE",
+      "profession": "JAVA_BACKEND",
+      "intervalMul": -0.12
+    },
+    {
+      "id": "pass_bytecode",
+      "name": "字节码洞察",
+      "desc": "被动：暴击+7%。",
+      "kind": "PASSIVE",
+      "profession": "JAVA_BACKEND",
+      "critBonus": 0.07
+    },
+    {
+      "id": "pass_pixel_eye",
+      "name": "像素眼",
+      "desc": "被动：暴击+8%。",
+      "kind": "PASSIVE",
+      "profession": "FRONTEND",
+      "critBonus": 0.08
+    },
+    {
+      "id": "pass_hot_reload",
+      "name": "热替换",
+      "desc": "被动：攻速提升（间隔×0.88）。",
+      "kind": "PASSIVE",
+      "profession": "FRONTEND",
+      "intervalMul": -0.12
+    },
+    {
+      "id": "pass_virtual_dom",
+      "name": "虚拟DOM护盾",
+      "desc": "被动：减伤8%。",
+      "kind": "PASSIVE",
+      "profession": "FRONTEND",
+      "damageReduce": 0.08
+    },
+    {
+      "id": "pass_cache_first",
+      "name": "缓存优先",
+      "desc": "被动：伤害+12%。",
+      "kind": "PASSIVE",
+      "profession": "FRONTEND",
+      "damageMul": 0.12
+    },
+    {
+      "id": "pass_responsive",
+      "name": "响应式身法",
+      "desc": "被动：闪避+8%。",
+      "kind": "PASSIVE",
+      "profession": "FRONTEND",
+      "dodgeBonus": 0.08
+    },
+    {
+      "id": "pass_semver",
+      "name": "语义化版本直觉",
+      "desc": "被动：每波获得护盾。",
+      "kind": "PASSIVE",
+      "profession": "FRONTEND",
+      "shieldPerWave": 14
+    },
+    {
+      "id": "pass_devtools_panel",
+      "name": "调试面板",
+      "desc": "被动：击杀回血+3。",
+      "kind": "PASSIVE",
+      "profession": "FRONTEND",
+      "healPerKill": 3
+    },
+    {
+      "id": "pass_typescript",
+      "name": "TS类型护体",
+      "desc": "被动：减伤6%。",
+      "kind": "PASSIVE",
+      "profession": "FRONTEND",
+      "damageReduce": 0.06
+    },
+    {
+      "id": "pass_suspicion",
+      "name": "多疑体质",
+      "desc": "被动：暴击+8%。",
+      "kind": "PASSIVE",
+      "profession": "QA",
+      "critBonus": 0.08
+    },
+    {
+      "id": "pass_repro_steps",
+      "name": "复现路径",
+      "desc": "被动：伤害+12%。",
+      "kind": "PASSIVE",
+      "profession": "QA",
+      "damageMul": 0.12
+    },
+    {
+      "id": "pass_checklist",
+      "name": "检查清单",
+      "desc": "被动：减伤7%。",
+      "kind": "PASSIVE",
+      "profession": "QA",
+      "damageReduce": 0.07
+    },
+    {
+      "id": "pass_evidence_chain",
+      "name": "证据链",
+      "desc": "被动：暴击+7%。",
+      "kind": "PASSIVE",
+      "profession": "QA",
+      "critBonus": 0.07
+    },
+    {
+      "id": "pass_patience",
+      "name": "测试耐心",
+      "desc": "被动：击杀回血+3。",
+      "kind": "PASSIVE",
+      "profession": "QA",
+      "healPerKill": 3
+    },
+    {
+      "id": "pass_parallel_run",
+      "name": "并行跑批",
+      "desc": "被动：攻速提升（间隔×0.9）。",
+      "kind": "PASSIVE",
+      "profession": "QA",
+      "intervalMul": -0.1
+    },
+    {
+      "id": "pass_risk_sense",
+      "name": "风险嗅觉",
+      "desc": "被动：闪避+7%。",
+      "kind": "PASSIVE",
+      "profession": "QA",
+      "dodgeBonus": 0.07
+    },
+    {
+      "id": "pass_quality_gate",
+      "name": "质量门禁",
+      "desc": "被动：每波获得护盾。",
+      "kind": "PASSIVE",
+      "profession": "QA",
+      "shieldPerWave": 15
+    },
+    {
+      "id": "pass_oncall",
+      "name": "On-Call直觉",
+      "desc": "被动：攻速提升（间隔×0.9）。",
+      "kind": "PASSIVE",
+      "profession": "DEVOPS",
+      "intervalMul": -0.1
+    },
+    {
+      "id": "pass_redundancy",
+      "name": "冗余思维",
+      "desc": "被动：减伤9%。",
+      "kind": "PASSIVE",
+      "profession": "DEVOPS",
+      "damageReduce": 0.09
+    },
+    {
+      "id": "pass_monitoring",
+      "name": "全链路监控",
+      "desc": "被动：暴击+6%。",
+      "kind": "PASSIVE",
+      "profession": "DEVOPS",
+      "critBonus": 0.06
+    },
+    {
+      "id": "pass_automation",
+      "name": "自动化之手",
+      "desc": "被动：攻速提升（间隔×0.88）。",
+      "kind": "PASSIVE",
+      "profession": "DEVOPS",
+      "intervalMul": -0.12
+    },
+    {
+      "id": "pass_backup_habit",
+      "name": "备份习惯",
+      "desc": "被动：每波获得护盾。",
+      "kind": "PASSIVE",
+      "profession": "DEVOPS",
+      "shieldPerWave": 18
+    },
+    {
+      "id": "pass_calm_night",
+      "name": "凌晨冷静",
+      "desc": "被动：击杀回血+3。",
+      "kind": "PASSIVE",
+      "profession": "DEVOPS",
+      "healPerKill": 3
+    },
+    {
+      "id": "pass_infra_as_code",
+      "name": "基建即代码",
+      "desc": "被动：伤害+11%。",
+      "kind": "PASSIVE",
+      "profession": "DEVOPS",
+      "damageMul": 0.11
+    },
+    {
+      "id": "pass_capacity",
+      "name": "容量规划",
+      "desc": "被动：每波获得护盾。",
+      "kind": "PASSIVE",
+      "profession": "DEVOPS",
+      "shieldPerWave": 16
+    }
+  ],
+  "evolutions": [
+    {
+      "id": "evo_gc",
+      "baseSkillId": "skill_gc",
+      "options": [
+        {
+          "id": "evo_gc_parallel",
+          "name": "并行GC",
+          "desc": "GC波及全场（攻击命中所有敌人）。",
+          "effects": {
+            "aoe": true
+          }
+        },
+        {
+          "id": "evo_gc_lowlatency",
+          "name": "低延迟GC",
+          "desc": "停顿更短（攻击间隔额外-15%）。",
+          "effects": {
+            "intervalMulDelta": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_null_sword",
+      "baseSkillId": "skill_null_sword",
+      "options": [
+        {
+          "id": "evo_null_safe",
+          "name": "空安全流",
+          "desc": "伤害再加成（+25%）。",
+          "effects": {
+            "damageMulDelta": 0.25
+          }
+        },
+        {
+          "id": "evo_optional_chain",
+          "name": "Optional链",
+          "desc": "招招致命（暴击+12%）。",
+          "effects": {
+            "critBonus": 0.12
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_index_sword",
+      "baseSkillId": "skill_index_sword",
+      "options": [
+        {
+          "id": "evo_covering_index",
+          "name": "覆盖索引",
+          "desc": "Boss残血时伤害翻倍。",
+          "effects": {
+            "executePct": 0.3
+          }
+        },
+        {
+          "id": "evo_unique_index",
+          "name": "唯一索引",
+          "desc": "一击必中（暴击+15%）。",
+          "effects": {
+            "critBonus": 0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_cache_shield",
+      "baseSkillId": "skill_cache_shield",
+      "options": [
+        {
+          "id": "evo_multi_cache",
+          "name": "多级缓存",
+          "desc": "护盾更厚（每波+25）。",
+          "effects": {
+            "shieldPerWave": 25
+          }
+        },
+        {
+          "id": "evo_cache_warm",
+          "name": "缓存预热",
+          "desc": "击杀回血（+4/杀）。",
+          "effects": {
+            "healPerKill": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_thread_clone",
+      "baseSkillId": "skill_thread_clone",
+      "options": [
+        {
+          "id": "evo_thread_pool",
+          "name": "池化复用",
+          "desc": "攻速大增（间隔-20%）。",
+          "effects": {
+            "intervalMulDelta": -0.2
+          }
+        },
+        {
+          "id": "evo_virtual_thread",
+          "name": "虚拟线程",
+          "desc": "伤害+20%。",
+          "effects": {
+            "damageMulDelta": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_dist_lock",
+      "baseSkillId": "skill_dist_lock",
+      "options": [
+        {
+          "id": "evo_red_lock",
+          "name": "红锁大阵",
+          "desc": "减伤+12%。",
+          "effects": {
+            "damageReduceDelta": 0.12
+          }
+        },
+        {
+          "id": "evo_rw_lock",
+          "name": "读写锁",
+          "desc": "伤害+18%。",
+          "effects": {
+            "damageMulDelta": 0.18
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_tx_shield",
+      "baseSkillId": "skill_tx_shield",
+      "options": [
+        {
+          "id": "evo_local_tx",
+          "name": "本地事务",
+          "desc": "护盾（每波+20）。",
+          "effects": {
+            "shieldPerWave": 20
+          }
+        },
+        {
+          "id": "evo_saga_consistency",
+          "name": "Saga最终一致",
+          "desc": "击杀回血（+5/杀）。",
+          "effects": {
+            "healPerKill": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_circuit_break",
+      "baseSkillId": "skill_circuit_break",
+      "options": [
+        {
+          "id": "evo_full_break",
+          "name": "彻底熔断",
+          "desc": "减伤+12%。",
+          "effects": {
+            "damageReduceDelta": 0.12
+          }
+        },
+        {
+          "id": "evo_degrade",
+          "name": "优雅降级",
+          "desc": "攻速提升（间隔-15%）。",
+          "effects": {
+            "intervalMulDelta": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_reactive",
+      "baseSkillId": "skill_reactive_chain",
+      "options": [
+        {
+          "id": "evo_signal_storm",
+          "name": "信号风暴",
+          "desc": "伤害+20%。",
+          "effects": {
+            "damageMulDelta": 0.2
+          }
+        },
+        {
+          "id": "evo_scheduler",
+          "name": "调度器优化",
+          "desc": "间隔-18%。",
+          "effects": {
+            "intervalMulDelta": -0.18
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_css_array",
+      "baseSkillId": "skill_css_array",
+      "options": [
+        {
+          "id": "evo_flex_formation",
+          "name": "Flex大阵",
+          "desc": "AOE伤害+15%。",
+          "effects": {
+            "damageMulDelta": 0.15,
+            "aoeKeep": true
+          }
+        },
+        {
+          "id": "evo_grid_domain",
+          "name": "Grid领域",
+          "desc": "暴击+12%。",
+          "effects": {
+            "critBonus": 0.12,
+            "aoeKeep": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_lazy_load",
+      "baseSkillId": "skill_lazy_load",
+      "options": [
+        {
+          "id": "evo_prefetch",
+          "name": "预加载",
+          "desc": "间隔-20%。",
+          "effects": {
+            "intervalMulDelta": -0.2
+          }
+        },
+        {
+          "id": "evo_skeleton",
+          "name": "骨架屏",
+          "desc": "减伤+10%。",
+          "effects": {
+            "damageReduceDelta": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_sourmap",
+      "baseSkillId": "skill_sourmap_eye",
+      "options": [
+        {
+          "id": "evo_full_trace",
+          "name": "全链路追踪",
+          "desc": "暴击+15%。",
+          "effects": {
+            "critBonus": 0.15
+          }
+        },
+        {
+          "id": "evo_error_boundary",
+          "name": "错误边界",
+          "desc": "减伤+12%。",
+          "effects": {
+            "damageReduceDelta": 0.12
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_hot_fix",
+      "baseSkillId": "skill_hot_fix",
+      "options": [
+        {
+          "id": "evo_hotfix_master",
+          "name": "热修宗师",
+          "desc": "伤害+25%。",
+          "effects": {
+            "damageMulDelta": 0.25
+          }
+        },
+        {
+          "id": "evo_canary",
+          "name": "金丝雀发布",
+          "desc": "闪避+10%。",
+          "effects": {
+            "dodgeBonus": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_tree_shake",
+      "baseSkillId": "skill_tree_shake",
+      "options": [
+        {
+          "id": "evo_minify",
+          "name": "极限压缩",
+          "desc": "暴击+10%。",
+          "effects": {
+            "critBonus": 0.1
+          }
+        },
+        {
+          "id": "evo_dead_code",
+          "name": "死代码清除",
+          "desc": "伤害+18%。",
+          "effects": {
+            "damageMulDelta": 0.18
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_devtools",
+      "baseSkillId": "skill_devtools",
+      "options": [
+        {
+          "id": "evo_perf_panel",
+          "name": "性能面板",
+          "desc": "间隔-15%。",
+          "effects": {
+            "intervalMulDelta": -0.15
+          }
+        },
+        {
+          "id": "evo_console_master",
+          "name": "Console宗师",
+          "desc": "击杀回血+4。",
+          "effects": {
+            "healPerKill": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_polyfill",
+      "baseSkillId": "skill_polyfill",
+      "options": [
+        {
+          "id": "evo_core_js",
+          "name": "core-js大圆满",
+          "desc": "减伤+10%。",
+          "effects": {
+            "damageReduceDelta": 0.1
+          }
+        },
+        {
+          "id": "evo_feature_detect",
+          "name": "特性检测",
+          "desc": "每波护盾+18。",
+          "effects": {
+            "shieldPerWave": 18
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_assert",
+      "baseSkillId": "skill_assert_thunder",
+      "options": [
+        {
+          "id": "evo_deep_assert",
+          "name": "深度断言",
+          "desc": "伤害+22%。",
+          "effects": {
+            "damageMulDelta": 0.22
+          }
+        },
+        {
+          "id": "evo_soft_assert",
+          "name": "软断言",
+          "desc": "暴击+12%。",
+          "effects": {
+            "critBonus": 0.12
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_boundary",
+      "baseSkillId": "skill_boundary_eye",
+      "options": [
+        {
+          "id": "evo_execute_edge",
+          "name": "边界处决",
+          "desc": "Boss残血伤害翻倍。",
+          "effects": {
+            "executePct": 0.25
+          }
+        },
+        {
+          "id": "evo_ornull",
+          "name": "空值猎手",
+          "desc": "暴击+14%。",
+          "effects": {
+            "critBonus": 0.14
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_auto_script",
+      "baseSkillId": "skill_auto_script",
+      "options": [
+        {
+          "id": "evo_ci_cd",
+          "name": "CI/CD流水线",
+          "desc": "间隔-20%。",
+          "effects": {
+            "intervalMulDelta": -0.2
+          }
+        },
+        {
+          "id": "evo_parallel_suite",
+          "name": "并行套件",
+          "desc": "AOE攻击。",
+          "effects": {
+            "aoe": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_regression",
+      "baseSkillId": "skill_regression_wave",
+      "options": [
+        {
+          "id": "evo_full_regression",
+          "name": "全量回归",
+          "desc": "AOE伤害+12%。",
+          "effects": {
+            "damageMulDelta": 0.12,
+            "aoeKeep": true
+          }
+        },
+        {
+          "id": "evo_smoke_test",
+          "name": "冒烟测试",
+          "desc": "间隔-15%。",
+          "effects": {
+            "intervalMulDelta": -0.15,
+            "aoeKeep": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_mock",
+      "baseSkillId": "skill_mock_seal",
+      "options": [
+        {
+          "id": "evo_deep_mock",
+          "name": "深度Mock",
+          "desc": "减速更强（+15%）。",
+          "effects": {
+            "enemySlowDelta": 0.15
+          }
+        },
+        {
+          "id": "evo_stub_army",
+          "name": "Stub军团",
+          "desc": "伤害+18%。",
+          "effects": {
+            "damageMulDelta": 0.18
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_stress",
+      "baseSkillId": "skill_stress_storm",
+      "options": [
+        {
+          "id": "evo_spike_test",
+          "name": "尖峰测试",
+          "desc": "伤害+20%。",
+          "effects": {
+            "damageMulDelta": 0.2
+          }
+        },
+        {
+          "id": "evo_soak_test",
+          "name": "浸泡测试",
+          "desc": "击杀回血+4。",
+          "effects": {
+            "healPerKill": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_flaky",
+      "baseSkillId": "skill_flaky_hunt",
+      "options": [
+        {
+          "id": "evo_seed_lock",
+          "name": "种子锁定",
+          "desc": "暴击+14%。",
+          "effects": {
+            "critBonus": 0.14
+          }
+        },
+        {
+          "id": "evo_video_record",
+          "name": "录像回放",
+          "desc": "闪避+10%。",
+          "effects": {
+            "dodgeBonus": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_report",
+      "baseSkillId": "skill_test_report",
+      "options": [
+        {
+          "id": "evo_visual_report",
+          "name": "可视化报告",
+          "desc": "减伤+10%。",
+          "effects": {
+            "damageReduceDelta": 0.1
+          }
+        },
+        {
+          "id": "evo_bug_jira",
+          "name": "Bug单海",
+          "desc": "伤害+15%。",
+          "effects": {
+            "damageMulDelta": 0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_prometheus",
+      "baseSkillId": "skill_prometheus",
+      "options": [
+        {
+          "id": "evo_alert_first",
+          "name": "告警前置",
+          "desc": "闪避+12%。",
+          "effects": {
+            "dodgeBonus": 0.12
+          }
+        },
+        {
+          "id": "evo_grafana",
+          "name": "Grafana大盘",
+          "desc": "暴击+12%。",
+          "effects": {
+            "critBonus": 0.12
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_ansible",
+      "baseSkillId": "skill_ansible",
+      "options": [
+        {
+          "id": "evo_idempotent",
+          "name": "幂等部署",
+          "desc": "伤害+18%。",
+          "effects": {
+            "damageMulDelta": 0.18,
+            "aoeKeep": true
+          }
+        },
+        {
+          "id": "evo_rollout",
+          "name": "滚动发布",
+          "desc": "间隔-15%。",
+          "effects": {
+            "intervalMulDelta": -0.15,
+            "aoeKeep": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_rollback",
+      "baseSkillId": "skill_rollback_knife",
+      "options": [
+        {
+          "id": "evo_instant_rollback",
+          "name": "秒级回滚",
+          "desc": "伤害+22%。",
+          "effects": {
+            "damageMulDelta": 0.22
+          }
+        },
+        {
+          "id": "evo_blue_green",
+          "name": "蓝绿切换",
+          "desc": "减伤+10%。",
+          "effects": {
+            "damageReduceDelta": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_shell",
+      "baseSkillId": "skill_shell_sword",
+      "options": [
+        {
+          "id": "evo_pipe_master",
+          "name": "管道宗师",
+          "desc": "AOE攻击。",
+          "effects": {
+            "aoe": true
+          }
+        },
+        {
+          "id": "evo_one_liner",
+          "name": "一行流",
+          "desc": "暴击+12%。",
+          "effects": {
+            "critBonus": 0.12
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_alert_shield",
+      "baseSkillId": "skill_alert_shield",
+      "options": [
+        {
+          "id": "evo_silence",
+          "name": "告警静默",
+          "desc": "减伤+12%。",
+          "effects": {
+            "damageReduceDelta": 0.12
+          }
+        },
+        {
+          "id": "evo_escalation",
+          "name": "升级策略",
+          "desc": "每波护盾+22。",
+          "effects": {
+            "shieldPerWave": 22
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_self_heal",
+      "baseSkillId": "skill_self_heal",
+      "options": [
+        {
+          "id": "evo_probe",
+          "name": "健康探测",
+          "desc": "击杀回血+6。",
+          "effects": {
+            "healPerKill": 6
+          }
+        },
+        {
+          "id": "evo_replica",
+          "name": "多副本",
+          "desc": "每波护盾+20。",
+          "effects": {
+            "shieldPerWave": 20
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_docker",
+      "baseSkillId": "skill_docker_clone",
+      "options": [
+        {
+          "id": "evo_compose",
+          "name": "Compose编排",
+          "desc": "分身上限+2。",
+          "effects": {
+            "summonCapBonus": 2
+          }
+        },
+        {
+          "id": "evo_layer_cache",
+          "name": "层缓存",
+          "desc": "间隔-15%。",
+          "effects": {
+            "intervalMulDelta": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "evo_k8s",
+      "baseSkillId": "skill_k8s_swarm",
+      "options": [
+        {
+          "id": "evo_hpa",
+          "name": "自动扩缩",
+          "desc": "伤害随敌人数量增长。",
+          "effects": {
+            "damageMulDelta": 0.15
+          }
+        },
+        {
+          "id": "evo_liveness",
+          "name": "存活探针",
+          "desc": "击杀回血+5。",
+          "effects": {
+            "healPerKill": 5
+          }
+        }
+      ]
+    }
+  ],
+  "synergies": [
+    {
+      "id": "syn_zero_pause",
+      "name": "零停顿领域",
+      "profession": "JAVA_BACKEND",
+      "desc": "GC大法+线程池诀：GC触发时攻速大幅提升。",
+      "requires": {
+        "skills": [
+          "skill_gc",
+          "skill_thread_pool"
+        ]
+      },
+      "effects": {
+        "intervalMulDelta": -0.12
+      }
+    },
+    {
+      "id": "syn_covering_index",
+      "name": "覆盖索引",
+      "profession": "JAVA_BACKEND",
+      "desc": "索引飞剑+SQL优化诀：Boss残血时伤害翻倍。",
+      "requires": {
+        "skills": [
+          "skill_index_sword",
+          "skill_sql_optimize"
+        ]
+      },
+      "effects": {
+        "executePct": 0.3
+      }
+    },
+    {
+      "id": "syn_cache_barrier",
+      "name": "缓存结界",
+      "profession": "JAVA_BACKEND",
+      "desc": "缓存护盾+分布式锁：周期性免疫Boss重击。",
+      "requires": {
+        "skills": [
+          "skill_cache_shield",
+          "skill_dist_lock"
+        ]
+      },
+      "effects": {
+        "immuneEverySec": 8
+      }
+    },
+    {
+      "id": "syn_concurrent_formation",
+      "name": "并发剑阵",
+      "profession": "JAVA_BACKEND",
+      "desc": "线程分身+Java并发流Build：全属性提升。",
+      "requires": {
+        "skills": [
+          "skill_thread_clone"
+        ],
+        "buildIds": [
+          "build_java"
+        ]
+      },
+      "effects": {
+        "damageMulDelta": 0.15
+      }
+    },
+    {
+      "id": "syn_jvm_harmony",
+      "name": "JVM共鸣",
+      "profession": "JAVA_BACKEND",
+      "desc": "GC大法+JVM装备：伤害与生命提升。",
+      "requires": {
+        "skills": [
+          "skill_gc"
+        ],
+        "equipmentTags": [
+          "JVM"
+        ]
+      },
+      "effects": {
+        "damageMulDelta": 0.15,
+        "maxHpBonus": 30
+      }
+    },
+    {
+      "id": "syn_saga_net",
+      "name": "最终一致之网",
+      "profession": "JAVA_BACKEND",
+      "desc": "Saga结界+事务护盾：坚韧与回复。",
+      "requires": {
+        "skills": [
+          "skill_saga_shield",
+          "skill_tx_shield"
+        ]
+      },
+      "effects": {
+        "damageReduceDelta": 0.08,
+        "healPerKill": 2
+      }
+    },
+    {
+      "id": "syn_rapid_first",
+      "name": "极速首屏",
+      "profession": "FRONTEND",
+      "desc": "懒加载+性能装备：首屏即巅峰。",
+      "requires": {
+        "skills": [
+          "skill_lazy_load"
+        ],
+        "equipmentTags": [
+          "PERF"
+        ]
+      },
+      "effects": {
+        "intervalMulDelta": -0.1
+      }
+    },
+    {
+      "id": "syn_reactive_storm",
+      "name": "响应风暴",
+      "profession": "FRONTEND",
+      "desc": "响应式连锁+CSS万剑阵：连锁伤害。",
+      "requires": {
+        "skills": [
+          "skill_reactive_chain",
+          "skill_css_array"
+        ]
+      },
+      "effects": {
+        "damageMulDelta": 0.18
+      }
+    },
+    {
+      "id": "syn_source_truth",
+      "name": "真相之源",
+      "profession": "FRONTEND",
+      "desc": "SourceMap天眼+DevTools：弱点全 exposed。",
+      "requires": {
+        "skills": [
+          "skill_sourmap_eye",
+          "skill_devtools"
+        ]
+      },
+      "effects": {
+        "critBonus": 0.12
+      }
+    },
+    {
+      "id": "syn_dom_shield",
+      "name": "DOM结界",
+      "profession": "FRONTEND",
+      "desc": "Polyfill罩+热修复：稳如老狗。",
+      "requires": {
+        "skills": [
+          "skill_polyfill",
+          "skill_hot_fix"
+        ]
+      },
+      "effects": {
+        "damageReduceDelta": 0.08
+      }
+    },
+    {
+      "id": "syn_bundle_flow",
+      "name": "分包之流",
+      "profession": "FRONTEND",
+      "desc": "分包遁法+性能优化流Build：行云流水。",
+      "requires": {
+        "skills": [
+          "skill_bundle_split"
+        ],
+        "buildIds": [
+          "build_perf"
+        ]
+      },
+      "effects": {
+        "intervalMulDelta": -0.1
+      }
+    },
+    {
+      "id": "syn_pixel_perfect",
+      "name": "像素完美",
+      "profession": "FRONTEND",
+      "desc": "CSS万剑阵+像素装备：细节即伤害。",
+      "requires": {
+        "skills": [
+          "skill_css_array"
+        ],
+        "equipmentTags": [
+          "PIXEL"
+        ]
+      },
+      "effects": {
+        "critBonus": 0.1
+      }
+    },
+    {
+      "id": "syn_limit_trial",
+      "name": "极限审判",
+      "profession": "QA",
+      "desc": "边界值天眼+压测风暴：Boss残血处决。",
+      "requires": {
+        "skills": [
+          "skill_boundary_eye",
+          "skill_stress_storm"
+        ]
+      },
+      "effects": {
+        "executePct": 0.25
+      }
+    },
+    {
+      "id": "syn_auto_matrix",
+      "name": "自动化矩阵",
+      "profession": "QA",
+      "desc": "灵犀自动化+回归波：脚本如林。",
+      "requires": {
+        "skills": [
+          "skill_auto_script",
+          "skill_regression_wave"
+        ]
+      },
+      "effects": {
+        "intervalMulDelta": -0.12,
+        "aoeKeep": true
+      }
+    },
+    {
+      "id": "syn_evidence_verdict",
+      "name": "证据审判",
+      "profession": "QA",
+      "desc": "审判报告书+证据装备：一锤定音。",
+      "requires": {
+        "skills": [
+          "skill_test_report"
+        ],
+        "equipmentTags": [
+          "EVIDENCE"
+        ]
+      },
+      "effects": {
+        "critBonus": 0.12
+      }
+    },
+    {
+      "id": "syn_mock_reality",
+      "name": "Mock真实",
+      "profession": "QA",
+      "desc": "Mock封印+偶现追猎：假象无所遁形。",
+      "requires": {
+        "skills": [
+          "skill_mock_seal",
+          "skill_flaky_hunt"
+        ]
+      },
+      "effects": {
+        "damageMulDelta": 0.15
+      }
+    },
+    {
+      "id": "syn_gray_shield",
+      "name": "灰度护盾",
+      "profession": "QA",
+      "desc": "灰度放行+断言雷法：稳中求进。",
+      "requires": {
+        "skills": [
+          "skill_gray_release",
+          "skill_assert_thunder"
+        ]
+      },
+      "effects": {
+        "damageReduceDelta": 0.08
+      }
+    },
+    {
+      "id": "syn_parallel_hunt",
+      "name": "并行猎杀",
+      "profession": "QA",
+      "desc": "偶现追猎+自动化流Build：全速追捕。",
+      "requires": {
+        "skills": [
+          "skill_flaky_hunt"
+        ],
+        "buildIds": [
+          "build_automation"
+        ]
+      },
+      "effects": {
+        "critBonus": 0.1
+      }
+    },
+    {
+      "id": "syn_selfheal_cluster",
+      "name": "自愈集群",
+      "profession": "DEVOPS",
+      "desc": "天眼监控+自愈阵法：越战越勇。",
+      "requires": {
+        "skills": [
+          "skill_prometheus",
+          "skill_self_heal"
+        ]
+      },
+      "effects": {
+        "healPerKill": 3
+      }
+    },
+    {
+      "id": "syn_infra_army",
+      "name": "基建军团",
+      "profession": "DEVOPS",
+      "desc": "Docker分身+K8s编排阵：千军万马。",
+      "requires": {
+        "skills": [
+          "skill_docker_clone",
+          "skill_k8s_swarm"
+        ]
+      },
+      "effects": {
+        "summonCapBonus": 2,
+        "damageMulDelta": 0.12
+      }
+    },
+    {
+      "id": "syn_traffic_guard",
+      "name": "流量守卫",
+      "profession": "DEVOPS",
+      "desc": "Nginx反代+限流阵：固若金汤。",
+      "requires": {
+        "skills": [
+          "skill_nginx_proxy",
+          "skill_rate_limit"
+        ]
+      },
+      "effects": {
+        "damageReduceDelta": 0.1
+      }
+    },
+    {
+      "id": "syn_rapid_rollback",
+      "name": "极速回滚",
+      "profession": "DEVOPS",
+      "desc": "回滚快刀+万偶部署符：手起刀落。",
+      "requires": {
+        "skills": [
+          "skill_rollback_knife",
+          "skill_ansible"
+        ]
+      },
+      "effects": {
+        "intervalMulDelta": -0.12
+      }
+    },
+    {
+      "id": "syn_dr_rebirth",
+      "name": "灾备重生",
+      "profession": "DEVOPS",
+      "desc": "自愈阵法+灾备装备：死亡时原地复活一次。",
+      "requires": {
+        "skills": [
+          "skill_self_heal"
+        ],
+        "equipmentTags": [
+          "DR"
+        ]
+      },
+      "effects": {
+        "reviveOnce": true
+      }
+    },
+    {
+      "id": "syn_alert_silence",
+      "name": "告警静默",
+      "profession": "DEVOPS",
+      "desc": "告警护盾+Shell剑意：静默中爆发。",
+      "requires": {
+        "skills": [
+          "skill_alert_shield",
+          "skill_shell_sword"
+        ]
+      },
+      "effects": {
+        "critBonus": 0.1
+      }
+    },
+    {
+      "id": "syn_fish_master",
+      "name": "带薪摸鱼之道",
+      "profession": "JAVA_BACKEND",
+      "desc": "摸鱼生存流+任意厕所遁：掉落与生存兼得。",
+      "requires": {
+        "skills": [
+          "skill_toilet_flee"
+        ],
+        "buildIds": [
+          "build_fish"
+        ]
+      },
+      "effects": {
+        "lootBonusDelta": 0.1,
+        "dodgeBonus": 0.05
+      }
+    },
+    {
+      "id": "syn_night_watch",
+      "name": "凌晨四点",
+      "profession": "DEVOPS",
+      "desc": "On-Call直觉+监控装备：夜战之王。",
+      "requires": {
+        "skills": [
+          "pass_oncall"
+        ],
+        "equipmentTags": [
+          "MONITOR"
+        ]
+      },
+      "effects": {
+        "critBonus": 0.08,
+        "intervalMulDelta": -0.05
+      }
+    }
+  ],
+  "bossMechanics": {
+    "boss_oom_lord": {
+      "telegraph": "堆内存即将耗尽……",
+      "mechanics": [
+        {
+          "kind": "SUMMON",
+          "minion": "mon_thread_leak",
+          "cap": 3,
+          "everySec": 9
+        },
+        {
+          "kind": "HP_DRAIN",
+          "everySec": 12,
+          "amount": 8
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_heap_amulet",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_slowsql_ancestor": {
+      "telegraph": "慢查询正在锁表……",
+      "mechanics": [
+        {
+          "kind": "ATTACK_SPEED_DEBUFF",
+          "everySec": 10,
+          "mul": 0.25,
+          "durationSec": 5
+        },
+        {
+          "kind": "SUMMON",
+          "minion": "mon_slow_sql",
+          "cap": 2,
+          "everySec": 14
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_exec_plan",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_cache_avalanche": {
+      "telegraph": "缓存集体失效！雪崩将至！",
+      "mechanics": [
+        {
+          "kind": "SUMMON",
+          "minion": "mon_cache_penetrate",
+          "cap": 4,
+          "everySec": 7
+        },
+        {
+          "kind": "RAGE",
+          "mulPerTick": 0.08,
+          "everySec": 12
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_bloom_filter",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_req_demon": {
+      "telegraph": "老板正在修改需求……",
+      "mechanics": [
+        {
+          "kind": "SUMMON",
+          "minion": "mon_req_change",
+          "cap": 4,
+          "everySec": 8
+        },
+        {
+          "kind": "PROMOTE_MINION",
+          "everySec": 12
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_req_freeze_badge",
+        "dropChance": 0.18,
+        "pityAt": 9
+      }
+    },
+    "boss_production_incident": {
+      "telegraph": "线上事故正在扩大！",
+      "mechanics": [
+        {
+          "kind": "RAGE",
+          "mulPerTick": 0.1,
+          "everySec": 10
+        },
+        {
+          "kind": "SUMMON",
+          "minion": "mon_alert_storm_beast",
+          "cap": 2,
+          "everySec": 13
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_postmortem_shield",
+        "dropChance": 0.18,
+        "pityAt": 9
+      }
+    },
+    "boss_deadlock_twins": {
+      "telegraph": "两把锁互相等待……死锁形成！",
+      "mechanics": [
+        {
+          "kind": "LINKED",
+          "reviveHpPct": 0.4
+        },
+        {
+          "kind": "ATTACK_SPEED_DEBUFF",
+          "everySec": 11,
+          "mul": 0.2,
+          "durationSec": 4
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_deadlock_ring",
+        "dropChance": 0.15,
+        "pityAt": 10
+      }
+    },
+    "boss_white_screen": {
+      "telegraph": "页面即将白屏！",
+      "mechanics": [
+        {
+          "kind": "BLIND",
+          "everySec": 8,
+          "durationSec": 4
+        },
+        {
+          "kind": "SUMMON",
+          "minion": "mon_css_misalign",
+          "cap": 2,
+          "everySec": 12
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_sourmap_tome",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_compat_ancestor": {
+      "telegraph": "远古浏览器正在苏醒……",
+      "mechanics": [
+        {
+          "kind": "LOCK_SKILL",
+          "everySec": 7,
+          "durationSec": 5
+        },
+        {
+          "kind": "ATTACK_SPEED_DEBUFF",
+          "everySec": 13,
+          "mul": 0.2,
+          "durationSec": 5
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_polyfill_charm",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_dep_hell": {
+      "telegraph": "正在解析依赖树……node_modules 无限增殖！",
+      "mechanics": [
+        {
+          "kind": "SUMMON",
+          "minion": "mon_npm_hell",
+          "cap": 4,
+          "everySec": 6
+        },
+        {
+          "kind": "RAGE",
+          "mulPerTick": 0.06,
+          "everySec": 10
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_lockfile_scroll",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_first_paint": {
+      "telegraph": "首屏渲染时间正在暴涨！",
+      "mechanics": [
+        {
+          "kind": "RAGE",
+          "mulPerTick": 0.12,
+          "everySec": 8
+        },
+        {
+          "kind": "ENRAGE",
+          "hpPct": 0.3,
+          "mul": 1.8
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_lighthouse_orb",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_irreproducible": {
+      "telegraph": "Bug 消失了……它去了哪里？",
+      "mechanics": [
+        {
+          "kind": "DODGE",
+          "everySec": 6
+        },
+        {
+          "kind": "SUMMON",
+          "minion": "mon_not_reproducible",
+          "cap": 2,
+          "everySec": 14
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_log_replay",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_flaky_demon": {
+      "telegraph": "Bug 的攻击模式变了！",
+      "mechanics": [
+        {
+          "kind": "RANDOM",
+          "everySec": 5
+        },
+        {
+          "kind": "BLIND",
+          "everySec": 12,
+          "durationSec": 3
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_retry_dice",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_regression_beast": {
+      "telegraph": "修好的 Bug 复活了！",
+      "mechanics": [
+        {
+          "kind": "REVIVE",
+          "reviveHpPct": 0.5
+        },
+        {
+          "kind": "PROMOTE_MINION",
+          "everySec": 13
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_regression_seal",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_p0_judge": {
+      "telegraph": "P0 审判开始！",
+      "mechanics": [
+        {
+          "kind": "PROMOTE_MINION",
+          "everySec": 9
+        },
+        {
+          "kind": "SUMMON",
+          "minion": "mon_p0_abuse",
+          "cap": 3,
+          "everySec": 11
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_p0_gavel",
+        "dropChance": 0.18,
+        "pityAt": 9
+      }
+    },
+    "boss_502_demon": {
+      "telegraph": "502 Bad Gateway —— 连接即将中断！",
+      "mechanics": [
+        {
+          "kind": "LOCK_SKILL",
+          "everySec": 8,
+          "durationSec": 4
+        },
+        {
+          "kind": "ATTACK_SPEED_DEBUFF",
+          "everySec": 12,
+          "mul": 0.25,
+          "durationSec": 4
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_gateway_core",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_k8s_avalanche": {
+      "telegraph": "Pod 进入 CrashLoopBackOff！",
+      "mechanics": [
+        {
+          "kind": "SUMMON",
+          "minion": "mon_pod_crash",
+          "cap": 4,
+          "everySec": 6
+        },
+        {
+          "kind": "HP_DRAIN",
+          "everySec": 11,
+          "amount": 6
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_selfheal_core",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_cert_ancestor": {
+      "telegraph": "证书倒计时开始——60秒后过期！",
+      "mechanics": [
+        {
+          "kind": "RAGE",
+          "mulPerTick": 0.09,
+          "everySec": 9
+        },
+        {
+          "kind": "ENRAGE",
+          "hpPct": 0.35,
+          "mul": 1.7
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_cert_renewal",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    },
+    "boss_alert_storm_lord": {
+      "telegraph": "报警风暴来袭——所有频道都在响！",
+      "mechanics": [
+        {
+          "kind": "SUMMON",
+          "minion": "mon_alert_storm_beast",
+          "cap": 4,
+          "everySec": 6
+        },
+        {
+          "kind": "PROMOTE_MINION",
+          "everySec": 10
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_alert_silencer",
+        "dropChance": 0.2,
+        "pityAt": 8
+      }
+    }
+  }
+}

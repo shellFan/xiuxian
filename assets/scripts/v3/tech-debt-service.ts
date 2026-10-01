@@ -54,6 +54,7 @@ export class TechDebtService {
     this.add(domain, -reduction);
     const stats = this.context.player.lifetimeStats;
     this.context.player.lifetimeStats = { ...stats, techDebtRepaid: (stats.techDebtRepaid ?? 0) + reduction };
+    try { this.context.week.recordProgress('TECH_DEBT_DOWN', reduction); } catch { /* weekly goal hook */ }
     return reduction;
   }
 }

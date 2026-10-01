@@ -4,6 +4,7 @@ import messengerEventsTeamConfig from '../../configs/v5/messenger-events-team.js
 import messengerEventsPeopleConfig from '../../configs/v5/messenger-events-people.json';
 import messengerEventsWindowsConfig from '../../configs/v5/messenger-events-windows.json';
 import messengerTaskRuntimeConfig from '../../configs/v5/task-runtime-events.json';
+import v57ProfessionEventsConfig from '../../configs/v57/profession-events.json';
 
 /**
  * V5 飞剑传书 — 内容模型与装载校验。
@@ -129,7 +130,22 @@ function loadBundle(): MessengerContentBundle {
   mergePart(target, messengerEventsPeopleConfig as MessengerContentPart);
   mergePart(target, messengerEventsWindowsConfig as MessengerContentPart);
   mergePart(target, messengerTaskRuntimeConfig as MessengerContentPart);
-  return { actors: target.actors, conversations: target.conversations, events: target.events };
+  mergePart(target, (v57ProfessionEventsConfig as unknown as MessengerContentPart));
+  // V5.6 修复 + V5.7：任务运行时事件（专用池）必须带 category 才能被
+  // TaskRuntimeDirector.pickEvent 选中——按 id 前缀注水，weight=0 不进随机消息池。
+  const hydrated = target.events.map((event) => {
+    if (event.id.startsWith('ms_task_') || event.id.startsWith('pj_')) {
+      return { ...event, category: (event as unknown as { category?: string }).category ?? inferRuntimeCategory(event.id) } as MessengerEventDef;
+    }
+    return event;
+  });
+  return { actors: target.actors, conversations: target.conversations, events: hydrated };
+}
+
+function inferRuntimeCategory(id: string): 'TECH' | 'WORKPLACE' | 'POSITIVE' | 'FUNNY' | 'MEETING' | 'INCIDENT' {
+  if (id.includes('_gen_')) return 'WORKPLACE';
+  if (id.includes('incident') || id.includes('alarm')) return 'INCIDENT';
+  return 'TECH';
 }
 
 export interface MessengerContentIssues {
@@ -165,8 +181,20 @@ export function validateMessengerContent(bundle: MessengerContentBundle): Messen
 
 export const MESSENGER_CONTENT: MessengerContentBundle = loadBundle();
 
+/** V5.7：运行时注册的扩展事件（第一周剧情节拍等），可被 replyToMessage 查回。 */
+const EXTRA_EVENTS: MessengerEventDef[] = [];
+
+export function registerMessengerEvents(events: readonly MessengerEventDef[]): void {
+  const known = new Set([...MESSENGER_CONTENT.events, ...EXTRA_EVENTS].map((e) => e.id));
+  for (const event of events) {
+    if (known.has(event.id)) continue;
+    known.add(event.id);
+    EXTRA_EVENTS.push(event);
+  }
+}
+
 export function messengerEventById(id: string): MessengerEventDef | undefined {
-  return MESSENGER_CONTENT.events.find((event) => event.id === id);
+  return MESSENGER_CONTENT.events.find((event) => event.id === id) ?? EXTRA_EVENTS.find((event) => event.id === id);
 }
 
 export function messengerConversationById(id: string): MessengerConversationDef | undefined {

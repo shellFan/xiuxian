@@ -70,6 +70,13 @@ import { StoryDirectorService } from '../v5/story-director';
 import { AssignedTaskService } from '../v3/assigned-task-service';
 import { BattleService } from '../v3/battle-service';
 import { AutoPolicyService } from '../v3/auto-policy-service';
+import { LootService } from '../v57/loot-service';
+import { FatigueService } from '../v57/fatigue-service';
+import { NpcMemoryService } from '../v57/npc-memory-service';
+import { ProfessionContentService } from '../v57/profession-content-service';
+import { WeekService } from '../v57/week-service';
+import { ProjectHistoryService } from '../v57/project-history-service';
+import { CodexService } from '../v57/codex-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
 import craftConfig from '../../configs/craft.json';
@@ -187,6 +194,20 @@ export class GameContext {
   public readonly projectService: ProjectService;
   /** V5.6 目标导演。 */
   public readonly goalDirector: GoalDirectorService;
+  /** V5.7 装备/词缀/套装/掉落。 */
+  public readonly loot: LootService;
+  /** V5.7 疲劳 runtime。 */
+  public readonly fatigue: FatigueService;
+  /** V5.7 NPC 记忆。 */
+  public readonly npcMemory: NpcMemoryService;
+  /** V5.7 职业内容深度（任务池/技能池/等级perk）。 */
+  public readonly professionContent: ProfessionContentService;
+  /** V5.7 周导演（第一周剧情/情境/周目标/周结算/隐藏事件/公司）。 */
+  public readonly week: WeekService;
+  /** V5.7 项目历史。 */
+  public readonly projectHistory: ProjectHistoryService;
+  /** V5.7 图鉴。 */
+  public readonly codex: CodexService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -273,6 +294,14 @@ export class GameContext {
     this.assignedTasks = new AssignedTaskService(this);
     this.autoPolicy = new AutoPolicyService(this);
     this.battle = new BattleService(this, options.battleRng);
+    // ── V5.7 services（loot/fatigue/npcMemory/professionContent 先于 week/codex 构建） ──
+    this.loot = new LootService(this);
+    this.fatigue = new FatigueService(this);
+    this.npcMemory = new NpcMemoryService(this);
+    this.professionContent = new ProfessionContentService(this);
+    this.week = new WeekService(this);
+    this.projectHistory = new ProjectHistoryService(this);
+    this.codex = new CodexService(this);
     this.messenger = new MessengerService(this);
     this.storyDirector = new StoryDirectorService(this, this.messenger);
     this.profession = new ProfessionService(this);

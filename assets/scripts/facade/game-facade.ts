@@ -46,6 +46,10 @@ import type { AutoPolicy } from '../model/save-data';
 import type { WelcomeAction } from '../v3/auto-policy-service';
 import { selectOfflineWelcomeLine } from '../v3/offline-welcome-content';
 import { selectNextPresentation, type PresentationCandidate } from '../v2/v2-event-service';
+import { allEquipmentDefs, AFFIX_MAP, SET_MAP, RARITY_CN, V57_SETS, type LootEquipmentDef } from '../v57/loot-service';
+import { WEEK_CONTENT } from '../v57/week-service';
+import { messengerEventById } from '../v5/messenger-content';
+import { EVOLUTIONS } from '../v57/battle-merge';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -263,6 +267,108 @@ export class GameFacade {
   public resolveProjectDecision(decisionId: string) { return this.context.projectService.resolveDecision(decisionId); }
   public queryProject() { return this.context.projectService.current(); }
   public queryFatigue() { return this.context.player.fatigue ?? 0; }
+
+  // ── V5.7 Depth & Retention API ──
+
+  /** 疲劳视图（分档/效率乘数/强制休息）。 */
+  public queryFatigueView() { return this.context.fatigue.view(); }
+  /** 调休/休息：恢复疲劳并解除强制休息。 */
+  public takeRest(hours: number) {
+    this.context.fatigue.takeRest(hours);
+    this.save();
+    return this.queryFatigueView();
+  }
+  /** 职业深度视图（等级/称号/Build/技能/共鸣/perk）。 */
+  public queryProfessionDepth() { return this.context.professionContent.depthView(); }
+  /** 道法共鸣列表（职业页/战斗页共用）。 */
+  public querySynergies() { return this.context.battle.synergyViews(); }
+  /** 已选技能进化（baseSkillId → evolution option id）。 */
+  public querySkillEvolutions() { return { ...(this.context.player.skillEvolutions ?? {}) }; }
+  /** 进化选项定义（战斗三选一 UI 显示进化候选名/描述用）。 */
+  public queryEvolutionOption(optionId: string) {
+    for (const evo of EVOLUTIONS) {
+      const hit = evo.options.find((o) => o.id === optionId);
+      if (hit) return { id: hit.id, name: hit.name, desc: hit.desc, baseSkillId: evo.baseSkillId };
+    }
+    return null;
+  }
+  /** 装备库（含词缀/套装/品质中文名）。 */
+  public queryEquipmentLibrary(filter?: { profession?: string; set?: string; rarity?: string }) {
+    const owned = new Set(this.context.player.ownedEquipment ?? []);
+    return allEquipmentDefs()
+      .filter((d) => !filter?.rarity || d.rarity === filter.rarity)
+      .map((d) => {
+        const def = d as LootEquipmentDef;
+        const set = def.set ? SET_MAP.get(def.set) : undefined;
+        return {
+          id: d.id, name: d.name, rarity: d.rarity, slot: d.slot, description: d.description,
+          owned: owned.has(d.id), profession: def.profession, tag: def.tag, bossDrop: def.bossDrop,
+          setName: set?.name, affixes: (def.affixes ?? []).map((a) => AFFIX_MAP.get(a)?.name ?? a),
+          rarityCn: RARITY_CN[d.rarity] ?? d.rarity,
+        };
+      });
+  }
+  /** 装备对比视图（绿升红降 + 流派推荐）。 */
+  public queryEquipmentCompare(newId: string) { return this.context.loot.compareView(newId); }
+  /** 分解装备（返还灵石）。 */
+  public dismantleLoot(equipmentId: string) {
+    const result = this.context.loot.dismantle(equipmentId);
+    if (result.success) this.save();
+    return result;
+  }
+  /** 套装视图（激活档位）。 */
+  public querySets() {
+    const counts = this.context.loot.activeSetCounts();
+    return V57_SETS.map((s) => ({
+      id: s.id, name: s.name, profession: s.profession,
+      members: s.members.map((m) => ({ id: m, owned: (this.context.player.ownedEquipment ?? []).includes(m) })),
+      activeCount: counts.get(s.id) ?? 0,
+      bonuses: s.bonuses.map((b) => ({ count: b.count, desc: b.desc, active: (counts.get(s.id) ?? 0) >= b.count })),
+    }));
+  }
+  /** NPC 卡（关系阶段 + 最近记忆，不显示内部数值 §118）。 */
+  public queryNpcCard(npcId: string) { return this.context.npcMemory.card(npcId as never); }
+  /** 今日情境（V5.7 DailySituation）。 */
+  public queryTodaySituation() { return this.context.week.situationView(); }
+  /** 公司宗门。 */
+  public queryCompanyProfile() { return this.context.week.companyProfile(); }
+  /** 周目标。 */
+  public queryWeeklyGoals() { return this.context.week.goals(); }
+  public claimWeeklyReward() {
+    const result = this.context.week.claimWeeklyReward();
+    if (result.success) this.save();
+    return result;
+  }
+  /** 周结算视图（牛马周报）。 */
+  public queryWeeklySettlement() { return this.context.week.weeklySettlement(); }
+  /** 明日钩子（§97）。 */
+  public queryTomorrowHook() { return this.context.week.tomorrowHook(); }
+  /** 项目历史。 */
+  public queryProjectHistory() { return this.context.projectHistory.history(); }
+  /** 战绩（Career Record）。 */
+  public queryCareerRecords() { return this.context.projectHistory.careerRecords(); }
+  /** 复盘重刷历史 Boss（不改变历史结局，掉落走当前掉率 §110）。 */
+  public replayBoss(historyId: string, buildId: string) {
+    const record = this.context.projectHistory.history().find((h) => h.id === historyId);
+    if (!record || record.bossIds.length === 0) throw new Error('该项目没有可复盘的 Boss');
+    const bossId = record.bossIds[0];
+    const run = this.startBattleRun('PROJECT', buildId, null, null, { replayBossId: bossId, replayOf: record.name });
+    this.save();
+    return run;
+  }
+  /** Boss 保底进度。 */
+  public queryBossPity() { return { ...(this.context.player.bossPity ?? {}) }; }
+  /** 图鉴页签（怪物/Boss/装备/事件/成就，未发现 ???）。 */
+  public queryCodex(tab: 'MONSTER' | 'BOSS' | 'EQUIPMENT' | 'EVENT' | 'ACHIEVEMENT') { return this.context.codex.view(tab); }
+  /** 已触发的隐藏事件。 */
+  public querySecretEvents() { return this.context.week.discoveredSecrets(); }
+  /** 周剧情主题。 */
+  public queryWeekTheme() {
+    const day = this.context.gameDay.dayIndex();
+    const dow = ((day - 1) % 7) + 1;
+    const theme = (WEEK_CONTENT.firstWeekStory as Record<string, { theme: string }>)[String(dow)]?.theme;
+    return { dayIndex: day, dayOfWeek: dow, theme: day <= 7 ? (theme ?? '') : `第 ${Math.floor((day - 1) / 7) + 1} 周` };
+  }
   /** 待进入的事故副本（消息链生成的线上禁地，§31）。 */
   public queryPendingIncidentDungeon(): { readonly incidentType: string } | null {
     const pending = (this.context.player as unknown as { pendingIncidentDungeon?: string }).pendingIncidentDungeon;
@@ -369,6 +475,14 @@ export class GameFacade {
   public devAdvanceTime(deltaMs: number) { this.context.clockV2.advanceDevTime(deltaMs); this.context.saveService.save(this.context.player); }
   public devJumpToHour(hour: number, minute?: number) { this.context.clockV2.jumpToHour(hour, minute ?? 0, true); this.context.saveService.save(this.context.player); }
   public devForceEvent(eventId: string) { return this.context.v2Events.forceTrigger(eventId); }
+  /** DEV/演出辅助：按 id 直接投递信使事件（第一周剧情步 fw57_* 等注册池事件）。 */
+  public devDeliverMessengerEvent(eventId: string) {
+    const event = messengerEventById(eventId);
+    if (!event) return { ok: false, reason: '事件不存在' };
+    const ok = this.context.messenger.deliverEvent(event, this.context.clockV2.now(), `dev:${eventId}:${Date.now()}`);
+    this.save();
+    return { ok };
+  }
   public devSetMind(v: number) { this.context.player.mind = Math.max(0, Math.min(this.context.player.maxMind, Math.floor(v))); this.context.saveService.save(this.context.player); }
   public devSetDemon(v: number) { this.context.innerDemon.add(v - this.context.player.innerDemon); this.context.saveService.save(this.context.player); }
   public devGrantMaterial(id: string, n: number) { this.context.v2Items.addMaterial(id, n); this.context.saveService.save(this.context.player); }
@@ -478,8 +592,8 @@ export class GameFacade {
   public queryBattleBuildOptions() { return this.context.battle.buildOptions(); }
   /** 技能定义（名称/描述/进化），供三选一 UI 展示。 */
   public queryBattleSkillDefs() { return this.context.battle.skillDefs(); }
-  public startBattleRun(source: 'PROJECT' | 'INCIDENT', buildId: string, linkedTaskId: string | null = null, linkedIncidentId: string | null = null) {
-    const run = this.context.battle.start(source, buildId, linkedTaskId, linkedIncidentId);
+  public startBattleRun(source: 'PROJECT' | 'INCIDENT', buildId: string, linkedTaskId: string | null = null, linkedIncidentId: string | null = null, options: { replayBossId?: string; replayOf?: string } = {}) {
+    const run = this.context.battle.start(source, buildId, linkedTaskId, linkedIncidentId, options);
     this.context.saveService.save(this.context.player);
     return run;
   }
@@ -992,6 +1106,9 @@ export class GameFacade {
       'dailySignInClaimed', 'buffAdded', 'buffExpired', 'dailyTaskClaimed',
       'cultivationClicked', 'taskStarted', 'taskCompleted', 'taskClaimed',
       'spiritStonesChanged',
+      // V5.7
+      'weekSettlementReady', 'weeklyGoalDone', 'weeklyRewardClaimed', 'secretEventFired',
+      'synergyActivated', 'bossExclusiveDrop', 'fatigueCritical', 'projectArchived', 'equipmentAcquired',
     ];
 
     for (const eventName of allEvents) {

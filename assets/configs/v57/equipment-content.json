@@ -1,0 +1,149 @@
+{
+  "affixes": [
+    { "id": "af_atk_small", "name": "攻击 +4%", "effects": { "atkMul": 0.04 } },
+    { "id": "af_atk_mid", "name": "攻击 +8%", "effects": { "atkMul": 0.08 } },
+    { "id": "af_atk_large", "name": "攻击 +12%", "effects": { "atkMul": 0.12 } },
+    { "id": "af_crit_small", "name": "暴击 +3%", "effects": { "critBonus": 0.03 } },
+    { "id": "af_crit_mid", "name": "暴击 +6%", "effects": { "critBonus": 0.06 } },
+    { "id": "af_aspd_small", "name": "攻速 +5%", "effects": { "aspdMul": 0.05 } },
+    { "id": "af_aspd_mid", "name": "攻速 +9%", "effects": { "aspdMul": 0.09 } },
+    { "id": "af_hp_small", "name": "生命 +20", "effects": { "maxHpBonus": 20 } },
+    { "id": "af_hp_mid", "name": "生命 +40", "effects": { "maxHpBonus": 40 } },
+    { "id": "af_shield", "name": "护盾 +12", "effects": { "shieldBonus": 12 } },
+    { "id": "af_loot", "name": "掉落 +6%", "effects": { "lootBonus": 0.06 } },
+    { "id": "af_dodge", "name": "闪避 +4%", "effects": { "dodgeBonus": 0.04 } },
+    { "id": "af_jvm", "name": "JVM技能 +8%", "profession": "JAVA_BACKEND", "effects": { "skillTagMul": ["JVM", 0.08] } },
+    { "id": "af_sql", "name": "SQL技能 +8%", "profession": "JAVA_BACKEND", "effects": { "skillTagMul": ["DBA", 0.08] } },
+    { "id": "af_redis", "name": "Redis技能 +8%", "profession": "JAVA_BACKEND", "effects": { "skillTagMul": ["REDIS", 0.08] } },
+    { "id": "af_concurrent", "name": "并发技能 +8%", "profession": "JAVA_BACKEND", "effects": { "skillTagMul": ["CONCURRENT", 0.08] } },
+    { "id": "af_spring", "name": "Spring技能 +8%", "profession": "JAVA_BACKEND", "effects": { "skillTagMul": ["SPRING", 0.08] } },
+    { "id": "af_tx", "name": "事务技能 +6%", "profession": "JAVA_BACKEND", "effects": { "skillTagMul": ["TX", 0.06] } },
+    { "id": "af_task_java", "name": "职业任务效率 +6%", "profession": "JAVA_BACKEND", "effects": { "taskEfficiency": 0.06 } },
+    { "id": "af_evidence_java", "name": "Git Blame 证据 +1", "profession": "JAVA_BACKEND", "effects": { "evidenceBonus": 1 } },
+    { "id": "af_css", "name": "CSS技能 +8%", "profession": "FRONTEND", "effects": { "skillTagMul": ["PIXEL", 0.08] } },
+    { "id": "af_js", "name": "JS技能 +8%", "profession": "FRONTEND", "effects": { "skillTagMul": ["DEVTOOLS", 0.08] } },
+    { "id": "af_perf", "name": "性能技能 +8%", "profession": "FRONTEND", "effects": { "skillTagMul": ["PERF", 0.08] } },
+    { "id": "af_compat", "name": "兼容技能 +6%", "profession": "FRONTEND", "effects": { "skillTagMul": ["COMPAT", 0.06] } },
+    { "id": "af_build", "name": "构建技能 +8%", "profession": "FRONTEND", "effects": { "skillTagMul": ["BUILD", 0.08] } },
+    { "id": "af_pixel_ui", "name": "UI还原 +6%", "profession": "FRONTEND", "effects": { "skillTagMul": ["PIXEL", 0.06] } },
+    { "id": "af_task_fe", "name": "职业任务效率 +6%", "profession": "FRONTEND", "effects": { "taskEfficiency": 0.06 } },
+    { "id": "af_evidence_fe", "name": "SourceMap 证据 +1", "profession": "FRONTEND", "effects": { "evidenceBonus": 1 } },
+    { "id": "af_auto", "name": "自动化 +8%", "profession": "QA", "effects": { "skillTagMul": ["AUTOMATION", 0.08] } },
+    { "id": "af_boundary", "name": "边界猎杀 +8%", "profession": "QA", "effects": { "skillTagMul": ["BOUNDARY", 0.08] } },
+    { "id": "af_regress", "name": "回归 +8%", "profession": "QA", "effects": { "skillTagMul": ["REGRESSION", 0.08] } },
+    { "id": "af_stress", "name": "压测 +8%", "profession": "QA", "effects": { "skillTagMul": ["STRESS", 0.08] } },
+    { "id": "af_mock", "name": "Mock +6%", "profession": "QA", "effects": { "skillTagMul": ["MOCK", 0.06] } },
+    { "id": "af_report", "name": "报告 +6%", "profession": "QA", "effects": { "skillTagMul": ["EVIDENCE", 0.06] } },
+    { "id": "af_task_qa", "name": "职业任务效率 +6%", "profession": "QA", "effects": { "taskEfficiency": 0.06 } },
+    { "id": "af_evidence_qa", "name": "测试报告证据 +1", "profession": "QA", "effects": { "evidenceBonus": 1 } },
+    { "id": "af_k8s", "name": "K8s技能 +8%", "profession": "DEVOPS", "effects": { "skillTagMul": ["K8S", 0.08] } },
+    { "id": "af_nginx", "name": "Nginx技能 +6%", "profession": "DEVOPS", "effects": { "skillTagMul": ["NGINX", 0.06] } },
+    { "id": "af_monitor", "name": "监控 +8%", "profession": "DEVOPS", "effects": { "skillTagMul": ["MONITOR", 0.08] } },
+    { "id": "af_docker", "name": "容器 +8%", "profession": "DEVOPS", "effects": { "skillTagMul": ["CONTAINER", 0.08] } },
+    { "id": "af_dr", "name": "灾备 +6%", "profession": "DEVOPS", "effects": { "skillTagMul": ["DR", 0.06] } },
+    { "id": "af_task_ops", "name": "职业任务效率 +6%", "profession": "DEVOPS", "effects": { "taskEfficiency": 0.06 } },
+    { "id": "af_evidence_ops", "name": "Deploy Log 证据 +1", "profession": "DEVOPS", "effects": { "evidenceBonus": 1 } }
+  ],
+  "equipment": [
+    { "id": "eq_jvm_tome", "name": "JVM调优宝典", "rarity": "EPIC", "slot": "DESK", "profession": "JAVA_BACKEND", "tag": "JVM", "set": "set_jvm", "description": "书页间全是 GC 日志的批注。攻击+8%，生命+30。", "modifiers": { "atkMul": 0.08, "maxHpBonus": 30 }, "affixes": ["af_jvm", "af_hp_small"] },
+    { "id": "eq_gc_chronicle", "name": "GC编年史", "rarity": "RARE", "slot": "ACCESSORY", "profession": "JAVA_BACKEND", "tag": "JVM", "set": "set_jvm", "description": "记录每一次 Full GC 的时刻。攻速+6%。", "modifiers": { "aspdMul": 0.06 }, "affixes": ["af_jvm", "af_aspd_small"] },
+    { "id": "eq_concurrent_bracer", "name": "并发护腕", "rarity": "RARE", "slot": "ACCESSORY", "profession": "JAVA_BACKEND", "tag": "CONCURRENT", "set": "set_jvm", "description": "CAS 无锁锻造。攻击+6%，暴击+3%。", "modifiers": { "atkMul": 0.06, "critChance": 0.03 }, "affixes": ["af_concurrent", "af_crit_small"] },
+    { "id": "eq_spring_charm", "name": "Spring护符", "rarity": "UNCOMMON", "slot": "BADGE", "profession": "JAVA_BACKEND", "tag": "SPRING", "description": "IoC 容器护体，依赖不再循环。减伤+5%。", "modifiers": { "damageReduce": 0.05 }, "affixes": ["af_spring", "af_shield"] },
+    { "id": "eq_db_bell", "name": "DB金铃", "rarity": "RARE", "slot": "ACCESSORY", "profession": "JAVA_BACKEND", "tag": "DBA", "set": "set_dba", "description": "铃声一响，慢SQL无所遁形。暴击+5%。", "modifiers": { "critChance": 0.05 }, "affixes": ["af_sql", "af_crit_small"] },
+    { "id": "eq_api_lens", "name": "接口透镜", "rarity": "UNCOMMON", "slot": "ACCESSORY", "profession": "JAVA_BACKEND", "tag": "API", "set": "set_dba", "description": "看清每一次超时。攻击+5%。", "modifiers": { "atkMul": 0.05 }, "affixes": ["af_atk_small", "af_task_java"] },
+    { "id": "eq_tx_rope", "name": "事务绳结", "rarity": "RARE", "slot": "BADGE", "profession": "JAVA_BACKEND", "tag": "TX", "set": "set_dba", "description": "要么全做，要么全不做。护盾+15。", "modifiers": { "shield": 15 }, "affixes": ["af_tx", "af_shield"] },
+    { "id": "eq_redis_urn", "name": "Redis丹炉", "rarity": "EPIC", "slot": "DESK", "profession": "JAVA_BACKEND", "tag": "REDIS", "set": "set_redis", "description": "炉火恒定，缓存永不穿透。攻击+7%，掉落+5%。", "modifiers": { "atkMul": 0.07, "lootBonus": 0.05 }, "affixes": ["af_redis", "af_loot"] },
+    { "id": "eq_pixel_ruler", "name": "像素直尺", "rarity": "RARE", "slot": "DESK", "profession": "FRONTEND", "tag": "PIXEL", "set": "set_pixel", "description": "1px 误差当场复測。暴击+6%。", "modifiers": { "critChance": 0.06 }, "affixes": ["af_css", "af_crit_small"] },
+    { "id": "eq_css_brush", "name": "CSS神笔", "rarity": "EPIC", "slot": "DESK", "profession": "FRONTEND", "tag": "PIXEL", "set": "set_pixel", "description": "笔落之处，布局归位。攻击+8%，攻速+4%。", "modifiers": { "atkMul": 0.08, "aspdMul": 0.04 }, "affixes": ["af_css", "af_aspd_small"] },
+    { "id": "eq_flex_glove", "name": "Flex手套", "rarity": "UNCOMMON", "slot": "ACCESSORY", "profession": "FRONTEND", "tag": "PIXEL", "set": "set_pixel", "description": "justify-content: 掌控一切。闪避+5%。", "modifiers": { "dodge": 0.05 }, "affixes": ["af_dodge", "af_pixel_ui"] },
+    { "id": "eq_console_orb", "name": "Console宝珠", "rarity": "RARE", "slot": "ACCESSORY", "profession": "FRONTEND", "tag": "DEVTOOLS", "description": "console.log 照亮一切。暴击+4%，生命+15。", "modifiers": { "critChance": 0.04, "maxHpBonus": 15 }, "affixes": ["af_js", "af_hp_small"] },
+    { "id": "eq_bundle_bell", "name": "分包铃", "rarity": "RARE", "slot": "BADGE", "profession": "FRONTEND", "tag": "PERF", "set": "set_firstscreen", "description": "按需加载，闻铃而动。攻速+6%。", "modifiers": { "aspdMul": 0.06 }, "affixes": ["af_build", "af_aspd_small"] },
+    { "id": "eq_cache_jade", "name": "强缓存玉佩", "rarity": "UNCOMMON", "slot": "ACCESSORY", "profession": "FRONTEND", "tag": "PERF", "set": "set_firstscreen", "description": "max-age=31536000, immutable。生命+20。", "modifiers": { "maxHpBonus": 20 }, "affixes": ["af_perf", "af_hp_small"] },
+    { "id": "eq_ts_armor", "name": "TS类型铠甲", "rarity": "RARE", "slot": "BADGE", "profession": "FRONTEND", "tag": "TYPESCRIPT", "description": "any 是原罪。减伤+7%。", "modifiers": { "damageReduce": 0.07 }, "affixes": ["af_js", "af_shield"] },
+    { "id": "eq_hotfix_kit", "name": "热修工具箱", "rarity": "EPIC", "slot": "DESK", "profession": "FRONTEND", "tag": "HOTFIX", "description": "五分钟上线，老板还没反应过来。攻击+9%。", "modifiers": { "atkMul": 0.09 }, "affixes": ["af_atk_mid", "af_task_fe"] },
+    { "id": "eq_assert_robe", "name": "断言法袍", "rarity": "RARE", "slot": "BADGE", "profession": "QA", "tag": "EVIDENCE", "set": "set_bughunter", "description": "assertTrue(quality)。攻击+6%，暴击+4%。", "modifiers": { "atkMul": 0.06, "critChance": 0.04 }, "affixes": ["af_report", "af_crit_small"] },
+    { "id": "eq_boundary_compass", "name": "边界罗盘", "rarity": "RARE", "slot": "ACCESSORY", "profession": "QA", "tag": "BOUNDARY", "set": "set_bughunter", "description": "永远指向 min-1 和 max+1。暴击+6%。", "modifiers": { "critChance": 0.06 }, "affixes": ["af_boundary", "af_crit_small"] },
+    { "id": "eq_autotest_scroll", "name": "自动化卷轴", "rarity": "EPIC", "slot": "DESK", "profession": "QA", "tag": "AUTOMATION", "set": "set_automation", "description": "千条用例，一念执行。攻速+8%。", "modifiers": { "aspdMul": 0.08 }, "affixes": ["af_auto", "af_aspd_mid"] },
+    { "id": "eq_mock_mask", "name": "Mock面具", "rarity": "UNCOMMON", "slot": "ACCESSORY", "profession": "QA", "tag": "MOCK", "set": "set_automation", "description": "以假乱真，以真证假。闪避+5%。", "modifiers": { "dodge": 0.05 }, "affixes": ["af_mock", "af_dodge"] },
+    { "id": "eq_stress_drum", "name": "压测战鼓", "rarity": "RARE", "slot": "BADGE", "profession": "QA", "tag": "STRESS", "description": "鼓声越密，敌人越乱。攻击+6%。", "modifiers": { "atkMul": 0.06 }, "affixes": ["af_stress", "af_atk_small"] },
+    { "id": "eq_bug_jar", "name": "Bug收集罐", "rarity": "RARE", "slot": "ACCESSORY", "profession": "QA", "tag": "EVIDENCE", "set": "set_bughunter", "description": "罐子里全是偶现Bug的哀嚎。掉落+6%。", "modifiers": { "lootBonus": 0.06 }, "affixes": ["af_loot", "af_evidence_qa"] },
+    { "id": "eq_checklist_jade", "name": "检查清单玉", "rarity": "UNCOMMON", "slot": "BADGE", "profession": "QA", "tag": "EVIDENCE", "description": "上线前 32 项，一项不能少。护盾+12。", "modifiers": { "shield": 12 }, "affixes": ["af_report", "af_shield"] },
+    { "id": "eq_gray_feather", "name": "灰度羽毛", "rarity": "RARE", "slot": "ACCESSORY", "profession": "QA", "tag": "GRAY", "description": "5% 用户先行。闪避+6%。", "modifiers": { "dodge": 0.06 }, "affixes": ["af_dodge", "af_task_qa"] },
+    { "id": "eq_docker_whistle", "name": "容器哨子", "rarity": "UNCOMMON", "slot": "ACCESSORY", "profession": "DEVOPS", "tag": "CONTAINER", "set": "set_cloudnative", "description": "一声哨响，容器列队。攻速+5%。", "modifiers": { "aspdMul": 0.05 }, "affixes": ["af_docker", "af_aspd_small"] },
+    { "id": "eq_k8s_helm", "name": "K8s舵盔", "rarity": "EPIC", "slot": "BADGE", "profession": "DEVOPS", "tag": "K8S", "set": "set_cloudnative", "description": "kubectl apply 即真理。攻击+8%，生命+25。", "modifiers": { "atkMul": 0.08, "maxHpBonus": 25 }, "affixes": ["af_k8s", "af_hp_small"] },
+    { "id": "eq_prometheus_eye", "name": "Prometheus之眼", "rarity": "RARE", "slot": "ACCESSORY", "profession": "DEVOPS", "tag": "MONITOR", "set": "set_neverdown", "description": "一切指标尽收眼底。暴击+6%。", "modifiers": { "critChance": 0.06 }, "affixes": ["af_monitor", "af_crit_small"] },
+    { "id": "eq_nginx_mirror", "name": "Nginx镜像盾", "rarity": "RARE", "slot": "DESK", "profession": "DEVOPS", "tag": "NGINX", "set": "set_neverdown", "description": "反弹一切 502。减伤+8%。", "modifiers": { "damageReduce": 0.08 }, "affixes": ["af_nginx", "af_shield"] },
+    { "id": "eq_ansible_glove", "name": "Ansible手套", "rarity": "UNCOMMON", "slot": "ACCESSORY", "profession": "DEVOPS", "tag": "AUTOMATION", "description": "千台机器，一握即中。攻速+5%。", "modifiers": { "aspdMul": 0.05 }, "affixes": ["af_docker", "af_aspd_small"] },
+    { "id": "eq_backup_talisman", "name": "备份护符", "rarity": "RARE", "slot": "BADGE", "profession": "DEVOPS", "tag": "DR", "set": "set_neverdown", "description": "有备份，心不慌。护盾+16。", "modifiers": { "shield": 16 }, "affixes": ["af_dr", "af_shield"] },
+    { "id": "eq_shell_blade", "name": "Shell短刃", "rarity": "UNCOMMON", "slot": "ACCESSORY", "profession": "DEVOPS", "tag": "SHELL", "description": "一行命令，快意恩仇。攻击+5%。", "modifiers": { "atkMul": 0.05 }, "affixes": ["af_atk_small", "af_task_ops"] },
+    { "id": "eq_cron_bell", "name": "定时铃", "rarity": "COMMON", "slot": "ACCESSORY", "profession": "DEVOPS", "tag": "CRON", "description": "0 3 * * * 准时响。掉落+4%。", "modifiers": { "lootBonus": 0.04 }, "affixes": ["af_loot"] },
+    { "id": "eq_heap_amulet", "name": "堆外内存护符", "rarity": "LEGENDARY", "slot": "ACCESSORY", "profession": "JAVA_BACKEND", "tag": "JVM", "set": "set_jvm", "bossDrop": "boss_oom_lord", "description": "OOM魔尊内丹所化。攻击+12%，生命+40。", "modifiers": { "atkMul": 0.12, "maxHpBonus": 40 }, "affixes": ["af_atk_large", "af_hp_mid"] },
+    { "id": "eq_exec_plan", "name": "执行计划残卷", "rarity": "LEGENDARY", "slot": "DESK", "profession": "JAVA_BACKEND", "tag": "DBA", "set": "set_dba", "bossDrop": "boss_slowsql_ancestor", "description": "慢SQL老祖毕生功力。暴击+8%，攻速+6%。", "modifiers": { "critChance": 0.08, "aspdMul": 0.06 }, "affixes": ["af_sql", "af_crit_mid"] },
+    { "id": "eq_bloom_filter", "name": "布隆过滤器坠饰", "rarity": "EPIC", "slot": "ACCESSORY", "profession": "JAVA_BACKEND", "tag": "REDIS", "set": "set_redis", "bossDrop": "boss_cache_avalanche", "description": "可能误判，绝不穿透。攻击+8%，掉落+6%。", "modifiers": { "atkMul": 0.08, "lootBonus": 0.06 }, "affixes": ["af_redis", "af_loot"] },
+    { "id": "eq_deadlock_ring", "name": "死锁双戒", "rarity": "LEGENDARY", "slot": "ACCESSORY", "profession": "JAVA_BACKEND", "tag": "CONCURRENT", "bossDrop": "boss_deadlock_twins", "description": "双戒相扣，永不安眠。攻击+10%，暴击+6%。", "modifiers": { "atkMul": 0.1, "critChance": 0.06 }, "affixes": ["af_atk_mid", "af_concurrent"] },
+    { "id": "eq_sourmap_tome", "name": "SourceMap天书", "rarity": "LEGENDARY", "slot": "DESK", "profession": "FRONTEND", "tag": "DEVTOOLS", "set": "set_pixel", "bossDrop": "boss_white_screen", "description": "白屏天魔的解密之钥。暴击+8%，攻击+8%。", "modifiers": { "critChance": 0.08, "atkMul": 0.08 }, "affixes": ["af_js", "af_crit_mid"] },
+    { "id": "eq_polyfill_charm", "name": "Polyfill护符", "rarity": "EPIC", "slot": "BADGE", "profession": "FRONTEND", "tag": "COMPAT", "bossDrop": "boss_compat_ancestor", "description": "兼容千年老浏览器。减伤+9%。", "modifiers": { "damageReduce": 0.09 }, "affixes": ["af_compat", "af_shield"] },
+    { "id": "eq_lockfile_scroll", "name": "锁文件卷轴", "rarity": "EPIC", "slot": "DESK", "profession": "FRONTEND", "tag": "BUILD", "bossDrop": "boss_dep_hell", "description": "package-lock.json 封印依赖地狱。攻击+9%，攻速+5%。", "modifiers": { "atkMul": 0.09, "aspdMul": 0.05 }, "affixes": ["af_build", "af_atk_mid"] },
+    { "id": "eq_lighthouse_orb", "name": "灯塔宝珠", "rarity": "LEGENDARY", "slot": "ACCESSORY", "profession": "FRONTEND", "tag": "PERF", "set": "set_firstscreen", "bossDrop": "boss_first_paint", "description": "Performance 分数 100。攻速+9%，暴击+5%。", "modifiers": { "aspdMul": 0.09, "critChance": 0.05 }, "affixes": ["af_perf", "af_aspd_mid"] },
+    { "id": "eq_log_replay", "name": "日志回放仪", "rarity": "EPIC", "slot": "DESK", "profession": "QA", "tag": "EVIDENCE", "set": "set_automation", "bossDrop": "boss_irreproducible", "description": "再偶现的Bug也要复现给你看。暴击+7%，攻击+6%。", "modifiers": { "critChance": 0.07, "atkMul": 0.06 }, "affixes": ["af_report", "af_crit_mid"] },
+    { "id": "eq_retry_dice", "name": "重试骰子", "rarity": "EPIC", "slot": "ACCESSORY", "profession": "QA", "tag": "BOUNDARY", "bossDrop": "boss_flaky_demon", "description": "三次重试，终有必中。闪避+7%，暴击+5%。", "modifiers": { "dodge": 0.07, "critChance": 0.05 }, "affixes": ["af_boundary", "af_dodge"] },
+    { "id": "eq_regression_seal", "name": "回归封印", "rarity": "EPIC", "slot": "BADGE", "profession": "QA", "tag": "REGRESSION", "set": "set_bughunter", "bossDrop": "boss_regression_beast", "description": "修好的Bug永不再犯。减伤+8%，护盾+14。", "modifiers": { "damageReduce": 0.08, "shield": 14 }, "affixes": ["af_regress", "af_shield"] },
+    { "id": "eq_p0_gavel", "name": "P0法槌", "rarity": "LEGENDARY", "slot": "DESK", "profession": "QA", "tag": "EVIDENCE", "set": "set_bughunter", "bossDrop": "boss_p0_judge", "description": "一槌定音，谁改需求谁背锅。攻击+11%，暴击+6%。", "modifiers": { "atkMul": 0.11, "critChance": 0.06 }, "affixes": ["af_atk_mid", "af_evidence_qa"] },
+    { "id": "eq_gateway_core", "name": "网关核心", "rarity": "EPIC", "slot": "DESK", "profession": "DEVOPS", "tag": "NGINX", "bossDrop": "boss_502_demon", "description": "502天魔核心熔铸。攻击+9%，减伤+6%。", "modifiers": { "atkMul": 0.09, "damageReduce": 0.06 }, "affixes": ["af_nginx", "af_atk_mid"] },
+    { "id": "eq_selfheal_core", "name": "自愈集群核心", "rarity": "LEGENDARY", "slot": "BADGE", "profession": "DEVOPS", "tag": "K8S", "set": "set_cloudnative", "bossDrop": "boss_k8s_avalanche", "description": "Pod 永不消亡。生命+50，护盾+15。", "modifiers": { "maxHpBonus": 50, "shield": 15 }, "affixes": ["af_k8s", "af_hp_mid"] },
+    { "id": "eq_cert_renewal", "name": "证书续命符", "rarity": "EPIC", "slot": "ACCESSORY", "profession": "DEVOPS", "tag": "DR", "set": "set_neverdown", "bossDrop": "boss_cert_ancestor", "description": "自动续期，永不403。攻速+7%，闪避+5%。", "modifiers": { "aspdMul": 0.07, "dodge": 0.05 }, "affixes": ["af_dr", "af_aspd_mid"] },
+    { "id": "eq_alert_silencer", "name": "报警消音器", "rarity": "EPIC", "slot": "ACCESSORY", "profession": "DEVOPS", "tag": "MONITOR", "bossDrop": "boss_alert_storm_lord", "description": "世界安静了。暴击+7%，攻击+5%。", "modifiers": { "critChance": 0.07, "atkMul": 0.05 }, "affixes": ["af_monitor", "af_crit_small"] },
+    { "id": "eq_req_freeze_badge", "name": "需求冻结徽章", "rarity": "LEGENDARY", "slot": "BADGE", "bossDrop": "boss_req_demon", "description": "需求天魔的克星。佩戴后需求变更概率下降。攻击+8%。", "modifiers": { "atkMul": 0.08 }, "affixes": ["af_atk_mid", "af_loot"] },
+    { "id": "eq_postmortem_shield", "name": "复盘护心镜", "rarity": "LEGENDARY", "slot": "BADGE", "bossDrop": "boss_production_incident", "description": "照出真正的锅在哪。减伤+10%，生命+30。", "modifiers": { "damageReduce": 0.1, "maxHpBonus": 30 }, "affixes": ["af_shield", "af_hp_small"] }
+  ],
+  "sets": [
+    { "id": "set_jvm", "name": "JVM调优套", "profession": "JAVA_BACKEND", "members": ["eq_jvm_tome", "eq_gc_chronicle", "eq_concurrent_bracer", "eq_heap_amulet"], "bonuses": [
+      { "count": 2, "desc": "攻击 +6%", "effects": { "atkMul": 0.06 } },
+      { "count": 4, "desc": "攻击 +10%，生命 +40，GC技能间隔-10%", "effects": { "atkMul": 0.1, "maxHpBonus": 40, "intervalMulDelta": -0.1 } }
+    ] },
+    { "id": "set_dba", "name": "DBA快乐套", "profession": "JAVA_BACKEND", "members": ["eq_db_bell", "eq_api_lens", "eq_tx_rope", "eq_exec_plan"], "bonuses": [
+      { "count": 2, "desc": "暴击 +5%", "effects": { "critBonus": 0.05 } },
+      { "count": 4, "desc": "暴击 +9%，SQL技能伤害 +15%", "effects": { "critBonus": 0.09, "damageMulDelta": 0.09 } }
+    ] },
+    { "id": "set_redis", "name": "缓存仙人套", "profession": "JAVA_BACKEND", "members": ["eq_redis_urn", "eq_bloom_filter", "eq_spring_charm"], "bonuses": [
+      { "count": 2, "desc": "掉落 +8%", "effects": { "lootBonus": 0.08 } },
+      { "count": 3, "desc": "掉落 +12%，护盾 +20，每8秒免疫一次Boss重击", "effects": { "lootBonus": 0.12, "shieldBonus": 20, "immuneEverySec": 8 } }
+    ] },
+    { "id": "set_pixel", "name": "像素完美套", "profession": "FRONTEND", "members": ["eq_pixel_ruler", "eq_css_brush", "eq_flex_glove", "eq_sourmap_tome"], "bonuses": [
+      { "count": 2, "desc": "暴击 +6%", "effects": { "critBonus": 0.06 } },
+      { "count": 4, "desc": "暴击 +10%，CSS技能伤害 +18%", "effects": { "critBonus": 0.1, "damageMulDelta": 0.1 } }
+    ] },
+    { "id": "set_firstscreen", "name": "首屏极速套", "profession": "FRONTEND", "members": ["eq_bundle_bell", "eq_cache_jade", "eq_lighthouse_orb"], "bonuses": [
+      { "count": 2, "desc": "攻速 +6%", "effects": { "aspdMul": 0.06 } },
+      { "count": 3, "desc": "攻速 +12%，攻击间隔额外-8%", "effects": { "aspdMul": 0.12, "intervalMulDelta": -0.08 } }
+    ] },
+    { "id": "set_bughunter", "name": "Bug猎人套", "profession": "QA", "members": ["eq_assert_robe", "eq_boundary_compass", "eq_bug_jar", "eq_p0_gavel"], "bonuses": [
+      { "count": 2, "desc": "攻击 +6%", "effects": { "atkMul": 0.06 } },
+      { "count": 4, "desc": "攻击 +10%，Boss残血时伤害+30%", "effects": { "atkMul": 0.1, "executePct": 0.3 } }
+    ] },
+    { "id": "set_automation", "name": "自动化套", "profession": "QA", "members": ["eq_autotest_scroll", "eq_mock_mask", "eq_log_replay"], "bonuses": [
+      { "count": 2, "desc": "攻速 +6%", "effects": { "aspdMul": 0.06 } },
+      { "count": 3, "desc": "攻速 +11%，攻击命中全体敌人", "effects": { "aspdMul": 0.11, "aoe": true } }
+    ] },
+    { "id": "set_cloudnative", "name": "云原生套", "profession": "DEVOPS", "members": ["eq_docker_whistle", "eq_k8s_helm", "eq_selfheal_core"], "bonuses": [
+      { "count": 2, "desc": "生命 +35", "effects": { "maxHpBonus": 35 } },
+      { "count": 3, "desc": "生命 +60，击杀回血+3，分身上限+2", "effects": { "maxHpBonus": 60, "healPerKill": 3, "summonCapBonus": 2 } }
+    ] },
+    { "id": "set_neverdown", "name": "永不宕机套", "profession": "DEVOPS", "members": ["eq_prometheus_eye", "eq_nginx_mirror", "eq_backup_talisman", "eq_cert_renewal"], "bonuses": [
+      { "count": 2, "desc": "减伤 +6%", "effects": { "damageReduce": 0.06 } },
+      { "count": 4, "desc": "减伤 +10%，死亡时原地复活一次（50%生命）", "effects": { "damageReduce": 0.1, "reviveOnce": true } }
+    ] },
+    { "id": "set_996", "name": "996奋斗套", "members": ["eq_mech_keyboard", "eq_coffee_cup", "eq_dual_monitor", "eq_red_badge"], "bonuses": [
+      { "count": 2, "desc": "任务效率 +15%", "effects": { "taskEfficiency": 0.15 } },
+      { "count": 4, "desc": "任务效率 +25%，但疲劳增长 +30%", "effects": { "taskEfficiency": 0.25, "fatigueGainMul": 1.3 } }
+    ] },
+    { "id": "set_fish", "name": "带薪摸鱼套", "members": ["eq_fish_monitor", "eq_cactus", "eq_lunch_box", "eq_company_mug"], "bonuses": [
+      { "count": 2, "desc": "摸鱼时道心恢复 +20%", "effects": { "mindRecoveryMul": 1.2 } },
+      { "count": 4, "desc": "道心恢复 +35%，带薪摸鱼额外获得职业经验，绩效风险略升", "effects": { "mindRecoveryMul": 1.35, "professionExpBonus": 0.2, "performanceRisk": 0.05 } }
+    ] },
+    { "id": "set_veteran", "name": "老油条套", "members": ["eq_old_thinkpad", "eq_legacy_doc", "eq_signed_boss_book", "eq_dark_hoodie"], "bonuses": [
+      { "count": 2, "desc": "闪避 +6%", "effects": { "dodgeBonus": 0.06 } },
+      { "count": 4, "desc": "闪避 +10%，事故概率下降，但职业经验获取 -10%", "effects": { "dodgeBonus": 0.1, "incidentRiskMul": 0.85, "professionExpBonus": -0.1 } }
+    ] }
+  ]
+}

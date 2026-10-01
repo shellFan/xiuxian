@@ -128,6 +128,7 @@ export class IncidentService {
       this.context.gameDay.recordEventInterval('INCIDENT', incident.id, start, end);
     }
     this.bumpLifetime('incidentMitigationSeconds', incident.mitigationSeconds);
+    this.bumpLifetime('incidentsRecovered', 1);
     return next;
   }
 

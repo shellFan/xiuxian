@@ -1,4 +1,4 @@
-export const CURRENT_SAVE_VERSION = 11;
+export const CURRENT_SAVE_VERSION = 12;
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -381,6 +381,81 @@ export interface GameSaveData {
   readonly fatigue?: number;
   /** 进行中的项目状态机（ProjectService）。 */
   readonly project?: ProjectState | null;
+
+  // ── V5.7 Depth & Retention（saveVersion 12） ──
+  /** 技能进化：baseSkillId → 已选 evolution option id（Reload 不丢）。 */
+  readonly skillEvolutions?: Readonly<Record<string, string>>;
+  /** 已发现的道法共鸣（跨 run 永久）。 */
+  readonly synergyDiscovered?: readonly string[];
+  /** NPC 记忆：npcId → { flags, entries }。 */
+  readonly npcMemories?: Readonly<Record<string, NpcMemoryState>>;
+  /** V5.7 第一周剧情扩展节拍（fw57 步）。 */
+  readonly weekStory?: WeekStoryState;
+  /** 周目标（周一重掷）。 */
+  readonly weeklyGoals?: WeeklyGoalsState | null;
+  /** 项目历史（连续性/回归/战绩）。 */
+  readonly projectHistory?: readonly ProjectHistoryRecordState[];
+  /** 图鉴（怪物/Boss/装备/事件/成就发现）。 */
+  readonly codex?: CodexState;
+  /** Boss 专属掉落保底计数。 */
+  readonly bossPity?: Readonly<Record<string, number>>;
+  /** 今日情境（DailySituation）。 */
+  readonly dailySituation?: string;
+  /** 公司宗门（CompanyProfile）。 */
+  readonly companyProfile?: string;
+  /** 已触发的隐藏事件。 */
+  readonly secretEventsDone?: readonly string[];
+  /** 周结算就绪标记（周日 10:00）。 */
+  readonly weekSettlementReady?: boolean;
+  /** 强制休息（疲劳 100 触发，休息后解除）。 */
+  readonly fatigueForcedRest?: boolean;
+  /** 职业等级 perk 已领取键（profession:level）。 */
+  readonly professionPerksGranted?: readonly string[];
+}
+
+// ── V5.7 新状态类型 ──
+
+export interface NpcMemoryState {
+  readonly flags: readonly string[];
+  readonly entries: readonly { readonly dayIndex: number; readonly kind: string; readonly text: string }[];
+}
+
+export interface WeekStoryState {
+  readonly weekIndex: number;
+  readonly doneSteps: readonly string[];
+}
+
+export interface WeeklyGoalsState {
+  readonly weekIndex: number;
+  readonly goalIds: readonly string[];
+  readonly progress: Readonly<Record<string, number>>;
+  readonly claimed: boolean;
+}
+
+export interface ProjectHistoryRecordState {
+  readonly id: string;
+  readonly name: string;
+  readonly type: string;
+  readonly status: string;
+  readonly ending: string;
+  readonly startedDayIndex: number;
+  readonly completedDayIndex: number;
+  readonly delays: number;
+  readonly requirementChanges: number;
+  readonly bugCount: number;
+  readonly techDebt: number;
+  readonly spentMinutes: number;
+  readonly decisionCount: number;
+  readonly s1Count: number;
+  readonly npcIds: readonly string[];
+  readonly bossIds: readonly string[];
+}
+
+export interface CodexState {
+  readonly monsters: readonly string[];
+  readonly bosses: readonly string[];
+  readonly equipment: readonly string[];
+  readonly events: readonly string[];
 }
 
 export type MessengerConversationType =

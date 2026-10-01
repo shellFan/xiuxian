@@ -225,8 +225,18 @@ export class TaskRuntimeDirector {
       if (amount >= 0) this.context.techDebt.add(domain, amount);
       else this.context.techDebt.repay(domain, Math.ceil(-amount * 6));
     }
-    if (fx.evidence) for (const [type, label] of fx.evidence) this.context.evidence.grant(type as never, label);
-    if (fx.npc) for (const [npc, delta] of fx.npc) this.context.npc.change(npc as never, delta);
+    if (fx.evidence) for (const [type, label] of fx.evidence) {
+      this.context.evidence.grant(type as never, label);
+      try { this.context.week.recordProgress('EVIDENCE_COUNT', 1); } catch { /* ignore */ }
+    }
+    if (fx.npc) for (const [npc, delta] of fx.npc) {
+      this.context.npc.change(npc as never, delta);
+      // V5.7 NPC 记忆：帮人记恩，伤人记仇
+      try {
+        if (delta >= 2) this.context.npcMemory.remember(npc, 'HELPED_ME', `任务事件中你帮了他（${reply.text.slice(0, 24)}…）`);
+        else if (delta <= -2) this.context.npcMemory.remember(npc, 'REFUSED_ME', `任务事件中你拒绝了他`);
+      } catch { /* ignore */ }
+    }
     if (fx.mind) this.context.player.mind = Math.max(0, Math.min(this.context.player.maxMind, this.context.player.mind + fx.mind));
     if (fx.performance) this.context.player.performance = Math.max(0, this.context.player.performance + fx.performance);
     if (fx.professionExp) this.context.profession.grantExp(fx.professionExp);
@@ -333,16 +343,18 @@ export class TaskRuntimeDirector {
     const debtAvg = this.context.techDebt?.average?.() ?? 0;
     const pool = MESSENGER_CONTENT.events.filter((e): e is MessengerEventDef & TaskRuntimeEventDef => {
       const rt = e as unknown as TaskRuntimeEventDef;
-      if (!rt.category || (rt as unknown as { weight: number }).weight !== 0) return false;
+      if (!rt.category) return false;
+      if (rt.weight !== 0) return false; // 专用池：weight=0 不进随机消息池
       if (!rt.professions) return true;
       return rt.professions.includes(professionId);
     });
     if (pool.length === 0) return null;
-    // 技术债越高，TECH 类事件权重越大（§15.3）
+    // 技术债越高，TECH 类事件权重越大（§15.3）；JSON 未配 weight 的运行时事件默认 2
     const weighted: TaskRuntimeEventDef[] = [];
     for (const e of pool) {
+      const baseWeight = e.weight > 0 ? e.weight : 2;
       const boost = e.category === 'TECH' && debtAvg > 40 ? 2 : 1;
-      for (let i = 0; i < e.weight * boost; i += 1) weighted.push(e);
+      for (let i = 0; i < baseWeight * boost; i += 1) weighted.push(e);
     }
     let state = (task.runtimeSeed ?? 1) + (task.interruptionCount ?? 0) * 7919;
     state = (state ^ 0x9e3779b9) >>> 0;

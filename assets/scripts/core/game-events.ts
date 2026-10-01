@@ -113,6 +113,16 @@ export interface GameEvents extends Record<string, unknown> {
   readonly professionChosen: ProfessionChosenEvent;
   readonly professionExpGained: ProfessionExpGainedEvent;
   readonly evidenceGained: EvidenceGainedEvent;
+  // ── V5.7 ──
+  readonly weekSettlementReady: { readonly weekIndex: number };
+  readonly weeklyGoalDone: { readonly goalId: string; readonly doneCount: number };
+  readonly weeklyRewardClaimed: { readonly professionExp: number };
+  readonly secretEventFired: { readonly id: string; readonly name: string; readonly text: string };
+  readonly synergyActivated: { readonly synergyId: string; readonly name: string };
+  readonly bossExclusiveDrop: { readonly bossId: string; readonly equipmentId: string; readonly viaPity: boolean };
+  readonly fatigueCritical: { readonly value: number; readonly text: string };
+  readonly projectArchived: { readonly projectId: string; readonly name: string; readonly ending: string };
+  readonly equipmentAcquired: { readonly equipmentId: string };
   /** @deprecated No merge board in PC V1. */
   readonly workerRecruited: WorkerRecruitedEvent;
   readonly gameSaved: GameSavedEvent;

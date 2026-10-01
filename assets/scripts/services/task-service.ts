@@ -248,6 +248,14 @@ export class TaskService {
 
       task.claimed = true;
       this.context.kpi.recordTaskDone();
+      // V5.7：职业任务计数（周目标）+ 计划条目完成标记 + 职业经验（§14：职业任务为经验来源）
+      try {
+        const stats = this.context.player.lifetimeStats;
+        this.context.player.lifetimeStats = { ...stats, tasksDone: (stats.tasksDone ?? 0) + 1 };
+        this.context.week.recordProgress('PROFESSION_TASKS', 1);
+        this.context.profession.grantExp(8);
+        this.context.dailyPlanner.markPlanDoneByTask(String((task as unknown as { title?: string }).title ?? task.taskId));
+      } catch { /* V5.7 hooks must not block claims */ }
       this.context.saveService.save(this.context.player);
 
       this.context.events.emit('taskClaimed', {

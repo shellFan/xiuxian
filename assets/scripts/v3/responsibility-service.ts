@@ -96,6 +96,11 @@ export class ResponsibilityService {
     }
     const perf = 3;
     const rel: Record<string, number> = { [kase.sourceNpc]: -8 };
+    try {
+      const stats = this.context.player.lifetimeStats;
+      this.context.player.lifetimeStats = { ...stats, blameReturned: (stats.blameReturned ?? 0) + 1 };
+      this.context.npcMemory.remember(String(kase.sourceNpc), 'THREW_ME_UNDER_BUS', `甩锅案：你用证据反杀（${kase.cause}）`);
+    } catch { /* V5.7 counters */ }
     return this.resolve(caseId, 'PLAYER_CLEARED', perf, rel, '证据摆出来，会议室安静了三秒。锅物归原主。');
   }
 

@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -93,6 +93,20 @@ export interface PlayerDataOptions {
   readonly profession?: string;
   readonly professionExp?: number;
   readonly professionFreeRechooseUsed?: boolean;
+  readonly skillEvolutions?: Record<string, string>;
+  readonly synergyDiscovered?: readonly string[];
+  readonly npcMemories?: Record<string, NpcMemoryState>;
+  readonly weekStory?: WeekStoryState;
+  readonly weeklyGoals?: WeeklyGoalsState | null;
+  readonly projectHistory?: readonly ProjectHistoryRecordState[];
+  readonly codex?: CodexState;
+  readonly bossPity?: Record<string, number>;
+  readonly dailySituation?: string;
+  readonly companyProfile?: string;
+  readonly secretEventsDone?: readonly string[];
+  readonly weekSettlementReady?: boolean;
+  readonly fatigueForcedRest?: boolean;
+  readonly professionPerksGranted?: readonly string[];
 }
 
 export class PlayerData {
@@ -201,6 +215,21 @@ export class PlayerData {
   public profession?: string;
   public professionExp: number;
   public professionFreeRechooseUsed: boolean;
+  // V5.7
+  public skillEvolutions: Record<string, string>;
+  public synergyDiscovered: string[];
+  public npcMemories: Record<string, NpcMemoryState>;
+  public weekStory: WeekStoryState;
+  public weeklyGoals: WeeklyGoalsState | null;
+  public projectHistory: ProjectHistoryRecordState[];
+  public codex: CodexState;
+  public bossPity: Record<string, number>;
+  public dailySituation: string;
+  public companyProfile: string;
+  public secretEventsDone: string[];
+  public weekSettlementReady: boolean;
+  public fatigueForcedRest: boolean;
+  public professionPerksGranted: string[];
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -291,9 +320,24 @@ export class PlayerData {
     this.dailyReality = [...(options.dailyReality ?? [])];
     this.fatigue = Math.max(0, Math.min(100, options.fatigue ?? 0));
     this.project = options.project ? { ...options.project } : null;
-    this.profession = options.profession ?? 'JAVA_BACKEND';
+    // V5.7：新档 profession 保持未选（触发职业选择首屏）；旧档由 save-service 迁移默认
+    this.profession = options.profession;
     this.professionExp = options.professionExp ?? 0;
     this.professionFreeRechooseUsed = options.professionFreeRechooseUsed === true;
+    this.skillEvolutions = { ...(options.skillEvolutions ?? {}) };
+    this.synergyDiscovered = [...(options.synergyDiscovered ?? [])];
+    this.npcMemories = this.normalizeMemories(options.npcMemories);
+    this.weekStory = options.weekStory ? { weekIndex: options.weekStory.weekIndex ?? 1, doneSteps: [...(options.weekStory.doneSteps ?? [])] } : { weekIndex: 1, doneSteps: [] };
+    this.weeklyGoals = options.weeklyGoals ? { weekIndex: options.weeklyGoals.weekIndex, goalIds: [...options.weeklyGoals.goalIds], progress: { ...(options.weeklyGoals.progress ?? {}) }, claimed: options.weeklyGoals.claimed === true } : null;
+    this.projectHistory = [...(options.projectHistory ?? [])];
+    this.codex = { monsters: [...(options.codex?.monsters ?? [])], bosses: [...(options.codex?.bosses ?? [])], equipment: [...(options.codex?.equipment ?? [])], events: [...(options.codex?.events ?? [])] };
+    this.bossPity = { ...(options.bossPity ?? {}) };
+    this.dailySituation = options.dailySituation ?? 'sit_normal';
+    this.companyProfile = options.companyProfile ?? 'COMP_MIN_PRIVATE';
+    this.secretEventsDone = [...(options.secretEventsDone ?? [])];
+    this.weekSettlementReady = options.weekSettlementReady === true;
+    this.fatigueForcedRest = options.fatigueForcedRest === true;
+    this.professionPerksGranted = [...(options.professionPerksGranted ?? [])];
   }
 
   public static createDefault(): PlayerData {
@@ -372,6 +416,20 @@ export class PlayerData {
       profession: this.profession,
       professionExp: this.professionExp,
       professionFreeRechooseUsed: this.professionFreeRechooseUsed,
+      skillEvolutions: { ...this.skillEvolutions },
+      synergyDiscovered: [...this.synergyDiscovered],
+      npcMemories: Object.fromEntries(Object.entries(this.npcMemories).map(([k, v]) => [k, { flags: [...v.flags], entries: v.entries.map((e) => ({ ...e })) }])),
+      weekStory: { weekIndex: this.weekStory.weekIndex, doneSteps: [...this.weekStory.doneSteps] },
+      weeklyGoals: this.weeklyGoals ? { ...this.weeklyGoals, goalIds: [...this.weeklyGoals.goalIds], progress: { ...this.weeklyGoals.progress } } : null,
+      projectHistory: this.projectHistory.map((h) => ({ ...h })),
+      codex: { monsters: [...this.codex.monsters], bosses: [...this.codex.bosses], equipment: [...this.codex.equipment], events: [...this.codex.events] },
+      bossPity: { ...this.bossPity },
+      dailySituation: this.dailySituation,
+      companyProfile: this.companyProfile,
+      secretEventsDone: [...this.secretEventsDone],
+      weekSettlementReady: this.weekSettlementReady,
+      fatigueForcedRest: this.fatigueForcedRest,
+      professionPerksGranted: [...this.professionPerksGranted],
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
@@ -382,6 +440,16 @@ export class PlayerData {
     if (this.socialMindRemainder !== 0) Object.assign(data, { socialMindRemainder: this.socialMindRemainder });
     if (this.mindRemainder !== 0) Object.assign(data, { mindRemainder: this.mindRemainder });
     return data;
+  }
+
+  /** NPC 记忆规范化（旧档/脏数据兜底）。 */
+  private normalizeMemories(raw: Record<string, NpcMemoryState> | undefined): Record<string, NpcMemoryState> {
+    const out: Record<string, NpcMemoryState> = {};
+    for (const [npcId, mem] of Object.entries(raw ?? {})) {
+      if (!mem || !Array.isArray(mem.flags) || !Array.isArray(mem.entries)) continue;
+      out[npcId] = { flags: mem.flags.filter((f) => typeof f === 'string'), entries: mem.entries.filter((e) => e && typeof e.text === 'string').slice(-12) };
+    }
+    return out;
   }
 }
 

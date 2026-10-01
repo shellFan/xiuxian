@@ -45,6 +45,8 @@ export class EvidenceService {
     // 上限保护：最旧的先淘汰，防止无限膨胀。
     const next = [...player.evidence, item];
     player.evidence = next.length > MAX_EVIDENCE ? next.slice(next.length - MAX_EVIDENCE) : next;
+    // V5.7：终身证据计数（成就/隐藏事件/周目标）
+    player.lifetimeStats = { ...player.lifetimeStats, evidenceCollected: (player.lifetimeStats.evidenceCollected ?? 0) + 1 };
     return item;
   }
 

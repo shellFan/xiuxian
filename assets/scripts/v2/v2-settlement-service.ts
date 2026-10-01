@@ -350,6 +350,19 @@ export class DaySettlementService {
     };
 
     try {
+      // ── V5.7：疲劳下班恢复 + 准点下班统计 + 下班道心恢复（休息也是玩法 §83/§84） ──
+      try {
+        const offWork = this.gameDay.isOffWork();
+        this.context.fatigue.recover('OFF_WORK');
+        p.mind = Math.min(p.maxMind, p.mind + 35);
+        if (offWork && day.durations.overtime === 0) {
+          const stats = p.lifetimeStats;
+          p.lifetimeStats = { ...stats, ontimeDays: (stats.ontimeDays ?? 0) + 1 };
+          try { this.context.week.recordProgress('ONTIME_DAYS', 1); } catch { /* goal hook */ }
+        }
+        if (day.weekday === 6 || day.weekday === 0) this.context.fatigue.onWeekend();
+        p.weekSettlementReady = false;
+      } catch { /* V5.7 fatigue hooks must not block settlement */ }
       if (isWeekly) {
         const weekly = this.settleWeekly(day.dayIndex);
         void weekly;

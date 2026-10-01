@@ -1,6 +1,10 @@
 import type { GameContext } from '../core/game-context';
 import type { ProjectDecisionRecord, ProjectState } from '../model/save-data';
 
+const ENDING_CN: Record<string, string> = {
+  COMPLETED: '完美上线', DELAYED: '延期上线', CANCELLED: '项目取消', FAILED: '项目烂尾',
+};
+
 /**
  * V5.6 P0-4：项目状态机（§7）。
  * 项目结局从 UI 移入 domain：resolveProjectDecision 由 facade 暴露，UI 只渲染。
@@ -171,6 +175,7 @@ export class ProjectService {
 
   /** 战斗胜利推进项目阶段（§31：Boss 胜利自动完成待办 + 项目进度）。 */
   public advanceFromBattle(wave: number, victory: boolean): void {
+    try { this.context.week.recordProgress('PROJECT_STAGE', 1); } catch { /* weekly goal hook */ }
     const project = this.ensureProject();
     project.battleStage = Math.max(project.battleStage, wave);
     project.progress = Math.min(95, Math.round((wave / 5) * 100));
@@ -205,6 +210,13 @@ export class ProjectService {
       at: this.context.clockV2.now(),
     };
     project.decisionHistory = [...project.decisionHistory, record].slice(-32);
+    // V5.7：项目进入终态 → 归档历史 + 职业经验（§58/§14）
+    if (['COMPLETED', 'CANCELLED', 'FAILED', 'DELAYED'].includes(project.status)) {
+      try {
+        this.context.projectHistory.archiveFromCurrent(project.status === 'COMPLETED' ? '完美上线' : (ENDING_CN[project.status] ?? project.status));
+        this.context.profession.grantExp(project.status === 'COMPLETED' ? 80 : 30);
+      } catch { /* V5.7 hooks must not block decisions */ }
+    }
     this.context.saveService.save(this.context.player);
     this.context.events.emit('projectDecision', { projectId: project.id, decisionId, label: decision.label });
     return { ok: true, label: decision.label };

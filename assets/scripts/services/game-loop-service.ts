@@ -22,6 +22,7 @@ export class GameLoopService {
   private accumulatedSeconds = 0;
   private autoSaveAccumulatedSeconds = 0;
   private achievementAccumulatedSeconds = 0;
+  private workFatigueAccumulator = 0;
   private running = false;
   /** Epsilon for floating-point tolerance in fixed-step accumulation. */
   private static readonly EPSILON = 1e-9;
@@ -147,15 +148,39 @@ export class GameLoopService {
       this.context.messenger.ensureInitialized();
       this.context.taskRuntimeDirector.tick(this.context.clockV2.now());
       this.context.storyDirector.tick(this.context.clockV2.now());
+      // V5.7 周导演：第一周节拍 / 周日结算 / 隐藏事件。
+      this.context.week.tick(this.context.clockV2.now());
       // 09:00 开工时刷新每日计划（每个自然日只触发一次）
       const gameDate = this.context.clockV2.getGameDate();
       const planStamp = `v5plan:${gameDate.dayNumber}`;
       if (!this.context.player.eventFlags?.[planStamp] && this.context.gameDay.dayIndex() > 0) {
         this.context.player.eventFlags = { ...(this.context.player.eventFlags ?? {}), [planStamp]: true };
         this.context.storyDirector.beginWorkday();
+        this.context.week.beginWorkday();
+        this.context.professionContent.grantLevelUps();
       }
     } catch {
       // V5 story director failure must not crash the game loop
+    }
+
+    // 8.7 V5.7 疲劳：工作累积，摸鱼/修炼缓慢恢复（§80/§81）。
+    try {
+      if (workResult.elapsedSeconds > 0) {
+        if (workResult.mode === 'WORK') {
+          this.workFatigueAccumulator += workResult.elapsedSeconds;
+          if (this.workFatigueAccumulator >= 30) {
+            const minutes = Math.floor(this.workFatigueAccumulator / 60);
+            this.workFatigueAccumulator -= minutes * 60;
+            this.context.fatigue.add('WORK', minutes);
+          }
+        } else if (workResult.mode === 'FISHING') {
+          this.context.fatigue.add('FISHING', workResult.elapsedSeconds / 60);
+        } else if (workResult.mode === 'CULTIVATING') {
+          this.context.fatigue.add('CULTIVATE', workResult.elapsedSeconds / 60);
+        }
+      }
+    } catch {
+      // Fatigue accumulation must not crash the game loop
     }
 
     // 9. Tutorial auto-advance check

@@ -14,6 +14,7 @@ import type { RandomService, Rng } from './random-service';
 import type { GameClockV2 } from './v2-clock';
 import type { GameDayService } from './game-day-service';
 import itemsConfig from '../../configs/v2/items.json';
+import v57EquipmentConfig from '../../configs/v57/equipment-content.json';
 
 export interface MaterialDef {
   readonly id: string;
@@ -60,7 +61,7 @@ export interface TechniqueDef {
 export interface EquipmentDef {
   readonly id: string;
   readonly name: string;
-  readonly rarity: 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
+  readonly rarity: 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
   readonly slot: 'DESK' | 'BADGE' | 'ACCESSORY';
   readonly description: string;
   readonly modifiers: TechniqueModifiers;
@@ -113,7 +114,9 @@ interface ItemsBundle {
 export const ITEMS = itemsConfig as unknown as ItemsBundle;
 export const MATERIAL_MAP = new Map(ITEMS.materials.map((m) => [m.id, m]));
 export const TECHNIQUE_MAP = new Map(ITEMS.techniques.map((t) => [t.id, t]));
-export const EQUIPMENT_MAP = new Map(ITEMS.equipment.map((e) => [e.id, e]));
+/** V5.7 职业装备（48 专属 + 2 Boss 通用掉落），与 v2 装备合并进 EQUIPMENT_MAP。 */
+export const V57_EQUIPMENT_DEFS = (v57EquipmentConfig as { equipment: EquipmentDef[] }).equipment;
+export const EQUIPMENT_MAP = new Map([...ITEMS.equipment, ...V57_EQUIPMENT_DEFS].map((e) => [e.id, e]));
 export const RECIPE_MAP = new Map(ITEMS.recipes.map((r) => [r.id, r]));
 export const CONSUMABLE_MAP = new Map(ITEMS.consumables.map((c) => [c.id, c]));
 

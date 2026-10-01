@@ -1,619 +1,1096 @@
 {
- "achievements": [
-  {
-   "id": "FIRST_MERGE",
-   "name": "初入职场",
-   "description": "首次合成牛马",
-   "category": "MERGE",
-   "condition": {
-    "type": "KPI",
-    "kpiKey": "MERGE_COUNT",
-    "target": 1
-   },
-   "reward": {
-    "salary": 50
-   }
-  },
-  {
-   "id": "MERGE_10",
-   "name": "小有名气",
-   "description": "合成 10 次牛马",
-   "category": "MERGE",
-   "condition": {
-    "type": "KPI",
-    "kpiKey": "MERGE_COUNT",
-    "target": 10
-   },
-   "reward": {
-    "salary": 100
-   }
-  },
-  {
-   "id": "MERGE_50",
-   "name": "合成达人",
-   "description": "合成 50 次牛马",
-   "category": "MERGE",
-   "condition": {
-    "type": "KPI",
-    "kpiKey": "MERGE_COUNT",
-    "target": 50
-   },
-   "reward": {
-    "salary": 200,
-    "cultivation": 50
-   }
-  },
-  {
-   "id": "MERGE_100",
-   "name": "合成大师",
-   "description": "合成 100 次牛马",
-   "category": "MERGE",
-   "condition": {
-    "type": "KPI",
-    "kpiKey": "MERGE_COUNT",
-    "target": 100
-   },
-   "reward": {
-    "salary": 500,
-    "cultivation": 100
-   }
-  },
-  {
-   "id": "SALARY_1000",
-   "name": "小富即安",
-   "description": "累计工资达到 1000",
-   "category": "SALARY",
-   "condition": {
-    "type": "SALARY",
-    "target": 1000
-   },
-   "reward": {
-    "cultivation": 30
-   }
-  },
-  {
-   "id": "SALARY_5000",
-   "name": "财源广进",
-   "description": "累计工资达到 5000",
-   "category": "SALARY",
-   "condition": {
-    "type": "SALARY",
-    "target": 5000
-   },
-   "reward": {
-    "cultivation": 80
-   }
-  },
-  {
-   "id": "SALARY_10000",
-   "name": "日进斗金",
-   "description": "累计工资达到 10000",
-   "category": "SALARY",
-   "condition": {
-    "type": "SALARY",
-    "target": 10000
-   },
-   "reward": {
-    "cultivation": 200
-   }
-  },
-  {
-   "id": "SALARY_50000",
-   "name": "富甲一方",
-   "description": "累计工资达到 50000",
-   "category": "SALARY",
-   "condition": {
-    "type": "SALARY",
-    "target": 50000
-   },
-   "reward": {
-    "cultivation": 500
-   }
-  },
-  {
-   "id": "REACH_LIANQI",
-   "name": "练气入门",
-   "description": "从实习牛马转正",
-   "category": "CAREER",
-   "condition": {
-    "type": "CAREER_LEVEL",
-    "target": 1
-   }
-  },
-  {
-   "id": "REACH_ZHUJI",
-   "name": "筑基初成",
-   "description": "晋升为正式牛马",
-   "category": "CAREER",
-   "condition": {
-    "type": "CAREER_LEVEL",
-    "target": 2
-   }
-  },
-  {
-   "id": "REACH_JINDAN",
-   "name": "金丹大道",
-   "description": "达到部门主管",
-   "category": "CAREER",
-   "condition": {
-    "type": "CAREER_LEVEL",
-    "target": 3
-   }
-  },
-  {
-   "id": "REACH_YUANYING",
-   "name": "元婴出窍",
-   "description": "达到部门经理",
-   "category": "CAREER",
-   "condition": {
-    "type": "CAREER_LEVEL",
-    "target": 4
-   }
-  },
-  {
-   "id": "REACH_HUASHEN",
-   "name": "化神归真",
-   "description": "达到高级经理",
-   "category": "CAREER",
-   "condition": {
-    "type": "CAREER_LEVEL",
-    "target": 5
-   }
-  },
-  {
-   "id": "REACH_LIANXU",
-   "name": "炼虚通玄",
-   "description": "达到区域副总监",
-   "category": "CAREER",
-   "condition": {
-    "type": "CAREER_LEVEL",
-    "target": 6
-   }
-  },
-  {
-   "id": "REACH_HETI",
-   "name": "合体归一",
-   "description": "达到部门主管",
-   "category": "CAREER",
-   "condition": {
-    "type": "CAREER_LEVEL",
-    "target": 7
-   }
-  },
-  {
-   "id": "REACH_DACHENG",
-   "name": "大乘圆满",
-   "description": "达到部门经理",
-   "category": "CAREER",
-   "condition": {
-    "type": "CAREER_LEVEL",
-    "target": 8
-   }
-  },
-  {
-   "id": "REACH_DUJIE",
-   "name": "渡劫飞升",
-   "description": "达到高级经理",
-   "category": "CAREER",
-   "condition": {
-    "type": "CAREER_LEVEL",
-    "target": 9
-   }
-  },
-  {
-   "id": "REACH_FEISHENG",
-   "name": "飞升成仙",
-   "description": "达到区域副总监",
-   "category": "CAREER",
-   "condition": {
-    "type": "CAREER_LEVEL",
-    "target": 10
-   }
-  },
-  {
-   "id": "RARE_EVENT",
-   "name": "天降奇缘",
-   "description": "触发稀有事件",
-   "category": "EVENT",
-   "condition": {
-    "type": "EVENT_TYPE",
-    "eventType": "RARE"
-   }
-  },
-  {
-   "id": "EASTER_EGG",
-   "name": "彩蛋猎人",
-   "description": "触发彩蛋事件",
-   "category": "EVENT",
-   "condition": {
-    "type": "EVENT_TYPE",
-    "eventType": "EASTER_EGG"
-   }
-  },
-  {
-   "id": "PROMOTION_SUCCESS",
-   "name": "步步高升",
-   "description": "首次晋升成功",
-   "category": "PROMOTION",
-   "condition": {
-    "type": "PROMOTION",
-    "target": 1
-   },
-   "reward": {
-    "salary": 200,
-    "cultivation": 50
-   }
-  },
-  {
-   "id": "PROMOTION_5",
-   "name": "平步青云",
-   "description": "累计晋升 5 次",
-   "category": "PROMOTION",
-   "condition": {
-    "type": "PROMOTION",
-    "target": 5
-   },
-   "reward": {
-    "salary": 1000,
-    "cultivation": 300
-   }
-  },
-  {
-   "id": "OFFICE_3",
-   "name": "升堂入室",
-   "description": "达到 3 级办公室",
-   "category": "OFFICE",
-   "condition": {
-    "type": "OFFICE_LEVEL",
-    "target": 3
-   }
-  },
-  {
-   "id": "OFFICE_5",
-   "name": "高管专属",
-   "description": "达到 5 级办公室",
-   "category": "OFFICE",
-   "condition": {
-    "type": "OFFICE_LEVEL",
-    "target": 5
-   }
-  },
-  {
-   "id": "MIND_FULL",
-   "name": "道心圆满",
-   "description": "道心达到满值",
-   "category": "MIND",
-   "condition": {
-    "type": "MIND_FULL"
-   }
-  },
-  {
-   "id": "IDLE_CLAIM",
-   "name": "挂机达人",
-   "description": "首次领取离线收益",
-   "category": "IDLE",
-   "condition": {
-    "type": "IDLE_CLAIM",
-    "target": 1
-   }
-  },
-  {
-   "id": "SECT_JOIN",
-   "name": "拜入宗门",
-   "description": "加入宗门",
-   "category": "SECT",
-   "condition": {
-    "type": "SECT_JOIN"
-   }
-  },
-  {
-   "id": "TALENT_PICK",
-   "name": "天赋异禀",
-   "description": "选择天赋",
-   "category": "TALENT",
-   "condition": {
-    "type": "TALENT_PICK"
-   }
-  },
-  {
-   "id": "WORK_1H",
-   "name": "勤勉修行",
-   "description": "累计工作 1 小时",
-   "category": "WORK",
-   "condition": {
-    "type": "WORK_SECONDS",
-    "target": 3600
-   }
-  },
-  {
-   "id": "WORK_10H",
-   "name": "工作狂人",
-   "description": "累计工作 10 小时",
-   "category": "WORK",
-   "condition": {
-    "type": "WORK_SECONDS",
-    "target": 36000
-   }
-  },
-  {
-   "id": "V5_ZAI_MA",
-   "name": "在吗？",
-   "description": "一天收到 5 次「在吗」类开场",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:read_no_reply",
-    "target": 5
-   },
-   "reward": {
-    "mind": 20
-   }
-  },
-  {
-   "id": "V5_READ_NO_REPLY",
-   "name": "已读不回",
-   "description": "累计 5 次已读不回并全身而退",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:read_no_reply",
-    "target": 5
-   },
-   "reward": {
-    "mind": 30
-   }
-  },
-  {
-   "id": "V5_EVIDENCE_COUNTER",
-   "name": "证据确凿",
-   "description": "用聊天记录/提交记录成功反杀 3 次",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:evidence_counter",
-    "target": 3
-   },
-   "reward": {
-    "performance": 20
-   }
-  },
-  {
-   "id": "V5_WHO_PROMISED",
-   "name": "谁承诺的谁做",
-   "description": "拒绝未经自己确认的上线",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:refuse_release",
-    "target": 1
-   },
-   "reward": {
-    "mind": 30
-   }
-  },
-  {
-   "id": "V5_SHARED_POOL",
-   "name": "全公司的共享线程池",
-   "description": "累计帮同事处理 5 次问题",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:favor_count",
-    "target": 5
-   },
-   "reward": {
-    "salary": 100
-   }
-  },
-  {
-   "id": "V5_LEAVE_ON_TIME",
-   "name": "下班仙人",
-   "description": "准时下班 5 次（17:55 拒绝）",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:leave_on_time",
-    "target": 5
-   },
-   "reward": {
-    "mind": 40
-   }
-  },
-  {
-   "id": "V5_FAKE_P0",
-   "name": "这TM是P0？",
-   "description": "识别 5 个假 P0",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:fake_p0_spotted",
-    "target": 5
-   },
-   "reward": {
-    "performance": 15
-   }
-  },
-  {
-   "id": "V5_REAL_P0",
-   "name": "真正的P0",
-   "description": "正确响应 3 次重大事故",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:real_p0",
-    "target": 3
-   },
-   "reward": {
-    "performance": 30
-   }
-  },
-  {
-   "id": "V5_RECALL_EVIDENCE",
-   "name": "撤回也没用",
-   "description": "保存被撤回的关键证据",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:recall_evidence",
-    "target": 1
-   },
-   "reward": {
-    "performance": 15
-   }
-  },
-  {
-   "id": "V5_WEEKEND_REFUSE",
-   "name": "消息免打扰",
-   "description": "周末拒绝 3 次非紧急工作",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:weekend_refuse",
-    "target": 3
-   },
-   "reward": {
-    "mind": 30
-   }
-  },
-  {
-   "id": "V5_ASSERTIVE",
-   "name": "我话说得少",
-   "description": "使用 3 次强硬风格回复",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:assertive_reply",
-    "target": 3
-   },
-   "reward": {
-    "mind": 15
-   }
-  },
-  {
-   "id": "V5_REQ_CONFIRM",
-   "name": "需求确认侠",
-   "description": "需求确认记录救你 3 次",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:req_confirm_save",
-    "target": 3
-   },
-   "reward": {
-    "performance": 20
-   }
-  },
-  {
-   "id": "V5_WITNESS",
-   "name": "有人在看着我",
-   "description": "同事为你作证洗清嫌疑",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:witness_saved",
-    "target": 1
-   },
-   "reward": {
-    "mind": 40
-   }
-  },
-  {
-   "id": "V5_VETERAN_LEGACY",
-   "name": "老油条的真传",
-   "description": "获得老油条的十年避坑笔记",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:veteran_legacy",
-    "target": 1
-   },
-   "reward": {
-    "cultivation": 100
-   }
-  },
-  {
-   "id": "V5_S1_IGNORED",
-   "name": "装死失败",
-   "description": "已读不回 S1（不建议模仿）",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:s1_ignored",
-    "target": 1
-   },
-   "reward": {
-    "mind": 0
-   }
-  },
-  {
-   "id": "V5_CREDIT_FIGHT",
-   "name": "功劳是我的",
-   "description": "成功抢回被窃取的功劳",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:credit_fight_back",
-    "target": 1
-   },
-   "reward": {
-    "performance": 25
-   }
-  },
-  {
-   "id": "V5_CREDIT_STOLEN",
-   "name": "沉默的代价",
-   "description": "第一次被抢功（记住这种感觉）",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:credit_stolen",
-    "target": 1
-   },
-   "reward": {
-    "innerDemon": 0
-   }
-  },
-  {
-   "id": "V5_NIGHT_OWL",
-   "name": "凌晨修仙",
-   "description": "在深夜处理过事故消息",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:real_p0",
-    "target": 1
-   },
-   "reward": {
-    "cultivation": 50
-   }
-  },
-  {
-   "id": "V5_INSIDER",
-   "name": "消息灵通",
-   "description": "获得 3 次内部情报",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:veteran_legacy",
-    "target": 1
-   },
-   "reward": {
-    "mind": 20
-   }
-  },
-  {
-   "id": "V5_PROMO_TRACK",
-   "name": "晋升名单",
-   "description": "进入老板视野（晋升预告）",
-   "category": "WORK",
-   "condition": {
-    "type": "LIFETIME_STAT",
-    "lifetimeKey": "msg_ach:assertive_reply",
-    "target": 1
-   },
-   "reward": {
-    "performance": 10
-   }
-  }
- ]
+  "achievements": [
+    {
+      "id": "FIRST_MERGE",
+      "name": "初入职场",
+      "description": "首次合成牛马",
+      "category": "MERGE",
+      "condition": {
+        "type": "KPI",
+        "kpiKey": "MERGE_COUNT",
+        "target": 1
+      },
+      "reward": {
+        "salary": 50
+      }
+    },
+    {
+      "id": "MERGE_10",
+      "name": "小有名气",
+      "description": "合成 10 次牛马",
+      "category": "MERGE",
+      "condition": {
+        "type": "KPI",
+        "kpiKey": "MERGE_COUNT",
+        "target": 10
+      },
+      "reward": {
+        "salary": 100
+      }
+    },
+    {
+      "id": "MERGE_50",
+      "name": "合成达人",
+      "description": "合成 50 次牛马",
+      "category": "MERGE",
+      "condition": {
+        "type": "KPI",
+        "kpiKey": "MERGE_COUNT",
+        "target": 50
+      },
+      "reward": {
+        "salary": 200,
+        "cultivation": 50
+      }
+    },
+    {
+      "id": "MERGE_100",
+      "name": "合成大师",
+      "description": "合成 100 次牛马",
+      "category": "MERGE",
+      "condition": {
+        "type": "KPI",
+        "kpiKey": "MERGE_COUNT",
+        "target": 100
+      },
+      "reward": {
+        "salary": 500,
+        "cultivation": 100
+      }
+    },
+    {
+      "id": "SALARY_1000",
+      "name": "小富即安",
+      "description": "累计工资达到 1000",
+      "category": "SALARY",
+      "condition": {
+        "type": "SALARY",
+        "target": 1000
+      },
+      "reward": {
+        "cultivation": 30
+      }
+    },
+    {
+      "id": "SALARY_5000",
+      "name": "财源广进",
+      "description": "累计工资达到 5000",
+      "category": "SALARY",
+      "condition": {
+        "type": "SALARY",
+        "target": 5000
+      },
+      "reward": {
+        "cultivation": 80
+      }
+    },
+    {
+      "id": "SALARY_10000",
+      "name": "日进斗金",
+      "description": "累计工资达到 10000",
+      "category": "SALARY",
+      "condition": {
+        "type": "SALARY",
+        "target": 10000
+      },
+      "reward": {
+        "cultivation": 200
+      }
+    },
+    {
+      "id": "SALARY_50000",
+      "name": "富甲一方",
+      "description": "累计工资达到 50000",
+      "category": "SALARY",
+      "condition": {
+        "type": "SALARY",
+        "target": 50000
+      },
+      "reward": {
+        "cultivation": 500
+      }
+    },
+    {
+      "id": "REACH_LIANQI",
+      "name": "练气入门",
+      "description": "从实习牛马转正",
+      "category": "CAREER",
+      "condition": {
+        "type": "CAREER_LEVEL",
+        "target": 1
+      }
+    },
+    {
+      "id": "REACH_ZHUJI",
+      "name": "筑基初成",
+      "description": "晋升为正式牛马",
+      "category": "CAREER",
+      "condition": {
+        "type": "CAREER_LEVEL",
+        "target": 2
+      }
+    },
+    {
+      "id": "REACH_JINDAN",
+      "name": "金丹大道",
+      "description": "达到部门主管",
+      "category": "CAREER",
+      "condition": {
+        "type": "CAREER_LEVEL",
+        "target": 3
+      }
+    },
+    {
+      "id": "REACH_YUANYING",
+      "name": "元婴出窍",
+      "description": "达到部门经理",
+      "category": "CAREER",
+      "condition": {
+        "type": "CAREER_LEVEL",
+        "target": 4
+      }
+    },
+    {
+      "id": "REACH_HUASHEN",
+      "name": "化神归真",
+      "description": "达到高级经理",
+      "category": "CAREER",
+      "condition": {
+        "type": "CAREER_LEVEL",
+        "target": 5
+      }
+    },
+    {
+      "id": "REACH_LIANXU",
+      "name": "炼虚通玄",
+      "description": "达到区域副总监",
+      "category": "CAREER",
+      "condition": {
+        "type": "CAREER_LEVEL",
+        "target": 6
+      }
+    },
+    {
+      "id": "REACH_HETI",
+      "name": "合体归一",
+      "description": "达到部门主管",
+      "category": "CAREER",
+      "condition": {
+        "type": "CAREER_LEVEL",
+        "target": 7
+      }
+    },
+    {
+      "id": "REACH_DACHENG",
+      "name": "大乘圆满",
+      "description": "达到部门经理",
+      "category": "CAREER",
+      "condition": {
+        "type": "CAREER_LEVEL",
+        "target": 8
+      }
+    },
+    {
+      "id": "REACH_DUJIE",
+      "name": "渡劫飞升",
+      "description": "达到高级经理",
+      "category": "CAREER",
+      "condition": {
+        "type": "CAREER_LEVEL",
+        "target": 9
+      }
+    },
+    {
+      "id": "REACH_FEISHENG",
+      "name": "飞升成仙",
+      "description": "达到区域副总监",
+      "category": "CAREER",
+      "condition": {
+        "type": "CAREER_LEVEL",
+        "target": 10
+      }
+    },
+    {
+      "id": "RARE_EVENT",
+      "name": "天降奇缘",
+      "description": "触发稀有事件",
+      "category": "EVENT",
+      "condition": {
+        "type": "EVENT_TYPE",
+        "eventType": "RARE"
+      }
+    },
+    {
+      "id": "EASTER_EGG",
+      "name": "彩蛋猎人",
+      "description": "触发彩蛋事件",
+      "category": "EVENT",
+      "condition": {
+        "type": "EVENT_TYPE",
+        "eventType": "EASTER_EGG"
+      }
+    },
+    {
+      "id": "PROMOTION_SUCCESS",
+      "name": "步步高升",
+      "description": "首次晋升成功",
+      "category": "PROMOTION",
+      "condition": {
+        "type": "PROMOTION",
+        "target": 1
+      },
+      "reward": {
+        "salary": 200,
+        "cultivation": 50
+      }
+    },
+    {
+      "id": "PROMOTION_5",
+      "name": "平步青云",
+      "description": "累计晋升 5 次",
+      "category": "PROMOTION",
+      "condition": {
+        "type": "PROMOTION",
+        "target": 5
+      },
+      "reward": {
+        "salary": 1000,
+        "cultivation": 300
+      }
+    },
+    {
+      "id": "OFFICE_3",
+      "name": "升堂入室",
+      "description": "达到 3 级办公室",
+      "category": "OFFICE",
+      "condition": {
+        "type": "OFFICE_LEVEL",
+        "target": 3
+      }
+    },
+    {
+      "id": "OFFICE_5",
+      "name": "高管专属",
+      "description": "达到 5 级办公室",
+      "category": "OFFICE",
+      "condition": {
+        "type": "OFFICE_LEVEL",
+        "target": 5
+      }
+    },
+    {
+      "id": "MIND_FULL",
+      "name": "道心圆满",
+      "description": "道心达到满值",
+      "category": "MIND",
+      "condition": {
+        "type": "MIND_FULL"
+      }
+    },
+    {
+      "id": "IDLE_CLAIM",
+      "name": "挂机达人",
+      "description": "首次领取离线收益",
+      "category": "IDLE",
+      "condition": {
+        "type": "IDLE_CLAIM",
+        "target": 1
+      }
+    },
+    {
+      "id": "SECT_JOIN",
+      "name": "拜入宗门",
+      "description": "加入宗门",
+      "category": "SECT",
+      "condition": {
+        "type": "SECT_JOIN"
+      }
+    },
+    {
+      "id": "TALENT_PICK",
+      "name": "天赋异禀",
+      "description": "选择天赋",
+      "category": "TALENT",
+      "condition": {
+        "type": "TALENT_PICK"
+      }
+    },
+    {
+      "id": "WORK_1H",
+      "name": "勤勉修行",
+      "description": "累计工作 1 小时",
+      "category": "WORK",
+      "condition": {
+        "type": "WORK_SECONDS",
+        "target": 3600
+      }
+    },
+    {
+      "id": "WORK_10H",
+      "name": "工作狂人",
+      "description": "累计工作 10 小时",
+      "category": "WORK",
+      "condition": {
+        "type": "WORK_SECONDS",
+        "target": 36000
+      }
+    },
+    {
+      "id": "V5_ZAI_MA",
+      "name": "在吗？",
+      "description": "一天收到 5 次「在吗」类开场",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:read_no_reply",
+        "target": 5
+      },
+      "reward": {
+        "mind": 20
+      }
+    },
+    {
+      "id": "V5_READ_NO_REPLY",
+      "name": "已读不回",
+      "description": "累计 5 次已读不回并全身而退",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:read_no_reply",
+        "target": 5
+      },
+      "reward": {
+        "mind": 30
+      }
+    },
+    {
+      "id": "V5_EVIDENCE_COUNTER",
+      "name": "证据确凿",
+      "description": "用聊天记录/提交记录成功反杀 3 次",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:evidence_counter",
+        "target": 3
+      },
+      "reward": {
+        "performance": 20
+      }
+    },
+    {
+      "id": "V5_WHO_PROMISED",
+      "name": "谁承诺的谁做",
+      "description": "拒绝未经自己确认的上线",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:refuse_release",
+        "target": 1
+      },
+      "reward": {
+        "mind": 30
+      }
+    },
+    {
+      "id": "V5_SHARED_POOL",
+      "name": "全公司的共享线程池",
+      "description": "累计帮同事处理 5 次问题",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:favor_count",
+        "target": 5
+      },
+      "reward": {
+        "salary": 100
+      }
+    },
+    {
+      "id": "V5_LEAVE_ON_TIME",
+      "name": "下班仙人",
+      "description": "准时下班 5 次（17:55 拒绝）",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:leave_on_time",
+        "target": 5
+      },
+      "reward": {
+        "mind": 40
+      }
+    },
+    {
+      "id": "V5_FAKE_P0",
+      "name": "这TM是P0？",
+      "description": "识别 5 个假 P0",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:fake_p0_spotted",
+        "target": 5
+      },
+      "reward": {
+        "performance": 15
+      }
+    },
+    {
+      "id": "V5_REAL_P0",
+      "name": "真正的P0",
+      "description": "正确响应 3 次重大事故",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:real_p0",
+        "target": 3
+      },
+      "reward": {
+        "performance": 30
+      }
+    },
+    {
+      "id": "V5_RECALL_EVIDENCE",
+      "name": "撤回也没用",
+      "description": "保存被撤回的关键证据",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:recall_evidence",
+        "target": 1
+      },
+      "reward": {
+        "performance": 15
+      }
+    },
+    {
+      "id": "V5_WEEKEND_REFUSE",
+      "name": "消息免打扰",
+      "description": "周末拒绝 3 次非紧急工作",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:weekend_refuse",
+        "target": 3
+      },
+      "reward": {
+        "mind": 30
+      }
+    },
+    {
+      "id": "V5_ASSERTIVE",
+      "name": "我话说得少",
+      "description": "使用 3 次强硬风格回复",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:assertive_reply",
+        "target": 3
+      },
+      "reward": {
+        "mind": 15
+      }
+    },
+    {
+      "id": "V5_REQ_CONFIRM",
+      "name": "需求确认侠",
+      "description": "需求确认记录救你 3 次",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:req_confirm_save",
+        "target": 3
+      },
+      "reward": {
+        "performance": 20
+      }
+    },
+    {
+      "id": "V5_WITNESS",
+      "name": "有人在看着我",
+      "description": "同事为你作证洗清嫌疑",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:witness_saved",
+        "target": 1
+      },
+      "reward": {
+        "mind": 40
+      }
+    },
+    {
+      "id": "V5_VETERAN_LEGACY",
+      "name": "老油条的真传",
+      "description": "获得老油条的十年避坑笔记",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:veteran_legacy",
+        "target": 1
+      },
+      "reward": {
+        "cultivation": 100
+      }
+    },
+    {
+      "id": "V5_S1_IGNORED",
+      "name": "装死失败",
+      "description": "已读不回 S1（不建议模仿）",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:s1_ignored",
+        "target": 1
+      },
+      "reward": {
+        "mind": 0
+      }
+    },
+    {
+      "id": "V5_CREDIT_FIGHT",
+      "name": "功劳是我的",
+      "description": "成功抢回被窃取的功劳",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:credit_fight_back",
+        "target": 1
+      },
+      "reward": {
+        "performance": 25
+      }
+    },
+    {
+      "id": "V5_CREDIT_STOLEN",
+      "name": "沉默的代价",
+      "description": "第一次被抢功（记住这种感觉）",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:credit_stolen",
+        "target": 1
+      },
+      "reward": {
+        "innerDemon": 0
+      }
+    },
+    {
+      "id": "V5_NIGHT_OWL",
+      "name": "凌晨修仙",
+      "description": "在深夜处理过事故消息",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:real_p0",
+        "target": 1
+      },
+      "reward": {
+        "cultivation": 50
+      }
+    },
+    {
+      "id": "V5_INSIDER",
+      "name": "消息灵通",
+      "description": "获得 3 次内部情报",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:veteran_legacy",
+        "target": 1
+      },
+      "reward": {
+        "mind": 20
+      }
+    },
+    {
+      "id": "V5_PROMO_TRACK",
+      "name": "晋升名单",
+      "description": "进入老板视野（晋升预告）",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "msg_ach:assertive_reply",
+        "target": 1
+      },
+      "reward": {
+        "performance": 10
+      }
+    },
+    {
+      "id": "V57_JA_GC_HEALER",
+      "name": "GC妙手",
+      "description": "累计偿还技术债 100 点",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "techDebtRepaid",
+        "target": 100
+      },
+      "reward": {
+        "cultivation": 40
+      }
+    },
+    {
+      "id": "V57_JA_BOSS_SLAYER",
+      "name": "并发之剑",
+      "description": "击败 3 个 Boss",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "bossKills",
+        "target": 3
+      },
+      "reward": {
+        "spiritStones": 30
+      }
+    },
+    {
+      "id": "V57_JA_TX_GUARD",
+      "name": "事务守护",
+      "description": "完成 20 个任务",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "tasksDone",
+        "target": 20
+      },
+      "reward": {
+        "performance": 10
+      }
+    },
+    {
+      "id": "V57_JA_OOM_VICTOR",
+      "name": "OOM克星",
+      "description": "完成 10 场项目战斗",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "battleRunsDone",
+        "target": 10
+      },
+      "reward": {
+        "cultivation": 40
+      }
+    },
+    {
+      "id": "V57_JA_EVIDENCE_GIT",
+      "name": "Git Blame 熟练",
+      "description": "收集 5 份证据",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "evidenceCollected",
+        "target": 5
+      },
+      "reward": {
+        "mind": 15
+      }
+    },
+    {
+      "id": "V57_JA_HELP",
+      "name": "架构布道者",
+      "description": "帮助同事 3 次",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "helpsGiven",
+        "target": 3
+      },
+      "reward": {
+        "mind": 15
+      }
+    },
+    {
+      "id": "V57_JA_ONCALL",
+      "name": "救火英雄",
+      "description": "恢复 3 次线上事故",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "incidentsRecovered",
+        "target": 3
+      },
+      "reward": {
+        "performance": 10
+      }
+    },
+    {
+      "id": "V57_JA_CLEAN_CODE",
+      "name": "干净代码",
+      "description": "累计偿还技术债 300 点",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "techDebtRepaid",
+        "target": 300
+      },
+      "reward": {
+        "cultivation": 80
+      }
+    },
+    {
+      "id": "V57_FE_PIXEL",
+      "name": "像素完美",
+      "description": "完成 20 个任务",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "tasksDone",
+        "target": 20
+      },
+      "reward": {
+        "performance": 10
+      }
+    },
+    {
+      "id": "V57_FE_LOOT",
+      "name": "极品猎手",
+      "description": "获得 1 件极品/仙品装备",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "epicLoot",
+        "target": 1
+      },
+      "reward": {
+        "spiritStones": 20
+      }
+    },
+    {
+      "id": "V57_FE_BOSS",
+      "name": "白屏终结者",
+      "description": "击败 3 个 Boss",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "bossKills",
+        "target": 3
+      },
+      "reward": {
+        "spiritStones": 30
+      }
+    },
+    {
+      "id": "V57_FE_SOURMAP",
+      "name": "天眼通",
+      "description": "收集 5 份证据",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "evidenceCollected",
+        "target": 5
+      },
+      "reward": {
+        "mind": 15
+      }
+    },
+    {
+      "id": "V57_FE_FAST",
+      "name": "秒开",
+      "description": "完成 10 场项目战斗",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "battleRunsDone",
+        "target": 10
+      },
+      "reward": {
+        "cultivation": 40
+      }
+    },
+    {
+      "id": "V57_FE_HELP",
+      "name": "走查之友",
+      "description": "帮助同事 3 次",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "helpsGiven",
+        "target": 3
+      },
+      "reward": {
+        "mind": 15
+      }
+    },
+    {
+      "id": "V57_FE_COMPAT",
+      "name": "兼容大师",
+      "description": "恢复 3 次线上事故",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "incidentsRecovered",
+        "target": 3
+      },
+      "reward": {
+        "performance": 10
+      }
+    },
+    {
+      "id": "V57_FE_DEBT",
+      "name": "代码还债",
+      "description": "累计偿还技术债 200 点",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "techDebtRepaid",
+        "target": 200
+      },
+      "reward": {
+        "cultivation": 60
+      }
+    },
+    {
+      "id": "V57_QA_HUNTER",
+      "name": "Bug猎人",
+      "description": "击败 3 个 Boss",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "bossKills",
+        "target": 3
+      },
+      "reward": {
+        "spiritStones": 30
+      }
+    },
+    {
+      "id": "V57_QA_EVIDENCE",
+      "name": "铁证如山",
+      "description": "收集 8 份证据",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "evidenceCollected",
+        "target": 8
+      },
+      "reward": {
+        "mind": 20
+      }
+    },
+    {
+      "id": "V57_QA_AUTO",
+      "name": "自动化成瘾",
+      "description": "完成 10 场项目战斗",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "battleRunsDone",
+        "target": 10
+      },
+      "reward": {
+        "cultivation": 40
+      }
+    },
+    {
+      "id": "V57_QA_BLAME",
+      "name": "反杀大师",
+      "description": "用证据反杀甩锅 3 次",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "blameReturned",
+        "target": 3
+      },
+      "reward": {
+        "performance": 12
+      }
+    },
+    {
+      "id": "V57_QA_TASK",
+      "name": "回归之王",
+      "description": "完成 20 个任务",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "tasksDone",
+        "target": 20
+      },
+      "reward": {
+        "performance": 10
+      }
+    },
+    {
+      "id": "V57_QA_HELP",
+      "name": "缺陷预防先锋",
+      "description": "帮助同事 3 次",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "helpsGiven",
+        "target": 3
+      },
+      "reward": {
+        "mind": 15
+      }
+    },
+    {
+      "id": "V57_QA_INCIDENT",
+      "name": "逃逸猎手",
+      "description": "恢复 3 次线上事故",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "incidentsRecovered",
+        "target": 3
+      },
+      "reward": {
+        "performance": 10
+      }
+    },
+    {
+      "id": "V57_QA_QUALITY",
+      "name": "质量门神",
+      "description": "累计偿还技术债 200 点",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "techDebtRepaid",
+        "target": 200
+      },
+      "reward": {
+        "cultivation": 60
+      }
+    },
+    {
+      "id": "V57_OPS_STABLE",
+      "name": "稳如老狗",
+      "description": "恢复 5 次线上事故",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "incidentsRecovered",
+        "target": 5
+      },
+      "reward": {
+        "performance": 12
+      }
+    },
+    {
+      "id": "V57_OPS_K8S",
+      "name": "自愈大师",
+      "description": "击败 3 个 Boss",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "bossKills",
+        "target": 3
+      },
+      "reward": {
+        "spiritStones": 30
+      }
+    },
+    {
+      "id": "V57_OPS_AUTOMATE",
+      "name": "一键化",
+      "description": "完成 10 场项目战斗",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "battleRunsDone",
+        "target": 10
+      },
+      "reward": {
+        "cultivation": 40
+      }
+    },
+    {
+      "id": "V57_OPS_DEBT",
+      "name": "基建还债",
+      "description": "累计偿还技术债 200 点",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "techDebtRepaid",
+        "target": 200
+      },
+      "reward": {
+        "cultivation": 60
+      }
+    },
+    {
+      "id": "V57_OPS_TASK",
+      "name": "巡检全勤",
+      "description": "完成 20 个任务",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "tasksDone",
+        "target": 20
+      },
+      "reward": {
+        "performance": 10
+      }
+    },
+    {
+      "id": "V57_OPS_HELP",
+      "name": "值班侠",
+      "description": "帮助同事 3 次",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "helpsGiven",
+        "target": 3
+      },
+      "reward": {
+        "mind": 15
+      }
+    },
+    {
+      "id": "V57_OPS_EVIDENCE",
+      "name": "Deploy Log 达人",
+      "description": "收集 5 份证据",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "evidenceCollected",
+        "target": 5
+      },
+      "reward": {
+        "mind": 15
+      }
+    },
+    {
+      "id": "V57_OPS_LOOT",
+      "name": "运维之宝",
+      "description": "获得 1 件极品/仙品装备",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "epicLoot",
+        "target": 1
+      },
+      "reward": {
+        "spiritStones": 20
+      }
+    },
+    {
+      "id": "V57_ONTIME_5",
+      "name": "准点下班仙尊",
+      "description": "累计准点下班 5 天",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "ontimeDays",
+        "target": 5
+      },
+      "reward": {
+        "cultivation": 60,
+        "mind": 20
+      }
+    },
+    {
+      "id": "V57_EPIC_FIRST",
+      "name": "第一件仙品",
+      "description": "获得第一件仙品装备",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "epicLoot",
+        "target": 1
+      },
+      "reward": {
+        "spiritStones": 25
+      }
+    }
+  ]
 }
