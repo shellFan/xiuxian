@@ -99,7 +99,7 @@ export class AssignedTaskService {
     const cultivation = Math.floor(task.rewardCultivation * scale);
     const player = this.context.player;
     if (salary > 0) {
-      player.salary += salary;
+      this.context.economy.applyIdleSalary(salary);
       this.context.gameDay.addIncome('salary', salary);
       this.context.kpi.recordSalaryEarned(salary);
     }
@@ -110,6 +110,14 @@ export class AssignedTaskService {
     if (cultivation > 0) {
       player.cultivationExp += cultivation;
       this.context.gameDay.addIncome('cultivation', cultivation);
+    }
+    // V5.8 §7.2：技术债治理任务完成 → 该域 repay 25
+    if (task.title.startsWith('技术债专项治理：')) {
+      try {
+        const day = player.gameDay?.dayIndex ?? 1;
+        const domain = player.eventFlags?.[`v58_governance_domain_${day}`];
+        if (typeof domain === 'string') this.context.techDebt.repay(domain, 31);
+      } catch { /* governance repay best-effort */ }
     }
     if (task.rewardMind !== 0) this.context.mind.applyDelta(task.rewardMind);
     this.replace({ ...task, status: 'DONE' });

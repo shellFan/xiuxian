@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -107,6 +107,17 @@ export interface PlayerDataOptions {
   readonly weekSettlementReady?: boolean;
   readonly fatigueForcedRest?: boolean;
   readonly professionPerksGranted?: readonly string[];
+  // ── V5.8 ──
+  readonly burnoutState?: { readonly state: string; readonly daysInState: number };
+  readonly buildPresets?: readonly (BuildPresetState | null)[];
+  readonly companyHistory?: readonly CompanyStayRecord[];
+  readonly offerHistory?: readonly OfferRecord[];
+  readonly offerReadyDay?: number;
+  readonly teamState?: TeamState | null;
+  readonly monthlyStats?: readonly MonthlyStatsRecord[];
+  readonly milestones?: readonly string[];
+  readonly managerFlags?: Readonly<Record<string, boolean>>;
+  readonly careerChoices?: readonly { readonly dayIndex: number; readonly kind: string; readonly label: string }[];
 }
 
 export class PlayerData {
@@ -230,6 +241,17 @@ export class PlayerData {
   public weekSettlementReady: boolean;
   public fatigueForcedRest: boolean;
   public professionPerksGranted: string[];
+  // V5.8
+  public burnoutState: { state: string; daysInState: number };
+  public buildPresets: (BuildPresetState | null)[];
+  public companyHistory: CompanyStayRecord[];
+  public offerHistory: OfferRecord[];
+  public offerReadyDay: number;
+  public teamState: TeamState | null;
+  public monthlyStats: MonthlyStatsRecord[];
+  public milestones: string[];
+  public managerFlags: Record<string, boolean>;
+  public careerChoices: { dayIndex: number; kind: string; label: string }[];
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -338,6 +360,17 @@ export class PlayerData {
     this.weekSettlementReady = options.weekSettlementReady === true;
     this.fatigueForcedRest = options.fatigueForcedRest === true;
     this.professionPerksGranted = [...(options.professionPerksGranted ?? [])];
+    this.burnoutState = options.burnoutState ? { state: options.burnoutState.state ?? 'NORMAL', daysInState: options.burnoutState.daysInState ?? 0 } : { state: 'NORMAL', daysInState: 0 };
+    this.buildPresets = (options.buildPresets ?? [null, null, null]).slice(0, 3);
+    while (this.buildPresets.length < 3) this.buildPresets.push(null);
+    this.companyHistory = [...(options.companyHistory ?? [])];
+    this.offerHistory = [...(options.offerHistory ?? [])];
+    this.offerReadyDay = options.offerReadyDay ?? 0;
+    this.teamState = options.teamState ? { members: [...options.teamState.members], exploitationScore: options.teamState.exploitationScore ?? 0, protectionScore: options.teamState.protectionScore ?? 0 } : null;
+    this.monthlyStats = [...(options.monthlyStats ?? [])].slice(-3);
+    this.milestones = [...(options.milestones ?? [])];
+    this.managerFlags = { ...(options.managerFlags ?? {}) };
+    this.careerChoices = [...(options.careerChoices ?? [])];
   }
 
   public static createDefault(): PlayerData {
@@ -430,6 +463,16 @@ export class PlayerData {
       weekSettlementReady: this.weekSettlementReady,
       fatigueForcedRest: this.fatigueForcedRest,
       professionPerksGranted: [...this.professionPerksGranted],
+      burnoutState: { ...this.burnoutState },
+      buildPresets: this.buildPresets.map((preset) => preset ? { ...preset, equippedEquipment: { ...preset.equippedEquipment }, equippedTechniques: [...preset.equippedTechniques] } : null),
+      companyHistory: this.companyHistory.map((c) => ({ ...c })),
+      offerHistory: this.offerHistory.map((o) => ({ ...o, terms: { ...o.terms } })),
+      offerReadyDay: this.offerReadyDay,
+      teamState: this.teamState ? { ...this.teamState, members: this.teamState.members.map((m) => ({ ...m })) } : null,
+      monthlyStats: this.monthlyStats.map((m) => ({ ...m })),
+      milestones: [...this.milestones],
+      managerFlags: { ...this.managerFlags },
+      careerChoices: this.careerChoices.map((c) => ({ ...c })),
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });

@@ -176,10 +176,10 @@ function testSaveV11Migration(): void {
     const snapshot = facade.save();
     void snapshot;
     const raw = JSON.parse(storage.getItem('game-save') ?? '{}') as { saveVersion: number; fatigue: number; project: unknown };
-    assert.equal(raw.saveVersion, 12, 'v11 save migrates to v12');
+    assert.equal(raw.saveVersion, 13, 'v12 save migrates to v13');
     assert.equal(raw.fatigue, 0, 'fatigue defaults 0');
     assert.equal(raw.project, null, 'project defaults null');
-    console.log('save v12 migration passed');
+    console.log('save v13 migration passed');
   } finally {
     facade.destroy();
   }

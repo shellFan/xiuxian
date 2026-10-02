@@ -119,10 +119,28 @@ export interface BossMechanic {
   readonly durationSec?: number;
 }
 
+/** V5.8 §14.2：Boss Phase 2（HP 阈值触发，行为真实改变）。 */
+export interface BossPhase2Def {
+  readonly atHpPct: number;
+  readonly name: string;
+  readonly telegraph: string;
+  readonly attackMul?: number;
+  readonly intervalMul?: number;
+  readonly summonEverySec?: number;
+  readonly capBonus?: number;
+  readonly blindEverySec?: number;
+  readonly dodgeEverySec?: number;
+  readonly lockSkillEverySec?: number;
+  readonly hpDrainEverySec?: number;
+  readonly promoteEverySec?: number;
+  readonly debuffPlayerInterval?: number;
+}
+
 export interface BossMechanicDef {
   readonly telegraph: string;
   readonly mechanics: readonly BossMechanic[];
   readonly exclusiveDrop: { readonly equipmentId: string; readonly dropChance: number; readonly pityAt: number };
+  readonly phase2?: BossPhase2Def;
 }
 
 interface BaseBundle {

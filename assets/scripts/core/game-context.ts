@@ -77,6 +77,12 @@ import { ProfessionContentService } from '../v57/profession-content-service';
 import { WeekService } from '../v57/week-service';
 import { ProjectHistoryService } from '../v57/project-history-service';
 import { CodexService } from '../v57/codex-service';
+import { BurnoutService } from '../services/burnout-service';
+import { CompanyService } from '../services/company-service';
+import { OfferService } from '../services/offer-service';
+import { TeamService } from '../services/team-service';
+import { MetaService } from '../services/meta-service';
+import { GameSoundService } from '../services/sound-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
 import craftConfig from '../../configs/craft.json';
@@ -208,6 +214,18 @@ export class GameContext {
   public readonly projectHistory: ProjectHistoryService;
   /** V5.7 图鉴。 */
   public readonly codex: CodexService;
+  /** V5.8 Burnout 状态机。 */
+  public readonly burnout: BurnoutService;
+  /** V5.8 公司差异化（民企/外企/国企/大厂宗）。 */
+  public readonly company: CompanyService;
+  /** V5.8 Offer/换宗门轻系统。 */
+  public readonly offer: OfferService;
+  /** V5.8 团队管理（L7+）。 */
+  public readonly team: TeamService;
+  /** V5.8 元成长（CareerJourney/BuildPreset/Milestone/月报）。 */
+  public readonly meta: MetaService;
+  /** V5.8 声音事件层（graceful no-audio）。 */
+  public readonly sound: GameSoundService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   public readonly config = GameConfig;
@@ -302,6 +320,13 @@ export class GameContext {
     this.week = new WeekService(this);
     this.projectHistory = new ProjectHistoryService(this);
     this.codex = new CodexService(this);
+    // ── V5.8 services ──
+    this.burnout = new BurnoutService(this);
+    this.company = new CompanyService(this);
+    this.offer = new OfferService(this);
+    this.team = new TeamService(this);
+    this.meta = new MetaService(this);
+    this.sound = new GameSoundService(this);
     this.messenger = new MessengerService(this);
     this.storyDirector = new StoryDirectorService(this, this.messenger);
     this.profession = new ProfessionService(this);

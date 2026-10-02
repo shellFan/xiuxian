@@ -57,4 +57,33 @@ export class TechDebtService {
     try { this.context.week.recordProgress('TECH_DEBT_DOWN', reduction); } catch { /* weekly goal hook */ }
     return reduction;
   }
+
+  /**
+   * V5.8 §7.2：技术债治理循环。
+   * 平均债 ≥90 或任一域 ≥95 时，开工生成一条「技术债专项治理」指派任务，
+   * 完成 → repay 该域 25 点（自然下降路径，不再只能靠事件偶然降低）。
+   */
+  public offerGovernanceTask(): void {
+    const p = this.context.player;
+    const day = p.gameDay?.dayIndex ?? 1;
+    const flag = `v58_governance_${day}`;
+    if (p.eventFlags?.[flag]) return;
+    const all = this.all();
+    const values = Object.values(all);
+    const avg = values.length > 0 ? values.reduce((s, v) => s + v, 0) / values.length : 0;
+    const worstDomain = Object.entries(all).sort((a, b) => b[1] - a[1])[0];
+    const trigger = avg >= 90 || (worstDomain && worstDomain[1] >= 95);
+    if (!trigger || !worstDomain || worstDomain[1] < 60) return;
+    p.eventFlags = { ...(p.eventFlags ?? {}), [flag]: true };
+    try {
+      this.context.assignedTasks.assign({
+        title: `技术债专项治理：${TECH_DEBT_LABELS[worstDomain[0] as TechDebtDomain]}（${worstDomain[1]}→目标 65）`,
+        priority: 'P1',
+        source: 'SYSTEM',
+        isFakeP0: false,
+      });
+      p.eventFlags = { ...(p.eventFlags ?? {}), [`v58_governance_domain_${day}`]: worstDomain[0] } as never;
+      this.context.events.emit('governanceTaskOffered', { domain: worstDomain[0], level: worstDomain[1] });
+    } catch { /* 指派失败不阻塞开工 */ }
+  }
 }

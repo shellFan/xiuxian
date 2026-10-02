@@ -76,8 +76,12 @@ export const PROJECT_DECISIONS: readonly ProjectDecisionDef[] = [
       project.status = 'COMPLETED';
       project.progress = 100;
       ctx.player.performance += 8;
-      ctx.economy.applyIdleSalary(120);
-      ctx.gameDay.addIncome('salary', 120);
+      // V5.8：项目结算奖励一次性（以 decisionHistory 是否含 ship 判定幂等）
+      const alreadyShipped = project.decisionHistory.some((d) => d.decisionId === 'early_release') || project.status === 'COMPLETED';
+      if (!alreadyShipped) {
+        ctx.economy.applyIdleSalary(120);
+        ctx.gameDay.addIncome('salary', 120);
+      }
       ctx.profession.grantExp(30);
       ctx.player.mind = Math.min(ctx.player.maxMind, ctx.player.mind + 6);
     },

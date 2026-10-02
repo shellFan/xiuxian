@@ -1126,7 +1126,7 @@
 
   /* 中栏（§12~§41）：时间场景 / 动作选择器 / 动作详情 */
   function homeCenterHtml(hud) {
-    return workSceneHtml(hud) + v57situationChipHtml() + v57fatigueChipHtml() + todayCapacityHtml() + journeyGuideHtml() + actionSelectorHtml(hud) + actionDetailHtml(hud);
+    return workSceneHtml(hud) + v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() + todayCapacityHtml() + journeyGuideHtml() + actionSelectorHtml(hud) + actionDetailHtml(hud);
   }
 
   /* 中栏顶部：办公室场景 + 下班倒计时 + 今日已赚浮层（§12~§20） */
@@ -2467,6 +2467,7 @@
         moreItem('friends', '👥', '好友', '拜访好友赠灵石') +
         moreItem('achievements', '📜', '成就', '职场修仙履历') +
         moreItem('profession', '🧙', '职业', '职业等级与Build') +
+        moreItem('career', '💼', '生涯', '牛马档案·团队·公司') +
         moreItem('codex', '📚', '图鉴', '怪物·Boss·装备·事件') +
         moreItem('settlement', '🌇', '结算', '今日下班结算') +
         moreItem('settings', '⚙️', '设置', '音效与存档') +
@@ -2531,7 +2532,7 @@
     MESSENGER: '飞剑传书',
     SECT: '宗门页', LEADERBOARD: '排行榜', FRIENDS: '好友', ACHIEVEMENTS: '成就', SETTINGS: '设置',
     TECHNIQUES: '功法', EQUIPMENT: '法宝', NPC: '人际关系', SETTLEMENT: '下班结算', DEV: 'DEV 面板',
-    PROFESSION: '职业修行', CODEX: '修仙图鉴',
+    PROFESSION: '职业修行', CODEX: '修仙图鉴', CAREER: '牛马生涯',
   };
 
   function currentPage() { return _subPage || _screen; }
@@ -2550,6 +2551,28 @@
     return '<button class="ux-fatigue-chip ux-fatigue--' + cls + '" data-action="goto" data-page="profession">' +
       '<span class="fc-ico">😵‍💫</span><span>疲劳 ' + view.value + '</span>' +
       '<span class="fc-band">' + escHtml(view.bandName) + '</span></button>';
+  }
+
+  /* V5.8：Burnout chip（状态机五档） */
+  function v58burnoutChipHtml() {
+    var f = facade();
+    var view = null;
+    try { view = f && f.queryBurnout ? f.queryBurnout() : null; } catch (e) { view = null; }
+    if (!view || view.state === 'NORMAL') return '';
+    var cls = { STRESSED: 'warn', BURNOUT_RISK: 'bad', BURNOUT: 'bad', RECOVERING: 'ok' }[view.state] || 'warn';
+    return '<button class="ux-fatigue-chip ux-fatigue--' + cls + '" data-action="goto" data-page="profession" title="' + escHtml(view.advice) + '">' +
+      '<span class="fc-ico">🔥</span><span>Burnout ' + view.score + '</span>' +
+      '<span class="fc-band">' + escHtml(view.stateName) + '</span></button>';
+  }
+
+  /* V5.8：公司名 chip（§11 公司差异化） */
+  function v58companyChipHtml() {
+    var f = facade();
+    var company = null;
+    try { company = f && f.queryCompany ? f.queryCompany() : null; } catch (e) { company = null; }
+    if (!company) return '';
+    return '<button class="ux-situation-chip" data-action="goto" data-page="career" title="' + escHtml(company.desc) + '">' +
+      '<span class="sc-ico2">🏢</span><span>' + escHtml(company.name) + ' · 时薪×' + company.salaryMultiplier.toFixed(2) + '</span></button>';
   }
 
   function v57situationChipHtml() {
@@ -2622,7 +2645,182 @@
     html += '<div class="ux-card"><div class="ux-card-title">本职业 Build（战斗开局可选）</div><div class="ux-build-tags">' +
       d.buildIds.map(function (b) { return '<span class="ux-build-tag">' + escHtml(b) + '</span>'; }).join('') +
     '</div></div>';
+    /* V5.8：Build Preset ×3（§13.1） */
+    if (f && typeof f.queryBuildPresets === 'function') {
+      var presets = [];
+      try { presets = f.queryBuildPresets() || []; } catch (e) { presets = []; }
+      html += '<div class="ux-card"><div class="ux-card-title">Build 配置（一键切换）</div>' +
+        presets.map(function (entry) {
+          var slot = entry.slot;
+          var preset = entry.preset;
+          var body = preset
+            ? '<div class="ux-bp-row"><span class="bp-name">' + escHtml(preset.name) + '</span>' +
+              '<span class="bp-build">' + escHtml(preset.buildName) + '</span>' +
+              '<button class="ux-bp-apply" data-v58-apply-preset="' + slot + '">应用</button></div>'
+            : '<div class="ux-bp-row empty"><span class="bp-empty">空槽位</span>' +
+              '<button class="ux-bp-apply" data-v58-save-preset="' + slot + '">保存当前</button></div>';
+          return body;
+        }).join('') +
+        '<div class="ux-bp-hint">保存当前装备+功法+Build 偏好，进入项目前一键切换（战斗中不可换）。</div></div>';
+    }
+    /* V5.8：Team Panel（L7+，§9.3） */
+    if (f && typeof f.isManager === 'function') {
+      var isManager = false;
+      var members = [];
+      try { isManager = f.isManager(); members = isManager ? (f.queryTeam() || []) : []; } catch (e) { isManager = false; }
+      if (!isManager) {
+        html += '<div class="ux-card ux-team-locked"><div class="ux-card-title">团队管理</div><div class="ux-bp-hint">晋升主管（L7）后解锁团队管理：分配任务、带新人、决定「今晚谁辛苦一下」。</div></div>';
+      } else {
+        html += '<div class="ux-card"><div class="ux-card-title">团队 Panel（每天可分配 3 次）</div>' +
+          members.map(function (m) {
+            return '<div class="ux-team-row"><span class="tm-name">' + escHtml(m.name) + '</span>' +
+              '<span class="tm-meta">Lv' + m.level + ' · 心情 ' + m.mood + ' · 负荷 ' + m.workload + '% · 疲劳 ' + m.fatigue + '</span>' +
+              '<button class="ux-tm-assign" data-v58-team-assign="' + escHtml(m.name) + '"' + (m.workload >= 90 ? ' disabled' : '') + '>分派任务</button>' +
+              '<button class="ux-tm-mentor" data-v58-team-mentor="' + escHtml(m.name) + '">指导</button></div>';
+          }).join('') +
+          '<div class="ux-card-title" style="margin-top:10px">管理层抉择（§9.4 道德镜像）</div>' +
+          '<div class="ux-team-row"><span class="tm-meta">项目来不及了。今晚——</span>' +
+          '<button class="ux-tm-assign" data-v58-manager-choice="EXPLOIT">全员加班</button>' +
+          '<button class="ux-tm-mentor" data-v58-manager-choice="PROTECT">强制收工</button></div>' +
+        '</div>';
+      }
+    }
+    /* V5.8：Burnout 状态卡 */
+    if (f && typeof f.queryBurnout === 'function') {
+      var bo = null;
+      try { bo = f.queryBurnout(); } catch (e) { bo = null; }
+      if (bo && bo.state !== 'NORMAL') {
+        html += '<div class="ux-card ux-burnout-card ux-burnout--' + bo.state.toLowerCase() + '">' +
+          '<div class="ux-card-title">🔥 ' + escHtml(bo.stateName) + '（负荷 ' + bo.score + '）</div>' +
+          '<div class="ux-bp-hint">' + escHtml(bo.advice) + '</div>' +
+          ((bo.state === 'BURNOUT_RISK' || bo.state === 'BURNOUT') ? '<button class="ux-fatigue-rest" data-v58-halfday-off="1">请半天假（道心+30 疲劳-25 心魔-12）</button>' : '') +
+        '</div>';
+      }
+    }
     return html;
+  }
+
+  /* V5.8：Career Hub（§26.2）——牛马生涯档案 + 公司 + Offer + 月报 */
+  function v58renderCareer() {
+    var f = facade();
+    var journey = null;
+    try { journey = f && f.queryCareerJourney ? f.queryCareerJourney() : null; } catch (e) { journey = null; }
+    if (!journey) return emptyState('💼', '牛马生涯', '生涯数据未就绪');
+    var row = function (label, val) {
+      return '<div class="ux-off-row"><span class="rl">' + escHtml(label) + '</span><span class="rv">' + escHtml(String(val)) + '</span></div>';
+    };
+    var html = '<div class="ux-card ux-journey-card">' +
+      '<div class="ux-card-title">牛马生涯档案</div>' +
+      '<div class="ux-off-rows">' +
+        row('职业', journey.profession + ' · ' + journey.professionTitle + ' Lv' + journey.professionLevel) +
+        row('职级', 'L' + journey.careerRank + ' ' + journey.rankTitle) +
+        row('公司', journey.company) +
+        row('主 Build', journey.mainBuild) +
+        row('代表装备', journey.signatureEquipment.length ? journey.signatureEquipment.join('、') : '（暂无）') +
+        row('Boss 讨伐', journey.bossesSlain + ' 次 · 极品掉落 ' + journey.epicLoot + ' 件') +
+        row('项目档案', journey.projectsDone + ' 个') +
+        row('换过公司', (journey.companiesServed - 1) + ' 次 · 晋升 ' + journey.promotions + ' 次') +
+        row('成就', journey.achievementCount + ' 项') +
+      '</div></div>';
+    /* 公司对比（§11） */
+    if (f && typeof f.queryCompanies === 'function') {
+      var companies = [];
+      try { companies = f.queryCompanies() || []; } catch (e) { companies = []; }
+      var currentId = null;
+      try { currentId = f.queryCompany().id; } catch (e) { currentId = null; }
+      html += '<div class="ux-card"><div class="ux-card-title">公司宗门（跳槽有 30 日冷却）</div>' +
+        companies.map(function (c) {
+          return '<div class="ux-company-row' + (c.id === currentId ? ' current' : '') + '">' +
+            '<span class="cp-name">' + escHtml(c.name) + (c.id === currentId ? '（现公司）' : '') + '</span>' +
+            '<span class="cp-meta">时薪×' + c.salaryMultiplier.toFixed(2) + ' · 加班文化×' + c.overtimeCulture.toFixed(2) + ' · 事故×' + c.incidentPressure.toFixed(2) + ' · 晋升×' + c.promotionSpeed.toFixed(2) + '</span>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }
+    /* Offer 历史 */
+    if (f && typeof f.queryOfferHistory === 'function') {
+      var history = [];
+      try { history = f.queryOfferHistory() || []; } catch (e) { history = []; }
+      if (history.length) {
+        html += '<div class="ux-card"><div class="ux-card-title">Offer 履历</div>' +
+          history.slice(-5).reverse().map(function (o) {
+            return '<div class="ux-ph-row"><span class="ph-name">D' + o.dayIndex + ' ' + escHtml(o.companyName) + '</span>' +
+              '<span class="ph-ending">' + escHtml(({ ACCEPTED: '已接受', DECLINED: '已拒绝', NEGOTIATED: '谈薪+8%', LATER: '以后再说' })[o.decision] || o.decision) + '</span></div>';
+          }).join('') + '</div>';
+      }
+    }
+    /* 月报（§20/§21） */
+    if (f && typeof f.queryMonthlyReport === 'function') {
+      var month = null;
+      try { month = f.queryMonthlyReport(); } catch (e) { month = null; }
+      if (month) {
+        html += '<div class="ux-card"><div class="ux-card-title">月报 · 第 ' + month.monthIndex + ' 月</div>' +
+          '<div class="ux-week-title">' + escHtml(month.title || '《平凡而正确的一个月》') + '</div>' +
+          '<div class="ux-off-rows">' +
+            row('工作天数', month.workDays) + row('准点下班', month.ontimeDays + ' 天') +
+            row('加班', Math.floor(month.overtimeMinutes / 60) + 'h' + (month.overtimeMinutes % 60) + 'm') +
+            row('工资入账', '¥' + month.salaryEarned) +
+            row('任务/项目', month.tasksDone + ' / ' + month.projectsDone) +
+            row('Boss/事故', month.bossesKilled + ' / ' + month.incidents) +
+            row('背锅/反杀', month.blamesTaken + ' / ' + month.blamesReturned) +
+          '</div></div>';
+      }
+    }
+    /* 里程碑 */
+    if (f && typeof f.queryMilestones === 'function') {
+      var milestones = [];
+      try { milestones = f.queryMilestones() || []; } catch (e) { milestones = []; }
+      html += '<div class="ux-card"><div class="ux-card-title">职业里程碑</div>' +
+        milestones.map(function (m) {
+          return '<div class="ux-perk-row' + (m.reached ? ' reached' : '') + '"><span class="pk-lv">D' + m.day + '</span><span class="pk-desc">' + escHtml(m.text) + '</span></div>';
+        }).join('') + '</div>';
+    }
+    return html;
+  }
+
+  /* V5.8：Offer 弹窗（收到 Offer 时仲裁层弹出） */
+  function v58maybeShowOfferModal() {
+    var f = facade();
+    if (!f || typeof f.queryOffer !== 'function' || popupOpen()) return;
+    var offer = null;
+    try { offer = f.queryOffer(); } catch (e) { offer = null; }
+    if (!offer) return;
+    var layer = popupLayer();
+    if (!layer) return;
+    var pctLine = function (label, v) {
+      var good = (label === '时薪' || label === '晋升' || label === '掉落') ? v > 0 : v < 0;
+      return '<div class="lc-delta ' + (good ? 'up' : 'down') + '">' + escHtml(label) + ' ' + (v > 0 ? '+' : '') + v + '%</div>';
+    };
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup">' +
+          '<div class="ux-header" style="height:70px;border-radius:16px 16px 0 0;margin:0 -18px 14px"><span class="ux-header-title">📨 猎头来信 · ' + escHtml(offer.companyName) + '</span></div>' +
+          '<div class="ux-popup-card">' +
+            '<div class="ux-event-bubble">' + escHtml(offer.pitch) + '</div>' +
+            '<div class="ux-loot-card r4">' +
+              '<div class="lc-name">' + escHtml(offer.companyName) + ' 的 Offer</div>' +
+              '<div>' + pctLine('时薪', offer.salaryDeltaPct) + pctLine('加班', offer.overtimeDeltaPct) + pctLine('事故', offer.incidentDeltaPct) + pctLine('晋升', offer.promotionDeltaPct) + pctLine('掉落', offer.lootDeltaPct) + '</div>' +
+              '<div class="lc-set">D' + offer.dayIndex + ' 收到 · D' + offer.expiresAtDay + ' 过期</div>' +
+            '</div>' +
+            '<div class="ux-event-options">' +
+              '<button class="ux-event-option" data-v58-offer="ACCEPTED"><span>接受：换宗门（项目/周目标重置，保留成长）</span></button>' +
+              '<button class="ux-event-option" data-v58-offer="NEGOTIATED"><span>谈薪：留在原公司，涨薪 8%</span></button>' +
+              '<button class="ux-event-option" data-v58-offer="DECLINED"><span>拒绝：「谢谢，我在这挺好。」</span></button>' +
+              '<button class="ux-event-option" data-v58-offer="LATER"><span>以后再说（30 日冷却）</span></button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    $$('.ux-event-option[data-v58-offer]', layer).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        try {
+          var r = f.decideOffer(btn.getAttribute('data-v58-offer'));
+          toast(r.ok ? ('Offer 已处理：' + (r.companyName || '')) : (r.reason || '处理失败'), r.ok ? 'info' : 'error');
+        } catch (e) { toast(errMsg(e), 'error'); }
+        closePopup();
+        refresh();
+      });
+    });
   }
 
   var CODEX_TABS = [
@@ -2800,6 +2998,81 @@
         } catch (e) { toast(errMsg(e), 'error'); }
       });
     });
+    /* ── V5.8 绑定 ── */
+    var halfDayBtn = el.querySelector('[data-v58-halfday-off]');
+    if (halfDayBtn && !halfDayBtn.dataset.bound) {
+      halfDayBtn.dataset.bound = '1';
+      halfDayBtn.addEventListener('click', function () {
+        var f = facade();
+        try {
+          f.takeHalfDayOff();
+          toast('半天假生效：元神开始重新编译。', 'success');
+          refresh();
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    }
+    el.querySelectorAll('[data-v58-save-preset]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        var f = facade();
+        try {
+          var slot = Number(btn.getAttribute('data-v58-save-preset'));
+          var r = f.saveBuildPreset(slot, '配置' + (slot + 1));
+          toast(r.ok ? 'Build 配置已保存到槽位 ' + (slot + 1) : (r.reason || '保存失败'), r.ok ? 'success' : 'error');
+          refresh();
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    });
+    el.querySelectorAll('[data-v58-apply-preset]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        var f = facade();
+        try {
+          var slot = Number(btn.getAttribute('data-v58-apply-preset'));
+          var r = f.applyBuildPreset(slot);
+          toast(r.ok ? 'Build 配置已应用（下次进项目生效）' : (r.reason || '应用失败'), r.ok ? 'success' : 'error');
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    });
+    el.querySelectorAll('[data-v58-team-assign]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        var f = facade();
+        try {
+          var r = f.assignTeamTask(btn.getAttribute('data-v58-team-assign'));
+          toast(r.ok ? '任务已分派。' : (r.reason || '分派失败'), r.ok ? 'info' : 'error');
+          refresh();
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    });
+    el.querySelectorAll('[data-v58-team-mentor]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        var f = facade();
+        try {
+          var r = f.mentorMember(btn.getAttribute('data-v58-team-mentor'));
+          toast(r.ok ? '指导完成，他在成长。' : (r.reason || '指导失败'), r.ok ? 'success' : 'error');
+          refresh();
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    });
+    el.querySelectorAll('[data-v58-manager-choice]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        var f = facade();
+        try {
+          var kind = btn.getAttribute('data-v58-manager-choice');
+          f.recordManagerChoice(kind, kind === 'EXPLOIT' ? '今晚全员加班（免费）' : '今晚强制收工');
+          toast(kind === 'EXPLOIT' ? '团队心情down。有些事，做一次就回不去了。' : '团队背后有你。', kind === 'EXPLOIT' ? 'error' : 'success');
+          refresh();
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    });
   }
 
   function renderCurrent() {
@@ -2825,6 +3098,7 @@
       case 'MORE': return renderMore();
       case 'PROFESSION': return renderProfession();
       case 'CODEX': return renderCodex();
+      case 'CAREER': return v58renderCareer();
       case 'SECT': return renderSect();
       case 'LEADERBOARD': return renderLeaderboard();
       case 'FRIENDS': return renderFriends();
@@ -2904,6 +3178,10 @@
 
   /* V5.5 §18：战斗飘字——从新增日志行提取伤害数字，向敌人卡注入上飘淡出元素。 */
   var _battleLogSeen = 0;
+  var _lastLogLine = '';
+  var _floatCount = 0;
+  var MAX_FLOATING_TEXT = 30; /* V5.8 §37：浮字上限，超出丢弃最旧 */
+
   function spawnBattleFloats() {
     var f = facade();
     if (!f || typeof f.queryBattle !== 'function') return;
@@ -2911,9 +3189,12 @@
     try { run = f.queryBattle(); } catch (e) { return; }
     if (!run || !run.log) { _battleLogSeen = 0; return; }
     var log = run.log;
-    if (log.length <= _battleLogSeen) { _battleLogSeen = log.length; return; }
-    var fresh = log.slice(_battleLogSeen);
+    /* V5.8 修复：persist 窗口 12 条会导致 log.length 停止增长——按最后一条内容追踪 */
+    var lastLine = log.length ? log[log.length - 1] : '';
+    if (log.length < _battleLogSeen || (log.length === _battleLogSeen && lastLine === _lastLogLine)) { _battleLogSeen = log.length; _lastLogLine = lastLine; return; }
+    var fresh = _battleLogSeen > 0 && log.length > _battleLogSeen ? log.slice(Math.min(_battleLogSeen, Math.max(0, log.length - 3))) : log.slice(-2);
     _battleLogSeen = log.length;
+    _lastLogLine = lastLine;
     var cards = document.querySelectorAll('.ux-bt-enemy');
     if (!cards.length) return;
     var idx = 0;
@@ -2921,16 +3202,28 @@
       var m = line.match(/造成 (d+) 点伤害/);
       var heal = line.match(/回复 (d+)/);
       var crit = /暴击/.test(line);
-      if (!m && !heal) return;
+      var weak = /破绽|弱点/.test(line);
+      var miss = /落空|MISS/i.test(line);
+      var shield = /护盾|结界/.test(line);
+      var phase = /Phase 2/.test(line);
+      if (!m && !heal && !miss && !shield && !phase) return;
       var card = cards[idx % cards.length];
       idx += 1;
       var layer = card.querySelector('.ux-float-layer');
       if (!layer) return;
+      /* §37：浮字池上限 */
+      if (_floatCount >= MAX_FLOATING_TEXT) {
+        var oldest = layer.querySelector('.ux-bt-float');
+        if (oldest) { oldest.remove(); _floatCount -= 1; }
+        else return;
+      }
       var el = document.createElement('span');
-      el.className = 'ux-bt-float' + (crit ? ' crit' : '') + (heal ? ' heal' : '');
-      el.textContent = crit ? '-' + m[1] + '!' : (heal ? '+' + heal[1] : '-' + m[1]);
+      /* §14.1：分类反馈——普通轻/暴击大/弱点/治疗绿/护盾蓝/Phase 红 */
+      el.className = 'ux-bt-float' + (crit ? ' crit' : '') + (heal ? ' heal' : '') + (weak ? ' weak' : '') + (miss ? ' miss' : '') + (shield ? ' shield' : '') + (phase ? ' phase' : '');
+      el.textContent = phase ? 'PHASE 2' : (miss ? 'MISS' : (shield ? '盾' : (heal ? '+' + heal[1] : (weak ? '弱点 -' + m[1] : (crit ? '暴击 -' + m[1] + '!' : '-' + m[1])))));
       layer.appendChild(el);
-      setTimeout(function () { el.remove(); }, 800);
+      _floatCount += 1;
+      setTimeout(function () { el.remove(); _floatCount = Math.max(0, _floatCount - 1); }, 800);
     });
   }
 
@@ -3476,6 +3769,15 @@
           }
           if (ev && ev.source === 'secretEventFired' && ev.detail && ev.detail.name) {
             toast('隐藏事件触发：' + ev.detail.name, 'success');
+          }
+          if (ev && ev.source === 'offerReceived') {
+            setTimeout(v58maybeShowOfferModal, 400);
+          }
+          if (ev && ev.source === 'burnoutTriggered' && ev.detail && ev.detail.text) {
+            toast(ev.detail.text, 'error');
+          }
+          if (ev && ev.source === 'milestoneReached' && ev.detail && ev.detail.text) {
+            toast('里程碑 D' + ev.detail.day + '：' + ev.detail.text, 'success');
           }
           if (ev && ev.source === 'fatigueCritical' && ev.detail && ev.detail.text) {
             toast(ev.detail.text, 'error');

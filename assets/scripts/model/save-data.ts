@@ -1,4 +1,4 @@
-export const CURRENT_SAVE_VERSION = 12;
+export const CURRENT_SAVE_VERSION = 13;
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -411,6 +411,90 @@ export interface GameSaveData {
   readonly fatigueForcedRest?: boolean;
   /** 职业等级 perk 已领取键（profession:level）。 */
   readonly professionPerksGranted?: readonly string[];
+
+  // ── V5.8 Fun Polish & Meta Progression（saveVersion 13） ──
+  /** Burnout 状态机。 */
+  readonly burnoutState?: { readonly state: string; readonly daysInState: number };
+  /** Build Preset ×3。 */
+  readonly buildPresets?: readonly (BuildPresetState | null)[];
+  /** 公司履历（换宗门历史）。 */
+  readonly companyHistory?: readonly CompanyStayRecord[];
+  /** Offer 历史（接受/拒绝）。 */
+  readonly offerHistory?: readonly OfferRecord[];
+  /** 下次 Offer 可用日（30 日冷却）。 */
+  readonly offerReadyDay?: number;
+  /** 团队状态（L7+ 解锁）。 */
+  readonly teamState?: TeamState | null;
+  /** 月度统计滚动（最近 3 个月）。 */
+  readonly monthlyStats?: readonly MonthlyStatsRecord[];
+  /** 里程碑已触发（Milestone Director）。 */
+  readonly milestones?: readonly string[];
+  /** 管理层剧情旗标（exploitation/protection 以 lifetimeStats 承载）。 */
+  readonly managerFlags?: Readonly<Record<string, boolean>>;
+  /** 职业重大选择记录（换宗门/晋升方向等）。 */
+  readonly careerChoices?: readonly { readonly dayIndex: number; readonly kind: string; readonly label: string }[];
+}
+
+// ── V5.8 状态类型 ──
+
+export interface BuildPresetState {
+  readonly name: string;
+  readonly buildId: string;
+  readonly equippedEquipment: Readonly<Record<string, string | null>>;
+  readonly equippedTechniques: readonly (string | null)[];
+  readonly savedAtDayIndex: number;
+}
+
+export interface CompanyStayRecord {
+  readonly companyId: string;
+  readonly fromDayIndex: number;
+  readonly toDayIndex: number;
+  readonly reason: string;
+}
+
+export interface OfferRecord {
+  readonly dayIndex: number;
+  readonly companyId: string;
+  readonly companyName: string;
+  readonly terms: Readonly<Record<string, number>>;
+  readonly decision: 'ACCEPTED' | 'DECLINED' | 'NEGOTIATED' | 'LATER';
+}
+
+export interface TeamMemberState {
+  readonly npcId: string;
+  readonly name: string;
+  readonly profession: string;
+  readonly level: number;
+  readonly mood: number;
+  readonly workload: number;
+  readonly fatigue: number;
+  readonly trustPlayer: number;
+  readonly growth: number;
+  readonly mentoredByPlayer: boolean;
+  readonly specialty: string;
+}
+
+export interface TeamState {
+  readonly members: readonly TeamMemberState[];
+  readonly exploitationScore: number;
+  readonly protectionScore: number;
+}
+
+export interface MonthlyStatsRecord {
+  readonly monthIndex: number;
+  readonly workDays: number;
+  readonly ontimeDays: number;
+  readonly overtimeMinutes: number;
+  readonly salaryEarned: number;
+  readonly fishingMinutes: number;
+  readonly tasksDone: number;
+  readonly projectsDone: number;
+  readonly bossesKilled: number;
+  readonly incidents: number;
+  readonly blamesTaken: number;
+  readonly blamesReturned: number;
+  readonly helpsGiven: number;
+  readonly title: string;
 }
 
 // ── V5.7 新状态类型 ──

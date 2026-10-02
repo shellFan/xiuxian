@@ -122,7 +122,8 @@ export class InnerDemonService {
   /**
    * 每小时被动心魔来源（tick 驱动）：
    *  - 道心 < 30 且心魔 >= 70（加班幻觉）：+2/h
-   *  - 道心 < 10（濒临崩溃）：+3/h
+   *  - 道心 < 10（濒临崩溃）：+1/h
+   * V5.8：低道心自增强减半，死亡螺旋由 Burnout 闭环（burnout-service）负责。
    */
   public tick(seconds: number): void {
     if (seconds <= 0) return;
@@ -132,7 +133,7 @@ export class InnerDemonService {
     this.demonAccumulatedSeconds -= hours * 3600;
     const player = this.context.player;
     let delta = 0;
-    if (player.mind < 10) delta += 2;
+    if (player.mind < 10) delta += 1;
     else if (player.mind < 30 && this.has('lowMindDemonPerHour')) delta += 2;
     if (delta > 0) this.add(delta * hours);
   }

@@ -2198,3 +2198,30 @@
 
 /* 结算弹窗限高滚动（防止掉落卡片底部被裁切） */
 .ux-modal-layer .ux-popup { max-height: 88vh; overflow-y: auto; }
+
+/* ═══ V5.8 爽感打磨 × 晋升玩法进化 × 公司宗门 ═══════════════════════════ */
+.ux-burnout-card.ux-burnout--stressed { border-color: rgba(230, 160, 60, 0.5); }
+.ux-burnout-card.ux-burnout--burnout_risk, .ux-burnout-card.ux-burnout--burnout { border-color: rgba(216, 75, 58, 0.65); box-shadow: 0 0 14px rgba(216, 75, 58, 0.18); }
+.ux-burnout-card.ux-burnout--recovering { border-color: rgba(111, 211, 167, 0.5); }
+.ux-bp-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); font-size: 13px; }
+.ux-bp-row:last-of-type { border-bottom: none; }
+.ux-bp-row .bp-name { color: #eef4fa; font-weight: 800; min-width: 70px; }
+.ux-bp-row .bp-build { color: #6fb8d8; flex: 1; }
+.ux-bp-row .bp-empty { color: #8fa8bc; flex: 1; }
+.ux-bp-apply { padding: 5px 14px; border-radius: 8px; border: 1px solid rgba(111, 211, 167, 0.5); background: rgba(111, 211, 167, 0.1); color: #6fd3a7; font-weight: 800; font-size: 12px; cursor: pointer; }
+.ux-bp-hint { font-size: 11.5px; color: #8fa8bc; margin-top: 8px; }
+.ux-team-locked { opacity: 0.75; }
+.ux-team-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); font-size: 12.5px; flex-wrap: wrap; }
+.ux-team-row:last-child { border-bottom: none; }
+.ux-team-row .tm-name { color: #eef4fa; font-weight: 800; min-width: 80px; }
+.ux-team-row .tm-meta { color: #8fa8bc; flex: 1; min-width: 160px; }
+.ux-tm-assign, .ux-tm-mentor { padding: 4px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
+.ux-tm-assign { border: 1px solid rgba(79, 157, 216, 0.5); background: rgba(79, 157, 216, 0.1); color: #6fb8d8; }
+.ux-tm-assign:disabled { opacity: 0.35; cursor: default; }
+.ux-tm-mentor { border: 1px solid rgba(217, 179, 106, 0.5); background: rgba(217, 179, 106, 0.1); color: #d9b36a; }
+.ux-journey-card { border-color: rgba(217, 179, 106, 0.35); }
+.ux-company-row { display: flex; flex-direction: column; gap: 3px; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); }
+.ux-company-row:last-child { border-bottom: none; }
+.ux-company-row.current .cp-name { color: #d9b36a; }
+.ux-company-row .cp-name { font-size: 13.5px; font-weight: 900; color: #eef4fa; }
+.ux-company-row .cp-meta { font-size: 11.5px; color: #8fa8bc; }

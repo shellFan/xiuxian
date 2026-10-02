@@ -247,8 +247,83 @@ function migrate(raw: unknown, now: number): GameSaveData {
     weekSettlementReady: raw.weekSettlementReady === true,
     fatigueForcedRest: raw.fatigueForcedRest === true,
     professionPerksGranted: isStringArray(raw.professionPerksGranted) ? raw.professionPerksGranted.slice(0, 128) : [],
+    // ── V5.8（saveVersion 13）：爽感打磨与元成长字段，旧档安全默认 ──
+    burnoutState: normalizeBurnoutState(raw.burnoutState),
+    buildPresets: normalizeBuildPresets(raw.buildPresets),
+    companyHistory: normalizeRecords(raw.companyHistory, isCompanyStay),
+    offerHistory: normalizeRecords(raw.offerHistory, isOfferRecord),
+    offerReadyDay: isFiniteNumber(raw.offerReadyDay) && raw.offerReadyDay >= 0 ? Math.floor(raw.offerReadyDay) : 0,
+    teamState: normalizeTeamState(raw.teamState),
+    monthlyStats: normalizeRecords(raw.monthlyStats, isMonthlyStats).slice(-3),
+    milestones: isStringArray(raw.milestones) ? raw.milestones.slice(0, 64) : [],
+    managerFlags: sanitizeFlagRecord(raw.managerFlags),
+    careerChoices: normalizeRecords(raw.careerChoices, isCareerChoice),
   });
   return merged;
+}
+
+// ── V5.8 归一化 ──
+
+function normalizeBurnoutState(value: unknown): { state: string; daysInState: number } {
+  if (!isRecord(value) || !isString(value.state)) return { state: 'NORMAL', daysInState: 0 };
+  const allowed = ['NORMAL', 'STRESSED', 'BURNOUT_RISK', 'BURNOUT', 'RECOVERING'];
+  return { state: allowed.includes(value.state) ? value.state : 'NORMAL', daysInState: isFiniteNumber(value.daysInState) && value.daysInState >= 0 ? Math.floor(value.daysInState) : 0 };
+}
+
+function normalizeBuildPresets(value: unknown): (import('../model/save-data').BuildPresetState | null)[] {
+  const out: (import('../model/save-data').BuildPresetState | null)[] = [null, null, null];
+  if (!Array.isArray(value)) return out;
+  (value as unknown[]).slice(0, 3).forEach((item, i) => {
+    if (!isRecord(item) || !isString(item.name) || !isString(item.buildId)) return;
+    if (!isRecord(item.equippedEquipment) || !Array.isArray(item.equippedTechniques)) return;
+    out[i] = {
+      name: item.name.slice(0, 24),
+      buildId: item.buildId.slice(0, 48),
+      equippedEquipment: sanitizeStringRecord(item.equippedEquipment),
+      equippedTechniques: (item.equippedTechniques as unknown[]).slice(0, 3).map((t) => (isString(t) ? t : null)),
+      savedAtDayIndex: isFiniteNumber(item.savedAtDayIndex) ? Math.max(0, Math.floor(item.savedAtDayIndex)) : 0,
+    };
+  });
+  return out;
+}
+
+function isCompanyStay(v: unknown): boolean {
+  return isRecord(v) && isString(v.companyId) && isFiniteNumber(v.fromDayIndex) && isFiniteNumber(v.toDayIndex) && isString(v.reason);
+}
+function isOfferRecord(v: unknown): boolean {
+  if (!isRecord(v) || !isString(v.companyId) || !isString(v.companyName) || !isFiniteNumber(v.dayIndex)) return false;
+  return v.decision === 'ACCEPTED' || v.decision === 'DECLINED' || v.decision === 'NEGOTIATED' || v.decision === 'LATER';
+}
+function isMonthlyStats(v: unknown): boolean {
+  return isRecord(v) && isFiniteNumber(v.monthIndex) && isString(v.title);
+}
+function isCareerChoice(v: unknown): boolean {
+  return isRecord(v) && isFiniteNumber(v.dayIndex) && isString(v.kind) && isString(v.label);
+}
+function normalizeRecords<T>(value: unknown, guard: (v: unknown) => boolean): T[] {
+  if (!Array.isArray(value)) return [];
+  return (value as unknown[]).filter(guard).slice(-64) as T[];
+}
+function normalizeTeamState(value: unknown): import('../model/save-data').TeamState | null {
+  if (!isRecord(value) || !Array.isArray(value.members)) return null;
+  const members = (value.members as unknown[]).filter((m): m is import('../model/save-data').TeamMemberState =>
+    isRecord(m) && isString(m.npcId) && isString(m.name)).slice(0, 6)
+    .map((m) => ({
+      npcId: m.npcId, name: m.name, profession: isString(m.profession) ? m.profession : 'JAVA_BACKEND',
+      level: isFiniteNumber(m.level) ? Math.max(1, Math.floor(m.level)) : 1,
+      mood: isFiniteNumber(m.mood) ? Math.max(0, Math.min(100, Math.floor(m.mood))) : 60,
+      workload: isFiniteNumber(m.workload) ? Math.max(0, Math.min(100, Math.floor(m.workload))) : 0,
+      fatigue: isFiniteNumber(m.fatigue) ? Math.max(0, Math.min(100, Math.floor(m.fatigue))) : 0,
+      trustPlayer: isFiniteNumber(m.trustPlayer) ? Math.max(-100, Math.min(100, Math.floor(m.trustPlayer))) : 0,
+      growth: isFiniteNumber(m.growth) ? Math.max(0, Math.floor(m.growth)) : 0,
+      mentoredByPlayer: m.mentoredByPlayer === true,
+      specialty: isString(m.specialty) ? m.specialty : '',
+    }));
+  return {
+    members,
+    exploitationScore: isFiniteNumber(value.exploitationScore) ? Math.max(0, Math.floor(value.exploitationScore)) : 0,
+    protectionScore: isFiniteNumber(value.protectionScore) ? Math.max(0, Math.floor(value.protectionScore)) : 0,
+  };
 }
 
 // ── V5.7 归一化 ──

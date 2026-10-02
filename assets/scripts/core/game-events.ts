@@ -123,6 +123,23 @@ export interface GameEvents extends Record<string, unknown> {
   readonly fatigueCritical: { readonly value: number; readonly text: string };
   readonly projectArchived: { readonly projectId: string; readonly name: string; readonly ending: string };
   readonly equipmentAcquired: { readonly equipmentId: string };
+  // ── V5.8 ──
+  readonly burnoutRisk: { readonly state: string; readonly text: string };
+  readonly burnoutTriggered: { readonly state: string; readonly text: string };
+  readonly burnoutForcedRest: { readonly state: string; readonly text: string };
+  readonly bossPhase2: { readonly bossId: string; readonly name: string; readonly phase: string };
+  readonly companySwitched: { readonly companyId: string; readonly companyName: string; readonly day: number };
+  readonly offerReceived: { readonly offerId: string; readonly companyName: string; readonly salaryDeltaPct: number };
+  readonly offerDecided: { readonly decision: string; readonly companyName?: string };
+  readonly teamFormed: { readonly members: number };
+  readonly teamTaskAssigned: { readonly member: string; readonly assignedToday: number };
+  readonly mentored: { readonly member: string };
+  readonly managerVerdict: { readonly kind: string; readonly title: string; readonly text: string };
+  readonly buildPresetSaved: { readonly slot: number; readonly name: string };
+  readonly buildPresetApplied: { readonly slot: number; readonly name: string };
+  readonly milestoneReached: { readonly id: string; readonly day: number; readonly kind: string; readonly text: string };
+  readonly governanceTaskOffered: { readonly domain: string; readonly level: number };
+  readonly soundEvent: { readonly event: string; readonly volume: number };
   /** @deprecated No merge board in PC V1. */
   readonly workerRecruited: WorkerRecruitedEvent;
   readonly gameSaved: GameSavedEvent;

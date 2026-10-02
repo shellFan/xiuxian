@@ -132,8 +132,8 @@ function testCrossMidnightOwnershipSurvivesRestartAndRetries(): void {
 }
 
 function testV6MigrationAndImmutableRoundTrip(): void {
-  // V5.7：saveVersion 12（深度与留存字段入档）
-  assert.equal(CURRENT_SAVE_VERSION, 12);
+  // V5.8：saveVersion 13（Burnout/Meta/Team/Offer 入档）
+  assert.equal(CURRENT_SAVE_VERSION, 13);
   const storage = new MemoryStorageAdapter();
   const v6Day = {
     dayIndex: 4,

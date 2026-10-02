@@ -47,6 +47,8 @@ export interface BattleEnemyState {
   revived?: number;
   /** Boss 已进入 ENRAGE。 */
   enraged?: boolean;
+  /** V5.8 Boss Phase 2（HP 阈值触发，行为真实改变）。 */
+  phase2Active?: boolean;
 }
 
 export interface BossDropRecord {
@@ -369,6 +371,17 @@ export class BattleService {
     if (!mechDef || enemy.tier !== 'BOSS') return;
     enemy.timers = enemy.timers ?? {};
     enemy.telegraphed = enemy.telegraphed ?? {};
+    // ── V5.8 §14.2：Boss Phase 2（HP 阈值，一次性触发，行为真实改变） ──
+    if (!enemy.phase2Active && mechDef.phase2 && enemy.maxHp > 0 && enemy.hp / enemy.maxHp <= mechDef.phase2.atHpPct) {
+      enemy.phase2Active = true;
+      const phase = mechDef.phase2;
+      enemy.attack = Math.floor(enemy.attack * (phase.attackMul ?? 1));
+      if (phase.intervalMul && phase.intervalMul > 0 && phase.intervalMul < 1) enemy.intervalSec = Math.max(0.8, enemy.intervalSec * phase.intervalMul);
+      run.log.push(`⛔ Phase 2 —— ${phase.name}！`);
+      run.log.push(phase.telegraph);
+      this.context.events.emit('bossPhase2', { bossId: enemy.defId, name: enemy.name, phase: phase.name });
+    }
+    if (enemy.phase2Active && mechDef.phase2) this.runPhase2Continuous(run, enemy, player, dt, mechDef.phase2);
     for (const mechanic of mechDef.mechanics) {
       if (mechanic.kind === 'LINKED' || mechanic.kind === 'REVIVE') continue; // 死亡时处理
       const every = mechanic.everySec ?? 10;
@@ -386,6 +399,58 @@ export class BattleService {
       enemy.telegraphed[mechanic.kind] = false;
       this.fireMechanic(run, enemy, mechanic, player, mechDef.telegraph);
       if (run.status !== 'FIGHTING') return;
+    }
+  }
+
+  /** V5.8 §14.2：Phase 2 持续机制（everySec 简化触发）。 */
+  private runPhase2Continuous(run: BattleRunState, enemy: BattleEnemyState, player: PlayerStats, dt: number, phase: import('../v57/battle-merge').BossPhase2Def): void {
+    enemy.timers = enemy.timers ?? {};
+    if (phase.summonEverySec) {
+      const acc = (enemy.timers['P2_SUMMON'] ?? 0) + dt;
+      if (acc >= phase.summonEverySec) {
+        enemy.timers['P2_SUMMON'] = 0;
+        const cap = 4 + (phase.capBonus ?? 0) + player.summonCapBonus;
+        if (run.enemies.filter((e) => e.hp > 0).length < cap + 1) {
+          const minion = bossMechanicsFor(enemy.defId)?.mechanics.find((m) => m.kind === 'SUMMON')?.minion ?? 'mon_req_change';
+          this.addEnemy(run, minion);
+          run.log.push(`${enemy.name} 在 ${phase.name} 中召唤了增援！`);
+        }
+      } else enemy.timers['P2_SUMMON'] = acc;
+    }
+    if (phase.blindEverySec) {
+      const acc = (enemy.timers['P2_BLIND'] ?? 0) + dt;
+      if (acc >= phase.blindEverySec) { enemy.timers['P2_BLIND'] = 0; run.blindSeconds = 3; run.log.push(`⛔ ${phase.name}：你看不清战场了！`); }
+      else enemy.timers['P2_BLIND'] = acc;
+    }
+    if (phase.dodgeEverySec) {
+      const acc = (enemy.timers['P2_DODGE'] ?? 0) + dt;
+      if (acc >= phase.dodgeEverySec) { enemy.timers['P2_DODGE'] = 0; enemy.timers['__dodgeActive'] = 2; }
+      else enemy.timers['P2_DODGE'] = acc;
+    }
+    if (phase.lockSkillEverySec) {
+      const acc = (enemy.timers['P2_LOCK'] ?? 0) + dt;
+      if (acc >= phase.lockSkillEverySec) {
+        enemy.timers['P2_LOCK'] = 0;
+        const castable = run.skills.filter((s) => s !== run.lockedSkill);
+        if (castable.length > 0) { run.lockedSkill = castable[Math.floor(this.rng() * castable.length)]; run.lockedSeconds = 3; run.log.push(`⛔ ${phase.name}：${SKILL_MAP.get(run.lockedSkill)?.name ?? '技能'}连接中断！`); }
+      } else enemy.timers['P2_LOCK'] = acc;
+    }
+    if (phase.hpDrainEverySec) {
+      const acc = (enemy.timers['P2_DRAIN'] ?? 0) + dt;
+      if (acc >= phase.hpDrainEverySec) { enemy.timers['P2_DRAIN'] = 0; run.playerMaxHp = Math.max(30, run.playerMaxHp - 5); run.playerHp = Math.min(run.playerHp, run.playerMaxHp); run.log.push(`⛔ ${phase.name}：你的最大生命被吞噬！`); }
+      else enemy.timers['P2_DRAIN'] = acc;
+    }
+    if (phase.promoteEverySec) {
+      const acc = (enemy.timers['P2_PROMOTE'] ?? 0) + dt;
+      if (acc >= phase.promoteEverySec) {
+        enemy.timers['P2_PROMOTE'] = 0;
+        const minion = run.enemies.find((e) => e.hp > 0 && e.tier === 'NORMAL' && !e.enraged);
+        if (minion) { minion.enraged = true; minion.attack = Math.floor(minion.attack * 1.6); minion.name = `P0·${minion.name}`; run.log.push(`⛔ ${phase.name}：小怪被升级成 P0！`); }
+      } else enemy.timers['P2_PROMOTE'] = acc;
+    }
+    if (phase.debuffPlayerInterval && (!run.slowedSeconds || run.slowedSeconds <= 0)) {
+      run.slowedSeconds = 1.5;
+      run.slowedMul = 1 + phase.debuffPlayerInterval;
     }
   }
 

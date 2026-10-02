@@ -355,6 +355,22 @@ export class DaySettlementService {
         const offWork = this.gameDay.isOffWork();
         this.context.fatigue.recover('OFF_WORK');
         p.mind = Math.min(p.maxMind, p.mind + 35);
+        // V5.8：心魔自然消退（-3/晚，治疗螺旋）+ Burnout 状态机推进 + 月度统计累计
+        p.innerDemon = Math.max(0, p.innerDemon - 3);
+        try { this.context.burnout.onDaySettled(); } catch { /* burnout must not block settle */ }
+        try {
+          this.context.meta.accumulateMonth({
+            workDays: 1,
+            ontimeDays: offWork && day.durations.overtime === 0 ? 1 : 0,
+            overtimeMinutes: Math.round(day.durations.overtime / 60),
+            salaryEarned: day.income.salary,
+            fishingMinutes: Math.round(day.durations.fishing / 60),
+            tasksDone: p.assignedTasks.filter((t) => t.status === 'DONE' && t.createdDay === day.dayIndex).length,
+            incidents: p.incidents.filter((i) => i.dayIndex === day.dayIndex).length,
+            blamesTaken: p.responsibilityCases.filter((c) => c.status === 'PLAYER_ACCEPTED' && c.createdDay === day.dayIndex).length,
+            blamesReturned: p.responsibilityCases.filter((c) => c.status === 'PLAYER_CLEARED' && c.createdDay === day.dayIndex).length,
+          });
+        } catch { /* monthly stats must not block settle */ }
         if (offWork && day.durations.overtime === 0) {
           const stats = p.lifetimeStats;
           p.lifetimeStats = { ...stats, ontimeDays: (stats.ontimeDays ?? 0) + 1 };

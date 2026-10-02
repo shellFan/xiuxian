@@ -1,7 +1,12 @@
 import professionsConfig from '../../configs/professions.json';
+import { REGISTRY_MAP, registryProfession } from '../content/content-registry';
 import type { GameContext } from '../core/game-context';
 
-/** V5.5 P0：职业系统（§2~§14）。职业影响怪物池/技能池/任务池/专精加成/聊天内容。 */
+/**
+ * V5.5 P0：职业系统（§2~§14）。职业影响怪物池/技能池/任务池/专精加成/聊天内容。
+ * V5.8：职业内容唯一事实源 = content/content-registry.ts（由 v57/profession-content.json 派生）；
+ * professions.json 仅存元数据。professionDef() 读 Registry，保持双源一致由 validateDualSource/content:check 断言。
+ */
 
 export type ProfessionId =
   | 'JAVA_BACKEND' | 'FRONTEND' | 'QA' | 'DEVOPS' | 'DBA' | 'PRODUCT_OWNER';
@@ -40,11 +45,14 @@ export const PROFESSION_LEVEL_EXP = [0, 120, 320, 700, 1300, 2200, 3500, 5300, 7
 const PROFESSIONS = (professionsConfig as { professions: ProfessionDef[] }).professions;
 
 export function professionDef(id: string): ProfessionDef | undefined {
+  // V5.8：Registry 优先（内容唯一事实源），locked 职业回退 legacy 元数据
+  const reg = registryProfession(id);
+  if (reg) return reg as ProfessionDef;
   return PROFESSIONS.find((p) => p.id === id);
 }
 
 export function allProfessions(): readonly ProfessionDef[] {
-  return PROFESSIONS;
+  return REGISTRY_MAP.size > 0 ? (Array.from(REGISTRY_MAP.values()) as ProfessionDef[]) : PROFESSIONS;
 }
 
 export class ProfessionService {

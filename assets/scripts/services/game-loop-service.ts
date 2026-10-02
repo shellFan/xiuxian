@@ -158,6 +158,11 @@ export class GameLoopService {
         this.context.storyDirector.beginWorkday();
         this.context.week.beginWorkday();
         this.context.professionContent.grantLevelUps();
+        // ── V5.8 ──
+        try { this.context.meta.checkMilestones(); } catch { /* milestone must not crash loop */ }
+        try { this.context.offer.maybeGenerateOffer(); } catch { /* offer must not crash loop */ }
+        try { this.context.techDebt.offerGovernanceTask(); } catch { /* governance must not crash loop */ }
+        try { if (this.context.team.isManager() && this.context.player.teamState === null) this.context.team.ensureTeam(); } catch { /* team */ }
       }
     } catch {
       // V5 story director failure must not crash the game loop

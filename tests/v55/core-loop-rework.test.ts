@@ -110,7 +110,7 @@ function testMigrationContract(): void {
   const saveData = fs.readFileSync(path.resolve(process.cwd(), 'assets/scripts/model/save-data.ts'), 'utf8');
   // V5.7：v10 前旧档默认 JAVA_BACKEND；新档保持未选（职业选择首屏）
   assert.match(saveService, /raw\.saveVersion < 10\) \? 'JAVA_BACKEND' : undefined/, 'legacy saves default JAVA_BACKEND, new saves unselected');
-  assert.match(saveData, /CURRENT_SAVE_VERSION = 12/, 'save v12');
+  assert.match(saveData, /CURRENT_SAVE_VERSION = 13/, 'save v13');
   assert.match(saveData, /readonly profession\?: string/, 'save model carries profession');
   console.log('save migration contract passed');
 }

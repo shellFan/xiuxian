@@ -369,6 +369,76 @@ export class GameFacade {
     const theme = (WEEK_CONTENT.firstWeekStory as Record<string, { theme: string }>)[String(dow)]?.theme;
     return { dayIndex: day, dayOfWeek: dow, theme: day <= 7 ? (theme ?? '') : `第 ${Math.floor((day - 1) / 7) + 1} 周` };
   }
+
+  // ── V5.8 爽感打磨 × 晋升玩法进化 × 公司宗门 × Meta ──
+
+  /** Burnout 视图。 */
+  public queryBurnout() { return this.context.burnout.view(); }
+  /** 请半天假（Burnout 事件选项 A）。 */
+  public takeHalfDayOff() {
+    const result = this.context.burnout.takeHalfDayOff();
+    this.save();
+    return result;
+  }
+  /** 当前公司 runtime 属性。 */
+  public queryCompany() { return this.context.company.profile(); }
+  public queryCompanies() { return this.context.company.profiles(); }
+  /** 待处理 Offer。 */
+  public queryOffer() { return this.context.offer.pending(); }
+  public decideOffer(decision: 'ACCEPTED' | 'DECLINED' | 'NEGOTIATED' | 'LATER') {
+    const result = this.context.offer.decide(decision);
+    if (result.ok) this.save();
+    return result;
+  }
+  public queryOfferHistory() { return this.context.offer.history(); }
+  /** 团队（L7+）。 */
+  public queryTeam() { return this.context.team.views(); }
+  public isManager() { return this.context.team.isManager(); }
+  public assignTeamTask(memberName: string) {
+    const result = this.context.team.assignTask(memberName);
+    if (result.ok) this.save();
+    return result;
+  }
+  public mentorMember(memberName: string) {
+    const result = this.context.team.mentor(memberName);
+    if (result.ok) this.save();
+    return result;
+  }
+  public recordManagerChoice(kind: 'EXPLOIT' | 'PROTECT', label: string) {
+    this.context.team.recordManagerChoice(kind, label);
+    this.save();
+  }
+  /** 元成长。 */
+  public queryCareerJourney() { return this.context.meta.journey(); }
+  public queryBuildPresets() { return this.context.meta.buildPresets(); }
+  public saveBuildPreset(slot: 0 | 1 | 2, name: string) {
+    const result = this.context.meta.saveBuildPreset(slot, name);
+    if (result.ok) this.save();
+    return result;
+  }
+  public applyBuildPreset(slot: 0 | 1 | 2) {
+    const result = this.context.meta.applyBuildPreset(slot);
+    if (result.ok) this.save();
+    return result;
+  }
+  public queryMonthlyReport() { return this.context.meta.latestMonthlyReport(); }
+  public queryMilestones() { return this.context.meta.milestoneList(); }
+  /** 战斗结算统计（§14.5）。 */
+  public queryBattleSummary() {
+    const run = this.context.battle.finished();
+    if (!run) return null;
+    return {
+      runId: run.runId,
+      status: run.status,
+      waves: `${run.wave}/${run.waveTotal}`,
+      kills: run.kills,
+      level: run.level,
+      bossDrops: run.bossDrops ?? [],
+      synergies: run.synergies ?? [],
+      evolvedSkills: run.evolvedSkills ?? [],
+      loot: run.loot,
+    };
+  }
   /** 待进入的事故副本（消息链生成的线上禁地，§31）。 */
   public queryPendingIncidentDungeon(): { readonly incidentType: string } | null {
     const pending = (this.context.player as unknown as { pendingIncidentDungeon?: string }).pendingIncidentDungeon;
@@ -1108,6 +1178,10 @@ export class GameFacade {
       'spiritStonesChanged',
       // V5.7
       'weekSettlementReady', 'weeklyGoalDone', 'weeklyRewardClaimed', 'secretEventFired',
+      // V5.8
+      'burnoutRisk', 'burnoutTriggered', 'burnoutForcedRest', 'bossPhase2', 'companySwitched',
+      'offerReceived', 'offerDecided', 'teamFormed', 'teamTaskAssigned', 'mentored',
+      'managerVerdict', 'buildPresetSaved', 'buildPresetApplied', 'milestoneReached', 'governanceTaskOffered',
       'synergyActivated', 'bossExclusiveDrop', 'fatigueCritical', 'projectArchived', 'equipmentAcquired',
     ];
 
