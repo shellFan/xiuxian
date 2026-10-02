@@ -21,7 +21,7 @@ const START = Date.parse('2026-09-21T09:00:00+08:00'); // 周一 09:00
 
 const PERSONAS = {
   COMPLIANT: { workShare: 0.9, overtime: 'ACCEPT_ALL', replyTag: null, battle: true },
-  ASSERTIVE: { workShare: 0.95, overtime: 'DECLINE_FREE', replyTag: null, battle: true },
+  ASSERTIVE: { workShare: 0.95, overtime: 'DECLINE_FREE', replyTag: 'PROFESSIONAL', battle: true },
   BALANCED: { workShare: 0.7, overtime: 'ACCEPT_PAID', replyTag: null, battle: true },
   FISHING_MASTER: { workShare: 0.25, overtime: 'DECLINE_ALL', replyTag: null, battle: false },
   TECH_PERFECTIONIST: { workShare: 0.9, overtime: 'ACCEPT_PAID', replyTag: 'PROFESSIONAL', battle: true },
@@ -80,7 +80,7 @@ function runPersona(name, policy, days, seed) {
         const p = facade.context.player;
         // 模式：工作占比 + 午休（绕过真实时间冷却，直接走 WorkService 模式机）
         const hod = Math.floor(m / 60);
-        const inWorkWindow = (hod >= 9 && hod < 12) || (hod >= 13 && hod < 18);
+        const inWorkWindow = (hod >= 9 && hod < 12) || (hod >= 13 && hod < 18); // 18:00 后下班（模拟器真实作息）
         const wantWork = inWorkWindow && ((m % 60) / 60) < policy.workShare;
         const targetMode = wantWork ? 'WORK' : 'FISHING';
         try { if (p.workMode !== targetMode) facade.context.work.setMode(targetMode); } catch { metrics.exceptions += 1; }
@@ -97,6 +97,8 @@ function runPersona(name, policy, days, seed) {
           } else if (name === 'ASSERTIVE') {
             pick = opts[opts.length - 1];
           }
+          // 道心贴底时选恢复语义的尾部选项（玩家不会无脑头铁：心魔缠身会自救）
+          if (p.mind < 50 && opts.length > 1) pick = opts[opts.length - 1];
           try { facade.replyToMessage(msg.id, pick.id); } catch { metrics.exceptions += 1; }
         }
         // 完成任务即领取
@@ -121,9 +123,26 @@ function runPersona(name, policy, days, seed) {
             if (builds.length > 0) { facade.startBattleRun('PROJECT', builds[0].id); metrics.battles += 1; }
           }
         } catch { metrics.exceptions += 1; }
+        // 心魔/道心自救：mind < 45 时喝咖啡/回春丹（真实玩家会用消耗品）
+        if (p.mind < 45) {
+          try { facade.v2UseConsumable('cons_coffee'); } catch { /* 没有库存 */ }
+          if (p.mind < 30) { try { facade.v2UseConsumable('cons_heal'); } catch { /* 没有库存 */ } }
+        }
+        // 心魔/道心自救：mind < 45 时买咖啡/回春丹喝（真实玩家会用工资买消耗品）
+        if (p.mind < 45) {
+          const has = (id) => (p.materials?.[id] ?? 0) > 0;
+          const tryUse = (id) => { try { return facade.v2UseConsumable(id).success; } catch { return false; } };
+          if (!tryUse('cons_coffee')) {
+            if (has('cons_coffee') || (p.salary > 120)) { try { facade.v2Buy('cons_coffee', 30); } catch { /* 售罄 */ } tryUse('cons_coffee'); }
+          }
+          if (p.mind < 25) {
+            if (!tryUse('cons_heal') && p.salary > 200) { try { facade.v2Buy('cons_heal', 60); } catch { /* 售罄 */ } tryUse('cons_heal'); }
+            if (!tryUse('cons_clear') && p.salary > 300) { try { facade.v2Buy('cons_clear', 80); } catch { /* 售罄 */ } tryUse('cons_clear'); }
+          }
+        }
         // 健康采样
-        if (p.mind <= 0) metrics.mindZeroTicks += 1;
-        metrics.mindMin = Math.min(metrics.mindMin, p.mind);
+        if (m <= 1080 && p.mind <= 0) metrics.mindZeroTicks += 1; // 仅工作时段采样（下班离线不计）
+        if (m <= 1080) metrics.mindMin = Math.min(metrics.mindMin, p.mind);
         if ((p.fatigue ?? 0) >= 100) metrics.fatigue100Ticks += 1;
         try {
           const debt = facade.context.techDebt.all();
