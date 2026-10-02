@@ -35,7 +35,7 @@ export interface ProfessionView {
 }
 
 /** 职业等级：技术路线，与公司职级分离（§195~§197）。 */
-export const PROFESSION_LEVEL_EXP = [0, 100, 260, 520, 900, 1450, 2200, 3200, 4500, 6100] as const;
+export const PROFESSION_LEVEL_EXP = [0, 120, 320, 700, 1300, 2200, 3500, 5300, 7800, 11500] as const;
 
 const PROFESSIONS = (professionsConfig as { professions: ProfessionDef[] }).professions;
 

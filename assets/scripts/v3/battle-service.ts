@@ -891,7 +891,7 @@ export class BattleService {
     const killedBoss = !defeated && (run.wave >= run.waveTotal || (run.bossDrops ?? []).length > 0);
     // V5.7：职业 Boss 讨伐 → 职业经验（§14：经验来源含职业 Boss）
     if (killedBoss) {
-      try { this.context.profession.grantExp(35 + run.wave * 5); } catch { /* best-effort */ }
+      try { this.context.profession.grantExp(25); } catch { /* best-effort */ }
     }
     this.context.player.lifetimeStats = {
       ...this.context.player.lifetimeStats,

@@ -18,6 +18,9 @@ const css = fs.readFileSync(path.resolve(process.cwd(), 'desktop/ui-overlay.css'
 const items = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'assets/configs/v2/items.json'), 'utf8'));
 const professions = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'assets/configs/professions.json'), 'utf8'));
 const battle = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'assets/configs/v3/battle-content.json'), 'utf8'));
+/* V5.7：职业内容分家后，professions.json 引用 v57 扩展池——合并后再校验 */
+const v57Battle = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'assets/configs/v57/battle-extension.json'), 'utf8'));
+const v57Equip = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'assets/configs/v57/equipment-content.json'), 'utf8'));
 const taskService = fs.readFileSync(path.resolve(process.cwd(), 'assets/scripts/services/task-service.ts'), 'utf8');
 
 /* ── display-name（§26/§110） ── */
@@ -52,9 +55,9 @@ function testTaskDurations(): void {
 
 /* ── profession content 对齐（§2~§11） ── */
 function testProfessionContent(): void {
-  const monsterIds = new Set(battle.monsters.map((m: { id: string }) => m.id));
-  const skillIds = new Set(battle.skills.map((s: { id: string }) => s.id));
-  const equipmentIds = new Set(items.equipment.map((e: { id: string }) => e.id));
+  const monsterIds = new Set([...battle.monsters, ...v57Battle.monsters].map((m: { id: string }) => m.id));
+  const skillIds = new Set([...battle.skills, ...v57Battle.skills].map((s: { id: string }) => s.id));
+  const equipmentIds = new Set([...items.equipment, ...v57Equip.equipment].map((e: { id: string }) => e.id));
   const unlocked = professions.professions.filter((p: { locked?: boolean }) => !p.locked);
   assert.ok(unlocked.length >= 4, `four professions playable (found ${unlocked.length})`);
   for (const p of unlocked) {
@@ -105,8 +108,9 @@ function testReleaseCleanup(): void {
 function testMigrationContract(): void {
   const saveService = fs.readFileSync(path.resolve(process.cwd(), 'assets/scripts/services/save-service.ts'), 'utf8');
   const saveData = fs.readFileSync(path.resolve(process.cwd(), 'assets/scripts/model/save-data.ts'), 'utf8');
-  assert.match(saveService, /profession: typeof raw\.profession/, 'legacy saves default JAVA_BACKEND');
-  assert.match(saveData, /CURRENT_SAVE_VERSION = 11/, 'save v11');
+  // V5.7：v10 前旧档默认 JAVA_BACKEND；新档保持未选（职业选择首屏）
+  assert.match(saveService, /raw\.saveVersion < 10\) \? 'JAVA_BACKEND' : undefined/, 'legacy saves default JAVA_BACKEND, new saves unselected');
+  assert.match(saveData, /CURRENT_SAVE_VERSION = 12/, 'save v12');
   assert.match(saveData, /readonly profession\?: string/, 'save model carries profession');
   console.log('save migration contract passed');
 }

@@ -165,7 +165,7 @@ function testGoalDirector(): void {
   }
 }
 
-/** §25：save v11 迁移——V10 存档加载后 fatigue/project 默认正确。 */
+/** §25：save v12 迁移——V11 存档加载后 fatigue/project/深度字段默认正确。 */
 function testSaveV11Migration(): void {
   const storage = new MemoryStorageAdapter();
   storage.setItem('game-save', JSON.stringify({ saveVersion: 10, salary: 500, careerLevel: 3, lastSaveTime: MONDAY_0900 }));
@@ -176,10 +176,10 @@ function testSaveV11Migration(): void {
     const snapshot = facade.save();
     void snapshot;
     const raw = JSON.parse(storage.getItem('game-save') ?? '{}') as { saveVersion: number; fatigue: number; project: unknown };
-    assert.equal(raw.saveVersion, 11, 'v10 save migrates to v11');
+    assert.equal(raw.saveVersion, 12, 'v11 save migrates to v12');
     assert.equal(raw.fatigue, 0, 'fatigue defaults 0');
     assert.equal(raw.project, null, 'project defaults null');
-    console.log('save v11 migration passed');
+    console.log('save v12 migration passed');
   } finally {
     facade.destroy();
   }

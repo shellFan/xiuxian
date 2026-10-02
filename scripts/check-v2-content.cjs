@@ -321,6 +321,122 @@ if (v5Windows.incident < 20) fail('v5 messenger: need >=20 incident conversation
 if (v5Windows.positive < 20) fail('v5 messenger: need >=20 positive events, got ' + v5Windows.positive);
 if (v5Windows.funny < 30) fail('v5 messenger: need >=30 humorous events, got ' + v5Windows.funny);
 
+
+// ── Gameplay V5.7: 职业深度 / Boss / 装备 / 共鸣 / 周内容 ─────────────────────
+const v57Dir = path.join(root, 'assets', 'configs', 'v57');
+const v57Battle = JSON.parse(fs.readFileSync(path.join(v57Dir, 'battle-extension.json'), 'utf8'));
+const v57Equip = JSON.parse(fs.readFileSync(path.join(v57Dir, 'equipment-content.json'), 'utf8'));
+const v57Prof = JSON.parse(fs.readFileSync(path.join(v57Dir, 'profession-content.json'), 'utf8'));
+const v57ProfEvents = JSON.parse(fs.readFileSync(path.join(v57Dir, 'profession-events.json'), 'utf8'));
+const v57Week = JSON.parse(fs.readFileSync(path.join(v57Dir, 'week-content.json'), 'utf8'));
+const battleBase = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'configs', 'v3', 'battle-content.json'), 'utf8'));
+const profBase = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'configs', 'professions.json'), 'utf8'));
+const itemsBase = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'configs', 'v2', 'items.json'), 'utf8'));
+
+const allMonsters = new Map([...battleBase.monsters, ...v57Battle.monsters].map((m) => [m.id, m]));
+const allSkills = new Map([...battleBase.skills, ...v57Battle.skills].map((m) => [m.id, m]));
+const allBuilds = new Map([...battleBase.builds, ...v57Battle.builds].map((m) => [m.id, m]));
+const allEquipment = new Map([...itemsBase.equipment, ...v57Equip.equipment].map((m) => [m.id, m]));
+const allBosses = Array.from(allMonsters.values()).filter((m) => m.tier === 'BOSS');
+
+for (const [bossId, mech] of Object.entries(v57Battle.bossMechanics)) {
+  if (!allMonsters.has(bossId)) fail('v57 boss: mechanics defined for unknown boss ' + bossId);
+  if (!mech.mechanics || mech.mechanics.length < 2) fail('v57 boss: ' + bossId + ' needs >=2 mechanics');
+  if (!mech.exclusiveDrop || !allEquipment.has(mech.exclusiveDrop.equipmentId)) fail('v57 boss: ' + bossId + ' exclusive drop missing');
+  if (mech.exclusiveDrop && (mech.exclusiveDrop.dropChance >= 1 || mech.exclusiveDrop.dropChance <= 0)) fail('v57 boss: ' + bossId + ' dropChance must be (0,1)');
+}
+if (allBosses.length < 18) fail('v57 bosses: need >=18, got ' + allBosses.length);
+
+const PROF_IDS = ['JAVA_BACKEND', 'FRONTEND', 'QA', 'DEVOPS'];
+const profEventPool = v57ProfEvents.events;
+for (const pid of PROF_IDS) {
+  const def = v57Prof.professions[pid];
+  if (!def) { fail('v57 profession content missing: ' + pid); continue; }
+  if (def.tasks.length < 25) fail('v57 ' + pid + ': tasks ' + def.tasks.length + ' < 25');
+  if (def.monsters.length < 20) fail('v57 ' + pid + ': monsters ' + def.monsters.length + ' < 20');
+  if (def.bosses.length < 4) fail('v57 ' + pid + ': bosses ' + def.bosses.length + ' < 4');
+  if (def.builds.length < 5) fail('v57 ' + pid + ': builds ' + def.builds.length + ' < 5');
+  if (def.activeSkills.length < 10) fail('v57 ' + pid + ': activeSkills ' + def.activeSkills.length + ' < 10');
+  if (def.passiveSkills.length < 8) fail('v57 ' + pid + ': passiveSkills ' + def.passiveSkills.length + ' < 8');
+  if (def.equipment.length < 12) fail('v57 ' + pid + ': equipment ' + def.equipment.length + ' < 12');
+  const profEvents = profEventPool.filter((e) => (e.professions || []).includes(pid));
+  if (profEvents.length < 25) fail('v57 ' + pid + ': profession events ' + profEvents.length + ' < 25');
+  if (Object.keys(def.perks).length < 9) fail('v57 ' + pid + ': level perks < 9');
+  for (const m of def.monsters) if (!allMonsters.has(m)) fail('v57 ' + pid + ': unknown monster ' + m);
+  for (const b of def.bosses) if (!allMonsters.has(b) || allMonsters.get(b).tier !== 'BOSS') fail('v57 ' + pid + ': unknown boss ' + b);
+  for (const b of def.builds) if (!allBuilds.has(b)) fail('v57 ' + pid + ': unknown build ' + b);
+  for (const sk of [...def.activeSkills, ...def.passiveSkills]) if (!allSkills.has(sk)) fail('v57 ' + pid + ': unknown skill ' + sk);
+  for (const eq of def.equipment) if (!allEquipment.has(eq)) fail('v57 ' + pid + ': unknown equipment ' + eq);
+  const baseDef = profBase.professions.find((x) => x.id === pid);
+  if (baseDef && pid === 'FRONTEND') {
+    const sharedJava = baseDef.builds.filter((b) => ['build_java', 'build_redis', 'build_db'].includes(b));
+    if (sharedJava.length > 0) fail('v57 professions.json: FRONTEND still shares Java builds (debt 4.1 not closed)');
+  }
+}
+for (const a of PROF_IDS) {
+  for (const b of PROF_IDS) {
+    if (a >= b) continue;
+    const pa = v57Prof.professions[a], pb = v57Prof.professions[b];
+    const uniqA = pa.monsters.filter((m) => !pb.monsters.includes(m)).length / pa.monsters.length;
+    const uniqB = pb.monsters.filter((m) => !pa.monsters.includes(m)).length / pb.monsters.length;
+    if (uniqA < 0.7 || uniqB < 0.7) fail('v57 profession difference: monster unique ratio ' + a + '/' + b + ' = ' + uniqA.toFixed(2) + '/' + uniqB.toFixed(2) + ' < 0.70');
+    const skillA = new Set([...pa.activeSkills, ...pa.passiveSkills]);
+    const skillB = new Set([...pb.activeSkills, ...pb.passiveSkills]);
+    const overlapSkills = [...skillA].filter((x) => skillB.has(x)).length;
+    if (overlapSkills > Math.min(skillA.size, skillB.size) * 0.3) fail('v57 profession difference: skill overlap ' + a + '/' + b + ' = ' + overlapSkills);
+    const buildA = new Set(pa.builds), buildB = new Set(pb.builds);
+    const overlapBuilds = [...buildA].filter((x) => buildB.has(x)).length;
+    if (overlapBuilds > 0) fail('v57 profession difference: shared core build between ' + a + ' and ' + b);
+  }
+}
+const evolutionBaseIds = new Set(v57Battle.evolutions.map((e) => e.baseSkillId));
+for (const evo of v57Battle.evolutions) {
+  if (!allSkills.has(evo.baseSkillId) && !evolutionBaseIds.has(evo.baseSkillId)) fail('v57 evolution: unknown base skill ' + evo.baseSkillId);
+  if (!allSkills.has(evo.baseSkillId)) fail('v57 evolution: base skill not in merged pool: ' + evo.baseSkillId);
+  if (evo.options.length !== 2) fail('v57 evolution: ' + evo.id + ' must have exactly 2 options');
+}
+for (const pid of PROF_IDS) {
+  const evoCount = v57Battle.evolutions.filter((e) => v57Prof.professions[pid].activeSkills.includes(e.baseSkillId)).length;
+  if (evoCount < 8) fail('v57 ' + pid + ': evolutions ' + evoCount + ' < 8');
+}
+for (const syn of v57Battle.synergies) {
+  for (const sk of syn.requires.skills || []) if (!allSkills.has(sk)) fail('v57 synergy: ' + syn.id + ' unknown skill ' + sk);
+  for (const tag of syn.requires.equipmentTags || []) {
+    const tagExists = v57Equip.equipment.some((e) => e.tag === tag);
+    if (!tagExists) fail('v57 synergy: ' + syn.id + ' no equipment with tag ' + tag);
+  }
+}
+for (const pid of PROF_IDS) {
+  const synCount = v57Battle.synergies.filter((sx) => sx.profession === pid).length;
+  if (synCount < 6) fail('v57 ' + pid + ': synergies ' + synCount + ' < 6');
+}
+if (allEquipment.size < 60) fail('v57 equipment: need >=60, got ' + allEquipment.size);
+if (v57Equip.affixes.length < 40) fail('v57 affixes: need >=40, got ' + v57Equip.affixes.length);
+if (v57Equip.sets.length < 12) fail('v57 sets: need >=12, got ' + v57Equip.sets.length);
+for (const set of v57Equip.sets) {
+  for (const m of set.members) if (!allEquipment.has(m)) fail('v57 set ' + set.id + ': unknown member ' + m);
+}
+const npcIds = new Set(['BOSS', 'PRODUCT', 'TESTER', 'JUNIOR', 'VETERAN', 'HR', 'OPS', 'CLIENT']);
+for (const e of profEventPool) {
+  if (!e.conversation || !e.actor) fail('v57 profession event ' + e.id + ': missing conversation/actor');
+  if (!e.steps || e.steps.length === 0) fail('v57 profession event ' + e.id + ': empty steps');
+  for (const r of e.replies || []) {
+    if (!r.effects) fail('v57 profession event ' + e.id + '/' + r.id + ': missing effects');
+    for (const pair of r.effects.npc || []) {
+      if (!npcIds.has(pair[0])) fail('v57 profession event ' + e.id + ': unknown npc ' + pair[0]);
+    }
+  }
+}
+const dowKeys = Object.keys(v57Week.firstWeekStory);
+if (dowKeys.length !== 7) fail('v57 first week story: need 7 days, got ' + dowKeys.length);
+if (v57Week.dailySituations.length < 12) fail('v57 daily situations: need >=12, got ' + v57Week.dailySituations.length);
+if (v57Week.weeklyGoalPool.length < 6) fail('v57 weekly goals: need >=6');
+if (v57Week.secretEvents.length < 8) fail('v57 secret events: need >=8');
+if (v57Week.companyProfiles.length < 4) fail('v57 company profiles: need >=4');
+const achievementsAll = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'configs', 'achievements.json'), 'utf8')).achievements;
+if (achievementsAll.length < 80) fail('v57 achievements: need >=80, got ' + achievementsAll.length);
+console.log('V5.7: professions 4 | tasks ' + PROF_IDS.reduce((acc, pid) => acc + v57Prof.professions[pid].tasks.length, 0) + ' | newMonsters ' + v57Battle.monsters.length + ' | bosses ' + allBosses.length + ' | skills ' + allSkills.size + ' | evolutions ' + v57Battle.evolutions.length + ' | synergies ' + v57Battle.synergies.length + ' | equipment ' + allEquipment.size + ' | affixes ' + v57Equip.affixes.length + ' | sets ' + v57Equip.sets.length + ' | profEvents ' + profEventPool.length + ' | achievements ' + achievementsAll.length);
+
 // ── 汇总 ─────────────────────────────────────────────────────────────────────
 console.log('═══════════════════════════════════════');
 console.log('Gameplay V2 Content Check');

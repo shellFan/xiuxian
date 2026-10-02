@@ -107,8 +107,8 @@ function testFirstWeekBeatsAndPlanReality(): void {
   try {
     facade.gameLoop.start();
     facade.gameLoop.tick(1);
-    // D1 09:15 前后应收到小师妹的入职私聊（首周节拍 d1_welcome）
-    for (let i = 0; i < 40 && facade.context.player.messages.length === 0; i += 1) {
+    // D1 09:15 前后应收到小师妹的入职私聊（首周节拍 d1_welcome；09:05 可能先到领导开场白）
+    for (let i = 0; i < 60 && !facade.context.player.messages.some((m) => m.conversationId === 'conv_junior'); i += 1) {
       clock.advance(30_000);
       facade.gameLoop.tick(30);
     }

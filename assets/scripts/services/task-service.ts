@@ -253,7 +253,7 @@ export class TaskService {
         const stats = this.context.player.lifetimeStats;
         this.context.player.lifetimeStats = { ...stats, tasksDone: (stats.tasksDone ?? 0) + 1 };
         this.context.week.recordProgress('PROFESSION_TASKS', 1);
-        this.context.profession.grantExp(8);
+        this.context.profession.grantExp(6);
         this.context.dailyPlanner.markPlanDoneByTask(String((task as unknown as { title?: string }).title ?? task.taskId));
       } catch { /* V5.7 hooks must not block claims */ }
       this.context.saveService.save(this.context.player);

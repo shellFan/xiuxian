@@ -982,7 +982,13 @@
     var goals = [];
     try { goals = f.queryGoals() || []; } catch (e) { return ''; }
     var now = goals[0];
-    if (!now) return '';
+    var hookHtml = '';
+    if (f && typeof f.queryTomorrowHook === 'function') {
+      var hook = '';
+      try { hook = f.queryTomorrowHook() || ''; } catch (e) { hook = ''; }
+      if (hook) hookHtml = '<div class="ux-tomorrow-hook"><span class="th-label">明日预告</span>' + escHtml(hook) + '</div>';
+    }
+    if (!now) return hookHtml;
     var attrs = now.action === 'select'
       ? 'data-select-action="WORK"'
       : (now.page ? 'data-goto-page="' + escHtml(now.page) + '"' : '');
@@ -990,7 +996,7 @@
       '<span class="jg-icon">' + now.icon + '</span>' +
       '<span class="jg-main"><b>' + escHtml(now.text) + '</b><i>' + escHtml(now.sub) + '</i></span>' +
       '<span class="jg-btn">' + escHtml(now.btn) + ' ›</span>' +
-    '</button>';
+    '</button>' + hookHtml;
   }
 
   /* V5.6 §5.3：Today Capacity Widget */
@@ -1120,7 +1126,7 @@
 
   /* 中栏（§12~§41）：时间场景 / 动作选择器 / 动作详情 */
   function homeCenterHtml(hud) {
-    return workSceneHtml(hud) + todayCapacityHtml() + journeyGuideHtml() + actionSelectorHtml(hud) + actionDetailHtml(hud);
+    return workSceneHtml(hud) + v57situationChipHtml() + v57fatigueChipHtml() + todayCapacityHtml() + journeyGuideHtml() + actionSelectorHtml(hud) + actionDetailHtml(hud);
   }
 
   /* 中栏顶部：办公室场景 + 下班倒计时 + 今日已赚浮层（§12~§20） */
@@ -1453,6 +1459,22 @@
     if (!run) return '';
     var profDef = f && typeof f.queryProfessionDef === 'function' ? (function () { try { return f.queryProfessionDef(); } catch (e) { return null; } })() : null;
     var profName = profDef ? profDef.name + ' · ' + profDef.title : '未觉醒';
+    // V5.7：Build / 道法共鸣 / 进化标识（§114）
+    var buildName = '';
+    var synChips = '';
+    var evoChips = '';
+    try {
+      var builds = f.queryBattleBuildOptions ? f.queryBattleBuildOptions() : [];
+      var bDef = builds.filter(function (b) { return b.id === run.buildId; })[0];
+      buildName = bDef ? bDef.name : run.buildId;
+      var syns = f.querySynergies ? f.querySynergies() : [];
+      var activeIds = new Set(run.synergies || []);
+      synChips = syns.filter(function (s) { return activeIds.has(s.id); })
+        .map(function (s) { return '<span class="ux-bt-syn" title="' + escHtml(s.desc) + '">✦ ' + escHtml(s.name) + '</span>'; }).join('');
+      var evoMap = f.querySkillEvolutions ? f.querySkillEvolutions() : {};
+      evoChips = (run.evolvedSkills || []).map(function (id) { return '<span class="ux-bt-evo">✧ ' + escHtml(id) + '</span>'; }).join('');
+      void evoMap;
+    } catch (e) { /* chips best-effort */ }
 
     // 左栏：玩家
     var hpPct = Math.max(0, Math.min(100, Math.round(run.playerHp / run.playerMaxHp * 100)));
@@ -1510,6 +1532,7 @@
         projectCol +
       '</div>' +
       '<div class="ux-battle2-bottom">' +
+        '<div class="ux-bt-buildrow"><span class="ux-bt-build">Build·' + escHtml(buildName) + '</span>' + synChips + evoChips + '</div>' +
         '<div class="ux-bt-skills">' + (skillBtns || '<span class="ux-bt-skill-hint">战斗技能在升级三选一中解锁</span>') + '</div>' +
         '<div class="ux-bt-log" id="BattleLog">' + logLines + '</div>' +
       '</div>' +
@@ -1528,8 +1551,14 @@
       if (layer) {
         var opts = run.skillOffers.map(function (id) {
           var def = battleSkillDef(id);
-          var name = def ? def.name : '攻击强化';
-          var desc = def ? def.desc : '攻击 +3，朴实无华。';
+          var name = def ? def.name : null;
+          var desc = def ? def.desc : null;
+          /* V5.7：进化候选不在技能表——按进化选项解析名/描述 */
+          if (!name && f.queryEvolutionOption) {
+            var evo = (function () { try { return f.queryEvolutionOption(id); } catch (e) { return null; } })();
+            if (evo) { name = evo.name; desc = evo.desc; }
+          }
+          if (!name) { name = '攻击强化'; desc = '攻击 +3，朴实无华。'; }
           return '<button class="ux-event-option" data-battle-skill="' + escHtml(id) + '"><span>' + escHtml(name) + '</span><span class="opt-effects">' + escHtml(desc) + '</span></button>';
         }).join('');
         layer.innerHTML =
@@ -1601,12 +1630,13 @@
           '<div class="ux-popup-card">' +
             '<div class="ux-event-bubble">' + escHtml(flavor) + '</div>' +
             (lootLines.length ? '<div class="ux-off-rows">' + lootLines.map(function (l) { return '<div class="ux-off-row"><span class="rv">' + l + '</span></div>'; }).join('') + '</div>' : '<div class="ux-agenda-empty">什么都没掉。就当修炼了。</div>') +
+            v57BossDropCardsHtml(done) +
             '<div class="ux-event-options">' + optionHtml + '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
 
-    $('.ux-event-option[data-project-decision]', layer2).forEach(function (btn) {
+    $$('.ux-event-option[data-project-decision]', layer2).forEach(function (btn) {
       btn.addEventListener('click', function () {
         var idx = Number(btn.getAttribute('data-decision-idx'));
         var decision = decisions[idx];
@@ -1623,6 +1653,7 @@
         refresh();
       });
     });
+    v57BindExtra(layer2);
   }
 
   var _battleResultShown = null;
@@ -1639,6 +1670,10 @@
   function openBuildSelectModal() {
     var f = facade();
     if (!f || typeof f.queryBattleBuildOptions !== 'function') { toast('游戏尚未就绪', 'error'); return; }
+    /* V5.7：战斗进行中不允许换 Build 重开 */
+    var activeRun = null;
+    try { activeRun = f.queryBattle(); } catch (e) { activeRun = null; }
+    if (activeRun) { toast('已有进行中的战斗，先完成或放弃它。', 'error'); return; }
     var builds = f.queryBattleBuildOptions() || [];
     var layer = popupLayer();
     if (!layer) return;
@@ -2117,6 +2152,28 @@
       '</div>';
     }
     html += '</div>';
+    /* V5.7：项目历史 + 战绩（§58/§62） */
+    if (f && typeof f.queryProjectHistory === 'function') {
+      var history = [];
+      var records = [];
+      try { history = f.queryProjectHistory() || []; records = f.queryCareerRecords() || []; } catch (e) { history = []; }
+      if (history.length > 0) {
+        html += '<div class="ux-card"><div class="ux-card-title">项目档案</div>' +
+          history.slice(-5).reverse().map(function (h) {
+            return '<div class="ux-ph-row"><span class="ph-name">' + escHtml(h.name) + '</span>' +
+              '<span class="ph-ending">' + escHtml(h.ending) + '</span>' +
+              '<span class="ph-meta">债 ' + h.techDebt + ' · 变更 ' + h.requirementChanges + ' · Bug ' + h.bugCount + '</span></div>';
+          }).join('') + '</div>';
+      }
+      var reachedRecords = records.filter(function (r) { return r.reached; });
+      if (reachedRecords.length > 0) {
+        html += '<div class="ux-card"><div class="ux-card-title">战绩</div>' +
+          reachedRecords.map(function (r) {
+            return '<div class="ux-ph-row"><span class="ph-name">🏆 ' + escHtml(r.name) + '</span>' +
+              '<span class="ph-meta">' + escHtml(r.desc) + '</span></div>';
+          }).join('') + '</div>';
+      }
+    }
     return html;
   }
 
@@ -2409,6 +2466,8 @@
         moreItem('leaderboard', '🏆', '排行榜', '修为职级大比拼') +
         moreItem('friends', '👥', '好友', '拜访好友赠灵石') +
         moreItem('achievements', '📜', '成就', '职场修仙履历') +
+        moreItem('profession', '🧙', '职业', '职业等级与Build') +
+        moreItem('codex', '📚', '图鉴', '怪物·Boss·装备·事件') +
         moreItem('settlement', '🌇', '结算', '今日下班结算') +
         moreItem('settings', '⚙️', '设置', '音效与存档') +
       '</div>' +
@@ -2472,9 +2531,276 @@
     MESSENGER: '飞剑传书',
     SECT: '宗门页', LEADERBOARD: '排行榜', FRIENDS: '好友', ACHIEVEMENTS: '成就', SETTINGS: '设置',
     TECHNIQUES: '功法', EQUIPMENT: '法宝', NPC: '人际关系', SETTLEMENT: '下班结算', DEV: 'DEV 面板',
+    PROFESSION: '职业修行', CODEX: '修仙图鉴',
   };
 
   function currentPage() { return _subPage || _screen; }
+
+  /* ── V5.7 Depth & Retention UI ─────────────────────────────────────────── */
+
+  var _codexTab = 'MONSTER';
+  var _weekSettlementShownFor = null;
+
+  function v57fatigueChipHtml() {
+    var f = facade();
+    var view = null;
+    try { view = f && f.queryFatigueView ? f.queryFatigueView() : null; } catch (e) { view = null; }
+    if (!view) return '';
+    var cls = { FRESH: 'ok', LIGHT: 'ok', HEAVY: 'warn', CRITICAL: 'bad', COLLAPSE: 'bad' }[view.band] || 'ok';
+    return '<button class="ux-fatigue-chip ux-fatigue--' + cls + '" data-action="goto" data-page="profession">' +
+      '<span class="fc-ico">😵‍💫</span><span>疲劳 ' + view.value + '</span>' +
+      '<span class="fc-band">' + escHtml(view.bandName) + '</span></button>';
+  }
+
+  function v57situationChipHtml() {
+    var f = facade();
+    var sit = null;
+    try { sit = f && f.queryTodaySituation ? f.queryTodaySituation() : null; } catch (e) { sit = null; }
+    if (!sit) return '';
+    return '<button class="ux-situation-chip" data-action="goto" data-page="profession" title="' + escHtml(sit.desc) + '">' +
+      '<span class="sc-ico2">🌤</span><span>今日·' + escHtml(sit.name) + '</span></button>';
+  }
+
+  function renderProfession() {
+    var f = facade();
+    var d = null;
+    try { d = f && f.queryProfessionDepth ? f.queryProfessionDepth() : null; } catch (e) { d = null; }
+    if (!d) return emptyState('🧙', '职业', '职业数据未就绪');
+    var fat = null;
+    try { fat = f.queryFatigueView(); } catch (e) { fat = null; }
+    var expPct = d.expToNext > 0 ? Math.min(100, Math.round((d.exp / Math.max(1, d.exp + d.expToNext)) * 100)) : 100;
+    var html = '' +
+      '<div class="ux-card ux-prof-head">' +
+        '<div class="ux-prof-title-row"><span class="ux-prof-name">' + escHtml(d.name) + ' · ' + escHtml(d.title) + '</span>' +
+        '<span class="ux-prof-level">Lv' + d.level + '</span></div>' +
+        '<div class="ux-prof-current-title">「' + escHtml(d.currentTitle) + '」</div>' +
+        '<div class="ux-prof-expbar"><div class="fill" style="width:' + expPct + '%"></div></div>' +
+        '<div class="ux-prof-exp-text">职业经验 ' + d.exp + (d.expToNext > 0 ? '（距下一级还差 ' + d.expToNext + '）' : '（已圆满）') + '</div>' +
+      '</div>';
+    if (fat) {
+      html += '<div class="ux-card ux-fatigue-card">' +
+        '<div class="ux-card-title">身体状态</div>' +
+        '<div class="ux-fatigue-row"><span class="fr-label">疲劳</span><span class="fr-value">' + fat.value + '/100 · ' + escHtml(fat.bandName) + '</span></div>' +
+        '<div class="ux-fatigue-bar"><div class="fill ' + (fat.value > 80 ? 'bad' : fat.value > 60 ? 'warn' : '') + '" style="width:' + fat.value + '%"></div></div>' +
+        '<div class="ux-fatigue-advice">' + escHtml(fat.advice) + '</div>' +
+        (fat.forcedRest ? '<button class="ux-fatigue-rest" data-v57-rest="4">请假休息（+4小时，恢复疲劳）</button>' : '') +
+      '</div>';
+    }
+    /* 周目标 */
+    var goals = [];
+    try { goals = f.queryWeeklyGoals ? f.queryWeeklyGoals() : []; } catch (e) { goals = []; }
+    if (goals && goals.length) {
+      html += '<div class="ux-card"><div class="ux-card-title">本周目标</div>' +
+        goals.map(function (g) {
+          return '<div class="ux-goal-row' + (g.done ? ' done' : '') + '">' +
+            '<span class="gr-name">' + escHtml(g.name) + '</span>' +
+            '<span class="gr-progress">' + g.progress + '/' + g.target + '</span></div>';
+        }).join('') +
+        '<button class="ux-goal-claim" data-v57-claim-weekly="' + (goals.every(function (g) { return g.done; }) ? '1' : '0') + '">领取周目标奖励</button>' +
+      '</div>';
+    }
+    /* 道法共鸣 */
+    var syns = [];
+    try { syns = f.querySynergies ? f.querySynergies() : []; } catch (e) { syns = []; }
+    if (syns && syns.length) {
+      html += '<div class="ux-card"><div class="ux-card-title">道法共鸣</div>' +
+        syns.map(function (s) {
+          return '<div class="ux-syn-row' + (s.active ? ' active' : '') + '">' +
+            '<span class="sy-dot"></span><span class="sy-name">' + escHtml(s.name) + '</span>' +
+            '<span class="sy-desc">' + escHtml(s.desc) + '</span></div>';
+        }).join('') +
+      '</div>';
+    }
+    /* 等级 perk */
+    html += '<div class="ux-card"><div class="ux-card-title">职业成长路线</div>' +
+      d.perks.map(function (p) {
+        return '<div class="ux-perk-row' + (p.reached ? ' reached' : '') + '">' +
+          '<span class="pk-lv">Lv' + p.level + '</span><span class="pk-desc">' + escHtml(p.desc) + '</span></div>';
+      }).join('') +
+    '</div>';
+    /* Build 列表 */
+    html += '<div class="ux-card"><div class="ux-card-title">本职业 Build（战斗开局可选）</div><div class="ux-build-tags">' +
+      d.buildIds.map(function (b) { return '<span class="ux-build-tag">' + escHtml(b) + '</span>'; }).join('') +
+    '</div></div>';
+    return html;
+  }
+
+  var CODEX_TABS = [
+    { id: 'MONSTER', label: '怪物' },
+    { id: 'BOSS', label: 'Boss' },
+    { id: 'EQUIPMENT', label: '装备' },
+    { id: 'EVENT', label: '事件' },
+    { id: 'ACHIEVEMENT', label: '成就' },
+  ];
+
+  function renderCodex() {
+    var f = facade();
+    var view = null;
+    try { view = f && f.queryCodex ? f.queryCodex(_codexTab) : null; } catch (e) { view = null; }
+    if (!view) return emptyState('📚', '图鉴', '图鉴数据未就绪');
+    var tabs = CODEX_TABS.map(function (t) {
+      return '<button class="ux-codex-tab' + (_codexTab === t.id ? ' active' : '') + '" data-codex-tab="' + t.id + '">' + t.label + '</button>';
+    }).join('');
+    var setsHtml = '';
+    if (_codexTab === 'EQUIPMENT' && f && typeof f.querySets === 'function') {
+      try {
+        setsHtml = (f.querySets() || []).map(function (s) {
+          var active = s.bonuses.filter(function (b) { return b.active; }).pop();
+          var members = s.members.map(function (m) {
+            return '<span class="ux-set-member' + (m.owned ? ' owned' : '') + '">' + escHtml(m.id.replace('eq_', '')) + '</span>';
+          }).join('');
+          return '<div class="ux-set-card' + (active ? ' active' : '') + '">' +
+            '<div class="usc-head"><span class="usc-name">' + escHtml(s.name) + '</span>' +
+            '<span class="usc-count">' + s.activeCount + '/' + s.members.length + '</span></div>' +
+            '<div class="usc-members">' + members + '</div>' +
+            (active ? '<div class="usc-bonus">✦ ' + escHtml(active.desc) + '</div>' : '') +
+          '</div>';
+        }).join('');
+        if (setsHtml) setsHtml = '<div class="ux-set-grid">' + setsHtml + '</div>';
+      } catch (e) { setsHtml = ''; }
+    }
+    var entries = view.entries.slice(0, 120).map(function (en) {
+      return '<div class="ux-codex-entry' + (en.discovered ? '' : ' unknown') + '">' +
+        '<span class="ce-name">' + escHtml(en.name) + '</span>' +
+        (en.detail ? '<span class="ce-detail">' + escHtml(en.detail) + '</span>' : '') +
+      '</div>';
+    }).join('');
+    return '' +
+      '<div class="ux-codex-progress">已发现 ' + view.discovered + ' / ' + view.total + '</div>' +
+      '<div class="ux-codex-tabs">' + tabs + '</div>' +
+      setsHtml +
+      '<div class="ux-codex-grid">' + entries + '</div>';
+  }
+
+  function v57BossDropCardsHtml(done) {
+    var f = facade();
+    var drops = done && done.bossDrops ? done.bossDrops : [];
+    if (!drops.length || !f || typeof f.queryEquipmentCompare !== 'function') return '';
+    return drops.map(function (drop) {
+      var cmp = null;
+      try { cmp = f.queryEquipmentCompare(drop.equipmentId); } catch (e) { cmp = null; }
+      if (!cmp) return '';
+      var rarityCls = { COMMON: '', UNCOMMON: 'r2', RARE: 'r3', EPIC: 'r4', LEGENDARY: 'r5' }[cmp.next.rarity] || '';
+      /* 词缀与基础属性重复的行去重（攻击+12% 出现两次等） */
+      var seenLines = {};
+      var lines = (cmp.next.lines || []).filter(function (l) {
+        if (seenLines[l]) return false;
+        seenLines[l] = true;
+        return true;
+      }).map(function (l) { return '<div class="lc-line">' + escHtml(l) + '</div>'; }).join('');
+      var deltas = (cmp.deltas || []).slice(0, 4).map(function (dd) {
+        return '<div class="lc-delta ' + (dd.better ? 'up' : 'down') + '">' + escHtml(dd.label) + ' ' + (dd.better ? '+' : '') + dd.delta + '</div>';
+      }).join('');
+      var setDisplayName = cmp.setName || (function () {
+        if (!cmp.next.set || !f.querySets) return cmp.next.set;
+        try {
+          var hit = (f.querySets() || []).filter(function (s) { return s.id === cmp.next.set; })[0];
+          return hit ? hit.name : cmp.next.set;
+        } catch (e) { return cmp.next.set; }
+      })();
+      var setName = setDisplayName ? '<div class="lc-set">套装：' + escHtml(setDisplayName) + '</div>' : '';
+      var slot = cmp.slot || 'DESK';
+      return '<div class="ux-loot-card ' + rarityCls + '">' +
+        '<div class="lc-rarity">' + escHtml((cmp.next.rarity === 'LEGENDARY' ? '仙品' : cmp.next.rarity === 'EPIC' ? '极品' : cmp.next.rarity === 'RARE' ? '上品' : cmp.next.rarity === 'UNCOMMON' ? '良品' : '凡品')) + '</div>' +
+        '<div class="lc-name">' + escHtml(cmp.next.name) + '</div>' +
+        lines + deltas + setName +
+        (drop.viaPity ? '<div class="lc-pity">保底触发</div>' : '') +
+        '<button class="ux-loot-equip" data-v57-equip="' + escHtml(drop.equipmentId) + '" data-v57-slot="' + escHtml(slot) + '">装备</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  function v57WeeklySettlementModal() {
+    var f = facade();
+    if (!f || typeof f.queryWeeklySettlement !== 'function') return;
+    var view = null;
+    try { view = f.queryWeeklySettlement(); } catch (e) { view = null; }
+    if (!view) return;
+    var stamp = 'w' + view.weekIndex;
+    if (_weekSettlementShownFor === stamp) return;
+    _weekSettlementShownFor = stamp;
+    var row = function (label, val) {
+      return '<div class="ux-off-row"><span class="rl">' + escHtml(label) + '</span><span class="rv">' + escHtml(String(val)) + '</span></div>';
+    };
+    var goalRows = (view.goals || []).map(function (g) {
+      return '<div class="ux-goal-row' + (g.done ? ' done' : '') + '"><span class="gr-name">' + escHtml(g.name) + '</span><span class="gr-progress">' + g.progress + '/' + g.target + '</span></div>';
+    }).join('');
+    var hookLines = (view.nextWeekHooks || []).map(function (h) { return '<div class="ux-hook-line">「' + escHtml(h) + '」</div>'; }).join('');
+    var layer = popupLayer();
+    if (!layer) return;
+    layer.innerHTML =
+      '<div class="ux-modal-layer">' +
+        '<div class="ux-popup ux-weekly-popup">' +
+          '<div class="ux-header" style="height:70px;border-radius:16px 16px 0 0;margin:0 -18px 14px"><span class="ux-header-title">第 ' + view.weekIndex + ' 周 · 牛马周报</span></div>' +
+          '<div class="ux-popup-card">' +
+            '<div class="ux-week-sec">本周概览</div>' +
+            '<div class="ux-off-rows">' +
+              row('工作', Math.floor(view.workMinutes / 60) + 'h' + (view.workMinutes % 60) + 'm') +
+              row('加班', Math.floor(view.overtimeMinutes / 60) + 'h' + (view.overtimeMinutes % 60) + 'm') +
+              row('免费加班', Math.floor(view.freeOvertimeMinutes / 60) + 'h' + (view.freeOvertimeMinutes % 60) + 'm') +
+              row('摸鱼', Math.floor(view.fishingMinutes / 60) + 'h' + (view.fishingMinutes % 60) + 'm') +
+              row('修炼', Math.floor(view.cultivationMinutes / 60) + 'h' + (view.cultivationMinutes % 60) + 'm') +
+              row('准点下班', view.ontimeDays + ' / ' + view.ontimeTarget) +
+              row('被甩锅', view.blamedCount + ' 次 · 反杀 ' + view.blameReturned + ' 次') +
+              row('Boss 讨伐', view.bossKills + ' 次') +
+            '</div>' +
+            '<div class="ux-week-sec">本周称号</div>' +
+            '<div class="ux-week-title">' + escHtml(view.weekTitle) + '</div>' +
+            (goalRows ? '<div class="ux-week-sec">周目标</div>' + goalRows +
+              '<button class="ux-goal-claim" data-v57-claim-weekly="' + (view.goals.every(function (g) { return g.done; }) ? '1' : '0') + '">领取周目标奖励</button>' : '') +
+            '<div class="ux-week-sec">下周预告</div>' + hookLines +
+            '<button class="ux-week-close" data-v57-close-weekly>收下，下周继续</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    layer.querySelector('[data-v57-close-weekly]').addEventListener('click', function () {
+      layer.innerHTML = '';
+      refresh();
+    });
+    var claimBtn = layer.querySelector('[data-v57-claim-weekly]');
+    if (claimBtn) {
+      claimBtn.addEventListener('click', function () {
+        try {
+          var r = f.claimWeeklyReward();
+          toast(r.success ? ('周目标奖励：职业经验 +' + (r.professionExp || 0)) : (r.reason || '领取失败'), r.success ? 'success' : 'error');
+          layer.innerHTML = '';
+          refresh();
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    }
+  }
+
+  function v57BindExtra(el) {
+    if (!el) return;
+    var restBtn = el.querySelector('[data-v57-rest]');
+    if (restBtn && !restBtn.dataset.bound) {
+      restBtn.dataset.bound = '1';
+      restBtn.addEventListener('click', function () {
+        var f = facade();
+        try {
+          var hours = Number(restBtn.getAttribute('data-v57-rest')) || 4;
+          f.takeRest(hours);
+          toast('休息了一会儿，身体轻松了些。', 'success');
+          refresh();
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    }
+    var equipBtns = el.querySelectorAll('[data-v57-equip]');
+    equipBtns.forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        var f = facade();
+        try {
+          var slot = btn.getAttribute('data-v57-slot') || 'DESK';
+          var id = btn.getAttribute('data-v57-equip');
+          f.v2EquipItem(slot, id);
+          toast('装备完毕。', 'success');
+          btn.disabled = true;
+        } catch (e) { toast(errMsg(e), 'error'); }
+      });
+    });
+  }
 
   function renderCurrent() {
     var page = currentPage();
@@ -2497,6 +2823,8 @@
       case 'SETTLEMENT': return V2 ? V2.renderSettlementPage() : emptyState('🌇', '结算', 'V2 数据未就绪');
       case 'DEV': return V2 ? V2.renderDev() : emptyState('🚫', 'DEV', 'V2 数据未就绪');
       case 'MORE': return renderMore();
+      case 'PROFESSION': return renderProfession();
+      case 'CODEX': return renderCodex();
       case 'SECT': return renderSect();
       case 'LEADERBOARD': return renderLeaderboard();
       case 'FRIENDS': return renderFriends();
@@ -2611,7 +2939,7 @@
     if (!overlay) return;
 
     overlay.onclick = function (e) {
-      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab]') : null;
+      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab],[data-codex-tab]') : null;
       if (!el) return;
 
       if (el.dataset.gotoPage) {
@@ -2681,6 +3009,7 @@
         else if (el.dataset.lbtab) { _lbTab = el.dataset.lbtab; refresh(); }
         else if (el.dataset.ftab) { _friendTab = el.dataset.ftab; refresh(); }
         else if (el.dataset.achtab) { _achTab = el.dataset.achtab; refresh(); }
+        else if (el.dataset.codexTab) { _codexTab = el.dataset.codexTab; refresh(); }
         return;
       }
 
@@ -3072,6 +3401,8 @@
     showDialog: showDialog,
     closePopup: closePopup,
     dispatchNextModal: dispatchNextModal,
+    /* DEV/测试直连：绕过仲裁器优先级，直接渲染战斗结算/技能三选一 */
+    showBattleOutcome: function () { maybeShowBattleModals(); },
   };
 
   /* ═════════════════════════════════════════════════════════
@@ -3138,7 +3469,19 @@
     if (!f || !f.onUiEvent) return;
     ['STATE_CHANGED', 'RESOURCE_CHANGED', 'WORK_MODE_CHANGED', 'CAREER_CHANGED', 'BUFF_CHANGED'].forEach(function (cat) {
       try {
-        var unsub = f.onUiEvent(cat, function () { setTimeout(refresh, 60); });
+        var unsub = f.onUiEvent(cat, function (ev) {
+          /* V5.7：周日结算就绪 → 牛马周报弹窗 */
+          if (ev && ev.source === 'weekSettlementReady') {
+            setTimeout(v57WeeklySettlementModal, 400);
+          }
+          if (ev && ev.source === 'secretEventFired' && ev.detail && ev.detail.name) {
+            toast('隐藏事件触发：' + ev.detail.name, 'success');
+          }
+          if (ev && ev.source === 'fatigueCritical' && ev.detail && ev.detail.text) {
+            toast(ev.detail.text, 'error');
+          }
+          setTimeout(refresh, 60);
+        });
         if (typeof unsub === 'function') _unsubs.push(unsub);
       } catch (e) { /* noop */ }
     });

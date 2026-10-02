@@ -114,6 +114,7 @@
   function renderNpc() {
     var views = fQuery('queryNpcViews');
     if (!views || !views.length) return H.emptyState('🧑‍🤝‍🧑', '人际网络', 'NPC 关系通过事件选择变化');
+    var facadeObj = typeof facade === 'function' ? facade() : null;
     var html = '<div class="ux-section-ribbon">六位核心 NPC</div>';
     views.forEach(function (n) {
       var pct = Math.round((n.value + 100) / 2);
@@ -130,6 +131,25 @@
           '</div>' +
         '</div></div>';
     });
+    /* V5.7：NPC 记忆卡（关系阶段用文字，不显示内部数值 §118） */
+    if (facadeObj && typeof facadeObj.queryNpcCard === 'function') {
+      var memoryIds = ['VETERAN', 'TESTER', 'PRODUCT', 'OPS', 'JUNIOR', 'BOSS'];
+      var memoryBlocks = '';
+      memoryIds.forEach(function (id) {
+        var card = null;
+        try { card = facadeObj.queryNpcCard(id); } catch (e) { card = null; }
+        if (!card || !card.memories || card.memories.length === 0) return;
+        var lines = card.memories.slice(-3).map(function (m) {
+          return '<div class="ux-npc-mem-line">· ' + H.escHtml(m.text) + '</div>';
+        }).join('');
+        memoryBlocks += '<div class="ux-card ux-npc-memory-card">' +
+          '<div class="ux-card-title">' + H.escHtml(card.name) + ' · ' + H.escHtml(card.stageName) + '</div>' +
+          '<div class="ux-npc-mem-disposition">' + H.escHtml(card.disposition) + '</div>' +
+          lines +
+        '</div>';
+      });
+      if (memoryBlocks) html += '<div class="ux-section-ribbon">他们记得的事</div>' + memoryBlocks;
+    }
     return html;
   }
 

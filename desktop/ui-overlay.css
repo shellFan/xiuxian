@@ -2072,3 +2072,129 @@
 .ux-capacity .cap-item { font-size: 12.5px; color: #c9d8e4; }
 .ux-capacity .cap-item b { color: #eef4fa; font-weight: 800; }
 .ux-capacity .cap-warn { flex: 1 100%; font-size: 12px; color: #ff9c8a; font-weight: 700; }
+
+/* ═══ V5.7 Depth & Retention ═══════════════════════════════════════════════ */
+
+/* 首页 chips（疲劳 / 今日情境） */
+.ux-fatigue-chip, .ux-situation-chip {
+  display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+  padding: 7px 14px; margin: 0 0 10px; border-radius: 999px;
+  background: rgba(13, 38, 60, 0.72); border: 1px solid rgba(120, 168, 200, 0.3);
+  color: #e8f1f8; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.ux-fatigue-chip .fc-band { font-size: 11.5px; color: #9fb6c8; }
+.ux-fatigue-chip.ux-fatigue--warn { border-color: rgba(230, 160, 60, 0.6); }
+.ux-fatigue-chip.ux-fatigue--warn .fc-band { color: #f2b25c; }
+.ux-fatigue-chip.ux-fatigue--bad { border-color: rgba(216, 75, 58, 0.65); animation: ux-pulse 2.2s ease-in-out infinite; }
+.ux-fatigue-chip.ux-fatigue--bad .fc-band { color: #ff9c8a; }
+.ux-situation-chip .sc-ico2 { font-size: 15px; }
+
+/* 职业页 */
+.ux-prof-head { text-align: center; }
+.ux-prof-title-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.ux-prof-name { font-size: 17px; font-weight: 800; color: var(--text-ink, #eef4fa); }
+.ux-prof-level { font-size: 13px; font-weight: 900; color: #6fd3a7; background: rgba(111, 211, 167, 0.12); border: 1px solid rgba(111, 211, 167, 0.4); border-radius: 999px; padding: 2px 10px; }
+.ux-prof-current-title { font-size: 14px; color: #d9b36a; font-weight: 700; margin: 6px 0 10px; }
+.ux-prof-expbar { height: 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.ux-prof-expbar .fill { height: 100%; background: linear-gradient(90deg, #4f9dd8, #6fd3a7); border-radius: 6px; transition: width 0.4s ease; }
+.ux-prof-exp-text { font-size: 12px; color: #9fb6c8; margin-top: 6px; }
+.ux-fatigue-card .ux-fatigue-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+.ux-fatigue-card .fr-label { color: #9fb6c8; }
+.ux-fatigue-card .fr-value { color: #eef4fa; font-weight: 800; }
+.ux-fatigue-bar { height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.ux-fatigue-bar .fill { height: 100%; background: linear-gradient(90deg, #6fd3a7, #4f9dd8); }
+.ux-fatigue-bar .fill.warn { background: linear-gradient(90deg, #e6a03c, #d86b3a); }
+.ux-fatigue-bar .fill.bad { background: linear-gradient(90deg, #d84b3a, #a83232); }
+.ux-fatigue-advice { font-size: 12px; color: #9fb6c8; margin-top: 8px; }
+.ux-fatigue-rest { margin-top: 10px; width: 100%; padding: 9px 0; border-radius: 10px; border: 1px solid rgba(111, 211, 167, 0.5); background: rgba(111, 211, 167, 0.12); color: #6fd3a7; font-weight: 800; font-size: 13px; cursor: pointer; }
+.ux-goal-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px dashed rgba(255, 255, 255, 0.08); font-size: 13px; }
+.ux-goal-row .gr-name { color: #dce7f0; }
+.ux-goal-row .gr-progress { color: #6fb8d8; font-weight: 800; }
+.ux-goal-row.done .gr-name { color: #6fd3a7; text-decoration: line-through; opacity: 0.8; }
+.ux-goal-claim { margin-top: 10px; width: 100%; padding: 9px 0; border-radius: 10px; border: 1px solid rgba(217, 179, 106, 0.5); background: rgba(217, 179, 106, 0.12); color: #d9b36a; font-weight: 800; font-size: 13px; cursor: pointer; }
+.ux-syn-row { display: flex; align-items: baseline; gap: 8px; padding: 7px 0; font-size: 12.5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.06); }
+.ux-syn-row .sy-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); flex: none; align-self: center; }
+.ux-syn-row.active .sy-dot { background: #d9b36a; box-shadow: 0 0 8px rgba(217, 179, 106, 0.8); }
+.ux-syn-row .sy-name { color: #eef4fa; font-weight: 800; min-width: 96px; }
+.ux-syn-row.active .sy-name { color: #d9b36a; }
+.ux-syn-row .sy-desc { color: #9fb6c8; flex: 1; }
+.ux-perk-row { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; font-size: 12.5px; }
+.ux-perk-row .pk-lv { color: #6fb8d8; font-weight: 900; min-width: 40px; }
+.ux-perk-row.reached .pk-lv { color: #6fd3a7; }
+.ux-perk-row .pk-desc { color: #b7c9d6; }
+.ux-perk-row.reached .pk-desc { color: #e8f1f8; }
+.ux-build-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.ux-build-tag { font-size: 12px; color: #c9d8e4; background: rgba(79, 157, 216, 0.12); border: 1px solid rgba(79, 157, 216, 0.35); border-radius: 999px; padding: 4px 12px; }
+
+/* 图鉴 */
+.ux-codex-progress { font-size: 13px; color: #9fb6c8; font-weight: 700; text-align: center; margin-bottom: 10px; }
+.ux-codex-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.ux-codex-tab { flex: 1; padding: 8px 0; border-radius: 10px; border: 1px solid rgba(120, 168, 200, 0.25); background: rgba(13, 38, 60, 0.6); color: #9fb6c8; font-size: 13px; font-weight: 700; cursor: pointer; }
+.ux-codex-tab.active { color: #eef4fa; border-color: rgba(217, 179, 106, 0.6); background: rgba(217, 179, 106, 0.12); }
+.ux-codex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.ux-codex-entry { padding: 10px 12px; border-radius: 10px; background: rgba(13, 38, 60, 0.66); border: 1px solid rgba(120, 168, 200, 0.22); }
+.ux-codex-entry .ce-name { display: block; font-size: 13px; font-weight: 800; color: #eef4fa; }
+.ux-codex-entry .ce-detail { display: block; font-size: 11px; color: #8fa8bc; margin-top: 3px; }
+.ux-codex-entry.unknown { opacity: 0.45; }
+.ux-codex-entry.unknown .ce-name { color: #8fa8bc; }
+
+/* Boss 专属掉落卡片 */
+.ux-loot-card { margin: 10px 0; padding: 14px 16px; border-radius: 14px; border: 1.5px solid rgba(120, 168, 200, 0.4); background: linear-gradient(135deg, rgba(13, 38, 60, 0.9), rgba(11, 42, 66, 0.7)); text-align: center; }
+.ux-loot-card.r3 { border-color: rgba(79, 157, 216, 0.7); }
+.ux-loot-card.r4 { border-color: rgba(217, 179, 106, 0.8); box-shadow: 0 0 18px rgba(217, 179, 106, 0.25); }
+.ux-loot-card.r5 { border-color: rgba(216, 120, 58, 0.9); box-shadow: 0 0 26px rgba(216, 120, 58, 0.4); animation: ux-pulse 2s ease-in-out infinite; }
+.ux-loot-card .lc-rarity { font-size: 12px; letter-spacing: 4px; color: #9fb6c8; font-weight: 900; }
+.ux-loot-card.r4 .lc-rarity { color: #d9b36a; }
+.ux-loot-card.r5 .lc-rarity { color: #ff9c5a; }
+.ux-loot-card .lc-name { font-size: 17px; font-weight: 900; color: #eef4fa; margin: 6px 0 10px; }
+.ux-loot-card .lc-line { font-size: 12.5px; color: #6fd3a7; }
+.ux-loot-card .lc-delta { display: inline-block; font-size: 11.5px; margin: 4px 4px 0; border-radius: 999px; padding: 2px 9px; }
+.ux-loot-card .lc-delta.up { color: #6fd3a7; background: rgba(111, 211, 167, 0.12); }
+.ux-loot-card .lc-delta.down { color: #ff9c8a; background: rgba(216, 75, 58, 0.12); }
+.ux-loot-card .lc-set { font-size: 12px; color: #d9b36a; margin-top: 8px; }
+.ux-loot-card .lc-pity { font-size: 11.5px; color: #ff9c5a; font-weight: 800; margin-top: 4px; }
+.ux-loot-equip { margin-top: 10px; padding: 8px 26px; border-radius: 10px; border: 1px solid rgba(111, 211, 167, 0.5); background: rgba(111, 211, 167, 0.12); color: #6fd3a7; font-weight: 800; font-size: 13px; cursor: pointer; }
+.ux-loot-equip:disabled { opacity: 0.4; cursor: default; }
+
+/* 周结算 */
+.ux-weekly-popup { max-height: 82vh; overflow-y: auto; }
+.ux-week-sec { font-size: 12px; letter-spacing: 3px; color: #8fa8bc; font-weight: 900; margin: 14px 0 8px; border-left: 3px solid #d9b36a; padding-left: 8px; }
+.ux-week-title { font-size: 20px; font-weight: 900; color: #d9b36a; text-align: center; padding: 8px 0; }
+.ux-hook-line { font-size: 13px; color: #b7c9d6; padding: 5px 0; }
+.ux-week-close { margin-top: 16px; width: 100%; padding: 11px 0; border-radius: 12px; border: none; background: linear-gradient(135deg, #4f9dd8, #6fd3a7); color: #0b2a42; font-weight: 900; font-size: 14px; cursor: pointer; }
+
+/* NPC 记忆卡 */
+.ux-npc-memory-card { margin-bottom: 10px; }
+.ux-npc-mem-disposition { font-size: 12.5px; color: #d9b36a; margin: 6px 0; }
+.ux-npc-mem-line { font-size: 12px; color: #9fb6c8; padding: 3px 0; }
+
+/* 套装卡片（图鉴-装备页签） */
+.ux-set-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.ux-set-card { padding: 12px 14px; border-radius: 12px; background: rgba(13, 38, 60, 0.66); border: 1px solid rgba(120, 168, 200, 0.25); }
+.ux-set-card.active { border-color: rgba(217, 179, 106, 0.6); box-shadow: 0 0 12px rgba(217, 179, 106, 0.15); }
+.ux-set-card .usc-head { display: flex; justify-content: space-between; align-items: center; }
+.ux-set-card .usc-name { font-size: 13.5px; font-weight: 900; color: #eef4fa; }
+.ux-set-card.active .usc-name { color: #d9b36a; }
+.ux-set-card .usc-count { font-size: 12px; color: #9fb6c8; font-weight: 800; }
+.ux-set-card .usc-members { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 4px; }
+.ux-set-card .ux-set-member { font-size: 10.5px; color: #8fa8bc; background: rgba(255, 255, 255, 0.05); border-radius: 999px; padding: 2px 8px; }
+.ux-set-card .ux-set-member.owned { color: #6fd3a7; background: rgba(111, 211, 167, 0.12); }
+.ux-set-card .usc-bonus { font-size: 11.5px; color: #d9b36a; margin-top: 4px; }
+
+/* 明日钩子 / 项目历史 */
+.ux-tomorrow-hook { display: flex; align-items: center; gap: 8px; margin: 8px 0 10px; padding: 8px 14px; border-radius: 10px; background: rgba(13, 38, 60, 0.7); border: 1px dashed rgba(217, 179, 106, 0.45); color: #d9b36a; font-size: 12.5px; }
+.ux-tomorrow-hook .th-label { flex: none; font-size: 10.5px; letter-spacing: 2px; font-weight: 900; color: #8fa8bc; }
+.ux-ph-row { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px dashed rgba(255, 255, 255, 0.07); font-size: 12.5px; flex-wrap: wrap; }
+.ux-ph-row:last-child { border-bottom: none; }
+.ux-ph-row .ph-name { color: #eef4fa; font-weight: 800; }
+.ux-ph-row .ph-ending { color: #6fd3a7; }
+.ux-ph-row .ph-meta { color: #8fa8bc; font-size: 11.5px; }
+
+/* 战斗页 Build/共鸣/进化 chips */
+.ux-bt-buildrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.ux-bt-build { font-size: 11px; font-weight: 900; color: #6fb8d8; border: 1px solid rgba(79, 157, 216, 0.45); border-radius: 999px; padding: 2px 10px; }
+.ux-bt-syn { font-size: 11px; font-weight: 800; color: #d9b36a; border: 1px solid rgba(217, 179, 106, 0.5); border-radius: 999px; padding: 2px 10px; background: rgba(217, 179, 106, 0.08); }
+.ux-bt-evo { font-size: 11px; font-weight: 800; color: #6fd3a7; border: 1px solid rgba(111, 211, 167, 0.45); border-radius: 999px; padding: 2px 10px; }
+
+/* 结算弹窗限高滚动（防止掉落卡片底部被裁切） */
+.ux-modal-layer .ux-popup { max-height: 88vh; overflow-y: auto; }
