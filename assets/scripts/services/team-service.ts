@@ -141,6 +141,8 @@ export class TeamService {
       return { ...m, growth: m.growth + 8, level: m.growth + 8 >= 30 ? m.level + 1 : m.level, mentoredByPlayer: true, trustPlayer: Math.min(100, m.trustPlayer + 3) };
     });
     p.teamState = { ...team, members };
+    const stats = p.lifetimeStats;
+    p.lifetimeStats = { ...stats, mentoredCount: (stats.mentoredCount ?? 0) + 1 };
     this.context.events.emit('mentored', { member: memberName });
     return { ok: true };
   }

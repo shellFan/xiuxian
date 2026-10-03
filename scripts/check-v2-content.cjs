@@ -434,7 +434,7 @@ if (v57Week.weeklyGoalPool.length < 6) fail('v57 weekly goals: need >=6');
 if (v57Week.secretEvents.length < 8) fail('v57 secret events: need >=8');
 if (v57Week.companyProfiles.length < 4) fail('v57 company profiles: need >=4');
 const achievementsAll = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'configs', 'achievements.json'), 'utf8')).achievements;
-if (achievementsAll.length < 80) fail('v57 achievements: need >=80, got ' + achievementsAll.length);
+if (achievementsAll.length < 100) fail('v58 achievements: need >=100, got ' + achievementsAll.length);
 console.log('V5.7: professions 4 | tasks ' + PROF_IDS.reduce((acc, pid) => acc + v57Prof.professions[pid].tasks.length, 0) + ' | newMonsters ' + v57Battle.monsters.length + ' | bosses ' + allBosses.length + ' | skills ' + allSkills.size + ' | evolutions ' + v57Battle.evolutions.length + ' | synergies ' + v57Battle.synergies.length + ' | equipment ' + allEquipment.size + ' | affixes ' + v57Equip.affixes.length + ' | sets ' + v57Equip.sets.length + ' | profEvents ' + profEventPool.length + ' | achievements ' + achievementsAll.length);
 
 // ── 汇总 ─────────────────────────────────────────────────────────────────────

@@ -107,6 +107,10 @@ export class OfferService {
       this.context.events.emit('playerChanged', { reason: 'offerNegotiated' });
     }
     this.context.events.emit('offerDecided', { decision, companyName });
+    // V5.8 成就计数
+    const stats = p.lifetimeStats;
+    const key = decision === 'ACCEPTED' ? 'offerAccepted' : decision === 'DECLINED' ? 'offerDeclined' : decision === 'NEGOTIATED' ? 'offerNegotiated' : 'offerLater';
+    p.lifetimeStats = { ...stats, [key]: (stats[key] ?? 0) + 1 };
     return { ok: true, companyName };
   }
 

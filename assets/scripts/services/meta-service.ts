@@ -145,6 +145,8 @@ export class MetaService {
       if (day < ms.day) break;
       if ((p.milestones ?? []).includes(ms.id)) continue;
       p.milestones = [...(p.milestones ?? []), ms.id];
+      const mstats = p.lifetimeStats;
+      p.lifetimeStats = { ...mstats, ['milestone_' + ms.id]: 1 };
       this.context.events.emit('milestoneReached', { id: ms.id, day: ms.day, kind: ms.kind, text: ms.text });
       return; // 每天至多一个里程碑
     }

@@ -1091,6 +1091,230 @@
       "reward": {
         "spiritStones": 25
       }
+    },
+    {
+      "id": "V58_OFFER_TAKER",
+      "name": " offer 猎手",
+      "description": "接受 1 次 Offer 换宗门",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "offerAccepted",
+        "target": 1
+      },
+      "reward": {
+        "cultivation": 60
+      }
+    },
+    {
+      "id": "V58_LOYAL",
+      "name": "忠诚牛马",
+      "description": "拒绝 3 次 Offer",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "offerDeclined",
+        "target": 3
+      },
+      "reward": {
+        "mind": 20
+      }
+    },
+    {
+      "id": "V58_NEGOTIATOR",
+      "name": "谈薪宗师",
+      "description": "谈薪 2 次（每次 +8%）",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "offerNegotiated",
+        "target": 2
+      },
+      "reward": {
+        "performance": 15
+      }
+    },
+    {
+      "id": "V58_DRAGON_SLAYER",
+      "name": "屠龙者终成恶龙",
+      "description": "多次强制团队免费加班（隐藏）",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "managerExploitationScore",
+        "target": 5
+      },
+      "reward": {
+        "performance": 20
+      }
+    },
+    {
+      "id": "V58_GUARDIAN",
+      "name": "牛马保护神",
+      "description": "多次保护团队免于加班（隐藏）",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "managerProtectionScore",
+        "target": 5
+      },
+      "reward": {
+        "mind": 25
+      }
+    },
+    {
+      "id": "V58_TEAM_LEAD",
+      "name": "新人导师",
+      "description": "指导团队成员 5 次",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "mentoredCount",
+        "target": 5
+      },
+      "reward": {
+        "professionExp": 80
+      }
+    },
+    {
+      "id": "V58_GOVERNOR",
+      "name": "技术债清道夫",
+      "description": "完成 3 次技术债专项治理",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "governanceDone",
+        "target": 3
+      },
+      "reward": {
+        "cultivation": 60
+      }
+    },
+    {
+      "id": "V58_BURNOUT_SURVIVOR",
+      "name": "burnout 生还者",
+      "description": "从 burnout 中恢复（RECOVERING 走到 NORMAL）",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "burnoutRecovered",
+        "target": 1
+      },
+      "reward": {
+        "mind": 30
+      }
+    },
+    {
+      "id": "V58_PHASE_HUNTER",
+      "name": "二阶段猎人",
+      "description": "见证 10 次 Boss Phase 2",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "bossPhase2Seen",
+        "target": 10
+      },
+      "reward": {
+        "spiritStones": 40
+      }
+    },
+    {
+      "id": "V58_PRESET_MASTER",
+      "name": "Build 收藏家",
+      "description": "保存 3 个 Build 配置",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "buildPresetSaved",
+        "target": 3
+      },
+      "reward": {
+        "professionExp": 60
+      }
+    },
+    {
+      "id": "V58_MONTH_SURVIVOR",
+      "name": "满月牛马",
+      "description": "完成 30 个工作日",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "workDays30",
+        "target": 30
+      },
+      "reward": {
+        "performance": 20
+      }
+    },
+    {
+      "id": "V58_ONTIME_MACHINE",
+      "name": "准点机器",
+      "description": "累计准点下班 20 天",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "ontimeDays",
+        "target": 20
+      },
+      "reward": {
+        "cultivation": 100
+      }
+    },
+    {
+      "id": "V58_COMPANY_HOPPER",
+      "name": "职场候鸟",
+      "description": "换过 2 次公司",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "companySwitches",
+        "target": 2
+      },
+      "reward": {
+        "professionExp": 70
+      }
+    },
+    {
+      "id": "V58_S1_SURVIVOR",
+      "name": "S1 生还者",
+      "description": "恢复 10 次线上事故",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "incidentsRecovered",
+        "target": 10
+      },
+      "reward": {
+        "performance": 20
+      }
+    },
+    {
+      "id": "V58_SET_COLLECTOR",
+      "name": "套装大师",
+      "description": "激活 3 个不同套装（隐藏）",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "setActives",
+        "target": 3
+      },
+      "reward": {
+        "spiritStones": 60
+      }
+    },
+    {
+      "id": "V58_MILESTONE_30",
+      "name": "满月复盘",
+      "description": "触发 Day30 里程碑（隐藏）",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "milestoneDay30",
+        "target": 1
+      },
+      "reward": {
+        "cultivation": 80
+      }
     }
   ]
 }

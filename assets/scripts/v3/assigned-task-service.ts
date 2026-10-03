@@ -117,6 +117,7 @@ export class AssignedTaskService {
         const day = player.gameDay?.dayIndex ?? 1;
         const domain = player.eventFlags?.[`v58_governance_domain_${day}`];
         if (typeof domain === 'string') this.context.techDebt.repay(domain, 31);
+        this.context.player.lifetimeStats = { ...this.context.player.lifetimeStats, governanceDone: (this.context.player.lifetimeStats.governanceDone ?? 0) + 1 };
       } catch { /* governance repay best-effort */ }
     }
     if (task.rewardMind !== 0) this.context.mind.applyDelta(task.rewardMind);

@@ -70,6 +70,10 @@ export class BurnoutService {
 
     // RECOVERING：burnout 后进入，直到回 NORMAL
     if (state === 'BURNOUT' && target === 'NORMAL') state = 'RECOVERING';
+    if (state === 'RECOVERING' && target === 'NORMAL' && raw.state !== 'NORMAL') {
+      const recovered = p.lifetimeStats;
+      p.lifetimeStats = { ...recovered, burnoutRecovered: (recovered.burnoutRecovered ?? 0) + 1 };
+    }
     if (state === 'RECOVERING' && target !== 'NORMAL') state = target;
 
     if (state === target || (state === 'BURNOUT' && target === 'BURNOUT_RISK') || (state === 'BURNOUT_RISK' && target === 'STRESSED')) {
@@ -132,14 +136,16 @@ export class BurnoutService {
     return { state: raw.state, stateName: BURNOUT_STATE_CN[raw.state], score, advice: advice[raw.state], daysInState: raw.daysInState };
   }
 
-  /** 请假/调休（事件选项 A）：直接进入恢复。 */
-  public takeHalfDayOff(): { mind: number; fatigue: number } {
+  /** 请假/调休（事件选项 A）：直接进入恢复，扣半天工资（§8 选项 A 工资影响）。 */
+  public takeHalfDayOff(): { mind: number; fatigue: number; salaryCost: number } {
     const p = this.context.player;
+    const salaryCost = Math.min(p.salary, 30);
+    if (salaryCost > 0) p.salary -= salaryCost;
     p.mind = Math.min(p.maxMind, p.mind + 30);
     p.fatigue = Math.max(0, (p.fatigue ?? 0) - 25);
     p.innerDemon = Math.max(0, p.innerDemon - 12);
     p.burnoutState = { state: p.innerDemon >= 60 ? 'STRESSED' : 'RECOVERING', daysInState: 1 };
     this.context.events.emit('playerChanged', { reason: 'burnoutHalfDayOff' });
-    return { mind: p.mind, fatigue: p.fatigue ?? 0 };
+    return { mind: p.mind, fatigue: p.fatigue ?? 0, salaryCost };
   }
 }

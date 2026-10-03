@@ -380,6 +380,8 @@ export class BattleService {
       run.log.push(`⛔ Phase 2 —— ${phase.name}！`);
       run.log.push(phase.telegraph);
       this.context.events.emit('bossPhase2', { bossId: enemy.defId, name: enemy.name, phase: phase.name });
+      const pstats = this.context.player.lifetimeStats;
+      this.context.player.lifetimeStats = { ...pstats, bossPhase2Seen: (pstats.bossPhase2Seen ?? 0) + 1 };
     }
     if (enemy.phase2Active && mechDef.phase2) this.runPhase2Continuous(run, enemy, player, dt, mechDef.phase2);
     for (const mechanic of mechDef.mechanics) {

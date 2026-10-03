@@ -107,6 +107,8 @@ export class CompanyService {
     p.project = null;
     p.weeklyGoals = null;
     this.context.events.emit('companySwitched', { companyId, companyName: target.name, day });
+    const stats = p.lifetimeStats;
+    p.lifetimeStats = { ...stats, companySwitches: (stats.companySwitches ?? 0) + 1 };
     return { ok: true };
   }
 }
