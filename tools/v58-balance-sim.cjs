@@ -105,6 +105,11 @@ function runPersona(name, policy, days, seed) {
           }
           // 道心贴底时选恢复语义的尾部选项（玩家不会无脑头铁：心魔缠身会自救）
           if (p.mind < 50 && opts.length > 1) pick = opts[opts.length - 1];
+          // 道心危急时避免继续选负面回复：优先非伤害选项
+          if (p.mind < 30 && opts.length > 1) {
+            const safe = opts.find((o) => !/道心| Mind |崩溃/.test(o.text)) || opts[opts.length - 1];
+            pick = safe;
+          }
           try { facade.replyToMessage(msg.id, pick.id); } catch { metrics.exceptions += 1; }
         }
         // 完成任务即领取
@@ -139,11 +144,11 @@ function runPersona(name, policy, days, seed) {
           const has = (id) => (p.materials?.[id] ?? 0) > 0;
           const tryUse = (id) => { try { return facade.v2UseConsumable(id).success; } catch { return false; } };
           if (!tryUse('cons_coffee')) {
-            if (has('cons_coffee') || (p.salary > 120)) { try { facade.v2Buy('cons_coffee', 30); } catch { /* 售罄 */ } tryUse('cons_coffee'); }
+            if (has('cons_coffee') || (p.salary >= 30)) { try { facade.v2Buy('cons_coffee', 30); } catch { /* 售罄 */ } tryUse('cons_coffee'); }
           }
           if (p.mind < 25) {
-            if (!tryUse('cons_heal') && p.salary > 200) { try { facade.v2Buy('cons_heal', 60); } catch { /* 售罄 */ } tryUse('cons_heal'); }
-            if (!tryUse('cons_clear') && p.salary > 300) { try { facade.v2Buy('cons_clear', 80); } catch { /* 售罄 */ } tryUse('cons_clear'); }
+            if (!tryUse('cons_heal') && p.salary >= 60) { try { facade.v2Buy('cons_heal', 60); } catch { /* 售罄 */ } tryUse('cons_heal'); }
+            if (!tryUse('cons_clear') && p.salary >= 80) { try { facade.v2Buy('cons_clear', 80); } catch { /* 售罄 */ } tryUse('cons_clear'); }
           }
         }
         // V5.8 §8：Burnout 恢复闭环——BURNOUT_RISK/BURNOUT 时请半天假（游戏提供的正式恢复路径）

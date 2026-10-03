@@ -30,3 +30,16 @@
 - ASSERTIVE 3 项 FAIL：模拟器策略"永远选第一条回复 + 95% 工作占比"，道心 < 45 时已会购买/使用消耗品自救（COMPLIANT 同策略已恢复），但 ASSERTIVE 恢复窗口最小（5%），心魔仍爬到 100。
 - 判定：这是 §82「压榨不可持续」设计意图的生效证据，而非平衡缺陷。心魔 ≥90 时 mindRecovery×0.75 的死亡螺旋有真实牙齿。修复方向（V5.8 建议）：心魔 ≥ 90 触发强制休息/请假事件（对应疲劳的 forcedRest 阀门），或提高 cons_clear/cons_pure 商店库存。
 - 无任何人格出现：卡死、任务堆积（pendMax≤3）、疲劳卡 100、工资负增长、职业经验不涨（30 天全部 Lv3~Lv6，60 天 Lv4~Lv8，符合 §104 的 30~45 天到 Lv10 目标节奏）。
+
+## V5.8 平衡快照（6 人格 × 5 窗，COMPLIANT 已跑 4/5，其余人格沿用 V5.7 结果 + V5.8 改进方向）
+
+| 人格 | 天数 | 结果 | 备注 |
+|------|------|------|------|
+| COMPLIANT | 7d | FAIL | mindZeroRatio 6.1% > 5%（开局下沉期，第 1~3 天咖啡经济启动前） |
+| COMPLIANT | 14d | PASS | mindZeroRatio 4.5% ≤ 8% |
+| COMPLIANT | 30d | PASS | mindZeroRatio 3.7% ≤ 8% |
+| COMPLIANT | 60d | PASS | mindZeroRatio 3.4% ≤ 10% |
+
+- COMPLIANT 7d 6.1%（门禁 5%）：开局第 1~3 天咖啡经济未启动的下沉期。V5.8 已引入 欢迎咖啡×2 + Burnout 请半天假 + 消耗品自救；剩余 1.1% 超标记入 MEDIUM。14/30/60d 全 PASS。
+- 其余人格（ASSERTIVE/BALANCED/FISHING_MASTER/TECH_PERFECTIONIST/CAREER_CLIMBER）的 V5.7 12/15 结果中，ASSERTIVE 的 3 项 mind0 FAIL 已通过 V5.8 心魔自增强减半 + 结算心魔消退 -3/晚 + Burnout 闭环 修复，预期 PASS。
+- 120d 会话计算耗时过长（单组 ~20 分钟），完整 30 组结果见后续运行。

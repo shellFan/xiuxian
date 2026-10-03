@@ -94,6 +94,8 @@ export class ProfessionService {
     try { this.context.v2Items.grantTechnique(def.initialSkill); } catch { /* starter kit best-effort */ }
     try { this.context.v2Items.grantEquipment(def.initialEquipment); } catch { /* starter kit best-effort */ }
     try { this.context.v2Items.equipItem('DESK', def.initialEquipment); } catch { /* best-effort */ }
+    // V5.8 §7.1：新员工欢迎礼——2 瓶咖啡缓解开局道心下沉
+    try { this.context.v2Items.addMaterial('cons_coffee', 2); } catch { /* best-effort */ }
     this.context.events.emit('professionChosen', { profession: def.id });
     return { success: true };
   }
