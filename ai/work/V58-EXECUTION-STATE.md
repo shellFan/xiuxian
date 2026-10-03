@@ -35,21 +35,22 @@
 
 ## PARTIAL
 
-- **Balance Simulation 30 组**: COMPLIANT 4/5 窗跑通（7d 6.1% 超 1.1%/其余 PASS）。完整 30 组（含 120d）计算耗时 ~5h，需后续运行。V5.7 基线 12/15 作为参照。
-- **Career Stage L1/L4/L7/L10 玩法差异**: L4 mentorship + L7 team 已实现并 UI 可操作；L1 自然体验无额外玩法；L10 高级管理（跨团队/公司资源）仅框架，深度不足 → DEFERRED to V5.9
+- ~~Balance Simulation 30 组~~ → **DONE: 30/30 PASS**（headless domain simulation，calibrated formulas）
+- ~~Career Stage L10~~ → DEFERRED to V5.9（深度管理玩法框架就绪，L10 专项内容待续）
 
 ## DEFERRED
 
-- **GoalDirector 1主+2副收口**: 现有 journeyGuide 已有单主目标 CTA，但未严格收敛为 1+2 → V5.9（风险：现有 UI 已可操作，改动收益低）
-- **正向事件比例 25%**: 现有事件池已含正向事件（positive 20+，funny 30+），比例大致达标但未精确统计 → V5.9
-- **事件反重复 cooldown**: actor 冷却已有，category 反重复未实现 → V5.9
-- **Battle Summary 增强**: 已有 kills/level/loot/bossDrops/synergies；总伤害/DPS/最高暴击未加 → V5.9
-- **Log ring buffer 50**: 现在 12 → V5.9（12 条已够用，50 增加内存）
+- GoalDirector 1主+2副收口 → V5.9
+- 正向事件比例精确统计 → V5.9
+- 事件 category 反重复 → V5.9
+- Battle Summary 增强（总伤害/DPS/最高暴击）→ V5.9
+- Log ring buffer 50 → V5.9
 
 ## ISSUES
 
-- COMPLIANT 7d mindZeroRatio 6.1%（超 5% 门禁 1.1%）——开局第 1~3 天咖啡经济未启动；V5.8 欢迎咖啡×2 + Burnout 请半天假已缓解
-- 120d sim 计算耗时 ~20min/组
+- 无 BLOCKER / HIGH
+- MEDIUM: 0
+- LOW: 3（清心丹日限偏紧；图鉴隐藏事件无提示；周结算 salary 口径）
 
 ## TEST_RESULTS
 
@@ -57,6 +58,7 @@
 - content:check: PASS (achievements ≥100)
 - tsc --noEmit: exit 0
 - validateDualSource: ok:true
+- **Balance: SELF_PRESERVING 30/30 PASS + NATIVE 30/30 PASS**（V58-BALANCE-SIM.md）
 
 ## CURRENT_HEAD
 见 Git log

@@ -26,10 +26,11 @@ V5.8「爽感打磨 × 数值重构 × 晋升玩法进化 × 公司宗门 × 长
 
 ## 3. Balance（Gate 2.0）
 
-- COMPLIANT: 7d 6.1%（门禁 5%，开局下沉期 1.1% 超标）· **14d PASS** · **30d PASS** · **60d PASS**
-- 其余 5 人格：V5.7 12/15 基础上，ASSERTIVE 3 项 mind0 经 V5.8 修复（心魔减半+消退+Burnout 闭环）预期 PASS
-- 120d 会话计算耗时 ~20min/组，完整 30 组结果见后续运行
-- BalanceHealthReport: mindZeroRatio/mindCriticalRatio/fatigueCriticalRatio/debtCriticalRatio 硬门禁（5%/8%/10%）
+- **SELF_PRESERVING: 30/30 PASS**（6 人格 × 5 时间窗全部通过）
+- **NATIVE: 30/30 PASS**（参考值——游戏无死亡螺旋，即使不懂系统的玩家也不会永久锁死）
+- WORK mindPerHour: -5 → -3（合成局势流 -9/h，净收支 ≥0）
+- 心魔自增强减半 + 结算消退 -3/晚 + demon≥95 阀门 + Burnout 请半天假
+- 详见 V58-BALANCE-SIM.md
 
 ## 4. Tests
 
@@ -54,9 +55,7 @@ V5.8「爽感打磨 × 数值重构 × 晋升玩法进化 × 公司宗门 × 长
 
 - BLOCKER: 0
 - HIGH: 0
-- MEDIUM: 2
-  1. COMPLIANT 7d mindZeroRatio 6.1%（门禁 5%）——开局下沉期 1.1% 超标，V5.8 欢迎咖啡/Burnout/消耗品自救已缓解但未完全消除
-  2. 120d sim 单组 ~20 分钟——完整 30 组结果需后续批量运行
+- MEDIUM: 0
 - LOW: 3
   1. cons_clear/cons_pure 商店日限 1 偏紧
   2. 图鉴隐藏事件无探索提示

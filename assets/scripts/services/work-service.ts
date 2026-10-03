@@ -30,8 +30,8 @@ export const MODE_RULES: Record<WorkMode, {
   mindPerHour: number;
 }> = {
   // V5.8 §7.4：模式道心流与局势道心流（v2-economy mindPerHourDelta ≈-6/h）叠加为总消耗；
-  // WORK -5 → 合成 -11/h，配合结算 +35 + 摸鱼恢复 → 90% 工作人格净收支转正。
-  WORK: { secondsKey: 'workSeconds', salaryMul: 1.3, cultivationMul: 0.8, mindPerHour: -5 },
+  // WORK -3 → 合成 -9/h，配合结算 +35 + 摸鱼恢复 → 85% 工作人格净收支 +6/day（含事件 -25 后仍 ≥0）。
+  WORK: { secondsKey: 'workSeconds', salaryMul: 1.3, cultivationMul: 0.8, mindPerHour: -3 },
   FISHING: { secondsKey: 'fishingSeconds', salaryMul: 0.6, cultivationMul: 1.1, mindPerHour: 40 },
   CULTIVATING: { secondsKey: 'cultivatingSeconds', salaryMul: 0.3, cultivationMul: 2.0, mindPerHour: -9 },
   SOCIAL: { secondsKey: 'socialSeconds', salaryMul: 0.5, cultivationMul: 0.6, mindPerHour: 24 },

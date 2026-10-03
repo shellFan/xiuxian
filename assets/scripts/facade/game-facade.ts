@@ -55,6 +55,7 @@ export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
   readonly rewardProvider?: RewardProvider;
   readonly autoSaveIntervalSeconds?: number;
+  readonly tickIntervalSeconds?: number;
   readonly debugProtection?: DebugProtectionOptions;
   /** Cooldown in milliseconds for work mode switching. Default 5000. Set 0 to disable. */
   readonly modeSwitchCooldownMs?: number;
@@ -96,6 +97,7 @@ export class GameFacade {
     this.mergeService = this.context.board ? new MergeService(this.context) : null;
     this.gameLoop = new GameLoopService(this.context, {
       autoSaveIntervalSeconds: options.autoSaveIntervalSeconds,
+      tickIntervalSeconds: options.tickIntervalSeconds,
     });
     this.rewardService = new RewardService(
       options.rewardProvider ?? new MockRewardProvider(),

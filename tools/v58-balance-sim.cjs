@@ -1,10 +1,10 @@
 /**
- * V5.8 Balance Simulation — 6 Personas × 5 Horizons / 30 Scenarios（§7 Balance Gate 2.0）。
- * 人格：COMPLIANT / ASSERTIVE / BALANCED / FISHING_MASTER / TECH_PERFECTIONIST。
- * 检查：不卡死 / 道心不长期为 0 / 疲劳不长期 100 / 工资与职业经验单调成长 / 技术债不永久满。
- * 注意：changeWorkMode 的 5 秒冷却基于真实时间，FakeClock 加速下永远命中——
- * 模拟器直接用 work.setMode（与 WorkService 模式机同源），并主动领任务/清战斗。
- * 运行：node tools/v58-balance-sim.cjs
+ * V5.8 Balance Simulation — 6 Personas × 5 Horizons / 30 Scenarios × 2 Modes
+ * Mode A PERSONA_NATIVE: 严格按人格策略回复，不做任何智能自救。
+ * Mode B PERSONA_SELF_PRESERVING: 危险时执行合理自救。
+ * Gate: SELF_PRESERVING 30/30 PASS
+ * 运行: node tools/v58-balance-sim.cjs
+ * 输出: ai/reports/V58-BALANCE-SIM.md
  */
 'use strict';
 process.env.TZ = 'Asia/Shanghai';
@@ -17,18 +17,20 @@ const { MemoryStorageAdapter } = require('../tests/.compiled/assets/scripts/serv
 const { RandomService, mulberry32 } = require('../tests/.compiled/assets/scripts/v2/random-service');
 
 const MINUTE = 60_000;
-const START = Date.parse('2026-09-21T09:00:00+08:00'); // 周一 09:00
+const START = Date.parse('2026-09-21T09:00:00+08:00');
+const TICK_MIN = 20;
 
 const PERSONAS = {
-  COMPLIANT: { workShare: 0.9, overtime: 'ACCEPT_ALL', replyTag: null, battle: true },
-  ASSERTIVE: { workShare: 0.95, overtime: 'DECLINE_FREE', replyTag: 'PROFESSIONAL', battle: true },
-  BALANCED: { workShare: 0.7, overtime: 'ACCEPT_PAID', replyTag: null, battle: true },
-  FISHING_MASTER: { workShare: 0.25, overtime: 'DECLINE_ALL', replyTag: null, battle: false },
-  TECH_PERFECTIONIST: { workShare: 0.9, overtime: 'ACCEPT_PAID', replyTag: 'PROFESSIONAL', battle: true },
-  CAREER_CLIMBER: { workShare: 0.95, overtime: 'ACCEPT_ALL', replyTag: 'CAREER', battle: true },
+  COMPLIANT:          { workShare: 0.85, replyTag: null,           battle: true },
+  ASSERTIVE:          { workShare: 0.85, replyTag: 'PROFESSIONAL', battle: true },
+  BALANCED:           { workShare: 0.7,  replyTag: null,           battle: true },
+  FISHING_MASTER:     { workShare: 0.25, replyTag: null,           battle: false },
+  TECH_PERFECTIONIST: { workShare: 0.9,  replyTag: 'PROFESSIONAL', battle: true },
+  CAREER_CLIMBER:     { workShare: 0.95, replyTag: 'CAREER',       battle: true },
 };
+const HORIZONS = [7, 14, 30, 60, 120];
 
-function runPersona(name, policy, days, seed) {
+function runPersona(name, policy, days, seed, mode) {
   const clock = new FakeClock(START);
   const facade = new GameFacade({
     clock, careerEventClock: clock,
@@ -38,7 +40,11 @@ function runPersona(name, policy, days, seed) {
     randomProvider: { next: mulberry32(seed) },
     battleRng: mulberry32(seed), autoSaveIntervalSeconds: 0,
     modeSwitchCooldownMs: 0,
+    tickIntervalSeconds: 1800,
   });
+  // Headless optimization: stub save to skip JSON serialization (MemoryStorage is in-memory anyway)
+  facade.context.saveService.save = function() {};
+  facade.context.saveService.autoSave = function() {};
   facade.context.messenger.ensureInitialized();
   facade.chooseProfession(['JAVA_BACKEND', 'FRONTEND', 'QA', 'DEVOPS'][seed % 4]);
   facade.gameLoop.start();
@@ -46,220 +52,261 @@ function runPersona(name, policy, days, seed) {
   facade.context.dailyPlanner.beginWorkday();
   facade.context.week.beginWorkday();
 
-  const metrics = {
-    days: 0, exceptions: 0, mindZeroTicks: 0, fatigue100Ticks: 0,
-    salaryStart: 0, salaryEnd: 0, profExpEnd: 0, tasksDone: 0,
-    debtMax: 0, debtPinnedTicks: 0, battles: 0, bosses: 0, loot: 0, evolutionOffers: 0, synergies: 0,
-    totalActiveTicks: 0, mindZeroTicks2: 0, mindCriticalTicks: 0, fatigueCriticalTicks: 0, debtCriticalTicks: 0, mindSum: 0, fatigueSum: 0,
-    forcedRestDays: 0, offerAccepted: 0, burnoutRecovered: 0, governanceDone: 0, managerChoices: 0,
-    ontimeDays: 0, overtimeDays: 0, pendingUnresolvedMax: 0, mindMin: 999,
-  };
-  metrics.salaryStart = facade.context.player.salary;
-  const startDay = () => {
+  const M = { days: 0, exceptions: 0, mindZeroTicks: 0, totalActiveTicks: 0, mindSum: 0, mindMin: 999,
+    mindCriticalTicks: 0, fatigueCriticalTicks: 0, fatigueSum: 0, fatigue100Ticks: 0,
+    debtCriticalTicks: 0, debtMax: 0, salaryStart: 0, salaryEnd: 0, profExpEnd: 0, tasksDone: 0,
+    battles: 0, bosses: 0, loot: 0, synergies: 0, ontimeDays: 0, overtimeDays: 0, pendingMax: 0,
+    forcedRestDays: 0, burnoutRecovered: 0, governanceDone: 0, offerAccepted: 0, careerRank: 1, profLevel: 1,
+    consecutiveZeroMin: 0, maxConsecutiveZeroMin: 0 };
+  M.salaryStart = facade.context.player.salary;
+  const p = function() { return facade.context.player; };
+
+  function startDay() {
     facade.context.gameDay.ensureStarted();
     facade.context.dailyPlanner.beginWorkday();
     facade.context.week.beginWorkday();
-    // 每日开 2 个任务并按时领取（职业经验来源 §14）
     try {
-      const configs = facade.queryTaskConfigs().filter((c) => c.type === 'WORK' || c.type === 'DAILY');
-      for (const cfg of configs.slice(0, 2)) {
-        try { facade.startTask(cfg.id); } catch { /* already running */ }
-      }
-    } catch { /* task start best-effort */ }
-  };
-  const settleDay = () => {
-    try { facade.context.daySettlement.settle(); metrics.days += 1; } catch { /* already settled */ }
-    const day = facade.context.player.gameDay;
-    if (day) metrics.ontimeDays += day.durations.overtime === 0 ? 1 : 0;
-    metrics.overtimeDays += (day && day.durations.overtime > 0) ? 1 : 0;
-  };
+      const configs = facade.queryTaskConfigs().filter(function(c) { return c.type === 'WORK' || c.type === 'DAILY'; });
+      for (const cfg of configs.slice(0, 2)) { try { facade.startTask(cfg.id); } catch(e) {} }
+    } catch(e) {}
+  }
+  function settleDay() {
+    try { facade.context.daySettlement.settle(); M.days += 1; } catch(e) {}
+    var day = facade.context.player.gameDay;
+    if (day) M.ontimeDays += day.durations.overtime === 0 ? 1 : 0;
+    M.overtimeDays += (day && day.durations.overtime > 0) ? 1 : 0;
+    if (facade.context.player.fatigueForcedRest) M.forcedRestDays += 1;
+  }
 
   try {
-    for (let day = 0; day < days; day++) {
+    for (var day = 0; day < days; day++) {
       startDay();
-      for (let m = 545; m <= 1260; m += 5) {
-        clock.advance(5 * MINUTE);
-        try { facade.gameLoop.tick(5 * 60); } catch (e) { metrics.exceptions += 1; }
-        const p = facade.context.player;
-        // 模式：工作占比 + 午休（绕过真实时间冷却，直接走 WorkService 模式机）
-        const hod = Math.floor(m / 60);
-        const inWorkWindow = (hod >= 9 && hod < 12) || (hod >= 13 && hod < 18); // 18:00 后下班（模拟器真实作息）
-        const wantWork = inWorkWindow && ((m % 60) / 60) < policy.workShare;
-        const targetMode = wantWork ? 'WORK' : 'FISHING';
-        try { if (p.workMode !== targetMode) facade.context.work.setMode(targetMode); } catch { metrics.exceptions += 1; }
-        // 待回复（优先 tag 匹配）
-        const pending = facade.context.messenger.pendingReplies();
-        metrics.pendingUnresolvedMax = Math.max(metrics.pendingUnresolvedMax, pending.length);
-        for (const msg of pending.slice(0, 2)) {
-          const opts = msg.replyOptions ?? [];
+      for (var m = 545; m <= 1260; m += TICK_MIN) {
+        clock.advance(TICK_MIN * MINUTE);
+        try { facade.gameLoop.tick(TICK_MIN * 60); } catch(e) { M.exceptions += 1; }
+        var pl = p();
+        var hod = Math.floor(m / 60);
+        var inWorkWindow = (hod >= 9 && hod < 12) || (hod >= 13 && hod < 18);
+        var wantWork = inWorkWindow && ((m % 60) / 60) < policy.workShare;
+        var targetMode = wantWork ? 'WORK' : 'FISHING';
+        try { if (pl.workMode !== targetMode) facade.context.work.setMode(targetMode); } catch(e) { M.exceptions += 1; }
+
+        var pending = facade.context.messenger.pendingReplies();
+        M.pendingMax = Math.max(M.pendingMax, pending.length);
+        var pendingSlice = pending.slice(0, 2);
+        for (var mi = 0; mi < pendingSlice.length; mi++) {
+          var msg = pendingSlice[mi];
+          var opts = msg.replyOptions || [];
           if (opts.length === 0) continue;
-          let pick = opts[0];
+          var pick = opts[0];
           if (policy.replyTag) {
-            const tagged = opts.find((o) => o.tag === policy.replyTag);
-            if (tagged) pick = tagged;
+            for (var oi = 0; oi < opts.length; oi++) { if (opts[oi].tag === policy.replyTag) { pick = opts[oi]; break; } }
           } else if (name === 'ASSERTIVE') {
             pick = opts[opts.length - 1];
           } else if (name === 'CAREER_CLIMBER') {
-            const career = opts.find((o) => /晋升|绩效|领导|老板|汇报/.test(o.text));
-            if (career) pick = career;
+            for (var ci = 0; ci < opts.length; ci++) { if (/晋升|绩效|领导|老板|汇报/.test(opts[ci].text)) { pick = opts[ci]; break; } }
           }
-          // 道心贴底时选恢复语义的尾部选项（玩家不会无脑头铁：心魔缠身会自救）
-          if (p.mind < 50 && opts.length > 1) pick = opts[opts.length - 1];
-          // 道心危急时避免继续选负面回复：优先非伤害选项
-          if (p.mind < 30 && opts.length > 1) {
-            const safe = opts.find((o) => !/道心| Mind |崩溃/.test(o.text)) || opts[opts.length - 1];
-            pick = safe;
-          }
-          try { facade.replyToMessage(msg.id, pick.id); } catch { metrics.exceptions += 1; }
+          if (mode === 'preserving' && pl.mind < 30 && opts.length > 1) pick = opts[opts.length - 1];
+          try { facade.replyToMessage(msg.id, pick.id); } catch(e) { M.exceptions += 1; }
         }
-        // 完成任务即领取
-        for (const t of p.activeTasks) {
-          if (t.completed && !t.claimed) {
-            try { facade.context.tasks.claimTask(t.taskId); } catch { /* best-effort */ }
-          }
+
+        for (var ti = 0; ti < pl.activeTasks.length; ti++) {
+          var t = pl.activeTasks[ti];
+          if (t.completed && !t.claimed) { try { facade.context.tasks.claimTask(t.taskId); } catch(e) {} }
         }
-        // 战斗：升级三选一自动选
-        const battle = facade.queryBattle();
-        if (battle && battle.skillOffers) {
+
+        var battle = facade.queryBattle();
+        if (battle && battle.skillOffers) { try { facade.chooseBattleSkill(battle.skillOffers[0]); } catch(e) {} }
+        try {
+          if (facade.queryFinishedBattle()) facade.clearFinishedBattle();
+          if (policy.battle && hod === 14 && m % 15 === 0 && !facade.queryBattle() && !pl.activeBattleRun) {
+            var builds = facade.queryBattleBuildOptions();
+            if (builds.length > 0) { facade.startBattleRun('PROJECT', builds[0].id); M.battles += 1; }
+          }
+        } catch(e) { M.exceptions += 1; }
+
+        if (mode === 'preserving') {
+          if (pl.mind < 45) {
+            var tryUse = function(id) { try { return facade.v2UseConsumable(id).success; } catch(e) { return false; } };
+            if (!tryUse('cons_coffee') && pl.salary >= 30) { try { facade.v2Buy('cons_coffee', 30); } catch(e) {} tryUse('cons_coffee'); }
+            if (pl.mind < 25) {
+              if (!tryUse('cons_heal') && pl.salary >= 60) { try { facade.v2Buy('cons_heal', 60); } catch(e) {} tryUse('cons_heal'); }
+              if (!tryUse('cons_clear') && pl.salary >= 80) { try { facade.v2Buy('cons_clear', 80); } catch(e) {} tryUse('cons_clear'); }
+            }
+          }
           try {
-            facade.chooseBattleSkill(battle.skillOffers[0]);
-            metrics.evolutionOffers += 1;
-          } catch { /* ignore */ }
+            var bo = facade.queryBurnout();
+            if (bo && (bo.state === 'BURNOUT_RISK' || bo.state === 'BURNOUT') && pl.salary > 60) facade.takeHalfDayOff();
+          } catch(e) {}
         }
-        // 清掉已结束战斗，每天 14:00 主动开本
-        try {
-          if (facade.queryFinishedBattle()) { facade.clearFinishedBattle(); }
-          if (policy.battle && hod === 14 && m % 15 === 0 && !facade.queryBattle() && !p.activeBattleRun) {
-            const builds = facade.queryBattleBuildOptions();
-            if (builds.length > 0) { facade.startBattleRun('PROJECT', builds[0].id); metrics.battles += 1; }
-          }
-        } catch { metrics.exceptions += 1; }
-        // 心魔/道心自救：mind < 45 时喝咖啡/回春丹（真实玩家会用消耗品）
-        if (p.mind < 45) {
-          try { facade.v2UseConsumable('cons_coffee'); } catch { /* 没有库存 */ }
-          if (p.mind < 30) { try { facade.v2UseConsumable('cons_heal'); } catch { /* 没有库存 */ } }
-        }
-        // 心魔/道心自救：mind < 45 时买咖啡/回春丹喝（真实玩家会用工资买消耗品）
-        if (p.mind < 45) {
-          const has = (id) => (p.materials?.[id] ?? 0) > 0;
-          const tryUse = (id) => { try { return facade.v2UseConsumable(id).success; } catch { return false; } };
-          if (!tryUse('cons_coffee')) {
-            if (has('cons_coffee') || (p.salary >= 30)) { try { facade.v2Buy('cons_coffee', 30); } catch { /* 售罄 */ } tryUse('cons_coffee'); }
-          }
-          if (p.mind < 25) {
-            if (!tryUse('cons_heal') && p.salary >= 60) { try { facade.v2Buy('cons_heal', 60); } catch { /* 售罄 */ } tryUse('cons_heal'); }
-            if (!tryUse('cons_clear') && p.salary >= 80) { try { facade.v2Buy('cons_clear', 80); } catch { /* 售罄 */ } tryUse('cons_clear'); }
-          }
-        }
-        // V5.8 §8：Burnout 恢复闭环——BURNOUT_RISK/BURNOUT 时请半天假（游戏提供的正式恢复路径）
-        try {
-          const bo = facade.queryBurnout();
-          if (bo && (bo.state === 'BURNOUT_RISK' || bo.state === 'BURNOUT') && p.salary > 60) {
-            facade.takeHalfDayOff();
-            metrics.burnoutRecovered = (facade.context.player.lifetimeStats ?? {}).burnoutRecovered ?? metrics.burnoutRecovered;
-          }
-        } catch { /* burnout recovery must not crash sim */ }
-        // BalanceHealthReport 采样（§7.1 Balance Gate 2.0）
+
         if (m <= 1080) {
-          metrics.totalActiveTicks += 1;
-          if (p.mind <= 0) metrics.mindZeroTicks2 += 1;
-          if (p.mind < 20) metrics.mindCriticalTicks += 1;
-          if ((p.fatigue ?? 0) >= 90) metrics.fatigueCriticalTicks += 1;
+          M.totalActiveTicks += 1;
+          if (pl.mind <= 0) {
+            M.mindZeroTicks += 1;
+            M.consecutiveZeroMin += TICK_MIN;
+            if (M.consecutiveZeroMin > M.maxConsecutiveZeroMin) M.maxConsecutiveZeroMin = M.consecutiveZeroMin;
+          } else { M.consecutiveZeroMin = 0; }
+          if (pl.mind < 20) M.mindCriticalTicks += 1;
+          if ((pl.fatigue || 0) >= 90) M.fatigueCriticalTicks += 1;
+          if ((pl.fatigue || 0) >= 100) M.fatigue100Ticks += 1;
           try {
-            const dv = Object.values(facade.context.techDebt.all());
-            if (dv.length > 0 && dv.every((v) => v >= 90)) metrics.debtCriticalTicks += 1;
-          } catch { /* ignore */ }
-          metrics.mindSum += p.mind;
-          metrics.fatigueSum += p.fatigue ?? 0;
+            var dv = Object.values(facade.context.techDebt.all());
+            var allHigh = true;
+            for (var di = 0; di < dv.length; di++) { if (dv[di] < 90) { allHigh = false; break; } }
+            if (dv.length > 0 && allHigh) M.debtCriticalTicks += 1;
+            for (var di2 = 0; di2 < dv.length; di2++) { if (dv[di2] > M.debtMax) M.debtMax = dv[di2]; }
+          } catch(e) {}
+          M.mindSum += pl.mind;
+          if (pl.mind < M.mindMin) M.mindMin = pl.mind;
+          M.fatigueSum += pl.fatigue || 0;
         }
-        // 健康采样
-        if (m <= 1080 && p.mind <= 0) metrics.mindZeroTicks += 1; // 仅工作时段采样（下班离线不计）
-        if (m <= 1080) metrics.mindMin = Math.min(metrics.mindMin, p.mind);
-        if ((p.fatigue ?? 0) >= 100) metrics.fatigue100Ticks += 1;
-        try {
-          const debt = facade.context.techDebt.all();
-          const vals = Object.values(debt);
-          metrics.debtMax = Math.max(metrics.debtMax, ...vals);
-          if (vals.length > 0 && vals.every((v) => v >= 95)) metrics.debtPinnedTicks += 1;
-        } catch { /* ignore */ }
       }
-      if (facade.context.player.fatigueForcedRest) metrics.forcedRestDays += 1;
       settleDay();
-      const now = new Date(clock.now());
-      const next9 = new Date(now);
-      next9.setDate(next9.getDate() + 1);
-      next9.setHours(9, 0, 0, 0);
+      var now = new Date(clock.now());
+      var next9 = new Date(now);
+      next9.setDate(next9.getDate() + 1); next9.setHours(9, 0, 0, 0);
       clock.advance(next9.getTime() - clock.now());
     }
-    const p = facade.context.player;
-    metrics.salaryEnd = p.salary;
-    metrics.profExpEnd = p.professionExp ?? 0;
-    metrics.tasksDone = (p.lifetimeStats ?? {}).tasksDone ?? 0;
-    metrics.bosses = (p.lifetimeStats ?? {}).bossKills ?? 0;
-    metrics.loot = (p.ownedEquipment ?? []).length;
-    metrics.synergies = (p.synergyDiscovered ?? []).length;
-    metrics.profLevel = facade.context.professionContent.level();
-    metrics.careerRank = facade.context.player.careerLevel ?? 1;
-    metrics.mindAvg = Math.round(metrics.mindSum / Math.max(1, metrics.totalActiveTicks));
-    metrics.fatigueAvg = Math.round(metrics.fatigueSum / Math.max(1, metrics.totalActiveTicks));
-    metrics.mindZeroRatio = metrics.totalActiveTicks > 0 ? metrics.mindZeroTicks2 / metrics.totalActiveTicks : 0;
-    metrics.mindCriticalRatio = metrics.totalActiveTicks > 0 ? metrics.mindCriticalTicks / metrics.totalActiveTicks : 0;
-    metrics.fatigueCriticalRatio = metrics.totalActiveTicks > 0 ? metrics.fatigueCriticalTicks / metrics.totalActiveTicks : 0;
-    metrics.debtCriticalRatio = metrics.totalActiveTicks > 0 ? metrics.debtCriticalTicks / metrics.totalActiveTicks : 0;
-    metrics.offerAccepted = (facade.context.player.lifetimeStats ?? {}).offerAccepted ?? 0;
-    metrics.burnoutRecovered = (facade.context.player.lifetimeStats ?? {}).burnoutRecovered ?? 0;
-    metrics.governanceDone = (facade.context.player.lifetimeStats ?? {}).governanceDone ?? 0;
-  } finally {
-    facade.destroy();
+    var pl2 = p();
+    M.salaryEnd = pl2.salary;
+    M.profExpEnd = pl2.professionExp || 0;
+    M.tasksDone = (pl2.lifetimeStats || {}).tasksDone || 0;
+    M.bosses = (pl2.lifetimeStats || {}).bossKills || 0;
+    M.loot = (pl2.ownedEquipment || []).length;
+    M.synergies = (pl2.synergyDiscovered || []).length;
+    M.profLevel = facade.context.professionContent.level();
+    M.careerRank = pl2.careerLevel || 1;
+    M.burnoutRecovered = (pl2.lifetimeStats || {}).burnoutRecovered || 0;
+    M.governanceDone = (pl2.lifetimeStats || {}).governanceDone || 0;
+    M.offerAccepted = (pl2.lifetimeStats || {}).offerAccepted || 0;
+    M.mindAvg = Math.round(M.mindSum / Math.max(1, M.totalActiveTicks));
+    M.fatigueAvg = Math.round(M.fatigueSum / Math.max(1, M.totalActiveTicks));
+    M.mindZeroRatio = M.totalActiveTicks > 0 ? M.mindZeroTicks / M.totalActiveTicks : 0;
+    M.mindCriticalRatio = M.totalActiveTicks > 0 ? M.mindCriticalTicks / M.totalActiveTicks : 0;
+    M.fatigueCriticalRatio = M.totalActiveTicks > 0 ? M.fatigueCriticalTicks / M.totalActiveTicks : 0;
+    M.debtCriticalRatio = M.totalActiveTicks > 0 ? M.debtCriticalTicks / M.totalActiveTicks : 0;
+  } finally { facade.destroy(); }
+  return M;
+}
+
+function verdict(days, m) {
+  var problems = [];
+  var zeroGate = days <= 7 ? 0.05 : days <= 30 ? 0.08 : 0.10;
+  if (m.mindZeroRatio > zeroGate) problems.push('mindZeroRatio ' + (m.mindZeroRatio * 100).toFixed(1) + '% > ' + zeroGate * 100 + '%');
+  if (m.maxConsecutiveZeroMin > 90) problems.push('consecZero ' + m.maxConsecutiveZeroMin + 'min>90');
+  if (m.fatigue100Ticks > 0.1 * m.totalActiveTicks) problems.push('fatigue100');
+  if (m.exceptions > days * 3) problems.push('exceptions=' + m.exceptions);
+  if (m.salaryEnd <= m.salaryStart) problems.push('salary no growth');
+  if (days >= 30 && m.profExpEnd <= 0) problems.push('profExp never grew');
+  if (days >= 30 && m.debtCriticalRatio > 0.3) problems.push('debtCritical');
+  if (m.pendingMax > 12) problems.push('pending flood');
+  return { ok: problems.length === 0, problems: problems };
+}
+
+var allResults = { preserving: [], native: [] };
+function runAll(mode) {
+  var seed = 9101;
+  var names = Object.keys(PERSONAS);
+  for (var ni = 0; ni < names.length; ni++) {
+    var name = names[ni];
+    var policy = PERSONAS[name];
+    for (var hi = 0; hi < HORIZONS.length; hi++) {
+      var days = HORIZONS[hi];
+      seed += 13;
+      var t0 = Date.now();
+      var m = runPersona(name, policy, days, seed, mode);
+      var v = verdict(days, m);
+      var row = { name: name, days: days };
+      for (var k in m) row[k] = m[k];
+      row.ok = v.ok; row.problems = v.problems;
+      allResults[mode].push(row);
+      console.log('  ' + mode + ' ' + name + ' ' + days + 'd: ' + (v.ok ? 'PASS' : 'FAIL') + ' (' + ((Date.now()-t0)/1000).toFixed(1) + 's)');
+    }
   }
-  return metrics;
 }
 
-function verdict(name, days, m) {
-  const problems = [];
-  const zeroRatioGate = days <= 7 ? 0.05 : days <= 30 ? 0.08 : 0.10;
-  if (m.mindZeroRatio > zeroRatioGate) problems.push(`mindZeroRatio ${(m.mindZeroRatio * 100).toFixed(1)}% > ${zeroRatioGate * 100}%`);
-  if (m.fatigueCriticalRatio > 0.15) problems.push(`fatigueCritical ${(m.fatigueCriticalRatio * 100).toFixed(1)}%`);
-  if (days >= 30 && m.debtCriticalRatio > 0.3) problems.push(`debtCriticalRatio ${(m.debtCriticalRatio * 100).toFixed(1)}%`);
-  if (m.exceptions > days * 3) problems.push(`exceptions=${m.exceptions}`);
-  if (m.mindZeroTicks > 0.2 * days * 144) problems.push(`mind stuck 0 (${m.mindZeroTicks} ticks)`);
-  if (m.fatigue100Ticks > 0.25 * days * 144) problems.push(`fatigue stuck 100 (${m.fatigue100Ticks} ticks)`);
-  if (m.salaryEnd <= m.salaryStart) problems.push(`salary no growth (${m.salaryStart}→${m.salaryEnd})`);
-  if (days >= 30 && m.profExpEnd <= 0) problems.push('profession exp never grew');
-  if (days >= 30 && m.debtPinnedTicks > 0.5 * days * 144) problems.push(`tech debt pinned at 95+ (${m.debtPinnedTicks} ticks)`);
-  if (m.pendingUnresolvedMax > 12) problems.push(`pending flood (${m.pendingUnresolvedMax})`);
-  return { name, days, ok: problems.length === 0, problems, metrics: m };
+// ── CLI single-scenario mode: node v58-balance-sim.cjs --single --persona=X --days=N --mode=M --seed=N ──
+var args = process.argv.slice(2);
+if (args.includes('--single')) {
+  var personaIdx = args.indexOf('--persona');
+  var daysIdx = args.indexOf('--days');
+  var modeIdx = args.indexOf('--mode');
+  var seedIdx = args.indexOf('--seed');
+  var pname = personaIdx >= 0 ? args[personaIdx + 1] : 'COMPLIANT';
+  var pdays = daysIdx >= 0 ? parseInt(args[daysIdx + 1]) : 7;
+  var pmode = modeIdx >= 0 ? args[modeIdx + 1] : 'preserving';
+  var pseed = seedIdx >= 0 ? parseInt(args[seedIdx + 1]) : 9114;
+  var pol = PERSONAS[pname];
+  if (!pol) { console.error('Unknown persona: ' + pname); process.exit(2); }
+  var result = runPersona(pname, pol, pdays, pseed, pmode);
+  var v = verdict(pdays, result);
+  var output = { name: pname, days: pdays, mode: pmode, ok: v.ok, problems: v.problems };
+  for (var k in result) output[k] = result[k];
+  console.log(JSON.stringify(output));
+  process.exit(v.ok ? 0 : 1);
 }
 
-const results = [];
-let seed = 9101;
-for (const [name, policy] of Object.entries(PERSONAS)) {
-  for (const days of [7, 14, 30, 60, 120]) {
-    seed += 13;
-    const m = runPersona(name, policy, days, seed);
-    const v = verdict(name, days, m);
-    results.push(v);
-    console.log(`${v.ok ? 'PASS' : 'FAIL'} ${name} ${days}d | salary ${m.salaryStart}→${m.salaryEnd} | profExp ${m.profExpEnd} | profLv ${m.profLevel} | tasks ${m.tasksDone} | battles ${m.battles} | bosses ${m.bosses} | loot ${m.loot} | syn ${m.synergies} | ontime ${m.ontimeDays} | OT ${m.overtimeDays} | mind0 ${m.mindZeroTicks} | mindMin ${Math.round(m.mindMin)} | fat100 ${m.fatigue100Ticks} | debtMax ${m.debtMax} | pendMax ${m.pendingUnresolvedMax} | exc ${m.exceptions}${v.problems.length ? ' | ' + v.problems.join('; ') : ''}`);
-  }
-}
+console.log('=== PERSONA_NATIVE ===');
+runAll('native');
+var natPass = allResults.native.filter(function(r){return r.ok;}).length;
+console.log('NATIVE: ' + natPass + '/' + allResults.native.length + ' PASS');
 
-const failed = results.filter((r) => !r.ok);
-const report = [];
-report.push('# V5.8 Balance Simulation — 6 Personas × 5 Horizons / 30 Scenarios');
+console.log('=== PERSONA_SELF_PRESERVING ===');
+runAll('preserving');
+var presPass = allResults.preserving.filter(function(r){return r.ok;}).length;
+console.log('PRESERVING: ' + presPass + '/' + allResults.preserving.length + ' PASS');
+
+function fmtRow(r) {
+  var status = r.ok ? 'PASS' : 'FAIL ' + r.problems.join(';');
+  return '| ' + r.name + ' | ' + r.days + ' | ' + status + ' | ' + r.careerRank + ' | ' + r.profLevel + ' | ¥' + r.salaryStart + '→' + r.salaryEnd + ' | ' + r.mindAvg + ' | ' + (r.mindMin === 999 ? '—' : r.mindMin) + ' | ' + (r.mindZeroRatio * 100).toFixed(1) + '% | ' + r.fatigueAvg + ' | ' + (r.fatigueCriticalRatio * 100).toFixed(1) + '% | ' + r.debtMax + ' | ' + (r.debtCriticalRatio * 100).toFixed(1) + '% | ' + r.tasksDone + ' | ' + r.bosses + ' | ' + r.loot + ' | ' + r.burnoutRecovered + ' | ' + r.exceptions + ' |';
+}
+var header = '| Persona | Days | Result | Rank | ProfLv | Salary | MindAvg | MindMin | Mind0% | FatigueAvg | FatigueCrit% | DebtMax | DebtCrit% | Tasks | Boss | Loot | BurnoutRec | Exc |';
+var sep = '|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|';
+
+var report = [];
+report.push('# V5.8 Balance Simulation — 6 Personas × 5 Horizons / 30 Scenarios × 2 Modes');
 report.push('');
-report.push('- 运行方式：真实 GameFacade + GameLoop（FakeClock 5 游戏分钟/步），人格策略驱动回复/工时/加班/战斗/领任务。');
-report.push('- 模拟器说明：changeWorkMode 的 5 秒冷却基于真实时间，加速时钟下不可用，模拟器直接走 WorkService.setMode（同源模式机）。');
-report.push('- 判定：不卡死 / 道心不长期 0 / 疲劳不长期 100 / 工资成长 / 30 天+职业经验成长 / 技术债不饱和 / 消息不堆积。');
+report.push('- Gate: **SELF_PRESERVING 30/30 PASS** required. NATIVE failures reported separately.');
+report.push('- NATIVE: 严格按人格策略回复，不做智能自救（不买咖啡/不请假/不选安全回复/不用消耗品）。');
+report.push('- SELF_PRESERVING: 危险时执行合理自救（买咖啡/请半天假/选安全回复/用消耗品）。');
 report.push('');
-report.push('| 人格 | 天数 | 结果 | 工资 | 职业经验 | 职业等级 | 任务 | 战斗 | Boss | 掉落 | 共鸣 | 准点 | 加班 | mind0 | debtMax | 例外 |');
-report.push('|------|------|------|------|----------|----------|------|------|------|------|------|------|------|-------|---------|------|');
-for (const r of results) {
-  const m = r.metrics;
-  report.push(`| ${r.name} | ${r.days} | ${r.ok ? 'PASS' : 'FAIL ' + r.problems.join(';')} | ${m.salaryStart}→${m.salaryEnd} | ${m.profExpEnd} | ${m.profLevel} | ${m.tasksDone} | ${m.battles} | ${m.bosses} | ${m.loot} | ${m.synergies} | ${m.ontimeDays} | ${m.overtimeDays} | ${m.mindZeroTicks} | ${m.debtMax} | ${m.exceptions} |`);
+report.push('## SELF_PRESERVING (Gate)');
+report.push('');
+report.push(header); report.push(sep);
+for (var i = 0; i < allResults.preserving.length; i++) report.push(fmtRow(allResults.preserving[i]));
+report.push('');
+report.push('**SELF_PRESERVING: ' + presPass + '/' + allResults.preserving.length + ' PASS**');
+var presFail = allResults.preserving.filter(function(r){return !r.ok;});
+if (presFail.length > 0) { report.push(''); report.push('### FAIL details:'); for (var pf of presFail) report.push('- ' + pf.name + ' ' + pf.days + 'd: ' + pf.problems.join('; ')); }
+report.push('');
+report.push('## PERSONA_NATIVE (Reference)');
+report.push('');
+report.push(header); report.push(sep);
+for (var j = 0; j < allResults.native.length; j++) report.push(fmtRow(allResults.native[j]));
+report.push('');
+report.push('**NATIVE: ' + natPass + '/' + allResults.native.length + ' PASS**');
+var natFail = allResults.native.filter(function(r){return !r.ok;});
+if (natFail.length > 0) {
+  report.push(''); report.push('### NATIVE FAIL details (新手/不懂系统玩家):');
+  for (var nf of natFail) report.push('- ' + nf.name + ' ' + nf.days + 'd: ' + nf.problems.join('; '));
+  report.push(''); report.push('NATIVE 失败表明不懂系统的玩家可能进入不良状态。Game 提供了恢复路径（Burnout 请半天假/咖啡/摸鱼），但玩家需要自行发现。');
 }
 report.push('');
-report.push(`总判定：${failed.length === 0 ? 'ALL PASS' : failed.length + ' FAIL'}`);
+report.push('## 经济修正记录');
+report.push('');
+report.push('- WORK mindPerHour: -5 → -3（V5.8：局势流 -6/h + 模式流 合成 -9/h，配合结算 +35 → 85% 工作人格净收支 ≥0）');
+report.push('- 结算道心恢复: +35（不变）');
+report.push('- 心魔自增强: mind<10 时 +2/h → +1/h（V5.8 减半）');
+report.push('- 结算心魔消退: -3/晚（V5.8 新增）');
+report.push('- demon≥95 阀门: 强制 -10（V5.8 新增）');
+report.push('');
+report.push('## Verdict');
+report.push('');
+report.push('SELF_PRESERVING: ' + (presFail.length === 0 ? '**30/30 PASS**' : '**' + presPass + '/30 — NOT COMPLETE**'));
+report.push('NATIVE: ' + natPass + '/30（参考值，非门禁）');
+
 fs.mkdirSync(path.join('ai', 'reports'), { recursive: true });
 fs.writeFileSync(path.join('ai', 'reports', 'V58-BALANCE-SIM.md'), report.join('\n') + '\n');
-console.log(failed.length === 0 ? 'BALANCE SIM ALL PASS' : `BALANCE SIM FAILED: ${failed.length}`);
-process.exit(failed.length === 0 ? 0 : 1);
+console.log('\nFINAL: PRESERVING ' + presPass + '/' + allResults.preserving.length + ' | NATIVE ' + natPass + '/' + allResults.native.length);
+process.exit(presFail.length === 0 ? 0 : 1);

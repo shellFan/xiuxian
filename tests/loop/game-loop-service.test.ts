@@ -38,12 +38,12 @@ function testTickBeforeStartDoesNothing(): void {
 }
 
 function testSixtySecondsWorkDrainsMindAndCountsWorkTime(): void {
-  // V5.8 平衡：WORK 流失缓和为 -5/h → 720 秒掉 1 点
+  // V5.8 平衡：WORK 流失缓和为 -3/h → 1200 秒掉 1 点
   const context = makeContext(new PlayerData({ workMode: 'WORK', mind: 100 }));
   const loop = new GameLoopService(context);
   loop.start();
-  loop.tick(720);
-  assert.equal(context.player.workSeconds, 720);
+  loop.tick(1200);
+  assert.equal(context.player.workSeconds, 1200);
   assert.ok(context.player.mind < 100, 'WORK must drain mind');
 }
 
