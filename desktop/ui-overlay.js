@@ -2,7 +2,7 @@
  * 牛马修仙传 — Web V1 DOM Overlay UI
  *
  * 视觉基准: docs/img/image5.png (11 屏概念图)
- * 通过 window.__GAME_FACADE__ 桥接 Cocos 游戏数据; Facade 缺席时进入演示模式。
+ * 通过 window.__GAME_FACADE__ 桥接 Cocos 游戏数据; Facade 缺席时显示加载中（不进入演示模式）。
  *
  * 屏幕: 首页/任务/合成/晋升 + 子页(宗门/排行榜/好友/成就/设置) + 弹窗(事件/广告/离线)
  */
@@ -176,11 +176,10 @@
   }
 
   /* ═════════════════════════════════════════════════════════
-     §2. Data Layer — Facade bridge + Demo data
+     §2. Data Layer — Facade bridge (DEMO kept for DEV_MODE only, production returns null)
      ═════════════════════════════════════════════════════════ */
 
   var _facade = null;
-  var _demoMode = false;
   var _unsubs = [];
 
   function facade() { return _facade || (window && window.__GAME_FACADE__) || null; }
@@ -196,7 +195,6 @@
     kpi: {
       careerLevel: 1, allCompleted: false,
       items: [
-        { type: 'MERGE_COUNT', target: 3, progress: 1, completed: false, description: '合成牛马 3 次' },
         { type: 'WORK_SECONDS', target: 300, progress: 210, completed: false, description: '累计工作 5 分钟' },
         { type: 'CULTIVATION', target: 50, progress: 50, completed: true, description: '修为达到 50' },
       ],
@@ -275,7 +273,7 @@
 
   function readHUD() {
     var f = facade();
-    if (!f) { _demoMode = true; return DEMO.hud; }
+    if (!f) return null;
     try {
       var s = f.snapshot();
       if (!s) return null;
@@ -312,7 +310,7 @@
 
   function readTasks() {
     var f = facade();
-    if (!f) { _demoMode = true; return DEMO.tasks; }
+    if (!f) return null;
     try {
       return {
         active: f.queryActiveTasks ? f.queryActiveTasks() : [],
@@ -334,7 +332,7 @@
 
   function readRecipes() {
     var f = facade();
-    if (!f) { _demoMode = true; return DEMO.recipes; }
+    if (!f) return null;
     try { return (f.queryAllCraftRecipes ? f.queryAllCraftRecipes() : []) || []; } catch (e) { return []; }
   }
 
@@ -352,7 +350,7 @@
 
   function readPromotion() {
     var f = facade();
-    if (!f) { _demoMode = true; return DEMO.promotion; }
+    if (!f) return null;
     try {
       var check = f.queryPromotionCheck ? f.queryPromotionCheck() : { allowed: false };
       return {
@@ -367,7 +365,7 @@
 
   function readSects() {
     var f = facade();
-    if (!f) { _demoMode = true; return { sects: DEMO.sects, currentId: DEMO.sectId }; }
+    if (!f) return null;
     try {
       var cur = f.querySect ? f.querySect() : null;
       return { sects: f.querySects() || [], currentId: cur ? cur.id : null };
@@ -376,19 +374,19 @@
 
   function readLeaderboard() {
     var f = facade();
-    if (!f) { _demoMode = true; return DEMO.leaderboard; }
+    if (!f) return null;
     try { return f.queryLeaderboard(); } catch (e) { return DEMO.leaderboard; }
   }
 
   function readFriends() {
     var f = facade();
-    if (!f) { _demoMode = true; return DEMO.friends; }
+    if (!f) return null;
     try { return f.queryFriends(); } catch (e) { return DEMO.friends; }
   }
 
   function readAchievements() {
     var f = facade();
-    if (!f) { _demoMode = true; return { configs: DEMO.achievements, status: DEMO.achStatus }; }
+    if (!f) return { configs: [], status: {} };
     try {
       var configs = f.queryAchievementConfigs() || [];
       var status = {};
@@ -3714,7 +3712,6 @@
       if (facade()) {
         clearInterval(poll);
         console.log('[UI] GameFacade ready — switching to live data');
-        _demoMode = false;
         subscribeEvents();
         setTimeout(function () {
           _startupWelcomePending = true;

@@ -1,10 +1,10 @@
 /**
- * V5.7 平衡模拟 — 5 人格 × 7/30/60 天（§145~§147）。
+ * V5.8 Balance Simulation — 6 Personas × 5 Horizons / 30 Scenarios（§7 Balance Gate 2.0）。
  * 人格：COMPLIANT / ASSERTIVE / BALANCED / FISHING_MASTER / TECH_PERFECTIONIST。
  * 检查：不卡死 / 道心不长期为 0 / 疲劳不长期 100 / 工资与职业经验单调成长 / 技术债不永久满。
  * 注意：changeWorkMode 的 5 秒冷却基于真实时间，FakeClock 加速下永远命中——
  * 模拟器直接用 work.setMode（与 WorkService 模式机同源），并主动领任务/清战斗。
- * 运行：node tools/v57-balance-sim.cjs
+ * 运行：node tools/v58-balance-sim.cjs
  */
 'use strict';
 process.env.TZ = 'Asia/Shanghai';
@@ -245,7 +245,7 @@ for (const [name, policy] of Object.entries(PERSONAS)) {
 
 const failed = results.filter((r) => !r.ok);
 const report = [];
-report.push('# V5.7 Balance Simulation — 5 人格 × 7/30/60 天');
+report.push('# V5.8 Balance Simulation — 6 Personas × 5 Horizons / 30 Scenarios');
 report.push('');
 report.push('- 运行方式：真实 GameFacade + GameLoop（FakeClock 5 游戏分钟/步），人格策略驱动回复/工时/加班/战斗/领任务。');
 report.push('- 模拟器说明：changeWorkMode 的 5 秒冷却基于真实时间，加速时钟下不可用，模拟器直接走 WorkService.setMode（同源模式机）。');
@@ -260,6 +260,6 @@ for (const r of results) {
 report.push('');
 report.push(`总判定：${failed.length === 0 ? 'ALL PASS' : failed.length + ' FAIL'}`);
 fs.mkdirSync(path.join('ai', 'reports'), { recursive: true });
-fs.writeFileSync(path.join('ai', 'reports', 'V57-BALANCE-SIM.md'), report.join('\n') + '\n');
+fs.writeFileSync(path.join('ai', 'reports', 'V58-BALANCE-SIM.md'), report.join('\n') + '\n');
 console.log(failed.length === 0 ? 'BALANCE SIM ALL PASS' : `BALANCE SIM FAILED: ${failed.length}`);
 process.exit(failed.length === 0 ? 0 : 1);
