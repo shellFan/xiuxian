@@ -1,14 +1,13 @@
 /**
  * ElectronStorageAdapter — Bridges Electron IPC file storage to StorageAdapter interface.
  *
- * In Electron mode, window.electronAPI is exposed by preload.cjs via contextBridge.
- * This adapter provides the same getItem/setItem/removeItem interface as LocalStorageAdapter,
- * but persists data to the filesystem via Electron's userData directory.
- *
- * Fallback: If electronAPI is not available (e.g. running in browser), falls back to
- * localStorage or in-memory storage.
+ * F01: Requires explicit async initialize() before getItem() returns meaningful data.
+ * Distinguishes NO_SAVE / LOADED / LOAD_FAILED to prevent new-save overwrites.
  */
-import type { StorageAdapter } from './storage-adapter';
+import type { StorageAdapter, StorageLoadResult, StorageLoadStatus } from './storage-adapter';
+
+// Re-export for consumers that import from this module
+export type { StorageLoadResult, StorageLoadStatus };
 
 // ── Electron API Types ─────────────────────────────────────────────────────
 interface ElectronStorageAPI {
@@ -36,7 +35,6 @@ interface ElectronAPI {
   close: () => Promise<void>;
 }
 
-// Augment Window type
 declare global {
   interface Window {
     electronAPI?: ElectronAPI;
@@ -46,30 +44,47 @@ declare global {
 // ── Electron Storage Adapter ───────────────────────────────────────────────
 export class ElectronStorageAdapter implements StorageAdapter {
   private _cache: Map<string, string> = new Map();
-  private _loaded = false;
-  private _loadPromise: Promise<void> | null = null;
+  private _initialized = false;
+  private _initPromise: Promise<StorageLoadResult> | null = null;
+  private _loadResult: StorageLoadResult = { status: 'NOT_INITIALIZED' };
 
-  public constructor() {
-    this._loadPromise = this.loadFromElectron();
-  }
-
-  /** Ensure data is loaded before any operation */
-  private async ensureLoaded(): Promise<void> {
-    if (!this._loaded && this._loadPromise) {
-      await this._loadPromise;
+  /**
+   * F01: Explicit async initialization. Must be called and awaited before
+   * getItem() returns meaningful data. Distinguishes NO_SAVE / LOADED / LOAD_FAILED.
+   */
+  public initialize(): Promise<StorageLoadResult> {
+    if (!this._initPromise) {
+      this._initPromise = this.loadFromElectron();
     }
+    return this._initPromise;
   }
 
-  /** Load all data from Electron file storage into cache */
-  private async loadFromElectron(): Promise<void> {
+  /** Whether initialization has completed successfully (cache is populated). */
+  public get isInitialized(): boolean {
+    return this._initialized;
+  }
+
+  /** Last initialization result. */
+  public get loadResult(): StorageLoadResult {
+    return this._loadResult;
+  }
+
+  private async loadFromElectron(): Promise<StorageLoadResult> {
     if (typeof window === 'undefined' || !window.electronAPI?.storage) {
-      this._loaded = true;
-      return;
+      this._initialized = true;
+      this._loadResult = { status: 'NO_SAVE' };
+      return this._loadResult;
     }
 
     try {
       const result = await window.electronAPI.storage.load();
-      if (result.success && result.data) {
+      if (!result.success) {
+        // IPC responded but reported failure — this is LOAD_FAILED, not NO_SAVE
+        this._initialized = true;
+        this._loadResult = { status: 'LOAD_FAILED', error: result.error ?? 'IPC load reported failure' };
+        return this._loadResult;
+      }
+      if (result.data && typeof result.data === 'object' && Object.keys(result.data).length > 0) {
         for (const [key, value] of Object.entries(result.data)) {
           if (typeof value === 'string') {
             this._cache.set(key, value);
@@ -77,14 +92,23 @@ export class ElectronStorageAdapter implements StorageAdapter {
             this._cache.set(key, JSON.stringify(value));
           }
         }
+        this._initialized = true;
+        this._loadResult = { status: 'LOADED' };
+        return this._loadResult;
       }
+      // IPC succeeded but no data — this is a new player
+      this._initialized = true;
+      this._loadResult = { status: 'NO_SAVE' };
+      return this._loadResult;
     } catch (e) {
-      console.warn('[ElectronStorage] Failed to load from Electron, using empty cache:', e);
+      // IPC reject / timeout / IO error — LOAD_FAILED, NOT NO_SAVE
+      this._initialized = true;
+      this._loadResult = { status: 'LOAD_FAILED', error: e instanceof Error ? e.message : String(e) };
+      return this._loadResult;
     }
-    this._loaded = true;
   }
 
-  /** Get item — synchronous from cache */
+  /** Get item — synchronous from cache. Returns null until initialize() completes. */
   public getItem(key: string): string | null {
     return this._cache.get(key) ?? null;
   }
@@ -103,7 +127,6 @@ export class ElectronStorageAdapter implements StorageAdapter {
 
   /** Force persist current cache to Electron file storage */
   public async flush(): Promise<void> {
-    await this.ensureLoaded();
     await this.doPersist();
   }
 
@@ -127,7 +150,6 @@ export class ElectronStorageAdapter implements StorageAdapter {
 
   private _persistTimer: ReturnType<typeof setTimeout> | null = null;
 
-  /** Debounced persist — coalesces rapid writes within 500ms */
   private persistToElectron(): void {
     if (this._persistTimer) clearTimeout(this._persistTimer);
     this._persistTimer = setTimeout(() => {
@@ -135,10 +157,8 @@ export class ElectronStorageAdapter implements StorageAdapter {
     }, 500);
   }
 
-  /** Actually write cache to Electron */
   private async doPersist(): Promise<void> {
     if (typeof window === 'undefined' || !window.electronAPI?.storage) return;
-
     const data: Record<string, unknown> = {};
     for (const [key, value] of this._cache) {
       try {
@@ -147,7 +167,6 @@ export class ElectronStorageAdapter implements StorageAdapter {
         data[key] = value;
       }
     }
-
     try {
       await window.electronAPI.storage.save(data);
     } catch (e) {
@@ -155,9 +174,3 @@ export class ElectronStorageAdapter implements StorageAdapter {
     }
   }
 }
-
-// ── Factory ────────────────────────────────────────────────────────────────
-
-// NOTE: createStorageAdapter() removed — use CocosBootstrapComponent's adapter
-// selection logic instead. The factory used require() which doesn't work in
-// the Cocos renderer process (nodeIntegration=false, contextIsolation=true).

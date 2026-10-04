@@ -42,6 +42,26 @@ if (bundleMtime < sourceMtime) {
   fail(`bundle is older than current source (bundle=${new Date(bundleMtime).toISOString()}, source=${new Date(sourceMtime).toISOString()})`);
 }
 
+// ── F08: Deterministic build manifest freshness check ────────────────────
+var manifest = require('./build-manifest.cjs');
+var manifestResult = manifest.verifyManifest();
+if (manifestResult.stale) {
+  fail(`build manifest STALE: ${manifestResult.reason} — run npm run pc:build to refresh`);
+}
+// Direct overlay SHA comparison (source vs build copy)
+var overlayFiles = ['ui-overlay.js', 'ui-overlay-v2.js', 'ui-overlay.css'];
+for (var of of overlayFiles) {
+  var srcPath = path.join(root, 'desktop', of);
+  var buildFilePath = path.join(buildPath, of);
+  if (fs.existsSync(srcPath) && fs.existsSync(buildFilePath)) {
+    var srcHash = require('crypto').createHash('sha256').update(fs.readFileSync(srcPath)).digest('hex');
+    var buildHash = require('crypto').createHash('sha256').update(fs.readFileSync(buildFilePath)).digest('hex');
+    if (srcHash !== buildHash) {
+      fail(`desktop/${of} stale in build (source=${srcHash.slice(0, 12)} build=${buildHash.slice(0, 12)}) — run npm run pc:copy`);
+    }
+  }
+}
+
 if (!process.exitCode) {
-  console.log(`[web-v1-build] PASS: ${customTypes.length} scene component registrations are present and build is current`);
+  console.log(`[web-v1-build] PASS: ${customTypes.length} scene component registrations present, build manifest FRESH, overlay SHA match`);
 }

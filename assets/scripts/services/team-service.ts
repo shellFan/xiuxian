@@ -73,23 +73,24 @@ export class TeamService {
   public assignTask(memberName: string): { ok: boolean; reason?: string; mood?: number; workload?: number } {
     if (!this.isManager()) return { ok: false, reason: '晋升主管后解锁团队管理' };
     const p = this.context.player;
-    const team = p.teamState;
+    var team = p.teamState;
     if (!team) return { ok: false, reason: '团队尚未组建' };
-    const today = p.gameDay?.dayIndex ?? 1;
-    const assignedToday = p.eventFlags?.[`team_assign_${today}`] ?? 0;
-    const flagCount = typeof assignedToday === 'number' ? assignedToday : 0;
-    if (flagCount >= 3) return { ok: false, reason: '今天的活已经分完了（3/3）' };
-    const member = team.members.find((m) => m.name === memberName);
-    if (!member) return { ok: false, reason: '团队成员不存在' };
-    const members = team.members.map((m) => {
+    var today = p.gameDay?.dayIndex ?? 1;
+    // F03: use formal numeric state (not eventFlags)
+    var assignment = team.dailyAssignment;
+    var count = (assignment && assignment.day === today) ? assignment.count : 0;
+    if (count >= 3) return { ok: false, reason: '今天的活已经分完了（3/3）' };
+    var member = team.members.find(function(m) { return m.name === memberName; });
+    if (!member) return { ok: false, reason: 'MEMBER_NOT_FOUND' };
+    var members = team.members.map(function(m) {
       if (m.name !== memberName) return m;
-      const workload = Math.min(100, m.workload + 25);
-      const mood = Math.max(0, m.mood - (m.workload >= 75 ? 8 : 3));
-      return { ...m, workload, mood, fatigue: Math.min(100, m.fatigue + 6) };
+      var workload = Math.min(100, m.workload + 25);
+      var mood = Math.max(0, m.mood - (m.workload >= 75 ? 8 : 3));
+      return Object.assign({}, m, { workload: workload, mood: mood, fatigue: Math.min(100, m.fatigue + 6) });
     });
-    p.teamState = { ...team, members };
-    p.eventFlags = { ...(p.eventFlags ?? {}), [`team_assign_${today}`]: flagCount + 1 } as never;
-    this.context.events.emit('teamTaskAssigned', { member: memberName, assignedToday: flagCount + 1 });
+    // F03: persist numeric daily counter in teamState
+    p.teamState = { members: members, exploitationScore: team.exploitationScore, protectionScore: team.protectionScore, dailyAssignment: { day: today, count: count + 1 } };
+    this.context.events.emit('teamTaskAssigned', { member: memberName, assignedToday: count + 1 });
     return { ok: true, mood: member.mood, workload: member.workload };
   }
 
@@ -130,20 +131,60 @@ export class TeamService {
     }
   }
 
-  /** 指导新人（Mentorship 事件调用）：growth+，日积月累可以替你扛简单 Bug。 */
-  public mentor(memberName: string): { ok: boolean; growth?: number; reason?: string } {
+  /** 指导新人（Mentorship）：F06 成员存在性校验 + F07 growth 消耗 + daily cap + 时间成本。 */
+  public mentor(memberName: string): { ok: boolean; growth?: number; level?: number; reason?: string } {
     if (!this.mentorshipUnlocked()) return { ok: false, reason: 'L4 后解锁带人玩法' };
-    const p = this.context.player;
-    const team = p.teamState;
+    var p = this.context.player;
+    var team = p.teamState;
     if (!team) return { ok: false, reason: '团队尚未组建' };
-    const members = team.members.map((m) => {
+    // F06: check member existence BEFORE any side effects
+    var member = team.members.find(function(m) { return m.name === memberName; });
+    if (!member) return { ok: false, reason: 'MEMBER_NOT_FOUND' };
+    var today = p.gameDay?.dayIndex ?? 1;
+    // F07: daily cap — separate from assignment cap. Team total max 2/day.
+    var mentorship = team.dailyMentorship;
+    var mentorSameDay = mentorship != null && mentorship.day === today;
+    var mentorCount = mentorSameDay ? mentorship!.count : 0;
+    if (mentorCount >= 2) return { ok: false, reason: '今天指导次数已用完（2/2）' };
+    // F07: per-member daily cap
+    var mentorFlagKey = 'mentor_' + memberName + '_' + today;
+    if (p.managerFlags && p.managerFlags[mentorFlagKey]) return { ok: false, reason: '该成员今天已被指导过' };
+    // F07: time cost — mentorship consumes 30 game-minutes
+    var REQUIRED_GROWTH = [0, 15, 35, 60]; // Lv1→2: 15, Lv2→3: 35, Lv3→4: 60
+    var MAX_LEVEL = 4;
+    var MAX_GROWTH = 80;
+    // Apply growth
+    var newGrowth = member.growth + 8;
+    var newLevel = member.level;
+    // F07: growth consumption — each level-up consumes required growth
+    while (newLevel < MAX_LEVEL && newGrowth >= (REQUIRED_GROWTH[newLevel] ?? MAX_GROWTH)) {
+      newGrowth -= (REQUIRED_GROWTH[newLevel] ?? MAX_GROWTH);
+      newLevel += 1;
+    }
+    if (newLevel >= MAX_LEVEL) newGrowth = Math.min(newGrowth, MAX_GROWTH);
+    var members = team.members.map(function(m) {
       if (m.name !== memberName) return m;
-      return { ...m, growth: m.growth + 8, level: m.growth + 8 >= 30 ? m.level + 1 : m.level, mentoredByPlayer: true, trustPlayer: Math.min(100, m.trustPlayer + 3) };
+      return Object.assign({}, m, {
+        growth: newGrowth,
+        level: newLevel,
+        mentoredByPlayer: true,
+        trustPlayer: Math.min(100, m.trustPlayer + 3),
+      });
     });
-    p.teamState = { ...team, members };
-    const stats = p.lifetimeStats;
-    p.lifetimeStats = { ...stats, mentoredCount: (stats.mentoredCount ?? 0) + 1 };
+    p.teamState = {
+      members: members,
+      exploitationScore: team.exploitationScore,
+      protectionScore: team.protectionScore,
+      dailyAssignment: team.dailyAssignment,
+      dailyMentorship: { day: today, count: mentorCount + 1 },
+    };
+    // F07: per-member daily flag
+    var flags = Object.assign({}, p.managerFlags || {}) as Record<string, boolean>;
+    flags[mentorFlagKey] = true;
+    p.managerFlags = flags;
+    var stats = p.lifetimeStats;
+    p.lifetimeStats = Object.assign({}, stats, { mentoredCount: (stats.mentoredCount || 0) + 1 });
     this.context.events.emit('mentored', { member: memberName });
-    return { ok: true };
+    return { ok: true, growth: newGrowth, level: newLevel };
   }
 }

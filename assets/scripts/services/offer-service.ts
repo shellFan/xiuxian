@@ -72,28 +72,74 @@ export class OfferService {
     };
     // 30 日冷却从收到 Offer 起算
     p.offerReadyDay = day + 30;
-    p.eventFlags = { ...(p.eventFlags ?? {}), ['v58_pending_offer']: true };
-    (p as unknown as { pendingOffer?: OfferView }).pendingOffer = offer;
+    // F02: persist pendingOffer in formal save model
+    p.pendingOffer = {
+      offerId: offer.offerId,
+      companyId: offer.companyId,
+      companyName: offer.companyName,
+      dayIndex: offer.dayIndex,
+      expiresAtDay: offer.expiresAtDay,
+      salaryDeltaPct: offer.salaryDeltaPct,
+      overtimeDeltaPct: offer.overtimeDeltaPct,
+      incidentDeltaPct: offer.incidentDeltaPct,
+      promotionDeltaPct: offer.promotionDeltaPct,
+      lootDeltaPct: offer.lootDeltaPct,
+      pitch: offer.pitch,
+    };
     this.context.events.emit('offerReceived', { offerId: offer.offerId, companyName: offer.companyName, salaryDeltaPct });
     return offer;
   }
 
   public pending(): OfferView | null {
-    return (this.context.player as unknown as { pendingOffer?: OfferView }).pendingOffer ?? null;
+    const stored = this.context.player.pendingOffer;
+    if (!stored) return null;
+    // F05: check expiration — expired offers are auto-cleared
+    const day = this.context.player.gameDay?.dayIndex ?? 1;
+    if (day > stored.expiresAtDay) {
+      this.expireOffer(stored);
+      return null;
+    }
+    return {
+      offerId: stored.offerId,
+      dayIndex: stored.dayIndex,
+      expiresAtDay: stored.expiresAtDay,
+      companyId: stored.companyId,
+      companyName: stored.companyName,
+      salaryDeltaPct: stored.salaryDeltaPct,
+      overtimeDeltaPct: stored.overtimeDeltaPct,
+      incidentDeltaPct: stored.incidentDeltaPct,
+      promotionDeltaPct: stored.promotionDeltaPct,
+      lootDeltaPct: stored.lootDeltaPct,
+      pitch: stored.pitch,
+    };
+  }
+
+  private expireOffer(stored: import('../model/save-data').PendingOfferState): void {
+    const p = this.context.player;
+    p.offerHistory = [...(p.offerHistory ?? []), {
+      dayIndex: stored.dayIndex, companyId: stored.companyId, companyName: stored.companyName,
+      terms: { salaryDeltaPct: stored.salaryDeltaPct }, decision: 'DECLINED' as const,
+    }].slice(-16);
+    p.pendingOffer = null;
   }
 
   public decide(decision: 'ACCEPTED' | 'DECLINED' | 'NEGOTIATED' | 'LATER'): { ok: boolean; reason?: string; companyName?: string } {
     const p = this.context.player;
-    const offer = (p as unknown as { pendingOffer?: OfferView }).pendingOffer;
-    if (!offer) return { ok: false, reason: '没有待处理的 Offer' };
+    const stored = p.pendingOffer;
+    if (!stored) return { ok: false, reason: '没有待处理的 Offer' };
+    // F05: re-validate expiration at decision time
     const day = p.gameDay?.dayIndex ?? 1;
+    if (day > stored.expiresAtDay) {
+      this.expireOffer(stored);
+      return { ok: false, reason: 'Offer 已过期' };
+    }
+    const offer = { ...stored };
     p.offerHistory = [...(p.offerHistory ?? []), {
       dayIndex: day, companyId: offer.companyId, companyName: offer.companyName,
       terms: { salaryDeltaPct: offer.salaryDeltaPct, overtimeDeltaPct: offer.overtimeDeltaPct, incidentDeltaPct: offer.incidentDeltaPct, promotionDeltaPct: offer.promotionDeltaPct },
       decision,
     }].slice(-16);
-    delete (p as unknown as { pendingOffer?: OfferView }).pendingOffer;
-    p.eventFlags = { ...(p.eventFlags ?? {}), ['v58_pending_offer']: false };
+    p.pendingOffer = null;
     p.careerChoices = [...(p.careerChoices ?? []), { dayIndex: day, kind: 'OFFER_' + decision, label: `${decision === 'ACCEPTED' ? '接受' : decision === 'DECLINED' ? '拒绝' : '洽谈'} ${offer.companyName} Offer` }].slice(-24);
     let companyName = offer.companyName;
     if (decision === 'ACCEPTED') {

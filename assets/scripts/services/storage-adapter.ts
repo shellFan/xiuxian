@@ -1,7 +1,16 @@
+/** F01: Result of async storage initialization. */
+export type StorageLoadStatus = 'NO_SAVE' | 'LOADED' | 'LOAD_FAILED' | 'NOT_INITIALIZED';
+export interface StorageLoadResult {
+  status: StorageLoadStatus;
+  error?: string;
+}
+
 export interface StorageAdapter {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
   removeItem(key: string): void;
+  /** F01: Optional async initialization. If present, must be awaited before creating GameFacade. */
+  initialize?(): Promise<StorageLoadResult>;
 }
 
 export class LocalStorageAdapter implements StorageAdapter {

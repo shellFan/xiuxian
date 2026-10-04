@@ -64,6 +64,7 @@ export class BurnoutService {
   public onDaySettled(): BurnoutView {
     const p = this.context.player;
     const raw = this.raw();
+    var previousState = raw.state;
     const target = this.targetState();
     let state = raw.state;
     let days = raw.daysInState;
@@ -110,11 +111,15 @@ export class BurnoutService {
 
     p.burnoutState = { state, daysInState: days };
     const view = this.view();
-    if (state === 'BURNOUT_RISK' && days === 1) {
+    // F04: transition-based event emission (previousState → state)
+    if (previousState !== 'BURNOUT_RISK' && state === 'BURNOUT_RISK') {
       this.context.events.emit('burnoutRisk', { state, text: '连续的高压让你的元神开始报警。' });
     }
-    if (state === 'BURNOUT' && days === 1) {
+    if (previousState !== 'BURNOUT' && state === 'BURNOUT') {
       this.context.events.emit('burnoutTriggered', { state, text: '牛马也得喘口气：你的元神已经拒绝编译，肉身仍坐在工位，灵魂已经下班。' });
+    }
+    if (previousState !== 'RECOVERING' && state === 'RECOVERING' && previousState === 'BURNOUT') {
+      this.context.events.emit('burnoutForcedRest', { state, text: '系统强制给你放了个假——IDE 看了你一眼，选择了未响应。' });
     }
     if (forcedRelief) {
       this.context.events.emit('burnoutForcedRest', { state, text: '系统强制给你放了个假——IDE 看了你一眼，选择了未响应。' });

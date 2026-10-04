@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState } from './save-data';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -118,6 +118,8 @@ export interface PlayerDataOptions {
   readonly milestones?: readonly string[];
   readonly managerFlags?: Readonly<Record<string, boolean>>;
   readonly careerChoices?: readonly { readonly dayIndex: number; readonly kind: string; readonly label: string }[];
+  readonly pendingOffer?: PendingOfferState | null;
+  readonly teamDailyAssignment?: { readonly day: number; readonly count: number } | null;
 }
 
 export class PlayerData {
@@ -252,6 +254,8 @@ export class PlayerData {
   public milestones: string[];
   public managerFlags: Record<string, boolean>;
   public careerChoices: { dayIndex: number; kind: string; label: string }[];
+  public pendingOffer: PendingOfferState | null;
+  public teamDailyAssignment: { day: number; count: number } | null;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -371,6 +375,8 @@ export class PlayerData {
     this.milestones = [...(options.milestones ?? [])];
     this.managerFlags = { ...(options.managerFlags ?? {}) };
     this.careerChoices = [...(options.careerChoices ?? [])];
+    this.pendingOffer = options.pendingOffer ? { ...options.pendingOffer } : null;
+    this.teamDailyAssignment = options.teamDailyAssignment ? { ...options.teamDailyAssignment } : null;
   }
 
   public static createDefault(): PlayerData {
@@ -473,6 +479,8 @@ export class PlayerData {
       milestones: [...this.milestones],
       managerFlags: { ...this.managerFlags },
       careerChoices: this.careerChoices.map((c) => ({ ...c })),
+      pendingOffer: this.pendingOffer ? { ...this.pendingOffer } : null,
+      teamDailyAssignment: this.teamDailyAssignment ? { ...this.teamDailyAssignment } : null,
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });

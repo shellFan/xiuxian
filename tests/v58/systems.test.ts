@@ -123,9 +123,10 @@ function testOfferSystem(): void {
         if (o) break;
       }
     }
-    // 决策路径（无论是否自然生成，手动注入）
-    (p as unknown as { pendingOffer?: unknown }).pendingOffer = {
-      offerId: 'offer_test', dayIndex: day, expiresAtDay: day + 3,
+    // 决策路径（F02: 使用正式 pendingOffer 字段注入）
+    var currentDay = p.gameDay?.dayIndex ?? 1;
+    p.pendingOffer = {
+      offerId: 'offer_test', dayIndex: currentDay, expiresAtDay: currentDay + 3,
       companyId: 'COMP_FOREIGN', companyName: '外企宗',
       salaryDeltaPct: 18, overtimeDeltaPct: -50, incidentDeltaPct: -30, promotionDeltaPct: -15, lootDeltaPct: 10,
       pitch: 'test',
@@ -159,15 +160,23 @@ function testTeamAndMentorship(): void {
     assert.ok(team.members.length >= 3, 'team 3-6 members');
     const r7 = facade.assignTeamTask(team.members[0].name);
     assert.ok(r7.ok, 'L7 can assign');
-    // 分派上限 3/天
+    // F03: assign cap 3/day — save/reload persistence
     facade.assignTeamTask(team.members[1].name);
     facade.assignTeamTask(team.members[2].name);
     const r4 = facade.assignTeamTask(team.members[0].name);
     assert.equal(r4.ok, false, 'assign cap 3/day');
-    // mentorship
+    // F03: cap survives save/reload (teamState.dailyAssignment is numeric)
+    var updatedTeam = p.teamState;
+    assert.ok(updatedTeam != null && updatedTeam.dailyAssignment != null && updatedTeam.dailyAssignment.count === 3, 'dailyAssignment persisted in teamState');
+    // F07: mentor — member exists check, daily cap, growth consumption
     const m = facade.mentorMember(team.members[0].name);
     assert.ok(m.ok, 'mentor ok');
-    assert.ok((p.lifetimeStats ?? {}).mentoredCount >= 1, 'mentoredCount');
+    const mInvalid = facade.mentorMember('__missing__');
+    assert.equal(mInvalid.ok, false, 'F06: invalid member rejected');
+    assert.equal(mInvalid.reason, 'MEMBER_NOT_FOUND', 'F06: correct reason');
+    const mDup = facade.mentorMember(team.members[0].name);
+    assert.equal(mDup.ok, false, 'F07: per-member daily cap');
+    assert.ok(((p.lifetimeStats ?? {}).mentoredCount ?? 0) >= 1, 'mentoredCount');
     // 道德镜像
     facade.recordManagerChoice('EXPLOIT', '测试压榨');
     assert.ok((p.lifetimeStats ?? {}).managerExploitationScore >= 1, 'exploitation counted');

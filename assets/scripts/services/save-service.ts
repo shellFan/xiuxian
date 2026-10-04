@@ -258,8 +258,34 @@ function migrate(raw: unknown, now: number): GameSaveData {
     milestones: isStringArray(raw.milestones) ? raw.milestones.slice(0, 64) : [],
     managerFlags: sanitizeFlagRecord(raw.managerFlags),
     careerChoices: normalizeRecords(raw.careerChoices, isCareerChoice),
+    pendingOffer: normalizePendingOffer(raw.pendingOffer),
+    teamDailyAssignment: normalizeTeamDailyAssignment(raw.teamDailyAssignment),
   });
   return merged;
+}
+
+// ── V5.8 F02/F03 normalization ──
+
+function normalizePendingOffer(value: unknown): import('../model/save-data').PendingOfferState | null {
+  if (!isRecord(value) || !isString(value.offerId) || !isString(value.companyId)) return null;
+  return {
+    offerId: value.offerId.slice(0, 64),
+    companyId: value.companyId.slice(0, 48),
+    companyName: isString(value.companyName) ? value.companyName.slice(0, 48) : '',
+    dayIndex: isFiniteNumber(value.dayIndex) ? Math.max(1, Math.floor(value.dayIndex)) : 1,
+    expiresAtDay: isFiniteNumber(value.expiresAtDay) ? Math.max(1, Math.floor(value.expiresAtDay)) : 1,
+    salaryDeltaPct: isFiniteNumber(value.salaryDeltaPct) ? value.salaryDeltaPct : 0,
+    overtimeDeltaPct: isFiniteNumber(value.overtimeDeltaPct) ? value.overtimeDeltaPct : 0,
+    incidentDeltaPct: isFiniteNumber(value.incidentDeltaPct) ? value.incidentDeltaPct : 0,
+    promotionDeltaPct: isFiniteNumber(value.promotionDeltaPct) ? value.promotionDeltaPct : 0,
+    lootDeltaPct: isFiniteNumber(value.lootDeltaPct) ? value.lootDeltaPct : 0,
+    pitch: isString(value.pitch) ? value.pitch.slice(0, 200) : '',
+  };
+}
+
+function normalizeTeamDailyAssignment(value: unknown): { day: number; count: number } | null {
+  if (!isRecord(value) || !isFiniteNumber(value.day) || !isFiniteNumber(value.count)) return null;
+  return { day: Math.max(1, Math.floor(value.day)), count: Math.max(0, Math.min(10, Math.floor(value.count))) };
 }
 
 // ── V5.8 归一化 ──
@@ -306,9 +332,10 @@ function normalizeRecords<T>(value: unknown, guard: (v: unknown) => boolean): T[
 }
 function normalizeTeamState(value: unknown): import('../model/save-data').TeamState | null {
   if (!isRecord(value) || !Array.isArray(value.members)) return null;
-  const members = (value.members as unknown[]).filter((m): m is import('../model/save-data').TeamMemberState =>
-    isRecord(m) && isString(m.npcId) && isString(m.name)).slice(0, 6)
-    .map((m) => ({
+  var members = (value.members as unknown[]).filter(function(m): m is import('../model/save-data').TeamMemberState {
+    return isRecord(m) && isString(m.npcId) && isString(m.name);
+  }).slice(0, 6).map(function(m) {
+    return {
       npcId: m.npcId, name: m.name, profession: isString(m.profession) ? m.profession : 'JAVA_BACKEND',
       level: isFiniteNumber(m.level) ? Math.max(1, Math.floor(m.level)) : 1,
       mood: isFiniteNumber(m.mood) ? Math.max(0, Math.min(100, Math.floor(m.mood))) : 60,
@@ -318,12 +345,22 @@ function normalizeTeamState(value: unknown): import('../model/save-data').TeamSt
       growth: isFiniteNumber(m.growth) ? Math.max(0, Math.floor(m.growth)) : 0,
       mentoredByPlayer: m.mentoredByPlayer === true,
       specialty: isString(m.specialty) ? m.specialty : '',
-    }));
-  return {
-    members,
+    };
+  });
+  var result: import('../model/save-data').TeamState = {
+    members: members,
     exploitationScore: isFiniteNumber(value.exploitationScore) ? Math.max(0, Math.floor(value.exploitationScore)) : 0,
     protectionScore: isFiniteNumber(value.protectionScore) ? Math.max(0, Math.floor(value.protectionScore)) : 0,
   };
+  // F03: normalize dailyAssignment
+  if (isRecord(value.dailyAssignment) && isFiniteNumber(value.dailyAssignment.day) && isFiniteNumber(value.dailyAssignment.count)) {
+    result = Object.assign({}, result, { dailyAssignment: { day: Math.max(1, Math.floor(value.dailyAssignment.day)), count: Math.max(0, Math.min(10, Math.floor(value.dailyAssignment.count))) } });
+  }
+  // F07: normalize dailyMentorship
+  if (isRecord(value.dailyMentorship) && isFiniteNumber(value.dailyMentorship.day) && isFiniteNumber(value.dailyMentorship.count)) {
+    result = Object.assign({}, result, { dailyMentorship: { day: Math.max(1, Math.floor(value.dailyMentorship.day)), count: Math.max(0, Math.min(10, Math.floor(value.dailyMentorship.count))) } });
+  }
+  return result;
 }
 
 // ── V5.7 归一化 ──

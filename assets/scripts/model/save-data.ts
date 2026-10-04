@@ -433,6 +433,25 @@ export interface GameSaveData {
   readonly managerFlags?: Readonly<Record<string, boolean>>;
   /** 职业重大选择记录（换宗门/晋升方向等）。 */
   readonly careerChoices?: readonly { readonly dayIndex: number; readonly kind: string; readonly label: string }[];
+  /** F02: 待处理 Offer（跨重启持久化）。 */
+  readonly pendingOffer?: PendingOfferState | null;
+  /** F03: 团队每日分派计数（数值状态，非 eventFlags）。 */
+  readonly teamDailyAssignment?: { readonly day: number; readonly count: number } | null;
+}
+
+/** F02: Pending offer persistence schema. */
+export interface PendingOfferState {
+  readonly offerId: string;
+  readonly companyId: string;
+  readonly companyName: string;
+  readonly dayIndex: number;
+  readonly expiresAtDay: number;
+  readonly salaryDeltaPct: number;
+  readonly overtimeDeltaPct: number;
+  readonly incidentDeltaPct: number;
+  readonly promotionDeltaPct: number;
+  readonly lootDeltaPct: number;
+  readonly pitch: string;
 }
 
 // ── V5.8 状态类型 ──
@@ -478,6 +497,10 @@ export interface TeamState {
   readonly members: readonly TeamMemberState[];
   readonly exploitationScore: number;
   readonly protectionScore: number;
+  /** F03: daily assignment counter (numeric, survives save/reload). */
+  readonly dailyAssignment?: { readonly day: number; readonly count: number };
+  /** F07: daily mentorship counter (separate from assignment cap). */
+  readonly dailyMentorship?: { readonly day: number; readonly count: number };
 }
 
 export interface MonthlyStatsRecord {

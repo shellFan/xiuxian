@@ -16,7 +16,7 @@
 import { _decorator, Component, sys, game } from 'cc';
 import { GameFacade } from '../facade/game-facade';
 import { ElectronStorageAdapter } from '../services/electron-storage-adapter';
-import { LocalStorageAdapter, MemoryStorageAdapter, type StorageAdapter } from '../services/storage-adapter';
+import { LocalStorageAdapter, MemoryStorageAdapter, type StorageAdapter, type StorageLoadResult } from '../services/storage-adapter';
 import { AudioService } from '../services/audio-service';
 import { CocosAudioBackend } from '../services/cocos-audio-backend';
 import { SafeAreaService } from '../services/safe-area-service';
@@ -27,6 +27,9 @@ const { ccclass, property } = _decorator;
 export class CocosBootstrapComponent extends Component {
   private static _instance: CocosBootstrapComponent | null = null;
   private _facade: GameFacade | null = null;
+  private _storage: StorageAdapter | null = null;
+  private _initPromise: Promise<StorageLoadResult | null> | null = null;
+  private _loadFailed = false;
   private _audioService: AudioService | null = null;
   private _safeAreaService: SafeAreaService | null = null;
   private _lastBgmId: string | null = null;
@@ -84,26 +87,16 @@ export class CocosBootstrapComponent extends Component {
       console.log('[BOOT] Using MemoryStorageAdapter (fallback)');
       storage = new MemoryStorageAdapter();
     }
-    console.log('[BOOT] Storage initialized');
+    this._storage = storage;
 
-    // Initialize GameFacade as the single business entry point
-    this._facade = new GameFacade({ storage, playTimeScale: 16 });
-    console.log('[BOOT] GameFacade initialized');
-
-    // Expose facade on window for DOM overlay UI access
-    if (typeof window !== 'undefined') {
-      (window as unknown as Record<string, unknown>).__GAME_FACADE__ = this._facade;
-      console.log('[BOOT] GameFacade exposed on window.__GAME_FACADE__');
-    }
+    // F01: Kick off async initialization — facade creation deferred to start()
+    this._initPromise = this.initializeStorage(storage);
+    console.log('[BOOT] Storage adapter created — awaiting async initialization');
 
     // Create AudioService with CocosAudioBackend
     this._audioService = new AudioService({
       backend: new CocosAudioBackend(),
     });
-
-    // Create SafeAreaService for UI layout
-    const platformKind = this._facade.platform.getPlatform();
-    this._safeAreaService = new SafeAreaService(platformKind);
 
     // Wire Cocos visibility events → platform lifecycle
     this.wireCocosVisibility();
@@ -111,13 +104,36 @@ export class CocosBootstrapComponent extends Component {
     // Wire audio service lifecycle (pause/resume BGM)
     this.wireAudioLifecycle();
 
-    // Wire Electron save signals (minimize/close/autosave → facade.save())
-    this.wireElectronSaveSignals();
-
-    console.log('[BOOT] All systems wired — awaiting start()');
+    console.log('[BOOT] onLoad complete — facade creation deferred to start()');
   }
 
-  protected start(): void {
+  /** F01: Async storage initialization. Returns the load result or null for sync adapters. */
+  private async initializeStorage(storage: StorageAdapter): Promise<StorageLoadResult | null> {
+    if (storage.initialize) {
+      const result = await storage.initialize();
+      console.log('[BOOT] Storage initialization result:', result.status, result.error ?? '');
+      return result;
+    }
+    return null; // sync adapter (browser/memory), no initialization needed
+  }
+
+  protected async start(): Promise<void> {
+    // F01: Await storage initialization before creating GameFacade
+    var loadResult: StorageLoadResult | null = null;
+    if (this._initPromise) {
+      loadResult = await this._initPromise;
+    }
+
+    if (loadResult && loadResult.status === 'LOAD_FAILED') {
+      // F01 §3.2: LOAD_FAILED — do NOT create auto-saving facade that would overwrite old save
+      console.error('[BOOT] F01 LOAD_FAILED — refusing to create auto-saving game. Error:', loadResult.error);
+      this._loadFailed = true;
+      this.showLoadError(loadResult.error ?? 'Unknown storage error');
+      return;
+    }
+
+    // Storage is ready — safe to create GameFacade
+    this.createFacade();
     this._facade?.start();
     console.log('[BOOT] GameFacade started — game loop running');
 
@@ -127,8 +143,49 @@ export class CocosBootstrapComponent extends Component {
     }, 500);
   }
 
+  private createFacade(): void {
+    if (!this._storage) return;
+    this._facade = new GameFacade({ storage: this._storage, playTimeScale: 16 });
+    console.log('[BOOT] GameFacade initialized');
+
+    // Expose facade on window for DOM overlay UI access
+    if (typeof window !== 'undefined') {
+      (window as unknown as Record<string, unknown>).__GAME_FACADE__ = this._facade;
+      console.log('[BOOT] GameFacade exposed on window.__GAME_FACADE__');
+    }
+
+    // Create SafeAreaService for UI layout
+    const platformKind = this._facade.platform.getPlatform();
+    this._safeAreaService = new SafeAreaService(platformKind);
+
+    // Wire Electron save signals (minimize/close/autosave → facade.save())
+    this.wireElectronSaveSignals();
+  }
+
+  private showLoadError(error: string): void {
+    console.error('[BOOT] Storage load failed — old save will NOT be overwritten:', error);
+    if (typeof window !== 'undefined') {
+      var overlay = document.getElementById('UiOverlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'UiOverlay';
+        document.body.appendChild(overlay);
+      }
+      overlay.innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#1a1a2e;color:#e0e0e0;font-family:sans-serif;">' +
+        '<div style="text-align:center;padding:40px;border:1px solid #ff6b6b;border-radius:12px;background:#2a2a3e;">' +
+        '<h2 style="color:#ff6b6b;margin:0 0 16px">存档读取失败</h2>' +
+        '<p style="margin:0 0 8px">无法读取游戏存档，为防止数据覆盖已暂停加载。</p>' +
+        '<p style="margin:0 0 16px;color:#aaa;font-size:13px">' + error + '</p>' +
+        '<button onclick="location.reload()" style="padding:8px 24px;border:1px solid #4ecdc4;border-radius:8px;background:transparent;color:#4ecdc4;cursor:pointer">重试</button>' +
+        '</div></div>';
+    }
+  }
+
   protected update(dt: number): void {
-    this._facade?.tick(dt);
+    // F01: Guard — don't tick until facade exists (async init may still be pending)
+    if (!this._facade) return;
+    this._facade.tick(dt);
   }
 
   protected onDestroy(): void {
