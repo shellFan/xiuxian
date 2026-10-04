@@ -3,11 +3,20 @@
 - Branch: `gameplay-v2`
 - START HEAD: `1451447`
 - FINAL HEAD: 见文末 Git 节
-- 日期：2026-10-03
+- 日期：2026-10-04
+
+> **⚠ Previous V5.8 certification was invalidated by independent overall audit.**
+> The original certification (15ae5f2) reported BLOCKER=0/HIGH=0 but subsequent testing found
+> F01-F08 issues including an Electron async save overwrite BLOCKER. This report reflects
+> the post-Re-Certification state. Balance 30/30 results from 15ae5f2 are retained (formulas unchanged).
+> See V58-RELEASE-RECERTIFICATION.md for F01-F08 details.
 
 ## 1. 交付摘要
 
 V5.8「爽感打磨 × 数值重构 × 晋升玩法进化 × 公司宗门 × 长期追求 × 系统收敛」P0 全部落地：Burnout 闭环、晋升=玩法进化（L4 Mentorship / L7 Team / 道德镜像）、公司差异化 runtime + Offer、Meta Progression（CareerJourney/BuildPreset/Milestone/月报）、ContentRegistry 双源合一、Save v13、成就 100、战斗爽感 2.0（Boss Phase 2 ×12/浮字分类+池上限/声音事件层）、技术债治理循环、Balance Gate 2.0。
+
+**Release Re-Certification 追加修复（F01-F08）：**
+F01 Electron 异步读档竞态（BLOCKER）+ F02 pendingOffer 持久化 + F03 team cap 数值状态 + F04 burnout transition + F05 Offer 过期 + F06 mentor 成员校验 + F07 mentor 增长消耗/每日上限 + F08 build manifest 确定性 hash。详见 V58-RELEASE-RECERTIFICATION.md。
 
 ## 2. V5.7 Issues BEFORE → AFTER
 
