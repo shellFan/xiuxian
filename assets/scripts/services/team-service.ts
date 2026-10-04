@@ -88,8 +88,11 @@ export class TeamService {
       var mood = Math.max(0, m.mood - (m.workload >= 75 ? 8 : 3));
       return Object.assign({}, m, { workload: workload, mood: mood, fatigue: Math.min(100, m.fatigue + 6) });
     });
-    // F03: persist numeric daily counter in teamState
-    p.teamState = { members: members, exploitationScore: team.exploitationScore, protectionScore: team.protectionScore, dailyAssignment: { day: today, count: count + 1 } };
+    // F03+F22: merge daily state — preserve dailyMentorship when updating dailyAssignment
+    p.teamState = Object.assign({}, team, {
+      members: members,
+      dailyAssignment: { day: today, count: count + 1 },
+    });
     this.context.events.emit('teamTaskAssigned', { member: memberName, assignedToday: count + 1 });
     return { ok: true, mood: member.mood, workload: member.workload };
   }
@@ -131,16 +134,21 @@ export class TeamService {
     }
   }
 
-  /** 指导新人（Mentorship）：F06 成员存在性校验 + F07 growth 消耗 + daily cap + 时间成本。 */
+  /** 指导新人：F06 成员校验 + F07 growth 消耗 + daily cap + F26 时间/工时成本。 */
   public mentor(memberName: string): { ok: boolean; growth?: number; level?: number; reason?: string } {
     if (!this.mentorshipUnlocked()) return { ok: false, reason: 'L4 后解锁带人玩法' };
     var p = this.context.player;
+    // F26: must be during work hours
+    if (!this.context.clockV2.isWorkingHours()) return { ok: false, reason: '下班了不能指导，明天再来' };
     var team = p.teamState;
     if (!team) return { ok: false, reason: '团队尚未组建' };
     // F06: check member existence BEFORE any side effects
     var member = team.members.find(function(m) { return m.name === memberName; });
     if (!member) return { ok: false, reason: 'MEMBER_NOT_FOUND' };
     var today = p.gameDay?.dayIndex ?? 1;
+    // F26: time cost — 30 game-minutes of fatigue (uses existing fatigue system)
+    var MENTOR_FATIGUE_COST = 5;
+    if ((p.fatigue ?? 0) + MENTOR_FATIGUE_COST >= 100) return { ok: false, reason: '疲劳太高，无法指导' };
     // F07: daily cap — separate from assignment cap. Team total max 2/day.
     var mentorship = team.dailyMentorship;
     var mentorSameDay = mentorship != null && mentorship.day === today;
@@ -171,13 +179,11 @@ export class TeamService {
         trustPlayer: Math.min(100, m.trustPlayer + 3),
       });
     });
-    p.teamState = {
+    // F22: merge daily state — preserve dailyAssignment when updating dailyMentorship
+    p.teamState = Object.assign({}, team, {
       members: members,
-      exploitationScore: team.exploitationScore,
-      protectionScore: team.protectionScore,
-      dailyAssignment: team.dailyAssignment,
       dailyMentorship: { day: today, count: mentorCount + 1 },
-    };
+    });
     // F07: per-member daily flag
     var flags = Object.assign({}, p.managerFlags || {}) as Record<string, boolean>;
     flags[mentorFlagKey] = true;

@@ -1617,6 +1617,13 @@
         '<span class="opt-effects">' + escHtml(d.fx.note) + '</span></button>';
     }).join('');
 
+    /* V5.8 §14 Terminal Modal Invariant: DEFEAT/ABORT must always have at least one CTA */
+    if (!decisions.length) {
+      optionHtml = '<button class="ux-event-option" data-battle-fallback-exit="1">' +
+        '<span>返回项目</span><span class="opt-effects">接受结果，继续修仙之路。</span></button>';
+      console.warn('[BATTLE_TERMINAL_ACTION_FALLBACK] decisions empty for', done.status, '— injected fallback CTA');
+    }
+
     var title = victory ? '【项目阶段结算】' : '【项目受挫】';
     var flavor = victory ? 'Boss 已被超度，东西落了一地。但项目还没完——' : '败北亦有收获（30% 掉落）。接下来——';
     var layer2 = popupLayer();
@@ -1639,14 +1646,20 @@
         var idx = Number(btn.getAttribute('data-decision-idx'));
         var decision = decisions[idx];
         try {
-          if (typeof f.resolveProjectDecision === 'function') {
+          if (decision && typeof f.resolveProjectDecision === 'function') {
             var r = f.resolveProjectDecision(decision.id);
             toast(r.ok ? (decision.label.slice(0, 22) + '……') : (r.reason || '决策失败'), r.ok ? 'info' : 'error');
-          } else {
-            toast('项目系统未就绪', 'error');
           }
           f.clearFinishedBattle();
         } catch (eApply) { toast(errMsg(eApply), 'error'); }
+        closePopup();
+        refresh();
+      });
+    });
+    /* V5.8 §14: fallback exit CTA (when decisions are empty for DEFEAT/ABORT) */
+    $$('[data-battle-fallback-exit]', layer2).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        try { f.clearFinishedBattle(); } catch (eClear) { /* ignore */ }
         closePopup();
         refresh();
       });

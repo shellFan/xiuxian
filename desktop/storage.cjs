@@ -76,36 +76,45 @@ function saveGame(data) {
 }
 
 // ── Load ───────────────────────────────────────────────────────────────────
+// F01 REOPEN: distinguish NO_SAVE (no files) from LOAD_FAILED (files exist but unreadable)
 function loadGame() {
   if (!dataDir) throw new Error('Storage not initialized');
 
-  // Try primary save first
-  if (fs.existsSync(savePath)) {
+  var primaryExists = fs.existsSync(savePath);
+  var backupExists = fs.existsSync(backupPath);
+
+  // True NO_SAVE: neither file exists
+  if (!primaryExists && !backupExists) {
+    console.log('[storage] No save found, returning null');
+    return null;
+  }
+
+  // Try primary save
+  if (primaryExists) {
     try {
-      const data = JSON.parse(fs.readFileSync(savePath, 'utf-8'));
+      var data = JSON.parse(fs.readFileSync(savePath, 'utf-8'));
       console.log('[storage] Loaded save successfully');
       return data;
     } catch (e) {
-      console.error('[storage] Primary save corrupted, trying backup:', e.message);
+      console.error('[storage] Primary save corrupted:', e.message);
+      // DON'T swallow — try backup, but if backup also fails, throw LOAD_FAILED
     }
   }
 
   // Try backup
-  if (fs.existsSync(backupPath)) {
+  if (backupExists) {
     try {
-      const data = JSON.parse(fs.readFileSync(backupPath, 'utf-8'));
+      var backupData = JSON.parse(fs.readFileSync(backupPath, 'utf-8'));
       console.log('[storage] Loaded from backup');
-      // Restore backup as primary
       fs.copyFileSync(backupPath, savePath);
-      return data;
+      return backupData;
     } catch (e) {
       console.error('[storage] Backup also corrupted:', e.message);
     }
   }
 
-  // No save found
-  console.log('[storage] No save found, returning null');
-  return null;
+  // F01: At least one file exists but both are unreadable → LOAD_FAILED (NOT NO_SAVE)
+  throw new Error('SAVE_LOAD_FAILED: save files exist but cannot be parsed (corrupted JSON or IO error)');
 }
 
 // ── Backup ─────────────────────────────────────────────────────────────────

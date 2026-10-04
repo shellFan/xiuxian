@@ -98,34 +98,46 @@ function testNpcMemory(): void {
   }
 }
 
-/** V5.7 Phase D：套装/Affix/Compare/分解（§34~§40）。 */
+/** V5.7 Phase D：套装/Affix/Compare/分解。F29: equipped-only invariants。 */
 function testEquipmentLoot(): void {
   const { facade } = makeFacade();
   try {
-    const player = facade.context.player;
-    // JVM调优套 4 件
-    for (const eq of ['eq_jvm_tome', 'eq_gc_chronicle', 'eq_concurrent_bracer', 'eq_heap_amulet']) {
-      player.ownedEquipment.push(eq);
-    }
-    const sets = facade.querySets();
-    const jvm = sets.find((s) => s.id === 'set_jvm');
-    assert.ok(jvm && jvm.activeCount === 4, 'JVM set fully collected');
-    assert.ok(jvm.bonuses.some((b) => b.active && b.count === 4), '4-piece bonus active');
-    // 战斗聚合含套装攻击
-    const stats = facade.context.loot.battleStats();
-    assert.ok(stats.atkMul > 0.1, `set+affix atkMul aggregated (${stats.atkMul.toFixed(2)})`);
-    assert.ok(stats.maxHpBonus >= 70, 'hp bonuses aggregated');
+    var player = facade.context.player;
+    // Add items to owned but don't equip
+    player.ownedEquipment.push('eq_jvm_tome', 'eq_heap_amulet', 'eq_exec_plan');
+    // F29 invariant 1: owned but not equipped → stats zero
+    var emptyStats = facade.context.loot.battleStats();
+    assert.equal(emptyStats.atkMul, 0, 'F29-a: owned-not-equipped → no battle stats');
+    // Equip 2 items from JVM set (DESK + ACCESSORY slots)
+    facade.v2EquipItem('DESK', 'eq_jvm_tome');
+    facade.v2EquipItem('ACCESSORY', 'eq_heap_amulet');
+    // F29 invariant 2: equipped → stats active
+    var equippedStats = facade.context.loot.battleStats();
+    assert.ok(equippedStats.atkMul > 0, 'F29-b: equipped → battle stats active');
+    assert.ok(equippedStats.maxHpBonus > 0, 'F29-c: equipped → HP bonus');
+    // F29 invariant 3: set count from equipped only (2 members equipped)
+    var sets = facade.querySets();
+    var jvm = sets.find(function(s) { return s.id === 'set_jvm'; });
+    assert.ok(jvm && jvm.activeCount === 2, 'F29-d: JVM set 2/4 equipped');
+    assert.ok(jvm.bonuses.some(function(b) { return b.active && b.count === 2; }), 'F29-e: 2pc bonus active');
+    assert.ok(!jvm.bonuses.some(function(b) { return b.active && b.count >= 4; }), 'F29-f: 4pc bonus NOT active (only 2 equipped)');
+    // F29 invariant 4: eq_exec_plan owned but NOT equipped → doesn't count toward set
+    assert.ok(player.ownedEquipment.indexOf('eq_exec_plan') >= 0, 'exec_plan owned');
+    assert.ok(jvm.members.filter(function(m) { return m.owned; }).length === 2, 'F29-g: only 2 set members owned (jvm_tome + heap_amulet equipped from this set)');
     // Compare
-    const cmp = facade.queryEquipmentCompare('eq_exec_plan');
+    var cmp = facade.queryEquipmentCompare('eq_exec_plan');
     if (!cmp) throw new Error('compare view generated');
     assert.ok((cmp.next?.lines ?? []).length > 0, 'compare shows stat lines');
-    // 分解
-    const stonesBefore = player.spiritStones;
-    const d = facade.dismantleLoot('eq_gc_chronicle');
+    // F29 invariant 5: dismantle equipped item → refused
+    var dEquipped = facade.dismantleLoot('eq_jvm_tome');
+    assert.equal(dEquipped.success, false, 'F29-h: cannot dismantle equipped');
+    // Dismantle non-equipped
+    var stonesBefore = player.spiritStones;
+    var d = facade.dismantleLoot('eq_exec_plan');
     assert.ok(d.success, 'dismantle ok');
     assert.ok(player.spiritStones > stonesBefore, 'dismantle refunds spirit stones');
-    assert.ok(!player.ownedEquipment.includes('eq_gc_chronicle'), 'dismantled equipment removed');
-    console.log('equipment loot passed');
+    assert.ok(!player.ownedEquipment.includes('eq_exec_plan'), 'dismantled removed');
+    console.log('equipment loot passed (F29 equipped-only verified)');
   } finally {
     facade.destroy();
   }

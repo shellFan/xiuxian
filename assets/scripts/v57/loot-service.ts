@@ -161,55 +161,61 @@ export class LootService {
     return this.context.player.ownedEquipment ?? [];
   }
 
-  /** 持有装备携带的 Tag 集合（Synergy equipmentTags 判定用）。 */
+  /** F29: Only EQUIPPED equipment counts for battle/work/synergy — not backpack. */
+  private equipped(): string[] {
+    var eq = this.context.player.equippedEquipment ?? {};
+    return Object.values(eq).filter(function(v): v is string { return v != null; });
+  }
+
+  /** 持有装备携带的 Tag 集合（Synergy equipmentTags 判定用）— F29: equipped only. */
   public ownedTags(): Set<string> {
-    const tags = new Set<string>();
-    for (const id of this.owned()) {
-      const def = equipmentDef(id);
+    var tags = new Set<string>();
+    for (var id of this.equipped()) {
+      var def = equipmentDef(id);
       if (def && 'tag' in def && def.tag) tags.add(def.tag as string);
     }
     return tags;
   }
 
-  /** 套装已激活档位（count members owned）。 */
+  /** 套装已激活档位（count members EQUIPPED）— F29: equipped only. */
   public activeSetCounts(): Map<string, number> {
-    const counts = new Map<string, number>();
-    const owned = new Set(this.owned());
-    for (const set of V57_SETS) {
-      const n = set.members.filter((m) => owned.has(m)).length;
+    var counts = new Map<string, number>();
+    var equippedSet = new Set(this.equipped());
+    for (var set of V57_SETS) {
+      var n = set.members.filter(function(m) { return equippedSet.has(m); }).length;
       if (n > 0) counts.set(set.id, n);
     }
     return counts;
   }
 
-  /** 装备维度的战斗聚合：affixes + 套装 bonus（按持有件数激活档位）。 */
+  /** 装备维度的战斗聚合 — F29: equipped only, not backpack. */
   public battleStats(): EquipmentBattleStats {
-    const agg = emptyBattle();
-    for (const id of this.owned()) {
-      const def = equipmentDef(id);
+    var agg = emptyBattle();
+    for (var id of this.equipped()) {
+      var def = equipmentDef(id);
       if (!def) continue;
       this.applyModifiers(agg, def.modifiers ?? {});
-      for (const affixId of (def as LootEquipmentDef).affixes ?? []) {
-        const affix = AFFIX_MAP.get(affixId);
+      for (var affixId of (def as LootEquipmentDef).affixes ?? []) {
+        var affix = AFFIX_MAP.get(affixId);
         if (!affix) continue;
         this.applyModifiers(agg, affix.effects as Record<string, unknown>);
       }
     }
-    const counts = this.activeSetCounts();
-    for (const [setId, n] of counts) {
-      const set = SET_MAP.get(setId);
+    var counts = this.activeSetCounts();
+    for (var pair of counts) {
+      var set = SET_MAP.get(pair[0]);
       if (!set) continue;
-      for (const bonus of set.bonuses) {
-        if (n >= bonus.count) this.applyModifiers(agg, bonus.effects as Record<string, unknown>);
+      for (var bonus of set.bonuses) {
+        if (pair[1] >= bonus.count) this.applyModifiers(agg, bonus.effects as Record<string, unknown>);
       }
     }
     return agg;
   }
 
-  /** 装备维度的工作聚合。 */
+  /** 装备维度的工作聚合 — F29: equipped only. */
   public workStats(): EquipmentWorkStats {
-    const agg = emptyWork();
-    for (const id of this.owned()) {
+    var agg = emptyWork();
+    for (var id of this.equipped()) {
       const def = equipmentDef(id);
       if (!def) continue;
       const all: Record<string, unknown> = { ...(def.modifiers ?? {}) };
@@ -285,10 +291,14 @@ export class LootService {
     return { dropChance: mech?.exclusiveDrop.dropChance ?? 0.2, pityAt: mech?.exclusiveDrop.pityAt ?? 10, equipmentId: def.id };
   }
 
-  /** 分解：返还灵石（品质越高越多）。 */
+  /** 分解：返还灵石。F29: refuses to dismantle equipped items. */
   public dismantle(equipmentId: string): { success: boolean; spiritStones?: number; reason?: string } {
-    const p = this.context.player;
-    const idx = (p.ownedEquipment ?? []).indexOf(equipmentId);
+    var p = this.context.player;
+    var equipped = p.equippedEquipment ?? {};
+    for (var slot of Object.keys(equipped)) {
+      if (equipped[slot] === equipmentId) return { success: false, reason: '该装备正在使用中，请先卸下再分解' };
+    }
+    var idx = (p.ownedEquipment ?? []).indexOf(equipmentId);
     if (idx < 0) return { success: false, reason: '未持有该装备' };
     const def = equipmentDef(equipmentId);
     const rarity = def?.rarity ?? 'COMMON';
