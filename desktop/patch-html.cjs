@@ -154,6 +154,17 @@ if (fs.existsSync(htmlPath)) {
     html = html.replace('</head>', `  <style>${overlayPositionCss}</style>\n</head>`);
   }
 
+  // F02_PROBE=1: inject the ownedEquipment write-watcher (temporary diagnostics —
+  // never enabled in release builds; used by the developer to trace the [{}] corruption)
+  if (process.env.F02_PROBE === '1' && !html.includes('[PROBE]')) {
+    const probePath = path.join(__dirname, '.probe.tmp.js');
+    if (fs.existsSync(probePath)) {
+      const probe = fs.readFileSync(probePath, 'utf-8');
+      html = html.replace('</body>', `<script>${probe}</script></body>`);
+      console.log('[patch-html] F02 PROBE injected');
+    }
+  }
+
   fs.writeFileSync(htmlPath, html, 'utf-8');
   console.log('[patch-html] Injected DOM Overlay UI');
 } else {

@@ -171,7 +171,7 @@ async function createWindow() {
     // Start boot timeout AFTER HTML loads (Cocos engine still initializing)
     bootTimeoutTimer = setTimeout(() => {
       if (!gameReady) {
-        console.error('[Electron] GAME_BOOT_TIMEOUT: No GAME_READY signal after 15s');
+        console.error(`[Electron] GAME_BOOT_TIMEOUT: No GAME_READY signal after ${BOOT_TIMEOUT_MS / 1000}s`);
       }
     }, BOOT_TIMEOUT_MS);
     // Check game runtime state

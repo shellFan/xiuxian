@@ -221,7 +221,7 @@ function migrate(raw: unknown, now: number): GameSaveData {
     assignedTasks,
     autoPolicy: migrateAutoPolicy(raw.autoPolicy),
     offlineDecisionSession: normalizeOfflineDecisionSession(raw.offlineDecisionSession, new Set(pendingEvents.map((event) => event.uid))),
-    handledWelcomeItemIds: Array.isArray(raw.handledWelcomeItemIds) ? [...new Set((raw.handledWelcomeItemIds as unknown[]).filter(isString))].slice(-100) : [],
+    handledWelcomeItemIds: Array.isArray(raw.handledWelcomeItemIds) ? Array.from(new Set((raw.handledWelcomeItemIds as unknown[]).filter(isString))).slice(-100) : [],
     lifetimeStats: isRecord(raw.lifetimeStats) ? numericRecord(raw.lifetimeStats) : {},
     activeBattleRun: normalizeBattleRun(
       raw.activeBattleRun,
@@ -788,7 +788,9 @@ function normalizeOfflineDecisionSession(value: unknown, canonicalPendingIds?: R
 }
 
 function uniqueIds(values: readonly unknown[]): string[] {
-  return [...new Set(values.filter((value): value is string => typeof value === 'string' && value.trim() !== ''))];
+  // Array.from, NOT spread: the Cocos transpile breaks [...new Set(x)] into
+  // [].concat(new Set(x)) → [Set] → [{}] after JSON round trip (F02 root cause)
+  return Array.from(new Set(values.filter((value): value is string => typeof value === 'string' && value.trim() !== '')));
 }
 
 function normalizeOvertimeSession(value: unknown): import('../model/save-data').OvertimeSessionState | null {

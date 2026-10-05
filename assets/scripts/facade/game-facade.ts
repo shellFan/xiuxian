@@ -113,7 +113,12 @@ export class GameFacade {
     // Wire lifecycle to game loop
     this.lifecycle.onHide(() => {
       this.gameLoop.stop();
-      this.context.saveService.save(this.context.player);
+      // Hide-time save must not break Cocos event dispatch on storage failure (R3 F04)
+      try {
+        this.context.saveService.save(this.context.player);
+      } catch (e) {
+        console.error('[Lifecycle] save on hide failed:', e);
+      }
     });
     this.lifecycle.onShow(() => {
       if (!this.disposed) {
@@ -121,7 +126,11 @@ export class GameFacade {
       }
     });
     this.lifecycle.onSaveState(() => {
-      this.context.saveService.save(this.context.player);
+      try {
+        this.context.saveService.save(this.context.player);
+      } catch (e) {
+        console.error('[Lifecycle] save-state failed:', e);
+      }
     });
   }
 

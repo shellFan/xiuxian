@@ -174,7 +174,11 @@ export class ElectronStorageAdapter implements StorageAdapter {
       }
     }
     try {
-      await window.electronAPI.storage.save(data);
+      const result = await window.electronAPI.storage.save(data);
+      // F04: IPC can resolve with success:false (disk full, permission) — surface it
+      if (result && result.success === false) {
+        console.error('[ElectronStorage] Persist rejected by main process:', result.error ?? 'unknown error');
+      }
     } catch (e) {
       console.error('[ElectronStorage] Failed to persist:', e);
     }

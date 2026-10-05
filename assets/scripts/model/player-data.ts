@@ -331,7 +331,8 @@ export class PlayerData {
     this.assignedTasks = [...(options.assignedTasks ?? [])];
     this.autoPolicy = isAutoPolicy(options.autoPolicy) ? options.autoPolicy : 'NORMAL';
     this.offlineDecisionSession = sanitizeOfflineDecisionSession(options.offlineDecisionSession);
-    this.handledWelcomeItemIds = [...new Set(options.handledWelcomeItemIds ?? [])].slice(-100);
+    // Array.from, NOT spread — Cocos transpile turns [...new Set(x)] into [Set] (F02)
+    this.handledWelcomeItemIds = Array.from(new Set(options.handledWelcomeItemIds ?? [])).slice(-100);
     this.lifetimeStats = sanitizeLifetime(options.lifetimeStats);
     this.activeBattleRun = options.activeBattleRun ?? null;
     this.conversations = [...(options.conversations ?? [])];
@@ -573,7 +574,8 @@ function cloneOfflineDecisionSession(session: OfflineDecisionSession | null): Of
 }
 
 function uniqueIds(values: readonly unknown[]): string[] {
-  return [...new Set(values.filter((value): value is string => typeof value === 'string' && value.trim() !== ''))];
+  // Array.from, NOT spread — Cocos transpile turns [...new Set(x)] into [Set] (F02)
+  return Array.from(new Set(values.filter((value): value is string => typeof value === 'string' && value.trim() !== '')));
 }
 
 function sanitizeDebt(debt: Readonly<Record<string, number>> | undefined): Record<string, number> {

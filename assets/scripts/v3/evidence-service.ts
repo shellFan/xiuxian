@@ -25,9 +25,9 @@ export class EvidenceService {
     return this.context.player.evidence.filter((e) => e.type === type).length;
   }
 
-  /** 持有可反击的证据类型集合（事件条件评估用）。 */
+  /** 持有可反击的证据类型集合（事件条件评估用）。Array.from：Cocos 转译会破坏 Set 展开。 */
   public heldTypes(): EvidenceType[] {
-    return [...new Set(this.context.player.evidence.map((e) => e.type))];
+    return Array.from(new Set(this.context.player.evidence.map((e) => e.type)));
   }
 
   public grant(type: EvidenceType, label: string): EvidenceItemState {

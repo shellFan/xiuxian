@@ -294,22 +294,29 @@ export class CocosBootstrapComponent extends Component {
           console.error('[ElectronBridge] Save failed:', e);
         }
       }
-      // F05: on close, force-flush the debounced persist to disk and ack the
-      // main process so it can finish closing without losing the last save.
+      // F05 hardening: EVERY lifecycle save signal flushes to disk immediately —
+      // the 500ms debounce would otherwise lose the tail if the app is killed
+      // while minimized/blurred. Close additionally acks the main process.
       if (data.reason === 'close' || data.reason === 'before-quit') {
         void this.flushAndAckClose();
+      } else {
+        void this.flushNow();
       }
     });
   }
 
-  private async flushAndAckClose(): Promise<void> {
+  private async flushNow(): Promise<void> {
     try {
       if (this._storage instanceof ElectronStorageAdapter) {
         await this._storage.flush();
       }
     } catch (e) {
-      console.error('[ElectronBridge] F05 close flush failed:', e);
+      console.error('[ElectronBridge] flush failed:', e);
     }
+  }
+
+  private async flushAndAckClose(): Promise<void> {
+    await this.flushNow();
     if (typeof window !== 'undefined') {
       const api = (window as unknown as { electronAPI?: { saveFlushed?: (info: { reason: string }) => void } }).electronAPI;
       api?.saveFlushed?.({ reason: 'close' });

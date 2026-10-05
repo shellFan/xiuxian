@@ -514,7 +514,7 @@ export function buildEventViewModel(facade: GameFacade): EventViewModel {
 /** Build AchievementViewModel from GameFacade. */
 export function buildAchievementViewModel(facade: GameFacade): AchievementViewModel {
   const configs = facade.queryAchievementConfigs();
-  const categories = [...new Set(configs.map((c) => c.category))];
+  const categories = Array.from(new Set(configs.map((c) => c.category)));
 
   const items: AchievementItemViewModel[] = configs.map((cfg) => {
     const status = facade.queryAchievementStatus(cfg.id);

@@ -184,8 +184,18 @@ export class TeamService {
       members: members,
       dailyMentorship: { day: today, count: mentorCount + 1 },
     });
-    // F07: per-member daily flag
-    var flags = Object.assign({}, p.managerFlags || {}) as Record<string, boolean>;
+    // F07: per-member daily flag — prune stale mentor_<name>_<day> keys so the
+    // flag map stays bounded (only today's mentor flags survive a mentor action)
+    var flags: Record<string, boolean> = {};
+    var prevFlags = p.managerFlags || {};
+    var todaySuffix = '_' + today;
+    for (var k in prevFlags) {
+      if (Object.prototype.hasOwnProperty.call(prevFlags, k)) {
+        if (k.indexOf('mentor_') !== 0 || (k.length >= todaySuffix.length && k.slice(-todaySuffix.length) === todaySuffix)) {
+          flags[k] = (prevFlags as Record<string, boolean>)[k];
+        }
+      }
+    }
     flags[mentorFlagKey] = true;
     p.managerFlags = flags;
     var stats = p.lifetimeStats;

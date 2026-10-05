@@ -42,6 +42,25 @@ if (bundleMtime < sourceMtime) {
   fail(`bundle is older than current source (bundle=${new Date(bundleMtime).toISOString()}, source=${new Date(sourceMtime).toISOString()})`);
 }
 
+// ── F02: transpiled iterator-spread corruption scan ─────────────────────────
+// The Cocos transpile rewrites [...new Set(x)] into [].concat(new Set(x)),
+// which yields [Set] — JSON-serializing to [{}] and corrupting every save on
+// reload (ownedEquipment became [{}] in QA). The bundle must contain none.
+var iteratorSpreadPatterns = [
+  ['concat(new Set(', 'spread of Set'],
+  ['concat(new Map(', 'spread of Map'],
+];
+for (var p of iteratorSpreadPatterns) {
+  var occurrences = bundle.split(p[0]).length - 1;
+  if (occurrences > 0) {
+    fail(`bundle contains ${occurrences} transpiled iterator-spread(s) (${p[1]} → [Iterable] corruption). Fix source with Array.from(...): ${p[0]}`);
+  }
+}
+var iterMethod = bundle.match(/\.concat\([a-zA-Z_$][\w$.]*\.(values|keys|entries)\(\)\)/);
+if (iterMethod) {
+  fail(`bundle contains a transpiled iterator-spread of .${iterMethod[1]}() — fix source with Array.from(...)`);
+}
+
 // ── F08: Deterministic build manifest freshness check ────────────────────
 var manifest = require('./build-manifest.cjs');
 var manifestResult = manifest.verifyManifest();
@@ -63,5 +82,5 @@ for (var of of overlayFiles) {
 }
 
 if (!process.exitCode) {
-  console.log(`[web-v1-build] PASS: ${customTypes.length} scene component registrations present, build manifest FRESH, overlay SHA match`);
+  console.log(`[web-v1-build] PASS: ${customTypes.length} scene component registrations present, iterator-spread scan clean, build manifest FRESH, overlay SHA match`);
 }
