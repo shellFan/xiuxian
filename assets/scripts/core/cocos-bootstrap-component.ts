@@ -89,6 +89,10 @@ export class CocosBootstrapComponent extends Component {
     }
     this._storage = storage;
 
+    // F05: register the save-signal listener in onLoad — it must ack close-flush
+    // even in fail-closed mode (LOAD_FAILED), where createFacade never runs.
+    this.wireElectronSaveSignals();
+
     // F01: Kick off async initialization — facade creation deferred to start()
     this._initPromise = this.initializeStorage(storage);
     console.log('[BOOT] Storage adapter created — awaiting async initialization');
@@ -101,8 +105,8 @@ export class CocosBootstrapComponent extends Component {
     // Wire Cocos visibility events → platform lifecycle
     this.wireCocosVisibility();
 
-    // Wire audio service lifecycle (pause/resume BGM)
-    this.wireAudioLifecycle();
+    // F09: audio lifecycle wiring is deferred to start() — it needs the facade,
+    // which is only created after async storage initialization completes.
 
     console.log('[BOOT] onLoad complete — facade creation deferred to start()');
   }
@@ -133,8 +137,19 @@ export class CocosBootstrapComponent extends Component {
     }
 
     // Storage is ready — safe to create GameFacade
-    this.createFacade();
+    try {
+      this.createFacade();
+    } catch (e) {
+      // F01: SaveService.load() throws SaveLoadError for corrupted save data
+      var msg = e instanceof Error ? e.message : String(e);
+      console.error('[BOOT] F01 GameFacade creation failed — save data corrupted:', msg);
+      this._loadFailed = true;
+      this.showLoadError(msg);
+      return;
+    }
     this._facade?.start();
+    // F09: facade now exists — wire audio lifecycle and expose it for external management
+    this.wireAudioLifecycle();
     console.log('[BOOT] GameFacade started — game loop running');
 
     // Defer GAME_READY check to allow UI to render
@@ -157,9 +172,6 @@ export class CocosBootstrapComponent extends Component {
     // Create SafeAreaService for UI layout
     const platformKind = this._facade.platform.getPlatform();
     this._safeAreaService = new SafeAreaService(platformKind);
-
-    // Wire Electron save signals (minimize/close/autosave → facade.save())
-    this.wireElectronSaveSignals();
   }
 
   private showLoadError(error: string): void {
@@ -179,6 +191,9 @@ export class CocosBootstrapComponent extends Component {
         '<p style="margin:0 0 16px;color:#aaa;font-size:13px">' + error + '</p>' +
         '<button onclick="location.reload()" style="padding:8px 24px;border:1px solid #4ecdc4;border-radius:8px;background:transparent;color:#4ecdc4;cursor:pointer">重试</button>' +
         '</div></div>';
+      // F01: the error screen IS the final UI state — report readiness so the
+      // Electron boot-timeout watchdog doesn't log a false hang.
+      (window as unknown as { electronAPI?: { gameReady?: () => void } }).electronAPI?.gameReady?.();
     }
   }
 
@@ -279,7 +294,27 @@ export class CocosBootstrapComponent extends Component {
           console.error('[ElectronBridge] Save failed:', e);
         }
       }
+      // F05: on close, force-flush the debounced persist to disk and ack the
+      // main process so it can finish closing without losing the last save.
+      if (data.reason === 'close' || data.reason === 'before-quit') {
+        void this.flushAndAckClose();
+      }
     });
+  }
+
+  private async flushAndAckClose(): Promise<void> {
+    try {
+      if (this._storage instanceof ElectronStorageAdapter) {
+        await this._storage.flush();
+      }
+    } catch (e) {
+      console.error('[ElectronBridge] F05 close flush failed:', e);
+    }
+    if (typeof window !== 'undefined') {
+      const api = (window as unknown as { electronAPI?: { saveFlushed?: (info: { reason: string }) => void } }).electronAPI;
+      api?.saveFlushed?.({ reason: 'close' });
+      console.log('[ElectronBridge] F05 close flush acked to main process');
+    }
   }
 
   // ── Game Ready Check ────────────────────────────────────────────────────

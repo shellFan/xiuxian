@@ -29,6 +29,10 @@ const electronAPI = {
   removeSaveListener: () => {
     ipcRenderer.removeAllListeners('game:save-requested');
   },
+  // F05: renderer acks that the close-flush save has been persisted to disk
+  saveFlushed: (info) => {
+    ipcRenderer.send('game:save-flushed', info);
+  },
 
   // ── Game Ready Signal ──────────────────────────────────────────────────
   gameReady: () => ipcRenderer.send('game:ready'),

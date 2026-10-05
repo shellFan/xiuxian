@@ -159,6 +159,12 @@ export class ElectronStorageAdapter implements StorageAdapter {
 
   private async doPersist(): Promise<void> {
     if (typeof window === 'undefined' || !window.electronAPI?.storage) return;
+    // F01: fail-closed — never write when the initial load failed (empty cache
+    // would clobber the corrupted-but-unread save file with "{}").
+    if (this._loadResult.status === 'LOAD_FAILED') return;
+    // F05/F01: nothing cached means nothing was loaded or saved — do not
+    // overwrite an existing on-disk save with an empty object.
+    if (this._cache.size === 0) return;
     const data: Record<string, unknown> = {};
     for (const [key, value] of this._cache) {
       try {

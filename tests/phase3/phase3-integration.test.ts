@@ -452,27 +452,23 @@ function testNoVersionMigration(): void {
   assert.equal(context.player.tutorialCompleted, false, 'defaults tutorialCompleted');
 }
 
-/** Corrupted JSON falls back to default player */
+/** F01 (V5.8 R3): corrupted JSON must FAIL CLOSED, not fall back to a fresh save */
 function testCorruptedJsonMigration(): void {
   const storage = new MemoryStorageAdapter();
   storage.setItem(SAVE_KEY, '{not valid json!!!');
-  const context = new GameContext({ storage });
-  assert.equal(context.player.salary, 0);
-  assert.equal(context.player.careerLevel, 1);
-  assert.equal(context.player.tutorialStep, 'WELCOME');
-  assert.equal(context.player.tutorialVersion, 2);
+  const raw = storage.getItem(SAVE_KEY);
+  assert.throws(() => new GameContext({ storage }), /SAVE_LOAD_FAILED/, 'corrupt save → GameContext throws');
+  assert.equal(storage.getItem(SAVE_KEY), raw, 'corrupt save is NOT overwritten');
 }
 
-/** Future version rejected → default player */
+/** F01 (V5.8 R3): future version rejected → fail closed, not a silent fresh save */
 function testFutureVersionMigration(): void {
   const storage = new MemoryStorageAdapter();
   storage.setItem(SAVE_KEY, JSON.stringify({
     saveVersion: 9999,
     salary: 999999,
   }));
-  const context = new GameContext({ storage });
-  assert.equal(context.player.salary, 0, 'future version → default');
-  assert.equal(context.player.careerLevel, 1);
+  assert.throws(() => new GameContext({ storage }), /SAVE_LOAD_FAILED/, 'future version → GameContext throws');
 }
 
 // ── Runner ───────────────────────────────────────────────────────────────────

@@ -370,7 +370,14 @@ export class PlayerData {
     this.companyHistory = [...(options.companyHistory ?? [])];
     this.offerHistory = [...(options.offerHistory ?? [])];
     this.offerReadyDay = options.offerReadyDay ?? 0;
-    this.teamState = options.teamState ? { members: [...options.teamState.members], exploitationScore: options.teamState.exploitationScore ?? 0, protectionScore: options.teamState.protectionScore ?? 0 } : null;
+    // F03/F07: daily counters must survive hydration or the caps reset on restart
+    this.teamState = options.teamState ? {
+      members: [...options.teamState.members],
+      exploitationScore: options.teamState.exploitationScore ?? 0,
+      protectionScore: options.teamState.protectionScore ?? 0,
+      ...(options.teamState.dailyAssignment ? { dailyAssignment: { ...options.teamState.dailyAssignment } } : {}),
+      ...(options.teamState.dailyMentorship ? { dailyMentorship: { ...options.teamState.dailyMentorship } } : {}),
+    } : null;
     this.monthlyStats = [...(options.monthlyStats ?? [])].slice(-3);
     this.milestones = [...(options.milestones ?? [])];
     this.managerFlags = { ...(options.managerFlags ?? {}) };

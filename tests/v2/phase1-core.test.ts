@@ -275,13 +275,14 @@ function testOldSaveMigrationV2Fields(): void {
   assert.equal(loaded.fishingSeconds, 200, 'V1 fields preserved');
 }
 
+// F01 (V5.8 R3): corrupt save must fail closed — no silent fresh save
 function testCorruptSaveFallsBackToDefault(): void {
   const storage = new MemoryStorageAdapter();
   storage.setItem(DEFAULT_SAVE_KEY, '{broken json');
+  const raw = storage.getItem(DEFAULT_SAVE_KEY);
   const saveService = new SaveService(storage);
-  const loaded = saveService.load();
-  assert.equal(loaded.saveVersion, CURRENT_SAVE_VERSION);
-  assert.equal(loaded.salary, 0);
+  assert.throws(() => saveService.load(), /SAVE_LOAD_FAILED/, 'corrupt save → SaveLoadError');
+  assert.equal(storage.getItem(DEFAULT_SAVE_KEY), raw, 'corrupt bytes untouched');
 }
 
 // ── run ──────────────────────────────────────────────────────────────────────

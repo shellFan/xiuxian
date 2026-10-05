@@ -41,24 +41,22 @@ function testSaveMigrationFillsMissingFields(): void {
   assert.deepEqual(player.kpiProgress, {});
 }
 
+// F01 (V5.8 R3): corrupted JSON must FAIL CLOSED — GameContext construction
+// throws SaveLoadError and the raw storage is left untouched. The old behavior
+// (silently replacing the corrupt save with a fresh one) was a data-loss bug.
 function testSaveMigrationHandlesCorruptedJson(): void {
   const storage = new MemoryStorageAdapter();
   storage.setItem(DEFAULT_SAVE_KEY, '{ this is not valid json');
-  const context = new GameContext({ storage });
-  const player = context.player;
-  assert.equal(player.salary, 0);
-  assert.equal(player.careerLevel, 1);
-  assert.equal(player.officeLevel, 1);
-  assert.equal(player.mind, 100);
+  const raw = storage.getItem(DEFAULT_SAVE_KEY);
+  assert.throws(() => new GameContext({ storage }), /SAVE_LOAD_FAILED/, 'corrupt save → GameContext throws');
+  assert.equal(storage.getItem(DEFAULT_SAVE_KEY), raw, 'corrupt save is NOT overwritten');
 }
 
 function testSaveMigrationRejectsFutureVersion(): void {
   const storage = new MemoryStorageAdapter();
   storage.setItem(DEFAULT_SAVE_KEY, JSON.stringify({ saveVersion: 9999, salary: 5 }));
-  const context = new GameContext({ storage });
-  // Unsupported version -> rolls back to a clean default save.
-  assert.equal(context.player.salary, 0);
-  assert.equal(context.player.careerLevel, 1);
+  // Unsupported version → fail closed (F01), not a silent fresh save.
+  assert.throws(() => new GameContext({ storage }), /SAVE_LOAD_FAILED/, 'future version → GameContext throws');
 }
 
 function testSaveRoundTripPreservesPhaseTwoFields(): void {

@@ -203,8 +203,9 @@ export class GameLoopService {
         try {
           this.context.saveService.autoSave(this.context.player);
           this.context.events.emit('gameSaved', { reason: 'idle' });
-        } catch {
-          // Auto-save failure must not crash the game loop
+        } catch (e) {
+          // Auto-save failure must not crash the game loop — but it must be visible (F04)
+          console.error('[GameLoop] Auto-save failed:', e);
         }
       }
     }

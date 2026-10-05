@@ -37,6 +37,8 @@ let autoSaveTimer = null;
 let gameServer = null;
 let bootTimeoutTimer = null;
 let gameReady = false;
+// F05: set while waiting for the renderer to flush its save on close
+let closeFlushInProgress = false;
 const isDev = process.argv.includes('--dev') || process.argv.includes('--debug');
 
 // ── Storage Init ───────────────────────────────────────────────────────────
@@ -66,6 +68,14 @@ ipcMain.handle('storage:recover', async () => {
 ipcMain.handle('app:getVersion', () => app.getVersion());
 ipcMain.handle('app:getPath', (_e, name) => app.getPath(name));
 ipcMain.handle('app:isElectron', () => true);
+
+// F05: renderer acks the close-flush save has been written to disk
+ipcMain.on('game:save-flushed', () => {
+  if (closeFlushInProgress && mainWindow && !mainWindow.isDestroyed()) {
+    console.log('[Electron] F05 close flush acked — closing window');
+    mainWindow.close();
+  }
+});
 
 // Fullscreen IPC
 ipcMain.handle('window:set-fullscreen', (_e, flag) => {
@@ -99,6 +109,7 @@ ipcMain.on('game:ready', () => {
 
 // ── Window Creation ────────────────────────────────────────────────────────
 async function createWindow() {
+  closeFlushInProgress = false;
   // Start local game server FIRST
   const buildDir = path.join(__dirname, 'build', 'web-desktop');
   if (!require('fs').existsSync(buildDir)) {
@@ -215,9 +226,24 @@ async function createWindow() {
   // ── Lifecycle save ─────────────────────────────────────────────────────
   mainWindow.on('minimize', () => { sendSaveSignal('minimize'); });
   mainWindow.on('blur', () => { sendSaveSignal('blur'); });
-  mainWindow.on('close', () => {
+  mainWindow.on('close', (event) => {
+    if (closeFlushInProgress) {
+      // F05 second pass: flush already acked (or timed out) — allow the close
+      cleanup();
+      return;
+    }
+    // F05: intercept the first close, wait for the renderer to flush its
+    // save to disk, then close. Safety timeout prevents trapping the user.
+    event.preventDefault();
+    closeFlushInProgress = true;
+    console.log('[Electron] F05 close intercepted — requesting save flush');
     sendSaveSignal('close');
-    cleanup();
+    setTimeout(() => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        console.warn('[Electron] F05 flush timeout (2s) — forcing close');
+        mainWindow.close();
+      }
+    }, 2000);
   });
   mainWindow.on('closed', () => { mainWindow = null; });
 

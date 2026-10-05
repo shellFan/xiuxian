@@ -92,8 +92,11 @@ function testEmptyAndInvalidStorageBecomeNewPlayer(): void {
   const service = new SaveService(storage, 'game-save', () => 123);
   storage.setItem('game-save', '');
   assert.deepEqual(service.load(), new PlayerData({ tutorialStartedAt: 123 }).toSaveData());
+  // F01 (V5.8 R3): corrupt raw data must fail closed — no silent new save
   storage.setItem('game-save', '{not-json');
-  assert.deepEqual(service.load(), new PlayerData({ tutorialStartedAt: 123 }).toSaveData());
+  const raw = storage.getItem('game-save');
+  assert.throws(() => service.load(), /SAVE_LOAD_FAILED/, 'corrupt save → SaveLoadError');
+  assert.equal(storage.getItem('game-save'), raw, 'corrupt bytes untouched');
 }
 
 function testMigratesOlderVersionAndDefaultsMissingFields(): void {
@@ -129,8 +132,9 @@ function testIgnoresMalformedWorkersAndRejectsFutureSaves(): void {
     { id: 'valid', level: 1, row: 0, column: 0 }, { id: 'bad', level: '1', row: 0, column: 1 },
   ] }));
   assert.deepEqual(new SaveService(storage).load().workers, [{ id: 'valid', level: 1, row: 0, column: 0 }]);
+  // F01 (V5.8 R3): future save version → fail closed instead of silent fresh save
   storage.setItem('game-save', JSON.stringify({ saveVersion: CURRENT_SAVE_VERSION + 1, salary: 99 }));
-  assert.deepEqual(new SaveService(storage, 'game-save', () => 123).load(), new PlayerData({ tutorialStartedAt: 123 }).toSaveData());
+  assert.throws(() => new SaveService(storage, 'game-save', () => 123).load(), /SAVE_LOAD_FAILED/, 'future version → SaveLoadError');
 }
 
 function testInvalidPlayerScalarsFallBackToSafeDefaults(): void {

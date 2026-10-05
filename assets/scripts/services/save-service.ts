@@ -1,7 +1,15 @@
 import type { ProjectState } from '../model/save-data';
-import { CURRENT_SAVE_VERSION, type ActiveMessageChainState, type DailyRealityEntryState, type FirstWeekStoryState, type GameSaveData, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type WorkerSaveData, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState } from '../model/save-data';
+import { CURRENT_SAVE_VERSION, type ActiveMessageChainState, type DailyRealityEntryState, type FirstWeekStoryState, type GameSaveData, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type WorkerSaveData, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState } from '../model/save-data';
 import { PlayerData } from '../model/player-data';
 import type { StorageAdapter } from './storage-adapter';
+
+/** F01: Thrown when persisted save data exists but cannot be parsed or migrated. */
+export class SaveLoadError extends Error {
+  public constructor(message: string) {
+    super(message);
+    this.name = 'SaveLoadError';
+  }
+}
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
 
 export const DEFAULT_SAVE_KEY = 'game-save';
@@ -19,6 +27,7 @@ export class SaveService {
   public load(): GameSaveData {
     const now = this.currentTime();
     const raw = this.storage.getItem(this.key);
+    // F01: null/empty = NO_SAVE → new player is safe
     if (!raw || !raw.trim()) return this.commitLoaded(this.newPlayerSave(now));
     try {
       const parsed = JSON.parse(raw) as unknown;
@@ -27,8 +36,11 @@ export class SaveService {
         try { this.storage.setItem(this.key, JSON.stringify(data)); } catch { /* load remains usable if migration cannot be persisted */ }
       }
       return this.commitLoaded(data);
-    } catch {
-      return this.commitLoaded(this.newPlayerSave(now));
+    } catch (e) {
+      // F01 BLOCKER: raw data exists but is corrupted — DO NOT silently create a new save.
+      // Throw so the bootstrap can fail closed and prevent autosave from overwriting the original file.
+      var msg = e instanceof Error ? e.message : String(e);
+      throw new SaveLoadError('SAVE_LOAD_FAILED: persisted save data is corrupted — ' + msg);
     }
   }
 

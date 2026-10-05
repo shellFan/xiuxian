@@ -3854,7 +3854,7 @@
         refresh();
       } else if (attempts >= 100) {
         clearInterval(poll);
-        console.warn('[UI] GameFacade not found — staying in demo mode');
+        console.warn('[UI] GameFacade not found after 30s — overlay idle (no demo mode)');
       }
     }, 300);
 

@@ -55,8 +55,9 @@ function computeInputsHash() {
   collectFiles(path.join(root, 'assets', 'configs'), '.json', allFiles);
   // Scenes (.scene)
   collectFiles(path.join(root, 'assets', 'scenes'), '.scene', allFiles);
-  // Desktop files
-  var desktopFiles = ['ui-overlay.js', 'ui-overlay-v2.js', 'ui-overlay.css', 'patch-html.cjs', 'main.cjs', 'preload.cjs'];
+  // Desktop files — F08: must cover ALL desktop runtime inputs (storage.cjs and
+  // game-server.cjs ship inside the packaged EXE and change game behavior)
+  var desktopFiles = ['ui-overlay.js', 'ui-overlay-v2.js', 'ui-overlay.css', 'patch-html.cjs', 'main.cjs', 'preload.cjs', 'storage.cjs', 'game-server.cjs'];
   for (var f of desktopFiles) {
     var fp = path.join(root, 'desktop', f);
     if (fs.existsSync(fp)) allFiles.push(fp);
