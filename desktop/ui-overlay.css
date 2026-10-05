@@ -2063,6 +2063,27 @@
 .ux-journey .jg-main i { font-style: normal; font-size: 11.5px; color: #b9c8d4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ux-journey .jg-btn { flex: none; font-size: 12.5px; font-weight: 800; color: #eef4fa; border: 1px solid rgba(240, 210, 140, 0.5); border-radius: 8px; padding: 4px 10px; }
 
+/* OVERNIGHT §8: 次目标 — 紧凑弱化，最多 2 条，可点击 */
+.ux-journey-stack { display: flex; flex-direction: column; gap: 5px; margin-top: 5px; }
+.ux-journey--sec {
+  padding: 5px 12px;
+  border-radius: 10px;
+  background: rgba(30, 42, 58, 0.55);
+  border: 1px solid rgba(120, 140, 160, 0.35);
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 120ms ease;
+}
+button.ux-journey--sec { cursor: pointer; }
+.ux-journey--sec:hover { border-color: rgba(240, 210, 140, 0.55); }
+.ux-journey--sec .jg-icon { flex: none; font-size: 15px; }
+.ux-journey--sec .jg-main { flex: 1; min-width: 0; }
+.ux-journey--sec .jg-main b { font-size: 12px; color: #cdd9e4; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.ux-journey--sec .jg-btn { flex: none; font-size: 11px; font-weight: 700; color: #9fb2c2; border: 1px solid rgba(140, 160, 180, 0.4); border-radius: 7px; padding: 2px 8px; }
+
 /* ═════════════════════════════════════════════════════════
    §23. V5.5 晋升页一屏（§66~§71）+ 任务页新分类（§75）
    ═════════════════════════════════════════════════════════ */

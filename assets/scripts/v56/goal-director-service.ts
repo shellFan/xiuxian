@@ -26,6 +26,20 @@ export class GoalDirectorService {
     const f = this.context;
     const player = f.player;
 
+    // NOW 0（OVERNIGHT §9）：战斗已结束但结算未领取 —— 掉落不领就白打了
+    try {
+      const finished = f.battle.finished?.() ?? null;
+      if (finished) {
+        const victory = finished.status === 'VICTORY';
+        goals.push({
+          layer: 'NOW', priority: 9.5, icon: '🎁',
+          text: victory ? '战斗胜利：战利品待领取' : '项目受挫：结算待查看',
+          sub: `第 ${finished.wave}/${finished.waveTotal} 波 · 掉落按 ${victory ? '100' : '30'}% 结算，还有决策等你拍板`,
+          action: 'goto', page: 'PROJECT', btn: '领取结算',
+        });
+      }
+    } catch { /* battle not ready */ }
+
     // NOW：事故 > P0 > 活跃任务
     try {
       const incident = f.incidents.presentableActive?.() ?? null;
@@ -40,6 +54,18 @@ export class GoalDirectorService {
         : 0;
       goals.push({ layer: 'NOW', priority: 7, icon: '📋', text: `继续：${pendingCritical.name}`, sub: `剩余约 ${remain} 分钟 · 完成可领工资绩效`, action: 'goto', page: 'TASKS', btn: '继续任务' });
     }
+
+    // NOW（OVERNIGHT §9）：道心告急 —— 立即可执行的恢复行为
+    try {
+      if (player.mind < 35) {
+        goals.push({
+          layer: 'NOW', priority: 6.5, icon: '🧘',
+          text: `道心告急（${player.mind}/100）`,
+          sub: '去修仙页打坐或摸鱼恢复，硬扛事故只会更糟',
+          action: 'goto', page: 'CULTIVATION', btn: '恢复道心',
+        });
+      }
+    } catch { /* noop */ }
 
     // TODAY：DailyPlanner capacity
     try {
@@ -97,7 +123,8 @@ export class GoalDirectorService {
         goals.push({
           layer: 'PROFESSION', priority: 2,
           icon: '🗡️', text: `${def.name} ${def.title} Lv${level}`,
-          sub: `经验 ${f.profession.exp()}/${f.profession.exp() + toNext} · 完成 Java 任务可升级`,
+          // OVERNIGHT §11：职业感知文案 — 禁止所有职业都提示 "Java 任务"
+          sub: `经验 ${f.profession.exp()}/${f.profession.exp() + toNext} · 完成${def.name}任务可升级`,
           action: 'goto', page: 'TASKS', btn: '做职业任务',
         });
       }

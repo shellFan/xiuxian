@@ -184,127 +184,15 @@
 
   function facade() { return _facade || (window && window.__GAME_FACADE__) || null; }
 
-  /* 演示数据 — Facade 未就绪时保证 11 屏完整可看 */
-  var DEMO = {
-    hud: {
-      careerLevel: 1, careerName: '实习牛马', realm: '炼气一层', requiredExp: 100,
-      salary: 288, performance: 35, cultivationExp: 166, spiritStones: 42,
-      mind: 86, maxMind: 100, workMode: 'FISHING', kpiCompleted: 2, kpiTotal: 3,
-      salaryEfficiency: 1.3, cultivationEfficiency: 1.2, isFishingMode: true,
-    },
-    kpi: {
-      careerLevel: 1, allCompleted: false,
-      items: [
-        { type: 'WORK_SECONDS', target: 300, progress: 210, completed: false, description: '累计工作 5 分钟' },
-        { type: 'CULTIVATION', target: 50, progress: 50, completed: true, description: '修为达到 50' },
-      ],
-    },
-    careerNext: { level: 2, name: '正式牛马', realm: '炼气三层' },
-    tasks: {
-      active: [
-        { taskId: 'task_fix_bug', taskType: 'DAILY', name: '修复线上Bug', description: '紧急修复生产环境问题', durationSeconds: 30, startedAt: Date.now() - 12000, rewardSalary: 30, rewardCultivation: 60, rewardSpiritStones: 0, rewardPerformance: 15, rewardMind: -5, completed: false, claimed: false },
-      ],
-      configs: [
-        { id: 'task_daily_report', type: 'DAILY', name: '写日报', description: '完成今天的工作日报', durationSeconds: 10, rewardSalary: 10, rewardCultivation: 30, rewardSpiritStones: 0, rewardPerformance: 5 },
-        { id: 'task_paid_fish', type: 'DAILY', name: '带薪摸鱼', description: '合理摸鱼，恢复状态', durationSeconds: 15, rewardSalary: 0, rewardCultivation: 5, rewardSpiritStones: 0, rewardMind: 15 },
-        { id: 'task_useless_meeting', type: 'DAILY', name: '参加无效会议', description: '听不懂但开完的会议', durationSeconds: 20, rewardSalary: 0, rewardCultivation: 0, rewardSpiritStones: 0, rewardPerformance: 10, rewardMind: -10 },
-      ],
-    },
-    recipes: [
-      { id: 'pill_juqi', name: '聚气丹', description: '修为+50，入门丹药', costCultivation: 100, costSpiritStones: 0, effect: { cultivation: 50 }, unlockCareerLevel: 1 },
-      { id: 'pill_huichun', name: '回春丹', description: '道心+50，恢复状态', costCultivation: 150, costSpiritStones: 3, effect: { mind: 50 }, unlockCareerLevel: 1 },
-      { id: 'pill_lingshen', name: '灵参丹', description: '修为+50，入门丹药', costCultivation: 100, costSpiritStones: 0, effect: { cultivation: 50 }, unlockCareerLevel: 1 },
-      { id: 'pill_juling', name: '聚灵丹', description: '修为+200，中级丹药', costCultivation: 500, costSpiritStones: 10, effect: { cultivation: 200 }, unlockCareerLevel: 2 },
-      { id: 'pill_poxian', name: '破仙丹', description: '修为+800，高级丹药', costCultivation: 2000, costSpiritStones: 50, effect: { cultivation: 800 }, unlockCareerLevel: 4 },
-      { id: 'page_gongfa', name: '初级功法残页', description: '参悟后修为+400', costCultivation: 500, costSpiritStones: 10, effect: { cultivation: 400 }, unlockCareerLevel: 2 },
-      { id: 'talisman_salary', name: '加薪符', description: '工资+100', costCultivation: 200, costSpiritStones: 5, effect: { salary: 100 }, unlockCareerLevel: 1 },
-      { id: 'talisman_mind', name: '静心符', description: '道心+30', costCultivation: 150, costSpiritStones: 3, effect: { mind: 30 }, unlockCareerLevel: 1 },
-      { id: 'artifact_lingpai', name: '灵牌', description: '绩效+50', costCultivation: 300, costSpiritStones: 15, effect: { performance: 50 }, unlockCareerLevel: 3 },
-    ],
-    craftedCount: {},
-    promotion: { allowed: false, needsRetry: false, probability: 45 },
-    sects: [
-      { id: 'PRIVATE', name: '民企宗', modifiers: { salaryMultiplier: 1.15, cultivationMultiplier: 1, mindMultiplier: 0.9, performanceMultiplier: 1 } },
-      { id: 'FOREIGN', name: '外企宗', modifiers: { salaryMultiplier: 1.05, cultivationMultiplier: 1, mindMultiplier: 1.15, performanceMultiplier: 1 } },
-      { id: 'STATE', name: '国企宗', modifiers: { salaryMultiplier: 0.95, cultivationMultiplier: 1, mindMultiplier: 1, performanceMultiplier: 1, offlineGainMultiplier: 1.2 } },
-      { id: 'BIG_TECH', name: '大厂宗', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1.2, mindMultiplier: 0.8, performanceMultiplier: 1 } },
-    ],
-    sectId: null,
-    leaderboard: {
-      playerRank: 23, totalEntries: 50,
-      entries: [
-        { rank: 1, name: '修仙的张三', sectName: '外企宗', careerLevel: 7, careerName: '元婴中期', cultivationExp: 82000, isPlayer: false },
-        { rank: 2, name: '摸鱼王', sectName: '国企宗', careerLevel: 6, careerName: '金丹后期', cultivationExp: 68000, isPlayer: false },
-        { rank: 3, name: '代码如来', sectName: '大厂宗', careerLevel: 6, careerName: '金丹中期', cultivationExp: 51000, isPlayer: false },
-        { rank: 4, name: '产品秃头', sectName: '私企宗', careerLevel: 5, careerName: '补基后期', cultivationExp: 43000, isPlayer: false },
-        { rank: 5, name: '测试小哥', sectName: '外企宗', careerLevel: 4, careerName: '筑基中期', cultivationExp: 39000, isPlayer: false },
-        { rank: 23, name: PLAYER_NAME, sectName: '', careerLevel: 1, careerName: '炼气一层', cultivationExp: 168, isPlayer: true },
-      ],
-    },
-    friends: {
-      totalFriends: 4, onlineCount: 2, giftsToSend: 4, giftsToClaim: 0,
-      friends: [
-        { id: 'f1', name: '修仙的张三', sectName: '外企宗', careerLevel: 6, careerName: '金丹后期', cultivationExp: 51000, lastOnline: Date.now() - 120000, isOnline: true, giftSent: false, giftReceived: false },
-        { id: 'f2', name: '摸鱼小师妹', sectName: '国企宗', careerLevel: 5, careerName: '筑基后期', cultivationExp: 22000, lastOnline: Date.now() - 3 * 3600000, isOnline: false, giftSent: false, giftReceived: false },
-        { id: 'f3', name: '产品秃头', sectName: '大厂宗', careerLevel: 4, careerName: '筑气六层', cultivationExp: 12000, lastOnline: Date.now() - 26 * 3600000, isOnline: false, giftSent: false, giftReceived: false },
-        { id: 'f4', name: '测试小哥', sectName: '私企宗', careerLevel: 3, careerName: '炼气三层', cultivationExp: 6000, lastOnline: Date.now() - 5 * 3600000, isOnline: false, giftSent: false, giftReceived: false },
-      ],
-    },
-    achievements: [
-      { id: 'FIRST_MERGE', name: '初入职场', description: '第一次完成任务', category: 'MERGE', condition: { type: 'KPI', target: 1 }, reward: { salary: 50 } },
-      { id: 'MERGE_10', name: '摸鱼达人', description: '累计摸鱼10次', category: 'MERGE', condition: { type: 'KPI', target: 10 }, reward: { cultivation: 100 } },
-      { id: 'MERGE_50', name: '加班战士', description: '累计完成50个任务', category: 'MERGE', condition: { type: 'KPI', target: 50 }, reward: { salary: 200 } },
-      { id: 'PROMOTION_SUCCESS', name: '渡劫新星', description: '第一次晋升', category: 'PROMOTION', condition: { type: 'PROMOTION', target: 1 }, reward: { cultivation: 200 } },
-    ],
-    achStatus: { FIRST_MERGE: 'COMPLETED', MERGE_10: 'LOCKED', MERGE_50: 'LOCKED', PROMOTION_SUCCESS: 'LOCKED' },
-    event: {
-      id: 'EVENT_DEMAND_TODAY', type: 'CHOICE', title: '随机事件',
-      description: '这个需求今天能上线吗？很简单的一个功能！',
-      choices: [
-        { id: 'A', text: 'A. 澄问题老板', effects: { performance: 10, mind: -10 } },
-        { id: 'B', text: 'B. 风险比较大', effects: { performance: -3, mind: 8 } },
-        { id: 'C', text: 'C. 先让产品确认一下', effects: null },
-      ],
-    },
-    offline: { salary: 101, cultivationExp: 202, spiritStones: 15, elapsedSeconds: 12120, capped: false },
-  };
-
-  /* ── 数据读取 ── */
-
-  function readHUD() {
-    var f = facade();
-    if (!f) return null;
-    try {
-      var s = f.snapshot();
-      if (!s) return null;
-      var career = f.queryCareer ? f.queryCareer() : null;
-      var kpi = f.queryKpi ? f.queryKpi() : null;
-      return {
-        careerLevel: s.careerLevel,
-        careerName: career ? career.name : '实习牛马',
-        realm: career ? career.realm : '炼气一层',
-        requiredExp: career ? career.requiredExp : 0,
-        sectName: (function () { try { var sec = f.querySect ? f.querySect() : null; return sec ? sec.name : null; } catch (e) { return null; } })(),
-        salary: s.salary, performance: s.performance,
-        cultivationExp: s.cultivationExp, spiritStones: s.spiritStones,
-        mind: s.mind, maxMind: s.maxMind,
-        workMode: s.workMode, isFishingMode: s.isFishingMode,
-        kpiCompleted: kpi ? kpi.items.filter(function (i) { return i.completed; }).length : 0,
-        kpiTotal: kpi ? kpi.items.length : 0,
-        salaryEfficiency: s.salaryEfficiency, cultivationEfficiency: s.cultivationEfficiency,
-      };
-    } catch (e) { console.warn('[UI] readHUD:', e); return null; }
-  }
-
   function readKpi() {
     var f = facade();
-    if (!f) return DEMO.kpi;
-    try { return f.queryKpi(); } catch (e) { return DEMO.kpi; }
+    if (!f) return { items: [] };
+    try { return f.queryKpi() || { items: [] }; } catch (e) { return { items: [] }; }
   }
 
   function readCareerAt(level) {
     var f = facade();
-    if (!f) return level === DEMO.hud.careerLevel + 1 ? DEMO.careerNext : null;
+    if (!f) return null;
     try { return f.queryCareerAt ? f.queryCareerAt(level) : null; } catch (e) { return null; }
   }
 
@@ -316,17 +204,12 @@
         active: f.queryActiveTasks ? f.queryActiveTasks() : [],
         configs: f.queryTaskConfigs ? f.queryTaskConfigs() : [],
       };
-    } catch (e) { return DEMO.tasks; }
+    } catch (e) { return { active: [], configs: [] }; }
   }
 
   function readRemaining(taskId) {
     var f = facade();
-    if (!f) {
-      var t = null;
-      DEMO.tasks.active.forEach(function (a) { if (a.taskId === taskId) t = a; });
-      if (!t) return 0;
-      return Math.max(0, t.durationSeconds - (Date.now() - t.startedAt) / 1000);
-    }
+    if (!f) return 0;
     try { return f.queryTaskRemaining(taskId); } catch (e) { return 0; }
   }
 
@@ -344,7 +227,7 @@
 
   function readCraftedCount(id) {
     var f = facade();
-    if (!f) return DEMO.craftedCount[id] || 0;
+    if (!f) return 0;
     try { return f.queryCraftedCount ? f.queryCraftedCount(id) : 0; } catch (e) { return 0; }
   }
 
@@ -360,7 +243,7 @@
         needsRetry: f.queryPromotionNeedsRetry ? f.queryPromotionNeedsRetry() : false,
         optionId: (f.queryPromotionOptions() || [{}])[0].id || '',
       };
-    } catch (e) { return DEMO.promotion; }
+    } catch (e) { return { allowed: false, reason: '', probability: 0, needsRetry: false, optionId: '' }; }
   }
 
   function readSects() {
@@ -374,14 +257,14 @@
 
   function readLeaderboard() {
     var f = facade();
-    if (!f) return null;
-    try { return f.queryLeaderboard(); } catch (e) { return DEMO.leaderboard; }
+    if (!f) return { entries: [] };
+    try { return f.queryLeaderboard() || { entries: [] }; } catch (e) { return { entries: [] }; }
   }
 
   function readFriends() {
     var f = facade();
-    if (!f) return null;
-    try { return f.queryFriends(); } catch (e) { return DEMO.friends; }
+    if (!f) return { totalFriends: 0, onlineCount: 0, giftsToSend: 0, giftsToClaim: 0, friends: [] };
+    try { return f.queryFriends() || { totalFriends: 0, onlineCount: 0, giftsToSend: 0, giftsToClaim: 0, friends: [] }; } catch (e) { return { totalFriends: 0, onlineCount: 0, giftsToSend: 0, giftsToClaim: 0, friends: [] }; }
   }
 
   function readAchievements() {
@@ -1068,10 +951,21 @@
     var goalBody = '<span class="jg-icon">' + now.icon + '</span>' +
       '<span class="jg-main"><b>' + goalText + '</b><i>' + escHtml(now.sub) + '</i></span>' +
       '<span class="jg-btn">' + escHtml(now.btn) + ' ›</span>';
-    if (!attrs) return '<div class="ux-journey ux-journey--static">' + goalBody + '</div>' + hookHtml;
+    /* OVERNIGHT §8: 次目标最多 2 条 — 主目标唯一，次目标可点击 */
+    var secondary = goals.slice(1, 3).map(function (g) {
+      var sAttrs = g.action === 'goto' && g.page ? ' data-goto-page="' + escHtml(g.page) + '"' : '';
+      var sBody = '<span class="jg-icon">' + g.icon + '</span>' +
+        '<span class="jg-main"><b>' + escHtml(g.text) + '</b></span>' +
+        '<span class="jg-btn">' + escHtml(g.btn) + ' ›</span>';
+      return sAttrs
+        ? '<button class="ux-journey ux-journey--sec"' + sAttrs + '>' + sBody + '</button>'
+        : '<div class="ux-journey ux-journey--sec ux-journey--static">' + sBody + '</div>';
+    }).join('');
+    var secondaryHtml = secondary ? '<div class="ux-journey-stack">' + secondary + '</div>' : '';
+    if (!attrs) return '<div class="ux-journey ux-journey--static">' + goalBody + '</div>' + secondaryHtml + hookHtml;
     return '<button class="ux-journey" ' + attrs + '>' +
       goalBody +
-    '</button>' + hookHtml;
+    '</button>' + secondaryHtml + hookHtml;
   }
 
   var INCIDENT_LABELS = {
