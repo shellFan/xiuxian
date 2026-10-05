@@ -146,8 +146,12 @@ export class TeamService {
     var member = team.members.find(function(m) { return m.name === memberName; });
     if (!member) return { ok: false, reason: 'MEMBER_NOT_FOUND' };
     var today = p.gameDay?.dayIndex ?? 1;
-    // F26: time cost — 30 game-minutes of fatigue (uses existing fatigue system)
+    // F06（OVERNIGHT）：真实时间成本 —— 30 游戏分钟，工时不足明确拒绝
+    var MENTOR_MINUTES = 30;
     var MENTOR_FATIGUE_COST = 5;
+    if (this.context.clockV2.remainingWorkMinutes() < MENTOR_MINUTES) {
+      return { ok: false, reason: '离下班不到半小时了，带不动一轮完整的指导' };
+    }
     if ((p.fatigue ?? 0) + MENTOR_FATIGUE_COST >= 100) return { ok: false, reason: '疲劳太高，无法指导' };
     // F07: daily cap — separate from assignment cap. Team total max 2/day.
     var mentorship = team.dailyMentorship;
@@ -198,6 +202,9 @@ export class TeamService {
     }
     flags[mentorFlagKey] = true;
     p.managerFlags = flags;
+    // F06（OVERNIGHT）：真正消耗 30 游戏分钟 + 5 点疲劳（此前只有检查没有落地）
+    this.context.clockV2.consumeGameMinutes(MENTOR_MINUTES);
+    p.fatigue = Math.min(100, (p.fatigue ?? 0) + MENTOR_FATIGUE_COST);
     var stats = p.lifetimeStats;
     p.lifetimeStats = Object.assign({}, stats, { mentoredCount: (stats.mentoredCount || 0) + 1 });
     this.context.events.emit('mentored', { member: memberName });

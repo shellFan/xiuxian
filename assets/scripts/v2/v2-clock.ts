@@ -76,6 +76,21 @@ export class GameClockV2 {
     this.playOffsetMs += Math.floor(deltaRealMs * (this.playTimeScale - 1));
   }
 
+  /**
+   * F06：玩法动作消耗真实游戏时间（如 mentorship 30 分钟）。
+   * 直接推进游戏时钟 → 工作日剩余工时、任务 elapsed、workday progress 全局一致。
+   * 这是"时间成本"的唯一合法入口；各系统禁止自行记时。
+   */
+  public consumeGameMinutes(minutes: number): void {
+    if (!Number.isFinite(minutes) || minutes <= 0) return;
+    this.playOffsetMs += Math.round(minutes * 60_000);
+  }
+
+  /** 距 18:00 下班剩余的游戏分钟数（下班后为 0）。 */
+  public remainingWorkMinutes(nowMs = this.now()): number {
+    return Math.max(0, Math.floor(this.getTimeUntilOffWorkMs(nowMs) / 60_000));
+  }
+
   // ── DEV 时间加速 ──────────────────────────────────────────────────────────
 
   /** DEV：前进指定毫秒。仅 DEV 面板调用。 */

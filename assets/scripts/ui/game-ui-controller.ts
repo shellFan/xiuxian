@@ -213,13 +213,32 @@ export class GameUIController extends Component {
     if (typeof window !== 'undefined') window.addEventListener('resize', this.resizeHomeViewport);
     console.log('[GameUIController] onLoad — starting runtime wiring');
 
-    // Resolve facade from bootstrap singleton
+    // Resolve facade from bootstrap singleton — F15: defer wiring if the async
+    // storage initialization has not produced the facade yet.
     const bootstrap = CocosBootstrapComponent.instance;
-    if (!bootstrap?.facade) {
-      console.error('[GameUIController] CocosBootstrapComponent.instance or facade is null — cannot wire UI');
+    if (!bootstrap) {
+      console.error('[GameUIController] CocosBootstrapComponent.instance is null — cannot wire UI');
       return;
     }
-    this.facade = bootstrap.facade;
+    if (bootstrap.facade) {
+      this.facade = bootstrap.facade;
+      this.wireRuntime();
+      return;
+    }
+    if (typeof bootstrap.onFacadeReady === 'function') {
+      console.log('[GameUIController] facade not ready yet — wiring deferred via onFacadeReady');
+      bootstrap.onFacadeReady((facade) => {
+        this.facade = facade;
+        this.wireRuntime();
+      });
+      return;
+    }
+    console.error('[GameUIController] bootstrap has no facade and no onFacadeReady — cannot wire UI');
+  }
+
+  /** F15: everything that needs the facade, run once it exists. */
+  private wireRuntime(): void {
+    if (this.disposed) return;
 
     // Resolve scene nodes
     this.resolveNodes();

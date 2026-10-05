@@ -3835,6 +3835,11 @@
      ═════════════════════════════════════════════════════════ */
 
   function init() {
+    // F11: 存档读取失败时 bootstrap 已渲染致命错误屏 — overlay 不得覆盖它
+    if (window.__NIUNA_LOAD_FAILED__) {
+      console.warn('[UI] load-failed state active — overlay stays idle (error screen preserved)');
+      return;
+    }
     console.log('[UI] Web V1 overlay initializing...');
     hideCocosUI();
     fullRefresh();

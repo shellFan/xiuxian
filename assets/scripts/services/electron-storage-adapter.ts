@@ -42,11 +42,21 @@ declare global {
 }
 
 // ── Electron Storage Adapter ───────────────────────────────────────────────
+/** F14: explicit persist outcome — failures must be observable, never silent. */
+export interface PersistResult {
+  ok: boolean;
+  /** true when nothing was written by design (fail-closed / empty cache). */
+  skipped?: boolean;
+  error?: string;
+}
+
 export class ElectronStorageAdapter implements StorageAdapter {
   private _cache: Map<string, string> = new Map();
   private _initialized = false;
   private _initPromise: Promise<StorageLoadResult> | null = null;
   private _loadResult: StorageLoadResult = { status: 'NOT_INITIALIZED' };
+  /** F10: when set, every write path becomes a no-op (save was rejected fail-closed). */
+  private _failClosed = false;
 
   /**
    * F01: Explicit async initialization. Must be called and awaited before
@@ -125,9 +135,15 @@ export class ElectronStorageAdapter implements StorageAdapter {
     this.persistToElectron();
   }
 
-  /** Force persist current cache to Electron file storage */
-  public async flush(): Promise<void> {
-    await this.doPersist();
+  /** F10: hard write lockdown (fail-closed) — set by the bootstrap when the save was rejected. */
+  public markFailClosed(): void {
+    this._failClosed = true;
+    console.error('[ElectronStorage] F10 fail-closed — all write paths disabled');
+  }
+
+  /** Force persist current cache to Electron file storage. F14: resolves with an explicit result. */
+  public async flush(): Promise<PersistResult> {
+    return this.doPersist();
   }
 
   /** Register listener for Electron save signals (minimize/close/autosave) */
@@ -157,14 +173,16 @@ export class ElectronStorageAdapter implements StorageAdapter {
     }, 500);
   }
 
-  private async doPersist(): Promise<void> {
-    if (typeof window === 'undefined' || !window.electronAPI?.storage) return;
+  private async doPersist(): Promise<PersistResult> {
+    if (typeof window === 'undefined' || !window.electronAPI?.storage) return { ok: false, skipped: true, error: 'no electron storage' };
+    // F10: hard lockdown beats everything — never write after fail-closed.
+    if (this._failClosed) return { ok: false, skipped: true, error: 'fail-closed' };
     // F01: fail-closed — never write when the initial load failed (empty cache
     // would clobber the corrupted-but-unread save file with "{}").
-    if (this._loadResult.status === 'LOAD_FAILED') return;
+    if (this._loadResult.status === 'LOAD_FAILED') return { ok: false, skipped: true, error: 'load-failed' };
     // F05/F01: nothing cached means nothing was loaded or saved — do not
     // overwrite an existing on-disk save with an empty object.
-    if (this._cache.size === 0) return;
+    if (this._cache.size === 0) return { ok: false, skipped: true, error: 'empty-cache' };
     const data: Record<string, unknown> = {};
     for (const [key, value] of this._cache) {
       try {
@@ -177,10 +195,15 @@ export class ElectronStorageAdapter implements StorageAdapter {
       const result = await window.electronAPI.storage.save(data);
       // F04: IPC can resolve with success:false (disk full, permission) — surface it
       if (result && result.success === false) {
-        console.error('[ElectronStorage] Persist rejected by main process:', result.error ?? 'unknown error');
+        const error = result.error ?? 'unknown error';
+        console.error('[ElectronStorage] Persist rejected by main process:', error);
+        return { ok: false, error };
       }
+      return { ok: true };
     } catch (e) {
+      const error = e instanceof Error ? e.message : String(e);
       console.error('[ElectronStorage] Failed to persist:', e);
+      return { ok: false, error };
     }
   }
 }

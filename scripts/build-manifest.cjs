@@ -116,6 +116,14 @@ if (require.main === module) {
     }
     console.log('[build-manifest] FRESH: ' + result.reason);
   } else {
-    generateManifest();
+    // F12: record git provenance — the manifest must anchor the built artifact
+    // to a commit (build:copy invokes this CLI without args).
+    var gitHead = 'unknown';
+    try {
+      gitHead = require('node:child_process').execSync('git rev-parse HEAD', { cwd: root, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() || 'unknown';
+    } catch (e) {
+      console.warn('[build-manifest] git rev-parse failed — gitHead stays "unknown"');
+    }
+    generateManifest(gitHead);
   }
 }

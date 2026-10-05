@@ -33,6 +33,7 @@ export class CocosBootstrapComponent extends Component {
   private _audioService: AudioService | null = null;
   private _safeAreaService: SafeAreaService | null = null;
   private _lastBgmId: string | null = null;
+  private _facadeWaiters: Array<(facade: GameFacade) => void> = [];
 
   /** Singleton instance — null after destroy. */
   public static get instance(): CocosBootstrapComponent | null {
@@ -42,6 +43,25 @@ export class CocosBootstrapComponent extends Component {
   /** Current GameFacade reference for UI binding. */
   public get facade(): GameFacade | null {
     return this._facade;
+  }
+
+  /**
+   * F15: defer scene-component wiring until the facade exists — facade creation
+   * is deferred behind async storage initialization, so scene components that
+   * load earlier must subscribe instead of failing in onLoad.
+   */
+  public onFacadeReady(cb: (facade: GameFacade) => void): void {
+    if (this._facade) { cb(this._facade); return; }
+    this._facadeWaiters.push(cb);
+  }
+
+  private notifyFacadeReady(): void {
+    const waiters = this._facadeWaiters.splice(0);
+    for (const w of waiters) {
+      try { w(this._facade!); } catch (e) {
+        console.error('[BOOT] facade-ready wiring callback failed:', e);
+      }
+    }
   }
 
   /** AudioService instance (created in onLoad with CocosAudioBackend). */
@@ -132,6 +152,9 @@ export class CocosBootstrapComponent extends Component {
       // F01 §3.2: LOAD_FAILED — do NOT create auto-saving facade that would overwrite old save
       console.error('[BOOT] F01 LOAD_FAILED — refusing to create auto-saving game. Error:', loadResult.error);
       this._loadFailed = true;
+      // F10: hard-disable every write path on the adapter — the close flush must
+      // never rewrite the unreadable save (even with an empty/unchanged cache).
+      this._storage?.markFailClosed?.();
       this.showLoadError(loadResult.error ?? 'Unknown storage error');
       return;
     }
@@ -144,12 +167,16 @@ export class CocosBootstrapComponent extends Component {
       var msg = e instanceof Error ? e.message : String(e);
       console.error('[BOOT] F01 GameFacade creation failed — save data corrupted:', msg);
       this._loadFailed = true;
+      // F10: SaveService rejected the data the adapter cached — same hazard as
+      // LOAD_FAILED: the close flush must not persist anything from here on.
+      this._storage?.markFailClosed?.();
       this.showLoadError(msg);
       return;
     }
     this._facade?.start();
-    // F09: facade now exists — wire audio lifecycle and expose it for external management
+    // F09/F15: facade now exists — wire audio lifecycle and release deferred component wiring
     this.wireAudioLifecycle();
+    this.notifyFacadeReady();
     console.log('[BOOT] GameFacade started — game loop running');
 
     // Defer GAME_READY check to allow UI to render
@@ -194,6 +221,9 @@ export class CocosBootstrapComponent extends Component {
       // F01: the error screen IS the final UI state — report readiness so the
       // Electron boot-timeout watchdog doesn't log a false hang.
       (window as unknown as { electronAPI?: { gameReady?: () => void } }).electronAPI?.gameReady?.();
+      // F11: tell the DOM overlay a fatal load error is showing — it must not
+      // paint its own loading screen over this error state.
+      (window as unknown as Record<string, unknown>).__NIUNA_LOAD_FAILED__ = true;
     }
   }
 
@@ -308,7 +338,11 @@ export class CocosBootstrapComponent extends Component {
   private async flushNow(): Promise<void> {
     try {
       if (this._storage instanceof ElectronStorageAdapter) {
-        await this._storage.flush();
+        const r = await this._storage.flush();
+        // F14: surface real persist failures (skipped = intentional no-op)
+        if (r && r.ok === false && !r.skipped) {
+          console.error('[ElectronBridge] flush failed:', r.error ?? 'unknown');
+        }
       }
     } catch (e) {
       console.error('[ElectronBridge] flush failed:', e);
