@@ -171,8 +171,14 @@ export class HomePageComponent extends Component {
 
   protected onLoad(): void {
     const bootstrap = CocosBootstrapComponent.instance;
-    if (!bootstrap?.facade) {
-      throw new Error('HomePageComponent requires CocosBootstrapComponent with facade');
+    if (!bootstrap) {
+      throw new Error('HomePageComponent requires CocosBootstrapComponent');
+    }
+    if (!bootstrap.facade) {
+      // F15: facade arrives after async storage init — rerun this onLoad then.
+      console.log('[HomePageComponent] facade not ready — deferring wiring via onFacadeReady');
+      bootstrap.onFacadeReady(() => this.onLoad());
+      return;
     }
     this.facade = bootstrap.facade;
 

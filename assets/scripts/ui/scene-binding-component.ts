@@ -82,8 +82,14 @@ export class SceneBindingComponent extends Component {
 
     // Resolve facade from bootstrap
     const bootstrap = CocosBootstrapComponent.instance;
-    if (!bootstrap?.facade) {
-      throw new Error('SceneBindingComponent requires CocosBootstrapComponent with facade');
+    if (!bootstrap) {
+      throw new Error('SceneBindingComponent requires CocosBootstrapComponent');
+    }
+    if (!bootstrap.facade) {
+      // F15: facade arrives after async storage init — rerun this onLoad then.
+      console.log('[SceneBindingComponent] facade not ready — deferring wiring via onFacadeReady');
+      bootstrap.onFacadeReady(() => this.onLoad());
+      return;
     }
     this.facade = bootstrap.facade;
 
