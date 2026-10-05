@@ -21,6 +21,13 @@ export interface GoalView {
 export class GoalDirectorService {
   public constructor(private readonly context: GameContext) {}
 
+  /** OVERNIGHT §42：项目生命周期 → 职场语义（玩家不该读内部枚举）。 */
+  private static readonly LIFECYCLE_CN: Record<string, string> = {
+    PLANNING: '需求评审', DEVELOPMENT: '开发中', TESTING: '测试中', BUG_FIX: '修 Bug 中',
+    READY_TO_RELEASE: '待上线', RELEASING: '上线中', PRODUCTION: '运行中', DELAYED: '已延期',
+    CANCELLED: '已取消', FAILED: '已烂尾', COMPLETED: '已交付',
+  };
+
   public goals(): GoalView[] {
     const goals: GoalView[] = [];
     const f = this.context;
@@ -82,9 +89,10 @@ export class GoalDirectorService {
     // PROJECT
     const project = f.projectService?.current() ?? null;
     if (project && !['COMPLETED', 'CANCELLED', 'FAILED'].includes(project.status)) {
+      const stageCn = GoalDirectorService.LIFECYCLE_CN[project.status] ?? project.status;
       goals.push({
         layer: 'PROJECT', priority: 4,
-        icon: '⚔️', text: `${project.name}：${project.status}`,
+        icon: '⚔️', text: `${project.name}：${stageCn}`,
         sub: `进度 ${project.progress}% · Bug ${project.bugCount} · 债 ${Math.round(project.techDebt)}`,
         action: 'goto', page: 'PROJECT', btn: '进入项目',
       });

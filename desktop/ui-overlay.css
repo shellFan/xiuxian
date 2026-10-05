@@ -2084,6 +2084,21 @@ button.ux-journey--sec { cursor: pointer; }
 .ux-journey--sec .jg-main b { font-size: 12px; color: #cdd9e4; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
 .ux-journey--sec .jg-btn { flex: none; font-size: 11px; font-weight: 700; color: #9fb2c2; border: 1px solid rgba(140, 160, 180, 0.4); border-radius: 7px; padding: 2px 8px; }
 
+/* OVERNIGHT §93: Boss Phase 2 常驻危险徽标 */
+.ux-bt-enemy.is-phase2 { border-color: rgba(255, 107, 107, 0.75); box-shadow: 0 0 10px rgba(255, 80, 80, 0.35); animation: ux-p2-pulse 1.1s ease-in-out infinite; }
+.ux-bt-p2 { margin-left: 4px; padding: 1px 5px; border-radius: 5px; background: #ff4d4d; color: #fff; font-size: 10px; font-weight: 900; letter-spacing: 1px; }
+@keyframes ux-p2-pulse { 0%, 100% { box-shadow: 0 0 6px rgba(255, 80, 80, 0.25); } 50% { box-shadow: 0 0 14px rgba(255, 80, 80, 0.55); } }
+
+/* OVERNIGHT §22: 下班结算一句话评价 */
+.ux-settle-remark { margin-top: 10px; padding: 9px 12px; border-radius: 10px; background: rgba(240, 177, 60, 0.1); border: 1px dashed rgba(240, 210, 140, 0.4); color: #ffd97a; font-size: 13px; font-style: italic; line-height: 1.6; }
+
+/* OVERNIGHT §23: 17:55 "老板正在输入……" 气泡 */
+.ux-boss-typing { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; background: rgba(20, 26, 40, 0.85); border: 1px solid rgba(255, 120, 120, 0.4); display: flex; align-items: center; gap: 8px; animation: ux-typing-in 220ms ease; }
+.ux-boss-typing em { flex: none; font-style: normal; font-size: 12px; font-weight: 800; color: #ff8a8a; }
+.ux-boss-typing i { flex: 1; min-width: 0; font-style: normal; font-size: 12px; color: #cdd9e4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ux-boss-typing .dot { display: none; }
+@keyframes ux-typing-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
 /* ═════════════════════════════════════════════════════════
    §23. V5.5 晋升页一屏（§66~§71）+ 任务页新分类（§75）
    ═════════════════════════════════════════════════════════ */

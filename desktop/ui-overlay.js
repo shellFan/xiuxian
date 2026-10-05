@@ -184,6 +184,31 @@
 
   function facade() { return _facade || (window && window.__GAME_FACADE__) || null; }
 
+  function readHUD() {
+    var f = facade();
+    if (!f) return null;
+    try {
+      var s = f.snapshot();
+      if (!s) return null;
+      var career = f.queryCareer ? f.queryCareer() : null;
+      var kpi = f.queryKpi ? f.queryKpi() : null;
+      return {
+        careerLevel: s.careerLevel,
+        careerName: career ? career.name : '实习牛马',
+        realm: career ? career.realm : '炼气一层',
+        requiredExp: career ? career.requiredExp : 0,
+        sectName: (function () { try { var sec = f.querySect ? f.querySect() : null; return sec ? sec.name : null; } catch (e) { return null; } })(),
+        salary: s.salary, performance: s.performance,
+        cultivationExp: s.cultivationExp, spiritStones: s.spiritStones,
+        mind: s.mind, maxMind: s.maxMind,
+        workMode: s.workMode, isFishingMode: s.isFishingMode,
+        kpiCompleted: kpi ? kpi.items.filter(function (i) { return i.completed; }).length : 0,
+        kpiTotal: kpi ? kpi.items.length : 0,
+        salaryEfficiency: s.salaryEfficiency, cultivationEfficiency: s.cultivationEfficiency,
+      };
+    } catch (e) { console.warn('[UI] readHUD:', e); return null; }
+  }
+
   function readKpi() {
     var f = facade();
     if (!f) return { items: [] };
@@ -1219,8 +1244,26 @@
       }
     }
 
+    /* OVERNIGHT §23：17:30~18:00 风险窗 — "老板正在输入……"（按公司压力概率触发，同一天同一小时只出现一次） */
+    var bossTyping = (function () {
+      try {
+        var f2 = facade(); if (!f2 || !f2.context || !f2.context.clockV2) return '';
+        var c2 = f2.context.clockV2;
+        if (!c2.isPreOffWorkRiskWindow()) return '';
+        var day2 = (f2.context.player.gameDay && f2.context.player.gameDay.dayIndex) || 1;
+        var hour2 = new Date(c2.now()).getHours();
+        var pressure = 0.45;
+        try { var comp = f2.queryCompany ? f2.queryCompany() : null; if (comp && comp.profile) pressure = 0.2 + 0.45 * (comp.profile.projectPressure || 1) / 1.5; } catch (e2) {}
+        var h2 = (day2 * 31 + hour2 * 2654435761) % 100;
+        if (h2 >= Math.round(pressure * 100)) return '';
+        var lines = ['需求要个小改动，很小的。', '今晚能上线吗？', '甲方刚来电话，你细说。', '明天早会你来讲两句。', '在吗？就一句话。'];
+        var pick = lines[(day2 * 7 + hour2) % lines.length];
+        return '<div class="ux-boss-typing"><em>老板正在输入……</em><i>“' + escHtml(pick) + '”</i></div>';
+      } catch (e) { return ''; }
+    })();
+
     return '<section class="ux-work-today ux-scene ux-scene--' + phase + (_cultivateFx && Date.now() - _cultivateFx.at < 2600 ? ' ux-scene--blessing' : '') + '">' +
-      chips + earned + dungeonBanner + battleBanner + tutorialHintHtml() +
+      chips + earned + dungeonBanner + battleBanner + bossTyping + tutorialHintHtml() +
       '<div class="ux-scene-main">' + headline + '</div>' +
       '<div class="ux-scene-strip">' + stripLeft + '<div class="ux-scene-strip-actions">' + stripRight + '</div></div>' +
     '</section>';
@@ -1474,9 +1517,9 @@
       var pct = Math.max(0, Math.min(100, Math.round(e.hp / e.maxHp * 100)));
       var bossCls = e.tier === 'BOSS' ? ' is-boss' : e.tier === 'ELITE' ? ' is-elite' : '';
       var mech = e.mechanic === 'SLOW' ? ' · 减速' : e.mechanic === 'SUMMON' ? ' · 召唤' : e.mechanic === 'SUMMON_SMALL' ? ' · 召唤' : '';
-      return '<div class="ux-bt-enemy' + bossCls + '" data-enemy-uid="' + escHtml(e.uid) + '">' +
+      return '<div class="ux-bt-enemy' + bossCls + (e.phase2Active ? ' is-phase2' : '') + '" data-enemy-uid="' + escHtml(e.uid) + '">' +
         '<span class="ux-bt-enemy-face">' + (e.tier === 'BOSS' ? '👹' : e.tier === 'ELITE' ? '👺' : '🐛') + '</span>' +
-        '<span class="ux-bt-enemy-name">' + escHtml(e.name) + (bossCls ? ' ⚠' : '') + escHtml(mech) + '</span>' +
+        '<span class="ux-bt-enemy-name">' + escHtml(e.name) + (e.phase2Active ? '<b class="ux-bt-p2">P2 危</b>' : '') + (bossCls ? ' ⚠' : '') + escHtml(mech) + '</span>' +
         '<span class="ux-bt-enemy-hp"><i style="width:' + pct + '%"></i><em>' + Math.round(e.hp) + '/' + e.maxHp + '</em></span>' +
         '<span class="ux-float-layer"></span>' +
       '</div>';

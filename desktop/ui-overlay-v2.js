@@ -169,8 +169,21 @@
     }
     var weekName = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][day.weekday] || '';
     function dur(sec) { return Math.floor(sec / 3600) + '时' + Math.floor((sec % 3600) / 60) + '分'; }
+    /* OVERNIGHT §22：根据真实状态生成的一句今日评价（不塞数字，塞人味） */
+    var d0 = day.durations || {};
+    var remark = (function () {
+      if (day.income.salary === 0 && (d0.overtime || 0) > 0) return '白加了一场班，工资一个子儿都没见到——这就是"福报"的形状。';
+      if (day.income.salary === 0) return '零工资的一天。至少……嗯，再想想理由。';
+      if (day.income.cultivation >= 200) return '今天修为上涨了，头发没有。';
+      if ((d0.fishing || 0) > (d0.work || 0)) return '摸鱼时间比干活长。但谁又能证明呢？';
+      if (day.eventsHandled >= 5) return '救了一天的火，锅是谁的已经不重要了。';
+      if (day.materialsGained >= 10) return '掉落颇丰，背包里的材料在发光。';
+      if (day.eventsHandled === 0 && (d0.overtime || 0) === 0) return '风平浪静的一天——在牛马界，这已经是修成正果。';
+      return '平凡而珍贵的一天，牛马也有牛马的道行。';
+    })();
     return '<div class="ux-card">' +
       '<div class="ux-dialog-title">第 ' + day.dayIndex + ' 个牛马修仙日 · ' + weekName + '</div>' +
+      '<div class="ux-settle-remark">“' + remark + '”</div>' +
       '<div class="ux-req-rows">' +
         H.reqRow('salary', '工资', day.income.salary, 0, day.income.salary > 0, 'blue') +
         H.reqRow('cultivation', '修为', day.income.cultivation, 0, day.income.cultivation > 0, 'blue') +
