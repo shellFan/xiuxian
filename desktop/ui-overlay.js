@@ -507,6 +507,61 @@
     if (modal) modal.setAttribute('data-presentation-kind', kind);
   }
 
+  function incidentIdFromProjection(value) {
+    if (!value || typeof value !== 'object') return null;
+    if (value.incidentId) return String(value.incidentId);
+    if (value.linkedIncidentId) return String(value.linkedIncidentId);
+    if (value.eventId && String(value.eventId).indexOf('incident:') === 0) return String(value.eventId).slice(9);
+    if (value.entityId && value.entityType === 'incident') return String(value.entityId);
+    return null;
+  }
+
+  function queryActiveIncident() {
+    var f = facade();
+    try { return f && f.queryIncidentState ? (f.queryIncidentState() || {}).active : null; } catch (e) { return null; }
+  }
+
+  function activeIncidentBattle(incident) {
+    var f = facade();
+    var battle = null;
+    try { battle = f && f.queryBattle ? f.queryBattle() : null; } catch (e) { battle = null; }
+    return battle && incident && battle.linkedIncidentId === incident.id ? battle : null;
+  }
+
+  function openIncidentHandling(incident) {
+    var f = facade();
+    var active = queryActiveIncident();
+    if (!active || !incident || active.id !== incident.id) {
+      toast('这起事故已不在待处理队列中。', 'info');
+      return;
+    }
+    var matchingBattle = activeIncidentBattle(active);
+    if (matchingBattle) {
+      _screen = 'PROJECT'; _subPage = null;
+      fullRefresh();
+      return;
+    }
+    var currentBattle = null;
+    try { currentBattle = f && f.queryBattle ? f.queryBattle() : null; } catch (e) { currentBattle = null; }
+    if (currentBattle) {
+      toast('当前已有其他项目在攻坚，请先完成当前战斗。', 'info');
+      return;
+    }
+    if (!f || typeof f.startBattleRun !== 'function' || typeof f.queryBattleBuildOptions !== 'function') {
+      toast('事故处置入口暂不可用，请稍后重试。', 'error');
+      return;
+    }
+    try {
+      var builds = f.queryBattleBuildOptions() || [];
+      var build = builds[0];
+      if (!build || !build.id) throw new Error('没有可用的 Build');
+      f.startBattleRun('INCIDENT', build.id, null, active.id);
+      toast('已进入' + incidentTypeLabel(active.type) + '处置现场。', 'success');
+      _screen = 'PROJECT'; _subPage = null;
+      fullRefresh();
+    } catch (e) { toast(errMsg(e), 'error'); }
+  }
+
   /*
    * One-shot arbitration over the current canonical Facade projections.
    * Candidates are rebuilt on every pass and are never retained or consumed here;
@@ -550,14 +605,29 @@
     try { finishedBattle = f.queryFinishedBattle ? f.queryFinishedBattle() : null; } catch (e) { finishedBattle = null; }
 
     var activeIncident = incidentState && incidentState.active;
-    if (activeIncident && activeIncident.severity === 'S1') {
+    var activeBattle = activeIncidentBattle(activeIncident);
+    if (activeIncident && activeIncident.severity === 'S1' && !activeBattle) {
       candidates.push({
         id: 'incident:' + activeIncident.id,
         kind: 'S1',
         projection: activeIncident,
         open: function () {
-          showDialog('S1 生产事故', '<b>' + escHtml(activeIncident.type || activeIncident.id) + '</b><br>事故仍保留在正式状态中，请立即进入处置流程。', [
-            { label: '立即处理', cls: 'gold' },
+          showDialog('S1 生产事故', '<b>' + escHtml(incidentTypeLabel(activeIncident.type)) + '</b><br>事故仍保留在正式状态中，请立即进入处置流程。', [
+            { label: '立即处理', cls: 'gold', onClick: function () { openIncidentHandling(activeIncident); } },
+          ]);
+        },
+      });
+    }
+    /* S2~S4 remain explicit-only: the badge/journey can request them, while
+       the automatic loop keeps S1 > pending > workplace arbitration intact. */
+    if (activeIncident && activeIncident.severity !== 'S1' && !activeBattle && requestedAttempt && requestedAttempt.kind === 'PENDING') {
+      candidates.push({
+        id: 'incident:' + activeIncident.id,
+        kind: 'PENDING',
+        projection: activeIncident,
+        open: function () {
+          showDialog((activeIncident.severity || '事故') + ' 线上事故', '<b>' + escHtml(incidentTypeLabel(activeIncident.type)) + '</b><br>这是当前唯一的正式事故，请进入处置现场。', [
+            { label: '立即处理', cls: 'gold', onClick: function () { openIncidentHandling(activeIncident); } },
           ]);
         },
       });
@@ -590,7 +660,7 @@
         open: function () { if (info) maybeShowEventPopup(); else maybeShowBattleModals(); },
       });
     }
-    if (requestedAttempt && requestedAttempt.kind !== 'PROMOTION' && requestedAttempt.kind !== 'TUTORIAL_CRITICAL') candidates.push(requestedAttempt);
+    if (requestedAttempt && requestedAttempt.id !== 'pending:manual' && requestedAttempt.kind !== 'PROMOTION' && requestedAttempt.kind !== 'TUTORIAL_CRITICAL') candidates.push(requestedAttempt);
 
     var selected = f.queryNextPresentation(candidates);
     if (!selected) return null;
@@ -987,15 +1057,30 @@
       if (hook) hookHtml = '<div class="ux-tomorrow-hook"><span class="th-label">明日预告</span>' + escHtml(hook) + '</div>';
     }
     if (!now) return hookHtml;
+    var activeIncident = null;
+    try { activeIncident = f && f.queryIncidentState ? (f.queryIncidentState() || {}).active : null; } catch (e) { activeIncident = null; }
+    var incidentGoal = !!(activeIncident && now.action === 'goto' && String(now.page || '').toUpperCase() === 'HOME');
     var attrs = now.action === 'select'
       ? 'data-select-action="WORK"'
-      : (now.page ? 'data-goto-page="' + escHtml(now.page) + '"' : '');
+      : (incidentGoal ? 'data-action="openPending"' : (now.page ? 'data-goto-page="' + escHtml(now.page) + '"' : ''));
+    var incidentLabel = activeIncident ? incidentTypeLabel(activeIncident.type) : '';
+    var goalText = incidentGoal ? ('🔴 ' + escHtml(activeIncident.severity || '事故') + '线上事故：' + escHtml(incidentLabel)) : escHtml(now.text);
+    var goalBody = '<span class="jg-icon">' + now.icon + '</span>' +
+      '<span class="jg-main"><b>' + goalText + '</b><i>' + escHtml(now.sub) + '</i></span>' +
+      '<span class="jg-btn">' + escHtml(now.btn) + ' ›</span>';
+    if (!attrs) return '<div class="ux-journey ux-journey--static">' + goalBody + '</div>' + hookHtml;
     return '<button class="ux-journey" ' + attrs + '>' +
-      '<span class="jg-icon">' + now.icon + '</span>' +
-      '<span class="jg-main"><b>' + escHtml(now.text) + '</b><i>' + escHtml(now.sub) + '</i></span>' +
-      '<span class="jg-btn">' + escHtml(now.btn) + ' ›</span>' +
+      goalBody +
     '</button>' + hookHtml;
   }
+
+  var INCIDENT_LABELS = {
+    PAYMENT_FAILURE: '支付成功率暴跌', DATABASE_LOCK: '数据库锁表', SLOW_SQL: '慢 SQL 雪崩',
+    REDIS_OUTAGE: 'Redis 集群失联', CACHE_AVALANCHE: '缓存雪崩', NGINX_502: 'Nginx 大面积 502',
+    DISK_FULL: '磁盘写满', CPU_HIGH: 'CPU 100%', OOM: '内存泄漏 OOM', MESSAGE_BACKLOG: '消息积压',
+    CERT_EXPIRED: '证书过期', THIRD_PARTY_FAILURE: '第三方接口故障', BAD_DEPLOY: '错误发布', CONFIG_ERROR: '配置被改错'
+  };
+  function incidentTypeLabel(type) { return INCIDENT_LABELS[type] || String(type || '线上事故').replace(/[_-]+/g, ' '); }
 
   /* V5.6 §5.3：Today Capacity Widget */
   function todayCapacityHtml() {
@@ -1124,7 +1209,11 @@
 
   /* 中栏（§12~§41）：时间场景 / 动作选择器 / 动作详情 */
   function homeCenterHtml(hud) {
-    return workSceneHtml(hud) + v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() + todayCapacityHtml() + journeyGuideHtml() + actionSelectorHtml(hud) + actionDetailHtml(hud);
+    return workSceneHtml(hud) +
+      '<div class="ux-home-status" aria-label="今日状态">' +
+        v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() +
+      '</div>' +
+      todayCapacityHtml() + journeyGuideHtml() + actionSelectorHtml(hud) + actionDetailHtml(hud);
   }
 
   /* 中栏顶部：办公室场景 + 下班倒计时 + 今日已赚浮层（§12~§20） */
@@ -1788,14 +1877,29 @@
     var f = facade();
     if (!f) return 0;
     var n = 0;
-    try { var inc = f.queryIncidentState ? f.queryIncidentState() : null; if (inc && inc.active) n += 1; } catch (e) { /* noop */ }
+    var activeIds = {};
+    try {
+      var inc = f.queryIncidentState ? f.queryIncidentState() : null;
+      if (inc && inc.active && inc.active.id) { activeIds[inc.active.id] = true; n += 1; }
+    } catch (e) { /* noop */ }
     try {
       var d = f.queryOfflineDecisions ? f.queryOfflineDecisions() : null;
       if (d && d.session && d.session.status === 'PENDING') {
-        n += Math.max(0, (d.session.pendingEventIds || []).length - (d.session.cursor || 0));
+        var seen = {};
+        (d.items || []).concat(d.current ? [d.current] : []).forEach(function (item) {
+          var id = item && item.id;
+          if (!id || seen[id]) return;
+          seen[id] = true;
+          var incidentId = incidentIdFromProjection(item);
+          if (!incidentId || !activeIds[incidentId]) n += 1;
+        });
       }
     } catch (e) { /* noop */ }
-    try { if (f.queryV2CurrentEvent && f.queryV2CurrentEvent()) n += 1; } catch (e) { /* noop */ }
+    try {
+      var workplace = f.queryV2CurrentEvent && f.queryV2CurrentEvent();
+      var workplaceIncidentId = incidentIdFromProjection(workplace);
+      if (workplace && (!workplaceIncidentId || !activeIds[workplaceIncidentId])) n += 1;
+    } catch (e) { /* noop */ }
     return n;
   }
 
@@ -3171,11 +3275,19 @@
     if (!overlay || !$('#UiBody')) { renderShell(); return; }
     var body = $('#UiBody');
     var scrollTop = body.scrollTop;
+    var columnScroll = $$('.ux-home-col', body).map(function (column) { return column.scrollTop; });
     /* 首页禁纵向滚动（§134）：加 home 修饰类，其余页面保持可滚动。 */
     body.classList.toggle('ux-body--home', currentPage() === 'HOME');
     /* 只重绘 body + header 内容，保持弹窗/toast 层不被打断 */
     body.innerHTML = renderCurrent();
     body.scrollTop = scrollTop;
+    $$('.ux-home-col', body).forEach(function (column, index) {
+      if (columnScroll[index] != null) {
+        /* Force the new column's scroll metrics before restoring its position. */
+        void column.offsetHeight;
+        column.scrollTop = columnScroll[index];
+      }
+    });
     bindEvents();
     if (currentPage() === 'PROJECT') spawnBattleFloats();
   }
@@ -3343,8 +3455,17 @@
           fullRefresh();
           break;
         case 'openPending': {
-          var pendingOpened = dispatchNextModal();
-          if (!pendingOpened) toast('暂无待处理的破事，安心搬砖。', 'info');
+          var activeForResume = queryActiveIncident();
+          if (activeForResume && activeIncidentBattle(activeForResume)) {
+            _screen = 'PROJECT'; _subPage = null;
+            fullRefresh();
+            break;
+          }
+          var pendingOpened = dispatchNextModal({
+            id: 'pending:manual', kind: 'PENDING', projection: null,
+            open: function () {},
+          });
+          if (!pendingOpened && !popupOpen()) toast('暂无可处理的事项，状态已是最新。', 'info');
           refresh();
           break;
         }

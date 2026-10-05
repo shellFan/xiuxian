@@ -1365,9 +1365,18 @@
   .ux-shortcut span:last-child { font-size: 11.5px; }
 
   /* 三栏骨架 */
-  .ux-home-left { grid-area: left; min-height: 0; display: flex; flex-direction: column; min-width: 0; }
-  .ux-home-center { grid-area: center; min-height: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-  .ux-home-right { grid-area: right; min-height: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .ux-home-left { grid-area: left; min-height: 0; display: flex; flex-direction: column; min-width: 0; overflow-y: auto; scrollbar-width: thin; }
+  .ux-home-center { grid-area: center; min-height: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; padding-right: 3px; }
+  .ux-home-right { grid-area: right; min-height: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; overflow-y: auto; scrollbar-width: thin; }
+  .ux-home-col::-webkit-scrollbar { width: 8px; height: 8px; }
+  .ux-home-col::-webkit-scrollbar-track { background: rgba(8, 24, 38, 0.35); border-radius: 8px; }
+  .ux-home-col::-webkit-scrollbar-thumb { background: rgba(144, 177, 198, 0.58); border: 2px solid rgba(8, 24, 38, 0.35); border-radius: 8px; }
+
+  /* Status metadata shares one compact wrapping lane instead of four stacked rows. */
+  .ux-home-status { display: flex; flex: 0 0 auto; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 0; }
+  .ux-home-status .ux-fatigue-chip,
+  .ux-home-status .ux-situation-chip { margin: 0; max-width: 100%; padding: 5px 10px; font-size: 12px; }
+  .ux-home-status .ux-fatigue-chip .fc-band { font-size: 11px; }
 
   /* 左栏角色卡（§8~§11）：一张卡 + 紧凑资源列表 */
   .ux-home-left .ux-charpanel { flex: 1; min-height: 0; overflow: hidden; padding: 12px; gap: 9px; }
@@ -1388,8 +1397,8 @@
 
   /* 中栏顶部：办公室/窗外修仙场景（§12~§20），整个首页最重要的视觉资产 */
   .ux-home-center .ux-scene {
-    flex: 1.3;
-    min-height: 0;
+    flex: 1 0 170px;
+    min-height: 170px;
     margin: 0;
     padding: 0;
     border: 2px solid rgba(12, 26, 40, 0.7);
@@ -1428,6 +1437,7 @@
     box-shadow: inset 0 0 60px rgba(240, 177, 60, 0.35), 0 0 26px rgba(240, 177, 60, 0.45);
   }
   .ux-scene-main { position: relative; z-index: 2; margin: auto; padding: 6px 178px 0 14px; text-align: center; }
+  .ux-scene-main { flex: 1; display: flex; flex-direction: column; justify-content: center; margin: 0; }
   .ux-scene-label { font-size: 14px; letter-spacing: 6px; color: #d8e6f2; }
   .ux-scene-count {
     font-size: 56px;
@@ -1442,6 +1452,7 @@
   .ux-scene .ux-wt-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold), #8fd6a8); border-radius: 3px; transition: width .6s ease; }
 
   .ux-scene-chips { position: absolute; z-index: 2; top: 10px; left: 12px; max-width: 52%; }
+  .ux-scene-chips { position: relative; top: auto; left: auto; max-width: 100%; margin: 7px 12px 0; flex-wrap: wrap; flex: none; }
   .ux-scene .ux-sit-chip { padding: 3px 10px; font-size: 12px; max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: rgba(11, 42, 66, 0.55); border-color: rgba(240, 210, 140, 0.4); }
   .ux-scene .ux-sit-chip--more { max-width: 40px; }
 
@@ -1501,7 +1512,7 @@
   .ux-scene-strip .ux-idle-timer b { color: #ffd97a; }
 
   /* 中栏第二层：四个动作卡选择器（§23~§30） */
-  .ux-actions { flex: none; height: 132px; gap: 10px; }
+  .ux-actions { flex: none; height: 112px; gap: 10px; }
   .ux-action--blue   { background: linear-gradient(165deg, #2e5e8a 0%, #1d3f61 100%); border-color: rgba(108, 182, 228, 0.45); }
   .ux-action--green  { background: linear-gradient(165deg, #2f7a63 0%, #1d4f43 100%); border-color: rgba(108, 195, 165, 0.45); }
   .ux-action--gold   { background: linear-gradient(165deg, #b9862e 0%, #8a5f1a 100%); border-color: rgba(248, 207, 98, 0.55); }
@@ -1525,9 +1536,9 @@
 
   /* 中栏第三层：动作详情（§31~§42），米白卷轴与深色场景形成对比 */
   .ux-detail {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
+    flex: 0 0 142px;
+    min-height: 142px;
+    overflow: auto;
     position: relative;
     padding: 10px 14px;
     border-radius: 14px;
@@ -1535,6 +1546,7 @@
     border: 2px solid rgba(171, 112, 42, 0.35);
     box-shadow: 0 4px 14px rgba(8, 16, 26, 0.35);
     color: var(--text-ink);
+    align-items: flex-start;
   }
   .ux-detail--gold { border-color: rgba(224, 144, 42, 0.65); box-shadow: 0 4px 18px rgba(224, 144, 42, 0.25); }
   .ux-detail-art {
@@ -1778,6 +1790,35 @@
 @media (min-width: 900px) and (max-width: 1439px) {
   .ux-nav-slogan { display: none; }
 }
+@media (min-width: 900px) and (max-width: 1359px) {
+  /* The 1280×720 target has a shorter center track; retain the hierarchy while
+     keeping the countdown, selectors, and detail actions in the first viewport. */
+  .ux-home-center .ux-scene { flex-basis: 148px; min-height: 148px; }
+  .ux-scene-count { font-size: 48px; }
+  .ux-scene-main { padding-top: 0; }
+  .ux-scene-main { padding-right: 164px; }
+  .ux-scene-earned { min-width: 142px; padding: 6px 9px; }
+  .ux-scene-earned b { font-size: 21px; }
+  .ux-scene-earned .r { line-height: 1.45; }
+  .ux-actions { height: 98px; gap: 8px; }
+  .ux-action { padding: 6px 5px 5px; gap: 1px; }
+  .ux-action-art { height: 30px; font-size: 26px; }
+  .ux-action-art img { width: 32px; height: 32px; }
+  .ux-action-title { font-size: 14px; }
+  .ux-action-sub { font-size: 11px; }
+  .ux-action-desc { font-size: 10px; }
+  .ux-detail { flex-basis: 124px; min-height: 124px; padding: 7px 9px; gap: 8px; }
+  .ux-detail-art { width: 58px; height: 58px; font-size: 28px; }
+  .ux-detail-art img { width: 48px; height: 48px; }
+  .ux-detail-title { font-size: 15px; }
+  .ux-detail-desc, .ux-detail-body, .ux-detail-reward { font-size: 11px; }
+  .ux-detail-side { min-width: 132px; gap: 4px; }
+  .ux-detail-side .ux-btn { font-size: 13px; padding: 6px 9px; }
+  .ux-capacity { padding: 4px 9px; gap: 4px 9px; }
+  .ux-capacity .cap-label, .ux-capacity .cap-item { font-size: 11px; }
+  .ux-journey { padding: 6px 10px; }
+  .ux-scene-strip { position: absolute; left: 12px; right: 12px; bottom: 7px; margin: 0; }
+}
 @media (min-width: 1360px) {
   .ux-body--home { padding: 12px 18px 12px; }
   .ux-home {
@@ -1787,7 +1828,7 @@
   }
   .ux-home .ux-topbar { padding: 5px 14px; }
   .ux-topbar .ux-brand-title { width: 198px; }
-  .ux-actions { height: 140px; gap: 12px; }
+  .ux-actions { height: 118px; gap: 12px; }
   .ux-scene-count { font-size: 60px; }
 }
 @media (min-width: 1600px) {
@@ -1801,7 +1842,7 @@
   .ux-scene-main { padding-right: 190px; }
   .ux-scene-count { font-size: 64px; }
   .ux-scene-earned { min-width: 172px; }
-  .ux-actions { height: 148px; }
+  .ux-actions { height: 124px; }
   .ux-home-right .ux-card, .ux-home-left .ux-charpanel { padding: 11px 12px; }
   .ux-detail { padding: 12px 16px; }
 }
@@ -2015,6 +2056,7 @@
   transition: border-color 140ms ease, box-shadow 140ms ease;
 }
 .ux-journey:hover { border-color: #f8cf62; box-shadow: 0 0 12px rgba(240, 177, 60, 0.25); }
+.ux-journey--static { cursor: default; }
 .ux-journey .jg-icon { flex: none; font-size: 22px; }
 .ux-journey .jg-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .ux-journey .jg-main b { font-size: 14px; color: #ffd97a; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
