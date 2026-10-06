@@ -54,8 +54,10 @@ export interface TaskRuntimeEventDef {
   readonly replies?: readonly TaskRuntimeReplyDef[];
 }
 
-/** 进度触发表：按 seed 洗牌取样，落在 12%~88% 区间且彼此间隔 ≥12%。 */
-function buildTriggerSchedule(seed: number, count: number): number[] {
+/** 进度触发表：按 seed 洗牌取样，落在 12%~88% 区间且彼此间隔 ≥12%。
+ *  ULTRA-DEEP #1（BLOCKER 修复）：count=6 时拒绝采样对多数 seed 无解 → 无限循环冻结游戏。
+ *  现在带迭代上限并逐级降级（间距 12→8→5→0，最终均匀布点），保持同 seed 确定性且必然终止。 */
+export function buildTriggerSchedule(seed: number, count: number): number[] {
   if (count <= 0) return [];
   let state = (seed >>> 0) || 1;
   const next = () => {
@@ -65,12 +67,22 @@ function buildTriggerSchedule(seed: number, count: number): number[] {
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
-  const points: number[] = [];
-  while (points.length < count) {
-    const p = Math.round((0.12 + next() * 0.76) * 100);
-    if (points.every((x) => Math.abs(x - p) >= 12)) points.push(p);
+  for (const gap of [12, 8, 5, 0]) {
+    const points: number[] = [];
+    let attempts = 0;
+    while (points.length < count && attempts < 500) {
+      attempts += 1;
+      const p = Math.round((0.12 + next() * 0.76) * 100);
+      if (points.every((x) => Math.abs(x - p) >= gap)) points.push(p);
+    }
+    if (points.length === count) return points.sort((a, b) => a - b);
   }
-  return points.sort((a, b) => a - b);
+  // 最终兜底：确定性均匀布点（12% ~ 88%）
+  const even: number[] = [];
+  for (let i = 0; i < count; i++) {
+    even.push(Math.round(12 + (76 * i) / Math.max(1, count - 1)));
+  }
+  return even.sort((a, b) => a - b);
 }
 
 /** §4.2：时长分级 → 事件次数区间。 */
@@ -176,7 +188,10 @@ export class TaskRuntimeDirector {
       // messenger 已有同会话待回复：直接以无选项 toast 语义丢弃本次，避免堆积
       return;
     }
-    const triggers = (task.runtimeSeed !== undefined ? buildTriggerSchedule(task.runtimeSeed >>> 0, 6) : []);
+    // ULTRA-DEEP #3（MEDIUM 修复）：重建触发表必须沿用本任务分带事件数（eventCountForDuration），
+    // 不得硬编码 6 —— 否则 SHORT 任务实际事件数超出 0~2 分带（此前实测 30min 任务触发 4 次）。
+    const bandedCount = eventCountForDuration(task.durationSeconds);
+    const triggers = (task.runtimeSeed !== undefined ? buildTriggerSchedule(task.runtimeSeed >>> 0, bandedCount) : []);
     const current = task.runtimeNextTriggerProgress ?? 0;
     const upcoming = triggers.filter((p) => p > current);
     const patch: MutableTaskPatch = {};
@@ -281,7 +296,10 @@ export class TaskRuntimeDirector {
       if (t.taskId === taskId) continue;
       if (t.foreground) {
         const frequent = (t.interruptionCount ?? 0) >= 3;
-        cost = frequent ? 2 + Math.floor(Math.random() * 4) : 0; // 首次免费，频繁切换 2~5 分钟
+        // ULTRA-DEEP（§140）：玩法随机必须走种子化 rng —— 用 runtimeSeed 派生确定性损耗
+        const jitterState = ((t.runtimeSeed ?? 0) ^ ((t.contextSwitchCount ?? 0) * 2654435761)) >>> 0;
+        const jitter = Math.floor((((jitterState ^ (jitterState >>> 13)) >>> 0) % 1000) / 1000 * 4);
+        cost = frequent ? 2 + Math.min(3, jitter) : 0; // 首次免费，频繁切换 2~5 分钟
         this.patchTask(t.taskId, { foreground: false, runtimeStage: 'PAUSED', contextSwitchCount: (t.contextSwitchCount ?? 0) + 1 });
         if (cost > 0) this.patchTask(t.taskId, { runtimeAddedSeconds: (t.runtimeAddedSeconds ?? 0) + cost * 60 });
       }

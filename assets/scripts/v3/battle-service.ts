@@ -336,8 +336,10 @@ export class BattleService {
     for (const enemy of run.enemies.filter((e) => e.hp > 0)) {
       this.runEnemyMechanics(run, enemy, player, dt);
       if (run.status !== 'FIGHTING') return;
+      // ULTRA-DEEP M1：玩家侧持续减速（enemySlow 来自技能/进化）作用于每一跳
+      const effectiveInterval = Math.max(0.4, enemy.intervalSec * (1 + Math.min(0.6, player.enemySlow)));
       enemy.attackTimer += dt;
-      if (enemy.attackTimer >= enemy.intervalSec) {
+      if (enemy.attackTimer >= effectiveInterval) {
         enemy.attackTimer = 0;
         const raw = enemy.attack;
         // 免疫窗口（缓存结界/永不宕机）：周期性免疫 Boss 重击
@@ -880,7 +882,12 @@ export class BattleService {
   private rollLoot(run: BattleRunState, tier: MonsterTier): void {
     const table = LOOT_TABLE[tier];
     const build = BUILD_MAP.get(run.buildId);
-    const bonus = (build?.lootBonus ?? 0) + this.equipmentStats().lootBonus;
+    const bonus = (build?.lootBonus ?? 0) + this.equipmentStats().lootBonus +
+      // ULTRA-DEEP M1：共鸣 lootBonusDelta 此前未消费
+      (run.synergies ?? []).reduce((sum, sid) => {
+        const syn = SYNERGIES.find((s) => s.id === sid);
+        return sum + (syn?.effects.lootBonusDelta ?? 0);
+      }, 0);
     const nightBonus = run.night ? 0.1 : 0;
     if (this.rng() < table.materialChance) {
       const mat = LOOT_MATERIALS[Math.floor(this.rng() * LOOT_MATERIALS.length)];
@@ -1014,7 +1021,19 @@ export class BattleService {
         }
       }
     }
+    // ULTRA-DEEP M1：共鸣 maxHpBonus 仅在本 run 新激活时一次性生效（上限与当前血同步提升）
+    const previousActive = new Set(run.synergies ?? []);
     run.synergies = active;
+    for (const synergyId of active) {
+      if (previousActive.has(synergyId)) continue;
+      const synergy = SYNERGIES.find((s) => s.id === synergyId);
+      const hpBonus = synergy?.effects.maxHpBonus ?? 0;
+      if (hpBonus > 0) {
+        run.playerMaxHp += hpBonus;
+        run.playerHp += hpBonus;
+        run.log.push(`✦ 共鸣【${synergy?.name ?? synergyId}】生命上限 +${hpBonus}`);
+      }
+    }
     this.context.player.synergyDiscovered = Array.from(discovered);
   }
 
@@ -1044,6 +1063,8 @@ export class BattleService {
       enemySlow += skill.enemySlow ?? 0;
     }
     // 已选进化效果
+    let evolutionEnemySlow = 0;
+    let evolutionSummonCap = 0;
     for (const optionId of run.evolvedSkills ?? []) {
       const option = this.evolutionOptionById(optionId);
       if (!option) continue;
@@ -1057,9 +1078,16 @@ export class BattleService {
       dodgeBonus += e.dodgeBonus ?? 0;
       shieldPerWave += e.shieldPerWave ?? 0;
       aoe = aoe || e.aoe === true || e.aoeKeep === true;
+      // ULTRA-DEEP M1：此前声明未消费的字段 —— 进化侧
+      enemySlow += e.enemySlowDelta ?? 0;
+      evolutionEnemySlow += e.enemySlowDelta ?? 0;
+      evolutionSummonCap += e.summonCapBonus ?? 0;
     }
     // 已激活共鸣效果
     const profNow = this.context.profession?.currentId();
+    let synergySummonCap = 0;
+    let synergyRevive = false;
+    let synergyImmune = 0;
     for (const synergyId of run.synergies ?? []) {
       const synergy = SYNERGIES.filter((s) => !profNow || s.profession === profNow).find((s) => s.id === synergyId);
       if (!synergy) continue;
@@ -1073,6 +1101,10 @@ export class BattleService {
       dodgeBonus += e.dodgeBonus ?? 0;
       shieldPerWave += e.shieldPerWave ?? 0;
       aoe = aoe || e.aoe === true || e.aoeKeep === true;
+      // ULTRA-DEEP M1：共鸣侧此前未消费的字段
+      synergySummonCap += e.summonCapBonus ?? 0;
+      synergyRevive = synergyRevive || e.reviveOnce === true;
+      synergyImmune = Math.max(synergyImmune, e.immuneEverySec ?? 0);
     }
     // 装备/套装聚合
     const eq = this.equipmentStats();
@@ -1100,9 +1132,10 @@ export class BattleService {
       dodgeBonus,
       shieldPerWave,
       aoe,
-      reviveOnce: eq.reviveOnce,
-      immuneEverySec: eq.immuneEverySec,
-      summonCapBonus: eq.summonCapBonus,
+      enemySlow,
+      reviveOnce: eq.reviveOnce || synergyRevive,
+      immuneEverySec: Math.max(eq.immuneEverySec, synergyImmune),
+      summonCapBonus: eq.summonCapBonus + evolutionSummonCap + synergySummonCap,
     };
   }
 
@@ -1141,6 +1174,8 @@ interface PlayerStats {
   dodgeBonus: number;
   shieldPerWave: number;
   aoe: boolean;
+  /** 玩家侧对全体敌人的持续减速（1 = 敌人行动间隔 ×2 封顶 0.6）。 */
+  enemySlow: number;
   reviveOnce: boolean;
   immuneEverySec: number;
   summonCapBonus: number;

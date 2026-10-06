@@ -341,7 +341,8 @@ export class V2EventService {
       for (const flag of effects.removeFlags) delete p.eventFlags[flag];
     }
     if (effects.promotionCooldownDays) {
-      p.eventFlags[`promoCooldownUntil:${Date.now() + effects.promotionCooldownDays * 86_400_000}`] = true;
+      // ULTRA-DEEP（§66）：冷却锚定游戏时钟（读取侧用 clock.now()，16× 加速/DEV 跳时一致）
+      p.eventFlags[`promoCooldownUntil:${this.context.clockV2.now() + effects.promotionCooldownDays * 86_400_000}`] = true;
     }
     // ── V4 职场地狱效果 ──
     if (effects.evidence) {

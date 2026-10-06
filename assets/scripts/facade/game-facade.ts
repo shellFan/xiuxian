@@ -716,17 +716,18 @@ export class GameFacade {
       }
     }
 
-    // Subsequent switch — check cooldown
+    // Subsequent switch — check cooldown (game-clock based: consistent with 16× play scale and DEV jumps)
     const lastSwitch = this.context.player.lastSectSwitchTime ?? 0;
-    const cooldownMs = 24 * 60 * 60 * 1000; // 24 hours
-    const remaining = cooldownMs - (Date.now() - lastSwitch);
+    const cooldownMs = 24 * 60 * 60 * 1000; // 24 game hours
+    const nowGame = this.context.clockV2.now();
+    const remaining = cooldownMs - (nowGame - lastSwitch);
     if (remaining > 0) {
       return { success: false, reason: `宗门切换冷却中(${Math.ceil(remaining / 3600000)}小时)` };
     }
 
     // Switch sect
     this.context.player.sectId = sectId;
-    this.context.player.lastSectSwitchTime = Date.now();
+    this.context.player.lastSectSwitchTime = nowGame;
     this.context.saveService.save(this.context.player);
     this.context.events.emit('sectChanged', { sectId });
     return { success: true };

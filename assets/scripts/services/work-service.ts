@@ -130,11 +130,24 @@ export class WorkService {
       // 摸鱼工资单独沉淀为结算输入（日报"带薪摸鱼收入"）。
       if (salary > 0 && mode === 'FISHING') {
         const inputs = this.context.player.gameDay?.settlementInputs;
-        this.context.gameDay.recordSettlementInput({ paidFishingSalary: (inputs?.paidFishingSalary ?? 0) + salary });
+        const dayPaid = (inputs?.paidFishingSalary ?? 0) + salary;
+        this.context.gameDay.recordSettlementInput({ paidFishingSalary: dayPaid });
         this.context.player.lifetimeStats = {
           ...this.context.player.lifetimeStats,
           paidFishingSalary: (this.context.player.lifetimeStats.paidFishingSalary ?? 0) + salary,
         };
+        // ULTRA-DEEP：接通 WP_FISHER 成就（fishingDayOver100 此前无任何写入点 = 死成就）。
+        // 单日带薪摸鱼 ≥100 时按天一次性计数（managerFlags 去重，跨日可再触发）。
+        if (dayPaid >= 100) {
+          const dayIndex = this.context.player.gameDay?.dayIndex ?? 1;
+          const flagKey = `fishingOver100Day_${dayIndex}`;
+          const flags = this.context.player.managerFlags ?? {};
+          if (!flags[flagKey]) {
+            this.context.player.managerFlags = { ...flags, [flagKey]: true };
+            const stats = this.context.player.lifetimeStats;
+            this.context.player.lifetimeStats = { ...stats, fishingDayOver100: (stats.fishingDayOver100 ?? 0) + 1 };
+          }
+        }
       }
       // Update daily task progress for time-based tasks (absolute value from player state).
       if (mode === 'WORK') {

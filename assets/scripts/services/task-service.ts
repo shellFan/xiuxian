@@ -158,6 +158,13 @@ export class TaskService {
     };
 
     const previousTasks = [...this.context.player.activeTasks];
+    // ULTRA-DEEP #2 (HIGH): a claimed entry of the same taskId must be replaced,
+    // not kept alongside the new run — the stale claimed slot previously got
+    // revived by ensureRuntime's taskId-keyed mapping and leaked an active slot.
+    const hadClaimedTwin = previousTasks.some((t) => t.taskId === configId && t.claimed);
+    if (hadClaimedTwin) {
+      this.context.player.activeTasks = previousTasks.filter((t) => !(t.taskId === configId && t.claimed));
+    }
     this.context.player.activeTasks.push(task);
 
     try {

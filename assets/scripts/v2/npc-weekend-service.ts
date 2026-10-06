@@ -215,7 +215,9 @@ export class WeekendService {
       npc.change('JUNIOR', 8);
       npc.change('VETERAN', 8);
       this.context.mind.applyDelta(20);
-      const luck = Math.random();
+      // ULTRA-DEEP（§140）：玩法掉落概率走种子化 rng（dayIndex 派生，可重放）
+      const seedState = (((this.context.player.gameDay?.dayIndex ?? 1) * 2654435761) ^ 0x9e3779b9) >>> 0;
+      const luck = (((seedState ^ (seedState >>> 13)) >>> 0) % 10000) / 10000;
       if (luck < 0.3) {
         p.materials['mat_fishing_tip'] = (p.materials['mat_fishing_tip'] ?? 0) + 2;
         summary = '聚会尽兴：JUNIOR/VETERAN 关系 +8，道心 +20，还顺来了两份摸鱼心得。';
