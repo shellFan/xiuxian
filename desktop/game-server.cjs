@@ -80,6 +80,10 @@ class GameServer {
   /** Stop the server. */
   stop() {
     if (this._server) {
+      // ULTRA-DEEP §23: destroy lingering keep-alive sockets (renderer is already
+      // gone at this point) so close() completes and the process exits promptly
+      // instead of idling ~13s on dead connections.
+      try { this._server.closeAllConnections(); } catch (e) { /* Node < 18.2 */ }
       this._server.close();
       this._server = null;
       console.log('[GameServer] Stopped');

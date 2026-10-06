@@ -811,13 +811,20 @@ export class BattleService {
       run.log.push(`【复盘回忆】你再次面对 ${MONSTER_MAP.get(replayBossId)?.name ?? replayBossId}。`);
     } else {
       const wave = WAVES[run.wave];
-      const professionPool = this.context.professionContent?.monsterPool() ?? this.context.profession?.def().monsters ?? [];
+      // ULTRA-DEEP（§95 HIGH）：monsterPool() 只含 mon_*，职业的 bosses 数组不与其相交，
+      // BOSS 门控必须显式并入职业 Boss 名单，否则门控不可达（实测外来率 54%）。
+      const professionPool = [
+        ...(this.context.professionContent?.monsterPool() ?? this.context.profession?.def().monsters ?? []),
+        ...(this.context.professionContent?.def().bosses ?? []),
+      ];
       for (let i = 0; i < wave.count; i += 1) {
         const tier = wave.tiers[Math.min(i, wave.tiers.length - 1)];
         let candidates = Array.from(MONSTER_MAP.values()).filter((m) => m.tier === tier);
         // V5.7 职业怪池优先：本职业相关怪物 70% 概率优先出（独有比例 ≥70%）。
-        // ULTRA-DEEP（§95 HIGH）：BOSS 同样受职业池门控 —— 否则玩家频繁遭遇他职业专属 Boss。
-        if (tier === 'BOSS' && professionPool.length > 0) {
+        // ULTRA-DEEP（§95 HIGH）：BOSS 受职业池门控（80/20）。门控完成后不得再进
+        // 下方 70% specialty 二次过滤 —— 该过滤对 mon_* 池设计，BOSS 永不匹配会把
+        // 已门控的结果重洗回全池（实测外来率被抬回 31%）。
+        if (tier === 'BOSS') {
           const profBosses = candidates.filter((m) => professionPool.includes(m.id));
           const nonProfBosses = candidates.filter((m) => !professionPool.includes(m.id));
           if (profBosses.length > 0 && nonProfBosses.length > 0) {
@@ -825,6 +832,9 @@ export class BattleService {
           } else if (profBosses.length > 0) {
             candidates = profBosses;
           }
+          const def = candidates[Math.floor(this.rng() * candidates.length)];
+          if (def) this.addEnemy(run, def.id);
+          continue;
         }
         const specialty = professionPool.length > 0 ? candidates.filter((m) => professionPool.includes(m.id)) : [];
         if (specialty.length > 0 && this.rng() < 0.7) candidates = specialty;
