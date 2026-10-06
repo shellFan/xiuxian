@@ -743,13 +743,11 @@ export class BattleService {
       if (!def) throw new Error('无效的技能选择');
       run.skills.push(skillId);
       run.skillLevels = { ...(run.skillLevels ?? {}), [skillId]: 1 };
-      // 护盾与敌方减速在习得时一次性生效（不随 tick 叠加）。
+      // 护盾在习得时一次性生效。敌方减速不在此处原地改 intervalSec ——
+      // ULTRA-DEEP RED TEAM（UD-3 V2 绕过修复）：同一技能的 enemySlow 已进入
+      // playerSkillStats 聚合并由逐跳 effectiveInterval 消费（含 0.6 封顶），
+      // 习得期再乘一次会造成双重减速（实测 2.55x > 设计 1.6x 上限）。
       if (def.shieldBonus) run.shield += def.shieldBonus;
-      if (def.enemySlow) {
-        run.enemies.forEach((enemy) => {
-          enemy.intervalSec = Math.min(6, enemy.intervalSec * (1 + def.enemySlow!));
-        });
-      }
       run.log.push(`习得【${def.name}】`);
       this.evaluateSynergies(run);
     }

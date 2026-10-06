@@ -132,6 +132,14 @@ export class V2EventService {
     if (this.current) return this.current;
     const now = this.clock.now();
     const dayIndex = Math.max(1, this.gameDay.dayIndex());
+    // ULTRA-DEEP（§43-44 HIGH 修复）：免费加班窗口不投递新的随机事件。
+    // 设计口径"free sessions can never obtain an ordinary work wage"——此前
+    // OT 窗口的 tick 继续轮询事件入账，使免费加班成为零代价严格占优
+    //（+25.5% 工资 / 7d，10/10 seeds 复现）。有偿加班与链事件不受影响。
+    try {
+      const ot = this.context.overtime?.current?.();
+      if (ot && ot.status === 'ACTIVE' && ot.free) return this.pollChain(now);
+    } catch { /* overtime 未初始化时按原逻辑 */ }
     // §144: 每日种子——同一天内事件序列可复现；pickSeq 保证每次 pick 消耗新随机数
     this.rng = this.random.forDay(dayIndex, this.scheduler.nextPickSalt());
     if (!this.scheduler.isDue(now, dayIndex)) return this.pollChain(now);

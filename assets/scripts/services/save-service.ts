@@ -129,7 +129,9 @@ function migrate(raw: unknown, now: number): GameSaveData {
     sectId: typeof raw.sectId === 'string' ? raw.sectId : null,
     lastSectSwitchTime: isNonNegativeSafeInteger(raw.lastSectSwitchTime) ? raw.lastSectSwitchTime : 0,
     talentId: typeof raw.talentId === 'string' ? raw.talentId : null,
-    workMode: raw.workMode === 'WORK' ? 'WORK' : 'FISHING',
+    // ULTRA-DEEP F2（MEDIUM 修复）：workMode 四值全持久化 —— 此前二值化把
+    // CULTIVATING/SOCIAL 静默降级为 FISHING（玩家选修炼/社交，回来变摸鱼）。
+    workMode: isWorkMode(raw.workMode) ? raw.workMode : 'FISHING',
     workSeconds: isNonNegativeSafeInteger(raw.workSeconds) ? raw.workSeconds : 0,
     fishingSeconds: isNonNegativeSafeInteger(raw.fishingSeconds) ? raw.fishingSeconds : 0,
     kpiProgress: isRecord(raw.kpiProgress) ? numericRecord(raw.kpiProgress) : {},

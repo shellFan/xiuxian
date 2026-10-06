@@ -41,9 +41,14 @@ export class GameLoopService {
 
   public tick(deltaSeconds: number): void {
     if (!this.running || !Number.isFinite(deltaSeconds) || deltaSeconds <= 0) return;
+    // ULTRA-DEEP F1（HIGH 修复）：单帧 delta 无上限 —— 断点恢复/长 GC/后台切回
+    // 传回异常大 dt 时，step 循环会同步自旋数小时（tick(1e12) ≈ 冻结 3 天）。
+    // 钳制为 1 游戏小时/帧（3600 步上限）；离线收益由 OfflineSettlement 独立结算，
+    // 此处丢弃的超时部分不影响挂机收益。
+    const clamped = Math.min(deltaSeconds, 3600);
     // V5.5 §139：前台游玩时间倍率（游戏时间 16× 真实时间，一个工作日 ≈ 34 真实分钟）。
-    try { this.context.clockV2.advancePlayTime(deltaSeconds * 1000); } catch { /* clock scale must not crash loop */ }
-    this.accumulatedSeconds += deltaSeconds;
+    try { this.context.clockV2.advancePlayTime(clamped * 1000); } catch { /* clock scale must not crash loop */ }
+    this.accumulatedSeconds += clamped;
     const interval = this.tickIntervalSeconds;
     while (this.accumulatedSeconds >= interval - GameLoopService.EPSILON) {
       this.accumulatedSeconds -= interval;
