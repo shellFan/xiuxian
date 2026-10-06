@@ -33,6 +33,32 @@ export class GoalDirectorService {
     const f = this.context;
     const player = f.player;
 
+    // NOW 0（OVERNIGHT §9/§11 修复）：新手核心循环引导 —— 审计实测新玩家 52 分钟零引导。
+    // 尚无职业：指向职业选择门（真实 UI 流，玩家在首页完成选择）。
+    try {
+      if (!player.profession) {
+        goals.push({
+          layer: 'NOW', priority: 9.8, icon: '🧭',
+          text: '选择你的牛马道途',
+          sub: '职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。',
+          action: 'goto', page: 'HOME', btn: '去选择职业',
+        });
+      }
+    } catch { /* noop */ }
+
+    // NOW 1（§11 修复）：有职业但没有任何任务 → 明确指向任务页接活
+    try {
+      const openTasks = player.activeTasks.filter((t) => !t.claimed).length;
+      if (player.profession && openTasks === 0 && !(f.battle.finished?.() ?? null)) {
+        goals.push({
+          layer: 'NOW', priority: 6.8, icon: '📋',
+          text: '接下今天的第一个任务',
+          sub: '任务页挑选差事——完成领工资、修为与绩效，工时正等着你',
+          action: 'goto', page: 'TASKS', btn: '去任务页',
+        });
+      }
+    } catch { /* noop */ }
+
     // NOW 0（OVERNIGHT §9）：战斗已结束但结算未领取 —— 掉落不领就白打了
     try {
       const finished = f.battle.finished?.() ?? null;

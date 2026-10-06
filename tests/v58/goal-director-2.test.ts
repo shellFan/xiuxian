@@ -92,5 +92,20 @@ function testGoalPriorityOrder(): void {
 testProfessionAwareGoalText();
 testBattleClaimIsNowGoal();
 testMindRecoveryNowGoal();
+
+/** §11: fresh player with a profession but no tasks gets a 'take first task' NOW goal. */
+function testFreshPlayerTaskGuidance(): void {
+  const { facade } = makeFacade();
+  try {
+    const goals = facade.queryGoals();
+    const guide = goals.find((g) => g.layer === 'NOW' && g.page === 'TASKS' && /第一个任务/.test(g.text));
+    assert.ok(guide, 'fresh player gets task guidance NOW goal');
+    console.log('fresh player task guidance passed');
+  } finally {
+    facade.destroy();
+  }
+}
+
 testGoalPriorityOrder();
+testFreshPlayerTaskGuidance();
 console.log('goal director 2.0: all tests passed');

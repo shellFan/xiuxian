@@ -777,6 +777,12 @@
   function showWelcomeBackPopup() {
     var f = facade();
     if (!f || typeof f.prepareWelcomeBackSummary !== 'function') return;
+    // ULTRA-DEEP（§193 HIGH 修复）：全新玩家（尚无职业/首日未开工）不弹'欢迎回来·离线简报'
+    // —— 没有离线期却收到离线收益，认知混乱。仅当玩家已入职（有职业）才展示。
+    try {
+      var pFresh = f.context && f.context.player;
+      if (pFresh && !pFresh.profession) { console.log('[UI] fresh player — skip welcome-back popup'); return; }
+    } catch (e) { /* fallthrough */ }
     var summary;
     try { summary = f.prepareWelcomeBackSummary(); } catch (e) { return; }
     if (!summary || !summary.settlementId || !summary.simulation) return;
