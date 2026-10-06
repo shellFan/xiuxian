@@ -358,11 +358,14 @@ export class TaskRuntimeDirector {
 
   private pickEvent(task: ActiveTaskState): TaskRuntimeEventDef | null {
     const professionId = this.context.profession?.currentId() ?? 'JAVA_BACKEND';
+    // ULTRA-DEEP（§95）：ms_task_<prof>_* 前缀事件按职业门控（与 story-director 行为对齐）
+    const profPrefix = ({ JAVA_BACKEND: 'ms_task_java_', FRONTEND: 'ms_task_fe_', QA: 'ms_task_qa_', DEVOPS: 'ms_task_ops_' } as Record<string, string>)[professionId];
     const debtAvg = this.context.techDebt?.average?.() ?? 0;
     const pool = MESSENGER_CONTENT.events.filter((e): e is MessengerEventDef & TaskRuntimeEventDef => {
       const rt = e as unknown as TaskRuntimeEventDef;
       if (!rt.category) return false;
       if (rt.weight !== 0) return false; // 专用池：weight=0 不进随机消息池
+      if (rt.id.startsWith('ms_task_') && profPrefix && !rt.id.startsWith(profPrefix)) return false;
       if (!rt.professions) return true;
       return rt.professions.includes(professionId);
     });

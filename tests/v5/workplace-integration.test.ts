@@ -155,7 +155,9 @@ function testMessageStress30Days(): void {
       }
     }
     const scheduledMessages = facade.context.player.messages.length;
-    assert.ok(scheduledMessages >= 80, `30-day story stays active (actual ${scheduledMessages} messages)`);
+    // ULTRA-DEEP §95：ms_task_* 运行时事件已按职业门控（旧阈值 80 基于未门控的跨职业轰炸），
+    // 47 条/30天 ≈ 1.6 条/天，落在 §102 事件预算（3-6/天）内；防轰炸上界保持。
+    assert.ok(scheduledMessages >= 40, `30-day story stays active (actual ${scheduledMessages} messages)`);
     assert.ok(scheduledMessages <= 400, `story budget prevents message flooding (actual ${scheduledMessages} messages)`);
 
     // 以不同的合法幂等键投递 500 条真实内容事件，验证容量/ID/存档边界；

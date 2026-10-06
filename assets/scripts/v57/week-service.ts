@@ -279,10 +279,15 @@ export class WeekService {
     if (dayIndex > 7 && this.weekStoryState().weekIndex === 1) {
       player.weekStory = { ...this.weekStoryState(), weekIndex: weekIndexOf(dayIndex) };
     }
-    // 周日 10:00 → 周结算就绪
+    // 周日 10:00 → 周结算就绪（ULTRA-DEEP：每周只 emit 一次 —— 结算会把
+    // weekSettlementReady 复位，旧逻辑在周日傍晚重复置位导致 D7 双弹窗）
     if (dow === 7 && minuteOfDay >= 600 && !player.weekSettlementReady) {
-      player.weekSettlementReady = true;
-      this.context.events.emit('weekSettlementReady', { weekIndex: weekIndexOf(dayIndex) });
+      const stamp = `weekReadyEmitted_${weekIndexOf(dayIndex)}`;
+      if (!player.eventFlags?.[stamp]) {
+        player.eventFlags = { ...(player.eventFlags ?? {}), [stamp]: true };
+        player.weekSettlementReady = true;
+        this.context.events.emit('weekSettlementReady', { weekIndex: weekIndexOf(dayIndex) });
+      }
     }
     this.checkSecretEvents(nowMs);
   }

@@ -60,7 +60,9 @@ export class DailyPlannerService {
   public beginWorkday(): void {
     const player = this.context.player;
     if ((player.dailyPlan ?? []).length > 0) return; // 已生成（loop 首日只调一次）
-    const rng = this.context.randomV2.forDay(this.context.gameDay.dayIndex() || 1, 6101);
+    // ULTRA-DEEP（§95）：RNG 掺职业盐 —— 同一天四职业计划序列不再相同
+    const profSalt = (this.context.profession?.currentId() ?? '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+    const rng = this.context.randomV2.forDay(this.context.gameDay.dayIndex() || 1, 6101 + profSalt);
     const picked: DailyPlanEntry[] = [];
     // 职业池（V5.7）优先
     const profContent = this.context.professionContent;

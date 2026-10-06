@@ -150,11 +150,14 @@ export class GameLoopService {
       this.context.storyDirector.tick(this.context.clockV2.now());
       // V5.7 周导演：第一周节拍 / 周日结算 / 隐藏事件。
       this.context.week.tick(this.context.clockV2.now());
-      // 09:00 开工时刷新每日计划（每个自然日只触发一次）
-      const gameDate = this.context.clockV2.getGameDate();
-      const planStamp = `v5plan:${gameDate.dayNumber}`;
+      // 09:00 开工时刷新每日计划（每个游戏日只触发一次；锚定 dayIndex 而非 UTC 日 ——
+      // ULTRA-DEEP HIGH 修复：UTC dayNumber 在 UTC+8 的 08:00 翻转，比 dayIndex 早一小时，
+      // 导致 08:25 的事件以上一日 dayIndex 投递、新一天的 beginWorkday 被跳过）
+      const planStamp = `v5plan:${this.context.gameDay.dayIndex()}`;
       if (!this.context.player.eventFlags?.[planStamp] && this.context.gameDay.dayIndex() > 0) {
         this.context.player.eventFlags = { ...(this.context.player.eventFlags ?? {}), [planStamp]: true };
+        // ULTRA-DEEP HIGH 修复：跨天必须清空昨日计划，否则 dailyPlan 永不刷新（capacity 失真）
+        this.context.player.dailyPlan = [];
         this.context.storyDirector.beginWorkday();
         this.context.week.beginWorkday();
         this.context.professionContent.grantLevelUps();

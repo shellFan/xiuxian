@@ -149,8 +149,13 @@ export class BattleService {
   /** V5.7 职业分家：Build 选项 = 本职业 Build + 摸鱼流。 */
   public buildOptions(): readonly BuildDef[] {
     const allowed = new Set(this.context.professionContent?.buildIds() ?? [fishBuildId()]);
+    const profNow = this.context.profession?.currentId();
+    // ULTRA-DEEP（§174）：本职业专属 Build 优先展示，摸鱼流等通用 Build 殿后
     const options = ALL_BUILDS.filter((b) => allowed.has(b.id));
-    return options.length > 0 ? options : ALL_BUILDS;
+    const ordered = profNow
+      ? [...options.filter((b) => b.profession === profNow), ...options.filter((b) => b.profession !== profNow)]
+      : options;
+    return ordered.length > 0 ? ordered : ALL_BUILDS;
   }
 
   /** 技能定义表（三选一 UI 展示用）。 */
@@ -811,6 +816,16 @@ export class BattleService {
         const tier = wave.tiers[Math.min(i, wave.tiers.length - 1)];
         let candidates = Array.from(MONSTER_MAP.values()).filter((m) => m.tier === tier);
         // V5.7 职业怪池优先：本职业相关怪物 70% 概率优先出（独有比例 ≥70%）。
+        // ULTRA-DEEP（§95 HIGH）：BOSS 同样受职业池门控 —— 否则玩家频繁遭遇他职业专属 Boss。
+        if (tier === 'BOSS' && professionPool.length > 0) {
+          const profBosses = candidates.filter((m) => professionPool.includes(m.id));
+          const nonProfBosses = candidates.filter((m) => !professionPool.includes(m.id));
+          if (profBosses.length > 0 && nonProfBosses.length > 0) {
+            candidates = this.rng() < 0.8 ? profBosses : nonProfBosses;
+          } else if (profBosses.length > 0) {
+            candidates = profBosses;
+          }
+        }
         const specialty = professionPool.length > 0 ? candidates.filter((m) => professionPool.includes(m.id)) : [];
         if (specialty.length > 0 && this.rng() < 0.7) candidates = specialty;
         const def = candidates[Math.floor(this.rng() * candidates.length)];
