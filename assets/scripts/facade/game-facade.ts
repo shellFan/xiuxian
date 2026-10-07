@@ -50,6 +50,7 @@ import { allEquipmentDefs, AFFIX_MAP, SET_MAP, RARITY_CN, V57_SETS, type LootEqu
 import { WEEK_CONTENT } from '../v57/week-service';
 import { messengerEventById } from '../v5/messenger-content';
 import { EVOLUTIONS } from '../v57/battle-merge';
+import { createRuntimeDataSnapshot, recordTodayLife, type RuntimeDataSnapshot, type TodayLifeKind } from './runtime-data-snapshot';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -206,6 +207,10 @@ export class GameFacade {
   public queryTimeUntilOffWork() { return this.context.clockV2.getTimeUntilOffWorkMs(); }
   /** Work Today 首页的只读时间/工时投影。 */
   public queryWorkToday() { return this.context.workToday.snapshot(); }
+  /** Single immutable source for all player-visible home runtime facts. */
+  public queryRuntimeData(): RuntimeDataSnapshot { return createRuntimeDataSnapshot(this.context); }
+  /** Record a real, persisted daily life action; UI never synthesizes these counts. */
+  public recordTodayLife(kind: TodayLifeKind): { ok: boolean; reason?: string } { return recordTodayLife(this.context, kind); }
 
   // ── V5 飞剑传书（WorkplaceMessenger） ──
 

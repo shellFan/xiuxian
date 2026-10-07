@@ -19,6 +19,13 @@ export interface WorkTickResult {
   readonly mode: WorkMode;
 }
 
+/** The single nominal income rate used by every player-facing rate display. */
+export interface WorkIncomeRate {
+  readonly perSecond: number;
+  readonly perMinute: number;
+  readonly perHour: number;
+}
+
 /**
  * V2 四模式经济表（§19~§22）。
  * salary/cultivation 为基础率的倍率；mindPerHour 为道心每小时变化（负=流失）。
@@ -59,6 +66,21 @@ export class WorkService {
   }
 
   public get mode(): WorkMode { return this.context.player.workMode; }
+
+  /**
+   * Read-only rate projection. Reward settlement remains integer/remainder based in tick(),
+   * but UI must derive all units from this one authoritative nominal hourly rate.
+   */
+  public incomeRate(): WorkIncomeRate {
+    const mode = this.mode;
+    const rules = MODE_RULES[mode];
+    const override = this.options.modeMultipliers?.[mode];
+    const hourly = this.rateForBoard(this.salaryPerHour)
+      * (override?.salaryMul ?? rules.salaryMul)
+      * this.context.buffs.getMultiplier('WORK_SALARY_BOOST')
+      * this.context.career.current().salaryMultiplier;
+    return Object.freeze({ perSecond: hourly / 3600, perMinute: hourly / 60, perHour: hourly });
+  }
 
   public setMode(mode: WorkMode): void {
     if (!MODE_RULES[mode]) throw new Error('Invalid work mode');

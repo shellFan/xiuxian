@@ -192,6 +192,7 @@ export class TaskService {
       if (elapsed >= task.durationSeconds) {
         task.completed = true;
         completedTaskIds.push(task.taskId);
+        this.context.messenger.appendReality({ time: now, text: `完成任务「${task.name}」`, kind: 'WORK' });
         this.context.events.emit('taskCompleted', { taskId: task.taskId, taskType: task.taskType });
         continue;
       }
@@ -254,6 +255,7 @@ export class TaskService {
       }
 
       task.claimed = true;
+      this.context.messenger.appendReality({ time: this.clock.now(), text: `领取任务「${task.name}」奖励`, kind: 'WORK' });
       this.context.kpi.recordTaskDone();
       // V5.7：职业任务计数（周目标）+ 计划条目完成标记 + 职业经验（§14：职业任务为经验来源）
       try {

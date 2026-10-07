@@ -651,7 +651,9 @@ export interface FirstWeekStoryState {
 export interface DailyRealityEntryState {
   readonly time: number;
   readonly text: string;
-  readonly kind: 'WORK' | 'FAVOR' | 'MEETING' | 'INCIDENT' | 'OVERTIME' | 'CHANGE' | 'BLAME' | 'REST';
+  readonly kind: 'WORK' | 'FAVOR' | 'MEETING' | 'INCIDENT' | 'OVERTIME' | 'CHANGE' | 'BLAME' | 'REST' | 'LIFE';
+  /** Explicit player action used by the living-home summary; never a UI-derived purchase-power value. */
+  readonly lifeAction?: 'COFFEE' | 'LUNCH' | 'MILK_TEA' | 'CODE_COMMIT' | 'DOCUMENT';
 }
 
 

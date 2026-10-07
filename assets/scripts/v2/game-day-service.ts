@@ -122,6 +122,9 @@ export class GameDayService {
       eventHistory: [],
     };
     this.context.player.gameDay = day;
+    // Daily reality is the persisted source for the living-home activity/life feed.
+    // A new game day must not inherit yesterday's coffee, lunch, or work story.
+    this.context.player.dailyReality = [];
     this.situationCache = null;
     this.rollSituation();
     this.context.events.emit('gameDayStarted', { dayIndex: day.dayIndex, weekday: day.weekday });
