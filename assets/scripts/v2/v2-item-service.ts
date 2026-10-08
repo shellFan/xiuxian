@@ -257,11 +257,43 @@ export class V2ItemService {
     const p = this.context.player;
     if (equipmentId !== null) {
       const def = EQUIPMENT_MAP.get(equipmentId);
-      if (!def || !p.ownedEquipment.includes(equipmentId) || def.slot !== slot) return false;
+      // 合法性校验（§205）：未知装备 / 未持有 / 槽位不符 一律拒绝，且原因可观测。
+      if (!def) {
+        this.context.events.emit('equipmentEquipped', { slot, equipmentId: null, rejected: 'UNKNOWN_EQUIPMENT' });
+        return false;
+      }
+      if (!p.ownedEquipment.includes(equipmentId)) {
+        this.context.events.emit('equipmentEquipped', { slot, equipmentId: null, rejected: 'NOT_OWNED' });
+        return false;
+      }
+      if (def.slot !== slot) {
+        this.context.events.emit('equipmentEquipped', { slot, equipmentId: null, rejected: 'SLOT_MISMATCH' });
+        return false;
+      }
     }
     p.equippedEquipment = { ...p.equippedEquipment, [slot]: equipmentId };
     this.context.events.emit('equipmentEquipped', { slot, equipmentId });
     return true;
+  }
+
+  /**
+   * 合法性自愈（读取路径调用）：已装备但未持有/未知的装备 ID 会被清出槽位。
+   * 返回被清理的槽位列表；存档本身由调用方决定是否回写。
+   */
+  public sanitizeEquipped(): string[] {
+    const p = this.context.player;
+    const equipped = { ...(p.equippedEquipment ?? {}) };
+    const owned = new Set(p.ownedEquipment ?? []);
+    const cleared: string[] = [];
+    for (const slot of Object.keys(equipped) as EquipSlot[]) {
+      const id = equipped[slot];
+      if (id !== null && !owned.has(id)) {
+        equipped[slot] = null;
+        cleared.push(slot);
+      }
+    }
+    if (cleared.length > 0) p.equippedEquipment = equipped;
+    return cleared;
   }
 
   // ── 合成（§64~§67） ───────────────────────────────────────────────────────

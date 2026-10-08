@@ -438,6 +438,25 @@ export class GameFacade {
   public queryBattleSummary() {
     const run = this.context.battle.finished();
     if (!run) return null;
+    // P1c 战斗可解释化：解释本局伤害/生存差异的真实来源。
+    const profDef = this.context.profession?.def();
+    const build = this.context.battle.buildOptions().find((b) => b.id === run.buildId) ?? null;
+    // 词条明细：已装备装备上每个流派词条 → 命中的 run 技能数（真实联动可观测）
+    const tagAffixSummary: { name: string; hitSkills: number }[] = [];
+    try {
+      const equippedIds = Object.values(this.context.player.equippedEquipment ?? {}).filter((v): v is string => !!v);
+      const seen = new Set<string>();
+      for (const eqId of equippedIds) {
+        const def = allEquipmentDefs().find((d) => d.id === eqId) as LootEquipmentDef | undefined;
+        for (const affixId of def?.affixes ?? []) {
+          const affix = AFFIX_MAP.get(affixId);
+          const tagMul = affix?.effects.skillTagMul;
+          if (!affix || !tagMul || seen.has(affix.id)) continue;
+          seen.add(affix.id);
+          tagAffixSummary.push({ name: affix.name, hitSkills: this.context.loot.skillCountWithTag(tagMul[0]) });
+        }
+      }
+    } catch { /* 摘要增强失败不阻塞结算 */ }
     return {
       runId: run.runId,
       status: run.status,
@@ -448,6 +467,10 @@ export class GameFacade {
       synergies: run.synergies ?? [],
       evolvedSkills: run.evolvedSkills ?? [],
       loot: run.loot,
+      // ── V5.8 P1c：可解释性 ──
+      buildName: build?.name ?? run.buildId,
+      professionName: profDef?.title ?? null,
+      affixSummary: tagAffixSummary,
     };
   }
   /** 待进入的事故副本（消息链生成的线上禁地，§31）。 */
@@ -531,7 +554,18 @@ export class GameFacade {
   public queryTechniqueLevels() { return ({ ...this.context.player.techniqueLevels }); }
   public queryEquippedTechniques() { return [...this.context.player.equippedTechniques]; }
   public queryOwnedEquipment() { return [...this.context.player.ownedEquipment]; }
-  public queryEquippedEquipment() { return ({ ...this.context.player.equippedEquipment }); }
+  public queryEquippedEquipment() {
+    // P1b 合法性自愈：读取时清理"已装备但未持有/未知"的槽位（损坏存档不静默变空对象——
+    // 清理是显式行为并广播事件），随后回写存档。
+    try {
+      const cleared = this.context.v2Items.sanitizeEquipped();
+      if (cleared.length > 0) {
+        console.warn('[Facade] equipped slots cleared (not owned):', cleared.join(','));
+        this.context.saveService.save(this.context.player);
+      }
+    } catch { /* 自愈失败不影响读取 */ }
+    return ({ ...this.context.player.equippedEquipment });
+  }
   public v2Craft(recipeId: string) { return this.context.v2Items.craft(recipeId); }
   public v2UseConsumable(id: string) { return this.context.v2Items.useConsumable(id); }
   public v2EquipTechnique(slot: 0 | 1 | 2, id: string | null) { return this.context.v2Items.equipTechnique(slot, id); }
