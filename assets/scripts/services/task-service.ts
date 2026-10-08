@@ -233,12 +233,15 @@ export class TaskService {
     const previousMind = this.context.player.mind;
     const previousKpiProgress = { ...this.context.player.kpiProgress };
     const previousDailyTasks = this.context.player.dailyTasks.map((dailyTask) => ({ ...dailyTask }));
+    const previousDayIncome = { ...(this.context.player.gameDay?.income ?? { salary: 0, cultivation: 0, performance: 0 }) };
     const rewardPerformance = task.rewardPerformance ?? 0;
     const rewardMind = task.rewardMind ?? 0;
 
     try {
       if (task.rewardSalary > 0) {
         this.context.economy.applyIdleSalary(task.rewardSalary);
+        // P0 结算一致性：任务工资同步记入当日账本，与首页"今日已赚"/日结算对齐。
+        this.context.gameDay.addIncome('salary', task.rewardSalary);
       }
       if (actualCultivation > 0) {
         this.context.cultivation.applyIdleExperience(actualCultivation);
@@ -285,6 +288,9 @@ export class TaskService {
       this.context.player.mind = previousMind;
       this.context.player.kpiProgress = previousKpiProgress;
       this.context.player.dailyTasks = previousDailyTasks;
+      if (this.context.player.gameDay) {
+        this.context.player.gameDay = { ...this.context.player.gameDay, income: previousDayIncome };
+      }
       task.claimed = false;
       throw error;
     }

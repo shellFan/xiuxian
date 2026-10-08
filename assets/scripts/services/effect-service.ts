@@ -17,6 +17,14 @@ export class EffectService {
       applySaveData(this.context.player, previous);
       throw error;
     }
+    // P0 结算一致性：统一效果通道的入账同步记入当日账本（gameDay.income），
+    // 使首页"今日已赚"、日结算与修仙履历共享同一权威账目。负向 delta 不入账。
+    try {
+      const income = this.context.gameDay;
+      if ((effect.salary ?? 0) > 0) income.addIncome('salary', effect.salary!);
+      if ((effect.cultivation ?? 0) > 0) income.addIncome('cultivation', effect.cultivation!);
+      if ((effect.performance ?? 0) > 0) income.addIncome('performance', effect.performance!);
+    } catch { /* 当日账本缺失时不得阻塞奖励本身 */ }
     try {
       const salary = effect.salary ?? 0;
       if (salary !== 0) this.context.events.emit('salaryChanged', { amount: salary, total: next.salary });
