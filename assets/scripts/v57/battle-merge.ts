@@ -200,3 +200,41 @@ export function evolutionForBase(baseSkillId: string): EvolutionDef | undefined 
 export function bossMechanicsFor(defId: string): BossMechanicDef | undefined {
   return BOSS_MECHANICS.get(defId);
 }
+
+/**
+ * V5.8 装备词条联动：技能流派 tag（AffixEffects.skillTagMul 消费端）。
+ * 词条如"JVM技能 +8%"只增幅携带对应 tag 的技能。tag 由技能 id 派生（升级/进化
+ * 与 base 同流派），无需在 84 条技能配置上逐条维护。
+ */
+const SKILL_TAG_PATTERNS: readonly (readonly [string, RegExp])[] = [
+  ['JVM', /^(skill_gc|pass_jit_warmup|pass_gc_tuning|pass_bytecode)/],
+  ['DBA', /^(skill_index_sword|skill_index_composite|skill_sql_optimize|pass_index_cache)/],
+  ['REDIS', /^(skill_cache_shield|pass_cache_first)/],
+  ['CONCURRENT', /^(skill_thread_clone|skill_thread_pool|skill_dist_lock|pass_thread_isolation)/],
+  ['SPRING', /^(skill_aop_array)/],
+  ['TX', /^(skill_tx_shield|skill_saga_shield)/],
+  ['PIXEL', /^(skill_css_array|pass_pixel_eye|pass_virtual_dom|pass_responsive)/],
+  ['DEVTOOLS', /^(skill_devtools|skill_sourmap_eye|pass_devtools_panel|pass_typescript)/],
+  ['PERF', /^(skill_lazy_load|skill_tree_shake|skill_bundle_split|pass_hot_reload)/],
+  ['COMPAT', /^(skill_polyfill|pass_semver)/],
+  ['BUILD', /^(skill_hot_fix)/],
+  ['AUTOMATION', /^(skill_auto_script|pass_parallel_run|pass_automation)/],
+  ['BOUNDARY', /^(skill_boundary_eye|pass_suspicion)/],
+  ['REGRESSION', /^(skill_regression_wave|pass_repro_steps|pass_checklist)/],
+  ['STRESS', /^(skill_stress_storm|pass_risk_sense)/],
+  ['MOCK', /^(skill_mock_seal)/],
+  ['EVIDENCE', /^(skill_test_report|pass_evidence_chain|pass_quality_gate)/],
+  ['K8S', /^(skill_k8s_swarm|pass_oncall)/],
+  ['NGINX', /^(skill_nginx_proxy|skill_nginx_cluster)/],
+  ['MONITOR', /^(skill_log_eye|skill_prometheus|pass_monitoring|pass_infra_as_code)/],
+  ['CONTAINER', /^(skill_docker_clone|pass_capacity)/],
+  ['DR', /^(skill_circuit_break|pass_redundancy|pass_backup_habit|pass_calm_night)/],
+];
+
+/** 技能的流派 tag（未命中任何流派时为 null）。 */
+export function skillTagOf(skillId: string): string | null {
+  for (const [tag, pattern] of SKILL_TAG_PATTERNS) {
+    if (pattern.test(skillId)) return tag;
+  }
+  return null;
+}

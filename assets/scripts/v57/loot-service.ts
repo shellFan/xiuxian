@@ -1,6 +1,7 @@
 import equipmentContent from '../../configs/v57/equipment-content.json';
 import battleExtension from '../../configs/v57/battle-extension.json';
 import { EQUIPMENT_MAP as BASE_EQUIPMENT_MAP } from '../v2/v2-item-service';
+import { skillTagOf } from './battle-merge';
 import type { GameContext } from '../core/game-context';
 
 /**
@@ -133,6 +134,8 @@ export interface EquipmentBattleStats {
   immuneEverySec: number;
   healPerKill: number;
   summonCapBonus: number;
+  /** V5.8 词条联动：流派 tag → 伤害增幅（skillTagMul），战斗侧按技能 tag 消费。 */
+  skillTagMuls: ReadonlyMap<string, number>;
 }
 
 /** 工作属性聚合（装备维度）。 */
@@ -147,7 +150,7 @@ export interface EquipmentWorkStats {
 }
 
 function emptyBattle(): EquipmentBattleStats {
-  return { atkMul: 0, aspdMul: 0, critBonus: 0, maxHpBonus: 0, shieldBonus: 0, dodgeBonus: 0, lootBonus: 0, damageReduce: 0, intervalMulDelta: 0, executePct: 0, aoe: false, reviveOnce: false, immuneEverySec: 0, healPerKill: 0, summonCapBonus: 0 };
+  return { atkMul: 0, aspdMul: 0, critBonus: 0, maxHpBonus: 0, shieldBonus: 0, dodgeBonus: 0, lootBonus: 0, damageReduce: 0, intervalMulDelta: 0, executePct: 0, aoe: false, reviveOnce: false, immuneEverySec: 0, healPerKill: 0, summonCapBonus: 0, skillTagMuls: new Map() };
 }
 
 function emptyWork(): EquipmentWorkStats {
@@ -265,6 +268,12 @@ export class LootService {
     agg.immuneEverySec = Math.max(agg.immuneEverySec, (mods.immuneEverySec as number) ?? 0);
     agg.healPerKill += (mods.healPerKill as number) ?? 0;
     agg.summonCapBonus += (mods.summonCapBonus as number) ?? 0;
+    // V5.8 词条联动：skillTagMul 按流派累加（同流派词条叠加）。
+    const tagMul = mods.skillTagMul as readonly [string, number] | undefined;
+    if (tagMul && typeof tagMul[0] === 'string' && Number.isFinite(tagMul[1])) {
+      const tagMuls = agg.skillTagMuls as Map<string, number>;
+      tagMuls.set(tagMul[0], (tagMuls.get(tagMul[0]) ?? 0) + tagMul[1]);
+    }
   }
 
   /** Boss 专属掉落掷骰（含轻量保底）。 */
@@ -371,6 +380,20 @@ export class LootService {
       const set = (def as LootEquipmentDef).set ? SET_MAP.get((def as LootEquipmentDef).set!) : undefined;
       recommendation = set ? `适合：${set.name}` : '适合：本职业流派';
     }
+    // P1 词条联动：展示该装备携带的流派词条与当前可生效的技能数（真实联动，非摆设）。
+    try {
+      const tagAffixes = ((def as LootEquipmentDef).affixes ?? [])
+        .map((a) => AFFIX_MAP.get(a))
+        .filter((a) => a?.effects.skillTagMul) as AffixDef[];
+      if (tagAffixes.length > 0) {
+        const parts = tagAffixes.map((a) => {
+          const [tag, mul] = a.effects.skillTagMul!;
+          const count = this.skillCountWithTag(tag);
+          return count > 0 ? `${a.name}（当前 ${count} 个技能可吃到）` : `${a.name}（暂无对应技能）`;
+        });
+        recommendation = [recommendation, parts.join('；')].filter(Boolean).join(' · ');
+      }
+    } catch { /* 对比视图的词条说明不阻塞 */ }
     return {
       slot,
       current: curDef ? { id: curDef.id, name: curDef.name, rarity: curDef.rarity, lines: statLine(curDef as LootEquipmentDef), set: (curDef as LootEquipmentDef).set } : null,
@@ -379,5 +402,16 @@ export class LootService {
       recommendation,
       setName: (def as LootEquipmentDef).set ? SET_MAP.get((def as LootEquipmentDef).set!)?.name : undefined,
     };
+  }
+
+  /** 当前玩家 run 技能池中命中某流派 tag 的技能数（对比视图说明用）。 */
+  public skillCountWithTag(tag: string): number {
+    const run = (this.context.player.activeBattleRun as { skills?: string[] } | null | undefined) ?? null;
+    const skillIds = run?.skills ?? [];
+    let count = 0;
+    for (const id of skillIds) {
+      if (skillTagOf(id) === tag) count += 1;
+    }
+    return count;
   }
 }

@@ -14,6 +14,7 @@ import {
   WAVES,
   evolutionForBase,
   bossMechanicsFor,
+  skillTagOf,
   type BuildDef,
   type EvolutionOption,
   type MonsterDef,
@@ -184,6 +185,7 @@ export class BattleService {
 
   public start(source: 'PROJECT' | 'INCIDENT', buildId: string, linkedTaskId: string | null = null, linkedIncidentId: string | null = null, options: { replayBossId?: string; replayOf?: string } = {}): BattleRunState {
     this.equipmentCache = null;
+    this.tagMulCache = null;
     const build = BUILD_MAP.get(buildId) ?? ALL_BUILDS.find((b) => b.id === buildId);
     if (!build) throw new Error('未知的 Build');
     if (this.current()) throw new Error('已有进行中的战斗');
@@ -318,7 +320,10 @@ export class BattleService {
         for (const target of targets) {
           const crit = this.rng() < player.critChance;
           const specialtyMul = this.context.profession?.specialtyMultiplier(target.defId) ?? 1;
-          let damage = Math.max(1, Math.floor(player.attack * specialtyMul * (crit ? 1.8 : 1)));
+          // V5.8 词条联动：装备流派词条（如"JVM技能+8%"）按当前出手技能 tag 增伤。
+          // 出手技能 = 攻击技能池中首个有 tag 的主动技；无词条时乘数 1。
+          const tagMul = this.equippedTagMulForRun(run);
+          let damage = Math.max(1, Math.floor(player.attack * specialtyMul * tagMul * (crit ? 1.8 : 1)));
           // 执行加成（覆盖索引/极限审判）：Boss 残血伤害翻倍
           if (player.executePct > 0 && target.maxHp > 0 && target.hp / target.maxHp <= player.executePct) {
             damage = Math.floor(damage * 2);
@@ -800,6 +805,31 @@ export class BattleService {
     return mul;
   }
 
+  /**
+   * V5.8 词条联动：当前 run 技能池携带流派 tag 的技能占比 × 装备词条增幅之和。
+   * 口径：tagMul = 1 + Σ(词条增幅 × 命中技能数 / 技能池大小)。技能池为空或无
+   * 词条时恒为 1（不影响无装备玩家的战斗）。缓存 per-run，技能变化时失效。
+   */
+  private equippedTagMulForRun(run: BattleRunState): number {
+    const cacheKey = `${run.runId}:${run.skills.length}`;
+    if (this.tagMulCache?.key === cacheKey) return this.tagMulCache.value;
+    const stats = this.equipmentStats();
+    const tagMuls = stats.skillTagMuls;
+    let value = 1;
+    if (tagMuls.size > 0 && run.skills.length > 0) {
+      let bonus = 0;
+      for (const id of run.skills) {
+        const tag = skillTagOf(id);
+        if (tag) bonus += tagMuls.get(tag) ?? 0;
+      }
+      value = 1 + bonus / run.skills.length;
+    }
+    this.tagMulCache = { key: cacheKey, value };
+    return value;
+  }
+
+  private tagMulCache: { key: string; value: number } | null = null;
+
   /** V5.7 职业怪物池 + 历史回归 Boss（复盘）。 */
   private spawnWave(run: BattleRunState, replayBossId?: string): void {
     if (run.wave >= run.waveTotal) return;
@@ -962,6 +992,23 @@ export class BattleService {
       player.spiritStones = Math.min(SPIRIT_MAX, player.spiritStones + stones);
       run.loot.spiritStones = stones;
     }
+    // P2 今日动态：战斗结局与掉落进入 dailyReality（履历只记真实发生的事）。
+    try {
+      if (player.gameDay) {
+        const eqNames = run.loot.equipment
+          .map((eqId) => {
+            const name = this.context.v2Items.materialName(eqId);
+            return name && name !== eqId ? name : null;
+          })
+          .filter((n): n is string => !!n);
+        const outcome = defeated ? (run.replayOf ? '复盘受挫' : '项目受挫') : (run.replayOf ? '复盘完成' : '项目交付');
+        this.context.messenger.appendReality({
+          time: this.context.clockV2.now(),
+          text: `⚔ ${outcome}：${run.kills} 击杀${eqNames.length > 0 ? ` · 掉落 ${eqNames.join('、')}` : ''}`,
+          kind: 'INCIDENT',
+        });
+      }
+    } catch { /* 履历记录失败不阻塞结算 */ }
     // 战斗疲劳成本（V5.7 §80）
     try { this.context.fatigue.add('BOSS_FIGHT'); } catch { /* ignore */ }
     // 周目标计数（V5.7）
@@ -1003,7 +1050,7 @@ export class BattleService {
   }
 
   /** 装备战斗聚合（开局缓存于聚合函数，避免每 tick 重算）。 */
-  private equipmentCache: { atkMul: number; aspdMul: number; critBonus: number; maxHpBonus: number; shieldBonus: number; dodgeBonus: number; lootBonus: number; damageReduce: number; intervalMulDelta: number; executePct: number; aoe: boolean; reviveOnce: boolean; immuneEverySec: number; healPerKill: number; summonCapBonus: number } | null = null;
+  private equipmentCache: import('../v57/loot-service').EquipmentBattleStats | null = null;
 
   private equipmentStats() {
     if (this.equipmentCache) return this.equipmentCache;
@@ -1012,7 +1059,7 @@ export class BattleService {
       this.equipmentCache = stats;
       return stats;
     } catch {
-      const empty = { atkMul: 0, aspdMul: 0, critBonus: 0, maxHpBonus: 0, shieldBonus: 0, dodgeBonus: 0, lootBonus: 0, damageReduce: 0, intervalMulDelta: 0, executePct: 0, aoe: false, reviveOnce: false, immuneEverySec: 0, healPerKill: 0, summonCapBonus: 0 };
+      const empty = { atkMul: 0, aspdMul: 0, critBonus: 0, maxHpBonus: 0, shieldBonus: 0, dodgeBonus: 0, lootBonus: 0, damageReduce: 0, intervalMulDelta: 0, executePct: 0, aoe: false, reviveOnce: false, immuneEverySec: 0, healPerKill: 0, summonCapBonus: 0, skillTagMuls: new Map<string, number>() };
       this.equipmentCache = empty;
       return empty;
     }
