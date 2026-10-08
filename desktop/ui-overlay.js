@@ -779,9 +779,18 @@
     if (!f || typeof f.prepareWelcomeBackSummary !== 'function') return;
     // ULTRA-DEEP（§193 HIGH 修复）：全新玩家（尚无职业/首日未开工）不弹'欢迎回来·离线简报'
     // —— 没有离线期却收到离线收益，认知混乱。仅当玩家已入职（有职业）才展示。
+    // V5.8 修正：无 profession 字段的旧档若已有待决策/事故/任务，仍是回归玩家，必须展示
+    // 简报（此前一刀切跳过会让老档玩家错过待决策队列——desktop-overlay-dom 回归实测）。
     try {
       var pFresh = f.context && f.context.player;
-      if (pFresh && !pFresh.profession) { console.log('[UI] fresh player — skip welcome-back popup'); return; }
+      var hasRealHistory = pFresh && (
+        (pFresh.profession) ||
+        ((pFresh.pendingEvents ?? []).length > 0) ||
+        ((pFresh.incidents ?? []).length > 0) ||
+        ((pFresh.assignedTasks ?? []).length > 0) ||
+        (pFresh.gameDay && pFresh.gameDay.dayIndex > 1)
+      );
+      if (pFresh && !hasRealHistory) { console.log('[UI] fresh player — skip welcome-back popup'); return; }
     } catch (e) { /* fallthrough */ }
     var summary;
     try { summary = f.prepareWelcomeBackSummary(); } catch (e) { return; }
@@ -1658,6 +1667,23 @@
 
     var title = victory ? '【项目阶段结算】' : '【项目受挫】';
     var flavor = victory ? 'Boss 已被超度，东西落了一地。但项目还没完——' : '败北亦有收获（30% 掉落）。接下来——';
+    /* V5.8 P1c 可解释化：本局伤害来源说明（职业/Build/流派词条），全部来自真实聚合 */
+    var explainLines = '';
+    try {
+      var summary = f && typeof f.queryBattleSummary === 'function' ? f.queryBattleSummary() : null;
+      if (summary) {
+        if (summary.professionName || (summary.buildName && summary.buildName !== summary.runId)) {
+          explainLines += '<div class="ux-off-row"><span class="rl">本局阵容</span><span class="rv">' +
+            escHtml((summary.professionName ? summary.professionName + ' · ' : '') + (summary.buildName || '')) + '</span></div>';
+        }
+        (summary.affixSummary || []).forEach(function (af) {
+          if (!af || !af.name) return;
+          explainLines += '<div class="ux-off-row"><span class="rl">词条</span><span class="rv">' +
+            escHtml(af.name) + (af.hitSkills > 0 ? '（命中 ' + af.hitSkills + ' 个技能）' : '（本局未命中）') + '</span></div>';
+        });
+      }
+    } catch (eExplain) { /* 说明缺失不阻塞结算弹窗 */ }
+    var explainHtml = explainLines ? '<div class="ux-off-rows" style="margin:8px 0">' + explainLines + '</div>' : '';
     var layer2 = popupLayer();
     if (!layer2) return;
     layer2.innerHTML =
@@ -1666,6 +1692,7 @@
           '<div class="ux-header" style="height:70px;border-radius:16px 16px 0 0;margin:0 -18px 14px"><span class="ux-header-title">' + title + '</span></div>' +
           '<div class="ux-popup-card">' +
             '<div class="ux-event-bubble">' + escHtml(flavor) + '</div>' +
+            explainHtml +
             (lootLines.length ? '<div class="ux-off-rows">' + lootLines.map(function (l) { return '<div class="ux-off-row"><span class="rv">' + l + '</span></div>'; }).join('') + '</div>' : '<div class="ux-agenda-empty">什么都没掉。就当修炼了。</div>') +
             v57BossDropCardsHtml(done) +
             '<div class="ux-event-options">' + optionHtml + '</div>' +
