@@ -174,7 +174,8 @@ function testControllerOwnsTheRuntimeMount(): void {
     'utf8',
   );
   assert.match(source, /mountCharacterCreationRuntimeView/);
-  assert.match(source, /queryCharacterCreation/);
+  assert.doesNotMatch(source, /if\s*\(!creationRequired\)\s*\{[^}]*return;/s,
+    'completed character creation must still let the runtime view resume unfinished onboarding');
 }
 
 function testRuntimeViewMountsRoutesAndRestores(): void {
@@ -252,6 +253,10 @@ function testRuntimeViewMountsRoutesAndRestores(): void {
     assert.equal(mounted.root.active, false);
     assert.equal(childNamed(parent, 'CharacterOnboardingRoot').active, true);
     assert.deepEqual(visibility, [true]);
+    facade.characterCreationAdvanceOnboarding = () => ({ success: false, reason: '剧情保存失败' });
+    childNamed(parent, 'CharacterOnboardingNextButton').emit('click');
+    assert.equal((childNamed(parent, 'CharacterOnboardingError').components.get(FakeLabel) as FakeLabel).string, '剧情保存失败');
+    facade.characterCreationAdvanceOnboarding = FakeFacade.prototype.characterCreationAdvanceOnboarding.bind(facade);
     childNamed(parent, 'CharacterOnboardingNextButton').emit('click');
     assert.deepEqual(facade.calls.slice(-1), ['onboarding:advance']);
     childNamed(parent, 'CharacterOnboardingSkipButton').emit('click');

@@ -122,6 +122,7 @@ export class AssignedTaskService {
     }
     if (task.rewardMind !== 0) this.context.mind.applyDelta(task.rewardMind);
     this.replace({ ...task, status: 'DONE' });
+    this.context.messenger.appendReality({ time: this.context.clockV2.now(), text: `完成指派任务「${task.title}」`, kind: 'WORK' });
     this.bumpLifetime('assignedTasksDone', 1);
     this.bumpLifetime('fakeP0Done', task.isFakeP0 ? 1 : 0);
     const summary = task.isFakeP0
@@ -145,6 +146,7 @@ export class AssignedTaskService {
     this.context.gameDay.addIncome('performance', performance);
     this.context.mind.applyDelta(mind);
     this.replace({ ...task, status: 'REFUSED' });
+    this.context.messenger.appendReality({ time: this.context.clockV2.now(), text: `搁置任务「${task.title}」`, kind: 'CHANGE' });
     this.bumpLifetime('assignedTasksRefused', 1);
     if (task.isFakeP0) this.bumpLifetime('fakeP0Refused', 1);
     const summary = isRealP0

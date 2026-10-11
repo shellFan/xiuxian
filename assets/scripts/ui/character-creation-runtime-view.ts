@@ -312,12 +312,11 @@ export function mountCharacterCreationRuntimeView(
     onboardingTask.string = view.step === 'INTRO_4' || view.step === 'READY' ? `首份差事：${view.firstTaskTitle}` : '';
     onboardingNextLabel.string = view.step === 'READY' ? '开始修炼' : '继续';
     onboardingSkip.button.interactable = view.step !== 'READY';
-    onboardingError.string = '';
   };
   const runOnboardingAction = (action: () => { success: boolean; reason?: string }): void => {
     try {
       const result = action();
-      if (!result.success) onboardingError.string = result.reason ?? '操作失败，请重试';
+      onboardingError.string = result.success ? '' : (result.reason ?? '操作失败，请重试');
     } catch (error) {
       onboardingError.string = error instanceof Error ? error.message : String(error);
     }

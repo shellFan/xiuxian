@@ -51,6 +51,7 @@ import { WEEK_CONTENT } from '../v57/week-service';
 import { messengerEventById } from '../v5/messenger-content';
 import { EVOLUTIONS } from '../v57/battle-merge';
 import { projectCharacterAttributes } from '../v59/character-attributes';
+import { createRuntimeDataSnapshot, recordTodayLife, type RuntimeDataSnapshot, type TodayLifeKind } from './runtime-data-snapshot';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -207,6 +208,10 @@ export class GameFacade {
   public queryTimeUntilOffWork() { return this.context.clockV2.getTimeUntilOffWorkMs(); }
   /** Work Today 首页的只读时间/工时投影。 */
   public queryWorkToday() { return this.context.workToday.snapshot(); }
+  /** Single immutable source for all player-visible home runtime facts. */
+  public queryRuntimeData(): RuntimeDataSnapshot { return createRuntimeDataSnapshot(this.context); }
+  /** Record a real, persisted daily life action; UI never synthesizes these counts. */
+  public recordTodayLife(kind: TodayLifeKind): { ok: boolean; reason?: string } { return recordTodayLife(this.context, kind); }
 
   /** V5.9-A: creation/backfill state and resumable draft. */
   public queryCharacterCreation() { return this.context.characterCreation.query(); }

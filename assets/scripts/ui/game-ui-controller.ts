@@ -785,17 +785,6 @@ export class GameUIController extends Component {
 
   private mountCharacterCreation(): void {
     if (!this.facade || !this.safeAreaRoot) return;
-    let creationRequired = true;
-    try {
-      creationRequired = this.facade.queryCharacterCreation().status !== 'COMPLETE';
-    } catch {
-      // Fail closed: the runtime view will surface the facade read error.
-    }
-    if (!creationRequired) {
-      this.characterCreationVisible = false;
-      return;
-    }
-
     this.characterCreationView = mountCharacterCreationRuntimeView(
       this.safeAreaRoot,
       this.facade,
@@ -805,6 +794,7 @@ export class GameUIController extends Component {
         if (!visible && !this.disposed) this.refreshAll();
       },
     );
+    if (!this.characterCreationView) this.characterCreationVisible = false;
   }
 
   private updatePageVisibility(): void {
