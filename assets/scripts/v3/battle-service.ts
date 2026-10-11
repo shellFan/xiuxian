@@ -23,6 +23,7 @@ import {
   type BossMechanic,
 } from '../v57/battle-merge';
 import { fishBuildId } from '../v57/profession-content-service';
+import { characterEffectMultiplier } from '../v59/character-attributes';
 
 // ── 运行时状态 ───────────────────────────────────────────────────────────────
 
@@ -214,7 +215,7 @@ export class BattleService {
       shield: Math.max(0, Math.round(eq.shieldBonus)),
       attack: Math.max(1, Math.floor(build.baseAttack * fatigueMul)),
       intervalSec: build.intervalSec,
-      critChance: build.critChance,
+      critChance: Math.min(0.8, build.critChance * characterEffectMultiplier(this.context.player, 'BATTLE_CRIT_CHANCE')),
       level: 1,
       exp: 0,
       expNext: 30,

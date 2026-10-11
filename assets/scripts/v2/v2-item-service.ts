@@ -253,6 +253,11 @@ export class V2ItemService {
     return true;
   }
 
+  /** Return the configured slot for a known equipment item. */
+  public equipmentSlot(id: string): EquipSlot | null {
+    return EQUIPMENT_MAP.get(id)?.slot ?? null;
+  }
+
   public equipItem(slot: EquipSlot, equipmentId: string | null): boolean {
     const p = this.context.player;
     if (equipmentId !== null) {

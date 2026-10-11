@@ -1,6 +1,7 @@
 import type { GameContext } from '../core/game-context';
 import type { ActiveTaskState } from '../model/save-data';
 import { MESSENGER_CONTENT, type MessengerEventDef } from '../v5/messenger-content';
+import { characterEffectMultiplier } from '../v59/character-attributes';
 
 /**
  * V5.6 P0-1：TaskRuntimeDirector（§4）。
@@ -152,7 +153,14 @@ export class TaskRuntimeDirector {
   public progress(task: ActiveTaskState, nowMs: number): number {
     const total = task.durationSeconds + (task.runtimeAddedSeconds ?? 0) - (task.runtimeReducedSeconds ?? 0);
     if (total <= 0) return 100;
-    return Math.min(100, Math.round((this.effectiveElapsedSeconds(task, nowMs) / total) * 100));
+    let progressMultiplier = characterEffectMultiplier(this.context.player, 'TASK_PROGRESS');
+    if (task.taskType === 'WORK') {
+      progressMultiplier *= characterEffectMultiplier(this.context.player, 'TECHNICAL_TASK_PROGRESS');
+    }
+    if (this.context.player.workMode !== 'SOCIAL') {
+      progressMultiplier *= characterEffectMultiplier(this.context.player, 'SOLO_TASK_PROGRESS');
+    }
+    return Math.min(100, Math.round((this.effectiveElapsedSeconds(task, nowMs) / total) * 100 * progressMultiplier));
   }
 
   /** game loop 每秒：检查触发点 / 恢复到期暂停。 */

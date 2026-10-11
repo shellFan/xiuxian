@@ -1,6 +1,7 @@
 import type { GameContext } from '../core/game-context';
 import type { NpcId } from '../v2/npc-weekend-service';
 import type { NpcMemoryState } from '../model/save-data';
+import { characterEffectMultiplier } from '../v59/character-attributes';
 
 /**
  * V5.7 Phase F — NPC 记忆（NpcMemory）。
@@ -89,6 +90,7 @@ export class NpcMemoryService {
     let chance = base + this.goodwill(npcId) * 0.08 + Math.max(0, (relation - 50) / 200);
     if (this.memory(npcId).flags.includes('THREW_ME_UNDER_BUS')) chance *= 0.7;
     if (this.memory(npcId).flags.includes('BLAMED_ME')) chance *= 0.8;
+    chance *= characterEffectMultiplier(this.context.player, 'NPC_ASSIST_CHANCE');
     return Math.max(0.05, Math.min(0.9, chance));
   }
 

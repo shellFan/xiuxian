@@ -1,4 +1,5 @@
 import type { GameContext } from '../core/game-context';
+import { characterEffectMultiplier } from '../v59/character-attributes';
 
 /**
  * V5.7 Phase M — Fatigue（0~100）真正接线。
@@ -73,7 +74,10 @@ export class FatigueService {
       case 'CULTIVATE': delta = (minutes / 20) * base; break;
       default: delta = base;
     }
-    if (delta > 0) delta *= this.gainMul();
+    if (delta > 0) {
+      delta *= this.gainMul();
+      delta *= characterEffectMultiplier(p, 'FATIGUE_GAIN');
+    }
     p.fatigue = clamp((p.fatigue ?? 0) + delta);
     if (p.fatigue >= 100 && !p.fatigueForcedRest) {
       p.fatigueForcedRest = true;

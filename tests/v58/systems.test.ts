@@ -270,7 +270,7 @@ function testSaveV13(): void {
   const { facade } = makeFacade();
   try {
     const raw = facade.context.player.toSaveData();
-    assert.equal(raw.saveVersion, 13, 'save version 13');
+    assert.equal(raw.saveVersion, 14, 'save version 14');
     const roundTripped = new (facade.context.player.constructor as never as { new(o?: unknown): instanceOfPlayer })(JSON.parse(JSON.stringify(raw)));
     assert.equal(roundTripped.burnoutState.state, 'NORMAL', 'burnout default');
     assert.equal(roundTripped.buildPresets.length, 3, '3 preset slots');
@@ -283,7 +283,7 @@ function testSaveV13(): void {
     const migrated = new (facade.context.player.constructor as never as { new(o?: unknown): instanceOfPlayer })(v12Like);
     assert.equal(migrated.burnoutState.state, 'NORMAL', 'v12 save migrates burnout to NORMAL');
     assert.equal(migrated.buildPresets.length, 3, 'v12 save migrates presets');
-    console.log('save v13 passed');
+    console.log('save v14 passed');
   } finally {
     facade.destroy();
   }

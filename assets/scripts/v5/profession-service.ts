@@ -1,6 +1,8 @@
 import professionsConfig from '../../configs/professions.json';
 import { REGISTRY_MAP, registryProfession } from '../content/content-registry';
 import type { GameContext } from '../core/game-context';
+import { PlayerData } from '../model/player-data';
+import { applyCharacterEffectToInteger } from '../v59/character-attributes';
 
 /**
  * V5.5 P0：职业系统（§2~§14）。职业影响怪物池/技能池/任务池/专精加成/聊天内容。
@@ -85,23 +87,60 @@ export class ProfessionService {
 
   /** 新档选择职业（一次性；locked 职业不可选）。 */
   public choose(professionId: string): { success: boolean; reason?: string } {
+    if (this.context.player.characterSetupStatus === 'CREATION_REQUIRED') {
+      return { success: false, reason: '请先完成牛马降世角色创建' };
+    }
     const def = professionDef(professionId);
     if (!def) return { success: false, reason: '未知职业' };
     if (def.locked) return { success: false, reason: '该职业尚未开放' };
     if (this.isSelected()) return { success: false, reason: '职业已确定（本轮不可更换）' };
     this.context.player.profession = def.id;
-    // 初始技能 + 法宝（§12）
-    try { this.context.v2Items.grantTechnique(def.initialSkill); } catch { /* starter kit best-effort */ }
-    try { this.context.v2Items.grantEquipment(def.initialEquipment); } catch { /* starter kit best-effort */ }
-    try { this.context.v2Items.equipItem('DESK', def.initialEquipment); } catch { /* best-effort */ }
-    // V5.8 §7.1：新员工欢迎礼——2 瓶咖啡缓解开局道心下沉
-    try { this.context.v2Items.addMaterial('cons_coffee', 2); } catch { /* best-effort */ }
+    const starterKit = this.grantStarterKit(def.id);
+    if (!starterKit.success) {
+      this.context.player.profession = undefined;
+      return starterKit;
+    }
     this.context.events.emit('professionChosen', { profession: def.id });
     return { success: true };
   }
 
+  /** Apply the profession's existing starter rewards once inside the caller's save transaction. */
+  public grantStarterKit(professionId: string): { success: boolean; reason?: string } {
+    const def = professionDef(professionId);
+    if (!def || def.locked) return { success: false, reason: '该职业不可发放入职物品' };
+    const receipt = `starter-kit:${def.id}`;
+    if (this.context.player.professionPerksGranted.includes(receipt)) return { success: true };
+    const player = this.context.player;
+    const before = player.toSaveData();
+    try {
+      // Profession combat skills belong to ProfessionContentService, not the separate V2
+      // technique inventory. The configured initial skill is already active for the role.
+      const learnedAsTechnique = this.context.v2Items.grantTechnique(def.initialSkill);
+      if (!learnedAsTechnique && !this.context.professionContent.activeSkills().includes(def.initialSkill)) {
+        throw new Error(`职业初始技能未在权威职业配置中启用：${def.initialSkill}`);
+      }
+      const equipmentGranted = this.context.v2Items.grantEquipment(def.initialEquipment)
+        || player.ownedEquipment.includes(def.initialEquipment);
+      if (!equipmentGranted) throw new Error(`职业初始装备无效：${def.initialEquipment}`);
+      const equipmentSlot = this.context.v2Items.equipmentSlot(def.initialEquipment);
+      if (!equipmentSlot || !this.context.v2Items.equipItem(equipmentSlot, def.initialEquipment)) {
+        throw new Error(`职业初始装备无法穿戴：${def.initialEquipment}`);
+      }
+      // V5.8 §7.1：新员工欢迎礼——2 瓶咖啡缓解开局道心下沉
+      this.context.v2Items.addMaterial('cons_coffee', 2);
+      player.professionPerksGranted.push(receipt);
+      return { success: true };
+    } catch (error) {
+      Object.assign(player, new PlayerData(before));
+      return { success: false, reason: `入职物品发放失败：${error instanceof Error ? error.message : String(error)}` };
+    }
+  }
+
   /** 老档一次性免费改职业（§14）。 */
   public rechooseOnce(professionId: string): { success: boolean; reason?: string } {
+    if (this.context.player.characterSetupStatus === 'CREATION_REQUIRED') {
+      return { success: false, reason: '请先完成牛马降世角色创建' };
+    }
     if (this.context.player.professionFreeRechooseUsed) return { success: false, reason: '免费改职业机会已用' };
     const player = this.context.player as unknown as { professionFreeRechooseUsed?: boolean };
     const result = (() => {
@@ -141,12 +180,13 @@ export class ProfessionService {
   public grantExp(amount: number): void {
     if (!Number.isSafeInteger(amount) || amount <= 0) return;
     const player = this.context.player;
+    const settledAmount = applyCharacterEffectToInteger(amount, player, 'PROFESSION_GROWTH');
     const before = player.professionExp ?? 0;
-    player.professionExp = before + amount;
+    player.professionExp = before + settledAmount;
     if (this.level() > 1 + PROFESSION_LEVEL_EXP.findIndex((t) => t > before) - 1 + 1) {
       // 简化：只在升级时 emit
     }
-    this.context.events.emit('professionExpGained', { amount, total: player.professionExp, level: this.level() });
+    this.context.events.emit('professionExpGained', { amount: settledAmount, total: player.professionExp, level: this.level() });
   }
 
   /** 战斗专精：本职业怪物伤害 +specialtyBonus（§98）。 */

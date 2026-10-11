@@ -1,4 +1,6 @@
-export const CURRENT_SAVE_VERSION = 13;
+import type { CharacterBackground, CharacterStats, DestinyId } from '../v59/character-rules';
+
+export const CURRENT_SAVE_VERSION = 14;
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -375,6 +377,21 @@ export interface GameSaveData {
   readonly profession?: string;
   readonly professionExp?: number;
   readonly professionFreeRechooseUsed?: boolean;
+  /** V5.9-A: new character flow or one-time old-save backfill. */
+  readonly characterSetupStatus?: 'CREATION_REQUIRED' | 'BACKFILL_REQUIRED' | 'COMPLETE';
+  readonly characterName?: string;
+  readonly characterAvatarId?: string;
+  readonly characterIndustry?: 'INTERNET';
+  readonly characterDirection?: 'TECH_RND';
+  readonly characterBackground?: CharacterBackground;
+  readonly destinyId?: DestinyId;
+  readonly innateAttributes?: CharacterStats;
+  readonly earnedAttributeDelta?: Partial<CharacterStats>;
+  readonly unspentPotential?: number;
+  readonly characterCreationReceipt?: string;
+  readonly characterBackfillReceipt?: string;
+  readonly characterOnboardingStep?: 'INTRO_1' | 'INTRO_2' | 'INTRO_3' | 'INTRO_4' | 'READY' | 'COMPLETE';
+  readonly characterOnboardingTaskReceipt?: string;
 
   // ── V5.6 Workday Director（saveVersion 11，§5/§18/§7） ──
   /** 身体疲劳 0~100（与 Mind 分离：Mind=心理，Fatigue=身体）。 */

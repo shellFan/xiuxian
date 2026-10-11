@@ -10,6 +10,7 @@
  * exactly-once（dayIndex 记录），效果即时结算。
  */
 import type { GameContext } from '../core/game-context';
+import { applyCharacterEffectToInteger } from '../v59/character-attributes';
 import type { GameClockV2 } from './v2-clock';
 import type { GameDayService } from './game-day-service';
 import type { InnerDemonService } from './inner-demon-service';
@@ -86,7 +87,11 @@ export class NpcService {
   public change(npc: NpcId, delta: number): number {
     const p = this.context.player;
     const before = p.relationships[npc] ?? 0;
-    const after = Math.max(-100, Math.min(100, before + Math.floor(delta)));
+    const roundedDelta = Math.floor(delta);
+    const settledDelta = roundedDelta > 0
+      ? applyCharacterEffectToInteger(roundedDelta, p, 'RELATIONSHIP_GAIN')
+      : roundedDelta;
+    const after = Math.max(-100, Math.min(100, before + settledDelta));
     if (after === before) return 0;
     p.relationships[npc] = after;
     this.context.events.emit('relationshipChanged', { npc, delta: after - before, total: after });

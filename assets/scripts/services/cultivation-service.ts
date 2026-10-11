@@ -1,5 +1,6 @@
 import type { GameContext } from '../core/game-context';
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
+import { applyCharacterEffectToInteger } from '../v59/character-attributes';
 
 export interface CultivationServiceOptions {
   /** @deprecated Merge rewards are no longer used in PC V1. */
@@ -71,7 +72,12 @@ export class CultivationService {
 
     const mindEfficiency = this.getMindEfficiency();
     const baseReward = this.cultivationClickReward;
-    const actualReward = Math.max(1, Math.floor(baseReward * mindEfficiency));
+    const mindAdjustedReward = Math.max(1, Math.floor(baseReward * mindEfficiency));
+    const actualReward = Math.max(1, applyCharacterEffectToInteger(
+      mindAdjustedReward,
+      this.context.player,
+      'CULTIVATION_REWARD',
+    ));
     const previousExp = this.context.player.cultivationExp;
     const total = previousExp + actualReward;
 

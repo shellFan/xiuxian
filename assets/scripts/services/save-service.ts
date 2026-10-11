@@ -98,7 +98,11 @@ export class SaveService {
   }
 
   private newPlayerSave(now: number): GameSaveData {
-    return new PlayerData({ tutorialVersion: TUTORIAL_VERSION, tutorialStartedAt: now }).toSaveData();
+    return new PlayerData({
+      tutorialVersion: TUTORIAL_VERSION,
+      tutorialStartedAt: now,
+      characterSetupStatus: 'CREATION_REQUIRED',
+    }).toSaveData();
   }
 }
 
@@ -246,6 +250,20 @@ function migrate(raw: unknown, now: number): GameSaveData {
       : ((isFiniteNumber(raw.saveVersion) && raw.saveVersion >= 1 && raw.saveVersion < 10) ? 'JAVA_BACKEND' : undefined),
     professionExp: isNonNegativeSafeInteger(raw.professionExp) ? raw.professionExp : 0,
     professionFreeRechooseUsed: raw.professionFreeRechooseUsed === true,
+    characterSetupStatus: migrateCharacterSetupStatus(raw),
+    characterName: isString(raw.characterName) && raw.characterName.length <= 48 ? raw.characterName : undefined,
+    characterAvatarId: isString(raw.characterAvatarId) && /^[a-z0-9_-]{1,32}$/i.test(raw.characterAvatarId) ? raw.characterAvatarId : undefined,
+    characterIndustry: raw.characterIndustry === 'INTERNET' ? 'INTERNET' : undefined,
+    characterDirection: raw.characterDirection === 'TECH_RND' ? 'TECH_RND' : undefined,
+    characterBackground: isCharacterBackground(raw.characterBackground) ? raw.characterBackground : undefined,
+    destinyId: isDestinyId(raw.destinyId) ? raw.destinyId : undefined,
+    innateAttributes: isCharacterStats(raw.innateAttributes) ? raw.innateAttributes : undefined,
+    earnedAttributeDelta: normalizeCharacterAttributeDelta(raw.earnedAttributeDelta),
+    unspentPotential: isNonNegativeSafeInteger(raw.unspentPotential) && raw.unspentPotential <= 5 ? raw.unspentPotential : undefined,
+    characterCreationReceipt: isString(raw.characterCreationReceipt) && raw.characterCreationReceipt.length <= 96 ? raw.characterCreationReceipt : undefined,
+    characterBackfillReceipt: isString(raw.characterBackfillReceipt) && raw.characterBackfillReceipt.length <= 96 ? raw.characterBackfillReceipt : undefined,
+    characterOnboardingStep: isCharacterOnboardingStep(raw.characterOnboardingStep) ? raw.characterOnboardingStep : undefined,
+    characterOnboardingTaskReceipt: isString(raw.characterOnboardingTaskReceipt) && raw.characterOnboardingTaskReceipt.length <= 96 ? raw.characterOnboardingTaskReceipt : undefined,
     // ── V5.7（saveVersion 12）：深度与留存字段，旧档安全默认 ──
     skillEvolutions: sanitizeStringRecord(raw.skillEvolutions),
     synergyDiscovered: isStringArray(raw.synergyDiscovered) ? raw.synergyDiscovered.slice(0, 64) : [],
@@ -938,6 +956,76 @@ function isNonNegativeSafeInteger(value: unknown): value is number {
 }
 function isPositiveSafeInteger(value: unknown): value is number { return isNonNegativeSafeInteger(value) && value >= 1; }
 function isString(value: unknown): value is string { return typeof value === 'string'; }
+
+const V59_STAT_KEYS = ['insight', 'constitution', 'perception', 'fortune', 'willpower'] as const;
+const V59_DESTINIES = new Set(['LABOR_SAINT', 'KING_OF_GRIND', 'FISHING_IMMORTAL', 'SCAPEGOAT', 'CODE_SPIRIT', 'SOCIAL_FATE']);
+const V59_BACKGROUNDS = new Set(['ORDINARY_WORKER', 'CULTIVATION_GRAD', 'CAREER_CHANGER']);
+const V59_ONBOARDING_STEPS = new Set(['INTRO_1', 'INTRO_2', 'INTRO_3', 'INTRO_4', 'READY', 'COMPLETE']);
+
+function isDestinyId(value: unknown): value is NonNullable<GameSaveData['destinyId']> {
+  return typeof value === 'string' && V59_DESTINIES.has(value);
+}
+
+function isCharacterBackground(value: unknown): value is NonNullable<GameSaveData['characterBackground']> {
+  return typeof value === 'string' && V59_BACKGROUNDS.has(value);
+}
+
+function isCharacterOnboardingStep(value: unknown): value is NonNullable<GameSaveData['characterOnboardingStep']> {
+  return typeof value === 'string' && V59_ONBOARDING_STEPS.has(value);
+}
+
+function isCharacterStats(value: unknown): value is NonNullable<GameSaveData['innateAttributes']> {
+  if (!isRecord(value)) return false;
+  let total = 0;
+  for (const key of V59_STAT_KEYS) {
+    const stat = value[key];
+    if (!Number.isSafeInteger(stat) || (stat as number) < 6 || (stat as number) > 20) return false;
+    total += stat as number;
+  }
+  return total >= 50 && total <= 55;
+}
+
+function normalizeCharacterAttributeDelta(value: unknown): GameSaveData['earnedAttributeDelta'] {
+  if (!isRecord(value)) return undefined;
+  const result: Partial<Record<typeof V59_STAT_KEYS[number], number>> = {};
+  for (const key of V59_STAT_KEYS) {
+    const stat = value[key];
+    if (isNonNegativeSafeInteger(stat) && stat <= 20) result[key] = stat;
+  }
+  return result;
+}
+
+function migrateCharacterSetupStatus(raw: Record<string, unknown>): GameSaveData['characterSetupStatus'] {
+  const hasRecord = isDestinyId(raw.destinyId) && isCharacterStats(raw.innateAttributes);
+  const hasReceipt = (isString(raw.characterCreationReceipt) && raw.characterCreationReceipt.length > 0)
+    || (isString(raw.characterBackfillReceipt) && raw.characterBackfillReceipt.length > 0);
+  if (hasRecord && hasReceipt && raw.characterSetupStatus === 'COMPLETE') return 'COMPLETE';
+  if (raw.characterSetupStatus === 'BACKFILL_REQUIRED' && hasMeaningfulCharacterProgress(raw)) return 'BACKFILL_REQUIRED';
+  if (raw.characterSetupStatus === 'CREATION_REQUIRED' && !hasMeaningfulCharacterProgress(raw)) return 'CREATION_REQUIRED';
+  if (hasRecord && hasReceipt) return 'COMPLETE';
+  return hasMeaningfulCharacterProgress(raw) ? 'BACKFILL_REQUIRED' : 'CREATION_REQUIRED';
+}
+
+/** Existing play is recognized from durable progression, never merely from a save's version. */
+export function hasMeaningfulCharacterProgress(raw: Record<string, unknown>): boolean {
+  const positiveCounters = [
+    'salary', 'cultivationExp', 'performance', 'workSeconds', 'fishingSeconds', 'cultivatingSeconds',
+    'socialSeconds', 'professionExp', 'officeLevel', 'spiritStones', 'fatigue',
+  ];
+  if (positiveCounters.some((key) => isFiniteNumber(raw[key]) && raw[key] > 0)) return true;
+  if (isFiniteNumber(raw.careerLevel) && raw.careerLevel > 1) return true;
+  if (isString(raw.profession) && raw.profession.length > 0) return true;
+  if (isRecord(raw.gameDay) && isFiniteNumber(raw.gameDay.dayIndex) && raw.gameDay.dayIndex > 1) return true;
+  const nonEmptyArrays = [
+    'workers', 'ownedTechniques', 'ownedEquipment', 'craftedItemIds', 'activeTasks', 'assignedTasks', 'incidents',
+    'responsibilityCases', 'dailyHistory', 'weeklyHistory', 'unlockedAchievementIds', 'claimedAchievementIds',
+    'evidence', 'conversations', 'messages', 'projectHistory',
+  ];
+  if (nonEmptyArrays.some((key) => Array.isArray(raw[key]) && (raw[key] as unknown[]).length > 0)) return true;
+  const nonEmptyRecords = ['relationships', 'techniqueLevels', 'equippedTechniques', 'equippedEquipment', 'materials', 'lifetimeStats'];
+  return nonEmptyRecords.some((key) => isRecord(raw[key]) && Object.keys(raw[key] as Record<string, unknown>).length > 0);
+}
+
 function isDailySignInState(value: unknown): value is import('../model/save-data').DailySignInState {
   if (!isRecord(value)) return false;
   return isNonNegativeSafeInteger(value.lastClaimTime) && isPositiveSafeInteger(value.currentDay);

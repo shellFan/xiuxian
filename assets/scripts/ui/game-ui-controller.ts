@@ -48,6 +48,10 @@ import type { UiEventCategory } from '../facade/ui-event-types';
 import type { MainHUDViewModel, CultivationViewModel, IdleViewModel } from './view-models';
 import { buildMainHUDViewModel, buildCultivationViewModel, buildIdleViewModel, buildCraftViewModel } from './view-models';
 import { formatNumber, formatDuration } from './number-formatter';
+import {
+  mountCharacterCreationRuntimeView,
+  type CharacterCreationRuntimeView,
+} from './character-creation-runtime-view';
 
 const { ccclass } = _decorator;
 
@@ -186,6 +190,8 @@ export class GameUIController extends Component {
   private taskUpdateTimer = 0;
   private readonly runtimeButtons = new WeakMap<NodeLike, ButtonLike>();
   private settingsButton: ButtonLike | null = null;
+  private characterCreationView: CharacterCreationRuntimeView | null = null;
+  private characterCreationVisible = false;
   private readonly resizeHomeViewport = () => {
     if (typeof document === 'undefined') return;
     const frame = document.getElementById('GameDiv');
@@ -259,6 +265,9 @@ export class GameUIController extends Component {
     // Subscribe to facade UI events for data-driven refresh
     this.subscribeEvents();
 
+    // V5.9-A owns a full-screen runtime view so no scene/prefab bindings are required.
+    this.mountCharacterCreation();
+
     // Initial render
     this.refreshAll();
 
@@ -274,6 +283,9 @@ export class GameUIController extends Component {
     this.unsubscribeEvents();
     this.unbindButtons();
     this.unbindTabs();
+    this.characterCreationView?.destroy();
+    this.characterCreationView = null;
+    this.characterCreationVisible = false;
     this.mergeBoardRoot = null;
     this.craftPageContent = null;
     this.craftRecipeList = null;
@@ -298,7 +310,7 @@ export class GameUIController extends Component {
   }
 
   protected update(dt: number): void {
-    if (!this.facade || this.disposed) return;
+    if (!this.facade || this.disposed || this.characterCreationVisible) return;
 
     this.taskUpdateTimer += dt;
     if (this.taskUpdateTimer < TASK_UPDATE_INTERVAL) return;
@@ -771,10 +783,48 @@ export class GameUIController extends Component {
 
   // ── Page Visibility ───────────────────────────────────────────────────────
 
+  private mountCharacterCreation(): void {
+    if (!this.facade || !this.safeAreaRoot) return;
+    let creationRequired = true;
+    try {
+      creationRequired = this.facade.queryCharacterCreation().status !== 'COMPLETE';
+    } catch {
+      // Fail closed: the runtime view will surface the facade read error.
+    }
+    if (!creationRequired) {
+      this.characterCreationVisible = false;
+      return;
+    }
+
+    this.characterCreationView = mountCharacterCreationRuntimeView(
+      this.safeAreaRoot,
+      this.facade,
+      (visible) => {
+        this.characterCreationVisible = visible;
+        this.updatePageVisibility();
+        if (!visible && !this.disposed) this.refreshAll();
+      },
+    );
+  }
+
   private updatePageVisibility(): void {
+    if (this.characterCreationVisible) {
+      for (const node of this.pageNodes.values()) node.active = false;
+      if (this.topHeader) this.topHeader.active = false;
+      if (this.resourceBar) this.resourceBar.active = false;
+      if (this.characterArea) this.characterArea.active = false;
+      if (this.idleIncomePanel) this.idleIncomePanel.active = false;
+      if (this.primaryActions) this.primaryActions.active = false;
+      if (this.bottomNavigation) this.bottomNavigation.active = false;
+      if (this.pageContainer) this.pageContainer.active = false;
+      return;
+    }
+
     for (const [tab, node] of this.pageNodes) {
       node.active = tab === this.currentTab;
     }
+    if (this.bottomNavigation) this.bottomNavigation.active = true;
+    if (this.pageContainer) this.pageContainer.active = true;
     const home = this.currentTab === 'HOME';
     if (this.topHeader) this.topHeader.active = home;
     if (this.resourceBar) this.resourceBar.active = home;

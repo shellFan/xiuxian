@@ -93,6 +93,20 @@ export interface PlayerDataOptions {
   readonly profession?: string;
   readonly professionExp?: number;
   readonly professionFreeRechooseUsed?: boolean;
+  readonly characterSetupStatus?: import('./save-data').GameSaveData['characterSetupStatus'];
+  readonly characterName?: string;
+  readonly characterAvatarId?: string;
+  readonly characterIndustry?: 'INTERNET';
+  readonly characterDirection?: 'TECH_RND';
+  readonly characterBackground?: import('../v59/character-rules').CharacterBackground;
+  readonly destinyId?: import('../v59/character-rules').DestinyId;
+  readonly innateAttributes?: import('../v59/character-rules').CharacterStats;
+  readonly earnedAttributeDelta?: Partial<import('../v59/character-rules').CharacterStats>;
+  readonly unspentPotential?: number;
+  readonly characterCreationReceipt?: string;
+  readonly characterBackfillReceipt?: string;
+  readonly characterOnboardingStep?: import('./save-data').GameSaveData['characterOnboardingStep'];
+  readonly characterOnboardingTaskReceipt?: string;
   readonly skillEvolutions?: Record<string, string>;
   readonly synergyDiscovered?: readonly string[];
   readonly npcMemories?: Record<string, NpcMemoryState>;
@@ -228,6 +242,20 @@ export class PlayerData {
   public profession?: string;
   public professionExp: number;
   public professionFreeRechooseUsed: boolean;
+  public characterSetupStatus?: import('./save-data').GameSaveData['characterSetupStatus'];
+  public characterName?: string;
+  public characterAvatarId?: string;
+  public characterIndustry?: 'INTERNET';
+  public characterDirection?: 'TECH_RND';
+  public characterBackground?: import('../v59/character-rules').CharacterBackground;
+  public destinyId?: import('../v59/character-rules').DestinyId;
+  public innateAttributes?: import('../v59/character-rules').CharacterStats;
+  public earnedAttributeDelta?: Partial<import('../v59/character-rules').CharacterStats>;
+  public unspentPotential?: number;
+  public characterCreationReceipt?: string;
+  public characterBackfillReceipt?: string;
+  public characterOnboardingStep?: import('./save-data').GameSaveData['characterOnboardingStep'];
+  public characterOnboardingTaskReceipt?: string;
   // V5.7
   public skillEvolutions: Record<string, string>;
   public synergyDiscovered: string[];
@@ -351,6 +379,20 @@ export class PlayerData {
     this.profession = options.profession;
     this.professionExp = options.professionExp ?? 0;
     this.professionFreeRechooseUsed = options.professionFreeRechooseUsed === true;
+    this.characterSetupStatus = options.characterSetupStatus;
+    this.characterName = options.characterName;
+    this.characterAvatarId = options.characterAvatarId;
+    this.characterIndustry = options.characterIndustry;
+    this.characterDirection = options.characterDirection;
+    this.characterBackground = options.characterBackground;
+    this.destinyId = options.destinyId;
+    this.innateAttributes = options.innateAttributes ? { ...options.innateAttributes } : undefined;
+    this.earnedAttributeDelta = options.earnedAttributeDelta ? { ...options.earnedAttributeDelta } : undefined;
+    this.unspentPotential = options.unspentPotential;
+    this.characterCreationReceipt = options.characterCreationReceipt;
+    this.characterBackfillReceipt = options.characterBackfillReceipt;
+    this.characterOnboardingStep = options.characterOnboardingStep;
+    this.characterOnboardingTaskReceipt = options.characterOnboardingTaskReceipt;
     this.skillEvolutions = { ...(options.skillEvolutions ?? {}) };
     this.synergyDiscovered = [...(options.synergyDiscovered ?? [])];
     this.npcMemories = this.normalizeMemories(options.npcMemories);
@@ -463,6 +505,20 @@ export class PlayerData {
       profession: this.profession,
       professionExp: this.professionExp,
       professionFreeRechooseUsed: this.professionFreeRechooseUsed,
+      characterSetupStatus: this.characterSetupStatus,
+      characterName: this.characterName,
+      characterAvatarId: this.characterAvatarId,
+      characterIndustry: this.characterIndustry,
+      characterDirection: this.characterDirection,
+      characterBackground: this.characterBackground,
+      destinyId: this.destinyId,
+      innateAttributes: this.innateAttributes ? { ...this.innateAttributes } : undefined,
+      earnedAttributeDelta: this.earnedAttributeDelta ? { ...this.earnedAttributeDelta } : undefined,
+      unspentPotential: this.unspentPotential,
+      characterCreationReceipt: this.characterCreationReceipt,
+      characterBackfillReceipt: this.characterBackfillReceipt,
+      characterOnboardingStep: this.characterOnboardingStep,
+      characterOnboardingTaskReceipt: this.characterOnboardingTaskReceipt,
       skillEvolutions: { ...this.skillEvolutions },
       synergyDiscovered: [...this.synergyDiscovered],
       npcMemories: Object.fromEntries(Object.entries(this.npcMemories).map(([k, v]) => [k, { flags: [...v.flags], entries: v.entries.map((e) => ({ ...e })) }])),

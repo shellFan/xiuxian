@@ -1,4 +1,5 @@
 import type { GameContext } from '../core/game-context';
+import { applyCharacterEffectToInteger } from '../v59/character-attributes';
 import { MockRewardProvider, type RewardProvider } from './reward-provider';
 
 export type MindStatus = 'NORMAL' | 'BREAKDOWN';
@@ -19,7 +20,10 @@ export class MindService {
   public change(amount: number): number {
     if (!Number.isFinite(amount) || !Number.isInteger(amount)) throw new Error('Invalid mind change');
     const previous = this.current;
-    const next = clampMind(previous + amount, this.max);
+    const settledAmount = amount < 0
+      ? applyCharacterEffectToInteger(amount, this.context.player, 'MIND_COST')
+      : amount;
+    const next = clampMind(previous + settledAmount, this.max);
     this.persist(next, previous);
     return next - previous;
   }
@@ -28,7 +32,10 @@ export class MindService {
   public applyDelta(amount: number): number {
     if (!Number.isFinite(amount) || !Number.isInteger(amount)) throw new Error('Invalid mind change');
     const previous = this.current;
-    const next = clampMind(previous + amount, this.max);
+    const settledAmount = amount < 0
+      ? applyCharacterEffectToInteger(amount, this.context.player, 'MIND_COST')
+      : amount;
+    const next = clampMind(previous + settledAmount, this.max);
     this.context.player.mind = next;
     return next - previous;
   }

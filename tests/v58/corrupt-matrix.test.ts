@@ -65,7 +65,7 @@ function runUnitMatrix(): void {
       // emulate the real chain: storage value → SaveService (via GameContext)
       if (c.expect === 'NO_SAVE') {
         const data = new SaveService(adapter, 'game-save', clock()).load();
-        assert.equal(data.saveVersion, 13);
+        assert.equal(data.saveVersion, 14);
         verdict = 'PASS: fresh player';
       } else if (c.expect === 'LOAD_FAILED') {
         let threw = false;

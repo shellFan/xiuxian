@@ -12,6 +12,7 @@ import type { RandomService, Rng } from './random-service';
 import eventsConfig from '../../configs/v2/events.json';
 import { OVERTIME_EVENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_EVENTS } from '../v3/workplace-content';
+import { applyCharacterEffectToInteger } from '../v59/character-attributes';
 import {
   type EventDefinition,
   type EventChoice,
@@ -311,7 +312,10 @@ export class V2EventService {
     if (effects.relationship) {
       for (const [npc, delta] of Object.entries(effects.relationship)) {
         const cur = p.relationships[npc] ?? 0;
-        p.relationships[npc] = Math.max(-100, Math.min(100, cur + delta));
+        const settledDelta = delta > 0 && Number.isSafeInteger(delta)
+          ? applyCharacterEffectToInteger(delta, p, 'RELATIONSHIP_GAIN')
+          : delta;
+        p.relationships[npc] = Math.max(-100, Math.min(100, cur + settledDelta));
       }
     }
     if (effects.material) {

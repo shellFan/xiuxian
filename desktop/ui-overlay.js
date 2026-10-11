@@ -1052,9 +1052,14 @@
   function renderHome() {
     var hud = readHUD();
     if (!hud) return emptyState('⏳', '加载中...', '正在唤醒游戏数据');
-    if (!professionSelected()) return renderProfessionSelect();
+    var creationState = null;
+    try { creationState = facade() && facade().queryCharacterCreation ? facade().queryCharacterCreation() : null; } catch (e) { creationState = null; }
+    if (!professionSelected() && !(creationState && creationState.status === 'BACKFILL_REQUIRED')) return renderProfessionSelect();
+    var backfillBanner = creationState && creationState.status === 'BACKFILL_REQUIRED'
+      ? '<button class="v59-backfill-banner" data-creation-action="open-backfill"><span>✦ 老友归来：为角色补录天命</span><small>补录只增加新成长字段，不影响既有进度。</small><b>现在补录 ›</b></button>' : '';
     return '' +
       '<div class="ux-home">' +
+        backfillBanner +
         homeTopbarHtml(hud) +
         '<aside class="ux-home-col ux-home-left">' + homeLeftHtml(hud) + '</aside>' +
         '<main class="ux-home-col ux-home-center">' + homeCenterHtml(hud) + '</main>' +
@@ -2598,6 +2603,7 @@
 
   var _screen = 'HOME';          // 当前主页面
   var _subPage = null;           // 子页面: SECT/LEADERBOARD/FRIENDS/ACHIEVEMENTS/SETTINGS
+  var _showBackfill = false;
   var _cdCache = {};             // 冷却缓存(秒)
   var _sessionStart = Date.now();
 
@@ -2685,6 +2691,18 @@
         '<div class="ux-prof-expbar"><div class="fill" style="width:' + expPct + '%"></div></div>' +
         '<div class="ux-prof-exp-text">职业经验 ' + d.exp + (d.expToNext > 0 ? '（距下一级还差 ' + d.expToNext + '）' : '（已圆满）') + '</div>' +
       '</div>';
+    var character = null;
+    try { character = f.queryCharacterProfile ? f.queryCharacterProfile() : null; } catch (e) { character = null; }
+    if (character && character.destinyId && character.effective) {
+      var destinyInfo = CREATION_DESTINY[character.destinyId] || { name: character.destinyId, benefit: '' };
+      var statOrder = ['insight', 'constitution', 'perception', 'fortune', 'willpower'];
+      html += '<div class="ux-card v59-character-profile"><div class="ux-card-title">角色五维 · ' + escHtml(character.name || '修行者') + '</div>' +
+        '<div class="v59-profile-chip">命格：' + escHtml(destinyInfo.name) + ' <small>' + escHtml(destinyInfo.benefit || '') + '</small></div>' +
+        '<div class="v59-profile-stats">' + statOrder.map(function (key) {
+          var earned = character.earned && character.earned[key] ? character.earned[key] : 0;
+          return '<span><i>' + CREATION_STAT_LABELS[key] + '</i><b>' + character.effective[key] + '</b><small>先天 ' + character.innate[key] + (earned ? ' · 成长 +' + earned : '') + '</small></span>';
+        }).join('') + '</div><div class="v59-profile-potential">未分配潜力：' + character.unspentPotential + '</div></div>';
+    }
     if (fat) {
       html += '<div class="ux-card ux-fatigue-card">' +
         '<div class="ux-card-title">身体状态</div>' +
@@ -3161,6 +3179,18 @@
   }
 
   function renderCurrent() {
+    var fCharacter = facade();
+    var characterState = null;
+    if (fCharacter && typeof fCharacter.queryCharacterCreation === 'function') {
+      try { characterState = fCharacter.queryCharacterCreation(); } catch (e) { characterState = null; }
+    }
+    if (characterState && characterState.isNewCharacterCreationRequired) return renderCharacterWizard(characterState);
+    if (_showBackfill && characterState && characterState.status === 'BACKFILL_REQUIRED') return renderCharacterWizard(characterState);
+    if (fCharacter && typeof fCharacter.queryCharacterOnboarding === 'function') {
+      var onboarding = null;
+      try { onboarding = fCharacter.queryCharacterOnboarding(); } catch (e) { onboarding = null; }
+      if (onboarding && onboarding.step !== 'COMPLETE') return renderOnboarding(onboarding);
+    }
     var page = currentPage();
     switch (page) {
       case 'HOME': return renderHome();
@@ -3193,6 +3223,113 @@
     }
   }
 
+  var CREATION_STEP_LABELS = ['选择行业', '职业方向', '具体职业', '创建身份', '天命推演', '自由加点', '确认入职'];
+  var CREATION_STEP_IDS = ['INDUSTRY', 'DIRECTION', 'PROFESSION', 'IDENTITY', 'DESTINY', 'ALLOCATION', 'CONFIRM'];
+  var CREATION_STAT_LABELS = { insight: '悟性', constitution: '根骨', perception: '神识', fortune: '机缘', willpower: '心性' };
+  var CREATION_DESTINY = {
+    LABOR_SAINT: { name: '天生牛马圣体', benefit: '疲劳增长降低 20%。', cost: '当前没有额外负面命格效果。', fit: '适合所有职业的稳健耐久路线。' },
+    KING_OF_GRIND: { name: '绝世卷王', benefit: '职业技能成长提高 20%。', cost: '工作和修炼时的道心消耗提高 25%。', fit: '适合希望更快积累职业经验的路线。' },
+    FISHING_IMMORTAL: { name: '摸鱼仙尊转世', benefit: '摸鱼奇遇权重效果尚未接入。', cost: '常规工作结算降低 10%。', fit: '偏向摸鱼玩法；本命格的正向效果仍待实现。' },
+    SCAPEGOAT: { name: '天选背锅侠', benefit: '成功化解责任事件后，绩效成长提高 50%。', cost: '背锅事件的触发权重尚未接入。', fit: '适合通过责任事件处理来成长的职业路线。' },
+    CODE_SPIRIT: { name: '代码通灵体', benefit: '技术任务进度提高 10%。', cost: '非技术事项没有额外加成。', fit: '契合互联网技术研发方向，不提供通用战斗加成。' },
+    SOCIAL_FATE: { name: '社交天命者', benefit: 'NPC 协助提高 15%，正向关系成长提高 25%。', cost: '独处型任务进度降低 10%。', fit: '适合依赖 NPC 协作与关系成长的路线。' }
+  };
+
+  function characterDraft(state) { return state && state.draft ? state.draft : null; }
+  function creationSelected(draft, key, value) { return draft && draft[key] === value ? ' is-selected' : ''; }
+  function renderCharacterWizard(state) {
+    var draft = characterDraft(state);
+    if (!draft) return '<section class="v59-creation-error"><h1>角色创建草稿无法读取</h1><p>' + escHtml(state && state.error || '草稿暂不可用，存档已保留。') + '</p></section>';
+    var backfill = draft.mode === 'BACKFILL';
+    var stepIndex = CREATION_STEP_IDS.indexOf(draft.step);
+    var stepTitle = backfill ? '补录天命' : (CREATION_STEP_LABELS[Math.max(0, stepIndex)] || '确认入职');
+    var progress = backfill ? '' : '<div class="v59-stepper">' + CREATION_STEP_LABELS.map(function (label, index) {
+      return '<span class="' + (index < stepIndex ? 'is-done ' : '') + (index === stepIndex ? 'is-current' : '') + '"><i>' + (index + 1) + '</i>' + escHtml(label) + '</span>';
+    }).join('') + '</div>';
+    var profile = '<aside class="v59-profile"><div class="v59-avatar v59-avatar--' + escHtml(draft.avatarId) + '">🧑‍💻</div><span class="v59-kicker">牛马宗 · 入职档案</span><h2>' + escHtml(draft.nickname || '待命名修士') + '</h2><p>' + escHtml(draft.professionId || '尚未选择职业') + '</p><div class="v59-profile-note">工位即洞府<br>日报即经文</div></aside>';
+    var content = backfill ? renderBackfillStep(draft) : renderCreationStep(draft);
+    var nav = backfill
+      ? '<footer class="v59-actions"><button class="v59-btn v59-btn--quiet" data-creation-action="close-backfill">稍后补录</button><button class="v59-btn v59-btn--primary" data-creation-action="complete-backfill"' + (!draft.selectedCandidateId ? ' disabled' : '') + '>确认补录天命</button></footer>'
+      : '<footer class="v59-actions">' + (stepIndex > 0 ? '<button class="v59-btn v59-btn--quiet" data-creation-action="back">上一步</button>' : '<span></span>') +
+        (draft.step === 'CONFIRM'
+          ? '<button class="v59-btn v59-btn--primary" data-creation-action="finalize">确认入职</button>'
+          : '<button class="v59-btn v59-btn--primary" data-creation-action="advance">下一步</button>') + '</footer>';
+    return '<main class="v59-creation"><header class="v59-head"><div><span class="v59-kicker">V5.9-A · 牛马降世</span><h1>' + (backfill ? '老友归来，补录天命' : '选择你的修仙职场命途') + '</h1></div><div class="v59-step-title">' + escHtml(stepTitle) + '</div></header>' + progress + '<div class="v59-layout">' + profile + '<section class="v59-step"><div class="v59-step-content">' + content + '</div>' + nav + '</section></div></main>';
+  }
+
+  function creationCard(kind, id, title, detail, selected, disabled) {
+    return '<button class="v59-choice' + (selected || '') + '" data-creation-choice="' + escHtml(kind) + ':' + escHtml(id) + '"' + (disabled ? ' disabled aria-disabled="true"' : '') + '><strong>' + escHtml(title) + '</strong><span>' + escHtml(detail) + '</span></button>';
+  }
+
+  function renderCreationStep(draft) {
+    var f = facade();
+    if (draft.step === 'INDUSTRY') return '<h2>选择行业</h2><p>先选定你要踏入的职场天地。</p><div class="v59-choice-grid">' +
+      creationCard('industry', 'INTERNET', '互联网', '代码、产品、流量与线上事故交织的修仙世界。', creationSelected(draft, 'industry', 'INTERNET'), false) +
+      creationCard('industry', 'FINANCE', '金融', '尚未开放 · 后续版本开启', '', true) + creationCard('industry', 'MEDICAL', '医疗', '尚未开放 · 后续版本开启', '', true) + '</div>';
+    if (draft.step === 'DIRECTION') return '<h2>选择职业方向</h2><p>本轮开放技术研发，其余方向将随内容更新解锁。</p><div class="v59-choice-grid">' +
+      creationCard('direction', 'TECH_RND', '技术研发', '以代码、测试、系统运维踏上修行路。', creationSelected(draft, 'direction', 'TECH_RND'), false) +
+      ['产品设计', '运营增长', '职能管理', '市场商务'].map(function (name) { return creationCard('direction-locked', name, name, '尚未开放', '', true); }).join('') + '</div>';
+    if (draft.step === 'PROFESSION') {
+      var views = [];
+      try { views = f && f.queryProfessions ? f.queryProfessions() : []; } catch (e) { views = []; }
+      return '<h2>选择具体职业</h2><p>职业决定任务池、职业技能与专精路线。</p><div class="v59-choice-grid">' + views.filter(function (item) { return ['JAVA_BACKEND', 'FRONTEND', 'QA', 'DEVOPS'].indexOf(item.id) >= 0; }).map(function (item) {
+        return creationCard('profession', item.id, item.name, item.title + ' · ' + item.description, creationSelected(draft, 'professionId', item.id), item.locked);
+      }).join('') + '</div>';
+    }
+    if (draft.step === 'IDENTITY') return '<h2>创建牛马身份</h2><p>昵称限 12 个可见字符，形象使用本地基础头像。</p><label class="v59-label">角色昵称<input id="v59-nickname" maxlength="24" value="' + escHtml(draft.nickname) + '" autocomplete="nickname"></label><div class="v59-avatar-row">' + [1,2,3,4].map(function (n) {
+      var id = 'avatar-' + n;
+      return '<button class="v59-avatar-pick' + (draft.avatarId === id ? ' is-selected' : '') + '" data-creation-choice="avatar:' + id + '" aria-label="选择形象 ' + n + '"><span class="v59-avatar v59-avatar--' + id + '">🧑‍💻</span><small>形象 ' + n + '</small></button>';
+    }).join('') + '</div><button class="v59-btn v59-btn--quiet" data-creation-action="save-identity">保存昵称与形象</button><h3>选择初始背景</h3><p>背景只带来轻微起步差异，不会造成永久劣势。</p><div class="v59-choice-grid">' +
+      creationCard('background', 'ORDINARY_WORKER', '普通打工人', '从平凡工位起步，根骨 +1。', creationSelected(draft, 'background', 'ORDINARY_WORKER'), false) +
+      creationCard('background', 'CULTIVATION_GRAD', '科班修士', '系统修行过，悟性 +1。', creationSelected(draft, 'background', 'CULTIVATION_GRAD'), false) +
+      creationCard('background', 'CAREER_CHANGER', '半路转行者', '经历方向转换，心性 +1。', creationSelected(draft, 'background', 'CAREER_CHANGER'), false) + '</div>';
+    if (draft.step === 'DESTINY') return renderDestinyCandidates(draft, false);
+    if (draft.step === 'ALLOCATION') return renderAllocation(draft);
+    if (draft.step === 'CONFIRM') {
+      var chosen = draft.candidates.find(function (item) { return item.id === draft.selectedCandidateId; });
+      var destiny = chosen && CREATION_DESTINY[chosen.destinyId];
+      var stats = chosen ? Object.keys(CREATION_STAT_LABELS).map(function (key) { return '<span>' + CREATION_STAT_LABELS[key] + ' <b>' + (chosen.attributes[key] + draft.allocation[key]) + '</b></span>'; }).join('') : '';
+      return '<h2>确认入职</h2><p>检查你的角色档案。确认后，创建结果会一次写入正式存档。</p><div class="v59-confirm-card"><div><small>角色</small><b>' + escHtml(draft.nickname) + ' · ' + escHtml(draft.professionId) + '</b><span>出身：' + escHtml(draft.background || '') + '</span></div><div><small>天命</small><b>' + escHtml(destiny ? destiny.name : chosen ? chosen.destinyId : '未选择') + '</b><span>' + (chosen ? '未分配潜力：' + (5 - Object.keys(draft.allocation).reduce(function (sum, key) { return sum + draft.allocation[key]; }, 0)) : '') + '</span></div><div class="v59-stats">' + stats + '</div></div>';
+    }
+    return '<h2>角色创建</h2>';
+  }
+
+  function renderDestinyCandidates(draft, backfill) {
+    var selected = draft.selectedCandidateId;
+    var cards = draft.candidates.map(function (candidate) {
+      var destiny = CREATION_DESTINY[candidate.destinyId] || { name: candidate.destinyId, benefit: '命格效果已记录', cost: '选择后可在角色面板查看' };
+      var stats = Object.keys(CREATION_STAT_LABELS).map(function (key) { return '<span><i>' + CREATION_STAT_LABELS[key] + '</i><b>' + candidate.attributes[key] + '</b></span>'; }).join('');
+      return '<button class="v59-destiny' + (selected === candidate.id ? ' is-selected' : '') + '" data-creation-choice="candidate:' + escHtml(candidate.id) + '"><span class="v59-destiny-type">' + (candidate.id === 'A' ? '均衡型' : candidate.id === 'B' ? '职业优势型' : '机缘型') + '</span><strong>' + escHtml(destiny.name) + '</strong><div class="v59-stats">' + stats + '</div><small>优点：' + escHtml(destiny.benefit) + '</small><small>代价：' + escHtml(destiny.cost) + '</small><small>职业契合：' + escHtml(destiny.fit || '职业选择不受命格限制。') + '</small></button>';
+    }).join('');
+    return '<h2>' + (backfill ? '选择一份天命补录' : '天命推演 · 三选一') + '</h2><p>三套基础属性总值均为 50。命格与属性将一起锁定。</p><div class="v59-destiny-grid">' + cards + '</div>' + (!backfill ? '<button class="v59-btn v59-btn--quiet" data-creation-action="reroll"' + (draft.rerollsUsed >= 3 ? ' disabled' : '') + '>重新推演（剩余 ' + (3 - draft.rerollsUsed) + ' 次）</button>' : '');
+  }
+
+  function renderAllocation(draft) {
+    var candidate = draft.candidates.find(function (item) { return item.id === draft.selectedCandidateId; });
+    if (!candidate) return '<h2>自由分配潜力</h2><p>请返回天命推演选择一套属性。</p>';
+    var spent = Object.keys(draft.allocation).reduce(function (sum, key) { return sum + draft.allocation[key]; }, 0);
+    var remaining = 5 - spent;
+    var rows = Object.keys(CREATION_STAT_LABELS).map(function (key) {
+      var base = candidate.attributes[key];
+      var added = draft.allocation[key] || 0;
+      return '<div class="v59-alloc-row"><span>' + CREATION_STAT_LABELS[key] + '</span><b>' + base + ' <i>+' + added + '</i></b><div><button data-creation-action="allocate" data-stat="' + key + '" data-delta="-1"' + (added <= 0 ? ' disabled' : '') + '>−</button><button data-creation-action="allocate" data-stat="' + key + '" data-delta="1"' + (remaining <= 0 || base + added >= 20 ? ' disabled' : '') + '>+</button></div></div>';
+    }).join('');
+    var preview = Object.keys(CREATION_STAT_LABELS).map(function (key) { return '<span>' + CREATION_STAT_LABELS[key] + ' <b>' + (candidate.attributes[key] + draft.allocation[key]) + '</b></span>'; }).join('');
+    return '<h2>自由分配潜力</h2><p>获得 5 点，可分配或保留未用点数。</p><div class="v59-alloc-list">' + rows + '</div><div class="v59-remaining">剩余潜力 <b>' + remaining + '</b> / 5' + (remaining ? '<small>未分配的潜力会保留到未来。</small>' : '') + '</div><button class="v59-btn v59-btn--quiet" data-creation-action="reset-allocation">全部重置</button><div class="v59-preview">最终属性预览 ' + preview + '</div>';
+  }
+
+  function renderBackfillStep(draft) {
+    return '<h2>为既有角色补录一份天命</h2><p>这只会新增五维属性与命格；既有职业、等级、工资、装备、任务和战斗进度都会保留。</p>' + renderDestinyCandidates(draft, true);
+  }
+
+  function renderOnboarding(onboarding) {
+    var step = onboarding.step;
+    var canStart = step === 'READY';
+    return '<main class="v59-onboarding"><span class="v59-kicker">牛马宗 · 入职渡劫</span><div class="v59-onboarding-art">🧑‍💻<i>✦</i></div><h1>' + escHtml(onboarding.title) + '</h1><p>' + escHtml(onboarding.body) + '</p><div class="v59-onboarding-progress">' + escHtml(step.replace('INTRO_', '入职剧情 ')) + '</div><footer class="v59-actions">' +
+      '<button class="v59-btn v59-btn--quiet" data-creation-action="onboarding-skip">跳过剧情</button>' +
+      (canStart ? '<button class="v59-btn v59-btn--primary" data-creation-action="start-game">开始修炼</button>' : '<button class="v59-btn v59-btn--primary" data-creation-action="onboarding-next">继续</button>') + '</footer></main>';
+  }
+
   function renderShell() {
     var overlay = $('#UiOverlay');
     if (!overlay) {
@@ -3205,9 +3342,10 @@
     var page = currentPage();
     var isHome = page === 'HOME';
     var isSub = !!_subPage;
+    var specialFlow = isV59FlowActive();
 
     var header;
-    if (isHome) {
+    if (isHome || specialFlow) {
       header = '';
     } else {
       header =
@@ -3217,7 +3355,7 @@
         '</div>';
     }
 
-    var nav = '<div class="ux-nav">' + NAV_TABS.map(function (t) {
+    var nav = specialFlow ? '' : '<div class="ux-nav">' + NAV_TABS.map(function (t) {
       var active = !isSub && _screen === t.id;
       var art = t.emoji
         ? '<span class="ux-nav-emoji">' + t.emoji + '</span>'
@@ -3238,6 +3376,17 @@
       '<div class="ux-toast-container" id="ToastBox"></div>';
 
     bindEvents();
+  }
+
+  function isV59FlowActive() {
+    var f = facade();
+    if (!f) return false;
+    try {
+      var creation = f.queryCharacterCreation && f.queryCharacterCreation();
+      if (creation && (creation.isNewCharacterCreationRequired || (_showBackfill && creation.status === 'BACKFILL_REQUIRED'))) return true;
+      var onboarding = f.queryCharacterOnboarding && f.queryCharacterOnboarding();
+      return !!(onboarding && onboarding.step !== 'COMPLETE');
+    } catch (e) { return false; }
   }
 
   function refresh() {
@@ -3325,8 +3474,61 @@
     if (!overlay) return;
 
     overlay.onclick = function (e) {
-      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab],[data-codex-tab]') : null;
+      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab],[data-codex-tab],[data-creation-action],[data-creation-choice]') : null;
       if (!el) return;
+
+      if (el.dataset.creationChoice) {
+        var choiceParts = el.dataset.creationChoice.split(':');
+        var choiceKind = choiceParts[0];
+        var choiceValue = choiceParts.slice(1).join(':');
+        var fCreation = facade();
+        var choiceResult = null;
+        try {
+          if (choiceKind === 'industry') choiceResult = fCreation.characterCreationSelectIndustry(choiceValue);
+          else if (choiceKind === 'direction') choiceResult = fCreation.characterCreationSelectDirection(choiceValue);
+          else if (choiceKind === 'profession') choiceResult = fCreation.characterCreationSelectProfession(choiceValue);
+          else if (choiceKind === 'avatar') {
+            var nicknameInput = $('#v59-nickname');
+            choiceResult = fCreation.characterCreationSetIdentity(nicknameInput ? nicknameInput.value : '', choiceValue);
+          } else if (choiceKind === 'background') choiceResult = fCreation.characterCreationSetBackground(choiceValue);
+          else if (choiceKind === 'candidate') choiceResult = fCreation.characterCreationSelectCandidate(choiceValue);
+          if (choiceResult && !choiceResult.success) toast(choiceResult.reason || '选择失败', 'error');
+        } catch (creationError) { toast(errMsg(creationError), 'error'); }
+        refresh();
+        return;
+      }
+      if (el.dataset.creationAction) {
+        var fCreationAction = facade();
+        var creationResult = null;
+        try {
+          switch (el.dataset.creationAction) {
+            case 'back': creationResult = fCreationAction.characterCreationBack(); break;
+            case 'advance': creationResult = fCreationAction.characterCreationAdvance(); break;
+            case 'save-identity': {
+              var identityInput = $('#v59-nickname');
+              var selectedAvatar = $('.v59-avatar-pick.is-selected');
+              var avatarId = selectedAvatar ? selectedAvatar.dataset.creationChoice.split(':')[1] : (fCreationAction.queryCharacterCreation().draft.avatarId);
+              creationResult = fCreationAction.characterCreationSetIdentity(identityInput ? identityInput.value : '', avatarId);
+              break;
+            }
+            case 'reroll': creationResult = fCreationAction.characterCreationReroll(); break;
+            case 'allocate': creationResult = fCreationAction.characterCreationAllocate(el.dataset.stat, Number(el.dataset.delta)); break;
+            case 'reset-allocation': creationResult = fCreationAction.characterCreationResetAllocation(); break;
+            case 'finalize': creationResult = fCreationAction.characterCreationFinalize(); break;
+            case 'complete-backfill': creationResult = fCreationAction.characterCreationCompleteBackfill(); if (creationResult.success) _showBackfill = false; break;
+            case 'open-backfill': _showBackfill = true; break;
+            case 'close-backfill': _showBackfill = false; break;
+            case 'onboarding-next': creationResult = fCreationAction.characterCreationAdvanceOnboarding(); break;
+            case 'onboarding-skip': creationResult = fCreationAction.characterCreationSkipOnboarding(); break;
+            case 'start-game': creationResult = fCreationAction.characterCreationStartGame(); break;
+          }
+          if (creationResult && !creationResult.success) toast(creationResult.reason || '操作失败', 'error');
+          else if (el.dataset.creationAction === 'finalize') toast('入职确认完成，迎接你的第一张工单。', 'success');
+          else if (el.dataset.creationAction === 'complete-backfill') toast('天命补录完成，原有修行进度已保留。', 'success');
+        } catch (creationError) { toast(errMsg(creationError), 'error'); }
+        fullRefresh();
+        return;
+      }
 
       if (el.dataset.gotoPage) {
         _screen = el.dataset.gotoPage;

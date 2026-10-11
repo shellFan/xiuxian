@@ -1,6 +1,7 @@
 import idleConfig from '../../configs/idle.json';
 import type { GameContext } from '../core/game-context';
 import type { WorkMode } from '../model/save-data';
+import { applyCharacterEffectToInteger } from '../v59/character-attributes';
 
 export interface WorkServiceOptions {
   readonly salaryPerHour?: number | readonly number[];
@@ -112,10 +113,31 @@ export class WorkService {
     const mindRemainderKey = MODE_RULES[mode].secondsKey.replace('Seconds', 'MindRemainder') as
       'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder';
     const mindResult = accumulate(Math.abs(mindRate), standardSeconds, 1, this.context.player[mindRemainderKey] ?? 0, 3600);
-    const salary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier);
-    const cultivationExp = Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier);
+    const baseSalary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier);
+    const salary = mode === 'WORK' ? applyCharacterEffectToInteger(
+      baseSalary,
+      this.context.player,
+      'REGULAR_WORK_OUTPUT',
+    ) : baseSalary;
+    const attributeCultivationExp = applyCharacterEffectToInteger(
+      Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier),
+      this.context.player,
+      'CULTIVATION_REWARD',
+    );
+    const cultivationExp = mode === 'WORK' ? applyCharacterEffectToInteger(
+      attributeCultivationExp,
+      this.context.player,
+      'REGULAR_WORK_OUTPUT',
+    ) : attributeCultivationExp;
     const mindBuffMul = mode === 'FISHING' ? this.context.buffs.getMultiplier('FISHING_MIND_BOOST') : 1;
-    const mindDelta = mindRate >= 0 ? Math.floor(mindResult.reward * mindBuffMul) : -mindResult.reward;
+    const baseMindDelta = mindRate >= 0 ? Math.floor(mindResult.reward * mindBuffMul) : -mindResult.reward;
+    const mindDelta = baseMindDelta < 0 && (mode === 'WORK' || mode === 'CULTIVATING')
+      ? applyCharacterEffectToInteger(
+        baseMindDelta,
+        this.context.player,
+        'WORK_MIND_COST',
+      )
+      : baseMindDelta;
     try {
       this.context.economy.applyIdleSalary(salary);
       this.context.cultivation.applyIdleExperience(cultivationExp);

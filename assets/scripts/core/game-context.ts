@@ -83,6 +83,7 @@ import { OfferService } from '../services/offer-service';
 import { TeamService } from '../services/team-service';
 import { MetaService } from '../services/meta-service';
 import { GameSoundService } from '../services/sound-service';
+import { CharacterCreationService } from '../v59/character-creation-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
 import craftConfig from '../../configs/craft.json';
@@ -96,6 +97,8 @@ export interface GameContextOptions {
   readonly player?: PlayerData;
   readonly saveService?: SaveService;
   readonly storage?: StorageAdapter;
+  /** Optional deterministic seed source for V5.9-A character creation tests/runtime. */
+  readonly characterSeedProvider?: () => number;
   /** @deprecated Board dimensions are no longer used in PC V1. */
   readonly boardRows?: number;
   /** @deprecated Board dimensions are no longer used in PC V1. */
@@ -228,10 +231,15 @@ export class GameContext {
   public readonly sound: GameSoundService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
+  /** Shared persistence adapter for the game save and resumable creation draft. */
+  public readonly storage: StorageAdapter;
+  /** Authoritative V5.9-A new-character creation and old-save backfill workflow. */
+  public readonly characterCreation: CharacterCreationService;
   public readonly config = GameConfig;
 
   public constructor(options: GameContextOptions = {}) {
-    this.saveService = options.saveService ?? new SaveService(options.storage ?? new LocalStorageAdapter(), undefined, options.clock ?? DEFAULT_CLOCK);
+    this.storage = options.storage ?? new LocalStorageAdapter();
+    this.saveService = options.saveService ?? new SaveService(this.storage, undefined, options.clock ?? DEFAULT_CLOCK);
     let saved = options.player ? undefined : this.saveService.load();
     // Board defaults to a standard 4×4 grid for backward compatibility.
     // PC V1 production code should pass `board: null` to disable the merge board.
@@ -342,6 +350,7 @@ export class GameContext {
     this.weekend = new WeekendService(this, this.clockV2, this.gameDay, this.innerDemon);
     this.promotionV2 = new PromotionV2Service(this, this.clockV2, this.innerDemon, this.npc);
     this.daySettlement = new DaySettlementService(this, this.clockV2, this.gameDay, this.innerDemon);
+    this.characterCreation = new CharacterCreationService(this, this.storage, options.characterSeedProvider);
   }
 
   /** @deprecated No longer used in PC V1 — board is null by default. */

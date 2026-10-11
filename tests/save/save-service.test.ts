@@ -11,7 +11,10 @@ import { SaveServiceV2 } from '../../assets/scripts/services/save-service-v2';
 function testNewPlayerUsesDefaults(): void {
   const storage = new MemoryStorageAdapter();
   const service = new SaveService(storage, 'game-save', () => 123);
-  assert.deepEqual(service.load(), new PlayerData({ tutorialStartedAt: 123 }).toSaveData());
+  assert.deepEqual(service.load(), new PlayerData({
+    tutorialStartedAt: 123,
+    characterSetupStatus: 'CREATION_REQUIRED',
+  }).toSaveData());
 }
 
 function testSavesAndRestoresPlayerAndWorkers(): void {
@@ -91,7 +94,10 @@ function testEmptyAndInvalidStorageBecomeNewPlayer(): void {
   const storage = new MemoryStorageAdapter();
   const service = new SaveService(storage, 'game-save', () => 123);
   storage.setItem('game-save', '');
-  assert.deepEqual(service.load(), new PlayerData({ tutorialStartedAt: 123 }).toSaveData());
+  assert.deepEqual(service.load(), new PlayerData({
+    tutorialStartedAt: 123,
+    characterSetupStatus: 'CREATION_REQUIRED',
+  }).toSaveData());
   // F01 (V5.8 R3): corrupt raw data must fail closed — no silent new save
   storage.setItem('game-save', '{not-json');
   const raw = storage.getItem('game-save');

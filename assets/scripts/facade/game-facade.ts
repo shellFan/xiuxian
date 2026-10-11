@@ -50,6 +50,7 @@ import { allEquipmentDefs, AFFIX_MAP, SET_MAP, RARITY_CN, V57_SETS, type LootEqu
 import { WEEK_CONTENT } from '../v57/week-service';
 import { messengerEventById } from '../v5/messenger-content';
 import { EVOLUTIONS } from '../v57/battle-merge';
+import { projectCharacterAttributes } from '../v59/character-attributes';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -206,6 +207,47 @@ export class GameFacade {
   public queryTimeUntilOffWork() { return this.context.clockV2.getTimeUntilOffWorkMs(); }
   /** Work Today 首页的只读时间/工时投影。 */
   public queryWorkToday() { return this.context.workToday.snapshot(); }
+
+  /** V5.9-A: creation/backfill state and resumable draft. */
+  public queryCharacterCreation() { return this.context.characterCreation.query(); }
+  public characterCreationSelectIndustry(id: string) { return this.context.characterCreation.selectIndustry(id); }
+  public characterCreationSelectDirection(id: string) { return this.context.characterCreation.selectDirection(id); }
+  public characterCreationSelectProfession(id: string) { return this.context.characterCreation.selectProfession(id); }
+  public characterCreationSetIdentity(nickname: string, avatarId: string) { return this.context.characterCreation.setIdentity(nickname, avatarId); }
+  public characterCreationSetBackground(id: string) { return this.context.characterCreation.setBackground(id); }
+  public characterCreationSelectCandidate(id: string) { return this.context.characterCreation.selectCandidate(id); }
+  public characterCreationReroll() { return this.context.characterCreation.reroll(); }
+  public characterCreationAllocate(stat: import('../v59/character-rules').StatKey, delta: number) {
+    return this.context.characterCreation.allocate(stat, delta);
+  }
+  public characterCreationResetAllocation() { return this.context.characterCreation.resetAllocation(); }
+  public characterCreationAdvance() { return this.context.characterCreation.advance(); }
+  public characterCreationBack() { return this.context.characterCreation.back(); }
+  public characterCreationFinalize() { return this.context.characterCreation.finalize(); }
+  public characterCreationCompleteBackfill() { return this.context.characterCreation.completeBackfill(); }
+  public queryCharacterOnboarding() { return this.context.characterCreation.queryOnboarding(); }
+  public characterCreationAdvanceOnboarding() { return this.context.characterCreation.advanceOnboarding(); }
+  public characterCreationSkipOnboarding() { return this.context.characterCreation.skipOnboarding(); }
+  public characterCreationStartGame() { return this.context.characterCreation.startOnboardingGame(); }
+  /** Read-only formal character data for the character panel. */
+  public queryCharacterProfile() {
+    const player = this.context.player;
+    const effective = projectCharacterAttributes(player);
+    return {
+      setupStatus: player.characterSetupStatus ?? 'CREATION_REQUIRED',
+      name: player.characterName ?? '',
+      avatarId: player.characterAvatarId ?? 'avatar-1',
+      industry: player.characterIndustry,
+      direction: player.characterDirection,
+      professionId: player.profession,
+      background: player.characterBackground,
+      destinyId: player.destinyId,
+      innate: player.innateAttributes ? { ...player.innateAttributes } : undefined,
+      earned: player.earnedAttributeDelta ? { ...player.earnedAttributeDelta } : undefined,
+      effective: effective ? { ...effective } : undefined,
+      unspentPotential: player.unspentPotential ?? 0,
+    };
+  }
 
   // ── V5 飞剑传书（WorkplaceMessenger） ──
 

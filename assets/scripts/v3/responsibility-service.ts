@@ -1,5 +1,6 @@
 import type { GameContext } from '../core/game-context';
 import type { IncidentSeverity, ResponsibilityCaseState, ResponsibilityStatus } from '../model/save-data';
+import { applyCharacterEffectToInteger } from '../v59/character-attributes';
 
 /** 甩锅案件数量上限（保留最近 30 件）。 */
 const MAX_CASES = 30;
@@ -111,20 +112,27 @@ export class ResponsibilityService {
 
   private resolve(caseId: string, status: ResponsibilityStatus, performanceDelta: number, relationshipEffects: Record<string, number>, summary: string): ResolveOutcome {
     const kase = this.mustCase(caseId);
+    const settledPerformanceDelta = status === 'PLAYER_CLEARED' && performanceDelta > 0
+      ? applyCharacterEffectToInteger(performanceDelta, this.context.player, 'RESPONSIBILITY_SUCCESS_GROWTH')
+      : performanceDelta;
+    const settledRelationshipEffects = Object.fromEntries(Object.entries(relationshipEffects).map(([npc, delta]) => [
+      npc,
+      delta > 0 ? applyCharacterEffectToInteger(delta, this.context.player, 'RELATIONSHIP_GAIN') : delta,
+    ]));
     this.replaceCase({
       ...kase,
       status,
       resolution: summary,
-      performanceDelta,
-      relationshipEffects,
+      performanceDelta: settledPerformanceDelta,
+      relationshipEffects: settledRelationshipEffects,
     });
     // 落地后果
     const player = this.context.player;
-    if (performanceDelta !== 0) {
-      player.performance = Math.max(0, player.performance + performanceDelta);
-      this.context.gameDay.addIncome('performance', performanceDelta);
+    if (settledPerformanceDelta !== 0) {
+      player.performance = Math.max(0, player.performance + settledPerformanceDelta);
+      this.context.gameDay.addIncome('performance', settledPerformanceDelta);
     }
-    for (const [npc, delta] of Object.entries(relationshipEffects)) {
+    for (const [npc, delta] of Object.entries(settledRelationshipEffects)) {
       const cur = player.relationships[npc] ?? 0;
       player.relationships[npc] = Math.max(-100, Math.min(100, cur + delta));
     }
@@ -138,7 +146,7 @@ export class ResponsibilityService {
     }
     this.bumpLifetime(status === 'PLAYER_CLEARED' ? 'blameCounters' : 'blamesTaken', 1);
     this.context.events.emit('playerChanged', { reason: 'responsibilityResolved', mode: player.workMode });
-    return { caseId, status, performanceDelta, relationshipEffects, summary };
+    return { caseId, status, performanceDelta: settledPerformanceDelta, relationshipEffects: settledRelationshipEffects, summary };
   }
 
   private mustCase(caseId: string): ResponsibilityCaseState {

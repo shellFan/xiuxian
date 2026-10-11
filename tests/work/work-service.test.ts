@@ -80,9 +80,10 @@ function testTickSaveFailureRollsBackAllState(): void {
   const durableStorage = new MemoryStorageAdapter();
   const durableSave = new SaveService(durableStorage);
   durableSave.save(player);
-  const baseline = player.toSaveData();
   const storage: StorageAdapter = { getItem: (key) => durableStorage.getItem(key), setItem: () => { throw new Error('quota exceeded'); }, removeItem: () => undefined };
   const context = new GameContext({ player, saveService: new SaveService(storage), clock: workdayTestClock() });
+  durableSave.save(player);
+  const baseline = player.toSaveData();
   context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   const work = new WorkService(context, { salaryPerHour: 3600, cultivationPerHour: 3600, mindPerHour: 3600, modeMultipliers: { WORK: { salaryMul: 2, cultivationMul: 2 }, FISHING: { salaryMul: 1, cultivationMul: 1 } }, });
 
