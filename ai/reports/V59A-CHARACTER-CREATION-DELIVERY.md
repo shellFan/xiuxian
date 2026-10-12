@@ -134,3 +134,73 @@ tests/work/work-service.test.ts
 ## Readiness
 
 **NOT READY** — source, automated checks, and package are delivered. Independent QA is still needed for the two destiny event-weight effects and visible Windows EXE acceptance.
+
+---
+
+## V5.9-A.1 NOT READY closure — 2026-10-12
+
+This addendum supersedes the earlier open-item status above for the two destiny event-weight issues and the build-exit investigation. It does not change the visible-EXE QA status.
+
+### Source and behavior
+
+- Baseline: `227c59e00c145122ae2c0cc17a54d01e89b44d6b`.
+- Code commit: `78c1abb2b9c3f866c47c8b756a70809528c009aa` (`fix: apply destiny weights to event selection`).
+- `FISHING_IMMORTAL` now applies a 1.5 target multiplier to events eligible in `FISHING` mode through the existing `EventScheduler`.
+- `SCAPEGOAT` now applies a 1.5 target multiplier to events that have a choice branch opening a responsibility case with `blamedPlayer: true`.
+- `V2EventService` projects the existing character effect hooks into the existing scheduler. No second scheduler was added. Base event definitions and unrelated event selection rules are unchanged; effective weights are normalized to finite, nonnegative probabilities.
+
+### Tests and build evidence
+
+| Command/check | Result |
+|---|---|
+| `npm test` | PASS — 147 test files, including fixed-seed distribution tests and real blame-case settlement. |
+| `npm run build` | PASS — game and orchestrator TypeScript builds. |
+| `npm run gameplay-v2` | Not defined in this repository (`Missing script`). Equivalent `npm run gameplay-v2:check` PASS. |
+| `npm run pc` | Not defined in this repository (`Missing script`). `npm run pc:build` PASS on the final source commit. |
+| `npm run pc:copy` | PASS — copied latest Cocos build and regenerated manifest. |
+| `npm run pc:check` | PASS — 8 component registrations, iterator scan, manifest freshness, overlay hashes. |
+| `npm run pc:pack` | PASS — generated Windows x64 Electron package. |
+| `git diff --check` | PASS before source commit. |
+
+Fixed-seed scheduler evidence (20,000 draws each):
+
+- Fishing target encounters: `10,080/20,000` baseline → `12,062/20,000` with `FISHING_IMMORTAL`.
+- Blame target encounters: `10,079/20,000` baseline → `12,094/20,000` with `SCAPEGOAT`.
+- Tests also verify unchanged non-target selection, multiplier projection from persisted destinies, finite/nonnegative normalized weights, and a real `wp_blame_api_s0` choice settling into a responsibility case.
+
+Focused V5.8 regression log: `ai/reports/v59a1-evidence/logs/v58-focused-regressions.log`. It covers salary, battle, workplace/task settlement, equipment, save/load, runtime-data truth, affix settlement, and V2 items. The complete test output is in `ai/reports/v59a1-evidence/logs/npm-test.log`.
+
+### Cocos Creator exit code 36
+
+Confirmed from the installed Cocos Creator 3.8.4 `app.asar`: `BUILD_SUCCESS` is enum value `36`; its launch code propagates the build result through `app.exit(code)` and `process.exit(code)`. The final run logged `build success in 42309` and finished the Web Desktop task. The fresh output contains 107 files (14,596,060 bytes); the build verifier checks required files for missing, empty, or stale output. `pc:check` also confirms scene component registrations and packaged overlay hashes.
+
+The current Creator logs contain nonfatal configuration fallback notices (`debug` string `"false"` falls back to boolean `false`; undefined compression setting defaults to `merge_dep`), a deprecated `BaseNode` warning, and a libpng color-profile warning. The builder and asset database logs contain no build error, exception, fatal, or failure. Logs: `creator-builder-final.log`, `creator-asset-db-final.log`, and `pc-build-final.log` under `ai/reports/v59a1-evidence/logs/`.
+
+### Packaged artifacts
+
+- Build manifest `gitHead`: `78c1abb2b9c3f866c47c8b756a70809528c009aa`.
+- Portable EXE: `dist/牛马修仙传-win32-x64/牛马修仙传.exe` (176,819,200 bytes).
+- `EXE_SHA256`: `E10410E805C536B470D4D6938D14D7CF343AC7303DA01F97B261EAD82AA91CD1`.
+- ASAR: `dist/牛马修仙传-win32-x64/resources/app.asar` (15,621,337 bytes).
+- `ASAR_SHA256`: `9B3DBB0C3E4493E729074FA484345B991D8138AD1671ABD85F97042400003ED2`.
+
+### Real Windows EXE acceptance
+
+- `UI_REAL_EXE`: **NOT_VERIFIED**. This session has no native desktop window/input automation, so no EXE screenshots or real-window interaction evidence were produced. The package hash and automated DOM/service tests do not establish visual acceptance.
+- Remaining HIGH: perform the manual Windows EXE walkthrough below and attach genuine screenshots/logs. No other HIGH or BLOCKER is known from this round. Independent QA is not declared passed.
+- `AUTOMATED_E2E`: PASS as part of `npm test`; it does not replace the EXE walkthrough.
+
+Manual acceptance checklist (use an isolated Windows test profile; preserve a copy of any legacy save):
+
+1. Launch the packaged EXE at 1280×720; capture the initial screen and check for clipped, overlapping, or off-screen controls.
+2. Complete all seven setup steps by clicking each control; navigate backward and forward and confirm entered values persist.
+3. Create four isolated profiles, one per profession, and verify each profession can finish setup and enter the game.
+4. Reroll destiny, verify the candidate and reroll count persist after closing/relaunching, and confirm the reroll limit is enforced.
+5. Allocate attributes, finish character creation, then confirm destiny, profession, attributes, and unspent potential after relaunch.
+6. Complete the hire/onboarding story and first profession task; save, close the EXE, relaunch, and verify progress resumes.
+7. Open a preserved legacy save and verify profession, inventory, and progress remain intact with no duplicate starter kit or new-player reward.
+8. Repeat startup/relaunch and confirm the new-player reward is never granted twice; capture screenshots and the corresponding logs for each profile.
+
+### Delivery status
+
+The event-weight issues and Creator exit-code question are closed with test/build evidence. Overall status remains **NOT READY for independent QA sign-off** until `UI_REAL_EXE` is verified on Windows. No V5.9-B work was started.
