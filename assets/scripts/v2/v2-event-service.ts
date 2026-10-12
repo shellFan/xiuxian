@@ -12,7 +12,7 @@ import type { RandomService, Rng } from './random-service';
 import eventsConfig from '../../configs/v2/events.json';
 import { OVERTIME_EVENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_EVENTS } from '../v3/workplace-content';
-import { applyCharacterEffectToInteger } from '../v59/character-attributes';
+import { applyCharacterEffectToInteger, characterEffectMultiplier } from '../v59/character-attributes';
 import {
   type EventDefinition,
   type EventChoice,
@@ -34,6 +34,13 @@ export const EVENTS: readonly EventDefinition[] = mergeUniqueById(
   'event',
 );
 export const EVENT_MAP: ReadonlyMap<string, EventDefinition> = new Map(EVENTS.map((e) => [e.id, e]));
+
+export function projectDestinyEventWeightMultipliers(player: Pick<GameContext['player'], 'destinyId' | 'innateAttributes' | 'earnedAttributeDelta'>): NonNullable<EventWorldState['destinyEventWeightMultipliers']> {
+  return {
+    fishing: characterEffectMultiplier(player, 'FISHING_EVENT_WEIGHT'),
+    blame: characterEffectMultiplier(player, 'BLAME_EVENT_WEIGHT'),
+  };
+}
 
 /** NPC id（§44）。 */
 export type NpcId = 'BOSS' | 'PRODUCT' | 'TESTER' | 'JUNIOR' | 'VETERAN' | 'HR' | 'OPS' | 'CLIENT';
@@ -121,6 +128,7 @@ export class V2EventService {
       ownedEquipment: [...p.ownedEquipment],
       eventFlags: { ...p.eventFlags },
       eventWeights: { ...this.gameDay.aggregateEffects().eventWeights },
+      destinyEventWeightMultipliers: projectDestinyEventWeightMultipliers(p),
       evidenceTypes: this.context.evidence.heldTypes(),
     };
   }

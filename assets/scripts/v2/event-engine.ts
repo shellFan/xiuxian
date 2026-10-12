@@ -197,6 +197,8 @@ export interface EventWorldState {
   eventFlags: Record<string, boolean>;
   /** 今日局势聚合出的事件类别权重（category → multiplier）。 */
   eventWeights?: Record<string, number>;
+  /** 由角色命格投影的目标事件权重倍率；缺省保持基础规则。 */
+  destinyEventWeightMultipliers?: { readonly fishing?: number; readonly blame?: number };
   /** V4：玩家持有的证据类型（evidence 门控）。 */
   evidenceTypes?: readonly string[];
 }
@@ -326,17 +328,23 @@ export class EventScheduler {
     if (!eligible.length) return null;
 
     const weights = eligible.map((def) => {
-      let weight = def.baseWeight;
+      let weight = Number.isFinite(def.baseWeight) ? Math.max(0, def.baseWeight) : 0;
       // 局势权重放大：GameDayService.aggregateEffects().eventWeights 按 category 聚合。
       const sitWeight = world.eventWeights?.[def.category];
-      if (sitWeight !== undefined && sitWeight > 0) weight *= sitWeight;
+      if (sitWeight !== undefined && Number.isFinite(sitWeight) && sitWeight > 0) weight *= sitWeight;
       // 负面连击保护：稀有/正面事件加权由调用方通过 world 传入（此处按 rarity 简化：负面连击时 RARE 加权）
       if (this.state.negativeStreak >= this.config.negativeStreakThreshold && (def.rarity === 'RARE' || def.rarity === 'EPIC')) {
         weight *= 1.5;
       }
-      return weight;
+      if (world.workMode === 'FISHING' && allowsFishing(def)) {
+        weight *= safeTargetMultiplier(world.destinyEventWeightMultipliers?.fishing);
+      }
+      if (isBlameEncounter(def)) {
+        weight *= safeTargetMultiplier(world.destinyEventWeightMultipliers?.blame);
+      }
+      return Number.isFinite(weight) ? weight : Number.MAX_VALUE;
     });
-    const idx = rng.weightedIndex(weights);
+    const idx = rng.weightedIndex(normalizeEventWeights(weights));
     if (idx < 0) return null;
     return eligible[idx];
   }
@@ -362,6 +370,30 @@ export class EventScheduler {
     if (impact === 'NEGATIVE') this.state.negativeStreak += 1;
     else this.state.negativeStreak = 0;
   }
+}
+
+/** Converts arbitrary nonnegative event weights to finite probabilities summing to one. */
+export function normalizeEventWeights(weights: readonly number[]): number[] {
+  const safeWeights = weights.map((weight) => Number.isFinite(weight) ? Math.max(0, weight) : Number.MAX_VALUE);
+  const largest = Math.max(...safeWeights);
+  if (largest <= 0 || safeWeights.length === 0) return safeWeights;
+  const scaled = safeWeights.map((weight) => weight / largest);
+  const total = scaled.reduce((sum, weight) => sum + weight, 0);
+  if (!(total > 0) || !Number.isFinite(total)) return scaled.map(() => 1 / scaled.length);
+  return scaled.map((weight) => weight / total);
+}
+
+function safeTargetMultiplier(value: number | undefined): number {
+  return value !== undefined && Number.isFinite(value) && value > 0 ? value : 1;
+}
+
+function allowsFishing(def: EventDefinition): boolean {
+  return def.allowedModes?.includes('FISHING') ?? false;
+}
+
+function isBlameEncounter(def: EventDefinition): boolean {
+  return (def.choices ?? []).some((choice) => [choice.effects, choice.successEffects, choice.failureEffects]
+    .some((effects) => effects?.openCase?.blamedPlayer === true));
 }
 
 // ── Pending Events（§41/§42） ────────────────────────────────────────────────

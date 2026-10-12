@@ -19,7 +19,9 @@ export type CharacterEffectHookId =
   | 'SOLO_TASK_PROGRESS'
   | 'BATTLE_CRIT_CHANCE'
   | 'NPC_ASSIST_CHANCE'
-  | 'RELATIONSHIP_GAIN';
+  | 'RELATIONSHIP_GAIN'
+  | 'FISHING_EVENT_WEIGHT'
+  | 'BLAME_EVENT_WEIGHT';
 
 export interface CharacterAttributeRecord {
   readonly destinyId?: DestinyId;
@@ -50,8 +52,8 @@ const ATTRIBUTE_HOOK_RULES: Readonly<Partial<Record<CharacterEffectHookId, Attri
 const DESTINY_HOOK_RULES: Readonly<Record<DestinyId, Readonly<Partial<Record<CharacterEffectHookId, number>>>>> = Object.freeze({
   LABOR_SAINT: Object.freeze({ FATIGUE_GAIN: 0.8 }),
   KING_OF_GRIND: Object.freeze({ PROFESSION_GROWTH: 1.2, WORK_MIND_COST: 1.25 }),
-  FISHING_IMMORTAL: Object.freeze({ REGULAR_WORK_OUTPUT: 0.9 }),
-  SCAPEGOAT: Object.freeze({ RESPONSIBILITY_SUCCESS_GROWTH: 1.5 }),
+  FISHING_IMMORTAL: Object.freeze({ REGULAR_WORK_OUTPUT: 0.9, FISHING_EVENT_WEIGHT: 1.5 }),
+  SCAPEGOAT: Object.freeze({ RESPONSIBILITY_SUCCESS_GROWTH: 1.5, BLAME_EVENT_WEIGHT: 1.5 }),
   CODE_SPIRIT: Object.freeze({ TECHNICAL_TASK_PROGRESS: 1.1 }),
   SOCIAL_FATE: Object.freeze({ NPC_ASSIST_CHANCE: 1.15, RELATIONSHIP_GAIN: 1.25, SOLO_TASK_PROGRESS: 0.9 }),
 });
