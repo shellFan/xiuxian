@@ -1,7 +1,7 @@
 import type { GameContext } from '../core/game-context';
 import type { WorkMode } from '../model/save-data';
 
-export type TodayLifeKind = 'COFFEE' | 'LUNCH' | 'MILK_TEA' | 'CODE_COMMIT' | 'DOCUMENT';
+export type TodayLifeKind = 'COFFEE' | 'LUNCH' | 'MILK_TEA' | 'SNACK' | 'DINNER' | 'CODE_COMMIT' | 'DOCUMENT';
 
 export interface RuntimeTodoItem { readonly id: string; readonly title: string; readonly source: string; readonly priority?: string; }
 export interface RuntimeActivityItem { readonly time: number; readonly text: string; readonly kind: string; }
@@ -24,7 +24,7 @@ export interface RuntimeDataSnapshot {
 
 const LIFE: Readonly<Record<TodayLifeKind, { label: string; icon: string }>> = {
   COFFEE: { label: '咖啡', icon: '☕' }, LUNCH: { label: '午饭', icon: '🍜' },
-  MILK_TEA: { label: '奶茶', icon: '🧋' }, CODE_COMMIT: { label: '提交代码', icon: '💻' },
+  MILK_TEA: { label: '奶茶', icon: '🧋' }, SNACK: { label: '零食', icon: '🍪' }, DINNER: { label: '聚餐', icon: '🍲' }, CODE_COMMIT: { label: '提交代码', icon: '💻' },
   DOCUMENT: { label: '查看需求', icon: '📄' },
 };
 

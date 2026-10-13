@@ -161,6 +161,21 @@ function testConsumables(): void {
   assert.equal(svc.useConsumable('cons_fish_charm').success, false, 'charm already active');
 }
 
+function testSalarySpending(): void {
+  const { context } = makeCtx();
+  const svc = context.v2Items;
+  const changes: Array<{ amount: number; total: number }> = [];
+  context.events.on('salaryChanged', (event) => changes.push(event));
+  const spent = svc.spendSalary(18);
+  assert.equal(spent.success, true);
+  assert.equal(context.player.salary, 982);
+  assert.deepEqual(changes, [{ amount: -18, total: 982 }]);
+  assert.equal(svc.spendSalary(2000).success, false, 'insufficient salary is rejected');
+  assert.equal(context.player.salary, 982, 'rejected spend leaves balance untouched');
+  assert.equal(svc.spendSalary(Number.NaN).success, false, 'invalid spend is rejected');
+  assert.equal(context.player.salary, 982, 'invalid spend leaves balance untouched');
+}
+
 // ── 商店 ────────────────────────────────────────────────────────────────────
 
 function testShopRefreshAndBuy(): void {
@@ -197,5 +212,6 @@ testTechniqueUpgrade();
 testEquipmentSlots();
 testCraftTransaction();
 testConsumables();
+testSalarySpending();
 testShopRefreshAndBuy();
 console.log('gameplay v2 phase3 item tests passed');

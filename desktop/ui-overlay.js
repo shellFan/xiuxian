@@ -1070,13 +1070,16 @@
     if (!professionSelected() && !(creationState && creationState.status === 'BACKFILL_REQUIRED')) return renderProfessionSelect();
     var backfillBanner = creationState && creationState.status === 'BACKFILL_REQUIRED'
       ? '<button class="v59-backfill-banner" data-creation-action="open-backfill"><span>✦ 老友归来：为角色补录天命</span><small>补录只增加新成长字段，不影响既有进度。</small><b>现在补录 ›</b></button>' : '';
+    /* V5.9-F-Z：主页面可玩性面板（今日工作/三目标/建议行动/玩法入口/生活行为），数据来自 queryHomeSnapshot。 */
+    var v59fPanel = '';
+    try { v59fPanel = window.__V59F__ ? window.__V59F__.homePanelHtml() : ''; } catch (e) { v59fPanel = ''; }
     return '' +
       '<div class="ux-home">' +
         backfillBanner +
         homeTopbarHtml(hud) +
         '<aside class="ux-home-col ux-home-left">' + homeLeftHtml(hud) + '</aside>' +
         '<main class="ux-home-col ux-home-center">' + homeCenterHtml(hud) + '</main>' +
-        '<aside class="ux-home-col ux-home-right">' + homeRightHtml(hud) + '</aside>' +
+        '<aside class="ux-home-col ux-home-right">' + v59fPanel + homeRightHtml(hud) + '</aside>' +
       '</div>';
   }
 
@@ -3591,6 +3594,11 @@
         return;
       }
 
+      /* V5.9-F-Z：主页面可玩性面板命令（claimGoal/lifeConsume/gotoTasks/guideSkip）。 */
+      try {
+        if (window.__V59F__ && window.__V59F__.handleClick(el, act)) return;
+      } catch (e) { console.warn('[overlay] v59f handler:', e); }
+
       switch (act) {
         case 'back':
           _subPage = null;
@@ -4053,6 +4061,20 @@
     if (!initV2Bridge()) {
       var v2Poll = setInterval(function () {
         if (initV2Bridge()) clearInterval(v2Poll);
+      }, 500);
+    }
+
+    /* V5.9-F-Z：主页面可玩性面板桥接（与 V2UI 同款注入模式）。 */
+    function initV59fBridge() {
+      if (!window.__V59F__) return false;
+      window.__V59F__.init({
+        facade: facade, escHtml: escHtml, toast: toast, errMsg: errMsg, refresh: refresh,
+      });
+      return true;
+    }
+    if (!initV59fBridge()) {
+      var v59fPoll = setInterval(function () {
+        if (initV59fBridge()) clearInterval(v59fPoll);
       }, 500);
     }
 

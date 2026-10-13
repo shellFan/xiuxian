@@ -670,7 +670,7 @@ export interface DailyRealityEntryState {
   readonly text: string;
   readonly kind: 'WORK' | 'FAVOR' | 'MEETING' | 'INCIDENT' | 'OVERTIME' | 'CHANGE' | 'BLAME' | 'REST' | 'LIFE';
   /** Explicit player action used by the living-home summary; never a UI-derived purchase-power value. */
-  readonly lifeAction?: 'COFFEE' | 'LUNCH' | 'MILK_TEA' | 'CODE_COMMIT' | 'DOCUMENT';
+  readonly lifeAction?: 'COFFEE' | 'LUNCH' | 'MILK_TEA' | 'SNACK' | 'DINNER' | 'CODE_COMMIT' | 'DOCUMENT';
 }
 
 

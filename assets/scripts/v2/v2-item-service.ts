@@ -415,17 +415,30 @@ export class V2ItemService {
     const dayIndex = Math.max(1, this.gameDay.dayIndex());
     const flagKey = `shop_bought_${dayIndex}_${itemId}`;
     if (p.eventFlags[flagKey]) return { success: false, reason: '今日已购罄' };
-    if (p.salary < price) return { success: false, reason: '工资不足' };
-    p.salary -= price;
+    if (!CONSUMABLE_MAP.has(itemId) && !MATERIAL_MAP.has(itemId) && !EQUIPMENT_MAP.has(itemId) && !TECHNIQUE_MAP.has(itemId)) {
+      return { success: false, reason: '商品不存在' };
+    }
+    const spend = this.spendSalary(price);
+    if (!spend.success) return { success: false, reason: spend.reason === '工资不足' ? '工资不足' : '价格无效' };
     p.eventFlags[flagKey] = true;
     // 交付
     if (CONSUMABLE_MAP.has(itemId)) this.addMaterial(itemId, 1);
     else if (MATERIAL_MAP.has(itemId)) this.addMaterial(itemId, 1);
     else if (EQUIPMENT_MAP.has(itemId)) this.grantEquipment(itemId);
     else if (TECHNIQUE_MAP.has(itemId)) this.grantTechnique(itemId);
-    else return { success: false, reason: '商品不存在' };
-    this.context.events.emit('salaryChanged', { amount: -price, total: p.salary });
     return { success: true, message: '购买成功' };
+  }
+
+  /** 统一工资余额支出入口：商店和生活消费共享同一余额校验与变更事件。 */
+  public spendSalary(amount: number): CraftResult {
+    const p = this.context.player;
+    if (!Number.isSafeInteger(amount) || amount <= 0) return { success: false, reason: '价格无效' };
+    if (!Number.isSafeInteger(p.salary) || p.salary < amount) return { success: false, reason: '工资不足' };
+    const after = p.salary - amount;
+    if (!Number.isSafeInteger(after) || after < 0) return { success: false, reason: '价格无效' };
+    p.salary = after;
+    this.context.events.emit('salaryChanged', { amount: -amount, total: after });
+    return { success: true };
   }
 
   /** 神秘黑市（§101）：低概率事件中开放一次购买窗口。 */

@@ -574,7 +574,7 @@ function normalizeProject(value: unknown): ProjectState | null {
 function isDailyRealityEntry(value: unknown): value is DailyRealityEntryState {
   if (!isRecord(value) || typeof value.text !== 'string' || !isFiniteNonNegativeNumber(value.time)) return false;
   const kinds = ['WORK', 'FAVOR', 'MEETING', 'INCIDENT', 'OVERTIME', 'CHANGE', 'BLAME', 'REST', 'LIFE'];
-  const actions = ['COFFEE', 'LUNCH', 'MILK_TEA', 'CODE_COMMIT', 'DOCUMENT'];
+  const actions = ['COFFEE', 'LUNCH', 'MILK_TEA', 'SNACK', 'DINNER', 'CODE_COMMIT', 'DOCUMENT'];
   return typeof value.kind === 'string' && kinds.includes(value.kind)
     && (value.lifeAction === undefined || (typeof value.lifeAction === 'string' && actions.includes(value.lifeAction)));
 }
