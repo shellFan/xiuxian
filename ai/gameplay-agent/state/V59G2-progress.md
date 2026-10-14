@@ -8,7 +8,7 @@ Updated: 2026-10-15
 - Branch: `feature/v59f-z-playability`.
 - Existing V5.9-F working-tree changes and historical QA/GamePlay Agent artifacts remain present and untouched.
 - Scenarios use fresh isolated Electron user-data directories. They do not open, clear, migrate, or delete a normal player save.
-- Remote `origin/gameplay-v2` remained at `a8670d12d57173964a82a34f77a9d04279c2c50c`; the feature branch exists remotely at the source HEAD.
+- Remote `origin/gameplay-v2` remained at `a8670d12d57173964a82a34f77a9d04279c2c50c`; `origin/feature/v59f-z-playability` is published at the current delivery HEAD.
 
 ## G.2 work completed
 
@@ -36,7 +36,7 @@ Updated: 2026-10-15
 
 - One earlier isolated economy run recorded unchanged salary after the requested work tick; two subsequent runs accrued wages and the final gate passed. No game-rule change was made. Track this as an intermittent, not-yet-reproduced wage observation rather than a confirmed game defect.
 - The outer Windows window-size/scaling matrix was not exercised; only content viewport emulation was tested.
-- G.2 implementation commit: `8cbad61cd97d648061b31e3d46eeba2ef810d8cf` (`feat(gameplay-agent): add V5.9-G.2 replay and gate`). The separate report/progress metadata update will follow; existing V5.9-F changes remain unstaged and untouched.
+- G.2 commits: `8cbad61` implementation and evidence, `a7198e9` delivery report, `7b87463` publication status. Existing V5.9-F changes remain unstaged and untouched.
 - Pushed `feature/v59f-z-playability` with a normal fast-forward. Remote tracking now matches local HEAD; no force-push was used.
 
 ## Next action
