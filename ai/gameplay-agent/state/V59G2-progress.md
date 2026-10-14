@@ -37,8 +37,8 @@ Updated: 2026-10-15
 - One earlier isolated economy run recorded unchanged salary after the requested work tick; two subsequent runs accrued wages and the final gate passed. No game-rule change was made. Track this as an intermittent, not-yet-reproduced wage observation rather than a confirmed game defect.
 - The outer Windows window-size/scaling matrix was not exercised; only content viewport emulation was tested.
 - G.2 implementation commit: `8cbad61cd97d648061b31e3d46eeba2ef810d8cf` (`feat(gameplay-agent): add V5.9-G.2 replay and gate`). The separate report/progress metadata update will follow; existing V5.9-F changes remain unstaged and untouched.
-- Push is still pending. Push only `feature/v59f-z-playability` with a normal fast-forward; never force-push.
+- Pushed `feature/v59f-z-playability` with a normal fast-forward. Remote tracking now matches local HEAD; no force-push was used.
 
 ## Next action
 
-Commit the report/progress metadata update, verify the remaining unstaged V5.9-F changes are unchanged, then push this feature branch with a normal fast-forward.
+Continue from the published feature branch. Remaining V5.9-F edits and historical QA artifacts are intentionally left in the working tree.
