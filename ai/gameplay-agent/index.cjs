@@ -9,7 +9,7 @@ const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 const { CdpSession, listenPort } = require('./lib/cdp.cjs');
 const { classifyFailure, collectFailedScenarioIds, safeRunId, summarizeResults, validateScenario } = require('./lib/report.cjs');
-const { boundsWithinViewport, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupDismissalComplete, readScenarioVariable, scrollPositionChanged, storeScenarioVariable } = require('./lib/scenario-state.cjs');
+const { boundsWithinViewport, canRecoverObstructedClick, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupControlKind, popupDismissalComplete, readScenarioVariable, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldContinuePopupRecovery, shouldRestoreScrollContextAfterPopup, shouldWaitForObscuringPopup, storeScenarioVariable } = require('./lib/scenario-state.cjs');
 
 const root = path.resolve(__dirname, '..', '..');
 const scenarioDir = path.join(__dirname, 'scenarios');
@@ -78,6 +78,21 @@ function stateExpression(input) {
 
 async function evalJson(cdp, expression) { return cdp.evaluate(`JSON.parse(JSON.stringify(${expression}))`); }
 
+async function getAuthoritativeGameState(cdp) {
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const state = await evalJson(cdp, 'window.__GAME_FACADE__?.queryRuntimeData?.() ?? window.__GAME_FACADE__?.snapshot?.()');
+      if (state && typeof state === 'object') return state;
+      lastError = new Error('GameFacade returned no state');
+    } catch (error) { lastError = error; }
+    if (attempt < 3) await delay(100 * attempt);
+  }
+  const error = new Error(`NOT_VERIFIED: authoritative game state unavailable after 3 observations: ${lastError?.message ?? 'unknown reason'}`);
+  error.failureClass = 'NOT_VERIFIED';
+  throw error;
+}
+
 async function inspectElement(cdp, selector) {
   const inspected = await cdp.evaluate(`(() => {
     const e=document.querySelector(${literal(selector)});
@@ -118,55 +133,93 @@ async function inspectScrollableState(cdp, selector) {
   })()`);
 }
 
-async function dispatchClick(cdp, item) {
-  const x = item.clickPoint?.x ?? item.bounds.x + item.bounds.width / 2;
-  const y = item.clickPoint?.y ?? item.bounds.y + item.bounds.height / 2;
+async function dispatchClick(cdp, item, selector) {
+  let target = item;
+  let x = target.clickPoint?.x ?? target.bounds.x + target.bounds.width / 2;
+  let y = target.clickPoint?.y ?? target.bounds.y + target.bounds.height / 2;
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y });
-  await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 });
-  await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 });
+  if (selector) {
+    target = await inspectElement(cdp, selector);
+    if (!target.found || !target.visible || target.disabled || target.covered || !boundsWithinViewport(target.bounds, target.viewport)) {
+      const error = new Error(`AUTOMATION: click target changed or became obstructed before pointer down: ${selector}`);
+      error.failureClass = 'AUTOMATION_DEFECT';
+      error.diagnostics = { selector, planned: item, current: target };
+      throw error;
+    }
+    x = target.clickPoint?.x ?? target.bounds.x + target.bounds.width / 2;
+    y = target.clickPoint?.y ?? target.bounds.y + target.bounds.height / 2;
+    await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y });
+  }
+  const clickCount = item.clickCount ?? 1;
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount });
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount });
+  return target;
 }
 
 async function inspectRandomEventPopup(cdp) {
-  return evalJson(cdp, `(() => {
+  const inspected = await evalJson(cdp, `(() => {
     const bubble=document.querySelector('#PopupLayer .ux-event-bubble');
     if(!bubble)return {visible:false};
     const layer=bubble.closest('.ux-modal-layer');
     const buttons=[...(layer?.querySelectorAll('button')??[])];
-    const close=buttons.find(button=>button.classList.contains('ux-close'));
-    const acknowledge=buttons.find(button=>['知道了','继续'].includes((button.innerText||'').trim()));
-    const control=close||acknowledge;
     const visible=e=>{if(!e)return false;const r=e.getBoundingClientRect(),s=getComputedStyle(e);return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0;};
-    if(!control)return {visible:visible(layer),hasEventBubble:true,control:null,layerHtml:layer?.outerHTML?.slice(0,12000)??null};
-    const r=control.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
-    const controlHit=!!hit&&(hit===control||control.contains(hit));
-    return {visible:visible(layer)||controlHit,layerVisible:visible(layer),controlHit,hasEventBubble:true,control:{kind:control===close?'close':'acknowledge',text:(control.innerText||'').trim(),disabled:!!control.disabled,bounds:{x:r.x,y:r.y,width:r.width,height:r.height},covered:!!hit&&hit!==control&&!control.contains(hit),hit:hit?{tag:hit.tagName,id:hit.id||null,className:typeof hit.className==='string'?hit.className:null}:null},layerHtml:layer?.outerHTML?.slice(0,12000)??null};
+    const records=buttons.map(button=>{const r=button.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return {text:(button.innerText||'').trim(),id:button.id||null,className:typeof button.className==='string'?button.className:null,criticalChoice:button.hasAttribute('data-critical-conv'),close:button.classList.contains('ux-close'),acknowledge:['知道了','继续'].includes((button.innerText||'').trim()),disabled:!!button.disabled,bounds:{x:r.x,y:r.y,width:r.width,height:r.height},covered:!!hit&&hit!==button&&!button.contains(hit),hit:hit?{tag:hit.tagName,id:hit.id||null,className:typeof hit.className==='string'?hit.className:null}:null};});
+    return {visible:visible(layer),layerVisible:visible(layer),hasEventBubble:true,presentationKind:layer?.dataset?.presentationKind??null,buttons:records,layerHtml:layer?.outerHTML?.slice(0,12000)??null};
   })()`);
+  if (!inspected.visible) return inspected;
+  const controlKind = popupControlKind({
+    presentationKind: inspected.presentationKind,
+    hasCriticalChoice: inspected.buttons?.some((button) => button.criticalChoice),
+    hasClose: inspected.buttons?.some((button) => button.close),
+    hasAcknowledge: inspected.buttons?.some((button) => button.acknowledge),
+  });
+  if (!controlKind) return { ...inspected, control: null };
+  const control = inspected.buttons.find((button) => controlKind === 'critical-message-choice' ? button.criticalChoice : controlKind === 'close' ? button.close : button.acknowledge);
+  return { ...inspected, control: { ...control, kind: controlKind, ...(controlKind === 'critical-message-choice' ? { selector: '[data-critical-conv]' } : {}) } };
 }
 
-async function inputClick(cdp, selector) {
+async function waitForObscuringPopup(cdp, selector, timeoutMs = 1800) {
+  const deadline = Date.now() + timeoutMs;
+  let target = await inspectElement(cdp, selector);
+  let popup = await inspectRandomEventPopup(cdp);
+  while (shouldWaitForObscuringPopup(target, popup) && Date.now() < deadline) {
+    await delay(100);
+    target = await inspectElement(cdp, selector);
+    popup = await inspectRandomEventPopup(cdp);
+  }
+  return { target, popup };
+}
+
+async function inputClick(cdp, selector, clickCount = 1) {
   let item = await inspectElement(cdp, selector);
   const dismissedInterruptions = [];
   const dismissalAttempts = [];
   const popupBaseline = item.found && item.visible && item.covered
     ? await collectInteractionDiagnostics(cdp, selector, []) : null;
   for (let attempt = 1; item.found && item.visible && item.covered && attempt <= 3; attempt++) {
-    const popup = await inspectRandomEventPopup(cdp);
+    let popup = await inspectRandomEventPopup(cdp);
+    if (shouldWaitForObscuringPopup(item, popup)) {
+      const observed = await waitForObscuringPopup(cdp, selector);
+      item = observed.target;
+      popup = observed.popup;
+      if (!item.covered) break;
+    }
     if (!popup.visible) break;
     if (!popup.control || popup.control.disabled) {
-      const error = new Error(`AUTOMATION: a visible modal covers ${selector}, but no supported event dismissal button is available`);
+      const error = new Error(`AUTOMATION: a visible modal covers ${selector}, but no scenario-supported interactive choice is available`);
       error.failureClass = 'AUTOMATION_DEFECT';
       try { error.diagnostics = await collectInteractionDiagnostics(cdp, selector, dismissalAttempts); } catch (captureError) { error.diagnostics = { beforeAction: popupBaseline, captureError: captureError.message }; }
       throw error;
     }
     const record = { attempt, control: popup.control, actions: [] };
     try {
-      await dispatchClick(cdp, popup.control);
-      record.actions.push('CDP pointer click');
+      await dispatchClick(cdp, popup.control, popup.control.selector);
+      record.actions.push(popup.control.kind === 'critical-message-choice' ? 'CDP pointer choice of the visible critical conversation' : 'CDP pointer click');
     } catch (error) {
       record.actions.push(`CDP pointer click error: ${error.message}`);
       record.error = error.message;
       dismissalAttempts.push(record);
-      const wrapped = new Error(`AUTOMATION: CDP could not activate the visible random-event close control: ${error.message}`);
+      const wrapped = new Error(`AUTOMATION: CDP could not activate the visible modal control: ${error.message}`);
       wrapped.failureClass = 'AUTOMATION_DEFECT';
       wrapped.diagnostics = { beforeAction: popupBaseline, attempts: dismissalAttempts, diagnosticCapture: 'renderer became unresponsive during input' };
       throw wrapped;
@@ -203,7 +256,61 @@ async function inputClick(cdp, selector) {
     catch (captureError) { error.diagnostics = { selector, interaction: item, beforeAction: popupBaseline, captureError: captureError.message }; }
     throw error;
   }
-  await dispatchClick(cdp, item);
+  for (let attempt = dismissalAttempts.length + 1; attempt <= 3; attempt++) {
+    try {
+      item = await dispatchClick(cdp, { ...item, clickCount }, selector);
+      break;
+    } catch (error) {
+      const obstructedTarget = error.diagnostics?.current;
+      if (obstructedTarget?.covered !== true) throw error;
+      const observed = await waitForObscuringPopup(cdp, selector);
+      item = observed.target;
+      const popup = observed.popup;
+      if (!item.covered && item.found && item.visible) {
+        item = await dispatchClick(cdp, { ...item, clickCount }, selector);
+        break;
+      }
+      if (!canRecoverObstructedClick(item, popup)) {
+        error.diagnostics = { ...error.diagnostics, popup, observedTarget: item };
+        throw error;
+      }
+      const record = { attempt, control: popup.control, actions: [] };
+      try {
+        await dispatchClick(cdp, popup.control, popup.control.selector);
+        record.actions.push(popup.control.kind === 'critical-message-choice' ? 'CDP pointer choice of the visible critical conversation' : 'CDP pointer click');
+      } catch (dismissError) {
+        record.actions.push(`CDP pointer click error: ${dismissError.message}`);
+        record.error = dismissError.message;
+        dismissalAttempts.push(record);
+        const wrapped = new Error(`AUTOMATION: CDP could not activate the newly appeared modal control: ${dismissError.message}`);
+        wrapped.failureClass = 'AUTOMATION_DEFECT';
+        wrapped.diagnostics = { selector, attempts: dismissalAttempts, diagnosticCapture: 'renderer became unresponsive during input' };
+        throw wrapped;
+      }
+      await delay(350);
+      const popupAfter = await inspectRandomEventPopup(cdp);
+      if (!popupAfter.visible) await delay(350);
+      item = await inspectElement(cdp, selector);
+      record.popupClosed = !popupAfter.visible;
+      record.targetUncovered = !item.covered;
+      dismissalAttempts.push(record);
+      if (!popupDismissalComplete({ closed: record.popupClosed }, { covered: item.covered }) || !item.found || !item.visible) {
+        if (shouldContinuePopupRecovery(item, popupAfter, attempt)) continue;
+        const wrapped = new Error(`AUTOMATION: failed to resolve a newly appeared modal after ${dismissalAttempts.length} attempts; blocked click refused: ${selector}`);
+        wrapped.failureClass = 'AUTOMATION_DEFECT';
+        try { wrapped.diagnostics = await collectInteractionDiagnostics(cdp, selector, dismissalAttempts); }
+        catch (captureError) { wrapped.diagnostics = { selector, attempts: dismissalAttempts, captureError: captureError.message }; }
+        throw wrapped;
+      }
+      dismissedInterruptions.push(popup.control.kind);
+      if (attempt === 3) {
+        const wrapped = new Error(`AUTOMATION: modal recovery reached the three-attempt limit before clicking ${selector}`);
+        wrapped.failureClass = 'AUTOMATION_DEFECT';
+        wrapped.diagnostics = { selector, attempts: dismissalAttempts, current: item };
+        throw wrapped;
+      }
+    }
+  }
   if (dismissedInterruptions.length) {
     item.dismissedInterruptions = dismissedInterruptions;
     item.dismissalAttempts = dismissalAttempts;
@@ -351,14 +458,99 @@ async function launchScenario(exe, profile, logPath, screenshotDir) {
 async function applyStep({ step, context, screenshotDir }) {
   const { session } = context;
   if (step.action === 'wait') { await delay(Math.max(0, Math.min(step.ms ?? 500, 30000))); return { detail: `${step.ms ?? 500}ms` }; }
+  if (step.action === 'clickUntilState') {
+    if (!allowedCalls.test(step.method)) throw new Error(`facade call is not allowlisted: ${step.method}`);
+    const attempts = [];
+    const timeoutMs = step.timeoutMs ?? 1000;
+    let lastState;
+    for (let attempt = 1; attempt <= step.maxAttempts; attempt++) {
+      lastState = await readFacadeState(session, step.method);
+      let current = readObjectPath(lastState, step.path);
+      if (current === step.expected) {
+        if (step.as) storeScenarioVariable(context.variables, step.as, lastState, { scope: step.asScope ?? 'scenario', type: step.asType ?? 'object' });
+        return { detail: `${step.method}().${step.path} already reached ${JSON.stringify(step.expected)}`, value: lastState };
+      }
+      if (current !== step.from) {
+        const error = new Error(`stateful click refused: ${step.method}().${step.path} was ${JSON.stringify(current)}, expected current state ${JSON.stringify(step.from)}`);
+        error.diagnostics = { path: step.path, from: step.from, expected: step.expected, state: lastState, attempts };
+        throw error;
+      }
+      const interaction = await inputClick(session, step.selector);
+      const deadline = Date.now() + timeoutMs;
+      do {
+        await delay(100);
+        lastState = await readFacadeState(session, step.method);
+        current = readObjectPath(lastState, step.path);
+        attempts.push({ attempt, state: current, interaction });
+        if (current === step.expected) {
+          if (step.as) storeScenarioVariable(context.variables, step.as, lastState, { scope: step.asScope ?? 'scenario', type: step.asType ?? 'object' });
+          return { detail: `${step.method}().${step.path} reached ${JSON.stringify(step.expected)} after ${attempt} real UI click attempt(s)`, value: lastState, element: interaction };
+        }
+        if (current !== step.from) break;
+      } while (Date.now() < deadline);
+      if (current !== step.from) break;
+    }
+    const error = new Error(`stateful UI click did not transition ${step.method}().${step.path} from ${JSON.stringify(step.from)} to ${JSON.stringify(step.expected)} after ${attempts.length} observed attempt(s)`);
+    error.diagnostics = { selector: step.selector, path: step.path, from: step.from, expected: step.expected, state: lastState, attempts };
+    throw error;
+  }
+  if (step.action === 'waitFor') {
+    const deadline = Date.now() + (step.timeoutMs ?? 10000);
+    let item;
+    const state = step.state ?? 'visible';
+    do {
+      item = await inspectElement(session, step.selector);
+      const satisfied = state === 'exists' ? item.found : state === 'notExists' ? !item.found
+        : state === 'hidden' ? !item.visible : state === 'clickable' ? item.found && item.visible && !item.disabled && !item.covered
+          : item.found && item.visible;
+      if (satisfied) return { detail: `${step.selector} reached ${state}` };
+      if (Date.now() >= deadline) break;
+      await delay(100);
+    } while (Date.now() < deadline);
+    return { passed: false, detail: `waitFor timed out after ${step.timeoutMs ?? 10000}ms: ${step.selector} did not reach ${state}`, element: item };
+  }
   if (step.action === 'screenshot') {
     const name = `${String(context.imageCounter++).padStart(3, '0')}-${step.name ?? 'capture'}.png`.replace(/[^a-zA-Z0-9_.-]/g, '-');
     const filePath = path.join(screenshotDir, name);
-    await session.screenshot(filePath);
+    try { await session.screenshot(filePath); }
+    catch (cause) { const error = new Error(`AUTOMATION: screenshot capture failed: ${cause.message}`); error.failureClass = 'AUTOMATION_DEFECT'; throw error; }
     return { detail: name, evidence: path.relative(context.runDir, filePath).replace(/\\/g, '/') };
   }
+  if (step.action === 'getGameState') {
+    const state = await getAuthoritativeGameState(session);
+    if (step.as) storeScenarioVariable(context.variables, step.as, state, { scope: step.asScope ?? 'scenario', type: step.asType ?? 'object' });
+    return { detail: `authoritative GameFacade state${step.as ? ` → ${step.as}` : ''}`, value: state };
+  }
+  if (step.action === 'assertVisible' || step.action === 'assertClickable') {
+    const item = await inspectElement(session, step.selector);
+    const passed = step.action === 'assertVisible' ? item.found && item.visible : item.found && item.visible && !item.disabled && !item.covered && boundsWithinViewport(item.bounds, item.viewport);
+    return { passed, detail: `${step.selector}: found=${item.found}, visible=${item.visible}, disabled=${item.disabled}, covered=${item.covered}`, ...(step.action === 'assertClickable' ? { element: item } : {}) };
+  }
+  if (step.action === 'assertState') return assertStep(session, { action: 'assert', ...step }, context.variables);
+  if (step.action === 'setViewport') {
+    await session.send('Emulation.setDeviceMetricsOverride', { width: step.width, height: step.height, deviceScaleFactor: step.deviceScaleFactor ?? 1, mobile: false });
+    return { detail: `CDP content viewport ${step.width}×${step.height} at scale ${step.deviceScaleFactor ?? 1}; outer Windows window size is not asserted` };
+  }
   if (step.action === 'assert') return assertStep(session, step, context.variables);
-  if (step.action === 'click') return { detail: `input click ${step.selector}`, element: await inputClick(session, step.selector) };
+  if (step.action === 'clickIfPresent') {
+    const before = await inspectElement(session, step.selector);
+    if (!before.found) return { detail: `optional popup control is absent: ${step.selector}` };
+    const item = await inputClick(session, step.selector);
+    const deadline = Date.now() + (step.timeoutMs ?? 3000);
+    let after = await inspectElement(session, step.selector);
+    while (after.found && Date.now() < deadline) { await delay(100); after = await inspectElement(session, step.selector); }
+    if (after.found) {
+      const error = new Error(`optional modal control did not close its popup: ${step.selector}`);
+      error.failureClass = 'GAME_DEFECT';
+      error.diagnostics = { selector: step.selector, before, after, timeoutMs: step.timeoutMs ?? 3000 };
+      throw error;
+    }
+    return { detail: `clicked actual modal control and verified it closed: ${step.selector}`, element: item };
+  }
+  if (step.action === 'click' || step.action === 'doubleClick') {
+    const item = await inputClick(session, step.selector, step.action === 'doubleClick' ? 2 : 1);
+    return { detail: `${step.action} ${step.selector}`, element: item };
+  }
   if (step.action === 'type') {
     await inputClick(session, step.selector);
     await session.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65, modifiers: 2 });
@@ -367,9 +559,15 @@ async function applyStep({ step, context, screenshotDir }) {
     return { detail: `typed ${String(step.text ?? '').length} characters` };
   }
   if (step.action === 'scroll') {
+    if (step.ensureVisibleSelector) {
+      const requestedTarget = await inspectElement(session, step.ensureVisibleSelector);
+      if (scrollTargetAlreadyVisible(requestedTarget)) {
+        return { detail: `requested target is already visible and uncovered; skipped scroll: ${step.ensureVisibleSelector}` };
+      }
+    }
     const target = await inspectElement(session, step.selector);
     if (!target.found || !target.visible) throw new Error(`scroll target is not visible: ${step.selector}`);
-    const before = await inspectScrollableState(session, step.selector);
+    let before = await inspectScrollableState(session, step.selector);
     if (!before) {
       const error = new Error(`AUTOMATION: no scrollable ancestor found for ${step.selector}`);
       error.failureClass = 'AUTOMATION_DEFECT';
@@ -378,6 +576,7 @@ async function applyStep({ step, context, screenshotDir }) {
     const x = target.bounds.x + target.bounds.width / 2;
     const y = target.bounds.y + target.bounds.height / 2;
     const attempts = [];
+    const popupRecovery = [];
     let after = before;
     for (let attempt = 1; attempt <= 3 && !scrollPositionChanged(before, after); attempt++) {
       await session.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x, y, deltaX: step.deltaX ?? 0, deltaY: step.deltaY ?? 500 });
@@ -387,16 +586,110 @@ async function applyStep({ step, context, screenshotDir }) {
         after = await inspectScrollableState(session, step.selector);
       } while (!scrollPositionChanged(before, after) && Date.now() < deadline);
       attempts.push({ attempt, before: attempt === 1 ? before : attempts.at(-1).after, after });
+      if (!scrollPositionChanged(before, after)) {
+        let popup = await inspectRandomEventPopup(session);
+        if (popup.visible) {
+          let popupAfter = popup;
+          while (popupAfter.visible && popupRecovery.length < 3) {
+            if (!popupAfter.control || popupAfter.control.disabled) {
+              const error = new Error(`AUTOMATION: a visible modal blocked scrolling ${step.selector}, but no supported interactive choice is available`);
+              error.failureClass = 'AUTOMATION_DEFECT';
+              error.diagnostics = { selector: step.selector, before, after, popup: popupAfter, popupRecovery, attempts };
+              throw error;
+            }
+            const record = { attempt: popupRecovery.length + 1, control: popupAfter.control, actions: [] };
+            try {
+              await dispatchClick(session, popupAfter.control, popupAfter.control.selector);
+              record.actions.push(popupAfter.control.kind === 'critical-message-choice' ? 'CDP pointer choice of the visible critical conversation' : 'CDP pointer click');
+            } catch (error) {
+              record.error = error.message;
+              popupRecovery.push(record);
+              const wrapped = new Error(`AUTOMATION: CDP could not activate the visible modal control before scrolling: ${error.message}`);
+              wrapped.failureClass = 'AUTOMATION_DEFECT';
+              wrapped.diagnostics = { selector: step.selector, popup: popupAfter, popupRecovery, attempts };
+              throw wrapped;
+            }
+            await delay(350);
+            popupAfter = await inspectRandomEventPopup(session);
+            if (!popupAfter.visible) await delay(350);
+            popupAfter = await inspectRandomEventPopup(session);
+            record.popupClosed = !popupAfter.visible;
+            popupRecovery.push(record);
+          }
+          if (popupAfter.visible) {
+            const error = new Error(`AUTOMATION: failed to close the visible modal after ${popupRecovery.length} real UI attempts; scroll refused: ${step.selector}`);
+            error.failureClass = 'AUTOMATION_DEFECT';
+            error.diagnostics = { selector: step.selector, popup, popupAfter, popupRecovery, attempts };
+            throw error;
+          }
+          if (step.ensureVisibleSelector) {
+            const reachable = await inspectElement(session, step.ensureVisibleSelector);
+            if (scrollTargetAlreadyVisible(reachable)) return { detail: `closed the visible modal through its real control; requested target is now visible: ${step.ensureVisibleSelector}`, popupRecovery };
+          }
+          after = await inspectScrollableState(session, step.selector);
+          if (shouldRestoreScrollContextAfterPopup({ popupClosed: true, scrollContainerFound: !!after })) {
+            if (!step.recoverySelector) {
+              const error = new Error(`AUTOMATION: the modal closed but removed ${step.selector}; no recoverySelector is configured`);
+              error.failureClass = 'AUTOMATION_DEFECT';
+              error.diagnostics = { selector: step.selector, popup, popupRecovery, attempts };
+              throw error;
+            }
+            const recovery = await inspectElement(session, step.recoverySelector);
+            if (!recovery.found || !recovery.visible || recovery.disabled || recovery.covered || !boundsWithinViewport(recovery.bounds, recovery.viewport)) {
+              const error = new Error(`AUTOMATION: popup closed but recovery navigation is not safely clickable: ${step.recoverySelector}`);
+              error.failureClass = 'AUTOMATION_DEFECT';
+              error.diagnostics = { selector: step.selector, recoverySelector: step.recoverySelector, recovery, popupRecovery, attempts };
+              throw error;
+            }
+            const routeRestore = { selector: step.recoverySelector, control: recovery, action: 'CDP pointer navigation after popup closure' };
+            try {
+              await dispatchClick(session, recovery, step.recoverySelector);
+            } catch (error) {
+              routeRestore.error = error.message;
+              const wrapped = new Error(`AUTOMATION: could not restore the scroll page after popup closure: ${error.message}`);
+              wrapped.failureClass = 'AUTOMATION_DEFECT';
+              wrapped.diagnostics = { selector: step.selector, routeRestore, popupRecovery, attempts };
+              throw wrapped;
+            }
+            const restoreDeadline = Date.now() + 3000;
+            let restored = await inspectScrollableState(session, step.selector);
+            while (!restored && Date.now() < restoreDeadline) {
+              await delay(100);
+              restored = await inspectScrollableState(session, step.selector);
+            }
+            routeRestore.scrollableState = restored;
+            popupRecovery.at(-1).routeRestore = routeRestore;
+            if (!restored) {
+              const error = new Error(`AUTOMATION: recovery navigation did not restore scroll container ${step.selector}`);
+              error.failureClass = 'AUTOMATION_DEFECT';
+              error.diagnostics = { selector: step.selector, routeRestore, popupRecovery, attempts };
+              throw error;
+            }
+            before = restored;
+            after = restored;
+            if (step.ensureVisibleSelector) {
+              const reachable = await inspectElement(session, step.ensureVisibleSelector);
+              if (scrollTargetAlreadyVisible(reachable)) return { detail: `closed the modal, restored the page through ${step.recoverySelector}, and confirmed the target is visible`, popupRecovery };
+            }
+            attempts.push({ attempt: attempts.length + 1, recovery: 'route-restored', before: restored, after: restored });
+            continue;
+          }
+        }
+      }
     }
     if (!scrollPositionChanged(before, after)) {
+      if (step.ensureVisibleSelector) {
+        const reachable = await inspectElement(session, step.ensureVisibleSelector);
+        if (scrollBoundaryTargetReady(false, reachable)) return { detail: `scroll container is already at a boundary; requested target is visible and uncovered: ${step.ensureVisibleSelector}` };
+      }
       const error = new Error(`AUTOMATION: wheel input did not change scroll position for ${step.selector}`);
       error.failureClass = 'AUTOMATION_DEFECT';
-      error.diagnostics = { selector: step.selector, attempts, timeoutMsPerAttempt: 700 };
+      error.diagnostics = { selector: step.selector, attempts, popupRecovery, timeoutMsPerAttempt: 700 };
       throw error;
     }
-    return { detail: `scrolled ${step.selector} (${before.scrollTop},${before.scrollLeft}) → (${after.scrollTop},${after.scrollLeft}) in ${attempts.length} CDP wheel attempt(s)` };
+    return { detail: `scrolled ${step.selector} (${before.scrollTop},${before.scrollLeft}) → (${after.scrollTop},${after.scrollLeft}) in ${attempts.length} CDP wheel attempt(s)`, ...(popupRecovery.length ? { popupRecovery } : {}) };
   }
-  if (step.action === 'key') {
+  if (step.action === 'key' || step.action === 'pressKey') {
     const keys = { Enter: ['Enter', 'ENTER', 13], Escape: ['Escape', 'ESC', 27], Tab: ['Tab', 'TAB', 9], ArrowDown: ['ArrowDown', 'DOWN', 40], ArrowUp: ['ArrowUp', 'UP', 38], Space: [' ', 'SPACE', 32] };
     const [key, code, keyCode] = keys[step.key] ?? [step.key, step.key.toUpperCase(), step.keyCode ?? 0];
     await session.send('Input.dispatchKeyEvent', { type: 'keyDown', key, code, windowsVirtualKeyCode: keyCode });
@@ -406,8 +699,7 @@ async function applyStep({ step, context, screenshotDir }) {
   if (step.action === 'call') {
     if (!allowedCalls.test(step.method)) throw new Error(`facade call is not allowlisted: ${step.method}`);
     const args = await resolveArguments(session, step.args ?? [], context.variables);
-    const expression = `(async()=>{const f=window.__GAME_FACADE__;if(!f)throw Error('GameFacade unavailable');const r=await f[${literal(step.method)}](...${literal(args)});const normalized=r===undefined?null:JSON.parse(JSON.stringify(r));window.__GA_LAST__=normalized;return normalized;})()`;
-    const result = await session.evaluate(expression);
+    const result = await readFacadeState(session, step.method, args);
     if (step.as) {
       storeScenarioVariable(context.variables, step.as, result, { scope: step.asScope ?? 'scenario', type: step.asType });
     }
@@ -438,7 +730,7 @@ async function applyStep({ step, context, screenshotDir }) {
     }
     return { passed: missing.length === 0 && selectable.length === professions.length, detail: missing.length ? `profession UI is missing configured ids: ${missing.map((item) => item.id).join(', ')}` : `profession loop visited ${selectable.join(', ')}`, selectable };
   }
-  if (step.action === 'restart') {
+  if (step.action === 'restart' || step.action === 'restartGame') {
     await gracefulClose(session, context.child);
     context.session = null;
     context.child = null;
@@ -448,6 +740,15 @@ async function applyStep({ step, context, screenshotDir }) {
     return { detail: 'closed and relaunched the real EXE with this scenario’s isolated test save' };
   }
   throw new Error(`unsupported action: ${step.action}`);
+}
+
+async function readFacadeState(session, method, args = []) {
+  const expression = `(async()=>{const f=window.__GAME_FACADE__;if(!f)throw Error('GameFacade unavailable');const r=await f[${literal(method)}](...${literal(args)});const normalized=r===undefined?null:JSON.parse(JSON.stringify(r));window.__GA_LAST__=normalized;return normalized;})()`;
+  return session.evaluate(expression);
+}
+
+function readObjectPath(value, pathValue) {
+  return pathValue.split('.').reduce((current, key) => current == null ? undefined : current[key], value);
 }
 
 async function resolveArguments(session, args, variables) {
@@ -478,15 +779,25 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
   context.variables.run = runVariables;
   let failed = false;
   let blocked = false;
+  const operations = [];
   try {
     Object.assign(context, await launchScenario(exe, profile, logPath, screenshotDir));
     for (const [index, step] of scenario.steps.entries()) {
       const started = Date.now();
       const item = { index: index + 1, action: step.action, description: step.description ?? step.name ?? '', status: 'passed' };
+      let viewport = null;
+      let beforeState = null;
+      let beforeStateError = null;
+      if (context.session) {
+        try { viewport = await context.session.evaluate('({width:innerWidth,height:innerHeight})'); } catch { /* keep operation trace when renderer is unavailable */ }
+        try { beforeState = await evalJson(context.session, 'window.__GAME_FACADE__.queryRuntimeData?.() ?? window.__GAME_FACADE__.snapshot?.()'); } catch (error) { beforeStateError = error.message; }
+      }
       try {
         const applied = await applyStep({ step, context, screenshotDir });
         if (applied?.evidence) item.evidence = applied.evidence;
         if (applied?.detail) item.detail = applied.detail;
+        if (Object.prototype.hasOwnProperty.call(applied ?? {}, 'value')) item.value = applied.value;
+        if (applied?.popupRecovery) item.popupRecovery = applied.popupRecovery;
         if (applied?.element) {
           item.interaction = applied.element;
           if (!applied.element.found || applied.element.covered || !applied.element.visible) {
@@ -502,7 +813,11 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
       } catch (error) {
         item.status = 'failed';
         item.error = error.message;
-        item.failureClass = classifyFailure({ step, error, isSetup: step.__setup, setupFailureClass: scenario.setupFailureClass });
+        if (context.child?.exitCode !== null && context.child?.exitCode !== undefined) {
+          item.failureClass = 'GAME_DEFECT';
+          item.error = `Game process exited with code ${context.child.exitCode}: ${error.message}`;
+        }
+        item.failureClass ??= classifyFailure({ step, error, isSetup: step.__setup, setupFailureClass: scenario.setupFailureClass });
         if (error.diagnostics) {
           const diagnosticName = `interaction-step-${String(index + 1).padStart(2, '0')}.json`;
           fs.writeFileSync(path.join(evidenceDir, diagnosticName), `${JSON.stringify(error.diagnostics, null, 2)}\n`);
@@ -518,6 +833,12 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
       }
       item.durationMs = Date.now() - started;
       result.steps.push(item);
+      let afterState = null;
+      let afterStateError = null;
+      if (context.session) {
+        try { afterState = await evalJson(context.session, 'window.__GAME_FACADE__.queryRuntimeData?.() ?? window.__GAME_FACADE__.snapshot?.()'); } catch (error) { afterStateError = error.message; }
+      }
+      operations.push({ index: item.index, action: step.action, replayStep: JSON.parse(JSON.stringify(step)), viewport, target: item.interaction ? { selector: item.interaction.selector, point: item.interaction.clickPoint ?? null, bounds: item.interaction.bounds ?? null } : step.selector ? { selector: step.selector } : null, popupRecovery: item.popupRecovery ?? null, beforeState, beforeStateError, afterState, afterStateError, outcome: item.status, error: item.error ?? null, evidence: item.evidence ?? null, durationMs: item.durationMs });
       if (item.status === 'failed') {
         failed = true;
         result.defects.push({
@@ -545,8 +866,20 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
       result.authoritativeState = path.relative(runDir, path.join(evidenceDir, 'authoritative-state.json')).replace(/\\/g, '/');
     } catch (error) { result.stateSnapshotError = error.message; }
     result.consoleExceptions = context.session?.messages ?? [];
+    const homeStep = operations.find((operation) => /\.ux59f-(?:work|life-card)/.test(operation.target?.selector ?? '') && operation.outcome === 'passed');
+    const taskStep = operations.find((operation) => /task|任务/i.test(operation.replayStep.description ?? '') && operation.outcome === 'passed');
+    const incomeStep = operations.find((operation) => Number(operation.afterState?.salary) > 0);
+    result.experienceMetrics = {
+      firstPlayableHomeStep: homeStep?.index ?? null,
+      firstTaskInteractionStep: taskStep?.index ?? null,
+      firstPositiveWalletStep: incomeStep?.index ?? null,
+      successfulInputOperations: operations.filter((operation) => ['click', 'doubleClick', 'type', 'pressKey', 'key', 'scroll'].includes(operation.action) && operation.outcome === 'passed').length,
+      blockedSteps: result.steps.filter((step) => step.status === 'blocked').length,
+      thresholdsApplied: false,
+    };
     const exeLog = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '';
     result.execution = { electronWindow: exeLog.includes('[Electron] Window shown') ? 'visible' : 'not-confirmed', input: 'CDP synthetic input', screenshotSource: 'CDP renderer surface', platform: process.platform };
+    result.execution.validationModes = { UI_REAL_EXE: 'NOT_VERIFIED', ELECTRON_E2E: 'PASS', SERVICE_SIM: 'NOT_RUN', NOT_VERIFIED: ['physical Windows pointer/keyboard verification', 'outer window-size matrix'] };
     if (result.consoleExceptions.length && !failed) {
       failed = true;
       result.defects.push({ id: `${scenario.id}-renderer-exception`, severity: 'HIGH', title: 'Renderer exception during scenario', reproduction: [`Run npm run gameplay-agent:rerun-failed`, `Scenario: ${scenario.id}`], details: result.consoleExceptions, repairAttempts: repairAttempts[`${scenario.id}-renderer-exception`] ?? 0, maxRepairAttempts: 3 });
@@ -565,6 +898,7 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
     result.durationMs = Date.parse(result.finishedAt) - Date.parse(result.startedAt);
     result.status = blocked ? 'blocked' : failed ? 'failed' : 'passed';
     fs.writeFileSync(path.join(scenarioDirPath, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
+    fs.writeFileSync(path.join(scenarioDirPath, 'replay.json'), `${JSON.stringify({ schemaVersion: 1, scenarioId: scenario.id, sourceScenario: scenario, operations, replay: { command: 'npm run gameplay-agent:test -- --scenario=' + scenario.id, exactStepInputs: true, usesFreshIsolatedProfile: true } }, null, 2)}\n`);
   }
   return result;
 }
@@ -587,11 +921,23 @@ function writeReport(report, runDir) {
   fs.writeFileSync(path.join(runDir, 'defects.json'), `${JSON.stringify({ runId: report.runId, status: report.summary.status, defects }, null, 2)}\n`);
   const sceneLines = report.scenarios.map((scenario) => `| ${scenario.id} | ${scenario.status} | ${(scenario.steps ?? []).filter((step) => step.status === 'failed').length} |`).join('\n');
   const defectLines = defects.length ? defects.map((defect) => `- **${defect.severity} ${defect.category ?? 'UNCLASSIFIED'} ${defect.id}:** ${defect.title}${defect.evidence ? ` ([证据](./${defect.evidence}))` : ''}; 修复尝试 ${defect.repairAttempts}/${defect.maxRepairAttempts}`).join('\n') : '- 没有发现缺陷。';
-  fs.writeFileSync(path.join(runDir, 'summary.md'), `# GamePlay Agent ${report.runId}\n\n状态：**${report.summary.status}**\n\n- EXE：\`${report.exe ?? '不可用'}\`\n- EXE SHA-256：\`${report.exeSha256 ?? '未运行'}\`\n- 隔离存档：每场景使用独立临时目录；测试结束后移除。\n- 场景：${report.summary.passed}/${report.summary.total} 通过；${report.summary.failed} 失败；${report.summary.blocked ?? 0} 前置阻塞；${report.summary.notVerified} 未验证。\n- GUI：每个场景在 result.json 记录 Electron 可见窗口证据；输入为 CDP 合成事件，截图为 renderer 表面捕获。\n\n| 场景 | 状态 | 失败步骤 |\n|---|---|---:|\n${sceneLines}\n\n## 缺陷\n\n${defectLines}\n\n## 自动复测\n\n缺陷修复由 Codex Developer 修改代码。将缺陷修复轮次保留在缺陷报告中；单缺陷上限三轮，超过后状态设为 ESCALATED。复跑本次失败场景：\`npm run gameplay-agent:rerun-failed\`。\n`);
+  fs.writeFileSync(path.join(runDir, 'summary.md'), `# GamePlay Agent ${report.runId}\n\n状态：**${report.summary.status}**\n\n- EXE：\`${report.exe ?? '不可用'}\`\n- EXE SHA-256：\`${report.exeSha256 ?? '未运行'}\`\n- ASAR SHA-256：\`${report.asarSha256 ?? '未找到'}\`\n- Build SHA：\`${report.buildSha ?? '未找到'}\`\n- UI_REAL_EXE：\`${report.validationModes?.UI_REAL_EXE ?? 'NOT_VERIFIED'}\`；ELECTRON_E2E：\`${report.validationModes?.ELECTRON_E2E ?? 'NOT_VERIFIED'}\`；SERVICE_SIM：\`${report.validationModes?.SERVICE_SIM ?? 'NOT_VERIFIED'}\`\n- 隔离存档：每场景使用独立临时目录；测试结束后移除。\n- 场景：${report.summary.passed}/${report.summary.total} 通过；${report.summary.failed} 失败；${report.summary.blocked ?? 0} 前置阻塞；${report.summary.notVerified} 未验证。\n- GUI：输入为 CDP 合成事件，截图为 renderer 表面捕获，不计为物理 Windows UI 输入。每个场景另存 replay.json，包含操作、窗口内容尺寸、前后状态与证据路径。\n\n| 场景 | 状态 | 失败步骤 |\n|---|---|---:|\n${sceneLines}\n\n## 缺陷\n\n${defectLines}\n\n## 自动复测\n\n缺陷修复由 Codex Developer 修改代码。将缺陷修复轮次保留在缺陷报告中；单缺陷上限三轮，超过后状态设为 ESCALATED。复跑本次失败场景：\`npm run gameplay-agent:rerun-failed\`。\n`);
   return report.summary;
 }
 
 function fileSha256(file) { return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'); }
+
+function buildMetadata(exe) {
+  const asar = exe ? path.join(path.dirname(exe), 'resources', 'app.asar') : null;
+  const manifestPath = path.join(root, 'desktop', 'build', 'web-desktop', '.xiuxian-build-manifest.json');
+  let manifest = null;
+  try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')); } catch { /* no fresh desktop build manifest */ }
+  let buildFresh = false;
+  try { buildFresh = !require(path.join(root, 'scripts', 'build-manifest.cjs')).verifyManifest().stale; } catch { /* manifest absent or malformed */ }
+  let sourceSha = 'unknown';
+  try { sourceSha = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim() || 'unknown'; } catch { /* report unknown provenance */ }
+  return { sourceSha, asarSha256: asar && fs.existsSync(asar) ? fileSha256(asar) : null, buildSha: manifest?.inputsHash ?? null, buildGitHead: manifest?.gitHead ?? null, buildFresh };
+}
 
 function latestRepairAttempts(report) {
   const attempts = {};
@@ -614,7 +960,8 @@ async function run(mode, selectedIds, repairAttempts = {}) {
   const runDir = path.join(reportsDir, runId);
   fs.mkdirSync(runDir, { recursive: true });
   const exe = findExe();
-  const report = { schemaVersion: 1, runId, mode, startedAt: new Date().toISOString(), host: { platform: process.platform, node: process.version }, interactionMode: process.platform === 'win32' ? 'visible Electron window with localhost CDP synthetic input' : 'no Windows GUI; real EXE test not verified', screenshotMode: 'Chromium renderer capture through CDP', exe, repairAttempts, scenarios: [] };
+  const metadata = buildMetadata(exe);
+  const report = { schemaVersion: 2, runId, mode, startedAt: new Date().toISOString(), host: { platform: process.platform, node: process.version }, sourceSha: metadata.sourceSha, buildSha: metadata.buildSha, buildGitHead: metadata.buildGitHead, buildFresh: metadata.buildFresh, interactionMode: process.platform === 'win32' ? 'Electron window with localhost CDP synthetic input' : 'no Windows GUI; real EXE test not verified', screenshotMode: 'Chromium renderer capture through CDP', validationModes: { UI_REAL_EXE: 'NOT_VERIFIED', ELECTRON_E2E: exe ? 'PENDING' : 'NOT_VERIFIED', BUILD_PROVENANCE: metadata.buildFresh ? 'FRESH' : 'NOT_VERIFIED', SERVICE_SIM: 'PENDING', NOT_VERIFIED: ['physical Windows pointer/keyboard verification', 'outer window-size matrix'] }, exe, asarSha256: metadata.asarSha256, repairAttempts, scenarios: [] };
   if (!exe) {
     report.scenarios = chosen.map((scenario) => ({ id: scenario.id, title: scenario.title, status: 'not_verified', steps: [], defects: [], error: 'Windows test EXE not found; set GAMEPLAY_AGENT_EXE or package the game.' }));
   } else {
@@ -627,6 +974,8 @@ async function run(mode, selectedIds, repairAttempts = {}) {
       process.stdout.write(`[${result.status.toUpperCase()}] ${scenario.id}${result.error ? ` — ${result.error}` : ''}\n`);
     }
   }
+  report.validationModes.ELECTRON_E2E = !exe ? 'NOT_VERIFIED' : report.scenarios.every((scenario) => scenario.status === 'passed') ? 'PASS' : report.scenarios.some((scenario) => scenario.status === 'failed') ? 'FAILED' : 'BLOCKED';
+  report.validationModes.SERVICE_SIM = mode === 'gate' ? 'PENDING' : 'NOT_RUN';
   const summary = writeReport(report, runDir);
   process.stdout.write(`\n[GamePlay Agent] ${summary.status}: ${summary.passed}/${summary.total} passed; ${summary.failed} failed; ${summary.notVerified} not verified\nReport: ${path.relative(root, path.join(runDir, 'summary.md'))}\n`);
   return summary;
@@ -662,7 +1011,8 @@ async function gate() {
   const latest = loadLatestReport();
   if (latest) {
     latest.report.gateCommands = commands;
-    fs.writeFileSync(latest.path, `${JSON.stringify(latest.report, null, 2)}\n`);
+    latest.report.validationModes.SERVICE_SIM = commands.find((command) => command.command === 'npm run release:check')?.status === 0 ? 'PASS' : 'FAILED';
+    writeReport(latest.report, path.dirname(latest.path));
   }
   return result;
 }

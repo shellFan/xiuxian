@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "profession-loop",
+  "sourceScenario": {
+    "id": "profession-loop",
+    "title": "Every unlocked profession from the live profession catalog participates in character setup",
+    "steps": [
+      {
+        "action": "professionMatrix",
+        "description": "Read unlocked profession ids from the maintained game content and verify the real creation service can select every one"
+      },
+      {
+        "action": "screenshot",
+        "name": "profession-loop",
+        "description": "Capture the real creation window after the selectable profession loop"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "index": 1,
+      "action": "professionMatrix",
+      "replayStep": {
+        "action": "professionMatrix",
+        "description": "Read unlocked profession ids from the maintained game content and verify the real creation service can select every one"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": null,
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": null
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": null
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": null,
+      "durationMs": 162
+    },
+    {
+      "index": 2,
+      "action": "screenshot",
+      "replayStep": {
+        "action": "screenshot",
+        "name": "profession-loop",
+        "description": "Capture the real creation window after the selectable profession loop"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": null,
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": null
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": "scenarios/profession-loop/evidence/screenshots/001-profession-loop.png",
+      "durationMs": 982
+    }
+  ],
+  "replay": {
+    "command": "npm run gameplay-agent:test -- --scenario=profession-loop",
+    "exactStepInputs": true,
+    "usesFreshIsolatedProfile": true
+  }
+}

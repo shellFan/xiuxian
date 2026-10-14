@@ -1,0 +1,1073 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "smoke",
+  "sourceScenario": {
+    "id": "smoke",
+    "title": "Default window, creation next button and first playable home screen",
+    "steps": [
+      {
+        "action": "screenshot",
+        "name": "cold-start",
+        "description": "Capture the real EXE on its default creation screen"
+      },
+      {
+        "action": "assert",
+        "check": "windowSize",
+        "minimumWidth": 1150,
+        "minimumHeight": 680,
+        "description": "The default desktop window meets its minimum usable size"
+      },
+      {
+        "action": "assert",
+        "check": "clickable",
+        "selector": "[data-creation-choice=\"industry:INTERNET\"]",
+        "description": "The first-step choice is visible and enabled"
+      },
+      {
+        "action": "assert",
+        "check": "inBounds",
+        "selector": "[data-creation-choice=\"industry:INTERNET\"]",
+        "description": "The first-step choice fits the game window"
+      },
+      {
+        "action": "assert",
+        "check": "clickable",
+        "selector": "[data-creation-action=\"advance\"]",
+        "description": "The default next-step control is present and clickable"
+      },
+      {
+        "action": "click",
+        "selector": "[data-creation-choice=\"industry:INTERNET\"]",
+        "description": "Select the first required creation field"
+      },
+      {
+        "action": "assert",
+        "check": "notObscured",
+        "selector": "[data-creation-action=\"advance\"]",
+        "description": "The next-step control is not covered after any real event popup is dismissed"
+      },
+      {
+        "action": "click",
+        "selector": "[data-creation-action=\"advance\"]",
+        "description": "Click the real next-step control"
+      },
+      {
+        "action": "call",
+        "method": "queryCharacterCreation",
+        "as": "nextStep"
+      },
+      {
+        "action": "assert",
+        "check": "equals",
+        "path": "@vars.nextStep.draft.step",
+        "expected": "DIRECTION",
+        "description": "The next-step button advances the seven-step wizard"
+      },
+      {
+        "action": "screenshot",
+        "name": "next-step-works"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "index": 1,
+      "action": "screenshot",
+      "replayStep": {
+        "action": "screenshot",
+        "name": "cold-start",
+        "description": "Capture the real EXE on its default creation screen"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": null,
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": null
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": "scenarios/smoke/evidence/screenshots/001-cold-start.png",
+      "durationMs": 1184
+    },
+    {
+      "index": 2,
+      "action": "assert",
+      "replayStep": {
+        "action": "assert",
+        "check": "windowSize",
+        "minimumWidth": 1150,
+        "minimumHeight": 680,
+        "description": "The default desktop window meets its minimum usable size"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": null,
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": null,
+      "durationMs": 7
+    },
+    {
+      "index": 3,
+      "action": "assert",
+      "replayStep": {
+        "action": "assert",
+        "check": "clickable",
+        "selector": "[data-creation-choice=\"industry:INTERNET\"]",
+        "description": "The first-step choice is visible and enabled"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": {
+        "selector": "[data-creation-choice=\"industry:INTERNET\"]"
+      },
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": null,
+      "durationMs": 11
+    },
+    {
+      "index": 4,
+      "action": "assert",
+      "replayStep": {
+        "action": "assert",
+        "check": "inBounds",
+        "selector": "[data-creation-choice=\"industry:INTERNET\"]",
+        "description": "The first-step choice fits the game window"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": {
+        "selector": "[data-creation-choice=\"industry:INTERNET\"]"
+      },
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": null,
+      "durationMs": 6
+    },
+    {
+      "index": 5,
+      "action": "assert",
+      "replayStep": {
+        "action": "assert",
+        "check": "clickable",
+        "selector": "[data-creation-action=\"advance\"]",
+        "description": "The default next-step control is present and clickable"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": {
+        "selector": "[data-creation-action=\"advance\"]"
+      },
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": null,
+      "durationMs": 6
+    },
+    {
+      "index": 6,
+      "action": "click",
+      "replayStep": {
+        "action": "click",
+        "selector": "[data-creation-choice=\"industry:INTERNET\"]",
+        "description": "Select the first required creation field"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": {
+        "point": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        }
+      },
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 10,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": null,
+      "durationMs": 1165
+    },
+    {
+      "index": 7,
+      "action": "assert",
+      "replayStep": {
+        "action": "assert",
+        "check": "notObscured",
+        "selector": "[data-creation-action=\"advance\"]",
+        "description": "The next-step control is not covered after any real event popup is dismissed"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": {
+        "selector": "[data-creation-action=\"advance\"]"
+      },
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": null,
+      "durationMs": 6
+    },
+    {
+      "index": 8,
+      "action": "click",
+      "replayStep": {
+        "action": "click",
+        "selector": "[data-creation-action=\"advance\"]",
+        "description": "Click the real next-step control"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": {
+        "point": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        }
+      },
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": null,
+      "durationMs": 41
+    },
+    {
+      "index": 9,
+      "action": "call",
+      "replayStep": {
+        "action": "call",
+        "method": "queryCharacterCreation",
+        "as": "nextStep"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": null,
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": null,
+      "durationMs": 5
+    },
+    {
+      "index": 10,
+      "action": "assert",
+      "replayStep": {
+        "action": "assert",
+        "check": "equals",
+        "path": "@vars.nextStep.draft.step",
+        "expected": "DIRECTION",
+        "description": "The next-step button advances the seven-step wizard"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": null,
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": null,
+      "durationMs": 4
+    },
+    {
+      "index": 11,
+      "action": "screenshot",
+      "replayStep": {
+        "action": "screenshot",
+        "name": "next-step-works"
+      },
+      "viewport": {
+        "width": 1267,
+        "height": 685
+      },
+      "target": null,
+      "popupRecovery": null,
+      "beforeState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "beforeStateError": null,
+      "afterState": {
+        "clock": {
+          "hour": 1,
+          "minute": 11,
+          "weekday": 4,
+          "isWeekend": false
+        },
+        "mode": "FISHING",
+        "salaryBalance": 0,
+        "todayEarned": 0,
+        "incomeRate": {
+          "perSecond": 0.0016666666666666668,
+          "perMinute": 0.1,
+          "perHour": 6
+        },
+        "todo": {
+          "pendingCount": 0,
+          "items": []
+        },
+        "messages": {
+          "unreadCount": 0,
+          "pendingReplyCount": 0,
+          "latest": ""
+        },
+        "activity": [],
+        "life": [],
+        "task": [],
+        "project": null,
+        "goal": {
+          "title": "选择你的牛马道途",
+          "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+        }
+      },
+      "afterStateError": null,
+      "outcome": "passed",
+      "error": null,
+      "evidence": "scenarios/smoke/evidence/screenshots/002-next-step-works.png",
+      "durationMs": 728
+    }
+  ],
+  "replay": {
+    "command": "npm run gameplay-agent:test -- --scenario=smoke",
+    "exactStepInputs": true,
+    "usesFreshIsolatedProfile": true
+  }
+}

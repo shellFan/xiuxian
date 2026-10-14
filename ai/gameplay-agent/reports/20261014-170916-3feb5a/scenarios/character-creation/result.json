@@ -1,0 +1,2156 @@
+{
+  "id": "character-creation",
+  "title": "Seven-step character creation and first playable home state",
+  "status": "passed",
+  "startedAt": "2026-10-14T17:09:16.599Z",
+  "steps": [
+    {
+      "index": 1,
+      "action": "call",
+      "description": "Read authoritative initial character creation state",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → creation",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "INDUSTRY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "青云牛马",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734
+        }
+      },
+      "durationMs": 159
+    },
+    {
+      "index": 2,
+      "action": "assert",
+      "description": "A new isolated test profile starts at character creation",
+      "status": "passed",
+      "detail": "@vars.creation.status: \"CREATION_REQUIRED\"",
+      "durationMs": 3
+    },
+    {
+      "index": 3,
+      "action": "screenshot",
+      "description": "Capture the first creation step",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/001-creation-industry.png",
+      "detail": "001-creation-industry.png",
+      "durationMs": 1036
+    },
+    {
+      "index": 4,
+      "action": "click",
+      "description": "Choose internet industry",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"industry:INTERNET\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "互联网\n代码、产品、流量与线上事故交织的修仙世界。",
+        "dismissedInterruptions": [
+          "acknowledge"
+        ],
+        "dismissalAttempts": [
+          {
+            "attempt": 1,
+            "control": {
+              "text": "知道了",
+              "id": null,
+              "className": "ux-btn ux-btn--gold ux-btn--md",
+              "criticalChoice": false,
+              "close": false,
+              "acknowledge": true,
+              "disabled": false,
+              "bounds": {
+                "x": 583.5,
+                "y": 493.3984375,
+                "width": 100,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": null,
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              },
+              "kind": "acknowledge"
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": false,
+            "targetUncovered": false
+          },
+          {
+            "attempt": 2,
+            "control": {
+              "text": "继续",
+              "id": "V2EventOk",
+              "className": "ux-btn ux-btn--gold ux-btn--md",
+              "criticalChoice": false,
+              "close": false,
+              "acknowledge": true,
+              "disabled": false,
+              "bounds": {
+                "x": 593.5,
+                "y": 444.8984375,
+                "width": 80,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": "V2EventOk",
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              },
+              "kind": "acknowledge"
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": true,
+            "targetUncovered": true
+          }
+        ]
+      },
+      "durationMs": 1177
+    },
+    {
+      "index": 5,
+      "action": "wait",
+      "description": "Allow the industry selection and any dismissed event transition to settle",
+      "status": "passed",
+      "detail": "300ms",
+      "durationMs": 305
+    },
+    {
+      "index": 6,
+      "action": "clickUntilState",
+      "description": "Click the visible next-step button and wait for the authoritative direction state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"DIRECTION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "DIRECTION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "青云牛马",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 157
+    },
+    {
+      "index": 7,
+      "action": "call",
+      "description": "Confirm the second creation step",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → directionStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "DIRECTION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "青云牛马",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET"
+        }
+      },
+      "durationMs": 10
+    },
+    {
+      "index": 8,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.directionStep.draft.step: \"DIRECTION\"",
+      "durationMs": 4
+    },
+    {
+      "index": 9,
+      "action": "screenshot",
+      "description": "creation-direction",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/002-creation-direction.png",
+      "detail": "002-creation-direction.png",
+      "durationMs": 867
+    },
+    {
+      "index": 10,
+      "action": "click",
+      "description": "Choose the available technical direction",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"direction:TECH_RND\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "技术研发\n以代码、测试、系统运维踏上修行路。"
+      },
+      "durationMs": 31
+    },
+    {
+      "index": 11,
+      "action": "clickUntilState",
+      "description": "Advance to profession and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"PROFESSION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "PROFESSION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "青云牛马",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 151
+    },
+    {
+      "index": 12,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → professionStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "PROFESSION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "青云牛马",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 13,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.professionStep.draft.step: \"PROFESSION\"",
+      "durationMs": 3
+    },
+    {
+      "index": 14,
+      "action": "screenshot",
+      "description": "creation-profession",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/003-creation-profession.png",
+      "detail": "003-creation-profession.png",
+      "durationMs": 883
+    },
+    {
+      "index": 15,
+      "action": "click",
+      "description": "Choose Java backend profession",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"profession:JAVA_BACKEND\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 283.59375,
+          "width": 347.015625,
+          "height": 98.671875
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 283.59375,
+          "width": 347.015625,
+          "height": 98.671875
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 332.9296875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "Java后端\n代码剑修 · 稳定、技术流、擅长事故。后期强大，前期耐熬。"
+      },
+      "durationMs": 37
+    },
+    {
+      "index": 16,
+      "action": "clickUntilState",
+      "description": "Advance to identity and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"IDENTITY\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "青云牛马",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 173
+    },
+    {
+      "index": 17,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → identityStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "青云牛马",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 18,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.identityStep.draft.step: \"IDENTITY\"",
+      "durationMs": 10
+    },
+    {
+      "index": 19,
+      "action": "screenshot",
+      "description": "creation-identity",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/004-creation-identity.png",
+      "detail": "004-creation-identity.png",
+      "durationMs": 958
+    },
+    {
+      "index": 20,
+      "action": "type",
+      "description": "Enter a test nickname with real keyboard input",
+      "status": "passed",
+      "detail": "typed 4 characters",
+      "durationMs": 49
+    },
+    {
+      "index": 21,
+      "action": "scroll",
+      "description": "Scroll the identity form until its save control is inside the clipped panel",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (150,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 47
+    },
+    {
+      "index": 22,
+      "action": "assertClickable",
+      "description": "Verify the identity save control is now visible and uncovered",
+      "status": "passed",
+      "detail": "[data-creation-action=\"save-identity\"]: found=true, visible=true, disabled=false, covered=false",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 495.28125,
+          "y": 335.09375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "保存昵称与形象"
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 23,
+      "action": "click",
+      "description": "Save identity through the creation UI",
+      "status": "passed",
+      "detail": "click [data-creation-action=\"save-identity\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 495.28125,
+          "y": 335.09375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "保存昵称与形象"
+      },
+      "durationMs": 44
+    },
+    {
+      "index": 24,
+      "action": "wait",
+      "description": "Wait for the identity form save to settle before changing the scroll region",
+      "status": "passed",
+      "detail": "250ms",
+      "durationMs": 259
+    },
+    {
+      "index": 25,
+      "action": "scroll",
+      "description": "Scroll to the background choices after saving identity",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (350,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 47
+    },
+    {
+      "index": 26,
+      "action": "click",
+      "description": "Choose a valid starting background",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"background:ORDINARY_WORKER\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 239.1875,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 239.1875,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 284.1875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "普通打工人\n从平凡工位起步，根骨 +1。"
+      },
+      "durationMs": 27
+    },
+    {
+      "index": 27,
+      "action": "waitFor",
+      "description": "Wait until the real character-creation UI reflects the selected background",
+      "status": "passed",
+      "detail": "[data-creation-choice=\"background:ORDINARY_WORKER\"].is-selected reached exists",
+      "durationMs": 5
+    },
+    {
+      "index": 28,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → savedIdentity",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 29,
+      "action": "assert",
+      "description": "Confirm the chosen background is the authoritative wizard state before advancing",
+      "status": "passed",
+      "detail": "@vars.savedIdentity.draft.background: \"ORDINARY_WORKER\"",
+      "durationMs": 3
+    },
+    {
+      "index": 30,
+      "action": "screenshot",
+      "description": "Verify the background choice through its selected UI state",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/005-creation-identity-backgrounds.png",
+      "detail": "005-creation-identity-backgrounds.png",
+      "durationMs": 894
+    },
+    {
+      "index": 31,
+      "action": "clickUntilState",
+      "description": "Advance to destiny and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"DESTINY\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "DESTINY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 163
+    },
+    {
+      "index": 32,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → destinyStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "DESTINY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "durationMs": 3
+    },
+    {
+      "index": 33,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.destinyStep.draft.step: \"DESTINY\"",
+      "durationMs": 3
+    },
+    {
+      "index": 34,
+      "action": "screenshot",
+      "description": "creation-destiny",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/006-creation-destiny.png",
+      "detail": "006-creation-destiny.png",
+      "durationMs": 936
+    },
+    {
+      "index": 35,
+      "action": "scroll",
+      "description": "Scroll the tall destiny candidate cards into the visible area",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (120,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 44
+    },
+    {
+      "index": 36,
+      "action": "click",
+      "description": "Choose a destiny candidate",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"candidate:A\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 164.59375,
+          "width": 227.34375,
+          "height": 235.5078125
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 201,
+          "width": 227.34375,
+          "height": 189
+        },
+        "clickPoint": {
+          "x": 541.296875,
+          "y": 295.5
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SMALL",
+          "id": null,
+          "className": ""
+        },
+        "text": "均衡型\n天选背锅侠\n悟性\n11\n根骨\n10\n神识\n10\n机缘\n10\n心性\n9\n优点：成功化解责任事件后，绩效成长提高 50%。\n代价：背锅事件的触发权重尚未接入。\n职业契合：适合通过责任事件处理来成长的职业路线。"
+      },
+      "durationMs": 35
+    },
+    {
+      "index": 37,
+      "action": "wait",
+      "description": "Allow the selected destiny to settle before advancing",
+      "status": "passed",
+      "detail": "300ms",
+      "durationMs": 306
+    },
+    {
+      "index": 38,
+      "action": "clickUntilState",
+      "description": "Advance to allocation and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"ALLOCATION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "ALLOCATION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 155
+    },
+    {
+      "index": 39,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → allocationStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "ALLOCATION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 40,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.allocationStep.draft.step: \"ALLOCATION\"",
+      "durationMs": 3
+    },
+    {
+      "index": 41,
+      "action": "screenshot",
+      "description": "creation-allocation",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/007-creation-allocation.png",
+      "detail": "007-creation-allocation.png",
+      "durationMs": 866
+    },
+    {
+      "index": 42,
+      "action": "clickUntilState",
+      "description": "Keep the valid default allocation and verify the confirmation state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"CONFIRM\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "CONFIRM",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 149
+    },
+    {
+      "index": 43,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → confirmStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 2750415467,
+          "step": "CONFIRM",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-1",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 11,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 9
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 9,
+                "constitution": 9,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 7
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=11|constitution=10|perception=10|fortune=10|willpower=9||B|SOCIAL_FATE|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|FISHING_IMMORTAL|insight=9|constitution=9|perception=9|fortune=16|willpower=7"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997763734,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 44,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.confirmStep.draft.step: \"CONFIRM\"",
+      "durationMs": 3
+    },
+    {
+      "index": 45,
+      "action": "screenshot",
+      "description": "creation-confirm",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/008-creation-confirm.png",
+      "detail": "008-creation-confirm.png",
+      "durationMs": 877
+    },
+    {
+      "index": 46,
+      "action": "click",
+      "description": "Finalize the character through the UI",
+      "status": "passed",
+      "detail": "click [data-creation-action=\"finalize\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1055.3359375,
+          "y": 427,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1055.3359375,
+          "y": 427,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1102.99609375,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "确认入职"
+      },
+      "durationMs": 54
+    },
+    {
+      "index": 47,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → completeCreation",
+      "value": {
+        "status": "COMPLETE",
+        "isNewCharacterCreationRequired": false
+      },
+      "durationMs": 3
+    },
+    {
+      "index": 48,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.completeCreation.status: \"COMPLETE\"",
+      "durationMs": 4
+    },
+    {
+      "index": 49,
+      "action": "screenshot",
+      "description": "creation-onboarding",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/009-creation-onboarding.png",
+      "detail": "009-creation-onboarding.png",
+      "durationMs": 724
+    },
+    {
+      "index": 50,
+      "action": "clickUntilState",
+      "description": "Enter the game through the real onboarding control and verify its authoritative state, retrying only while still at the first story step",
+      "status": "passed",
+      "detail": "queryCharacterOnboarding().step reached \"COMPLETE\" after 1 real UI click attempt(s)",
+      "value": {
+        "step": "COMPLETE",
+        "title": "入职剧情已完成",
+        "body": "第一张工单：排查接口异常",
+        "firstTaskTitle": "第一张工单：排查接口异常"
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 545.5078125,
+          "y": 513.046875,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 545.5078125,
+          "y": 513.046875,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 593.16796875,
+          "y": 535.046875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "跳过剧情"
+      },
+      "durationMs": 325
+    },
+    {
+      "index": 51,
+      "action": "assert",
+      "description": "The onboarding action completed before dependent first-task checks",
+      "status": "passed",
+      "detail": "@vars.onboardingAfterSkip.step: \"COMPLETE\"",
+      "durationMs": 3
+    },
+    {
+      "index": 52,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryAssignedTasks() → firstTask",
+      "value": {
+        "top": [
+          {
+            "id": "at_mv8d7h1g_2k1",
+            "title": "第一张工单：排查接口异常",
+            "detail": "这是你的第一份可执行差事。完成后可领取工资、绩效與修为。",
+            "priority": "P2",
+            "source": "SYSTEM",
+            "createdDay": 1,
+            "createdAt": 1791997775620,
+            "status": "OPEN",
+            "rewardSalary": 60,
+            "rewardPerformance": 5,
+            "rewardCultivation": 20,
+            "rewardMind": 0,
+            "isFakeP0": false
+          }
+        ],
+        "openCount": 1,
+        "all": [
+          {
+            "id": "at_mv8d7h1g_2k1",
+            "title": "第一张工单：排查接口异常",
+            "detail": "这是你的第一份可执行差事。完成后可领取工资、绩效與修为。",
+            "priority": "P2",
+            "source": "SYSTEM",
+            "createdDay": 1,
+            "createdAt": 1791997775620,
+            "status": "OPEN",
+            "rewardSalary": 60,
+            "rewardPerformance": 5,
+            "rewardCultivation": 20,
+            "rewardMind": 0,
+            "isFakeP0": false
+          }
+        ]
+      },
+      "durationMs": 9
+    },
+    {
+      "index": 53,
+      "action": "assert",
+      "description": "Onboarding creates its first real assigned task",
+      "status": "passed",
+      "detail": "@vars.firstTask.openCount: 1 >= 1",
+      "durationMs": 2
+    },
+    {
+      "index": 54,
+      "action": "screenshot",
+      "description": "home",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/010-home.png",
+      "detail": "010-home.png",
+      "durationMs": 821
+    },
+    {
+      "index": 55,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → completedCreation",
+      "value": {
+        "status": "COMPLETE",
+        "isNewCharacterCreationRequired": false
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 56,
+      "action": "assert",
+      "description": "The seven-step creator finalized the character",
+      "status": "passed",
+      "detail": "@vars.completedCreation.status: \"COMPLETE\"",
+      "durationMs": 3
+    },
+    {
+      "index": 57,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryHomeSnapshot() → playableHome",
+      "value": {
+        "work": {
+          "professionId": "JAVA_BACKEND",
+          "professionName": "Java后端",
+          "dayIndex": 1,
+          "weekday": 4,
+          "weekdayName": "周四",
+          "isWeekend": false,
+          "clockText": "01:12",
+          "countdownMs": 60424263,
+          "workState": "WORKING",
+          "workStateText": "上班中",
+          "workMode": "FISHING",
+          "workModeText": "带薪摸鱼中",
+          "currentTask": null,
+          "openTaskCount": 0,
+          "todayEarned": 0,
+          "todayCultivation": 0,
+          "salaryBalance": 0,
+          "fatigue": 0,
+          "onboardingTask": {
+            "id": "at_mv8d7h1g_2k1",
+            "title": "第一张工单：排查接口异常",
+            "source": "入职"
+          }
+        },
+        "goals": [
+          {
+            "kind": "WORK",
+            "title": "完成一个工作任务",
+            "description": "在任务页接一份差事，干完领奖励",
+            "progress": 0,
+            "target": 1,
+            "completed": false,
+            "claimed": false,
+            "reward": {
+              "salary": 80,
+              "cultivation": 20,
+              "mind": 0
+            }
+          },
+          {
+            "kind": "GROWTH",
+            "title": "获得一次真实成长",
+            "description": "修炼一次或完成带来修为的任务",
+            "progress": 0,
+            "target": 1,
+            "completed": false,
+            "claimed": false,
+            "reward": {
+              "salary": 30,
+              "cultivation": 45,
+              "mind": 0
+            }
+          },
+          {
+            "kind": "LIFE",
+            "title": "执行一次生活或社交行为",
+            "description": "喝杯咖啡、吃顿饭，或切到社交划水 3 分钟",
+            "progress": 0,
+            "target": 1,
+            "completed": false,
+            "claimed": false,
+            "reward": {
+              "salary": 20,
+              "cultivation": 10,
+              "mind": 12
+            }
+          }
+        ],
+        "nextAction": {
+          "id": "GET_TASK",
+          "icon": "📋",
+          "text": "领取一个任务",
+          "sub": "任务库 18 份差事等你挑",
+          "btn": "去任务页",
+          "page": "TASKS",
+          "command": null,
+          "commandArg": null
+        },
+        "life": [
+          {
+            "kind": "COFFEE",
+            "label": "喝咖啡",
+            "icon": "☕",
+            "price": 18,
+            "effectText": "疲劳 -12，道心 +6",
+            "used": 0,
+            "remaining": 3,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥18）"
+          },
+          {
+            "kind": "MILK_TEA",
+            "label": "喝奶茶",
+            "icon": "🧋",
+            "price": 16,
+            "effectText": "道心 +8",
+            "used": 0,
+            "remaining": 2,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥16）"
+          },
+          {
+            "kind": "LUNCH",
+            "label": "吃午餐",
+            "icon": "🍜",
+            "price": 25,
+            "effectText": "疲劳 -8，道心 +5",
+            "used": 0,
+            "remaining": 1,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥25）"
+          },
+          {
+            "kind": "SNACK",
+            "label": "吃零食",
+            "icon": "🍪",
+            "price": 8,
+            "effectText": "道心 +3",
+            "used": 0,
+            "remaining": 3,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥8）"
+          },
+          {
+            "kind": "DINNER",
+            "label": "下班聚餐",
+            "icon": "🍲",
+            "price": 68,
+            "effectText": "疲劳 -40，道心 +15",
+            "used": 0,
+            "remaining": 1,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥68）"
+          }
+        ]
+      },
+      "durationMs": 7
+    },
+    {
+      "index": 58,
+      "action": "assert",
+      "description": "The main page has a playable profession-backed state",
+      "status": "passed",
+      "detail": "@vars.playableHome.work.professionId: exists",
+      "durationMs": 4
+    },
+    {
+      "index": 59,
+      "action": "screenshot",
+      "description": "Capture the first playable home after all seven creation steps",
+      "status": "passed",
+      "evidence": "scenarios/character-creation/evidence/screenshots/011-playable-home.png",
+      "detail": "011-playable-home.png",
+      "durationMs": 796
+    }
+  ],
+  "defects": [],
+  "authoritativeState": "scenarios/character-creation/evidence/authoritative-state.json",
+  "consoleExceptions": [],
+  "experienceMetrics": {
+    "firstPlayableHomeStep": null,
+    "firstTaskInteractionStep": 51,
+    "firstPositiveWalletStep": null,
+    "successfulInputOperations": 11,
+    "blockedSteps": 0,
+    "thresholdsApplied": false
+  },
+  "execution": {
+    "electronWindow": "visible",
+    "input": "CDP synthetic input",
+    "screenshotSource": "CDP renderer surface",
+    "platform": "win32",
+    "validationModes": {
+      "UI_REAL_EXE": "NOT_VERIFIED",
+      "ELECTRON_E2E": "PASS",
+      "SERVICE_SIM": "NOT_RUN",
+      "NOT_VERIFIED": [
+        "physical Windows pointer/keyboard verification",
+        "outer window-size matrix"
+      ]
+    }
+  },
+  "finishedAt": "2026-10-14T17:09:38.587Z",
+  "durationMs": 21988
+}

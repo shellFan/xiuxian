@@ -18,8 +18,42 @@ function popupDismissalComplete(popup, target) {
   return popup.closed === true && target.covered === false;
 }
 
+function canRecoverObstructedClick(target, popup) {
+  return target?.covered === true && popup?.visible === true
+    && !!popup.control && popup.control.disabled !== true;
+}
+
+function shouldWaitForObscuringPopup(target, popup) {
+  return target?.covered === true && popup?.visible !== true;
+}
+
+function shouldContinuePopupRecovery(target, popup, attempt, maxAttempts = 3) {
+  return attempt < maxAttempts && target?.found === true && target.visible === true
+    && target.covered === true && popup?.visible === true;
+}
+
+function popupControlKind({ presentationKind, hasCriticalChoice, hasClose, hasAcknowledge }) {
+  if (hasCriticalChoice) return 'critical-message-choice';
+  if (hasClose) return 'close';
+  if (hasAcknowledge) return 'acknowledge';
+  return null;
+}
+
 function scrollPositionChanged(before, after) {
   return !!before && !!after && (before.scrollTop !== after.scrollTop || before.scrollLeft !== after.scrollLeft);
+}
+
+function scrollBoundaryTargetReady(moved, target) {
+  return !moved && !!target?.found && !!target.visible && !target.covered;
+}
+
+function scrollTargetAlreadyVisible(target) {
+  return !!target?.found && !!target.visible && !target.covered
+    && boundsWithinViewport(target.bounds, target.viewport);
+}
+
+function shouldRestoreScrollContextAfterPopup({ popupClosed, scrollContainerFound }) {
+  return popupClosed === true && scrollContainerFound === false;
 }
 
 function boundsWithinViewport(bounds, viewport) {
@@ -59,14 +93,17 @@ function storeScenarioVariable(scopes, name, value, { scope = 'scenario', type }
 
 function readScenarioVariable(scopes, reference) {
   const match = VARIABLE_PATH.exec(reference);
-  if (!match) throw new Error(`invalid scenario variable reference: ${reference}`);
+  if (!match || /(?:__proto__|prototype|constructor)/i.test(reference)) throw new Error(`invalid scenario variable reference: ${reference}`);
   const parts = [...match[2].matchAll(/\.([a-zA-Z_$][\w$]*)|\[(\d+|"[a-zA-Z0-9_-]+")\]/g)]
     .map((part) => part[1] ?? (part[2].startsWith('"') ? part[2].slice(1, -1) : Number(part[2])));
   const scopeName = match[1] === 'vars' ? 'scenario' : 'run';
   const root = scopes[scopeName][parts.shift()];
   if (!root) throw new Error(`scenario variable is missing: ${reference}`);
   let value = root.value;
-  for (const part of parts) value = value?.[part];
+  for (const part of parts) {
+    if (value === null || value === undefined || !(part in Object(value))) throw new Error(`scenario variable path is missing: ${reference}`);
+    value = value[part];
+  }
   return value;
 }
 
@@ -79,4 +116,4 @@ function formatHitTarget(hit) {
   return `${hit.tag ?? 'element'}${className} (${JSON.stringify(hit)})`;
 }
 
-module.exports = { createVariableScopes, storeScenarioVariable, readScenarioVariable, formatHitTarget, popupDismissalComplete, boundsWithinViewport, scrollPositionChanged, intersectVisibleBounds };
+module.exports = { createVariableScopes, storeScenarioVariable, readScenarioVariable, formatHitTarget, popupDismissalComplete, popupControlKind, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds };

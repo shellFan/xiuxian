@@ -40,8 +40,10 @@
     "gameplay-agent:smoke": "node ai/gameplay-agent/index.cjs smoke",
     "gameplay-agent:test": "node ai/gameplay-agent/index.cjs test",
     "gameplay-agent:creation": "node ai/gameplay-agent/index.cjs test --scenario=character-creation",
+    "gameplay-agent:full-journey": "node ai/gameplay-agent/index.cjs test --scenario=new-player-full-journey",
     "gameplay-agent:economy": "node ai/gameplay-agent/index.cjs test --scenario=economy",
     "gameplay-agent:time-save": "node ai/gameplay-agent/index.cjs test --scenario=time-save",
+    "gameplay-agent:viewport": "node ai/gameplay-agent/index.cjs test --scenario=viewport-matrix",
     "gameplay-agent:report": "node ai/gameplay-agent/index.cjs report",
     "gameplay-agent:rerun-failed": "node ai/gameplay-agent/index.cjs rerun-failed",
     "gameplay-agent:gate": "node ai/gameplay-agent/index.cjs gate"

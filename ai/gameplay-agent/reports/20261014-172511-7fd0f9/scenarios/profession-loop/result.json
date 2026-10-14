@@ -1,0 +1,53 @@
+{
+  "id": "profession-loop",
+  "title": "Every unlocked profession from the live profession catalog participates in character setup",
+  "status": "passed",
+  "startedAt": "2026-10-14T17:26:14.016Z",
+  "steps": [
+    {
+      "index": 1,
+      "action": "professionMatrix",
+      "description": "Read unlocked profession ids from the maintained game content and verify the real creation service can select every one",
+      "status": "passed",
+      "detail": "profession loop visited JAVA_BACKEND, FRONTEND, QA, DEVOPS",
+      "durationMs": 156
+    },
+    {
+      "index": 2,
+      "action": "screenshot",
+      "description": "Capture the real creation window after the selectable profession loop",
+      "status": "passed",
+      "evidence": "scenarios/profession-loop/evidence/screenshots/001-profession-loop.png",
+      "detail": "001-profession-loop.png",
+      "durationMs": 975
+    }
+  ],
+  "defects": [],
+  "authoritativeState": "scenarios/profession-loop/evidence/authoritative-state.json",
+  "consoleExceptions": [],
+  "experienceMetrics": {
+    "firstPlayableHomeStep": null,
+    "firstTaskInteractionStep": null,
+    "firstPositiveWalletStep": null,
+    "successfulInputOperations": 0,
+    "blockedSteps": 0,
+    "thresholdsApplied": false
+  },
+  "execution": {
+    "electronWindow": "visible",
+    "input": "CDP synthetic input",
+    "screenshotSource": "CDP renderer surface",
+    "platform": "win32",
+    "validationModes": {
+      "UI_REAL_EXE": "NOT_VERIFIED",
+      "ELECTRON_E2E": "PASS",
+      "SERVICE_SIM": "NOT_RUN",
+      "NOT_VERIFIED": [
+        "physical Windows pointer/keyboard verification",
+        "outer window-size matrix"
+      ]
+    }
+  },
+  "finishedAt": "2026-10-14T17:26:21.090Z",
+  "durationMs": 7074
+}

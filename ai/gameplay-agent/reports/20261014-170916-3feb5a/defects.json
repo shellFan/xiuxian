@@ -1,0 +1,22 @@
+{
+  "runId": "20261014-170916-3feb5a",
+  "status": "FAILED",
+  "defects": [
+    {
+      "id": "economy-step-68",
+      "severity": "HIGH",
+      "category": "GAME_DEFECT",
+      "title": "@vars.afterWork.salary: 60 > 60",
+      "reproduction": [
+        "Run npm run gameplay-agent:rerun-failed",
+        "Scenario: economy",
+        "Step 68: Work time increases the canonical wage balance"
+      ],
+      "evidence": "scenarios/economy/evidence/screenshots/011-failure-step-68.png",
+      "screenshot": "launch-window.png",
+      "repairAttempts": 0,
+      "maxRepairAttempts": 3,
+      "diagnostics": null
+    }
+  ]
+}

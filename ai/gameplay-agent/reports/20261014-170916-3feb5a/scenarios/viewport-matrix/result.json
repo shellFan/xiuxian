@@ -1,0 +1,2100 @@
+{
+  "id": "viewport-matrix",
+  "title": "Check the playable home at supported content viewport sizes",
+  "status": "passed",
+  "startedAt": "2026-10-14T17:11:06.039Z",
+  "steps": [
+    {
+      "index": 1,
+      "action": "call",
+      "description": "Read authoritative initial character creation state",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → creation",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "INDUSTRY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746
+        }
+      },
+      "durationMs": 163
+    },
+    {
+      "index": 2,
+      "action": "assert",
+      "description": "A new isolated test profile starts at character creation",
+      "status": "passed",
+      "detail": "@vars.creation.status: \"CREATION_REQUIRED\"",
+      "durationMs": 3
+    },
+    {
+      "index": 3,
+      "action": "screenshot",
+      "description": "Capture the first creation step",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/001-creation-industry.png",
+      "detail": "001-creation-industry.png",
+      "durationMs": 986
+    },
+    {
+      "index": 4,
+      "action": "click",
+      "description": "Choose internet industry",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"industry:INTERNET\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "互联网\n代码、产品、流量与线上事故交织的修仙世界。",
+        "dismissedInterruptions": [
+          "acknowledge"
+        ],
+        "dismissalAttempts": [
+          {
+            "attempt": 1,
+            "control": {
+              "text": "知道了",
+              "id": null,
+              "className": "ux-btn ux-btn--gold ux-btn--md",
+              "criticalChoice": false,
+              "close": false,
+              "acknowledge": true,
+              "disabled": false,
+              "bounds": {
+                "x": 583.5,
+                "y": 493.3984375,
+                "width": 100,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": null,
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              },
+              "kind": "acknowledge"
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": false,
+            "targetUncovered": false
+          },
+          {
+            "attempt": 2,
+            "control": {
+              "text": "继续",
+              "id": "V2EventOk",
+              "className": "ux-btn ux-btn--gold ux-btn--md",
+              "criticalChoice": false,
+              "close": false,
+              "acknowledge": true,
+              "disabled": false,
+              "bounds": {
+                "x": 593.5,
+                "y": 444.8984375,
+                "width": 80,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": "V2EventOk",
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              },
+              "kind": "acknowledge"
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": true,
+            "targetUncovered": true
+          }
+        ]
+      },
+      "durationMs": 1190
+    },
+    {
+      "index": 5,
+      "action": "wait",
+      "description": "Allow the industry selection and any dismissed event transition to settle",
+      "status": "passed",
+      "detail": "300ms",
+      "durationMs": 307
+    },
+    {
+      "index": 6,
+      "action": "clickUntilState",
+      "description": "Click the visible next-step button and wait for the authoritative direction state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"DIRECTION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "DIRECTION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 147
+    },
+    {
+      "index": 7,
+      "action": "call",
+      "description": "Confirm the second creation step",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → directionStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "DIRECTION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET"
+        }
+      },
+      "durationMs": 3
+    },
+    {
+      "index": 8,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.directionStep.draft.step: \"DIRECTION\"",
+      "durationMs": 2
+    },
+    {
+      "index": 9,
+      "action": "screenshot",
+      "description": "creation-direction",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/002-creation-direction.png",
+      "detail": "002-creation-direction.png",
+      "durationMs": 862
+    },
+    {
+      "index": 10,
+      "action": "click",
+      "description": "Choose the available technical direction",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"direction:TECH_RND\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "技术研发\n以代码、测试、系统运维踏上修行路。"
+      },
+      "durationMs": 37
+    },
+    {
+      "index": 11,
+      "action": "clickUntilState",
+      "description": "Advance to profession and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"PROFESSION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "PROFESSION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 153
+    },
+    {
+      "index": 12,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → professionStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "PROFESSION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "durationMs": 3
+    },
+    {
+      "index": 13,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.professionStep.draft.step: \"PROFESSION\"",
+      "durationMs": 2
+    },
+    {
+      "index": 14,
+      "action": "screenshot",
+      "description": "creation-profession",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/003-creation-profession.png",
+      "detail": "003-creation-profession.png",
+      "durationMs": 872
+    },
+    {
+      "index": 15,
+      "action": "click",
+      "description": "Choose Java backend profession",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"profession:JAVA_BACKEND\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 283.59375,
+          "width": 347.015625,
+          "height": 98.671875
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 283.59375,
+          "width": 347.015625,
+          "height": 98.671875
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 332.9296875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "Java后端\n代码剑修 · 稳定、技术流、擅长事故。后期强大，前期耐熬。"
+      },
+      "durationMs": 21
+    },
+    {
+      "index": 16,
+      "action": "clickUntilState",
+      "description": "Advance to identity and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"IDENTITY\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 154
+    },
+    {
+      "index": 17,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → identityStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 18,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.identityStep.draft.step: \"IDENTITY\"",
+      "durationMs": 2
+    },
+    {
+      "index": 19,
+      "action": "screenshot",
+      "description": "creation-identity",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/004-creation-identity.png",
+      "detail": "004-creation-identity.png",
+      "durationMs": 927
+    },
+    {
+      "index": 20,
+      "action": "type",
+      "description": "Enter a test nickname with real keyboard input",
+      "status": "passed",
+      "detail": "typed 4 characters",
+      "durationMs": 48
+    },
+    {
+      "index": 21,
+      "action": "scroll",
+      "description": "Scroll the identity form until its save control is inside the clipped panel",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (150,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 67
+    },
+    {
+      "index": 22,
+      "action": "assertClickable",
+      "description": "Verify the identity save control is now visible and uncovered",
+      "status": "passed",
+      "detail": "[data-creation-action=\"save-identity\"]: found=true, visible=true, disabled=false, covered=false",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 495.28125,
+          "y": 335.09375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "保存昵称与形象"
+      },
+      "durationMs": 6
+    },
+    {
+      "index": 23,
+      "action": "click",
+      "description": "Save identity through the creation UI",
+      "status": "passed",
+      "detail": "click [data-creation-action=\"save-identity\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 495.28125,
+          "y": 335.09375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "保存昵称与形象"
+      },
+      "durationMs": 45
+    },
+    {
+      "index": 24,
+      "action": "wait",
+      "description": "Wait for the identity form save to settle before changing the scroll region",
+      "status": "passed",
+      "detail": "250ms",
+      "durationMs": 257
+    },
+    {
+      "index": 25,
+      "action": "scroll",
+      "description": "Scroll to the background choices after saving identity",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (350,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 45
+    },
+    {
+      "index": 26,
+      "action": "click",
+      "description": "Choose a valid starting background",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"background:ORDINARY_WORKER\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 239.1875,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 239.1875,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 284.1875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "普通打工人\n从平凡工位起步，根骨 +1。"
+      },
+      "durationMs": 30
+    },
+    {
+      "index": 27,
+      "action": "waitFor",
+      "description": "Wait until the real character-creation UI reflects the selected background",
+      "status": "passed",
+      "detail": "[data-creation-choice=\"background:ORDINARY_WORKER\"].is-selected reached exists",
+      "durationMs": 3
+    },
+    {
+      "index": 28,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → savedIdentity",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 29,
+      "action": "assert",
+      "description": "Confirm the chosen background is the authoritative wizard state before advancing",
+      "status": "passed",
+      "detail": "@vars.savedIdentity.draft.background: \"ORDINARY_WORKER\"",
+      "durationMs": 2
+    },
+    {
+      "index": 30,
+      "action": "screenshot",
+      "description": "Verify the background choice through its selected UI state",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/005-creation-identity-backgrounds.png",
+      "detail": "005-creation-identity-backgrounds.png",
+      "durationMs": 856
+    },
+    {
+      "index": 31,
+      "action": "clickUntilState",
+      "description": "Advance to destiny and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"DESTINY\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "DESTINY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 175
+    },
+    {
+      "index": 32,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → destinyStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "DESTINY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "durationMs": 3
+    },
+    {
+      "index": 33,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.destinyStep.draft.step: \"DESTINY\"",
+      "durationMs": 2
+    },
+    {
+      "index": 34,
+      "action": "screenshot",
+      "description": "creation-destiny",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/006-creation-destiny.png",
+      "detail": "006-creation-destiny.png",
+      "durationMs": 911
+    },
+    {
+      "index": 35,
+      "action": "scroll",
+      "description": "Scroll the tall destiny candidate cards into the visible area",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (120,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 53
+    },
+    {
+      "index": 36,
+      "action": "click",
+      "description": "Choose a destiny candidate",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"candidate:A\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 164.59375,
+          "width": 227.34375,
+          "height": 219.40625
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 201,
+          "width": 227.34375,
+          "height": 183
+        },
+        "clickPoint": {
+          "x": 541.296875,
+          "y": 292.5
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SMALL",
+          "id": null,
+          "className": ""
+        },
+        "text": "均衡型\n代码通灵体\n悟性\n10\n根骨\n9\n神识\n11\n机缘\n10\n心性\n10\n优点：技术任务进度提高 10%。\n代价：非技术事项没有额外加成。\n职业契合：契合互联网技术研发方向，不提供通用战斗加成。"
+      },
+      "durationMs": 28
+    },
+    {
+      "index": 37,
+      "action": "wait",
+      "description": "Allow the selected destiny to settle before advancing",
+      "status": "passed",
+      "detail": "300ms",
+      "durationMs": 301
+    },
+    {
+      "index": 38,
+      "action": "clickUntilState",
+      "description": "Advance to allocation and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"ALLOCATION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "ALLOCATION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 154
+    },
+    {
+      "index": 39,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → allocationStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "ALLOCATION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "durationMs": 3
+    },
+    {
+      "index": 40,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.allocationStep.draft.step: \"ALLOCATION\"",
+      "durationMs": 1
+    },
+    {
+      "index": 41,
+      "action": "screenshot",
+      "description": "creation-allocation",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/007-creation-allocation.png",
+      "detail": "007-creation-allocation.png",
+      "durationMs": 860
+    },
+    {
+      "index": 42,
+      "action": "clickUntilState",
+      "description": "Keep the valid default allocation and verify the confirmation state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"CONFIRM\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "CONFIRM",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 160
+    },
+    {
+      "index": 43,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → confirmStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 3674438372,
+          "step": "CONFIRM",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 11,
+                "fortune": 10,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=11|fortune=10|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|LABOR_SAINT|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997870746,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "durationMs": 7
+    },
+    {
+      "index": 44,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.confirmStep.draft.step: \"CONFIRM\"",
+      "durationMs": 5
+    },
+    {
+      "index": 45,
+      "action": "screenshot",
+      "description": "creation-confirm",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/008-creation-confirm.png",
+      "detail": "008-creation-confirm.png",
+      "durationMs": 874
+    },
+    {
+      "index": 46,
+      "action": "click",
+      "description": "Finalize the character through the UI",
+      "status": "passed",
+      "detail": "click [data-creation-action=\"finalize\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1055.3359375,
+          "y": 427,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1055.3359375,
+          "y": 427,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1102.99609375,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "确认入职"
+      },
+      "durationMs": 47
+    },
+    {
+      "index": 47,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → completeCreation",
+      "value": {
+        "status": "COMPLETE",
+        "isNewCharacterCreationRequired": false
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 48,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.completeCreation.status: \"COMPLETE\"",
+      "durationMs": 2
+    },
+    {
+      "index": 49,
+      "action": "screenshot",
+      "description": "creation-onboarding",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/009-creation-onboarding.png",
+      "detail": "009-creation-onboarding.png",
+      "durationMs": 672
+    },
+    {
+      "index": 50,
+      "action": "clickUntilState",
+      "description": "Enter the game through the real onboarding control and verify its authoritative state, retrying only while still at the first story step",
+      "status": "passed",
+      "detail": "queryCharacterOnboarding().step reached \"COMPLETE\" after 1 real UI click attempt(s)",
+      "value": {
+        "step": "COMPLETE",
+        "title": "入职剧情已完成",
+        "body": "第一张工单：排查接口异常",
+        "firstTaskTitle": "第一张工单：排查接口异常"
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 545.5078125,
+          "y": 513.046875,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 545.5078125,
+          "y": 513.046875,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 593.16796875,
+          "y": 535.046875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "跳过剧情"
+      },
+      "durationMs": 336
+    },
+    {
+      "index": 51,
+      "action": "assert",
+      "description": "The onboarding action completed before dependent first-task checks",
+      "status": "passed",
+      "detail": "@vars.onboardingAfterSkip.step: \"COMPLETE\"",
+      "durationMs": 4
+    },
+    {
+      "index": 52,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryAssignedTasks() → firstTask",
+      "value": {
+        "top": [
+          {
+            "id": "at_mv8d9rfd_2hu",
+            "title": "第一张工单：排查接口异常",
+            "detail": "这是你的第一份可执行差事。完成后可领取工资、绩效與修为。",
+            "priority": "P2",
+            "source": "SYSTEM",
+            "createdDay": 1,
+            "createdAt": 1791997882393,
+            "status": "OPEN",
+            "rewardSalary": 60,
+            "rewardPerformance": 5,
+            "rewardCultivation": 20,
+            "rewardMind": 0,
+            "isFakeP0": false
+          }
+        ],
+        "openCount": 1,
+        "all": [
+          {
+            "id": "at_mv8d9rfd_2hu",
+            "title": "第一张工单：排查接口异常",
+            "detail": "这是你的第一份可执行差事。完成后可领取工资、绩效與修为。",
+            "priority": "P2",
+            "source": "SYSTEM",
+            "createdDay": 1,
+            "createdAt": 1791997882393,
+            "status": "OPEN",
+            "rewardSalary": 60,
+            "rewardPerformance": 5,
+            "rewardCultivation": 20,
+            "rewardMind": 0,
+            "isFakeP0": false
+          }
+        ]
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 53,
+      "action": "assert",
+      "description": "Onboarding creates its first real assigned task",
+      "status": "passed",
+      "detail": "@vars.firstTask.openCount: 1 >= 1",
+      "durationMs": 3
+    },
+    {
+      "index": 54,
+      "action": "screenshot",
+      "description": "home",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/010-home.png",
+      "detail": "010-home.png",
+      "durationMs": 839
+    },
+    {
+      "index": 55,
+      "action": "setViewport",
+      "description": "Emulate the 1280x720 content viewport through CDP",
+      "status": "passed",
+      "detail": "CDP content viewport 1280×720 at scale 1; outer Windows window size is not asserted",
+      "durationMs": 16
+    },
+    {
+      "index": 56,
+      "action": "assert",
+      "description": "The home content column remains within the emulated viewport",
+      "status": "passed",
+      "detail": ".ux-home-col.ux-home-right: {\"x\":978,\"y\":74,\"width\":288,\"height\":572} within {\"width\":1280,\"height\":720}",
+      "durationMs": 35
+    },
+    {
+      "index": 57,
+      "action": "assertVisible",
+      "description": "Task navigation remains visible at 1280x720",
+      "status": "passed",
+      "detail": "[data-nav=\"TASKS\"]: found=true, visible=true, disabled=false, covered=false",
+      "durationMs": 6
+    },
+    {
+      "index": 58,
+      "action": "screenshot",
+      "description": "viewport-1280x720",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/011-viewport-1280x720.png",
+      "detail": "011-viewport-1280x720.png",
+      "durationMs": 428
+    },
+    {
+      "index": 59,
+      "action": "setViewport",
+      "description": "Emulate the 1366x768 content viewport through CDP",
+      "status": "passed",
+      "detail": "CDP content viewport 1366×768 at scale 1; outer Windows window size is not asserted",
+      "durationMs": 50
+    },
+    {
+      "index": 60,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": ".ux-home-col.ux-home-right: {\"x\":1048,\"y\":82,\"width\":300,\"height\":610} within {\"width\":1366,\"height\":768}",
+      "durationMs": 24
+    },
+    {
+      "index": 61,
+      "action": "assertVisible",
+      "description": "",
+      "status": "passed",
+      "detail": "[data-nav=\"TASKS\"]: found=true, visible=true, disabled=false, covered=false",
+      "durationMs": 5
+    },
+    {
+      "index": 62,
+      "action": "screenshot",
+      "description": "viewport-1366x768",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/012-viewport-1366x768.png",
+      "detail": "012-viewport-1366x768.png",
+      "durationMs": 344
+    },
+    {
+      "index": 63,
+      "action": "setViewport",
+      "description": "Emulate the 1600x900 content viewport through CDP",
+      "status": "passed",
+      "detail": "CDP content viewport 1600×900 at scale 1; outer Windows window size is not asserted",
+      "durationMs": 19
+    },
+    {
+      "index": 64,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": ".ux-home-col.ux-home-right: {\"x\":1262,\"y\":84,\"width\":320,\"height\":740} within {\"width\":1600,\"height\":900}",
+      "durationMs": 15
+    },
+    {
+      "index": 65,
+      "action": "assertVisible",
+      "description": "",
+      "status": "passed",
+      "detail": "[data-nav=\"TASKS\"]: found=true, visible=true, disabled=false, covered=false",
+      "durationMs": 5
+    },
+    {
+      "index": 66,
+      "action": "screenshot",
+      "description": "viewport-1600x900",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/013-viewport-1600x900.png",
+      "detail": "013-viewport-1600x900.png",
+      "durationMs": 397
+    },
+    {
+      "index": 67,
+      "action": "setViewport",
+      "description": "Emulate the 1024x768 content viewport through CDP",
+      "status": "passed",
+      "detail": "CDP content viewport 1024×768 at scale 1; outer Windows window size is not asserted",
+      "durationMs": 19
+    },
+    {
+      "index": 68,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": ".ux-home-col.ux-home-right: {\"x\":722,\"y\":74,\"width\":288,\"height\":620} within {\"width\":1024,\"height\":768}",
+      "durationMs": 29
+    },
+    {
+      "index": 69,
+      "action": "assertVisible",
+      "description": "",
+      "status": "passed",
+      "detail": "[data-nav=\"TASKS\"]: found=true, visible=true, disabled=false, covered=false",
+      "durationMs": 5
+    },
+    {
+      "index": 70,
+      "action": "screenshot",
+      "description": "viewport-1024x768",
+      "status": "passed",
+      "evidence": "scenarios/viewport-matrix/evidence/screenshots/014-viewport-1024x768.png",
+      "detail": "014-viewport-1024x768.png",
+      "durationMs": 286
+    }
+  ],
+  "defects": [],
+  "authoritativeState": "scenarios/viewport-matrix/evidence/authoritative-state.json",
+  "consoleExceptions": [],
+  "experienceMetrics": {
+    "firstPlayableHomeStep": null,
+    "firstTaskInteractionStep": 51,
+    "firstPositiveWalletStep": null,
+    "successfulInputOperations": 11,
+    "blockedSteps": 0,
+    "thresholdsApplied": false
+  },
+  "execution": {
+    "electronWindow": "visible",
+    "input": "CDP synthetic input",
+    "screenshotSource": "CDP renderer surface",
+    "platform": "win32",
+    "validationModes": {
+      "UI_REAL_EXE": "NOT_VERIFIED",
+      "ELECTRON_E2E": "PASS",
+      "SERVICE_SIM": "NOT_RUN",
+      "NOT_VERIFIED": [
+        "physical Windows pointer/keyboard verification",
+        "outer window-size matrix"
+      ]
+    }
+  },
+  "finishedAt": "2026-10-14T17:11:26.199Z",
+  "durationMs": 20160
+}

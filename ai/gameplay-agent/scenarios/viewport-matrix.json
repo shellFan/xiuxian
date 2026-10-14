@@ -1,0 +1,24 @@
+{
+  "id": "viewport-matrix",
+  "title": "Check the playable home at supported content viewport sizes",
+  "setup": "new-player",
+  "setupFailureClass": "SETUP_BLOCKED",
+  "steps": [
+    { "action": "setViewport", "width": 1280, "height": 720, "description": "Emulate the 1280x720 content viewport through CDP" },
+    { "action": "assert", "check": "inBounds", "selector": ".ux-home-col.ux-home-right", "description": "The home content column remains within the emulated viewport" },
+    { "action": "assertVisible", "selector": "[data-nav=\"TASKS\"]", "description": "Task navigation remains visible at 1280x720" },
+    { "action": "screenshot", "name": "viewport-1280x720" },
+    { "action": "setViewport", "width": 1366, "height": 768, "description": "Emulate the 1366x768 content viewport through CDP" },
+    { "action": "assert", "check": "inBounds", "selector": ".ux-home-col.ux-home-right" },
+    { "action": "assertVisible", "selector": "[data-nav=\"TASKS\"]" },
+    { "action": "screenshot", "name": "viewport-1366x768" },
+    { "action": "setViewport", "width": 1600, "height": 900, "description": "Emulate the 1600x900 content viewport through CDP" },
+    { "action": "assert", "check": "inBounds", "selector": ".ux-home-col.ux-home-right" },
+    { "action": "assertVisible", "selector": "[data-nav=\"TASKS\"]" },
+    { "action": "screenshot", "name": "viewport-1600x900" },
+    { "action": "setViewport", "width": 1024, "height": 768, "description": "Emulate the 1024x768 content viewport through CDP" },
+    { "action": "assert", "check": "inBounds", "selector": ".ux-home-col.ux-home-right" },
+    { "action": "assertVisible", "selector": "[data-nav=\"TASKS\"]" },
+    { "action": "screenshot", "name": "viewport-1024x768" }
+  ]
+}

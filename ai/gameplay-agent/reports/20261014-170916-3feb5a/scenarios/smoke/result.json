@@ -1,0 +1,317 @@
+{
+  "id": "smoke",
+  "title": "Default window, creation next button and first playable home screen",
+  "status": "passed",
+  "startedAt": "2026-10-14T17:10:24.980Z",
+  "steps": [
+    {
+      "index": 1,
+      "action": "screenshot",
+      "description": "Capture the real EXE on its default creation screen",
+      "status": "passed",
+      "evidence": "scenarios/smoke/evidence/screenshots/001-cold-start.png",
+      "detail": "001-cold-start.png",
+      "durationMs": 1184
+    },
+    {
+      "index": 2,
+      "action": "assert",
+      "description": "The default desktop window meets its minimum usable size",
+      "status": "passed",
+      "detail": "window content 1267×685; minimum 1150×680",
+      "durationMs": 7
+    },
+    {
+      "index": 3,
+      "action": "assert",
+      "description": "The first-step choice is visible and enabled",
+      "status": "passed",
+      "detail": "[data-creation-choice=\"industry:INTERNET\"]: visible=true, disabled=false, inBounds=true",
+      "durationMs": 11
+    },
+    {
+      "index": 4,
+      "action": "assert",
+      "description": "The first-step choice fits the game window",
+      "status": "passed",
+      "detail": "[data-creation-choice=\"industry:INTERNET\"]: {\"x\":427.625,\"y\":284.59375,\"width\":347.015625,\"height\":90} within {\"width\":1267,\"height\":685}",
+      "durationMs": 6
+    },
+    {
+      "index": 5,
+      "action": "assert",
+      "description": "The default next-step control is present and clickable",
+      "status": "passed",
+      "detail": "[data-creation-action=\"advance\"]: visible=true, disabled=false, inBounds=true",
+      "durationMs": 6
+    },
+    {
+      "index": 6,
+      "action": "click",
+      "description": "Select the first required creation field",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"industry:INTERNET\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "互联网\n代码、产品、流量与线上事故交织的修仙世界。",
+        "dismissedInterruptions": [
+          "acknowledge"
+        ],
+        "dismissalAttempts": [
+          {
+            "attempt": 1,
+            "control": {
+              "text": "知道了",
+              "id": null,
+              "className": "ux-btn ux-btn--gold ux-btn--md",
+              "criticalChoice": false,
+              "close": false,
+              "acknowledge": true,
+              "disabled": false,
+              "bounds": {
+                "x": 583.5,
+                "y": 493.3984375,
+                "width": 100,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": null,
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              },
+              "kind": "acknowledge"
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": false,
+            "targetUncovered": false
+          },
+          {
+            "attempt": 2,
+            "control": {
+              "text": "继续",
+              "id": "V2EventOk",
+              "className": "ux-btn ux-btn--gold ux-btn--md",
+              "criticalChoice": false,
+              "close": false,
+              "acknowledge": true,
+              "disabled": false,
+              "bounds": {
+                "x": 593.5,
+                "y": 444.8984375,
+                "width": 80,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": "V2EventOk",
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              },
+              "kind": "acknowledge"
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": true,
+            "targetUncovered": true
+          }
+        ]
+      },
+      "durationMs": 1165
+    },
+    {
+      "index": 7,
+      "action": "assert",
+      "description": "The next-step control is not covered after any real event popup is dismissed",
+      "status": "passed",
+      "detail": "[data-creation-action=\"advance\"]: covered=false, hit=BUTTON.v59-btn.v59-btn--primary ({\"tag\":\"BUTTON\",\"id\":null,\"className\":\"v59-btn v59-btn--primary\"})",
+      "durationMs": 6
+    },
+    {
+      "index": 8,
+      "action": "click",
+      "description": "Click the real next-step control",
+      "status": "passed",
+      "detail": "click [data-creation-action=\"advance\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 41
+    },
+    {
+      "index": 9,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → nextStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 122307437,
+          "step": "DIRECTION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SOCIAL_FATE",
+              "attributes": {
+                "insight": 10,
+                "constitution": 11,
+                "perception": 10,
+                "fortune": 9,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "KING_OF_GRIND",
+              "attributes": {
+                "insight": 8,
+                "constitution": 10,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SOCIAL_FATE|insight=10|constitution=11|perception=10|fortune=9|willpower=10||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|KING_OF_GRIND|insight=8|constitution=10|perception=8|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791997829803,
+          "industry": "INTERNET"
+        }
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 10,
+      "action": "assert",
+      "description": "The next-step button advances the seven-step wizard",
+      "status": "passed",
+      "detail": "@vars.nextStep.draft.step: \"DIRECTION\"",
+      "durationMs": 4
+    },
+    {
+      "index": 11,
+      "action": "screenshot",
+      "description": "next-step-works",
+      "status": "passed",
+      "evidence": "scenarios/smoke/evidence/screenshots/002-next-step-works.png",
+      "detail": "002-next-step-works.png",
+      "durationMs": 728
+    }
+  ],
+  "defects": [],
+  "authoritativeState": "scenarios/smoke/evidence/authoritative-state.json",
+  "consoleExceptions": [],
+  "experienceMetrics": {
+    "firstPlayableHomeStep": null,
+    "firstTaskInteractionStep": null,
+    "firstPositiveWalletStep": null,
+    "successfulInputOperations": 2,
+    "blockedSteps": 0,
+    "thresholdsApplied": false
+  },
+  "execution": {
+    "electronWindow": "visible",
+    "input": "CDP synthetic input",
+    "screenshotSource": "CDP renderer surface",
+    "platform": "win32",
+    "validationModes": {
+      "UI_REAL_EXE": "NOT_VERIFIED",
+      "ELECTRON_E2E": "PASS",
+      "SERVICE_SIM": "NOT_RUN",
+      "NOT_VERIFIED": [
+        "physical Windows pointer/keyboard verification",
+        "outer window-size matrix"
+      ]
+    }
+  },
+  "finishedAt": "2026-10-14T17:10:33.885Z",
+  "durationMs": 8905
+}

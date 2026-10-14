@@ -1,0 +1,74 @@
+{
+  "selector": ".ux-home-col.ux-home-right",
+  "attempts": [
+    {
+      "attempt": 1,
+      "before": {
+        "scrollTop": 650,
+        "scrollLeft": 0,
+        "scrollHeight": 2098,
+        "scrollWidth": 280,
+        "clientHeight": 537,
+        "clientWidth": 280
+      },
+      "after": {
+        "scrollTop": 650,
+        "scrollLeft": 0,
+        "scrollHeight": 2098,
+        "scrollWidth": 280,
+        "clientHeight": 537,
+        "clientWidth": 280
+      }
+    },
+    {
+      "attempt": 2,
+      "before": {
+        "scrollTop": 650,
+        "scrollLeft": 0,
+        "scrollHeight": 2098,
+        "scrollWidth": 280,
+        "clientHeight": 537,
+        "clientWidth": 280
+      },
+      "after": null
+    },
+    {
+      "attempt": 3,
+      "before": null,
+      "after": null
+    }
+  ],
+  "popupRecovery": [
+    {
+      "attempt": 1,
+      "control": {
+        "text": "事故群·线上救火队\n线上事故！核心接口500，拉应急群！",
+        "id": null,
+        "className": "ux-event-option",
+        "criticalChoice": true,
+        "close": false,
+        "acknowledge": false,
+        "disabled": false,
+        "bounds": {
+          "x": 344.5,
+          "y": 390.9453125,
+          "width": 578,
+          "height": 42
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-event-option"
+        },
+        "kind": "critical-message-choice",
+        "selector": "[data-critical-conv]"
+      },
+      "actions": [
+        "CDP pointer choice of the visible critical conversation"
+      ],
+      "popupClosed": true
+    }
+  ],
+  "timeoutMsPerAttempt": 700
+}

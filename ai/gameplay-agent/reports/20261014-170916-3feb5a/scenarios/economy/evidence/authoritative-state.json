@@ -1,0 +1,64 @@
+{
+  "clock": {
+    "hour": 16,
+    "minute": 30,
+    "weekday": 4,
+    "isWeekend": false
+  },
+  "mode": "WORK",
+  "salaryBalance": 60,
+  "todayEarned": 60,
+  "incomeRate": {
+    "perSecond": 0.003611111111111111,
+    "perMinute": 0.21666666666666667,
+    "perHour": 13
+  },
+  "todo": {
+    "pendingCount": 4,
+    "items": [
+      {
+        "id": "msg_ms_jun_001_root_1792053001043_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_fw57_w1th_alarm_root_1792053001044_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_prod_003_root_1792053001044_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_prod_016_root_1792053001045_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      }
+    ]
+  },
+  "messages": {
+    "unreadCount": 4,
+    "pendingReplyCount": 4,
+    "latest": "线上事故！核心接口500，拉应急群！"
+  },
+  "activity": [
+    {
+      "time": 1791997995105,
+      "text": "完成指派任务「第一张工单：排查接口异常」",
+      "kind": "WORK"
+    }
+  ],
+  "life": [],
+  "task": [],
+  "project": null,
+  "goal": {
+    "title": "接下今天的第一个任务",
+    "detail": "任务页挑选差事——完成领工资、修为与绩效，工时正等着你"
+  }
+}

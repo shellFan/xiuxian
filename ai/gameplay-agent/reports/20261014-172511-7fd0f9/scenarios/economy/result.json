@@ -1,0 +1,3140 @@
+{
+  "id": "economy",
+  "title": "Assigned task completion, salary accrual and exact coffee debit",
+  "status": "passed",
+  "startedAt": "2026-10-14T17:25:33.386Z",
+  "steps": [
+    {
+      "index": 1,
+      "action": "call",
+      "description": "Read authoritative initial character creation state",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → creation",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "INDUSTRY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103
+        }
+      },
+      "durationMs": 146
+    },
+    {
+      "index": 2,
+      "action": "assert",
+      "description": "A new isolated test profile starts at character creation",
+      "status": "passed",
+      "detail": "@vars.creation.status: \"CREATION_REQUIRED\"",
+      "durationMs": 11
+    },
+    {
+      "index": 3,
+      "action": "screenshot",
+      "description": "Capture the first creation step",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/001-creation-industry.png",
+      "detail": "001-creation-industry.png",
+      "durationMs": 982
+    },
+    {
+      "index": 4,
+      "action": "click",
+      "description": "Choose internet industry",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"industry:INTERNET\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "互联网\n代码、产品、流量与线上事故交织的修仙世界。",
+        "dismissedInterruptions": [
+          "acknowledge"
+        ],
+        "dismissalAttempts": [
+          {
+            "attempt": 1,
+            "control": {
+              "text": "知道了",
+              "id": null,
+              "className": "ux-btn ux-btn--gold ux-btn--md",
+              "criticalChoice": false,
+              "close": false,
+              "acknowledge": true,
+              "disabled": false,
+              "bounds": {
+                "x": 583.5,
+                "y": 493.3984375,
+                "width": 100,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": null,
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              },
+              "kind": "acknowledge"
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": false,
+            "targetUncovered": false
+          },
+          {
+            "attempt": 2,
+            "control": {
+              "text": "继续",
+              "id": "V2EventOk",
+              "className": "ux-btn ux-btn--gold ux-btn--md",
+              "criticalChoice": false,
+              "close": false,
+              "acknowledge": true,
+              "disabled": false,
+              "bounds": {
+                "x": 593.5,
+                "y": 444.8984375,
+                "width": 80,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": "V2EventOk",
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              },
+              "kind": "acknowledge"
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": true,
+            "targetUncovered": true
+          }
+        ]
+      },
+      "durationMs": 1287
+    },
+    {
+      "index": 5,
+      "action": "wait",
+      "description": "Allow the industry selection and any dismissed event transition to settle",
+      "status": "passed",
+      "detail": "300ms",
+      "durationMs": 322
+    },
+    {
+      "index": 6,
+      "action": "clickUntilState",
+      "description": "Click the visible next-step button and wait for the authoritative direction state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"DIRECTION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "DIRECTION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 151
+    },
+    {
+      "index": 7,
+      "action": "call",
+      "description": "Confirm the second creation step",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → directionStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "DIRECTION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET"
+        }
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 8,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.directionStep.draft.step: \"DIRECTION\"",
+      "durationMs": 2
+    },
+    {
+      "index": 9,
+      "action": "screenshot",
+      "description": "creation-direction",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/002-creation-direction.png",
+      "detail": "002-creation-direction.png",
+      "durationMs": 943
+    },
+    {
+      "index": 10,
+      "action": "click",
+      "description": "Choose the available technical direction",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"direction:TECH_RND\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "技术研发\n以代码、测试、系统运维踏上修行路。"
+      },
+      "durationMs": 28
+    },
+    {
+      "index": 11,
+      "action": "clickUntilState",
+      "description": "Advance to profession and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"PROFESSION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "PROFESSION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 157
+    },
+    {
+      "index": 12,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → professionStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "PROFESSION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "durationMs": 6
+    },
+    {
+      "index": 13,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.professionStep.draft.step: \"PROFESSION\"",
+      "durationMs": 2
+    },
+    {
+      "index": 14,
+      "action": "screenshot",
+      "description": "creation-profession",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/003-creation-profession.png",
+      "detail": "003-creation-profession.png",
+      "durationMs": 886
+    },
+    {
+      "index": 15,
+      "action": "click",
+      "description": "Choose Java backend profession",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"profession:JAVA_BACKEND\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 283.59375,
+          "width": 347.015625,
+          "height": 98.671875
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 283.59375,
+          "width": 347.015625,
+          "height": 98.671875
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 332.9296875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "Java后端\n代码剑修 · 稳定、技术流、擅长事故。后期强大，前期耐熬。"
+      },
+      "durationMs": 25
+    },
+    {
+      "index": 16,
+      "action": "clickUntilState",
+      "description": "Advance to identity and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"IDENTITY\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 162
+    },
+    {
+      "index": 17,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → identityStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 18,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.identityStep.draft.step: \"IDENTITY\"",
+      "durationMs": 2
+    },
+    {
+      "index": 19,
+      "action": "screenshot",
+      "description": "creation-identity",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/004-creation-identity.png",
+      "detail": "004-creation-identity.png",
+      "durationMs": 899
+    },
+    {
+      "index": 20,
+      "action": "type",
+      "description": "Enter a test nickname with real keyboard input",
+      "status": "passed",
+      "detail": "typed 4 characters",
+      "durationMs": 55
+    },
+    {
+      "index": 21,
+      "action": "scroll",
+      "description": "Scroll the identity form until its save control is inside the clipped panel",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (150,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 41
+    },
+    {
+      "index": 22,
+      "action": "assertClickable",
+      "description": "Verify the identity save control is now visible and uncovered",
+      "status": "passed",
+      "detail": "[data-creation-action=\"save-identity\"]: found=true, visible=true, disabled=false, covered=false",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 495.28125,
+          "y": 335.09375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "保存昵称与形象"
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 23,
+      "action": "click",
+      "description": "Save identity through the creation UI",
+      "status": "passed",
+      "detail": "click [data-creation-action=\"save-identity\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 495.28125,
+          "y": 335.09375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "保存昵称与形象"
+      },
+      "durationMs": 42
+    },
+    {
+      "index": 24,
+      "action": "wait",
+      "description": "Wait for the identity form save to settle before changing the scroll region",
+      "status": "passed",
+      "detail": "250ms",
+      "durationMs": 265
+    },
+    {
+      "index": 25,
+      "action": "scroll",
+      "description": "Scroll to the background choices after saving identity",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (350,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 60
+    },
+    {
+      "index": 26,
+      "action": "click",
+      "description": "Choose a valid starting background",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"background:ORDINARY_WORKER\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 239.1875,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 239.1875,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 284.1875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "普通打工人\n从平凡工位起步，根骨 +1。"
+      },
+      "durationMs": 32
+    },
+    {
+      "index": 27,
+      "action": "waitFor",
+      "description": "Wait until the real character-creation UI reflects the selected background",
+      "status": "passed",
+      "detail": "[data-creation-choice=\"background:ORDINARY_WORKER\"].is-selected reached exists",
+      "durationMs": 4
+    },
+    {
+      "index": 28,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → savedIdentity",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 29,
+      "action": "assert",
+      "description": "Confirm the chosen background is the authoritative wizard state before advancing",
+      "status": "passed",
+      "detail": "@vars.savedIdentity.draft.background: \"ORDINARY_WORKER\"",
+      "durationMs": 2
+    },
+    {
+      "index": 30,
+      "action": "screenshot",
+      "description": "Verify the background choice through its selected UI state",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/005-creation-identity-backgrounds.png",
+      "detail": "005-creation-identity-backgrounds.png",
+      "durationMs": 847
+    },
+    {
+      "index": 31,
+      "action": "clickUntilState",
+      "description": "Advance to destiny and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"DESTINY\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "DESTINY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 169
+    },
+    {
+      "index": 32,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → destinyStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "DESTINY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 33,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.destinyStep.draft.step: \"DESTINY\"",
+      "durationMs": 3
+    },
+    {
+      "index": 34,
+      "action": "screenshot",
+      "description": "creation-destiny",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/006-creation-destiny.png",
+      "detail": "006-creation-destiny.png",
+      "durationMs": 961
+    },
+    {
+      "index": 35,
+      "action": "scroll",
+      "description": "Scroll the tall destiny candidate cards into the visible area",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (120,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 51
+    },
+    {
+      "index": 36,
+      "action": "click",
+      "description": "Choose a destiny candidate",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"candidate:A\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 164.59375,
+          "width": 227.34375,
+          "height": 235.5078125
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 201,
+          "width": 227.34375,
+          "height": 189
+        },
+        "clickPoint": {
+          "x": 541.296875,
+          "y": 295.5
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SMALL",
+          "id": null,
+          "className": ""
+        },
+        "text": "均衡型\n天选背锅侠\n悟性\n10\n根骨\n10\n神识\n9\n机缘\n11\n心性\n10\n优点：成功化解责任事件后，绩效成长提高 50%。\n代价：背锅事件的触发权重尚未接入。\n职业契合：适合通过责任事件处理来成长的职业路线。"
+      },
+      "durationMs": 30
+    },
+    {
+      "index": 37,
+      "action": "wait",
+      "description": "Allow the selected destiny to settle before advancing",
+      "status": "passed",
+      "detail": "300ms",
+      "durationMs": 316
+    },
+    {
+      "index": 38,
+      "action": "clickUntilState",
+      "description": "Advance to allocation and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"ALLOCATION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "ALLOCATION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 142
+    },
+    {
+      "index": 39,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → allocationStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "ALLOCATION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "durationMs": 8
+    },
+    {
+      "index": 40,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.allocationStep.draft.step: \"ALLOCATION\"",
+      "durationMs": 3
+    },
+    {
+      "index": 41,
+      "action": "screenshot",
+      "description": "creation-allocation",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/007-creation-allocation.png",
+      "detail": "007-creation-allocation.png",
+      "durationMs": 869
+    },
+    {
+      "index": 42,
+      "action": "clickUntilState",
+      "description": "Keep the valid default allocation and verify the confirmation state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"CONFIRM\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "CONFIRM",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 138
+    },
+    {
+      "index": 43,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → confirmStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 1052746747,
+          "step": "CONFIRM",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 10,
+                "perception": 9,
+                "fortune": 11,
+                "willpower": 10
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "FISHING_IMMORTAL",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 8,
+                "constitution": 9,
+                "perception": 8,
+                "fortune": 16,
+                "willpower": 9
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9",
+            "v59a.1|JAVA_BACKEND|A|SCAPEGOAT|insight=10|constitution=10|perception=9|fortune=11|willpower=10||B|FISHING_IMMORTAL|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|CODE_SPIRIT|insight=8|constitution=9|perception=8|fortune=16|willpower=9"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1791998738103,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "durationMs": 3
+    },
+    {
+      "index": 44,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.confirmStep.draft.step: \"CONFIRM\"",
+      "durationMs": 3
+    },
+    {
+      "index": 45,
+      "action": "screenshot",
+      "description": "creation-confirm",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/008-creation-confirm.png",
+      "detail": "008-creation-confirm.png",
+      "durationMs": 879
+    },
+    {
+      "index": 46,
+      "action": "click",
+      "description": "Finalize the character through the UI",
+      "status": "passed",
+      "detail": "click [data-creation-action=\"finalize\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1055.3359375,
+          "y": 427,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1055.3359375,
+          "y": 427,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1102.99609375,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "确认入职"
+      },
+      "durationMs": 47
+    },
+    {
+      "index": 47,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → completeCreation",
+      "value": {
+        "status": "COMPLETE",
+        "isNewCharacterCreationRequired": false
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 48,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.completeCreation.status: \"COMPLETE\"",
+      "durationMs": 2
+    },
+    {
+      "index": 49,
+      "action": "screenshot",
+      "description": "creation-onboarding",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/009-creation-onboarding.png",
+      "detail": "009-creation-onboarding.png",
+      "durationMs": 695
+    },
+    {
+      "index": 50,
+      "action": "clickUntilState",
+      "description": "Enter the game through the real onboarding control and verify its authoritative state, retrying only while still at the first story step",
+      "status": "passed",
+      "detail": "queryCharacterOnboarding().step reached \"COMPLETE\" after 1 real UI click attempt(s)",
+      "value": {
+        "step": "COMPLETE",
+        "title": "入职剧情已完成",
+        "body": "第一张工单：排查接口异常",
+        "firstTaskTitle": "第一张工单：排查接口异常"
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 545.5078125,
+          "y": 513.046875,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 545.5078125,
+          "y": 513.046875,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 593.16796875,
+          "y": 535.046875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "跳过剧情"
+      },
+      "durationMs": 358
+    },
+    {
+      "index": 51,
+      "action": "assert",
+      "description": "The onboarding action completed before dependent first-task checks",
+      "status": "passed",
+      "detail": "@vars.onboardingAfterSkip.step: \"COMPLETE\"",
+      "durationMs": 5
+    },
+    {
+      "index": 52,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryAssignedTasks() → firstTask",
+      "value": {
+        "top": [
+          {
+            "id": "at_mv8dscwa_5b1",
+            "title": "第一张工单：排查接口异常",
+            "detail": "这是你的第一份可执行差事。完成后可领取工资、绩效與修为。",
+            "priority": "P2",
+            "source": "SYSTEM",
+            "createdDay": 1,
+            "createdAt": 1791998750026,
+            "status": "OPEN",
+            "rewardSalary": 60,
+            "rewardPerformance": 5,
+            "rewardCultivation": 20,
+            "rewardMind": 0,
+            "isFakeP0": false
+          }
+        ],
+        "openCount": 1,
+        "all": [
+          {
+            "id": "at_mv8dscwa_5b1",
+            "title": "第一张工单：排查接口异常",
+            "detail": "这是你的第一份可执行差事。完成后可领取工资、绩效與修为。",
+            "priority": "P2",
+            "source": "SYSTEM",
+            "createdDay": 1,
+            "createdAt": 1791998750026,
+            "status": "OPEN",
+            "rewardSalary": 60,
+            "rewardPerformance": 5,
+            "rewardCultivation": 20,
+            "rewardMind": 0,
+            "isFakeP0": false
+          }
+        ]
+      },
+      "durationMs": 6
+    },
+    {
+      "index": 53,
+      "action": "assert",
+      "description": "Onboarding creates its first real assigned task",
+      "status": "passed",
+      "detail": "@vars.firstTask.openCount: 1 >= 1",
+      "durationMs": 3
+    },
+    {
+      "index": 54,
+      "action": "screenshot",
+      "description": "home",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/010-home.png",
+      "detail": "010-home.png",
+      "durationMs": 793
+    },
+    {
+      "index": 55,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → beforeTask",
+      "value": {
+        "salary": 0,
+        "cultivationExp": 12,
+        "careerLevel": 1,
+        "mind": 100,
+        "maxMind": 100,
+        "performance": 0,
+        "workMode": "FISHING",
+        "workSeconds": 0,
+        "fishingSeconds": 0,
+        "officeLevel": 1,
+        "sectId": null,
+        "talentId": null,
+        "maxWorkerLevel": 0,
+        "promotionFailCount": 0,
+        "unlockedAchievementIds": [],
+        "claimedAchievementIds": [],
+        "dailySignIn": null,
+        "dailyTasks": [
+          {
+            "taskId": "cultivate-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "work-10-min",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "fish-3-min",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "event-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "kpi-complete",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "promotion-1",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          }
+        ],
+        "dailyTaskDay": 20740,
+        "tutorialStep": "NONE",
+        "tutorialCompleted": true,
+        "lastSaveTime": 1791998750027,
+        "workerCount": 0,
+        "mindStatus": "NORMAL",
+        "spiritStones": 0,
+        "lastCultivateTime": 0,
+        "activeTasks": [],
+        "salaryEfficiency": 0.6,
+        "performanceEfficiency": 0.7,
+        "mindRecoveryEfficiency": 3,
+        "cultivationEfficiency": 1,
+        "isWorkIncomeStopped": false,
+        "isFishingMode": true
+      },
+      "durationMs": 6
+    },
+    {
+      "index": 56,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryAssignedTasks() → assigned",
+      "value": {
+        "top": [
+          {
+            "id": "at_mv8dscwa_5b1",
+            "title": "第一张工单：排查接口异常",
+            "detail": "这是你的第一份可执行差事。完成后可领取工资、绩效與修为。",
+            "priority": "P2",
+            "source": "SYSTEM",
+            "createdDay": 1,
+            "createdAt": 1791998750026,
+            "status": "OPEN",
+            "rewardSalary": 60,
+            "rewardPerformance": 5,
+            "rewardCultivation": 20,
+            "rewardMind": 0,
+            "isFakeP0": false
+          }
+        ],
+        "openCount": 1,
+        "all": [
+          {
+            "id": "at_mv8dscwa_5b1",
+            "title": "第一张工单：排查接口异常",
+            "detail": "这是你的第一份可执行差事。完成后可领取工资、绩效與修为。",
+            "priority": "P2",
+            "source": "SYSTEM",
+            "createdDay": 1,
+            "createdAt": 1791998750026,
+            "status": "OPEN",
+            "rewardSalary": 60,
+            "rewardPerformance": 5,
+            "rewardCultivation": 20,
+            "rewardMind": 0,
+            "isFakeP0": false
+          }
+        ]
+      },
+      "durationMs": 7
+    },
+    {
+      "index": 57,
+      "action": "assert",
+      "description": "The home page has an open assigned task",
+      "status": "passed",
+      "detail": "@vars.assigned.openCount: 1 >= 1",
+      "durationMs": 9
+    },
+    {
+      "index": 58,
+      "action": "call",
+      "description": "Complete the assigned task through the canonical task service",
+      "status": "passed",
+      "detail": "completeAssignedTask() → taskCompletion",
+      "value": {
+        "taskId": "at_mv8dscwa_5b1",
+        "salary": 60,
+        "performance": 5,
+        "cultivation": 20,
+        "mind": 0,
+        "summary": "任务完成：第一张工单：排查接口异常。收益：¥60。"
+      },
+      "durationMs": 11
+    },
+    {
+      "index": 59,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → afterTask",
+      "value": {
+        "salary": 60,
+        "cultivationExp": 32,
+        "careerLevel": 1,
+        "mind": 100,
+        "maxMind": 100,
+        "performance": 5,
+        "workMode": "FISHING",
+        "workSeconds": 0,
+        "fishingSeconds": 0,
+        "officeLevel": 1,
+        "sectId": null,
+        "talentId": null,
+        "maxWorkerLevel": 0,
+        "promotionFailCount": 0,
+        "unlockedAchievementIds": [],
+        "claimedAchievementIds": [],
+        "dailySignIn": null,
+        "dailyTasks": [
+          {
+            "taskId": "cultivate-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "work-10-min",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "fish-3-min",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "event-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "kpi-complete",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "promotion-1",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          }
+        ],
+        "dailyTaskDay": 20740,
+        "tutorialStep": "NONE",
+        "tutorialCompleted": true,
+        "lastSaveTime": 1791998750027,
+        "workerCount": 0,
+        "mindStatus": "NORMAL",
+        "spiritStones": 0,
+        "lastCultivateTime": 0,
+        "activeTasks": [],
+        "salaryEfficiency": 0.6,
+        "performanceEfficiency": 0.7,
+        "mindRecoveryEfficiency": 3,
+        "cultivationEfficiency": 1,
+        "isWorkIncomeStopped": false,
+        "isFishingMode": true
+      },
+      "durationMs": 6
+    },
+    {
+      "index": 60,
+      "action": "assert",
+      "description": "Task completion credits the existing salary wallet",
+      "status": "passed",
+      "detail": "@vars.afterTask.salary: 60 > 0",
+      "durationMs": 5
+    },
+    {
+      "index": 61,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryHomeGoals() → goalsAfterTask",
+      "value": [
+        {
+          "kind": "WORK",
+          "title": "完成一个工作任务",
+          "description": "在任务页接一份差事，干完领奖励",
+          "progress": 1,
+          "target": 1,
+          "completed": true,
+          "claimed": false,
+          "reward": {
+            "salary": 80,
+            "cultivation": 20,
+            "mind": 0
+          }
+        },
+        {
+          "kind": "GROWTH",
+          "title": "获得一次真实成长",
+          "description": "修炼一次或完成带来修为的任务",
+          "progress": 1,
+          "target": 1,
+          "completed": true,
+          "claimed": false,
+          "reward": {
+            "salary": 30,
+            "cultivation": 45,
+            "mind": 0
+          }
+        },
+        {
+          "kind": "LIFE",
+          "title": "执行一次生活或社交行为",
+          "description": "喝杯咖啡、吃顿饭，或切到社交划水 3 分钟",
+          "progress": 0,
+          "target": 1,
+          "completed": false,
+          "claimed": false,
+          "reward": {
+            "salary": 20,
+            "cultivation": 10,
+            "mind": 12
+          }
+        }
+      ],
+      "durationMs": 4
+    },
+    {
+      "index": 62,
+      "action": "assert",
+      "description": "Task completion advances a daily home goal",
+      "status": "passed",
+      "detail": "@vars.goalsAfterTask[0].progress: 1 >= 1",
+      "durationMs": 3
+    },
+    {
+      "index": 63,
+      "action": "call",
+      "description": "Align the canonical game clock to the start of its work window",
+      "status": "passed",
+      "detail": "devJumpToHour()",
+      "value": null,
+      "durationMs": 6
+    },
+    {
+      "index": 64,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "changeWorkMode() → working",
+      "value": {
+        "success": true
+      },
+      "durationMs": 8
+    },
+    {
+      "index": 65,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → beforeWork",
+      "value": {
+        "salary": 60,
+        "cultivationExp": 32,
+        "careerLevel": 1,
+        "mind": 100,
+        "maxMind": 100,
+        "performance": 5,
+        "workMode": "WORK",
+        "workSeconds": 0,
+        "fishingSeconds": 0,
+        "officeLevel": 1,
+        "sectId": null,
+        "talentId": null,
+        "maxWorkerLevel": 0,
+        "promotionFailCount": 0,
+        "unlockedAchievementIds": [],
+        "claimedAchievementIds": [],
+        "dailySignIn": null,
+        "dailyTasks": [
+          {
+            "taskId": "cultivate-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "work-10-min",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "fish-3-min",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "event-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "kpi-complete",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "promotion-1",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          }
+        ],
+        "dailyTaskDay": 20740,
+        "tutorialStep": "NONE",
+        "tutorialCompleted": true,
+        "lastSaveTime": 1791998751260,
+        "workerCount": 0,
+        "mindStatus": "NORMAL",
+        "spiritStones": 0,
+        "lastCultivateTime": 0,
+        "activeTasks": [],
+        "salaryEfficiency": 1.3,
+        "performanceEfficiency": 1.2,
+        "mindRecoveryEfficiency": 0.5,
+        "cultivationEfficiency": 1,
+        "isWorkIncomeStopped": false,
+        "isFishingMode": false
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 66,
+      "action": "call",
+      "description": "Advance thirty work minutes so even a 0.9 destiny multiplier yields a whole wage unit under the existing integer settlement rules",
+      "status": "passed",
+      "detail": "tick()",
+      "value": null,
+      "durationMs": 162
+    },
+    {
+      "index": 67,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → afterWork",
+      "value": {
+        "salary": 63,
+        "cultivationExp": 33,
+        "careerLevel": 1,
+        "mind": 96,
+        "maxMind": 100,
+        "performance": 5,
+        "workMode": "WORK",
+        "workSeconds": 1800,
+        "fishingSeconds": 0,
+        "officeLevel": 1,
+        "sectId": null,
+        "talentId": null,
+        "maxWorkerLevel": 0,
+        "promotionFailCount": 0,
+        "unlockedAchievementIds": [
+          "REACH_LIANQI",
+          "MIND_FULL"
+        ],
+        "claimedAchievementIds": [],
+        "dailySignIn": null,
+        "dailyTasks": [
+          {
+            "taskId": "cultivate-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "work-10-min",
+            "progress": 600,
+            "completed": true,
+            "claimed": false
+          },
+          {
+            "taskId": "fish-3-min",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "event-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "kpi-complete",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "promotion-1",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          }
+        ],
+        "dailyTaskDay": 20740,
+        "tutorialStep": "NONE",
+        "tutorialCompleted": true,
+        "lastSaveTime": 1791998751429,
+        "workerCount": 0,
+        "mindStatus": "NORMAL",
+        "spiritStones": 0,
+        "lastCultivateTime": 0,
+        "activeTasks": [],
+        "salaryEfficiency": 1.3,
+        "performanceEfficiency": 1.2,
+        "mindRecoveryEfficiency": 0.5,
+        "cultivationEfficiency": 1,
+        "isWorkIncomeStopped": false,
+        "isFishingMode": false
+      },
+      "durationMs": 156
+    },
+    {
+      "index": 68,
+      "action": "assert",
+      "description": "Work time increases the canonical wage balance",
+      "status": "passed",
+      "detail": "@vars.afterWork.salary: 63 > 60",
+      "durationMs": 16
+    },
+    {
+      "index": 69,
+      "action": "assert",
+      "description": "The authoritative work-time counter advances",
+      "status": "passed",
+      "detail": "@vars.afterWork.workSeconds: 1800 > 0",
+      "durationMs": 5
+    },
+    {
+      "index": 70,
+      "action": "clickIfPresent",
+      "description": "If real daily settlement opened during the scenario, close it through its 明天见 button and verify removal",
+      "status": "passed",
+      "detail": "optional popup control is absent: #SettleOk",
+      "durationMs": 4
+    },
+    {
+      "index": 71,
+      "action": "clickIfPresent",
+      "description": "If a critical-message popup interrupts, choose its real conversation option and verify the popup is gone",
+      "status": "passed",
+      "detail": "clicked actual modal control and verified it closed: [data-critical-conv]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 344.5,
+          "y": 390.9453125,
+          "width": 578,
+          "height": 42
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 344.5,
+          "y": 390.9453125,
+          "width": 578,
+          "height": 42
+        },
+        "clickPoint": {
+          "x": 633.5,
+          "y": 411.9453125
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-event-option"
+        },
+        "text": "事故群·线上救火队\n线上事故！核心接口500，拉应急群！"
+      },
+      "durationMs": 92
+    },
+    {
+      "index": 72,
+      "action": "click",
+      "description": "Return to the home page after handling any critical message",
+      "status": "passed",
+      "detail": "click [data-nav=\"HOME\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 0,
+          "y": 623,
+          "width": 211.1640625,
+          "height": 62
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 0,
+          "y": 623,
+          "width": 211.1640625,
+          "height": 62
+        },
+        "clickPoint": {
+          "x": 105.58203125,
+          "y": 654
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "🏠\n首页"
+      },
+      "durationMs": 91
+    },
+    {
+      "index": 73,
+      "action": "assertVisible",
+      "description": "Confirm the home page is restored before checking wages and assigned tasks",
+      "status": "passed",
+      "detail": ".ux-home-col.ux-home-right: found=true, visible=true, disabled=false, covered=false",
+      "durationMs": 6
+    },
+    {
+      "index": 74,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → beforeCoffee",
+      "value": {
+        "salary": 63,
+        "cultivationExp": 33,
+        "careerLevel": 1,
+        "mind": 96,
+        "maxMind": 100,
+        "performance": 5,
+        "workMode": "WORK",
+        "workSeconds": 1801,
+        "fishingSeconds": 0,
+        "officeLevel": 1,
+        "sectId": null,
+        "talentId": null,
+        "maxWorkerLevel": 0,
+        "promotionFailCount": 0,
+        "unlockedAchievementIds": [
+          "REACH_LIANQI",
+          "MIND_FULL"
+        ],
+        "claimedAchievementIds": [],
+        "dailySignIn": null,
+        "dailyTasks": [
+          {
+            "taskId": "cultivate-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "work-10-min",
+            "progress": 600,
+            "completed": true,
+            "claimed": false
+          },
+          {
+            "taskId": "fish-3-min",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "event-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "kpi-complete",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "promotion-1",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          }
+        ],
+        "dailyTaskDay": 20740,
+        "tutorialStep": "NONE",
+        "tutorialCompleted": true,
+        "lastSaveTime": 1791998751429,
+        "workerCount": 0,
+        "mindStatus": "NORMAL",
+        "spiritStones": 0,
+        "lastCultivateTime": 0,
+        "activeTasks": [],
+        "salaryEfficiency": 1.3,
+        "performanceEfficiency": 1.2,
+        "mindRecoveryEfficiency": 0.5,
+        "cultivationEfficiency": 1,
+        "isWorkIncomeStopped": false,
+        "isFishingMode": false
+      },
+      "durationMs": 7
+    },
+    {
+      "index": 75,
+      "action": "call",
+      "description": "Read the existing authoritative price and daily-limit table",
+      "status": "passed",
+      "detail": "queryHomeLifeOptions() → lifeRules",
+      "value": [
+        {
+          "kind": "COFFEE",
+          "label": "喝咖啡",
+          "icon": "☕",
+          "price": 18,
+          "effectText": "疲劳 -12，道心 +6",
+          "used": 0,
+          "remaining": 3,
+          "affordable": true,
+          "available": true,
+          "reason": null
+        },
+        {
+          "kind": "MILK_TEA",
+          "label": "喝奶茶",
+          "icon": "🧋",
+          "price": 16,
+          "effectText": "道心 +8",
+          "used": 0,
+          "remaining": 2,
+          "affordable": true,
+          "available": true,
+          "reason": null
+        },
+        {
+          "kind": "LUNCH",
+          "label": "吃午餐",
+          "icon": "🍜",
+          "price": 25,
+          "effectText": "疲劳 -8，道心 +5",
+          "used": 0,
+          "remaining": 1,
+          "affordable": true,
+          "available": true,
+          "reason": null
+        },
+        {
+          "kind": "SNACK",
+          "label": "吃零食",
+          "icon": "🍪",
+          "price": 8,
+          "effectText": "道心 +3",
+          "used": 0,
+          "remaining": 3,
+          "affordable": true,
+          "available": true,
+          "reason": null
+        },
+        {
+          "kind": "DINNER",
+          "label": "下班聚餐",
+          "icon": "🍲",
+          "price": 68,
+          "effectText": "疲劳 -40，道心 +15",
+          "used": 0,
+          "remaining": 1,
+          "affordable": false,
+          "available": false,
+          "reason": "余额不足（还差 ¥5）"
+        }
+      ],
+      "durationMs": 8
+    },
+    {
+      "index": 76,
+      "action": "assert",
+      "description": "The authoritative coffee price is ¥18",
+      "status": "passed",
+      "detail": "@vars.lifeRules[0].price: 18",
+      "durationMs": 8
+    },
+    {
+      "index": 77,
+      "action": "clickIfPresent",
+      "description": "Resolve a late critical-message interrupt by choosing its real conversation, then verify the popup is gone",
+      "status": "passed",
+      "detail": "optional popup control is absent: [data-critical-conv]",
+      "durationMs": 6
+    },
+    {
+      "index": 78,
+      "action": "click",
+      "description": "Return to home after any critical-message choice before the coffee interaction",
+      "status": "passed",
+      "detail": "click [data-nav=\"HOME\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 0,
+          "y": 623,
+          "width": 211.1640625,
+          "height": 62
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 0,
+          "y": 623,
+          "width": 211.1640625,
+          "height": 62
+        },
+        "clickPoint": {
+          "x": 105.58203125,
+          "y": 654
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-nav-item ux-nav-item--active"
+        },
+        "text": "🏠\n首页"
+      },
+      "durationMs": 19
+    },
+    {
+      "index": 79,
+      "action": "assertVisible",
+      "description": "Confirm the home page is restored before scrolling to coffee",
+      "status": "passed",
+      "detail": ".ux-home-col.ux-home-right: found=true, visible=true, disabled=false, covered=false",
+      "durationMs": 10
+    },
+    {
+      "index": 80,
+      "action": "scroll",
+      "description": "Scroll the home column before checking for a newly appearing interruption",
+      "status": "passed",
+      "detail": "scrolled .ux-home-col.ux-home-right (0,0) → (650,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 62
+    },
+    {
+      "index": 81,
+      "action": "clickIfPresent",
+      "description": "Resolve a critical-message interruption that appeared while scrolling, then verify its real conversation choice closed the modal",
+      "status": "passed",
+      "detail": "optional popup control is absent: [data-critical-conv]",
+      "durationMs": 4
+    },
+    {
+      "index": 82,
+      "action": "click",
+      "description": "Restore the home page after any critical-message conversation selection during scrolling",
+      "status": "passed",
+      "detail": "click [data-nav=\"HOME\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 0,
+          "y": 623,
+          "width": 211.1640625,
+          "height": 62
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 0,
+          "y": 623,
+          "width": 211.1640625,
+          "height": 62
+        },
+        "clickPoint": {
+          "x": 105.58203125,
+          "y": 654
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-nav-item ux-nav-item--active"
+        },
+        "text": "🏠\n首页"
+      },
+      "durationMs": 26
+    },
+    {
+      "index": 83,
+      "action": "scroll",
+      "description": "Re-scroll after modal recovery redraws home and resets its scroll position",
+      "status": "passed",
+      "detail": "requested target is already visible and uncovered; skipped scroll: [data-action=\"lifeConsume\"][data-kind=\"COFFEE\"]",
+      "durationMs": 16
+    },
+    {
+      "index": 84,
+      "action": "assertVisible",
+      "description": "Verify the home column is visible immediately before the coffee transaction",
+      "status": "passed",
+      "detail": ".ux-home-col.ux-home-right: found=true, visible=true, disabled=false, covered=false",
+      "durationMs": 6
+    },
+    {
+      "index": 85,
+      "action": "assertClickable",
+      "description": "Confirm the coffee purchase control is visible, in bounds and uncovered",
+      "status": "passed",
+      "detail": "[data-action=\"lifeConsume\"][data-kind=\"COFFEE\"]: found=true, visible=true, disabled=false, covered=false",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 988,
+          "y": 255,
+          "width": 106.1015625,
+          "height": 38
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 988,
+          "y": 255,
+          "width": 106.1015625,
+          "height": 38
+        },
+        "clickPoint": {
+          "x": 1041.05078125,
+          "y": 274
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-btn ux-btn--gold ux-btn--sm"
+        },
+        "text": "消费 ¥18"
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 86,
+      "action": "click",
+      "description": "Buy coffee with a real CDP click on the home UI",
+      "status": "passed",
+      "detail": "click [data-action=\"lifeConsume\"][data-kind=\"COFFEE\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 988,
+          "y": 255,
+          "width": 106.1015625,
+          "height": 38
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 988,
+          "y": 255,
+          "width": 106.1015625,
+          "height": 38
+        },
+        "clickPoint": {
+          "x": 1041.05078125,
+          "y": 274
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-btn ux-btn--gold ux-btn--sm"
+        },
+        "text": "消费 ¥18"
+      },
+      "durationMs": 51
+    },
+    {
+      "index": 87,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → afterCoffee",
+      "value": {
+        "salary": 45,
+        "cultivationExp": 33,
+        "careerLevel": 1,
+        "mind": 100,
+        "maxMind": 100,
+        "performance": 5,
+        "workMode": "WORK",
+        "workSeconds": 1801,
+        "fishingSeconds": 0,
+        "officeLevel": 1,
+        "sectId": null,
+        "talentId": null,
+        "maxWorkerLevel": 0,
+        "promotionFailCount": 0,
+        "unlockedAchievementIds": [
+          "REACH_LIANQI",
+          "MIND_FULL"
+        ],
+        "claimedAchievementIds": [],
+        "dailySignIn": null,
+        "dailyTasks": [
+          {
+            "taskId": "cultivate-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "work-10-min",
+            "progress": 600,
+            "completed": true,
+            "claimed": false
+          },
+          {
+            "taskId": "fish-3-min",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "event-3",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "kpi-complete",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          },
+          {
+            "taskId": "promotion-1",
+            "progress": 0,
+            "completed": false,
+            "claimed": false
+          }
+        ],
+        "dailyTaskDay": 20740,
+        "tutorialStep": "NONE",
+        "tutorialCompleted": true,
+        "lastSaveTime": 1791998752238,
+        "workerCount": 0,
+        "mindStatus": "NORMAL",
+        "spiritStones": 0,
+        "lastCultivateTime": 0,
+        "activeTasks": [],
+        "salaryEfficiency": 1.3,
+        "performanceEfficiency": 1.2,
+        "mindRecoveryEfficiency": 0.5,
+        "cultivationEfficiency": 1,
+        "isWorkIncomeStopped": false,
+        "isFishingMode": false
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 88,
+      "action": "assert",
+      "description": "Coffee debits exactly ¥18 from the canonical wallet",
+      "status": "passed",
+      "detail": "@vars.afterCoffee.salary changed by -18; expected -18",
+      "durationMs": 21
+    },
+    {
+      "index": 89,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryHomeLifeOptions() → lifeRulesAfterCoffee",
+      "value": [
+        {
+          "kind": "COFFEE",
+          "label": "喝咖啡",
+          "icon": "☕",
+          "price": 18,
+          "effectText": "疲劳 -12，道心 +6",
+          "used": 1,
+          "remaining": 2,
+          "affordable": true,
+          "available": true,
+          "reason": null
+        },
+        {
+          "kind": "MILK_TEA",
+          "label": "喝奶茶",
+          "icon": "🧋",
+          "price": 16,
+          "effectText": "道心 +8",
+          "used": 0,
+          "remaining": 2,
+          "affordable": true,
+          "available": true,
+          "reason": null
+        },
+        {
+          "kind": "LUNCH",
+          "label": "吃午餐",
+          "icon": "🍜",
+          "price": 25,
+          "effectText": "疲劳 -8，道心 +5",
+          "used": 0,
+          "remaining": 1,
+          "affordable": true,
+          "available": true,
+          "reason": null
+        },
+        {
+          "kind": "SNACK",
+          "label": "吃零食",
+          "icon": "🍪",
+          "price": 8,
+          "effectText": "道心 +3",
+          "used": 0,
+          "remaining": 3,
+          "affordable": true,
+          "available": true,
+          "reason": null
+        },
+        {
+          "kind": "DINNER",
+          "label": "下班聚餐",
+          "icon": "🍲",
+          "price": 68,
+          "effectText": "疲劳 -40，道心 +15",
+          "used": 0,
+          "remaining": 1,
+          "affordable": false,
+          "available": false,
+          "reason": "余额不足（还差 ¥23）"
+        }
+      ],
+      "durationMs": 49
+    },
+    {
+      "index": 90,
+      "action": "assert",
+      "description": "Milk tea price is verified from the same service definition",
+      "status": "passed",
+      "detail": "@vars.lifeRulesAfterCoffee[1].price: 16",
+      "durationMs": 5
+    },
+    {
+      "index": 91,
+      "action": "assert",
+      "description": "Lunch price is verified from the same service definition",
+      "status": "passed",
+      "detail": "@vars.lifeRulesAfterCoffee[2].price: 25",
+      "durationMs": 4
+    },
+    {
+      "index": 92,
+      "action": "assert",
+      "description": "Snack daily limit is verified from the same service definition",
+      "status": "passed",
+      "detail": "@vars.lifeRulesAfterCoffee[3].remaining: 3",
+      "durationMs": 3
+    },
+    {
+      "index": 93,
+      "action": "assert",
+      "description": "Dinner price is verified from the same service definition",
+      "status": "passed",
+      "detail": "@vars.lifeRulesAfterCoffee[4].price: 68",
+      "durationMs": 4
+    },
+    {
+      "index": 94,
+      "action": "screenshot",
+      "description": "Capture the actual game after task completion, work and coffee",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/011-task-wage-coffee.png",
+      "detail": "011-task-wage-coffee.png",
+      "durationMs": 758
+    }
+  ],
+  "defects": [],
+  "authoritativeState": "scenarios/economy/evidence/authoritative-state.json",
+  "consoleExceptions": [],
+  "experienceMetrics": {
+    "firstPlayableHomeStep": null,
+    "firstTaskInteractionStep": 51,
+    "firstPositiveWalletStep": null,
+    "successfulInputOperations": 17,
+    "blockedSteps": 0,
+    "thresholdsApplied": false
+  },
+  "execution": {
+    "electronWindow": "visible",
+    "input": "CDP synthetic input",
+    "screenshotSource": "CDP renderer surface",
+    "platform": "win32",
+    "validationModes": {
+      "UI_REAL_EXE": "NOT_VERIFIED",
+      "ELECTRON_E2E": "PASS",
+      "SERVICE_SIM": "NOT_RUN",
+      "NOT_VERIFIED": [
+        "physical Windows pointer/keyboard verification",
+        "outer window-size matrix"
+      ]
+    }
+  },
+  "finishedAt": "2026-10-14T17:25:54.027Z",
+  "durationMs": 20641
+}

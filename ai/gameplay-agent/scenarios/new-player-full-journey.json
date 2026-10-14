@@ -1,0 +1,25 @@
+{
+  "id": "new-player-full-journey",
+  "title": "Complete seven-step character creation and verify first playable home",
+  "setup": "new-player",
+  "setupFailureClass": "SETUP_BLOCKED",
+  "experienceMetrics": {
+    "firstHomeStep": "first visible home assertion",
+    "firstTaskStep": "first assigned task assertion",
+    "firstIncomeStep": "first positive wallet snapshot",
+    "thresholds": "observe only; no unapproved usability threshold"
+  },
+  "steps": [
+    { "action": "getGameState", "as": "fullJourneyState", "asType": "object", "description": "Record the authoritative state after real seven-step creation and onboarding" },
+    { "action": "assertState", "check": "exists", "path": "@vars.fullJourneyState", "description": "Runner retains the authoritative snapshot independently from Chromium" },
+    { "action": "assertVisible", "selector": ".ux59f-work", "description": "The playable home presents today's work and profession" },
+    { "action": "clickIfPresent", "selector": "#SettleOk", "timeoutMs": 4000, "description": "If real daily settlement opened during onboarding, close it through its 明天见 button" },
+    { "action": "scroll", "selector": ".ux-home-col.ux-home-right", "deltaY": 650, "description": "Scroll the independently scrollable home column to reach life interactions below the fold" },
+    { "action": "assertVisible", "selector": ".ux59f-life-card", "description": "Home exposes the real life interaction panel" },
+    { "action": "assertVisible", "selector": "[data-action=\"lifeConsume\"][data-kind=\"COFFEE\"]", "description": "The coffee option is shown even while the fresh player cannot yet afford it" },
+    { "action": "call", "method": "queryHomeLifeOptions", "as": "initialLifeOptions", "asType": "array" },
+    { "action": "assert", "check": "equals", "path": "@vars.initialLifeOptions[0].available", "expected": false, "description": "A zero-balance new player is told truthfully that coffee is unaffordable" },
+    { "action": "assertClickable", "selector": "[data-nav=\"TASKS\"]", "description": "The task page is reachable from the home navigation" },
+    { "action": "screenshot", "name": "new-player-full-home", "description": "Save the visible first-playable-home evidence" }
+  ]
+}

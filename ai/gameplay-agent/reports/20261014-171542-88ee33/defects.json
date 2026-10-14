@@ -1,0 +1,22 @@
+{
+  "runId": "20261014-171542-88ee33",
+  "status": "FAILED",
+  "defects": [
+    {
+      "id": "economy-step-83",
+      "severity": "HIGH",
+      "category": "AUTOMATION_DEFECT",
+      "title": "AUTOMATION: wheel input did not change scroll position for .ux-home-col.ux-home-right",
+      "reproduction": [
+        "Run npm run gameplay-agent:rerun-failed",
+        "Scenario: economy",
+        "Step 83: Re-scroll after modal recovery redraws home and resets its scroll position"
+      ],
+      "evidence": "scenarios/economy/evidence/screenshots/011-failure-step-83.png",
+      "screenshot": "launch-window.png",
+      "repairAttempts": 0,
+      "maxRepairAttempts": 3,
+      "diagnostics": "scenarios/economy/evidence/interaction-step-83.json"
+    }
+  ]
+}
