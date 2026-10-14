@@ -1,0 +1,8 @@
+{
+  "id": "profession-loop",
+  "title": "Every unlocked profession from the live profession catalog participates in character setup",
+  "steps": [
+    { "action": "professionMatrix", "description": "Read unlocked profession ids from the maintained game content and verify the real creation service can select every one" },
+    { "action": "screenshot", "name": "profession-loop", "description": "Capture the real creation window after the selectable profession loop" }
+  ]
+}

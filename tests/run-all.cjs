@@ -18,3 +18,5 @@ for (const test of tests) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 console.log(`Executed ${tests.length} test files`);
+const gameplayAgentTests = spawnSync(process.execPath, ['--test', path.join(__dirname, 'gameplay-agent')], { stdio: 'inherit' });
+if (gameplayAgentTests.status !== 0) process.exit(gameplayAgentTests.status ?? 1);

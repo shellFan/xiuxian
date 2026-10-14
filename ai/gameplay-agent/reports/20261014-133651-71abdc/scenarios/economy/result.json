@@ -1,0 +1,1093 @@
+{
+  "id": "economy",
+  "title": "Assigned task completion, salary accrual and exact coffee debit",
+  "status": "passed",
+  "startedAt": "2026-10-14T13:37:11.691Z",
+  "steps": [
+    {
+      "index": 1,
+      "action": "call",
+      "description": "Read authoritative initial character creation state",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → creation",
+      "durationMs": 79
+    },
+    {
+      "index": 2,
+      "action": "assert",
+      "description": "A new isolated test profile starts at character creation",
+      "status": "passed",
+      "detail": "@vars.creation.status: \"CREATION_REQUIRED\"",
+      "durationMs": 0
+    },
+    {
+      "index": 3,
+      "action": "screenshot",
+      "description": "Capture the first creation step",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/001-creation-industry.png",
+      "detail": "001-creation-industry.png",
+      "durationMs": 1103
+    },
+    {
+      "index": 4,
+      "action": "click",
+      "description": "Choose internet industry",
+      "status": "passed",
+      "detail": "input click [data-creation-choice=\"industry:INTERNET\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "互联网\n代码、产品、流量与线上事故交织的修仙世界。",
+        "dismissedInterruptions": [
+          "acknowledge"
+        ],
+        "dismissalAttempts": [
+          {
+            "attempt": 1,
+            "control": {
+              "kind": "acknowledge",
+              "text": "知道了",
+              "disabled": false,
+              "bounds": {
+                "x": 583.5,
+                "y": 493.3984375,
+                "width": 100,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": null,
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              }
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": false,
+            "targetUncovered": false
+          },
+          {
+            "attempt": 2,
+            "control": {
+              "kind": "acknowledge",
+              "text": "继续",
+              "disabled": false,
+              "bounds": {
+                "x": 593.5,
+                "y": 424.6484375,
+                "width": 80,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": "V2EventOk",
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              }
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": true,
+            "targetUncovered": true
+          }
+        ]
+      },
+      "durationMs": 1166
+    },
+    {
+      "index": 5,
+      "action": "wait",
+      "description": "Allow the industry selection and any dismissed event transition to settle",
+      "status": "passed",
+      "detail": "300ms",
+      "durationMs": 304
+    },
+    {
+      "index": 6,
+      "action": "click",
+      "description": "Use the visible next-step button",
+      "status": "passed",
+      "detail": "input click [data-creation-action=\"advance\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 36
+    },
+    {
+      "index": 7,
+      "action": "call",
+      "description": "Confirm the second creation step",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → directionStep",
+      "durationMs": 10
+    },
+    {
+      "index": 8,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.directionStep.draft.step: \"DIRECTION\"",
+      "durationMs": 1
+    },
+    {
+      "index": 9,
+      "action": "screenshot",
+      "description": "creation-direction",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/002-creation-direction.png",
+      "detail": "002-creation-direction.png",
+      "durationMs": 654
+    },
+    {
+      "index": 10,
+      "action": "click",
+      "description": "Choose the available technical direction",
+      "status": "passed",
+      "detail": "input click [data-creation-choice=\"direction:TECH_RND\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "技术研发\n以代码、测试、系统运维踏上修行路。"
+      },
+      "durationMs": 22
+    },
+    {
+      "index": 11,
+      "action": "click",
+      "description": "Advance to profession",
+      "status": "passed",
+      "detail": "input click [data-creation-action=\"advance\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 31
+    },
+    {
+      "index": 12,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → professionStep",
+      "durationMs": 12
+    },
+    {
+      "index": 13,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.professionStep.draft.step: \"PROFESSION\"",
+      "durationMs": 0
+    },
+    {
+      "index": 14,
+      "action": "screenshot",
+      "description": "creation-profession",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/003-creation-profession.png",
+      "detail": "003-creation-profession.png",
+      "durationMs": 626
+    },
+    {
+      "index": 15,
+      "action": "click",
+      "description": "Choose Java backend profession",
+      "status": "passed",
+      "detail": "input click [data-creation-choice=\"profession:JAVA_BACKEND\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 283.59375,
+          "width": 347.015625,
+          "height": 98.671875
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 283.59375,
+          "width": 347.015625,
+          "height": 98.671875
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 332.9296875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "Java后端\n代码剑修 · 稳定、技术流、擅长事故。后期强大，前期耐熬。"
+      },
+      "durationMs": 32
+    },
+    {
+      "index": 16,
+      "action": "click",
+      "description": "Advance to identity",
+      "status": "passed",
+      "detail": "input click [data-creation-action=\"advance\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 34
+    },
+    {
+      "index": 17,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → identityStep",
+      "durationMs": 12
+    },
+    {
+      "index": 18,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.identityStep.draft.step: \"IDENTITY\"",
+      "durationMs": 0
+    },
+    {
+      "index": 19,
+      "action": "screenshot",
+      "description": "creation-identity",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/004-creation-identity.png",
+      "detail": "004-creation-identity.png",
+      "durationMs": 667
+    },
+    {
+      "index": 20,
+      "action": "type",
+      "description": "Enter a test nickname with real keyboard input",
+      "status": "passed",
+      "detail": "typed 4 characters",
+      "durationMs": 23
+    },
+    {
+      "index": 21,
+      "action": "scroll",
+      "description": "Scroll past the avatar controls to reveal the background choices",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (350,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 60
+    },
+    {
+      "index": 22,
+      "action": "click",
+      "description": "Choose a valid starting background",
+      "status": "passed",
+      "detail": "input click [data-creation-choice=\"background:ORDINARY_WORKER\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 238.9891815185547,
+          "width": 347.015625,
+          "height": 90.00001525878906
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 238.9891815185547,
+          "width": 347.015625,
+          "height": 90.00001525878906
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 283.9891891479492
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "普通打工人\n从平凡工位起步，根骨 +1。"
+      },
+      "durationMs": 25
+    },
+    {
+      "index": 23,
+      "action": "screenshot",
+      "description": "Verify the background choice through its selected UI state",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/005-creation-identity-backgrounds.png",
+      "detail": "005-creation-identity-backgrounds.png",
+      "durationMs": 969
+    },
+    {
+      "index": 24,
+      "action": "scroll",
+      "description": "Scroll to the identity save control after the form rerendered",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (220,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 50
+    },
+    {
+      "index": 25,
+      "action": "click",
+      "description": "Save identity through the creation UI",
+      "status": "passed",
+      "detail": "input click [data-creation-action=\"save-identity\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 243.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 243.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 495.28125,
+          "y": 265.09375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "保存昵称与形象"
+      },
+      "durationMs": 31
+    },
+    {
+      "index": 26,
+      "action": "click",
+      "description": "Advance to destiny",
+      "status": "passed",
+      "detail": "input click [data-creation-action=\"advance\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 44
+    },
+    {
+      "index": 27,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → destinyStep",
+      "durationMs": 4
+    },
+    {
+      "index": 28,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.destinyStep.draft.step: \"DESTINY\"",
+      "durationMs": 1
+    },
+    {
+      "index": 29,
+      "action": "screenshot",
+      "description": "creation-destiny",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/006-creation-destiny.png",
+      "detail": "006-creation-destiny.png",
+      "durationMs": 625
+    },
+    {
+      "index": 30,
+      "action": "scroll",
+      "description": "Scroll the tall destiny candidate cards into the visible area",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (120,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 72
+    },
+    {
+      "index": 31,
+      "action": "click",
+      "description": "Choose a destiny candidate",
+      "status": "passed",
+      "detail": "input click [data-creation-choice=\"candidate:A\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 164.59375,
+          "width": 227.34375,
+          "height": 235.5078125
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 201,
+          "width": 227.34375,
+          "height": 189
+        },
+        "clickPoint": {
+          "x": 541.296875,
+          "y": 295.5
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SMALL",
+          "id": null,
+          "className": ""
+        },
+        "text": "均衡型\n社交天命者\n悟性\n11\n根骨\n10\n神识\n10\n机缘\n9\n心性\n10\n优点：NPC 协助提高 15%，正向关系成长提高 25%。\n代价：独处型任务进度降低 10%。\n职业契合：适合依赖 NPC 协作与关系成长的路线。"
+      },
+      "durationMs": 15
+    },
+    {
+      "index": 32,
+      "action": "wait",
+      "description": "Allow the selected destiny to settle before advancing",
+      "status": "passed",
+      "detail": "300ms",
+      "durationMs": 301
+    },
+    {
+      "index": 33,
+      "action": "click",
+      "description": "Advance to attribute allocation",
+      "status": "passed",
+      "detail": "input click [data-creation-action=\"advance\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 25
+    },
+    {
+      "index": 34,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → allocationStep",
+      "durationMs": 8
+    },
+    {
+      "index": 35,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.allocationStep.draft.step: \"ALLOCATION\"",
+      "durationMs": 0
+    },
+    {
+      "index": 36,
+      "action": "screenshot",
+      "description": "creation-allocation",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/007-creation-allocation.png",
+      "detail": "007-creation-allocation.png",
+      "durationMs": 638
+    },
+    {
+      "index": 37,
+      "action": "click",
+      "description": "Keep the valid default allocation and advance",
+      "status": "passed",
+      "detail": "input click [data-creation-action=\"advance\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 24
+    },
+    {
+      "index": 38,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → confirmStep",
+      "durationMs": 14
+    },
+    {
+      "index": 39,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.confirmStep.draft.step: \"CONFIRM\"",
+      "durationMs": 0
+    },
+    {
+      "index": 40,
+      "action": "screenshot",
+      "description": "creation-confirm",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/008-creation-confirm.png",
+      "detail": "008-creation-confirm.png",
+      "durationMs": 654
+    },
+    {
+      "index": 41,
+      "action": "click",
+      "description": "Finalize the character through the UI",
+      "status": "passed",
+      "detail": "input click [data-creation-action=\"finalize\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1055.3359375,
+          "y": 427,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1055.3359375,
+          "y": 427,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1102.99609375,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "确认入职"
+      },
+      "durationMs": 58
+    },
+    {
+      "index": 42,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → completeCreation",
+      "durationMs": 10
+    },
+    {
+      "index": 43,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.completeCreation.status: \"COMPLETE\"",
+      "durationMs": 0
+    },
+    {
+      "index": 44,
+      "action": "screenshot",
+      "description": "creation-onboarding",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/009-creation-onboarding.png",
+      "detail": "009-creation-onboarding.png",
+      "durationMs": 634
+    },
+    {
+      "index": 45,
+      "action": "click",
+      "description": "Enter the game using the real onboarding control",
+      "status": "passed",
+      "detail": "input click [data-creation-action=\"onboarding-skip\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 545.5078125,
+          "y": 513.046875,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 545.5078125,
+          "y": 513.046875,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 593.16796875,
+          "y": 535.046875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "跳过剧情"
+      },
+      "durationMs": 227
+    },
+    {
+      "index": 46,
+      "action": "wait",
+      "description": "",
+      "status": "passed",
+      "detail": "500ms",
+      "durationMs": 507
+    },
+    {
+      "index": 47,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryAssignedTasks() → firstTask",
+      "durationMs": 3
+    },
+    {
+      "index": 48,
+      "action": "assert",
+      "description": "Onboarding creates its first real assigned task",
+      "status": "passed",
+      "detail": "@vars.firstTask.openCount: 1 >= 1",
+      "durationMs": 0
+    },
+    {
+      "index": 49,
+      "action": "screenshot",
+      "description": "home",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/010-home.png",
+      "detail": "010-home.png",
+      "durationMs": 741
+    },
+    {
+      "index": 50,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → beforeTask",
+      "durationMs": 3
+    },
+    {
+      "index": 51,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryAssignedTasks() → assigned",
+      "durationMs": 1
+    },
+    {
+      "index": 52,
+      "action": "assert",
+      "description": "The home page has an open assigned task",
+      "status": "passed",
+      "detail": "@vars.assigned.openCount: 1 >= 1",
+      "durationMs": 0
+    },
+    {
+      "index": 53,
+      "action": "call",
+      "description": "Complete the assigned task through the canonical task service",
+      "status": "passed",
+      "detail": "completeAssignedTask() → taskCompletion",
+      "durationMs": 7
+    },
+    {
+      "index": 54,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → afterTask",
+      "durationMs": 4
+    },
+    {
+      "index": 55,
+      "action": "assert",
+      "description": "Task completion credits the existing salary wallet",
+      "status": "passed",
+      "detail": "@vars.afterTask.salary: 60 > 0",
+      "durationMs": 0
+    },
+    {
+      "index": 56,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryHomeGoals() → goalsAfterTask",
+      "durationMs": 3
+    },
+    {
+      "index": 57,
+      "action": "assert",
+      "description": "Task completion advances a daily home goal",
+      "status": "passed",
+      "detail": "@vars.goalsAfterTask[0].progress: 1 >= 1",
+      "durationMs": 0
+    },
+    {
+      "index": 58,
+      "action": "call",
+      "description": "Align the canonical game clock to the start of its work window",
+      "status": "passed",
+      "detail": "devJumpToHour()",
+      "durationMs": 2
+    },
+    {
+      "index": 59,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "changeWorkMode() → working",
+      "durationMs": 4
+    },
+    {
+      "index": 60,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → beforeWork",
+      "durationMs": 1
+    },
+    {
+      "index": 61,
+      "action": "call",
+      "description": "Advance ten minutes through the existing loop while staying inside the work window",
+      "status": "passed",
+      "detail": "tick()",
+      "durationMs": 63
+    },
+    {
+      "index": 62,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → afterWork",
+      "durationMs": 93
+    },
+    {
+      "index": 63,
+      "action": "assert",
+      "description": "Work time increases the canonical wage balance",
+      "status": "passed",
+      "detail": "@vars.afterWork.salary: 61 > 60",
+      "durationMs": 0
+    },
+    {
+      "index": 64,
+      "action": "assert",
+      "description": "The authoritative work-time counter advances",
+      "status": "passed",
+      "detail": "@vars.afterWork.workSeconds: 600 > 0",
+      "durationMs": 0
+    },
+    {
+      "index": 65,
+      "action": "call",
+      "description": "Purchase coffee through the existing wallet and life service",
+      "status": "passed",
+      "detail": "consumeHomeLife() → coffee",
+      "durationMs": 55
+    },
+    {
+      "index": 66,
+      "action": "assert",
+      "description": "Coffee purchase succeeds after task and work income",
+      "status": "passed",
+      "detail": "@vars.coffee.ok: true",
+      "durationMs": 0
+    },
+    {
+      "index": 67,
+      "action": "assert",
+      "description": "Coffee costs exactly ¥18",
+      "status": "passed",
+      "detail": "@vars.coffee.cost: 18",
+      "durationMs": 0
+    },
+    {
+      "index": 68,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "snapshot() → afterCoffee",
+      "durationMs": 6
+    },
+    {
+      "index": 69,
+      "action": "assert",
+      "description": "Coffee debits exactly ¥18 from the canonical wallet",
+      "status": "passed",
+      "detail": "@vars.afterCoffee.salary changed by -18; expected -18",
+      "durationMs": 0
+    },
+    {
+      "index": 70,
+      "action": "screenshot",
+      "description": "Capture the actual game after task completion, work and coffee",
+      "status": "passed",
+      "evidence": "scenarios/economy/evidence/screenshots/011-task-wage-coffee.png",
+      "detail": "011-task-wage-coffee.png",
+      "durationMs": 835
+    }
+  ],
+  "defects": [],
+  "authoritativeState": "scenarios/economy/evidence/authoritative-state.json",
+  "consoleExceptions": [],
+  "execution": {
+    "electronWindow": "visible",
+    "input": "CDP synthetic input",
+    "screenshotSource": "CDP renderer surface",
+    "platform": "win32"
+  },
+  "finishedAt": "2026-10-14T13:37:29.024Z",
+  "durationMs": 17333
+}

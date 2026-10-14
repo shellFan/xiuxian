@@ -1,0 +1,228 @@
+{
+  "id": "smoke",
+  "title": "Default window, creation next button and first playable home screen",
+  "status": "passed",
+  "startedAt": "2026-10-14T13:37:35.814Z",
+  "steps": [
+    {
+      "index": 1,
+      "action": "screenshot",
+      "description": "Capture the real EXE on its default creation screen",
+      "status": "passed",
+      "evidence": "scenarios/smoke/evidence/screenshots/001-cold-start.png",
+      "detail": "001-cold-start.png",
+      "durationMs": 1092
+    },
+    {
+      "index": 2,
+      "action": "assert",
+      "description": "The default desktop window meets its minimum usable size",
+      "status": "passed",
+      "detail": "window content 1267×685; minimum 1150×680",
+      "durationMs": 6
+    },
+    {
+      "index": 3,
+      "action": "assert",
+      "description": "The first-step choice is visible and enabled",
+      "status": "passed",
+      "detail": "[data-creation-choice=\"industry:INTERNET\"]: visible=true, disabled=false, inBounds=true",
+      "durationMs": 2
+    },
+    {
+      "index": 4,
+      "action": "assert",
+      "description": "The first-step choice fits the game window",
+      "status": "passed",
+      "detail": "[data-creation-choice=\"industry:INTERNET\"]: {\"x\":427.625,\"y\":284.59375,\"width\":347.015625,\"height\":90} within {\"width\":1267,\"height\":685}",
+      "durationMs": 2
+    },
+    {
+      "index": 5,
+      "action": "assert",
+      "description": "The default next-step control is present and clickable",
+      "status": "passed",
+      "detail": "[data-creation-action=\"advance\"]: visible=true, disabled=false, inBounds=true",
+      "durationMs": 2
+    },
+    {
+      "index": 6,
+      "action": "click",
+      "description": "Select the first required creation field",
+      "status": "passed",
+      "detail": "input click [data-creation-choice=\"industry:INTERNET\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "互联网\n代码、产品、流量与线上事故交织的修仙世界。",
+        "dismissedInterruptions": [
+          "acknowledge"
+        ],
+        "dismissalAttempts": [
+          {
+            "attempt": 1,
+            "control": {
+              "kind": "acknowledge",
+              "text": "知道了",
+              "disabled": false,
+              "bounds": {
+                "x": 583.5,
+                "y": 493.3984375,
+                "width": 100,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": null,
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              }
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": false,
+            "targetUncovered": false
+          },
+          {
+            "attempt": 2,
+            "control": {
+              "kind": "acknowledge",
+              "text": "继续",
+              "disabled": false,
+              "bounds": {
+                "x": 593.5,
+                "y": 424.6484375,
+                "width": 80,
+                "height": 44
+              },
+              "covered": false,
+              "hit": {
+                "tag": "BUTTON",
+                "id": "V2EventOk",
+                "className": "ux-btn ux-btn--gold ux-btn--md"
+              }
+            },
+            "actions": [
+              "CDP pointer click"
+            ],
+            "popupClosed": true,
+            "targetUncovered": true
+          }
+        ]
+      },
+      "durationMs": 1175
+    },
+    {
+      "index": 7,
+      "action": "assert",
+      "description": "The next-step control is not covered after any real event popup is dismissed",
+      "status": "passed",
+      "detail": "[data-creation-action=\"advance\"]: covered=false, hit=BUTTON.v59-btn.v59-btn--primary ({\"tag\":\"BUTTON\",\"id\":null,\"className\":\"v59-btn v59-btn--primary\"})",
+      "durationMs": 4
+    },
+    {
+      "index": 8,
+      "action": "click",
+      "description": "Click the real next-step control",
+      "status": "passed",
+      "detail": "input click [data-creation-action=\"advance\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 32
+    },
+    {
+      "index": 9,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → nextStep",
+      "durationMs": 16
+    },
+    {
+      "index": 10,
+      "action": "assert",
+      "description": "The next-step button advances the seven-step wizard",
+      "status": "passed",
+      "detail": "@vars.nextStep.draft.step: \"DIRECTION\"",
+      "durationMs": 1
+    },
+    {
+      "index": 11,
+      "action": "screenshot",
+      "description": "next-step-works",
+      "status": "passed",
+      "evidence": "scenarios/smoke/evidence/screenshots/002-next-step-works.png",
+      "detail": "002-next-step-works.png",
+      "durationMs": 690
+    }
+  ],
+  "defects": [],
+  "authoritativeState": "scenarios/smoke/evidence/authoritative-state.json",
+  "consoleExceptions": [],
+  "execution": {
+    "electronWindow": "visible",
+    "input": "CDP synthetic input",
+    "screenshotSource": "CDP renderer surface",
+    "platform": "win32"
+  },
+  "finishedAt": "2026-10-14T13:37:44.524Z",
+  "durationMs": 8710
+}

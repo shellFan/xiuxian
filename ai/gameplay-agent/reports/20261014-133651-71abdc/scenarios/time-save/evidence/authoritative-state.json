@@ -1,0 +1,58 @@
+{
+  "clock": {
+    "hour": 21,
+    "minute": 38,
+    "weekday": 3,
+    "isWeekend": false
+  },
+  "mode": "FISHING",
+  "salaryBalance": 0,
+  "todayEarned": 0,
+  "incomeRate": {
+    "perSecond": 0.0016666666666666668,
+    "perMinute": 0.1,
+    "perHour": 6
+  },
+  "todo": {
+    "pendingCount": 4,
+    "items": [
+      {
+        "id": "msg_ms_boss_010_root_1792318500004_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_fw57_w1su_settle_root_1792318500004_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_ops_001_root_1792318500005_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_1755_001_root_1791985107735_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      }
+    ]
+  },
+  "messages": {
+    "unreadCount": 4,
+    "pendingReplyCount": 4,
+    "latest": ""
+  },
+  "activity": [],
+  "life": [],
+  "task": [],
+  "project": null,
+  "goal": {
+    "title": "接下今天的第一个任务",
+    "detail": "任务页挑选差事——完成领工资、修为与绩效，工时正等着你"
+  }
+}

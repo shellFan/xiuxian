@@ -1,0 +1,58 @@
+{
+  "clock": {
+    "hour": 21,
+    "minute": 40,
+    "weekday": 3,
+    "isWeekend": false
+  },
+  "mode": "FISHING",
+  "salaryBalance": 0,
+  "todayEarned": 0,
+  "incomeRate": {
+    "perSecond": 0.0016666666666666668,
+    "perMinute": 0.1,
+    "perHour": 6
+  },
+  "todo": {
+    "pendingCount": 4,
+    "items": [
+      {
+        "id": "at_mv85m9e1_63y",
+        "title": "第一张工单：排查接口异常",
+        "source": "SYSTEM",
+        "priority": "P2"
+      },
+      {
+        "id": "msg_fw57_w1w_req_root_1791985178869_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_jun_001_root_1791985194832_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_fw57_w1w_evidence_root_1791985194832_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      }
+    ]
+  },
+  "messages": {
+    "unreadCount": 3,
+    "pendingReplyCount": 3,
+    "latest": ""
+  },
+  "activity": [],
+  "life": [],
+  "task": [],
+  "project": null,
+  "goal": {
+    "title": "接下今天的第一个任务",
+    "detail": "任务页挑选差事——完成领工资、修为与绩效，工时正等着你"
+  }
+}

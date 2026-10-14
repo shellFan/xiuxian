@@ -1,0 +1,13 @@
+{
+  "id": "character-creation",
+  "title": "Seven-step character creation and first playable home state",
+  "setup": "new-player",
+  "setupFailureClass": "GAME_DEFECT",
+  "steps": [
+    { "action": "call", "method": "queryCharacterCreation", "as": "completedCreation", "asType": "object" },
+    { "action": "assert", "check": "equals", "path": "@vars.completedCreation.status", "expected": "COMPLETE", "description": "The seven-step creator finalized the character" },
+    { "action": "call", "method": "queryHomeSnapshot", "as": "playableHome", "asType": "object" },
+    { "action": "assert", "check": "exists", "path": "@vars.playableHome.work.professionId", "description": "The main page has a playable profession-backed state" },
+    { "action": "screenshot", "name": "playable-home", "description": "Capture the first playable home after all seven creation steps" }
+  ]
+}

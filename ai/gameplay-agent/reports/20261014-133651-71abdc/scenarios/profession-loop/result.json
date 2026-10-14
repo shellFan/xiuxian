@@ -1,0 +1,36 @@
+{
+  "id": "profession-loop",
+  "title": "Every unlocked profession from the live profession catalog participates in character setup",
+  "status": "passed",
+  "startedAt": "2026-10-14T13:37:29.025Z",
+  "steps": [
+    {
+      "index": 1,
+      "action": "professionMatrix",
+      "description": "Read unlocked profession ids from the maintained game content and verify the real creation service can select every one",
+      "status": "passed",
+      "detail": "profession loop visited JAVA_BACKEND, FRONTEND, QA, DEVOPS",
+      "durationMs": 154
+    },
+    {
+      "index": 2,
+      "action": "screenshot",
+      "description": "Capture the real creation window after the selectable profession loop",
+      "status": "passed",
+      "evidence": "scenarios/profession-loop/evidence/screenshots/001-profession-loop.png",
+      "detail": "001-profession-loop.png",
+      "durationMs": 1086
+    }
+  ],
+  "defects": [],
+  "authoritativeState": "scenarios/profession-loop/evidence/authoritative-state.json",
+  "consoleExceptions": [],
+  "execution": {
+    "electronWindow": "visible",
+    "input": "CDP synthetic input",
+    "screenshotSource": "CDP renderer surface",
+    "platform": "win32"
+  },
+  "finishedAt": "2026-10-14T13:37:35.813Z",
+  "durationMs": 6788
+}

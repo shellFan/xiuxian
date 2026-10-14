@@ -1,0 +1,28 @@
+{
+  "id": "economy",
+  "title": "Assigned task completion, salary accrual and exact coffee debit",
+  "setup": "new-player",
+  "steps": [
+    { "action": "call", "method": "snapshot", "as": "beforeTask", "asType": "object" },
+    { "action": "call", "method": "queryAssignedTasks", "as": "assigned", "asType": "object" },
+    { "action": "assert", "check": "gte", "path": "@vars.assigned.openCount", "expected": 1, "description": "The home page has an open assigned task" },
+    { "action": "call", "method": "completeAssignedTask", "args": ["@vars.assigned.all[0].id"], "as": "taskCompletion", "asType": "object", "description": "Complete the assigned task through the canonical task service" },
+    { "action": "call", "method": "snapshot", "as": "afterTask", "asType": "object" },
+    { "action": "assert", "check": "gt", "path": "@vars.afterTask.salary", "expected": "@vars.beforeTask.salary", "description": "Task completion credits the existing salary wallet" },
+    { "action": "call", "method": "queryHomeGoals", "as": "goalsAfterTask", "asType": "array" },
+    { "action": "assert", "check": "gte", "path": "@vars.goalsAfterTask[0].progress", "expected": 1, "description": "Task completion advances a daily home goal" },
+    { "action": "call", "method": "devJumpToHour", "args": [9, 0], "description": "Align the canonical game clock to the start of its work window" },
+    { "action": "call", "method": "changeWorkMode", "args": ["WORK"], "as": "working", "asType": "object" },
+    { "action": "call", "method": "snapshot", "as": "beforeWork", "asType": "object" },
+    { "action": "call", "method": "tick", "args": [600], "description": "Advance ten minutes through the existing loop while staying inside the work window" },
+    { "action": "call", "method": "snapshot", "as": "afterWork", "asType": "object" },
+    { "action": "assert", "check": "gt", "path": "@vars.afterWork.salary", "expected": "@vars.beforeWork.salary", "description": "Work time increases the canonical wage balance" },
+    { "action": "assert", "check": "gt", "path": "@vars.afterWork.workSeconds", "expected": "@vars.beforeWork.workSeconds", "description": "The authoritative work-time counter advances" },
+    { "action": "call", "method": "consumeHomeLife", "args": ["COFFEE"], "as": "coffee", "asType": "object", "description": "Purchase coffee through the existing wallet and life service" },
+    { "action": "assert", "check": "truthy", "path": "@vars.coffee.ok", "description": "Coffee purchase succeeds after task and work income" },
+    { "action": "assert", "check": "equals", "path": "@vars.coffee.cost", "expected": 18, "description": "Coffee costs exactly ¥18" },
+    { "action": "call", "method": "snapshot", "as": "afterCoffee", "asType": "object" },
+    { "action": "assert", "check": "change", "path": "@vars.afterCoffee.salary", "from": "@vars.afterWork.salary", "expected": -18, "description": "Coffee debits exactly ¥18 from the canonical wallet" },
+    { "action": "screenshot", "name": "task-wage-coffee", "description": "Capture the actual game after task completion, work and coffee" }
+  ]
+}

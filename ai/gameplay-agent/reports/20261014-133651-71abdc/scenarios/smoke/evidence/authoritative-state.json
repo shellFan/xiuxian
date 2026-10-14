@@ -1,0 +1,33 @@
+{
+  "clock": {
+    "hour": 21,
+    "minute": 38,
+    "weekday": 3,
+    "isWeekend": false
+  },
+  "mode": "FISHING",
+  "salaryBalance": 0,
+  "todayEarned": 0,
+  "incomeRate": {
+    "perSecond": 0.0016666666666666668,
+    "perMinute": 0.1,
+    "perHour": 6
+  },
+  "todo": {
+    "pendingCount": 0,
+    "items": []
+  },
+  "messages": {
+    "unreadCount": 0,
+    "pendingReplyCount": 0,
+    "latest": ""
+  },
+  "activity": [],
+  "life": [],
+  "task": [],
+  "project": null,
+  "goal": {
+    "title": "选择你的牛马道途",
+    "detail": "职业决定你的怪物、技能、任务与 Build。选定后本轮不可更换。"
+  }
+}

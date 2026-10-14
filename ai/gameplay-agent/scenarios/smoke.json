@@ -1,0 +1,17 @@
+{
+  "id": "smoke",
+  "title": "Default window, creation next button and first playable home screen",
+  "steps": [
+    { "action": "screenshot", "name": "cold-start", "description": "Capture the real EXE on its default creation screen" },
+    { "action": "assert", "check": "windowSize", "minimumWidth": 1150, "minimumHeight": 680, "description": "The default desktop window meets its minimum usable size" },
+    { "action": "assert", "check": "clickable", "selector": "[data-creation-choice=\"industry:INTERNET\"]", "description": "The first-step choice is visible and enabled" },
+    { "action": "assert", "check": "inBounds", "selector": "[data-creation-choice=\"industry:INTERNET\"]", "description": "The first-step choice fits the game window" },
+    { "action": "assert", "check": "clickable", "selector": "[data-creation-action=\"advance\"]", "description": "The default next-step control is present and clickable" },
+    { "action": "click", "selector": "[data-creation-choice=\"industry:INTERNET\"]", "description": "Select the first required creation field" },
+    { "action": "assert", "check": "notObscured", "selector": "[data-creation-action=\"advance\"]", "description": "The next-step control is not covered after any real event popup is dismissed" },
+    { "action": "click", "selector": "[data-creation-action=\"advance\"]", "description": "Click the real next-step control" },
+    { "action": "call", "method": "queryCharacterCreation", "as": "nextStep" },
+    { "action": "assert", "check": "equals", "path": "@vars.nextStep.draft.step", "expected": "DIRECTION", "description": "The next-step button advances the seven-step wizard" },
+    { "action": "screenshot", "name": "next-step-works" }
+  ]
+}
