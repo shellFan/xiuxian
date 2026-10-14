@@ -36,8 +36,9 @@ Updated: 2026-10-15
 
 - One earlier isolated economy run recorded unchanged salary after the requested work tick; two subsequent runs accrued wages and the final gate passed. No game-rule change was made. Track this as an intermittent, not-yet-reproduced wage observation rather than a confirmed game defect.
 - The outer Windows window-size/scaling matrix was not exercised; only content viewport emulation was tested.
-- No V5.9-G.2 commit/push has been made yet. Before committing, stage only G.2-owned infrastructure, scenario, test and report paths; leave existing V5.9-F and historical QA work untouched. Never force-push.
+- G.2 implementation commit: `8cbad61cd97d648061b31e3d46eeba2ef810d8cf` (`feat(gameplay-agent): add V5.9-G.2 replay and gate`). The separate report/progress metadata update will follow; existing V5.9-F changes remain unstaged and untouched.
+- Push is still pending. Push only `feature/v59f-z-playability` with a normal fast-forward; never force-push.
 
 ## Next action
 
-Review the selected G.2 diff and stage only its owned paths. Commit/push this feature branch only after verifying the staged set excludes the preserved V5.9-F changes and user-owned historical evidence.
+Commit the report/progress metadata update, verify the remaining unstaged V5.9-F changes are unchanged, then push this feature branch with a normal fast-forward.

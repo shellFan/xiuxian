@@ -7,10 +7,11 @@
 
 - 起始 `SOURCE_SHA`：`c7c834e8e5dca51a49200d6bab7da87e3f7706fd`
 - 起始分支：`feature/v59f-z-playability`
-- 本次验证源代码对应 HEAD：`c7c834e8e5dca51a49200d6bab7da87e3f7706fd`；V5.9-G.2 改动仍在工作树，待选择性提交。
+- 本次验证源代码对应 HEAD（测试前）：`c7c834e8e5dca51a49200d6bab7da87e3f7706fd`。
+- `FINAL_SHA`（V5.9-G.2 实现与证据提交）：`8cbad61cd97d648061b31e3d46eeba2ef810d8cf`。
 - `origin/gameplay-v2`：`a8670d12d57173964a82a34f77a9d04279c2c50c`。
 - 远程功能分支：`origin/feature/v59f-z-playability` 与起始 HEAD 一致。
-- G.2 提交列表：尚无；没有提交或推送本轮改动。
+- G.2 实现提交：`8cbad61cd97d648061b31e3d46eeba2ef810d8cf` — `feat(gameplay-agent): add V5.9-G.2 replay and gate`。
 - 未改写分支历史，未强推。既有 V5.9-F 改动与历史 QA 记录保持原状。
 
 ## B. 自动化系统
@@ -63,8 +64,8 @@
 
 ### Git 交付状态
 
-- 最终源代码 SHA：待选择性提交后填写。当前代码测试对应的起始 HEAD 为 `c7c834e8e5dca51a49200d6bab7da87e3f7706fd`。
-- 推送状态：未推送。推送目标为现有功能分支 `feature/v59f-z-playability`；只有在 staged diff 核实不含既有 V5.9-F 与历史 QA 改动后才执行普通推送。
+- 最终源代码 SHA：`8cbad61cd97d648061b31e3d46eeba2ef810d8cf`。
+- 推送状态：待推送。目标为现有功能分支 `feature/v59f-z-playability`；提交只包含 G.2 Agent、场景、Runner 测试、G.2 报告与选定的 G.2 运行证据。既有 V5.9-F 和其他 QA 工作仍在工作树中。
 
 ### 下一轮最值得开发
 
