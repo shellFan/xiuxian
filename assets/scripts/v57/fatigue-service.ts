@@ -119,6 +119,13 @@ export class FatigueService {
     this.add(source, minutes);
   }
 
+  /** V5.9-F-Z：直接按数值调整（生活消费等即时效果；负值恢复，正值消耗，钳制 0~100）。 */
+  public addDelta(delta: number): void {
+    if (!Number.isFinite(delta) || delta === 0) return;
+    const p = this.context.player;
+    p.fatigue = clamp((p.fatigue ?? 0) + (delta > 0 ? delta * this.gainMul() : delta));
+  }
+
   /** 休息事件（请假/调休）解除强制休息。 */
   public takeRest(hours: number): void {
     this.add('LEAVE', hours * 60);

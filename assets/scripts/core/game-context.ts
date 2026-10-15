@@ -84,6 +84,7 @@ import { TeamService } from '../services/team-service';
 import { MetaService } from '../services/meta-service';
 import { GameSoundService } from '../services/sound-service';
 import { CharacterCreationService } from '../v59/character-creation-service';
+import { HomeService } from '../v59f/home-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
 import craftConfig from '../../configs/craft.json';
@@ -235,6 +236,8 @@ export class GameContext {
   public readonly storage: StorageAdapter;
   /** Authoritative V5.9-A new-character creation and old-save backfill workflow. */
   public readonly characterCreation: CharacterCreationService;
+  /** V5.9-F-Z 主页面可玩性（今日工作/三目标/行动建议/生活行为）。 */
+  public readonly home: HomeService;
   public readonly config = GameConfig;
 
   public constructor(options: GameContextOptions = {}) {
@@ -351,6 +354,8 @@ export class GameContext {
     this.promotionV2 = new PromotionV2Service(this, this.clockV2, this.innerDemon, this.npc);
     this.daySettlement = new DaySettlementService(this, this.clockV2, this.gameDay, this.innerDemon);
     this.characterCreation = new CharacterCreationService(this, this.storage, options.characterSeedProvider);
+    // ── V5.9-F-Z 主页面可玩性（依赖齐全，最后构建） ──
+    this.home = new HomeService(this);
   }
 
   /** @deprecated No longer used in PC V1 — board is null by default. */

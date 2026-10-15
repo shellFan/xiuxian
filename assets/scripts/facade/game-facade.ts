@@ -52,6 +52,7 @@ import { messengerEventById } from '../v5/messenger-content';
 import { EVOLUTIONS } from '../v57/battle-merge';
 import { projectCharacterAttributes } from '../v59/character-attributes';
 import { createRuntimeDataSnapshot, recordTodayLife, type RuntimeDataSnapshot, type TodayLifeKind } from './runtime-data-snapshot';
+import type { HomeSnapshot } from '../v59f/home-service';
 
 export interface GameFacadeOptions extends GameContextOptions {
   readonly platformKind?: PlatformKind;
@@ -567,8 +568,28 @@ export class GameFacade {
   }
   /** 当前游戏时间信息。 */
   public queryGameClock() {
+    const now = this.context.clockV2.now();
     const d = this.context.clockV2.getGameDate();
-    return { ...d, isWeekend: this.context.clockV2.isWeekend(), isWorkingHours: this.context.clockV2.isWorkingHours() };
+    const local = new Date(now);
+    const utc = new Date(now);
+    const localDate = `${local.getFullYear()}-${String(local.getMonth() + 1).padStart(2, '0')}-${String(local.getDate()).padStart(2, '0')}`;
+    return {
+      ...d,
+      localDate,
+      utcDate: utc.toISOString().slice(0, 10),
+      gameDayIndex: this.context.gameDay.dayIndex(),
+      isWeekend: this.context.clockV2.isWeekend(),
+      isWorkingHours: this.context.clockV2.isWorkingHours(),
+    };
+  }
+  /** V5.9-F-Z：读一个持久化旗标（eventFlags；轻量引导等一次性 UI 状态）。 */
+  public queryPlayerFlag(key: string): boolean {
+    return this.context.player.eventFlags?.[key] === true;
+  }
+  /** V5.9-F-Z：写一个持久化旗标并回写存档。 */
+  public markPlayerFlag(key: string, value: boolean): void {
+    this.context.player.eventFlags = { ...(this.context.player.eventFlags ?? {}), [key]: value };
+    try { this.save(); } catch { /* flag write must not crash UI */ }
   }
   /** 心魔值与激活心魔。 */
   public queryInnerDemon() {
@@ -635,7 +656,19 @@ export class GameFacade {
   public chooseWeekend(id: 'SECLUDED_CULTIVATE' | 'SLEEP_MADLY' | 'FRIENDS_GATHER' | 'VOLUNTARY_OVERTIME') { return this.context.weekend.choose(id); }
   /** DEV 时间控制（Release 由 UI 隐藏）。 */
   public devAdvanceTime(deltaMs: number) { this.context.clockV2.advanceDevTime(deltaMs); this.context.saveService.save(this.context.player); }
-  public devJumpToHour(hour: number, minute?: number) { this.context.clockV2.jumpToHour(hour, minute ?? 0, true); this.context.saveService.save(this.context.player); }
+  public devJumpToHour(hour: number, minute?: number) {
+    const targetHour = hour;
+    const targetMinute = minute ?? 0;
+    const currentGameTime = this.context.clockV2.now();
+    const target = new Date(currentGameTime);
+    target.setHours(targetHour, targetMinute, 0, 0);
+    if (target.getTime() <= currentGameTime) target.setDate(target.getDate() + 1);
+    this.context.clockV2.jumpToHour(targetHour, targetMinute, true);
+    // Keep this DEV control on the authoritative game date and exact requested
+    // minute, including the normal foreground play-time offset.
+    this.context.clockV2.advanceDevTime(target.getTime() - this.context.clockV2.now());
+    this.context.saveService.save(this.context.player);
+  }
   public devForceEvent(eventId: string) { return this.context.v2Events.forceTrigger(eventId); }
   /** DEV/演出辅助：按 id 直接投递信使事件（第一周剧情步 fw57_* 等注册池事件）。 */
   public devDeliverMessengerEvent(eventId: string) {
@@ -686,7 +719,17 @@ export class GameFacade {
     const open = this.context.assignedTasks.open();
     return { top: this.context.assignedTasks.topForHome(4), openCount: open.length, all: open };
   }
-  public completeAssignedTask(taskId: string) { return this.context.assignedTasks.complete(taskId); }
+  public completeAssignedTask(taskId: string) {
+    const result = this.context.assignedTasks.complete(taskId);
+    // V5.9-F-Z：指派任务完成 → 工作目标 + 成长目标（有修为时）进度。
+    if (result && (result.salary > 0 || result.cultivation > 0)) {
+      try {
+        this.context.home.noteTaskClaimed();
+        if (result.cultivation > 0) this.context.home.noteGrowth();
+      } catch { /* goal tracking must not block */ }
+    }
+    return result;
+  }
   public refuseAssignedTask(taskId: string) { return this.context.assignedTasks.refuse(taskId); }
   /** Deterministic welcome-back payload; may apply the configured safe auto policy once. */
   public prepareWelcomeBack() { return this.context.autoPolicy.prepareWelcome(); }
@@ -880,7 +923,10 @@ export class GameFacade {
 
   /** Click cultivation: grants cultivation exp with cooldown and mind efficiency. */
   public cultivate(): CultivationClickResult {
-    return this.context.cultivation.cultivate();
+    const result = this.context.cultivation.cultivate();
+    // V5.9-F-Z：真实成长 → 今日目标进度（冷却命中返回 0 修为不计）。
+    try { if (result.cultivationExp > 0) this.context.home.noteGrowth(); } catch { /* goal tracking must not block */ }
+    return result;
   }
 
   /** Get remaining cooldown seconds for cultivation click. */
@@ -922,13 +968,36 @@ export class GameFacade {
 
   /** Claim a completed task's rewards. */
   public claimTask(taskId: string): TaskClaimResult {
-    return this.context.tasks.claimTask(taskId);
+    const result = this.context.tasks.claimTask(taskId);
+    // V5.9-F-Z：任务完成 → 今日工作目标进度 + 成长目标（修为>0 时）。
+    if (result.success) {
+      try {
+        this.context.home.noteTaskClaimed();
+        if ((result.cultivationExp ?? 0) > 0) this.context.home.noteGrowth();
+      } catch { /* goal tracking must not block */ }
+    }
+    return result;
   }
 
   /** Tick tasks (called by game loop). Returns IDs of newly completed tasks. */
   public tickTasks() {
     return this.context.tasks.tick();
   }
+
+  // ── V5.9-F-Z 主页面可玩性 API ───────────────────────────────────────────
+
+  /** 主页面聚合快照（今日工作/三目标/建议行动/生活行为，UI 唯一数据源）。 */
+  public queryHomeSnapshot(): HomeSnapshot {
+    return this.context.home.snapshot();
+  }
+  public queryHomeTodayWork() { return this.context.home.todayWork(); }
+  public queryHomeGoals() { return this.context.home.goals(); }
+  public queryHomeNextAction() { return this.context.home.nextAction(); }
+  public queryHomeLifeOptions() { return this.context.home.lifeOptions(); }
+  /** 领取今日目标奖励（统一效果通道，防重复）。 */
+  public claimHomeGoal(kind: 'WORK' | 'GROWTH' | 'LIFE') { return this.context.home.claimGoal(kind); }
+  /** 执行生活消费（真实扣款+效果，余额不足/次数用尽如实拒绝）。 */
+  public consumeHomeLife(kind: string) { return this.context.home.consumeLife(kind); }
 
   // ── Idle Efficiency API ──────────────────────────────────────────────────
 

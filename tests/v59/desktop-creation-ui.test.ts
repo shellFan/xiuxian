@@ -70,7 +70,21 @@ async function runInElectron(): Promise<void> {
     await click(win, '[data-creation-action="advance"]');
     await win.webContents.executeJavaScript(`document.querySelector('#v59-nickname').value = '青云牛马'`);
     await click(win, '[data-creation-choice="avatar:avatar-2"]');
+    const identityScrollBefore = await win.webContents.executeJavaScript(`(function () {
+      var content = document.querySelector('.v59-step-content');
+      content.scrollTop = content.scrollHeight;
+      return { top: content.scrollTop, height: content.scrollHeight, client: content.clientHeight };
+    })()`);
+    assert.ok(identityScrollBefore.top > 0, 'identity form has a real scroll position before selecting a background');
     await click(win, '[data-creation-choice="background:CULTIVATION_GRAD"]');
+    const identityScrollAfter = await win.webContents.executeJavaScript(`({
+      top: document.querySelector('.v59-step-content').scrollTop,
+      selected: document.querySelector('[data-creation-choice="background:CULTIVATION_GRAD"]').classList.contains('is-selected'),
+      authoritative: window.__GAME_FACADE__.queryCharacterCreation().draft.background
+    })`);
+    assert.ok(identityScrollAfter.top > 0, 'selecting a background preserves the visible identity form scroll position');
+    assert.equal(identityScrollAfter.selected, true, 'background selection is reflected by the UI');
+    assert.equal(identityScrollAfter.authoritative, 'CULTIVATION_GRAD', 'background selection updates the authoritative creation draft');
     await click(win, '[data-creation-action="advance"]');
     await click(win, '[data-creation-choice^="candidate:"]');
     await click(win, '[data-creation-action="advance"]');
@@ -95,6 +109,18 @@ async function runInElectron(): Promise<void> {
     assert.equal(result.assigned.length, 1);
     assert.match(result.assigned[0], /无法复现的 Bug/);
     assert.ok(result.receipt);
+    await click(win, '[data-nav="HOME"]');
+    await waitFor(win, `document.querySelector('.ux-home-col.ux-home-right') !== null`);
+    await click(win, '[data-action="openMessenger"]');
+    const messengerPage = await win.webContents.executeJavaScript(`({
+      messenger: document.querySelector('.ux-messenger') !== null,
+      home: document.querySelector('.ux-home-col.ux-home-right') !== null
+    })`);
+    assert.equal(messengerPage.messenger, true, 'opening messenger enters its subpage');
+    assert.equal(messengerPage.home, false, 'messenger subpage replaces the home columns');
+    await click(win, '[data-nav="HOME"]');
+    const homeRestored = await win.webContents.executeJavaScript(`document.querySelector('.ux-home-col.ux-home-right') !== null`);
+    assert.equal(homeRestored, true, 'selecting HOME from a HOME subpage restores the home columns');
     await win.webContents.executeJavaScript(`window.__GAME_FACADE__.destroy()`);
     win.destroy();
     console.log('V5.9 Electron DOM creation flow passed');

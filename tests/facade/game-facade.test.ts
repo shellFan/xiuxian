@@ -509,6 +509,24 @@ test('GameFacade: snapshot returns valid data', () => {
   facade.destroy();
 });
 
+test('GameFacade: DEV clock jumps target the authoritative game clock after play-time scaling', () => {
+  const base = new Date(2026, 9, 14, 12, 0, 0, 0).getTime();
+  const facade = new GameFacade({ storage: new MemoryStorageAdapter(), clock: new FakeClock(base), playTimeScale: 16, board: null });
+  facade.start();
+  facade.tick(8);
+  for (const [hour, minute] of [[7, 59], [8, 0], [8, 1]] as const) {
+    facade.devJumpToHour(hour, minute);
+    const clock = facade.queryGameClock();
+    assert.equal(clock.hour, hour);
+    assert.equal(clock.minute, minute);
+  }
+  const dayBeforeNextWorkday = facade.queryGameClock().dayNumber;
+  facade.devJumpToHour(18, 0);
+  facade.devJumpToHour(9, 0);
+  assert.equal(facade.queryGameClock().dayNumber, dayBeforeNextWorkday + 1);
+  facade.destroy();
+});
+
 test('GameFacade: UI presentation boundary selects canonical projections by priority without consuming them', () => {
   const facade = new GameFacade({ storage: new MemoryStorageAdapter(), board: null });
   const canonicalProjections = [
