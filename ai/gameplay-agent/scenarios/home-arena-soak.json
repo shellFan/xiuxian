@@ -1,0 +1,9 @@
+{
+  "id": "home-arena-soak",
+  "title": "Twenty real minutes of paced homepage play and retained-resource sampling",
+  "setup": "new-player",
+  "steps": [
+    { "action": "setViewport", "width": 1280, "height": 720 },
+    { "action": "homeArenaSoak", "seed": 5911, "clickIntervalMs": 400, "durationMs": 1200000 }
+  ]
+}

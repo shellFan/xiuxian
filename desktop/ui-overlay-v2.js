@@ -598,9 +598,16 @@
     H.$$('[data-critical-conv]', layer).forEach(function (b) {
       b.addEventListener('click', function () {
         var conv = b.getAttribute('data-critical-conv');
-        H.closePopup();
+        var f = H.facade();
+        if (f && typeof f.markConversationRead === 'function') {
+          try { f.markConversationRead(conv); } catch (e) { /* unread cleanup must not block navigation */ }
+        }
         if (window.UiOverlay && window.UiOverlay.openMessenger) window.UiOverlay.openMessenger(conv);
         else { window.__MESSENGER_JUMP__ = conv; }
+        // Change screens before scheduling modal redispatch. Otherwise an already
+        // finished battle can render its result into the old screen and then be
+        // silently erased by openMessenger's fullRefresh.
+        H.closePopup();
         H.refresh();
       });
     });

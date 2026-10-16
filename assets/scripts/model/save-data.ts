@@ -1,6 +1,6 @@
 import type { CharacterBackground, CharacterStats, DestinyId } from '../v59/character-rules';
 
-export const CURRENT_SAVE_VERSION = 14;
+export const CURRENT_SAVE_VERSION = 15;
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -357,6 +357,8 @@ export interface GameSaveData {
   readonly lifetimeStats?: Readonly<Record<string, number>>;
   /** 进行中的项目战斗（V4 战斗竖切；结构由 v3/battle-service 校验）。 */
   readonly activeBattleRun?: unknown;
+  readonly homeArena?: unknown;
+  readonly regularWorkRewardRemainders?: { salary: number; cultivation: number };
 
   // ── V5 飞剑传书（WorkplaceMessenger；saveVersion 9） ──
   /** 会话列表（内容受容量上限约束，由 messenger-service 归档）。 */
@@ -454,6 +456,10 @@ export interface GameSaveData {
   readonly pendingOffer?: PendingOfferState | null;
   /** F03: 团队每日分派计数（数值状态，非 eventFlags）。 */
   readonly teamDailyAssignment?: { readonly day: number; readonly count: number } | null;
+
+  // ── V5.9-J fate roguelite state (saveVersion 15) ──
+  readonly fateRun?: FateRunState | null;
+  readonly rebirthMeta?: RebirthMetaState;
 }
 
 /** F02: Pending offer persistence schema. */
@@ -518,6 +524,51 @@ export interface TeamState {
   readonly dailyAssignment?: { readonly day: number; readonly count: number };
   /** F07: daily mentorship counter (separate from assignment cap). */
   readonly dailyMentorship?: { readonly day: number; readonly count: number };
+}
+
+export type FateRunStatus = 'ACTIVE' | 'ENDED';
+export interface FateEventHistoryEntry {
+  readonly eventId: string;
+  readonly choiceId: string;
+  readonly resultId: string;
+  readonly resolvedAt: number;
+}
+export interface FateCombatModifierState {
+  readonly id: string;
+  readonly expiresAt: number;
+  readonly attackMultiplier: number;
+  readonly critChanceDelta: number;
+  readonly autoIntervalMultiplier: number;
+  readonly skillCooldownMultiplier: number;
+}
+/** State that belongs to one workplace-fate life; never owns salary or account inventory. */
+export interface FateRunState {
+  readonly runId: string;
+  readonly startedAt: number;
+  readonly seed: number;
+  readonly rngCursor: number;
+  readonly status: FateRunStatus;
+  readonly health: number;
+  readonly maxHealth: number;
+  readonly stage: number;
+  readonly eventQueue: readonly string[];
+  readonly firedEventIds: readonly string[];
+  readonly eventHistory: readonly FateEventHistoryEntry[];
+  readonly flags: Readonly<Record<string, boolean>>;
+  readonly combatModifiers: readonly FateCombatModifierState[];
+  readonly activeChallengeId: string | null;
+  readonly activeChallengeBattleRunId: string | null;
+  readonly activeChallengeStartedAt: number | null;
+  readonly terminalOutcomeId: string | null;
+}
+
+export type FateTalentId = 'born_cow' | 'fishing_master' | 'steady_mind' | 'office_veteran' | 'lucky_worker' | 'nine_lives';
+/** Account-level progression intentionally separate from work currencies and player resources. */
+export interface RebirthMetaState {
+  readonly karma: number;
+  readonly talentRanks: Readonly<Partial<Record<FateTalentId, number>>>;
+  readonly unlockedEndings: readonly string[];
+  readonly settledRunIds: readonly string[];
 }
 
 export interface MonthlyStatsRecord {

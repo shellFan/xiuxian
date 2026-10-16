@@ -474,7 +474,7 @@ export class HomeService {
    * 消费不经过 Luna 未合并的钱包流水时，直接以 player.salary 扣减并如实回显，
    * 绝不在余额不足时伪造成功。
    */
-  public consumeLife(kind: string): HomeLifeResult {
+  public consumeLife(kind: string, options: { readonly persist?: boolean } = {}): HomeLifeResult {
     const c = this.context;
     const def = HOME_LIFE_DEFS.find((d) => d.kind === kind);
     if (!def) return { ok: false, reason: '未知生活行为' };
@@ -502,7 +502,7 @@ export class HomeService {
     c.messenger.appendReality({ time: c.clockV2.now(), text: `${def.icon} ${def.label}（-¥${def.price}）`, kind: 'LIFE', lifeAction: def.kind === 'SNACK' || def.kind === 'DINNER' ? undefined : (def.kind as 'COFFEE' | 'LUNCH' | 'MILK_TEA') });
     this.noteLifeAction();
     setFlagNum(c, 'homeGoal_lifeCount', flagNum(c, 'homeGoal_lifeCount') + 1);
-    c.saveService.save(c.player);
+    if (options.persist !== false) c.saveService.save(c.player);
     c.events.emit('playerChanged', { reason: 'homeLifeConsumed' });
     return {
       ok: true,

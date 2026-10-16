@@ -1,0 +1,23 @@
+{
+  "id": "fate-first-choice",
+  "title": "First fate event choice and restart recovery",
+  "setup": "new-player",
+  "setupFailureClass": "SETUP_BLOCKED",
+  "steps": [
+    { "action": "setViewport", "width": 1280, "height": 720 },
+    { "action": "clickUntilState", "selector": "#ArenaAttack", "method": "queryHomeArena", "path": "kills", "from": 0, "expected": 1, "maxAttempts": 3, "timeoutMs": 1000, "description": "Use bounded real attacks to defeat the first stage enemy" },
+    { "action": "clickUntilState", "selector": "#ArenaAttack", "method": "queryHomeArena", "path": "kills", "from": 1, "expected": 2, "maxAttempts": 3, "timeoutMs": 1000, "description": "Use bounded real attacks to defeat the second stage enemy and trigger the first fate event" },
+    { "action": "waitFor", "selector": "#FateEventCard:not([hidden])", "timeoutMs": 5000, "description": "Wait for the event card to become visible" },
+    { "action": "screenshot", "name": "first-event", "description": "Capture the first event before making a choice" },
+    { "action": "assertClickable", "selector": "#FateEventChoices [data-fate-choice=HELP]" },
+    { "action": "click", "selector": "#FateEventChoices [data-fate-choice=HELP]", "description": "Choose the visible help option through CDP pointer input" },
+    { "action": "call", "method": "queryFateRun", "as": "afterChoice", "asType": "object" },
+    { "action": "assert", "check": "equals", "path": "@vars.afterChoice.flags.intern_s1_help", "expected": true },
+    { "action": "assert", "check": "equals", "path": "@vars.afterChoice.eventHistory[0].choiceId", "expected": "HELP" },
+    { "action": "restartGame", "description": "Restart the packaged game to verify the choice persisted" },
+    { "action": "call", "method": "queryFateRun", "as": "afterRestart", "asType": "object" },
+    { "action": "assert", "check": "equals", "path": "@vars.afterRestart.flags.intern_s1_help", "expected": true },
+    { "action": "assert", "check": "equals", "path": "@vars.afterRestart.eventHistory[0].choiceId", "expected": "HELP" },
+    { "action": "screenshot", "name": "choice-after-restart", "description": "Capture the restored authoritative story state" }
+  ]
+}

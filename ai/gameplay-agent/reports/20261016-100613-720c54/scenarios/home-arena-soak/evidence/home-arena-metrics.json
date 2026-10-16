@@ -1,0 +1,1921 @@
+{
+  "seed": 5911,
+  "startedAt": 1792145266951,
+  "finishedAt": 1792146467233,
+  "inputCount": 2990,
+  "stages": [
+    {
+      "stage": 1,
+      "startedAt": 1792145266951,
+      "endedAt": 1792145286633
+    },
+    {
+      "stage": 2,
+      "startedAt": 1792145286633,
+      "endedAt": 1792145325092
+    },
+    {
+      "stage": 3,
+      "startedAt": 1792145325092,
+      "endedAt": 1792145372093
+    },
+    {
+      "stage": 4,
+      "startedAt": 1792145372093,
+      "endedAt": 1792145432648
+    },
+    {
+      "stage": 5,
+      "startedAt": 1792145432648,
+      "endedAt": 1792145506849
+    }
+  ],
+  "samples": [
+    {
+      "elapsedMs": 60641,
+      "heap": {
+        "usedSize": 24157104,
+        "totalSize": 27054080
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 717,
+        "jsEventListeners": 67
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 3,
+        "enemy": {
+          "id": "3:1",
+          "name": "递归幽灵",
+          "hp": 78,
+          "maxHp": 100,
+          "elite": false,
+          "level": 3
+        },
+        "kills": 1,
+        "complete": false,
+        "attack": 19,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": false,
+        "skillReadyAt": 0,
+        "metrics": {
+          "attacks": 150,
+          "crits": 3,
+          "maxCombo": 20,
+          "autoAttacks": 1,
+          "skillUses": 0,
+          "totalKills": 41,
+          "stageTimesMs": [
+            18893,
+            38914
+          ]
+        },
+        "rewards": {
+          "experience": 112,
+          "materials": {
+            "mat_code_fragment": 41,
+            "mat_page": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 120102,
+      "heap": {
+        "usedSize": 24425840,
+        "totalSize": 27054080
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 718,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 4,
+        "enemy": {
+          "id": "4:7",
+          "name": "回归测试蜂群",
+          "hp": 42,
+          "maxHp": 150,
+          "elite": false,
+          "level": 4
+        },
+        "kills": 7,
+        "complete": false,
+        "attack": 23,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792145402453,
+        "metrics": {
+          "attacks": 297,
+          "crits": 12,
+          "maxCombo": 20,
+          "autoAttacks": 30,
+          "skillUses": 1,
+          "totalKills": 73,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877
+          ]
+        },
+        "rewards": {
+          "experience": 206,
+          "materials": {
+            "mat_code_fragment": 73,
+            "mat_page": 6
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 180253,
+      "heap": {
+        "usedSize": 24601520,
+        "totalSize": 27316224
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 715,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 5,
+        "enemy": {
+          "id": "5:6",
+          "name": "服务雪崩虫",
+          "hp": 30,
+          "maxHp": 200,
+          "elite": false,
+          "level": 5
+        },
+        "kills": 6,
+        "complete": false,
+        "attack": 26,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792145463126,
+        "metrics": {
+          "attacks": 447,
+          "crits": 18,
+          "maxCombo": 20,
+          "autoAttacks": 60,
+          "skillUses": 3,
+          "totalKills": 100,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664
+          ]
+        },
+        "rewards": {
+          "experience": 300,
+          "materials": {
+            "mat_code_fragment": 100,
+            "mat_page": 10
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 240403,
+      "heap": {
+        "usedSize": 24702912,
+        "totalSize": 27578368
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 722,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 1,
+        "enemy": {
+          "id": "1:0",
+          "name": "空指针小虫",
+          "hp": 1,
+          "maxHp": 30,
+          "elite": false,
+          "level": 1
+        },
+        "kills": 0,
+        "complete": false,
+        "attack": 29,
+        "combo": 1,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792145523625,
+        "metrics": {
+          "attacks": 596,
+          "crits": 27,
+          "maxCombo": 20,
+          "autoAttacks": 90,
+          "skillUses": 5,
+          "totalKills": 124,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 300478,
+      "heap": {
+        "usedSize": 24791528,
+        "totalSize": 27578368
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 722,
+        "jsEventListeners": 67
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 4,
+        "enemy": {
+          "id": "4:4",
+          "name": "回归测试蜂群",
+          "hp": 150,
+          "maxHp": 150,
+          "elite": false,
+          "level": 4
+        },
+        "kills": 4,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792145584173,
+        "metrics": {
+          "attacks": 745,
+          "crits": 33,
+          "maxCombo": 20,
+          "autoAttacks": 119,
+          "skillUses": 7,
+          "totalKills": 194,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 360215,
+      "heap": {
+        "usedSize": 24821364,
+        "totalSize": 27578368
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 710,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 5,
+        "enemy": {
+          "id": "5:10",
+          "name": "服务雪崩虫",
+          "hp": 12,
+          "maxHp": 200,
+          "elite": false,
+          "level": 5
+        },
+        "kills": 10,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792145644688,
+        "metrics": {
+          "attacks": 894,
+          "crits": 42,
+          "maxCombo": 20,
+          "autoAttacks": 149,
+          "skillUses": 9,
+          "totalKills": 228,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 420317,
+      "heap": {
+        "usedSize": 24946824,
+        "totalSize": 27840512
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 702,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 2,
+        "enemy": {
+          "id": "2:5",
+          "name": "需求变异体",
+          "hp": 60,
+          "maxHp": 60,
+          "elite": false,
+          "level": 2
+        },
+        "kills": 5,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792145705202,
+        "metrics": {
+          "attacks": 1044,
+          "crits": 48,
+          "maxCombo": 20,
+          "autoAttacks": 178,
+          "skillUses": 11,
+          "totalKills": 269,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 480079,
+      "heap": {
+        "usedSize": 24913192,
+        "totalSize": 27578368
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 699,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 4,
+        "enemy": {
+          "id": "4:11",
+          "name": "回归测试蜂群",
+          "hp": 150,
+          "maxHp": 150,
+          "elite": false,
+          "level": 4
+        },
+        "kills": 11,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792145765764,
+        "metrics": {
+          "attacks": 1193,
+          "crits": 57,
+          "maxCombo": 20,
+          "autoAttacks": 208,
+          "skillUses": 13,
+          "totalKills": 325,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 540150,
+      "heap": {
+        "usedSize": 25160200,
+        "totalSize": 28102656
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 702,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 5,
+        "enemy": {
+          "id": "5:15",
+          "name": "服务雪崩虫",
+          "hp": 132,
+          "maxHp": 200,
+          "elite": false,
+          "level": 5
+        },
+        "kills": 15,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792145826244,
+        "metrics": {
+          "attacks": 1343,
+          "crits": 61,
+          "maxCombo": 20,
+          "autoAttacks": 237,
+          "skillUses": 15,
+          "totalKills": 357,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 600257,
+      "heap": {
+        "usedSize": 25168364,
+        "totalSize": 27840512
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 702,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 2,
+        "enemy": {
+          "id": "2:19",
+          "name": "需求变异体",
+          "hp": 60,
+          "maxHp": 60,
+          "elite": false,
+          "level": 2
+        },
+        "kills": 19,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792145886736,
+        "metrics": {
+          "attacks": 1493,
+          "crits": 68,
+          "maxCombo": 20,
+          "autoAttacks": 266,
+          "skillUses": 17,
+          "totalKills": 407,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 660381,
+      "heap": {
+        "usedSize": 25158812,
+        "totalSize": 27840512
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 699,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 4,
+        "enemy": {
+          "id": "4:18",
+          "name": "回归测试蜂群",
+          "hp": 150,
+          "maxHp": 150,
+          "elite": false,
+          "level": 4
+        },
+        "kills": 18,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792145947253,
+        "metrics": {
+          "attacks": 1643,
+          "crits": 75,
+          "maxCombo": 20,
+          "autoAttacks": 296,
+          "skillUses": 19,
+          "totalKills": 456,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 720413,
+      "heap": {
+        "usedSize": 25196124,
+        "totalSize": 28102656
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 701,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 5,
+        "enemy": {
+          "id": "5:20",
+          "name": "服务雪崩虫",
+          "hp": 13,
+          "maxHp": 200,
+          "elite": false,
+          "level": 5
+        },
+        "kills": 20,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792146007718,
+        "metrics": {
+          "attacks": 1793,
+          "crits": 82,
+          "maxCombo": 20,
+          "autoAttacks": 326,
+          "skillUses": 21,
+          "totalKills": 486,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 780152,
+      "heap": {
+        "usedSize": 25175628,
+        "totalSize": 28102656
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 699,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 3,
+        "enemy": {
+          "id": "3:6",
+          "name": "递归幽灵",
+          "hp": 32,
+          "maxHp": 100,
+          "elite": false,
+          "level": 3
+        },
+        "kills": 6,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792146068231,
+        "metrics": {
+          "attacks": 1942,
+          "crits": 86,
+          "maxCombo": 20,
+          "autoAttacks": 355,
+          "skillUses": 23,
+          "totalKills": 542,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 840282,
+      "heap": {
+        "usedSize": 25188100,
+        "totalSize": 28102656
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 699,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 4,
+        "enemy": {
+          "id": "4:24",
+          "name": "回归测试蜂群",
+          "hp": 116,
+          "maxHp": 150,
+          "elite": false,
+          "level": 4
+        },
+        "kills": 24,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792146128763,
+        "metrics": {
+          "attacks": 2092,
+          "crits": 91,
+          "maxCombo": 20,
+          "autoAttacks": 385,
+          "skillUses": 25,
+          "totalKills": 586,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 900341,
+      "heap": {
+        "usedSize": 25199488,
+        "totalSize": 28102656
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 699,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 5,
+        "enemy": {
+          "id": "5:26",
+          "name": "服务雪崩虫",
+          "hp": 132,
+          "maxHp": 200,
+          "elite": false,
+          "level": 5
+        },
+        "kills": 26,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792146189240,
+        "metrics": {
+          "attacks": 2242,
+          "crits": 103,
+          "maxCombo": 20,
+          "autoAttacks": 415,
+          "skillUses": 27,
+          "totalKills": 616,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 960436,
+      "heap": {
+        "usedSize": 25205552,
+        "totalSize": 28102656
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 699,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 3,
+        "enemy": {
+          "id": "3:17",
+          "name": "递归幽灵",
+          "hp": 100,
+          "maxHp": 100,
+          "elite": false,
+          "level": 3
+        },
+        "kills": 17,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792146249702,
+        "metrics": {
+          "attacks": 2392,
+          "crits": 108,
+          "maxCombo": 20,
+          "autoAttacks": 444,
+          "skillUses": 29,
+          "totalKills": 677,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 1020131,
+      "heap": {
+        "usedSize": 25243984,
+        "totalSize": 28102656
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 702,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 5,
+        "enemy": {
+          "id": "5:2",
+          "name": "服务雪崩虫",
+          "hp": 13,
+          "maxHp": 200,
+          "elite": false,
+          "level": 5
+        },
+        "kills": 2,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792146310205,
+        "metrics": {
+          "attacks": 2541,
+          "crits": 118,
+          "maxCombo": 20,
+          "autoAttacks": 474,
+          "skillUses": 31,
+          "totalKills": 716,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 1080218,
+      "heap": {
+        "usedSize": 25196692,
+        "totalSize": 28102656
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 702,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 5,
+        "enemy": {
+          "id": "5:29",
+          "name": "P0 · 线上雪崩核心",
+          "hp": 625,
+          "maxHp": 1000,
+          "elite": true,
+          "level": 5
+        },
+        "kills": 29,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792146370705,
+        "metrics": {
+          "attacks": 2691,
+          "crits": 124,
+          "maxCombo": 20,
+          "autoAttacks": 504,
+          "skillUses": 33,
+          "totalKills": 743,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 1140293,
+      "heap": {
+        "usedSize": 25373468,
+        "totalSize": 28626944
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 699,
+        "jsEventListeners": 68
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 4,
+        "enemy": {
+          "id": "4:0",
+          "name": "回归测试蜂群",
+          "hp": 116,
+          "maxHp": 150,
+          "elite": false,
+          "level": 4
+        },
+        "kills": 0,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792146431182,
+        "metrics": {
+          "attacks": 2841,
+          "crits": 130,
+          "maxCombo": 20,
+          "autoAttacks": 533,
+          "skillUses": 35,
+          "totalKills": 810,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    },
+    {
+      "elapsedMs": 1200343,
+      "heap": {
+        "usedSize": 25292788,
+        "totalSize": 28102656
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 699,
+        "jsEventListeners": 67
+      },
+      "ui": {
+        "arena": {
+          "floatingNodes": 24,
+          "animationLoops": 1,
+          "registeredGlobalListeners": 4,
+          "options": {
+            "reduced": false,
+            "shake": true,
+            "sound": true
+          }
+        },
+        "timers": {
+          "intervals": 1,
+          "animationFrames": 2
+        },
+        "focused": true,
+        "hidden": false
+      },
+      "arena": {
+        "stage": 5,
+        "enemy": {
+          "id": "5:7",
+          "name": "服务雪崩虫",
+          "hp": 13,
+          "maxHp": 200,
+          "elite": false,
+          "level": 5
+        },
+        "kills": 7,
+        "complete": false,
+        "attack": 29,
+        "combo": 20,
+        "autoUnlocked": true,
+        "skillUnlocked": true,
+        "skillReadyAt": 1792146491664,
+        "metrics": {
+          "attacks": 2990,
+          "crits": 136,
+          "maxCombo": 20,
+          "autoAttacks": 563,
+          "skillUses": 37,
+          "totalKills": 845,
+          "stageTimesMs": [
+            18893,
+            38914,
+            46877,
+            59664,
+            73785
+          ]
+        },
+        "rewards": {
+          "experience": 398,
+          "materials": {
+            "mat_code_fragment": 124,
+            "mat_page": 10,
+            "mat_bug_crystal": 3
+          }
+        }
+      }
+    }
+  ],
+  "screenshots": [
+    "scenarios/home-arena-soak/evidence/screenshots/011-arena-first-second.png",
+    "scenarios/home-arena-soak/evidence/screenshots/012-arena-first-kill.png",
+    "scenarios/home-arena-soak/evidence/screenshots/013-arena-stage-2.png",
+    "scenarios/home-arena-soak/evidence/screenshots/014-arena-first-critical.png",
+    "scenarios/home-arena-soak/evidence/screenshots/015-arena-stage-3.png",
+    "scenarios/home-arena-soak/evidence/screenshots/016-arena-first-minute.png",
+    "scenarios/home-arena-soak/evidence/screenshots/017-arena-minute-1.png",
+    "scenarios/home-arena-soak/evidence/screenshots/018-arena-stage-4.png",
+    "scenarios/home-arena-soak/evidence/screenshots/019-arena-code-storm.png",
+    "scenarios/home-arena-soak/evidence/screenshots/020-arena-minute-2.png",
+    "scenarios/home-arena-soak/evidence/screenshots/021-arena-stage-5.png",
+    "scenarios/home-arena-soak/evidence/screenshots/022-arena-minute-3.png",
+    "scenarios/home-arena-soak/evidence/screenshots/023-arena-elite.png",
+    "scenarios/home-arena-soak/evidence/screenshots/024-arena-five-stages-complete.png",
+    "scenarios/home-arena-soak/evidence/screenshots/025-arena-minute-4.png",
+    "scenarios/home-arena-soak/evidence/screenshots/026-arena-fifth-minute.png",
+    "scenarios/home-arena-soak/evidence/screenshots/027-arena-minute-5.png",
+    "scenarios/home-arena-soak/evidence/screenshots/028-arena-minute-6.png",
+    "scenarios/home-arena-soak/evidence/screenshots/029-arena-minute-7.png",
+    "scenarios/home-arena-soak/evidence/screenshots/030-arena-minute-8.png",
+    "scenarios/home-arena-soak/evidence/screenshots/031-arena-minute-9.png",
+    "scenarios/home-arena-soak/evidence/screenshots/032-arena-minute-10.png",
+    "scenarios/home-arena-soak/evidence/screenshots/033-arena-minute-11.png",
+    "scenarios/home-arena-soak/evidence/screenshots/034-arena-minute-12.png",
+    "scenarios/home-arena-soak/evidence/screenshots/035-arena-minute-13.png",
+    "scenarios/home-arena-soak/evidence/screenshots/036-arena-minute-14.png",
+    "scenarios/home-arena-soak/evidence/screenshots/037-arena-minute-15.png",
+    "scenarios/home-arena-soak/evidence/screenshots/038-arena-minute-16.png",
+    "scenarios/home-arena-soak/evidence/screenshots/039-arena-minute-17.png",
+    "scenarios/home-arena-soak/evidence/screenshots/040-arena-minute-18.png",
+    "scenarios/home-arena-soak/evidence/screenshots/041-arena-minute-19.png",
+    "scenarios/home-arena-soak/evidence/screenshots/042-arena-restart-recovery.png"
+  ],
+  "finalState": {
+    "version": 1,
+    "stage": 5,
+    "kills": 7,
+    "hp": 13,
+    "complete": false,
+    "clearedStages": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "rewardedEnemies": [
+      16,
+      24,
+      26,
+      28,
+      30
+    ],
+    "rngState": 2335183486,
+    "combo": 20,
+    "lastClickAt": 1792146466871,
+    "lastAttackAt": 1792146466871,
+    "skillReadyAt": 1792146491664,
+    "stageActiveMs": 15985,
+    "requests": [
+      "ui-1792146442061-2964",
+      "ui-1792146442459-2965",
+      "ui-1792146442859-2966",
+      "ui-1792146443264-2967",
+      "ui-1792146443680-2968",
+      "ui-1792146444068-2969",
+      "ui-1792146444468-2970",
+      "ui-1792146444879-2971",
+      "ui-1792146445268-2972",
+      "ui-1792146445678-2973",
+      "ui-1792146446073-2974",
+      "ui-1792146446460-2975",
+      "ui-1792146446869-2976",
+      "ui-1792146447299-2977",
+      "ui-1792146447677-2978",
+      "ui-1792146448083-2979",
+      "ui-1792146448469-2980",
+      "ui-1792146448870-2981",
+      "ui-1792146449267-2982",
+      "ui-1792146449664-2983",
+      "ui-1792146450071-2984",
+      "ui-1792146450468-2985",
+      "ui-1792146450874-2986",
+      "ui-1792146451272-2987",
+      "ui-1792146451688-2988",
+      "ui-1792146452074-2989",
+      "ui-1792146452486-2990",
+      "ui-1792146452882-2991",
+      "ui-1792146453262-2992",
+      "ui-1792146453665-2993",
+      "ui-1792146454093-2994",
+      "ui-1792146454464-2995",
+      "ui-1792146454857-2996",
+      "ui-1792146455284-2997",
+      "ui-1792146455673-2998",
+      "ui-1792146456063-2999",
+      "ui-1792146456473-3000",
+      "ui-1792146456864-3001",
+      "ui-1792146457269-3002",
+      "ui-1792146457666-3003",
+      "ui-1792146458061-3004",
+      "ui-1792146458468-3005",
+      "ui-1792146458885-3006",
+      "ui-1792146459265-3007",
+      "ui-1792146459665-3008",
+      "ui-1792146460073-3009",
+      "ui-1792146460462-3010",
+      "ui-1792146460864-3011",
+      "ui-1792146461259-3012",
+      "storm-1792146461658-3013",
+      "ui-1792146461729-3014",
+      "ui-1792146462077-3015",
+      "ui-1792146462478-3016",
+      "ui-1792146462866-3017",
+      "ui-1792146463275-3018",
+      "ui-1792146463669-3019",
+      "ui-1792146464068-3020",
+      "ui-1792146464478-3021",
+      "ui-1792146464889-3022",
+      "ui-1792146465261-3023",
+      "ui-1792146465687-3024",
+      "ui-1792146466076-3025",
+      "ui-1792146466468-3026",
+      "ui-1792146466871-3027"
+    ],
+    "metrics": {
+      "attacks": 2990,
+      "crits": 136,
+      "maxCombo": 20,
+      "autoAttacks": 563,
+      "skillUses": 37,
+      "totalKills": 845,
+      "stageTimesMs": [
+        18893,
+        38914,
+        46877,
+        59664,
+        73785
+      ]
+    },
+    "rewards": {
+      "experience": 398,
+      "materials": {
+        "mat_code_fragment": 124,
+        "mat_page": 10,
+        "mat_bug_crystal": 3
+      }
+    },
+    "recentDrops": [
+      "第4关通关！",
+      "第3关通关！",
+      "第2关通关！",
+      "第1关通关！",
+      "第5关通关！",
+      "第4关通关！",
+      "第3关通关！",
+      "第2关通关！"
+    ],
+    "ready": true,
+    "active": true,
+    "stageName": "线上事故",
+    "enemy": {
+      "id": "5:7",
+      "name": "服务雪崩虫",
+      "hp": 13,
+      "maxHp": 200,
+      "elite": false,
+      "level": 5
+    },
+    "enemyTotal": 30,
+    "attack": 29,
+    "critChance": 0.05,
+    "comboBonus": 0.2,
+    "autoUnlocked": true,
+    "skillUnlocked": true,
+    "autoIntervalSeconds": 2,
+    "skillRemainingMs": 24784,
+    "skillDamage": 145,
+    "rewardPreview": "修为 +50 · Bug 晶核 ×3"
+  },
+  "beforeRestart": {
+    "version": 1,
+    "stage": 5,
+    "kills": 7,
+    "hp": 13,
+    "complete": false,
+    "clearedStages": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "rewardedEnemies": [
+      16,
+      24,
+      26,
+      28,
+      30
+    ],
+    "rngState": 2335183486,
+    "combo": 20,
+    "lastClickAt": 1792146466871,
+    "lastAttackAt": 1792146466871,
+    "skillReadyAt": 1792146491664,
+    "stageActiveMs": 15985,
+    "requests": [
+      "ui-1792146442061-2964",
+      "ui-1792146442459-2965",
+      "ui-1792146442859-2966",
+      "ui-1792146443264-2967",
+      "ui-1792146443680-2968",
+      "ui-1792146444068-2969",
+      "ui-1792146444468-2970",
+      "ui-1792146444879-2971",
+      "ui-1792146445268-2972",
+      "ui-1792146445678-2973",
+      "ui-1792146446073-2974",
+      "ui-1792146446460-2975",
+      "ui-1792146446869-2976",
+      "ui-1792146447299-2977",
+      "ui-1792146447677-2978",
+      "ui-1792146448083-2979",
+      "ui-1792146448469-2980",
+      "ui-1792146448870-2981",
+      "ui-1792146449267-2982",
+      "ui-1792146449664-2983",
+      "ui-1792146450071-2984",
+      "ui-1792146450468-2985",
+      "ui-1792146450874-2986",
+      "ui-1792146451272-2987",
+      "ui-1792146451688-2988",
+      "ui-1792146452074-2989",
+      "ui-1792146452486-2990",
+      "ui-1792146452882-2991",
+      "ui-1792146453262-2992",
+      "ui-1792146453665-2993",
+      "ui-1792146454093-2994",
+      "ui-1792146454464-2995",
+      "ui-1792146454857-2996",
+      "ui-1792146455284-2997",
+      "ui-1792146455673-2998",
+      "ui-1792146456063-2999",
+      "ui-1792146456473-3000",
+      "ui-1792146456864-3001",
+      "ui-1792146457269-3002",
+      "ui-1792146457666-3003",
+      "ui-1792146458061-3004",
+      "ui-1792146458468-3005",
+      "ui-1792146458885-3006",
+      "ui-1792146459265-3007",
+      "ui-1792146459665-3008",
+      "ui-1792146460073-3009",
+      "ui-1792146460462-3010",
+      "ui-1792146460864-3011",
+      "ui-1792146461259-3012",
+      "storm-1792146461658-3013",
+      "ui-1792146461729-3014",
+      "ui-1792146462077-3015",
+      "ui-1792146462478-3016",
+      "ui-1792146462866-3017",
+      "ui-1792146463275-3018",
+      "ui-1792146463669-3019",
+      "ui-1792146464068-3020",
+      "ui-1792146464478-3021",
+      "ui-1792146464889-3022",
+      "ui-1792146465261-3023",
+      "ui-1792146465687-3024",
+      "ui-1792146466076-3025",
+      "ui-1792146466468-3026",
+      "ui-1792146466871-3027"
+    ],
+    "metrics": {
+      "attacks": 2990,
+      "crits": 136,
+      "maxCombo": 20,
+      "autoAttacks": 563,
+      "skillUses": 37,
+      "totalKills": 845,
+      "stageTimesMs": [
+        18893,
+        38914,
+        46877,
+        59664,
+        73785
+      ]
+    },
+    "rewards": {
+      "experience": 398,
+      "materials": {
+        "mat_code_fragment": 124,
+        "mat_page": 10,
+        "mat_bug_crystal": 3
+      }
+    },
+    "recentDrops": [
+      "第4关通关！",
+      "第3关通关！",
+      "第2关通关！",
+      "第1关通关！",
+      "第5关通关！",
+      "第4关通关！",
+      "第3关通关！",
+      "第2关通关！"
+    ],
+    "ready": true,
+    "active": false,
+    "stageName": "线上事故",
+    "enemy": {
+      "id": "5:7",
+      "name": "服务雪崩虫",
+      "hp": 13,
+      "maxHp": 200,
+      "elite": false,
+      "level": 5
+    },
+    "enemyTotal": 30,
+    "attack": 29,
+    "critChance": 0.05,
+    "comboBonus": 0.2,
+    "autoUnlocked": true,
+    "skillUnlocked": true,
+    "autoIntervalSeconds": 2,
+    "skillRemainingMs": 24317,
+    "skillDamage": 145,
+    "rewardPreview": "修为 +50 · Bug 晶核 ×3"
+  },
+  "afterRestart": {
+    "version": 1,
+    "stage": 5,
+    "kills": 7,
+    "hp": 13,
+    "complete": false,
+    "clearedStages": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "rewardedEnemies": [
+      16,
+      24,
+      26,
+      28,
+      30
+    ],
+    "rngState": 2335183486,
+    "combo": 0,
+    "lastClickAt": 1792146466871,
+    "lastAttackAt": 1792146466871,
+    "skillReadyAt": 1792146491664,
+    "stageActiveMs": 15985,
+    "requests": [
+      "ui-1792146442061-2964",
+      "ui-1792146442459-2965",
+      "ui-1792146442859-2966",
+      "ui-1792146443264-2967",
+      "ui-1792146443680-2968",
+      "ui-1792146444068-2969",
+      "ui-1792146444468-2970",
+      "ui-1792146444879-2971",
+      "ui-1792146445268-2972",
+      "ui-1792146445678-2973",
+      "ui-1792146446073-2974",
+      "ui-1792146446460-2975",
+      "ui-1792146446869-2976",
+      "ui-1792146447299-2977",
+      "ui-1792146447677-2978",
+      "ui-1792146448083-2979",
+      "ui-1792146448469-2980",
+      "ui-1792146448870-2981",
+      "ui-1792146449267-2982",
+      "ui-1792146449664-2983",
+      "ui-1792146450071-2984",
+      "ui-1792146450468-2985",
+      "ui-1792146450874-2986",
+      "ui-1792146451272-2987",
+      "ui-1792146451688-2988",
+      "ui-1792146452074-2989",
+      "ui-1792146452486-2990",
+      "ui-1792146452882-2991",
+      "ui-1792146453262-2992",
+      "ui-1792146453665-2993",
+      "ui-1792146454093-2994",
+      "ui-1792146454464-2995",
+      "ui-1792146454857-2996",
+      "ui-1792146455284-2997",
+      "ui-1792146455673-2998",
+      "ui-1792146456063-2999",
+      "ui-1792146456473-3000",
+      "ui-1792146456864-3001",
+      "ui-1792146457269-3002",
+      "ui-1792146457666-3003",
+      "ui-1792146458061-3004",
+      "ui-1792146458468-3005",
+      "ui-1792146458885-3006",
+      "ui-1792146459265-3007",
+      "ui-1792146459665-3008",
+      "ui-1792146460073-3009",
+      "ui-1792146460462-3010",
+      "ui-1792146460864-3011",
+      "ui-1792146461259-3012",
+      "storm-1792146461658-3013",
+      "ui-1792146461729-3014",
+      "ui-1792146462077-3015",
+      "ui-1792146462478-3016",
+      "ui-1792146462866-3017",
+      "ui-1792146463275-3018",
+      "ui-1792146463669-3019",
+      "ui-1792146464068-3020",
+      "ui-1792146464478-3021",
+      "ui-1792146464889-3022",
+      "ui-1792146465261-3023",
+      "ui-1792146465687-3024",
+      "ui-1792146466076-3025",
+      "ui-1792146466468-3026",
+      "ui-1792146466871-3027"
+    ],
+    "metrics": {
+      "attacks": 2990,
+      "crits": 136,
+      "maxCombo": 20,
+      "autoAttacks": 563,
+      "skillUses": 37,
+      "totalKills": 845,
+      "stageTimesMs": [
+        18893,
+        38914,
+        46877,
+        59664,
+        73785
+      ]
+    },
+    "rewards": {
+      "experience": 398,
+      "materials": {
+        "mat_code_fragment": 124,
+        "mat_page": 10,
+        "mat_bug_crystal": 3
+      }
+    },
+    "recentDrops": [
+      "第4关通关！",
+      "第3关通关！",
+      "第2关通关！",
+      "第1关通关！",
+      "第5关通关！",
+      "第4关通关！",
+      "第3关通关！",
+      "第2关通关！"
+    ],
+    "ready": true,
+    "active": true,
+    "stageName": "线上事故",
+    "enemy": {
+      "id": "5:7",
+      "name": "服务雪崩虫",
+      "hp": 13,
+      "maxHp": 200,
+      "elite": false,
+      "level": 5
+    },
+    "enemyTotal": 30,
+    "attack": 29,
+    "critChance": 0.05,
+    "comboBonus": 0,
+    "autoUnlocked": true,
+    "skillUnlocked": true,
+    "autoIntervalSeconds": 2,
+    "skillRemainingMs": 18318,
+    "skillDamage": 145,
+    "rewardPreview": "修为 +50 · Bug 晶核 ×3"
+  }
+}

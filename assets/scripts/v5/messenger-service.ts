@@ -128,7 +128,9 @@ export class MessengerService {
     const criticalTypes = new Set(
       conversations.filter((c) => c.type === 'INCIDENT' || c.type === 'BOSS').map((c) => c.id),
     );
-    const unread = messages.filter((m) => !m.read && !m.recalled);
+    // Reading and replying are separate states: an opened message with a pending
+    // reply must remain actionable, but it must stop raising unread interrupts.
+    const unread = messages.filter((m) => !m.seen && !m.recalled);
     const criticalUnread = unread.filter((m) => criticalTypes.has(m.conversationId)).length;
     let lastPreview: MessengerBadgeView['lastPreview'] = null;
     for (let i = unread.length - 1; i >= 0; i -= 1) {

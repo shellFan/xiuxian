@@ -84,6 +84,9 @@ import { TeamService } from '../services/team-service';
 import { MetaService } from '../services/meta-service';
 import { GameSoundService } from '../services/sound-service';
 import { CharacterCreationService } from '../v59/character-creation-service';
+import { HomeArenaService } from '../v59i1/home-arena-service';
+import { FateEventService } from '../v59j/fate-event-service';
+import { RebirthService } from '../services/rebirth-service';
 import { HomeService } from '../v59f/home-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
@@ -116,6 +119,7 @@ export interface GameContextOptions {
   readonly randomV2?: RandomService;
   /** V4 战斗 rng（测试注入种子用）。 */
   readonly battleRng?: () => number;
+  readonly homeArenaSeed?: number;
 }
 
 export class GameContext {
@@ -238,6 +242,10 @@ export class GameContext {
   public readonly characterCreation: CharacterCreationService;
   /** V5.9-F-Z 主页面可玩性（今日工作/三目标/行动建议/生活行为）。 */
   public readonly home: HomeService;
+  public readonly homeArena: HomeArenaService;
+  /** V5.9-J authoritative fate event queue and choice resolution. */
+  public readonly fateEvents: FateEventService;
+  public readonly rebirth: RebirthService;
   public readonly config = GameConfig;
 
   public constructor(options: GameContextOptions = {}) {
@@ -356,6 +364,9 @@ export class GameContext {
     this.characterCreation = new CharacterCreationService(this, this.storage, options.characterSeedProvider);
     // ── V5.9-F-Z 主页面可玩性（依赖齐全，最后构建） ──
     this.home = new HomeService(this);
+    this.homeArena = new HomeArenaService(this, options.clock, options.homeArenaSeed);
+    this.fateEvents = new FateEventService(this);
+    this.rebirth = new RebirthService(this);
   }
 
   /** @deprecated No longer used in PC V1 — board is null by default. */

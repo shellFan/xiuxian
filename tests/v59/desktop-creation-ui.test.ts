@@ -58,10 +58,19 @@ async function runInElectron(): Promise<void> {
       catch (error) { return error && error.stack ? error.stack : String(error); }
     })()`);
     assert.equal(loaded, true, String(loaded));
+    await win.webContents.executeJavaScript(readFileSync(join(process.cwd(), 'desktop', 'ui-home-arena.js'), 'utf8'));
     await waitFor(win, `document.querySelector('.v59-creation .v59-stepper span') !== null`);
 
     const sevenSteps = await win.webContents.executeJavaScript(`document.querySelectorAll('.v59-stepper span').length`);
     assert.equal(sevenSteps, 7);
+    const creationArbitration = await win.webContents.executeJavaScript(`(() => {
+      const f = window.__GAME_FACADE__, original = f.queryMessengerBadge;
+      f.queryMessengerBadge = () => ({hasCritical:true,criticalUnread:1});
+      window.UiOverlay.dispatchNextModal();
+      f.queryMessengerBadge = original;
+      return !!document.querySelector('#PopupLayer .ux-modal-layer');
+    })()`);
+    assert.equal(creationArbitration, false, 'pending messages cannot obscure unfinished character creation');
     await click(win, '[data-creation-choice="industry:INTERNET"]');
     await click(win, '[data-creation-action="advance"]');
     await click(win, '[data-creation-choice="direction:TECH_RND"]');
@@ -121,6 +130,13 @@ async function runInElectron(): Promise<void> {
     await click(win, '[data-nav="HOME"]');
     const homeRestored = await win.webContents.executeJavaScript(`document.querySelector('.ux-home-col.ux-home-right') !== null`);
     assert.equal(homeRestored, true, 'selecting HOME from a HOME subpage restores the home columns');
+    const retained = await win.webContents.executeJavaScript(`(() => {
+      window.UiOverlay.refresh();
+      const arena = document.querySelector('#HomeArena'), center = arena.parentElement;
+      window.UiOverlay.refresh();
+      return {sameArena:arena === document.querySelector('#HomeArena'), sameParent:center === arena.parentElement};
+    })()`);
+    assert.deepEqual(retained, {sameArena:true,sameParent:true}, 'HUD refresh must never detach the pressed battlefield or its parent');
     await win.webContents.executeJavaScript(`window.__GAME_FACADE__.destroy()`);
     win.destroy();
     console.log('V5.9 Electron DOM creation flow passed');

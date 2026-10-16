@@ -1,0 +1,64 @@
+{
+  "clock": {
+    "hour": 18,
+    "minute": 7,
+    "weekday": 5,
+    "isWeekend": false
+  },
+  "mode": "FISHING",
+  "salaryBalance": 0,
+  "todayEarned": 0,
+  "incomeRate": {
+    "perSecond": 0.0016666666666666668,
+    "perMinute": 0.1,
+    "perHour": 6
+  },
+  "todo": {
+    "pendingCount": 5,
+    "items": [
+      {
+        "id": "at_mvaszywa_1mo",
+        "title": "第一张工单：排查接口异常",
+        "source": "SYSTEM",
+        "priority": "P2"
+      },
+      {
+        "id": "msg_fw57_w1f_typing_root_1792145412611_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_jun_001_root_1792145428446_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_prod_003_root_1792145444545_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_prod_016_root_1792145460465_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      }
+    ]
+  },
+  "messages": {
+    "unreadCount": 4,
+    "pendingReplyCount": 4,
+    "latest": ""
+  },
+  "activity": [],
+  "life": [],
+  "task": [],
+  "project": null,
+  "goal": {
+    "title": "接下今天的第一个任务",
+    "detail": "任务页挑选差事——完成领工资、修为与绩效，工时正等着你"
+  }
+}

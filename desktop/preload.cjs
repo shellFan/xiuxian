@@ -49,3 +49,5 @@ const electronAPI = {
 
 // Expose to renderer as window.electronAPI
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
+const testSeed = process.argv.find(arg => /^--xiuxian-test-seed=\d{1,10}$/.test(arg));
+if (testSeed) contextBridge.exposeInMainWorld('__XIUXIAN_TEST__', Object.freeze({ seed: Number(testSeed.split('=')[1]) >>> 0 }));

@@ -102,9 +102,13 @@ export class GameLoopService {
     // 5.57 V4 project battle: advances while a run is active (auto-attack engine).
     try {
       if (this.context.battle.current()) this.context.battle.tick(seconds);
+      this.context.fateEvents.tickActiveChallenge();
+      this.context.fateEvents.settleActiveChallenge();
     } catch {
       // Battle failure must not crash the game loop
     }
+
+    this.context.homeArena?.tick(seconds);
 
     // 5.6 V2 daily/weekly settlement: once per started workday after 18:00.
     try {

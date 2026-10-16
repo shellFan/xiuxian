@@ -270,7 +270,7 @@ function testSaveV13(): void {
   const { facade } = makeFacade();
   try {
     const raw = facade.context.player.toSaveData();
-    assert.equal(raw.saveVersion, 14, 'save version 14');
+    assert.equal(raw.saveVersion, 15, 'save version 15');
     const roundTripped = new (facade.context.player.constructor as never as { new(o?: unknown): instanceOfPlayer })(JSON.parse(JSON.stringify(raw)));
     assert.equal(roundTripped.burnoutState.state, 'NORMAL', 'burnout default');
     assert.equal(roundTripped.buildPresets.length, 3, '3 preset slots');

@@ -187,7 +187,11 @@ export class CocosBootstrapComponent extends Component {
 
   private createFacade(): void {
     if (!this._storage) return;
-    this._facade = new GameFacade({ storage: this._storage, playTimeScale: 16 });
+    const testSeed = typeof window !== 'undefined' ? (window as unknown as { __XIUXIAN_TEST__?: { seed: number } }).__XIUXIAN_TEST__?.seed : undefined;
+    this._facade = new GameFacade({ storage: this._storage, playTimeScale: 16,
+      homeArenaSeed: testSeed,
+      characterSeedProvider: testSeed === undefined ? undefined : () => testSeed,
+    });
     console.log('[BOOT] GameFacade initialized');
 
     // Expose facade on window for DOM overlay UI access

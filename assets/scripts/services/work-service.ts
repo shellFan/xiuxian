@@ -1,7 +1,7 @@
 import idleConfig from '../../configs/idle.json';
 import type { GameContext } from '../core/game-context';
 import type { WorkMode } from '../model/save-data';
-import { applyCharacterEffectToInteger } from '../v59/character-attributes';
+import { applyCharacterEffectToInteger, characterEffectMultiplier } from '../v59/character-attributes';
 
 export interface WorkServiceOptions {
   readonly salaryPerHour?: number | readonly number[];
@@ -136,21 +136,16 @@ export class WorkService {
       'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder';
     const mindResult = accumulate(Math.abs(mindRate), standardSeconds, 1, this.context.player[mindRemainderKey] ?? 0, 3600);
     const baseSalary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier);
-    const salary = mode === 'WORK' ? applyCharacterEffectToInteger(
-      baseSalary,
-      this.context.player,
-      'REGULAR_WORK_OUTPUT',
-    ) : baseSalary;
+    const outputMultiplier = characterEffectMultiplier(this.context.player, 'REGULAR_WORK_OUTPUT');
+    const salaryProjection = accumulateCharacterReward(baseSalary, outputMultiplier, this.context.player.regularWorkRewardRemainders.salary);
+    const salary = mode === 'WORK' ? salaryProjection.reward : baseSalary;
     const attributeCultivationExp = applyCharacterEffectToInteger(
       Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier),
       this.context.player,
       'CULTIVATION_REWARD',
     );
-    const cultivationExp = mode === 'WORK' ? applyCharacterEffectToInteger(
-      attributeCultivationExp,
-      this.context.player,
-      'REGULAR_WORK_OUTPUT',
-    ) : attributeCultivationExp;
+    const cultivationProjection = accumulateCharacterReward(attributeCultivationExp, outputMultiplier, this.context.player.regularWorkRewardRemainders.cultivation);
+    const cultivationExp = mode === 'WORK' ? cultivationProjection.reward : attributeCultivationExp;
     const mindBuffMul = mode === 'FISHING' ? this.context.buffs.getMultiplier('FISHING_MIND_BOOST') : 1;
     const baseMindDelta = mindRate >= 0 ? Math.floor(mindResult.reward * mindBuffMul) : -mindResult.reward;
     const mindDelta = baseMindDelta < 0 && (mode === 'WORK' || mode === 'CULTIVATING')
@@ -165,6 +160,7 @@ export class WorkService {
       this.context.cultivation.applyIdleExperience(cultivationExp);
       const actualMindDelta = this.context.mind.applyDelta(mindDelta);
       this.context.player[secondsKey] = nextSeconds;
+      if (mode === 'WORK') this.context.player.regularWorkRewardRemainders = { salary: salaryProjection.remainder, cultivation: cultivationProjection.remainder };
       this.context.player.salaryRemainder = salaryResult.remainder;
       this.context.player.cultivationRemainder = cultivationResult.remainder;
       this.context.player[mindRemainderKey] = mindResult.remainder;
@@ -259,6 +255,11 @@ function standardSecondsBetween(fromMs: number, toMs: number, startHour: number,
   return Math.floor(total / 1000);
 }
 
+function accumulateCharacterReward(amount: number, multiplier: number, remainder: number): { reward: number; remainder: number } {
+  const numerator = amount * Math.round(multiplier * 1000000) + remainder;
+  return { reward: Math.floor(numerator / 1000000), remainder: numerator % 1000000 };
+}
+
 function normalizeRates(value: number | readonly number[], name: string): readonly number[] {
   const rates = typeof value === 'number' ? Array(6).fill(value) : [...value];
   if (rates.length !== 6 || rates.some((rate) => !Number.isSafeInteger(rate) || rate < 0)) throw new Error(`Invalid work ${name} rates`);
@@ -294,6 +295,7 @@ function restorePlayer(player: GameContext['player'], data: ReturnType<GameConte
   player.fishingSeconds = data.fishingSeconds;
   player.lastSaveTime = data.lastSaveTime;
   player.salaryRemainder = data.salaryRemainder ?? 0;
+  player.regularWorkRewardRemainders = { ...(data.regularWorkRewardRemainders ?? { salary: 0, cultivation: 0 }) };
   player.cultivationRemainder = data.cultivationRemainder ?? 0;
   player.mindRemainder = data.mindRemainder ?? 0;
   player.workMindRemainder = data.workMindRemainder ?? 0;

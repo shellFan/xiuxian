@@ -9,7 +9,8 @@ import type { GameContext } from '../core/game-context';
 export type SoundEvent =
   | 'TASK_COMPLETE' | 'BOSS_WARNING' | 'BOSS_KILL' | 'RARE_DROP' | 'LEGENDARY_DROP'
   | 'PROMOTION' | 'MESSAGE' | 'OFF_WORK' | 'INCIDENT' | 'ACHIEVEMENT'
-  | 'BOSS_PHASE2' | 'BURNOUT' | 'OFFER' | 'MILESTONE';
+  | 'BOSS_PHASE2' | 'BURNOUT' | 'OFFER' | 'MILESTONE'
+  | 'HOME_ATTACK' | 'CRITICAL_HIT' | 'HOME_VICTORY' | 'CODE_STORM';
 
 export interface SoundPlayback {
   play(event: SoundEvent, volume?: number): void;

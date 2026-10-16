@@ -1,0 +1,2875 @@
+{
+  "version": 1,
+  "events": [
+    {
+      "id": "intern_s1",
+      "title": "实习生递来的报错",
+      "description": "凌晨的实习生捧着一张全红的测试报告，说这不是他的提交。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "milestone": "arena:1:2"
+      },
+      "chainId": "intern",
+      "chainStage": 1,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "陪实习生复现故障并留存证据",
+          "success": {
+            "text": "「实习生递来的报错」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；战斗增益持续 120 秒；剧情线索推进至 intern_s2。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "intern_s1_help"
+            ],
+            "nextEventId": "intern_s2",
+            "combatModifier": {
+              "id": "intern_buddy_focus",
+              "durationSeconds": 120,
+              "attackMultiplier": 1.2,
+              "critChanceDelta": 0.04,
+              "autoIntervalMultiplier": 0.9,
+              "skillCooldownMultiplier": 0.8
+            }
+          },
+          "failure": {
+            "text": "「实习生递来的报错」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；剧情线索推进至 intern_s2。",
+            "mind": -1,
+            "setFlags": [
+              "intern_s1_help"
+            ],
+            "nextEventId": "intern_s2"
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "和主管核对权限与责任边界",
+          "success": {
+            "text": "「实习生递来的报错」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；剧情线索推进至 intern_s2。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "intern_s1_negotiate"
+            ],
+            "nextEventId": "intern_s2"
+          },
+          "failure": {
+            "text": "「实习生递来的报错」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；剧情线索推进至 intern_s2。",
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "intern_s1_negotiate"
+            ],
+            "nextEventId": "intern_s2"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "公开提交记录并承担后果",
+          "successChance": 0.58,
+          "success": {
+            "text": "「实习生递来的报错」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；剧情线索推进至 intern_s2。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "intern_s1_risk"
+            ],
+            "nextEventId": "intern_s2"
+          },
+          "failure": {
+            "text": "「实习生递来的报错」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；剧情线索推进至 intern_s2。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "intern_s1_risk"
+            ],
+            "nextEventId": "intern_s2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "intern_s2",
+      "title": "工牌被移出项目群",
+      "description": "实习生突然看不到代码库，主管说这是“权限优化”。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "intern",
+        "chainStage": 2
+      },
+      "chainId": "intern",
+      "chainStage": 2,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "陪实习生复现故障并留存证据",
+          "success": {
+            "text": "「工牌被移出项目群」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；剧情线索推进至 intern_s3。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "intern_s2_help"
+            ],
+            "nextEventId": "intern_s3"
+          },
+          "failure": {
+            "text": "「工牌被移出项目群」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；剧情线索推进至 intern_s3。",
+            "mind": -1,
+            "setFlags": [
+              "intern_s2_help"
+            ],
+            "nextEventId": "intern_s3"
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "和主管核对权限与责任边界",
+          "success": {
+            "text": "「工牌被移出项目群」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；剧情线索推进至 intern_s3。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "intern_s2_negotiate"
+            ],
+            "nextEventId": "intern_s3"
+          },
+          "failure": {
+            "text": "「工牌被移出项目群」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；剧情线索推进至 intern_s3。",
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "intern_s2_negotiate"
+            ],
+            "nextEventId": "intern_s3"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "公开提交记录并承担后果",
+          "successChance": 0.58,
+          "success": {
+            "text": "「工牌被移出项目群」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；剧情线索推进至 intern_s3。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "intern_s2_risk"
+            ],
+            "nextEventId": "intern_s3"
+          },
+          "failure": {
+            "text": "「工牌被移出项目群」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；剧情线索推进至 intern_s3。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "intern_s2_risk"
+            ],
+            "nextEventId": "intern_s3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "intern_s3",
+      "title": "构建记录里的陌生账号",
+      "description": "CI 记录显示有人用主管账号覆盖了实习生的提交。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "intern",
+        "chainStage": 3
+      },
+      "chainId": "intern",
+      "chainStage": 3,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "陪实习生复现故障并留存证据",
+          "success": {
+            "text": "「构建记录里的陌生账号」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；剧情线索推进至 intern_s4。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "intern_s3_help"
+            ],
+            "nextEventId": "intern_s4"
+          },
+          "failure": {
+            "text": "「构建记录里的陌生账号」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；剧情线索推进至 intern_s4。",
+            "mind": -1,
+            "setFlags": [
+              "intern_s3_help"
+            ],
+            "nextEventId": "intern_s4"
+          },
+          "requirements": {
+            "requiredFlags": [
+              "intern_s2_help"
+            ]
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "和主管核对权限与责任边界",
+          "success": {
+            "text": "「构建记录里的陌生账号」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；剧情线索推进至 intern_s4。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "intern_s3_negotiate"
+            ],
+            "nextEventId": "intern_s4"
+          },
+          "failure": {
+            "text": "「构建记录里的陌生账号」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；剧情线索推进至 intern_s4。",
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "intern_s3_negotiate"
+            ],
+            "nextEventId": "intern_s4"
+          },
+          "requirements": {
+            "requiredFlags": [
+              "intern_s2_negotiate"
+            ]
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "公开提交记录并承担后果",
+          "successChance": 0.58,
+          "success": {
+            "text": "「构建记录里的陌生账号」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；剧情线索推进至 intern_s4。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "intern_s3_risk"
+            ],
+            "nextEventId": "intern_s4"
+          },
+          "failure": {
+            "text": "「构建记录里的陌生账号」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；剧情线索推进至 intern_s4。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "intern_s3_risk"
+            ],
+            "nextEventId": "intern_s4"
+          },
+          "requirements": {
+            "requiredFlags": [
+              "intern_s2_risk"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "intern_s4",
+      "title": "周会前的最后五分钟",
+      "description": "实习生把证据交给你：公开可能救他，也可能让整组背锅。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "intern",
+        "chainStage": 4
+      },
+      "chainId": "intern",
+      "chainStage": 4,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "陪实习生复现故障并留存证据",
+          "success": {
+            "text": "「周会前的最后五分钟」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；剧情线索推进至 intern_s5。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "intern_s4_help"
+            ],
+            "nextEventId": "intern_s5"
+          },
+          "failure": {
+            "text": "「周会前的最后五分钟」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；剧情线索推进至 intern_s5。",
+            "mind": -1,
+            "setFlags": [
+              "intern_s4_help"
+            ],
+            "nextEventId": "intern_s5"
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "和主管核对权限与责任边界",
+          "success": {
+            "text": "「周会前的最后五分钟」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；剧情线索推进至 intern_s5。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "intern_s4_negotiate"
+            ],
+            "nextEventId": "intern_s5"
+          },
+          "failure": {
+            "text": "「周会前的最后五分钟」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；剧情线索推进至 intern_s5。",
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "intern_s4_negotiate"
+            ],
+            "nextEventId": "intern_s5"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "公开提交记录并承担后果",
+          "successChance": 0.58,
+          "success": {
+            "text": "「周会前的最后五分钟」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；剧情线索推进至 intern_s5。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "intern_s4_risk"
+            ],
+            "nextEventId": "intern_s5"
+          },
+          "failure": {
+            "text": "「周会前的最后五分钟」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；剧情线索推进至 intern_s5。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "intern_s4_risk"
+            ],
+            "nextEventId": "intern_s5"
+          },
+          "requirements": {
+            "relationship": {
+              "INTERN": 5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "intern_s5",
+      "title": "实习生的去留",
+      "description": "复核结论出来了，所有人都盯着你准备怎么收尾。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "intern",
+        "chainStage": 5
+      },
+      "chainId": "intern",
+      "chainStage": 5,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "陪实习生复现故障并留存证据",
+          "success": {
+            "text": "「实习生的去留」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；本轮结局：intern_s5_ALLY。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "intern_s5_help"
+            ],
+            "endingId": "intern_s5_ALLY",
+            "deathEnding": false
+          },
+          "failure": {
+            "text": "「实习生的去留」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；本轮结局：intern_s5_ALLY_FAIL。",
+            "mind": -1,
+            "setFlags": [
+              "intern_s5_help"
+            ],
+            "endingId": "intern_s5_ALLY_FAIL",
+            "deathEnding": false
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "和主管核对权限与责任边界",
+          "success": {
+            "text": "「实习生的去留」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；本轮结局：intern_s5_ESCAPE。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "intern_s5_negotiate"
+            ],
+            "endingId": "intern_s5_ESCAPE",
+            "deathEnding": false
+          },
+          "failure": {
+            "text": "「实习生的去留」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；本轮结局：intern_s5_ESCAPE_FAIL。",
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "intern_s5_negotiate"
+            ],
+            "endingId": "intern_s5_ESCAPE_FAIL",
+            "deathEnding": false
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "公开提交记录并承担后果",
+          "successChance": 0.58,
+          "success": {
+            "text": "「实习生的去留」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；本轮结局：intern_s5_LAST_STAND。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "intern_s5_risk"
+            ],
+            "endingId": "intern_s5_LAST_STAND",
+            "deathEnding": true
+          },
+          "failure": {
+            "text": "「实习生的去留」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；本轮结局：intern_s5_LAST_STAND_FAIL。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "intern_s5_risk"
+            ],
+            "endingId": "intern_s5_LAST_STAND_FAIL",
+            "deathEnding": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "legacy_s1",
+      "title": "祖传仓库突然有了 README",
+      "description": "一个停更八年的仓库里出现了今天的提交，作者写着“未来的你”。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "milestone": "arena:1:8"
+      },
+      "chainId": "legacy_code",
+      "chainStage": 1,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "在隔离环境逆向旧仓库",
+          "success": {
+            "text": "「祖传仓库突然有了 README」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +2；剧情线索推进至 legacy_s2。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 2
+            },
+            "setFlags": [
+              "legacy_s1_help"
+            ],
+            "nextEventId": "legacy_s2"
+          },
+          "failure": {
+            "text": "「祖传仓库突然有了 README」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；TESTER关系 +2；剧情线索推进至 legacy_s2。",
+            "mind": -1,
+            "setFlags": [
+              "legacy_s1_help"
+            ],
+            "nextEventId": "legacy_s2",
+            "relationship": {
+              "TESTER": 2
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先备份并核查提交历史",
+          "success": {
+            "text": "「祖传仓库突然有了 README」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +2；剧情线索推进至 legacy_s2。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "legacy_s1_negotiate"
+            ],
+            "nextEventId": "legacy_s2",
+            "relationship": {
+              "OPS": 2
+            }
+          },
+          "failure": {
+            "text": "「祖传仓库突然有了 README」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +2；剧情线索推进至 legacy_s2。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 2
+            },
+            "setFlags": [
+              "legacy_s1_negotiate"
+            ],
+            "nextEventId": "legacy_s2"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "运行未知函数追查异象",
+          "successChance": 0.58,
+          "success": {
+            "text": "「祖传仓库突然有了 README」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 -3；剧情线索推进至 legacy_s2。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "legacy_s1_risk"
+            ],
+            "nextEventId": "legacy_s2",
+            "relationship": {
+              "MYSTERY_BOSS": -3
+            }
+          },
+          "failure": {
+            "text": "「祖传仓库突然有了 README」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 -3；剧情线索推进至 legacy_s2。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "legacy_s1_risk"
+            ],
+            "nextEventId": "legacy_s2",
+            "relationship": {
+              "MYSTERY_BOSS": -3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "legacy_s2",
+      "title": "注释说不要调用这个函数",
+      "description": "函数旁边有三层警告，调用栈却每分钟都在增长。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "legacy_code",
+        "chainStage": 2
+      },
+      "chainId": "legacy_code",
+      "chainStage": 2,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "在隔离环境逆向旧仓库",
+          "success": {
+            "text": "「注释说不要调用这个函数」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +2；剧情线索推进至 legacy_s3。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 2
+            },
+            "setFlags": [
+              "legacy_s2_help"
+            ],
+            "nextEventId": "legacy_s3"
+          },
+          "failure": {
+            "text": "「注释说不要调用这个函数」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；TESTER关系 +2；剧情线索推进至 legacy_s3。",
+            "mind": -1,
+            "setFlags": [
+              "legacy_s2_help"
+            ],
+            "nextEventId": "legacy_s3",
+            "relationship": {
+              "TESTER": 2
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先备份并核查提交历史",
+          "success": {
+            "text": "「注释说不要调用这个函数」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +2；剧情线索推进至 legacy_s3。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "legacy_s2_negotiate"
+            ],
+            "nextEventId": "legacy_s3",
+            "relationship": {
+              "OPS": 2
+            }
+          },
+          "failure": {
+            "text": "「注释说不要调用这个函数」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +2；剧情线索推进至 legacy_s3。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 2
+            },
+            "setFlags": [
+              "legacy_s2_negotiate"
+            ],
+            "nextEventId": "legacy_s3"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "运行未知函数追查异象",
+          "successChance": 0.58,
+          "success": {
+            "text": "「注释说不要调用这个函数」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 -3；剧情线索推进至 legacy_s3。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "legacy_s2_risk"
+            ],
+            "nextEventId": "legacy_s3",
+            "relationship": {
+              "MYSTERY_BOSS": -3
+            }
+          },
+          "failure": {
+            "text": "「注释说不要调用这个函数」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 -3；剧情线索推进至 legacy_s3。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "legacy_s2_risk"
+            ],
+            "nextEventId": "legacy_s3",
+            "relationship": {
+              "MYSTERY_BOSS": -3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "legacy_s3",
+      "title": "二进制里藏着工位地图",
+      "description": "编译产物映出一张不存在的办公楼平面图，最里面标着你的工号。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "legacy_code",
+        "chainStage": 3
+      },
+      "chainId": "legacy_code",
+      "chainStage": 3,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "在隔离环境逆向旧仓库",
+          "success": {
+            "text": "「二进制里藏着工位地图」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +2；剧情线索推进至 legacy_s4。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 2
+            },
+            "setFlags": [
+              "legacy_s3_help"
+            ],
+            "nextEventId": "legacy_s4"
+          },
+          "failure": {
+            "text": "「二进制里藏着工位地图」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；TESTER关系 +2；剧情线索推进至 legacy_s4。",
+            "mind": -1,
+            "setFlags": [
+              "legacy_s3_help"
+            ],
+            "nextEventId": "legacy_s4",
+            "relationship": {
+              "TESTER": 2
+            }
+          },
+          "requirements": {
+            "profession": "JAVA_BACKEND"
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先备份并核查提交历史",
+          "success": {
+            "text": "「二进制里藏着工位地图」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +2；剧情线索推进至 legacy_s4。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "legacy_s3_negotiate"
+            ],
+            "nextEventId": "legacy_s4",
+            "relationship": {
+              "OPS": 2
+            }
+          },
+          "failure": {
+            "text": "「二进制里藏着工位地图」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +2；剧情线索推进至 legacy_s4。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 2
+            },
+            "setFlags": [
+              "legacy_s3_negotiate"
+            ],
+            "nextEventId": "legacy_s4"
+          },
+          "requirements": {
+            "equipment": "eq_debugger"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "运行未知函数追查异象",
+          "successChance": 0.58,
+          "success": {
+            "text": "「二进制里藏着工位地图」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 -3；剧情线索推进至 legacy_s4。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "legacy_s3_risk"
+            ],
+            "nextEventId": "legacy_s4",
+            "relationship": {
+              "MYSTERY_BOSS": -3
+            }
+          },
+          "failure": {
+            "text": "「二进制里藏着工位地图」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 -3；剧情线索推进至 legacy_s4。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "legacy_s3_risk"
+            ],
+            "nextEventId": "legacy_s4",
+            "relationship": {
+              "MYSTERY_BOSS": -3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "legacy_s4",
+      "title": "代码开始替你写日报",
+      "description": "脚本自动提交了日报，内容准确得像它跟了你三年。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "legacy_code",
+        "chainStage": 4
+      },
+      "chainId": "legacy_code",
+      "chainStage": 4,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "在隔离环境逆向旧仓库",
+          "success": {
+            "text": "「代码开始替你写日报」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +2；剧情线索推进至 legacy_s5。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 2
+            },
+            "setFlags": [
+              "legacy_s4_help"
+            ],
+            "nextEventId": "legacy_s5"
+          },
+          "failure": {
+            "text": "「代码开始替你写日报」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；TESTER关系 +2；剧情线索推进至 legacy_s5。",
+            "mind": -1,
+            "setFlags": [
+              "legacy_s4_help"
+            ],
+            "nextEventId": "legacy_s5",
+            "relationship": {
+              "TESTER": 2
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先备份并核查提交历史",
+          "success": {
+            "text": "「代码开始替你写日报」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +2；剧情线索推进至 legacy_s5。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "legacy_s4_negotiate"
+            ],
+            "nextEventId": "legacy_s5",
+            "relationship": {
+              "OPS": 2
+            }
+          },
+          "failure": {
+            "text": "「代码开始替你写日报」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +2；剧情线索推进至 legacy_s5。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 2
+            },
+            "setFlags": [
+              "legacy_s4_negotiate"
+            ],
+            "nextEventId": "legacy_s5"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "运行未知函数追查异象",
+          "successChance": 0.58,
+          "success": {
+            "text": "「代码开始替你写日报」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 -3；剧情线索推进至 legacy_s5。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "legacy_s4_risk"
+            ],
+            "nextEventId": "legacy_s5",
+            "relationship": {
+              "MYSTERY_BOSS": -3
+            }
+          },
+          "failure": {
+            "text": "「代码开始替你写日报」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 -3；剧情线索推进至 legacy_s5。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "legacy_s4_risk"
+            ],
+            "nextEventId": "legacy_s5",
+            "relationship": {
+              "MYSTERY_BOSS": -3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "legacy_s5",
+      "title": "仓库最后一个分支",
+      "description": "分支名叫“下班”，但它要求你先作出最后一次选择。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "legacy_code",
+        "chainStage": 5
+      },
+      "chainId": "legacy_code",
+      "chainStage": 5,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "在隔离环境逆向旧仓库",
+          "success": {
+            "text": "「仓库最后一个分支」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +2；本轮结局：legacy_s5_ALLY。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 2
+            },
+            "setFlags": [
+              "legacy_s5_help"
+            ],
+            "endingId": "legacy_s5_ALLY",
+            "deathEnding": false
+          },
+          "failure": {
+            "text": "「仓库最后一个分支」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；TESTER关系 +2；本轮结局：legacy_s5_ALLY_FAIL。",
+            "mind": -1,
+            "setFlags": [
+              "legacy_s5_help"
+            ],
+            "endingId": "legacy_s5_ALLY_FAIL",
+            "deathEnding": false,
+            "relationship": {
+              "TESTER": 2
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先备份并核查提交历史",
+          "success": {
+            "text": "「仓库最后一个分支」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +2；本轮结局：legacy_s5_ESCAPE。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "legacy_s5_negotiate"
+            ],
+            "endingId": "legacy_s5_ESCAPE",
+            "deathEnding": false,
+            "relationship": {
+              "OPS": 2
+            }
+          },
+          "failure": {
+            "text": "「仓库最后一个分支」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +2；本轮结局：legacy_s5_ESCAPE_FAIL。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 2
+            },
+            "setFlags": [
+              "legacy_s5_negotiate"
+            ],
+            "endingId": "legacy_s5_ESCAPE_FAIL",
+            "deathEnding": false
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "运行未知函数追查异象",
+          "successChance": 0.58,
+          "success": {
+            "text": "「仓库最后一个分支」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 -3；本轮结局：legacy_s5_LAST_STAND。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "legacy_s5_risk"
+            ],
+            "endingId": "legacy_s5_LAST_STAND",
+            "deathEnding": true,
+            "relationship": {
+              "MYSTERY_BOSS": -3
+            }
+          },
+          "failure": {
+            "text": "「仓库最后一个分支」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 -3；本轮结局：legacy_s5_LAST_STAND_FAIL。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "legacy_s5_risk"
+            ],
+            "endingId": "legacy_s5_LAST_STAND_FAIL",
+            "deathEnding": true,
+            "relationship": {
+              "MYSTERY_BOSS": -3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "blame_s1",
+      "title": "事故群里出现你的名字",
+      "description": "服务还没恢复，主管已经在群里发了“初步判断”。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "milestone": "arena:2:3"
+      },
+      "chainId": "blame",
+      "chainStage": 1,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "整理时间线并保护证人",
+          "success": {
+            "text": "「事故群里出现你的名字」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +3；OPS关系 +2；剧情线索推进至 blame_s2。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 3,
+              "OPS": 2
+            },
+            "setFlags": [
+              "blame_s1_help"
+            ],
+            "nextEventId": "blame_s2"
+          },
+          "failure": {
+            "text": "「事故群里出现你的名字」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；TESTER关系 +3；OPS关系 +2；剧情线索推进至 blame_s2。",
+            "mind": -1,
+            "setFlags": [
+              "blame_s1_help"
+            ],
+            "nextEventId": "blame_s2",
+            "relationship": {
+              "TESTER": 3,
+              "OPS": 2
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "私下约主管逐条对证",
+          "success": {
+            "text": "「事故群里出现你的名字」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +1；BOSS关系 -1；剧情线索推进至 blame_s2。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "blame_s1_negotiate"
+            ],
+            "nextEventId": "blame_s2",
+            "relationship": {
+              "OPS": 1,
+              "BOSS": -1
+            }
+          },
+          "failure": {
+            "text": "「事故群里出现你的名字」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +1；剧情线索推进至 blame_s2。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 1
+            },
+            "setFlags": [
+              "blame_s1_negotiate"
+            ],
+            "nextEventId": "blame_s2"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "当场公开证据并接受反击",
+          "successChance": 0.58,
+          "success": {
+            "text": "「事故群里出现你的名字」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；BOSS关系 -5；剧情线索推进至 blame_s2。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "blame_s1_risk"
+            ],
+            "nextEventId": "blame_s2",
+            "relationship": {
+              "BOSS": -5
+            }
+          },
+          "failure": {
+            "text": "「事故群里出现你的名字」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；BOSS关系 -5；剧情线索推进至 blame_s2。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "blame_s1_risk"
+            ],
+            "nextEventId": "blame_s2",
+            "relationship": {
+              "BOSS": -5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "blame_s2",
+      "title": "时间线少了一个部署",
+      "description": "发布记录恰好空白七分钟，运维同事发来一张截图。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "blame",
+        "chainStage": 2
+      },
+      "chainId": "blame",
+      "chainStage": 2,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "整理时间线并保护证人",
+          "success": {
+            "text": "「时间线少了一个部署」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +3；OPS关系 +2；剧情线索推进至 blame_s3。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 3,
+              "OPS": 2
+            },
+            "setFlags": [
+              "blame_s2_help"
+            ],
+            "nextEventId": "blame_s3"
+          },
+          "failure": {
+            "text": "「时间线少了一个部署」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；TESTER关系 +3；OPS关系 +2；剧情线索推进至 blame_s3。",
+            "mind": -1,
+            "setFlags": [
+              "blame_s2_help"
+            ],
+            "nextEventId": "blame_s3",
+            "relationship": {
+              "TESTER": 3,
+              "OPS": 2
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "私下约主管逐条对证",
+          "success": {
+            "text": "「时间线少了一个部署」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +1；BOSS关系 -1；剧情线索推进至 blame_s3。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "blame_s2_negotiate"
+            ],
+            "nextEventId": "blame_s3",
+            "relationship": {
+              "OPS": 1,
+              "BOSS": -1
+            }
+          },
+          "failure": {
+            "text": "「时间线少了一个部署」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +1；剧情线索推进至 blame_s3。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 1
+            },
+            "setFlags": [
+              "blame_s2_negotiate"
+            ],
+            "nextEventId": "blame_s3"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "当场公开证据并接受反击",
+          "successChance": 0.58,
+          "success": {
+            "text": "「时间线少了一个部署」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；BOSS关系 -5；剧情线索推进至 blame_s3。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "blame_s2_risk"
+            ],
+            "nextEventId": "blame_s3",
+            "relationship": {
+              "BOSS": -5
+            }
+          },
+          "failure": {
+            "text": "「时间线少了一个部署」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；BOSS关系 -5；剧情线索推进至 blame_s3。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "blame_s2_risk"
+            ],
+            "nextEventId": "blame_s3",
+            "relationship": {
+              "BOSS": -5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "blame_s3",
+      "title": "测试同事记得那次回滚",
+      "description": "测试说回滚请求是主管口头要求，但他不想独自作证。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "blame",
+        "chainStage": 3
+      },
+      "chainId": "blame",
+      "chainStage": 3,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "整理时间线并保护证人",
+          "success": {
+            "text": "「测试同事记得那次回滚」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +3；OPS关系 +2；剧情线索推进至 blame_s4。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 3,
+              "OPS": 2
+            },
+            "setFlags": [
+              "blame_s3_help"
+            ],
+            "nextEventId": "blame_s4"
+          },
+          "failure": {
+            "text": "「测试同事记得那次回滚」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；TESTER关系 +3；OPS关系 +2；剧情线索推进至 blame_s4。",
+            "mind": -1,
+            "setFlags": [
+              "blame_s3_help"
+            ],
+            "nextEventId": "blame_s4",
+            "relationship": {
+              "TESTER": 3,
+              "OPS": 2
+            }
+          },
+          "requirements": {
+            "minMind": 60
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "私下约主管逐条对证",
+          "success": {
+            "text": "「测试同事记得那次回滚」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +1；BOSS关系 -1；剧情线索推进至 blame_s4。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "blame_s3_negotiate"
+            ],
+            "nextEventId": "blame_s4",
+            "relationship": {
+              "OPS": 1,
+              "BOSS": -1
+            }
+          },
+          "failure": {
+            "text": "「测试同事记得那次回滚」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +1；剧情线索推进至 blame_s4。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 1
+            },
+            "setFlags": [
+              "blame_s3_negotiate"
+            ],
+            "nextEventId": "blame_s4"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "当场公开证据并接受反击",
+          "successChance": 0.58,
+          "success": {
+            "text": "「测试同事记得那次回滚」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；BOSS关系 -5；剧情线索推进至 blame_s4。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "blame_s3_risk"
+            ],
+            "nextEventId": "blame_s4",
+            "relationship": {
+              "BOSS": -5
+            }
+          },
+          "failure": {
+            "text": "「测试同事记得那次回滚」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；BOSS关系 -5；剧情线索推进至 blame_s4。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "blame_s3_risk"
+            ],
+            "nextEventId": "blame_s4",
+            "relationship": {
+              "BOSS": -5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "blame_s4",
+      "title": "复盘会只留一个发言位",
+      "description": "事故复盘要求五分钟内定责，材料却有两套版本。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "blame",
+        "chainStage": 4
+      },
+      "chainId": "blame",
+      "chainStage": 4,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "整理时间线并保护证人",
+          "success": {
+            "text": "「复盘会只留一个发言位」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +3；OPS关系 +2；开启真实战斗挑战：scapegoat_boss；剧情线索推进至 blame_s5。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 3,
+              "OPS": 2
+            },
+            "setFlags": [
+              "blame_s4_help"
+            ],
+            "nextEventId": "blame_s5",
+            "challengeId": "scapegoat_boss"
+          },
+          "failure": {
+            "text": "「复盘会只留一个发言位」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；TESTER关系 +3；OPS关系 +2；剧情线索推进至 blame_s5。",
+            "mind": -1,
+            "setFlags": [
+              "blame_s4_help"
+            ],
+            "nextEventId": "blame_s5",
+            "relationship": {
+              "TESTER": 3,
+              "OPS": 2
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "私下约主管逐条对证",
+          "success": {
+            "text": "「复盘会只留一个发言位」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +1；BOSS关系 -1；剧情线索推进至 blame_s5。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "blame_s4_negotiate"
+            ],
+            "nextEventId": "blame_s5",
+            "relationship": {
+              "OPS": 1,
+              "BOSS": -1
+            }
+          },
+          "failure": {
+            "text": "「复盘会只留一个发言位」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +1；剧情线索推进至 blame_s5。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 1
+            },
+            "setFlags": [
+              "blame_s4_negotiate"
+            ],
+            "nextEventId": "blame_s5"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "当场公开证据并接受反击",
+          "successChance": 0.58,
+          "success": {
+            "text": "「复盘会只留一个发言位」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；BOSS关系 -5；剧情线索推进至 blame_s5。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "blame_s4_risk"
+            ],
+            "nextEventId": "blame_s5",
+            "relationship": {
+              "BOSS": -5
+            }
+          },
+          "failure": {
+            "text": "「复盘会只留一个发言位」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；BOSS关系 -5；剧情线索推进至 blame_s5。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "blame_s4_risk"
+            ],
+            "nextEventId": "blame_s5",
+            "relationship": {
+              "BOSS": -5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "blame_s5",
+      "title": "主管递来的和解协议",
+      "description": "主管承诺恢复绩效，只要你把事故写成“个人疏忽”。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "blame",
+        "chainStage": 5
+      },
+      "chainId": "blame",
+      "chainStage": 5,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "整理时间线并保护证人",
+          "success": {
+            "text": "「主管递来的和解协议」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +3；OPS关系 +2；本轮结局：blame_s5_ALLY。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 3,
+              "OPS": 2
+            },
+            "setFlags": [
+              "blame_s5_help"
+            ],
+            "endingId": "blame_s5_ALLY",
+            "deathEnding": false
+          },
+          "failure": {
+            "text": "「主管递来的和解协议」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；TESTER关系 +3；OPS关系 +2；本轮结局：blame_s5_ALLY_FAIL。",
+            "mind": -1,
+            "setFlags": [
+              "blame_s5_help"
+            ],
+            "endingId": "blame_s5_ALLY_FAIL",
+            "deathEnding": false,
+            "relationship": {
+              "TESTER": 3,
+              "OPS": 2
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "私下约主管逐条对证",
+          "success": {
+            "text": "「主管递来的和解协议」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +1；BOSS关系 -1；本轮结局：blame_s5_ESCAPE。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "blame_s5_negotiate"
+            ],
+            "endingId": "blame_s5_ESCAPE",
+            "deathEnding": false,
+            "relationship": {
+              "OPS": 1,
+              "BOSS": -1
+            }
+          },
+          "failure": {
+            "text": "「主管递来的和解协议」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +1；本轮结局：blame_s5_ESCAPE_FAIL。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 1
+            },
+            "setFlags": [
+              "blame_s5_negotiate"
+            ],
+            "endingId": "blame_s5_ESCAPE_FAIL",
+            "deathEnding": false
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "当场公开证据并接受反击",
+          "successChance": 0.58,
+          "success": {
+            "text": "「主管递来的和解协议」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；BOSS关系 -5；本轮结局：blame_s5_LAST_STAND。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "blame_s5_risk"
+            ],
+            "endingId": "blame_s5_LAST_STAND",
+            "deathEnding": true,
+            "relationship": {
+              "BOSS": -5
+            }
+          },
+          "failure": {
+            "text": "「主管递来的和解协议」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；BOSS关系 -5；本轮结局：blame_s5_LAST_STAND_FAIL。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "blame_s5_risk"
+            ],
+            "endingId": "blame_s5_LAST_STAND_FAIL",
+            "deathEnding": true,
+            "relationship": {
+              "BOSS": -5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "boss_s1",
+      "title": "老板给你一张空白需求单",
+      "description": "老板说这张单“自己会长出正确需求”，然后去开了八小时会。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "milestone": "arena:3:2"
+      },
+      "chainId": "mystery_boss",
+      "chainStage": 1,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "接下需求并争取保护组员",
+          "success": {
+            "text": "「老板给你一张空白需求单」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +1；剧情线索推进至 boss_s2。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 1
+            },
+            "setFlags": [
+              "boss_s1_help"
+            ],
+            "nextEventId": "boss_s2"
+          },
+          "failure": {
+            "text": "「老板给你一张空白需求单」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；INTERN关系 +2；TESTER关系 +1；剧情线索推进至 boss_s2。",
+            "mind": -1,
+            "setFlags": [
+              "boss_s1_help"
+            ],
+            "nextEventId": "boss_s2",
+            "relationship": {
+              "INTERN": 2,
+              "TESTER": 1
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "要求老板书面确认范围",
+          "success": {
+            "text": "「老板给你一张空白需求单」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；MYSTERY_BOSS关系 +2；剧情线索推进至 boss_s2。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "boss_s1_negotiate"
+            ],
+            "nextEventId": "boss_s2",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          },
+          "failure": {
+            "text": "「老板给你一张空白需求单」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；MYSTERY_BOSS关系 +2；剧情线索推进至 boss_s2。",
+            "relationship": {
+              "BOSS": -3,
+              "MYSTERY_BOSS": 2
+            },
+            "setFlags": [
+              "boss_s1_negotiate"
+            ],
+            "nextEventId": "boss_s2"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "进入测试机直面事故 Boss",
+          "successChance": 0.58,
+          "success": {
+            "text": "「老板给你一张空白需求单」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 -4；剧情线索推进至 boss_s2。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "boss_s1_risk"
+            ],
+            "nextEventId": "boss_s2",
+            "relationship": {
+              "MYSTERY_BOSS": -4
+            }
+          },
+          "failure": {
+            "text": "「老板给你一张空白需求单」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 -4；剧情线索推进至 boss_s2。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "boss_s1_risk"
+            ],
+            "nextEventId": "boss_s2",
+            "relationship": {
+              "MYSTERY_BOSS": -4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "boss_s2",
+      "title": "需求单每晚多一行",
+      "description": "新增条目都以“顺便”开头，最后一条是“顺便修仙”。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "mystery_boss",
+        "chainStage": 2
+      },
+      "chainId": "mystery_boss",
+      "chainStage": 2,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "接下需求并争取保护组员",
+          "success": {
+            "text": "「需求单每晚多一行」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +1；剧情线索推进至 boss_s3。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 1
+            },
+            "setFlags": [
+              "boss_s2_help"
+            ],
+            "nextEventId": "boss_s3"
+          },
+          "failure": {
+            "text": "「需求单每晚多一行」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；INTERN关系 +2；TESTER关系 +1；剧情线索推进至 boss_s3。",
+            "mind": -1,
+            "setFlags": [
+              "boss_s2_help"
+            ],
+            "nextEventId": "boss_s3",
+            "relationship": {
+              "INTERN": 2,
+              "TESTER": 1
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "要求老板书面确认范围",
+          "success": {
+            "text": "「需求单每晚多一行」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；MYSTERY_BOSS关系 +2；剧情线索推进至 boss_s3。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "boss_s2_negotiate"
+            ],
+            "nextEventId": "boss_s3",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          },
+          "failure": {
+            "text": "「需求单每晚多一行」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；MYSTERY_BOSS关系 +2；剧情线索推进至 boss_s3。",
+            "relationship": {
+              "BOSS": -3,
+              "MYSTERY_BOSS": 2
+            },
+            "setFlags": [
+              "boss_s2_negotiate"
+            ],
+            "nextEventId": "boss_s3"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "进入测试机直面事故 Boss",
+          "successChance": 0.58,
+          "success": {
+            "text": "「需求单每晚多一行」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 -4；剧情线索推进至 boss_s3。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "boss_s2_risk"
+            ],
+            "nextEventId": "boss_s3",
+            "relationship": {
+              "MYSTERY_BOSS": -4
+            }
+          },
+          "failure": {
+            "text": "「需求单每晚多一行」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 -4；剧情线索推进至 boss_s3。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "boss_s2_risk"
+            ],
+            "nextEventId": "boss_s3",
+            "relationship": {
+              "MYSTERY_BOSS": -4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "boss_s3",
+      "title": "会议室里只有自动纪要",
+      "description": "纪要写着老板承认需求来自一只会说话的打印机。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "mystery_boss",
+        "chainStage": 3
+      },
+      "chainId": "mystery_boss",
+      "chainStage": 3,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "接下需求并争取保护组员",
+          "success": {
+            "text": "「会议室里只有自动纪要」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +1；剧情线索推进至 boss_s4。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 1
+            },
+            "setFlags": [
+              "boss_s3_help"
+            ],
+            "nextEventId": "boss_s4"
+          },
+          "failure": {
+            "text": "「会议室里只有自动纪要」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；INTERN关系 +2；TESTER关系 +1；剧情线索推进至 boss_s4。",
+            "mind": -1,
+            "setFlags": [
+              "boss_s3_help"
+            ],
+            "nextEventId": "boss_s4",
+            "relationship": {
+              "INTERN": 2,
+              "TESTER": 1
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "要求老板书面确认范围",
+          "success": {
+            "text": "「会议室里只有自动纪要」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；MYSTERY_BOSS关系 +2；剧情线索推进至 boss_s4。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "boss_s3_negotiate"
+            ],
+            "nextEventId": "boss_s4",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          },
+          "failure": {
+            "text": "「会议室里只有自动纪要」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；MYSTERY_BOSS关系 +2；剧情线索推进至 boss_s4。",
+            "relationship": {
+              "BOSS": -3,
+              "MYSTERY_BOSS": 2
+            },
+            "setFlags": [
+              "boss_s3_negotiate"
+            ],
+            "nextEventId": "boss_s4"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "进入测试机直面事故 Boss",
+          "successChance": 0.58,
+          "success": {
+            "text": "「会议室里只有自动纪要」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 -4；剧情线索推进至 boss_s4。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "boss_s3_risk"
+            ],
+            "nextEventId": "boss_s4",
+            "relationship": {
+              "MYSTERY_BOSS": -4
+            }
+          },
+          "failure": {
+            "text": "「会议室里只有自动纪要」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 -4；剧情线索推进至 boss_s4。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "boss_s3_risk"
+            ],
+            "nextEventId": "boss_s4",
+            "relationship": {
+              "MYSTERY_BOSS": -4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "boss_s4",
+      "title": "老板的账号登录了测试机",
+      "description": "测试机显示一场挑战：保护同事并在倒计时结束前击败甩锅主管。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "mystery_boss",
+        "chainStage": 4
+      },
+      "chainId": "mystery_boss",
+      "chainStage": 4,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "接下需求并争取保护组员",
+          "success": {
+            "text": "「老板的账号登录了测试机」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +1；开启真实战斗挑战：online_incident；剧情线索推进至 boss_s5。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 1
+            },
+            "setFlags": [
+              "boss_s4_help"
+            ],
+            "nextEventId": "boss_s5",
+            "challengeId": "online_incident"
+          },
+          "failure": {
+            "text": "「老板的账号登录了测试机」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；INTERN关系 +2；TESTER关系 +1；剧情线索推进至 boss_s5。",
+            "mind": -1,
+            "setFlags": [
+              "boss_s4_help"
+            ],
+            "nextEventId": "boss_s5",
+            "relationship": {
+              "INTERN": 2,
+              "TESTER": 1
+            }
+          },
+          "requirements": {
+            "relationship": {
+              "INTERN": 6
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "要求老板书面确认范围",
+          "success": {
+            "text": "「老板的账号登录了测试机」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；MYSTERY_BOSS关系 +2；开启真实战斗挑战：online_incident；剧情线索推进至 boss_s5。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "boss_s4_negotiate"
+            ],
+            "nextEventId": "boss_s5",
+            "challengeId": "online_incident",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          },
+          "failure": {
+            "text": "「老板的账号登录了测试机」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；MYSTERY_BOSS关系 +2；剧情线索推进至 boss_s5。",
+            "relationship": {
+              "BOSS": -3,
+              "MYSTERY_BOSS": 2
+            },
+            "setFlags": [
+              "boss_s4_negotiate"
+            ],
+            "nextEventId": "boss_s5"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "进入测试机直面事故 Boss",
+          "successChance": 0.58,
+          "success": {
+            "text": "「老板的账号登录了测试机」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 -4；剧情线索推进至 boss_s5。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "boss_s4_risk"
+            ],
+            "nextEventId": "boss_s5",
+            "relationship": {
+              "MYSTERY_BOSS": -4
+            }
+          },
+          "failure": {
+            "text": "「老板的账号登录了测试机」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 -4；剧情线索推进至 boss_s5。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "boss_s4_risk"
+            ],
+            "nextEventId": "boss_s5",
+            "relationship": {
+              "MYSTERY_BOSS": -4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "boss_s5",
+      "title": "打印机吐出晋升通知",
+      "description": "挑战结论写在热敏纸上，末尾盖着一个歪斜的“批准”。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "mystery_boss",
+        "chainStage": 5
+      },
+      "chainId": "mystery_boss",
+      "chainStage": 5,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "接下需求并争取保护组员",
+          "success": {
+            "text": "「打印机吐出晋升通知」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；TESTER关系 +1；本轮结局：boss_s5_ALLY。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 1
+            },
+            "setFlags": [
+              "boss_s5_help"
+            ],
+            "endingId": "boss_s5_ALLY",
+            "deathEnding": false
+          },
+          "failure": {
+            "text": "「打印机吐出晋升通知」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；INTERN关系 +2；TESTER关系 +1；本轮结局：boss_s5_ALLY_FAIL。",
+            "mind": -1,
+            "setFlags": [
+              "boss_s5_help"
+            ],
+            "endingId": "boss_s5_ALLY_FAIL",
+            "deathEnding": false,
+            "relationship": {
+              "INTERN": 2,
+              "TESTER": 1
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "要求老板书面确认范围",
+          "success": {
+            "text": "「打印机吐出晋升通知」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；MYSTERY_BOSS关系 +2；本轮结局：boss_s5_ESCAPE。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "boss_s5_negotiate"
+            ],
+            "endingId": "boss_s5_ESCAPE",
+            "deathEnding": false,
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          },
+          "failure": {
+            "text": "「打印机吐出晋升通知」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；MYSTERY_BOSS关系 +2；本轮结局：boss_s5_ESCAPE_FAIL。",
+            "relationship": {
+              "BOSS": -3,
+              "MYSTERY_BOSS": 2
+            },
+            "setFlags": [
+              "boss_s5_negotiate"
+            ],
+            "endingId": "boss_s5_ESCAPE_FAIL",
+            "deathEnding": false
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "进入测试机直面事故 Boss",
+          "successChance": 0.58,
+          "success": {
+            "text": "「打印机吐出晋升通知」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 -4；本轮结局：boss_s5_LAST_STAND。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "boss_s5_risk"
+            ],
+            "endingId": "boss_s5_LAST_STAND",
+            "deathEnding": true,
+            "relationship": {
+              "MYSTERY_BOSS": -4
+            }
+          },
+          "failure": {
+            "text": "「打印机吐出晋升通知」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 -4；本轮结局：boss_s5_LAST_STAND_FAIL。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "boss_s5_risk"
+            ],
+            "endingId": "boss_s5_LAST_STAND_FAIL",
+            "deathEnding": true,
+            "relationship": {
+              "MYSTERY_BOSS": -4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "awakening_s1",
+      "title": "道心弹出一条离线提醒",
+      "description": "你明明在线，心里却收到“检测到长期未下班”的系统通知。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "milestone": "arena:4:2"
+      },
+      "chainId": "awakening",
+      "chainStage": 1,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "回应命运提示继续修炼",
+          "success": {
+            "text": "「道心弹出一条离线提醒」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；剧情线索推进至 awakening_s2。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "awakening_s1_help"
+            ],
+            "nextEventId": "awakening_s2"
+          },
+          "failure": {
+            "text": "「道心弹出一条离线提醒」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；INTERN关系 +1；剧情线索推进至 awakening_s2。",
+            "mind": -1,
+            "setFlags": [
+              "awakening_s1_help"
+            ],
+            "nextEventId": "awakening_s2",
+            "relationship": {
+              "INTERN": 1
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先审视当前生活再做决定",
+          "success": {
+            "text": "「道心弹出一条离线提醒」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +1；剧情线索推进至 awakening_s2。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "awakening_s1_negotiate"
+            ],
+            "nextEventId": "awakening_s2",
+            "relationship": {
+              "OPS": 1
+            }
+          },
+          "failure": {
+            "text": "「道心弹出一条离线提醒」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +1；剧情线索推进至 awakening_s2。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 1
+            },
+            "setFlags": [
+              "awakening_s1_negotiate"
+            ],
+            "nextEventId": "awakening_s2"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "撕掉工牌符追寻真相",
+          "successChance": 0.58,
+          "success": {
+            "text": "「道心弹出一条离线提醒」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 +2；剧情线索推进至 awakening_s2。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "awakening_s1_risk"
+            ],
+            "nextEventId": "awakening_s2",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          },
+          "failure": {
+            "text": "「道心弹出一条离线提醒」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 +2；剧情线索推进至 awakening_s2。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "awakening_s1_risk"
+            ],
+            "nextEventId": "awakening_s2",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "awakening_s2",
+      "title": "工位底下有一张辞职符",
+      "description": "符上写着“签名后生效”，背面还有前任牛马的手写备注。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "awakening",
+        "chainStage": 2
+      },
+      "chainId": "awakening",
+      "chainStage": 2,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "回应命运提示继续修炼",
+          "success": {
+            "text": "「工位底下有一张辞职符」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；剧情线索推进至 awakening_s3。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "awakening_s2_help"
+            ],
+            "nextEventId": "awakening_s3"
+          },
+          "failure": {
+            "text": "「工位底下有一张辞职符」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；INTERN关系 +1；剧情线索推进至 awakening_s3。",
+            "mind": -1,
+            "setFlags": [
+              "awakening_s2_help"
+            ],
+            "nextEventId": "awakening_s3",
+            "relationship": {
+              "INTERN": 1
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先审视当前生活再做决定",
+          "success": {
+            "text": "「工位底下有一张辞职符」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +1；剧情线索推进至 awakening_s3。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "awakening_s2_negotiate"
+            ],
+            "nextEventId": "awakening_s3",
+            "relationship": {
+              "OPS": 1
+            }
+          },
+          "failure": {
+            "text": "「工位底下有一张辞职符」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +1；剧情线索推进至 awakening_s3。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 1
+            },
+            "setFlags": [
+              "awakening_s2_negotiate"
+            ],
+            "nextEventId": "awakening_s3"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "撕掉工牌符追寻真相",
+          "successChance": 0.58,
+          "success": {
+            "text": "「工位底下有一张辞职符」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 +2；剧情线索推进至 awakening_s3。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "awakening_s2_risk"
+            ],
+            "nextEventId": "awakening_s3",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          },
+          "failure": {
+            "text": "「工位底下有一张辞职符」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 +2；剧情线索推进至 awakening_s3。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "awakening_s2_risk"
+            ],
+            "nextEventId": "awakening_s3",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "awakening_s3",
+      "title": "电梯停在不存在的第十三层",
+      "description": "门外没有公司，只有一排写着不同人生选择的工位。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "awakening",
+        "chainStage": 3
+      },
+      "chainId": "awakening",
+      "chainStage": 3,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "回应命运提示继续修炼",
+          "success": {
+            "text": "「电梯停在不存在的第十三层」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；剧情线索推进至 awakening_s4。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "awakening_s3_help"
+            ],
+            "nextEventId": "awakening_s4"
+          },
+          "failure": {
+            "text": "「电梯停在不存在的第十三层」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；INTERN关系 +1；剧情线索推进至 awakening_s4。",
+            "mind": -1,
+            "setFlags": [
+              "awakening_s3_help"
+            ],
+            "nextEventId": "awakening_s4",
+            "relationship": {
+              "INTERN": 1
+            }
+          },
+          "requirements": {
+            "relationship": {
+              "INTERN": 6
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先审视当前生活再做决定",
+          "success": {
+            "text": "「电梯停在不存在的第十三层」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +1；剧情线索推进至 awakening_s4。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "awakening_s3_negotiate"
+            ],
+            "nextEventId": "awakening_s4",
+            "relationship": {
+              "OPS": 1
+            }
+          },
+          "failure": {
+            "text": "「电梯停在不存在的第十三层」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +1；剧情线索推进至 awakening_s4。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 1
+            },
+            "setFlags": [
+              "awakening_s3_negotiate"
+            ],
+            "nextEventId": "awakening_s4"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "撕掉工牌符追寻真相",
+          "successChance": 0.58,
+          "success": {
+            "text": "「电梯停在不存在的第十三层」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 +2；剧情线索推进至 awakening_s4。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "awakening_s3_risk"
+            ],
+            "nextEventId": "awakening_s4",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          },
+          "failure": {
+            "text": "「电梯停在不存在的第十三层」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 +2；剧情线索推进至 awakening_s4。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "awakening_s3_risk"
+            ],
+            "nextEventId": "awakening_s4",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "awakening_s4",
+      "title": "每张工牌都映出另一个你",
+      "description": "一个版本在摸鱼，一个版本在背锅，还有一个已经下班。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "awakening",
+        "chainStage": 4
+      },
+      "chainId": "awakening",
+      "chainStage": 4,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "回应命运提示继续修炼",
+          "success": {
+            "text": "「每张工牌都映出另一个你」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；剧情线索推进至 awakening_s5。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "awakening_s4_help"
+            ],
+            "nextEventId": "awakening_s5"
+          },
+          "failure": {
+            "text": "「每张工牌都映出另一个你」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；INTERN关系 +1；剧情线索推进至 awakening_s5。",
+            "mind": -1,
+            "setFlags": [
+              "awakening_s4_help"
+            ],
+            "nextEventId": "awakening_s5",
+            "relationship": {
+              "INTERN": 1
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先审视当前生活再做决定",
+          "success": {
+            "text": "「每张工牌都映出另一个你」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +1；剧情线索推进至 awakening_s5。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "awakening_s4_negotiate"
+            ],
+            "nextEventId": "awakening_s5",
+            "relationship": {
+              "OPS": 1
+            }
+          },
+          "failure": {
+            "text": "「每张工牌都映出另一个你」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +1；剧情线索推进至 awakening_s5。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 1
+            },
+            "setFlags": [
+              "awakening_s4_negotiate"
+            ],
+            "nextEventId": "awakening_s5"
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "撕掉工牌符追寻真相",
+          "successChance": 0.58,
+          "success": {
+            "text": "「每张工牌都映出另一个你」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 +2；剧情线索推进至 awakening_s5。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "awakening_s4_risk"
+            ],
+            "nextEventId": "awakening_s5",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          },
+          "failure": {
+            "text": "「每张工牌都映出另一个你」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 +2；剧情线索推进至 awakening_s5。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "awakening_s4_risk"
+            ],
+            "nextEventId": "awakening_s5",
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "awakening_s5",
+      "title": "命运问你还要打几轮工",
+      "description": "考验终于停下，命运把最后一个选择权还给你。",
+      "category": "CHAIN",
+      "weight": 10,
+      "trigger": {
+        "chainId": "awakening",
+        "chainStage": 5
+      },
+      "chainId": "awakening",
+      "chainStage": 5,
+      "options": [
+        {
+          "id": "HELP",
+          "text": "回应命运提示继续修炼",
+          "success": {
+            "text": "「命运问你还要打几轮工」：协作奏效，关键线索得到交叉验证，队友也愿意继续同行。 结算：道心 +2；INTERN关系 +6；本轮结局：awakening_s5_ALLY。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "awakening_s5_help"
+            ],
+            "endingId": "awakening_s5_ALLY",
+            "deathEnding": false
+          },
+          "failure": {
+            "text": "「命运问你还要打几轮工」：协作遇到阻力，线索暂未闭环，但你保住了继续追查的机会。 结算：道心 -1；INTERN关系 +1；本轮结局：awakening_s5_ALLY_FAIL。",
+            "mind": -1,
+            "setFlags": [
+              "awakening_s5_help"
+            ],
+            "endingId": "awakening_s5_ALLY_FAIL",
+            "deathEnding": false,
+            "relationship": {
+              "INTERN": 1
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先审视当前生活再做决定",
+          "success": {
+            "text": "「命运问你还要打几轮工」：谈判形成可追溯的边界，资源或承诺按约落实。 结算：工资 +¥12；绩效 +2；OPS关系 +1；本轮结局：awakening_s5_ESCAPE。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "awakening_s5_negotiate"
+            ],
+            "endingId": "awakening_s5_ESCAPE",
+            "deathEnding": false,
+            "relationship": {
+              "OPS": 1
+            }
+          },
+          "failure": {
+            "text": "「命运问你还要打几轮工」：对方暂时拒绝承诺，留下的记录避免责任被悄悄改写。 结算：BOSS关系 -3；OPS关系 +1；本轮结局：awakening_s5_ESCAPE_FAIL。",
+            "relationship": {
+              "BOSS": -3,
+              "OPS": 1
+            },
+            "setFlags": [
+              "awakening_s5_negotiate"
+            ],
+            "endingId": "awakening_s5_ESCAPE_FAIL",
+            "deathEnding": false
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "撕掉工牌符追寻真相",
+          "successChance": 0.58,
+          "success": {
+            "text": "「命运问你还要打几轮工」：冒险判断命中要害，你拿到突破口，也承担了相应代价。 结算：修为 +5；生命 -2；MYSTERY_BOSS关系 +2；本轮结局：awakening_s5_LAST_STAND。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "awakening_s5_risk"
+            ],
+            "endingId": "awakening_s5_LAST_STAND",
+            "deathEnding": true,
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          },
+          "failure": {
+            "text": "「命运问你还要打几轮工」：冒险判断失手，代价已经落地，后续必须先处理危机。 结算：道心 -8；生命 -14；MYSTERY_BOSS关系 +2；本轮结局：awakening_s5_LAST_STAND_FAIL。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "awakening_s5_risk"
+            ],
+            "endingId": "awakening_s5_LAST_STAND_FAIL",
+            "deathEnding": true,
+            "relationship": {
+              "MYSTERY_BOSS": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "coffee_event",
+      "title": "咖啡机开始收灵石",
+      "description": "机器贴着“今日第二杯 ¥18”，出杯口却冒出了一缕白烟。",
+      "category": "HIDDEN",
+      "weight": 2,
+      "trigger": {
+        "milestone": "arena:1:5"
+      },
+      "hidden": true,
+      "requiredFlags": [
+        "intern_s2_help"
+      ],
+      "options": [
+        {
+          "id": "HELP",
+          "text": "付 ¥18 买咖啡",
+          "success": {
+            "text": "你支付咖啡费用，机器吐出热饮；¥18 已由既有生活消费服务扣除。 结算：消费动作：COFFEE；道心 +2；INTERN关系 +6；开启真实战斗挑战：secret_trial。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "lifePurchase": "COFFEE",
+            "setFlags": [
+              "coffee_event_help"
+            ],
+            "challengeId": "secret_trial"
+          },
+          "failure": {
+            "text": "付款成功但机器卡住了；消费仍按规则记账，测试同事拿到了故障记录。 结算：道心 -1。",
+            "mind": -1,
+            "setFlags": [
+              "coffee_event_help"
+            ]
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "喝免费温水",
+          "success": {
+            "text": "你选择免费温水，没有发生扣款，状态保持稳定。 结算：工资 +¥12；绩效 +2。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "coffee_event_negotiate"
+            ]
+          },
+          "failure": {
+            "text": "温水供应暂时中断，你保留余额并记录设备异常。 结算：BOSS关系 -3。",
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "coffee_event_negotiate"
+            ]
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "把咖啡递给测试同事",
+          "successChance": 0.58,
+          "success": {
+            "text": "你把饮料交给测试同事，换来了一条可复现的设备日志。 结算：修为 +5；生命 -2。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "coffee_event_risk"
+            ]
+          },
+          "failure": {
+            "text": "设备喷出白烟，你及时断电，健康与道心受到冲击。 结算：道心 -8；生命 -14。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "coffee_event_risk"
+            ]
+          },
+          "requirements": {
+            "relationship": {
+              "TESTER": 3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "qa_flaky",
+      "title": "测试报告里有个随机红点",
+      "description": "同一用例连续跑三次，结果像在掷骰子，但它确实挡住了发布。",
+      "category": "HIDDEN",
+      "weight": 2,
+      "trigger": {
+        "milestone": "arena:1:12"
+      },
+      "hidden": true,
+      "requiredFlags": [
+        "legacy_s2_help"
+      ],
+      "options": [
+        {
+          "id": "HELP",
+          "text": "先稳定复现",
+          "success": {
+            "text": "连续复现锁定了随机红点，测试报告补上稳定步骤。 结算：道心 +2；INTERN关系 +6；TESTER关系 +6；开启真实战斗挑战：secret_trial。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6,
+              "TESTER": 6
+            },
+            "setFlags": [
+              "qa_flaky_help"
+            ],
+            "challengeId": "secret_trial"
+          },
+          "failure": {
+            "text": "复现仍有波动，但保留了三轮运行记录，发布被暂缓。 结算：道心 -1；TESTER关系 +2。",
+            "mind": -1,
+            "setFlags": [
+              "qa_flaky_help"
+            ],
+            "relationship": {
+              "TESTER": 2
+            }
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "临时跳过用例",
+          "success": {
+            "text": "你为临时跳过增加了明确回滚条件，发布风险得到记录。 结算：工资 +¥12；绩效 +2。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "qa_flaky_negotiate"
+            ]
+          },
+          "failure": {
+            "text": "团队拒绝带风险跳过；用例继续阻断发布，等待证据。 结算：BOSS关系 -3。",
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "qa_flaky_negotiate"
+            ]
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "请测试同事共查",
+          "successChance": 0.58,
+          "success": {
+            "text": "测试同事一起缩小了触发范围，拿到了固定种子。 结算：修为 +5；生命 -2。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "qa_flaky_risk"
+            ]
+          },
+          "failure": {
+            "text": "临时绕过触发新失败，发布被叫停并开始回滚。 结算：道心 -8；生命 -14。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "qa_flaky_risk"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "db_incident",
+      "title": "数据库把周一当成了主键",
+      "description": "生产库只在午休时丢失记录，值班群开始艾特全员。",
+      "category": "HIDDEN",
+      "weight": 2,
+      "trigger": {
+        "milestone": "arena:2:12"
+      },
+      "hidden": true,
+      "requiredFlags": [
+        "blame_s2_help"
+      ],
+      "options": [
+        {
+          "id": "HELP",
+          "text": "启用只读保护",
+          "success": {
+            "text": "只读保护阻止了写入扩散，数据库快照保持可核验。 结算：道心 +2；INTERN关系 +6；开启真实战斗挑战：secret_trial。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "db_incident_help"
+            ],
+            "challengeId": "secret_trial"
+          },
+          "failure": {
+            "text": "保护规则晚了一步，仍有记录缺口，值班同事保留了恢复点。 结算：道心 -1。",
+            "mind": -1,
+            "setFlags": [
+              "db_incident_help"
+            ]
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "回滚最近变更",
+          "success": {
+            "text": "最近变更已回滚，数据核验按批次通过。 结算：工资 +¥12；绩效 +2。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "db_incident_negotiate"
+            ]
+          },
+          "failure": {
+            "text": "回滚没有恢复全部记录，值班组转入快照比对。 结算：BOSS关系 -3。",
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "db_incident_negotiate"
+            ]
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "硬重启碰碰运气",
+          "successChance": 0.58,
+          "success": {
+            "text": "重启恢复了连接池，写入校验确认没有继续扩大。 结算：修为 +5；生命 -2。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "db_incident_risk"
+            ]
+          },
+          "failure": {
+            "text": "硬重启扩大了丢失窗口，当前先冻结写入并保留审计日志。 结算：道心 -8；生命 -14。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "db_incident_risk"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ops_signal",
+      "title": "运维同事发来一张空白图",
+      "description": "图片属性里藏着一串告警时间，运维说“你懂我意思”。",
+      "category": "RELATIONSHIP",
+      "weight": 8,
+      "trigger": {
+        "milestone": "arena:3:12"
+      },
+      "options": [
+        {
+          "id": "HELP",
+          "text": "回赠完整日志",
+          "success": {
+            "text": "完整告警时间线交给运维，双方确认了同一故障窗口。 结算：道心 +2；INTERN关系 +6。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "ops_signal_help"
+            ]
+          },
+          "failure": {
+            "text": "日志缺少一段关键指标，运维先保留原始截图继续追踪。 结算：道心 -1。",
+            "mind": -1,
+            "setFlags": [
+              "ops_signal_help"
+            ]
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "请他一起核验",
+          "success": {
+            "text": "一起核验后，告警来源和影响范围得到确认。 结算：工资 +¥12；绩效 +2。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "ops_signal_negotiate"
+            ]
+          },
+          "failure": {
+            "text": "核验发现时间戳不一致，暂不对外归因。 结算：BOSS关系 -3。",
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "ops_signal_negotiate"
+            ]
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "假装没看到",
+          "successChance": 0.58,
+          "success": {
+            "text": "你没有忽视信号，提前隔离了异常节点。 结算：修为 +5；生命 -2。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "ops_signal_risk"
+            ]
+          },
+          "failure": {
+            "text": "延迟响应造成额外告警，运维正在回收影响范围。 结算：道心 -8；生命 -14。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "ops_signal_risk"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "quiet_fishing",
+      "title": "摸鱼区出现稀有工位",
+      "description": "这个工位没有键盘声，桌面却放着一本会自己翻页的功法。",
+      "category": "ENCOUNTER",
+      "weight": 8,
+      "trigger": {
+        "milestone": "arena:4:12"
+      },
+      "options": [
+        {
+          "id": "HELP",
+          "text": "坐下读一页",
+          "success": {
+            "text": "你读懂一页功法，获得了可继续验证的修行线索。 结算：道心 +2；INTERN关系 +6。",
+            "mind": 2,
+            "relationship": {
+              "INTERN": 6
+            },
+            "setFlags": [
+              "quiet_fishing_help"
+            ]
+          },
+          "failure": {
+            "text": "功法反噬让道心受损，但留下了后续解读的标记。 结算：道心 -1。",
+            "mind": -1,
+            "setFlags": [
+              "quiet_fishing_help"
+            ]
+          }
+        },
+        {
+          "id": "NEGOTIATE",
+          "text": "先确认安全",
+          "success": {
+            "text": "你先做安全确认，避免把未知风险带回工位。 结算：工资 +¥12；绩效 +2。",
+            "salary": 12,
+            "performance": 2,
+            "setFlags": [
+              "quiet_fishing_negotiate"
+            ]
+          },
+          "failure": {
+            "text": "安全检查没能确认来源，功法暂时封存。 结算：BOSS关系 -3。",
+            "relationship": {
+              "BOSS": -3
+            },
+            "setFlags": [
+              "quiet_fishing_negotiate"
+            ]
+          }
+        },
+        {
+          "id": "RISK",
+          "text": "带回去交给主管",
+          "successChance": 0.58,
+          "success": {
+            "text": "你带走功法并转为自己的修行记录，没有交给主管。 结算：修为 +5；生命 -2。",
+            "cultivation": 5,
+            "health": -2,
+            "setFlags": [
+              "quiet_fishing_risk"
+            ]
+          },
+          "failure": {
+            "text": "主管发现异常物品并追问来源，你需要重新处理关系。 结算：道心 -8；生命 -14。",
+            "health": -14,
+            "mind": -8,
+            "setFlags": [
+              "quiet_fishing_risk"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

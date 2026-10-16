@@ -669,6 +669,33 @@
       "attack": 15,
       "intervalSec": 2.5,
       "exp": 78
+    },
+    {
+      "id": "boss_fate_online_incident",
+      "name": "线上事故·回滚魔君",
+      "tier": "BOSS",
+      "hp": 1040,
+      "attack": 17,
+      "intervalSec": 2.2,
+      "exp": 96
+    },
+    {
+      "id": "boss_fate_scapegoat",
+      "name": "甩锅主管·责任转移体",
+      "tier": "BOSS",
+      "hp": 1120,
+      "attack": 18,
+      "intervalSec": 2.3,
+      "exp": 104
+    },
+    {
+      "id": "boss_fate_secret_trial",
+      "name": "隐藏考核·无尽需求兽",
+      "tier": "BOSS",
+      "hp": 980,
+      "attack": 16,
+      "intervalSec": 2.1,
+      "exp": 92
     }
   ],
   "builds": [

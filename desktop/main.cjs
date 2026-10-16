@@ -40,6 +40,10 @@ let gameReady = false;
 // F05: set while waiting for the renderer to flush its save on close
 let closeFlushInProgress = false;
 const isDev = process.argv.includes('--dev') || process.argv.includes('--debug');
+const requestedSeed = process.argv.find(arg => /^--gameplay-agent-test=\d{1,10}$/.test(arg));
+const isolatedTestProfile = path.dirname(path.resolve(app.getPath('userData'))).toLowerCase() === path.resolve(require('os').tmpdir()).toLowerCase()
+  && path.basename(app.getPath('userData')).startsWith('xiuxian-gameplay-agent-');
+const controlledSeed = requestedSeed && isolatedTestProfile ? Number(requestedSeed.split('=')[1]) >>> 0 : null;
 
 // ── Storage Init ───────────────────────────────────────────────────────────
 initStorage(app.getPath('userData'));
@@ -143,6 +147,7 @@ async function createWindow() {
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
+      additionalArguments: controlledSeed === null ? [] : ['--xiuxian-test-seed=' + controlledSeed],
       nodeIntegration: false,
       contextIsolation: true,
       webSecurity: true,

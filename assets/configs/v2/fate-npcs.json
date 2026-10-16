@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "npcs": [
+    { "id": "INTERN", "name": "小林", "role": "实习生", "description": "带来故障线索，也会根据你的选择决定是否继续同行。" },
+    { "id": "BOSS", "name": "周主管", "role": "直属主管", "description": "掌握项目权限与绩效评价，关系影响甩锅剧情。" },
+    { "id": "TESTER", "name": "阿测", "role": "测试同事", "description": "能够复现问题并提供发布前的关键证据。" },
+    { "id": "OPS", "name": "老运维", "role": "运维同事", "description": "保管告警和回滚时间线，能协助事故复盘。" },
+    { "id": "MYSTERY_BOSS", "name": "无名老板", "role": "神秘老板", "description": "异常需求的发布者，后续剧情会揭开真实身份。" }
+  ]
+}

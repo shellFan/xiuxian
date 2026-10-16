@@ -1,10 +1,10 @@
 'use strict';
 
 const SAFE_ID = /^[a-z0-9][a-z0-9-]{0,79}$/i;
-const ACTIONS = new Set(['click', 'clickIfPresent', 'clickUntilState', 'doubleClick', 'type', 'scroll', 'key', 'pressKey', 'wait', 'waitFor', 'screenshot', 'getGameState', 'assertVisible', 'assertClickable', 'assertState', 'call', 'assert', 'restart', 'restartGame', 'professionMatrix', 'setViewport']);
+const ACTIONS = new Set(['click', 'clickIfPresent', 'clickUntilState', 'doubleClick', 'type', 'scroll', 'key', 'pressKey', 'wait', 'waitFor', 'screenshot', 'getGameState', 'assertVisible', 'assertClickable', 'assertState', 'call', 'assert', 'restart', 'restartGame', 'professionMatrix', 'setViewport', 'homeArenaPlay', 'homeArenaSoak']);
 const FAILURE_CLASSES = new Set(['SETUP_BLOCKED', 'AUTOMATION_DEFECT', 'GAME_DEFECT', 'ASSERTION_DEFECT', 'ENVIRONMENT_BLOCKED', 'NOT_VERIFIED']);
 const VALUE_TYPES = new Set(['array', 'boolean', 'null', 'number', 'object', 'string']);
-const SAFE_STATE_PATH = /^(?:@[a-z][a-zA-Z0-9]*)?(?:\.[a-zA-Z_$][\w$]*|\[(?:\d+|"[a-zA-Z0-9_-]+")\])*$/;
+const SAFE_STATE_PATH = /^(?:@[a-z][a-zA-Z0-9]*)?(?:\.[a-zA-Z_$][\w$]*|\[(?:\d+|"[a-zA-Z0-9_:-]+")\])*$/;
 
 function safeRunId(value) {
   return typeof value === 'string' && SAFE_ID.test(value) && !value.includes('..') ? value : null;
@@ -20,6 +20,11 @@ function validateScenario(scenario) {
   if (!Array.isArray(scenario.steps) || scenario.steps.length === 0) throw new Error(`scenario ${scenario.id} needs at least one step`);
   for (const [index, step] of scenario.steps.entries()) {
     if (!step || !ACTIONS.has(step.action)) throw new Error(`scenario ${scenario.id} step ${index + 1}: unsupported action`);
+    if (['homeArenaPlay', 'homeArenaSoak'].includes(step.action)) {
+      if (step.seed !== 5911) throw new Error('home arena needs the controlled fixed seed 5911');
+      if (!Number.isInteger(step.clickIntervalMs) || step.clickIntervalMs < 200 || step.clickIntervalMs > 1000) throw new Error('home arena clickIntervalMs must be between 200 and 1000');
+      if (step.action === 'homeArenaSoak' && (!Number.isInteger(step.durationMs) || step.durationMs < 1200000 || step.durationMs > 1800000)) throw new Error('home arena durationMs must cover at least twenty minutes and at most thirty real minutes');
+    }
     if (['click', 'clickIfPresent', 'clickUntilState', 'doubleClick', 'type', 'scroll', 'waitFor', 'assertVisible', 'assertClickable'].includes(step.action) && (typeof step.selector !== 'string' || !step.selector.trim())) {
       throw new Error(`scenario ${scenario.id} step ${index + 1}: ${step.action} needs a selector`);
     }
@@ -88,8 +93,15 @@ function classifyFailure({ step, error, isSetup = false, setupFailureClass, laun
   if (error?.message?.startsWith('AUTOMATION:') || /CDP command timed out/.test(error?.message ?? '')) return 'AUTOMATION_DEFECT';
   if (launchFailure) return 'NOT_VERIFIED';
   if (isSetup) return setupFailureClass ?? 'SETUP_BLOCKED';
+  if (step && ['assert', 'assertState'].includes(step.action)) return 'ASSERTION_DEFECT';
   if (error?.failureClass) return error.failureClass;
   return 'GAME_DEFECT';
 }
 
-module.exports = { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, classifyFailure };
+function classifyStepFailure({ step, error, isSetup = false, setupFailureClass, childExitCode }) {
+  const classification = classifyFailure({ step, error, isSetup, setupFailureClass });
+  if (classification !== 'GAME_DEFECT') return classification;
+  return childExitCode === null || childExitCode === undefined ? classification : 'GAME_DEFECT';
+}
+
+module.exports = { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, classifyFailure, classifyStepFailure };

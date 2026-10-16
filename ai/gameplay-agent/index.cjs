@@ -8,14 +8,15 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 const { CdpSession, listenPort } = require('./lib/cdp.cjs');
-const { classifyFailure, collectFailedScenarioIds, safeRunId, summarizeResults, validateScenario } = require('./lib/report.cjs');
+const { runHomeArena } = require('./lib/home-arena-play.cjs');
+const { classifyFailure, classifyStepFailure, collectFailedScenarioIds, safeRunId, summarizeResults, validateScenario } = require('./lib/report.cjs');
 const { boundsWithinViewport, canRecoverObstructedClick, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupControlKind, popupDismissalComplete, readScenarioVariable, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldContinuePopupRecovery, shouldRestoreScrollContextAfterPopup, shouldWaitForObscuringPopup, storeScenarioVariable } = require('./lib/scenario-state.cjs');
 
 const root = path.resolve(__dirname, '..', '..');
 const scenarioDir = path.join(__dirname, 'scenarios');
 const reportsDir = path.join(__dirname, 'reports');
 const allowedCalls = /^(query[A-Z]\w*|snapshot|startTask|claimTask|completeAssignedTask|tick|tickTasks|claimDailyTask|claimHomeGoal|consumeHomeLife|recordTodayLife|characterCreation\w*|query\w*|devAdvanceTime|devJumpToHour|settleDay|queryCanSettleDay|toggleWorkMode|changeWorkMode|cultivate|save|startBattleRun|chooseBattleSkill|castBattleSkill|clearFinishedBattle|queryFinishedBattle|pauseTask|resumeTask|switchTask)$/;
-const identifierPath = /^(?:@[a-z][a-zA-Z0-9]*)?(?:\.[a-zA-Z_$][\w$]*|\[(?:\d+|"[a-zA-Z0-9_-]+")\])*$/;
+const identifierPath = /^(?:@[a-z][a-zA-Z0-9]*)?(?:\.[a-zA-Z_$][\w$]*|\[(?:\d+|"[a-zA-Z0-9_:-]+")\])*$/;
 
 function timestampId() {
   const date = new Date();
@@ -396,7 +397,7 @@ async function gracefulClose(session, child) {
 async function launchScenario(exe, profile, logPath, screenshotDir) {
   const port = await listenPort();
   const logFd = fs.openSync(logPath, 'a');
-  const launchArgs = [`--user-data-dir=${profile}`, `--remote-debugging-port=${port}`, '--enable-logging'];
+  const launchArgs = [`--user-data-dir=${profile}`, `--remote-debugging-port=${port}`, '--remote-debugging-address=127.0.0.1', '--gameplay-agent-test=5911', '--enable-logging'];
   if (process.env.GAMEPLAY_AGENT_DISABLE_GPU === '1') launchArgs.push('--disable-gpu');
   const child = spawn(exe, launchArgs, {
     cwd: path.dirname(exe),
@@ -405,6 +406,7 @@ async function launchScenario(exe, profile, logPath, screenshotDir) {
   });
   fs.closeSync(logFd);
   const session = await CdpSession.connect(port);
+  await session.send('Page.bringToFront');
   const firstScreenshot = path.join(screenshotDir, 'launch-window.png');
   await session.screenshot(firstScreenshot);
   const deadline = Date.now() + 35000;
@@ -457,6 +459,7 @@ async function launchScenario(exe, profile, logPath, screenshotDir) {
 
 async function applyStep({ step, context, screenshotDir }) {
   const { session } = context;
+  if (['homeArenaPlay', 'homeArenaSoak'].includes(step.action)) return runHomeArena({ step, context, screenshotDir, readFacadeState, inspectElement, inputClick, gracefulClose, launchScenario, delay });
   if (step.action === 'wait') { await delay(Math.max(0, Math.min(step.ms ?? 500, 30000))); return { detail: `${step.ms ?? 500}ms` }; }
   if (step.action === 'clickUntilState') {
     if (!allowedCalls.test(step.method)) throw new Error(`facade call is not allowlisted: ${step.method}`);
@@ -814,7 +817,7 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
         item.status = 'failed';
         item.error = error.message;
         if (context.child?.exitCode !== null && context.child?.exitCode !== undefined) {
-          item.failureClass = 'GAME_DEFECT';
+          item.failureClass = classifyStepFailure({ step, error, isSetup: step.__setup, setupFailureClass: scenario.setupFailureClass, childExitCode: context.child.exitCode });
           item.error = `Game process exited with code ${context.child.exitCode}: ${error.message}`;
         }
         item.failureClass ??= classifyFailure({ step, error, isSetup: step.__setup, setupFailureClass: scenario.setupFailureClass });
@@ -879,7 +882,7 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
     };
     const exeLog = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '';
     result.execution = { electronWindow: exeLog.includes('[Electron] Window shown') ? 'visible' : 'not-confirmed', input: 'CDP synthetic input', screenshotSource: 'CDP renderer surface', platform: process.platform };
-    result.execution.validationModes = { UI_REAL_EXE: 'NOT_VERIFIED', ELECTRON_E2E: 'PASS', SERVICE_SIM: 'NOT_RUN', NOT_VERIFIED: ['physical Windows pointer/keyboard verification', 'outer window-size matrix'] };
+    result.execution.validationModes = { UI_REAL_EXE: 'NOT_VERIFIED', ELECTRON_E2E: blocked ? 'BLOCKED' : failed ? 'FAILED' : 'PASS', SERVICE_SIM: 'NOT_RUN', NOT_VERIFIED: ['physical Windows pointer/keyboard verification', 'outer window-size matrix'] };
     if (result.consoleExceptions.length && !failed) {
       failed = true;
       result.defects.push({ id: `${scenario.id}-renderer-exception`, severity: 'HIGH', title: 'Renderer exception during scenario', reproduction: [`Run npm run gameplay-agent:rerun-failed`, `Scenario: ${scenario.id}`], details: result.consoleExceptions, repairAttempts: repairAttempts[`${scenario.id}-renderer-exception`] ?? 0, maxRepairAttempts: 3 });

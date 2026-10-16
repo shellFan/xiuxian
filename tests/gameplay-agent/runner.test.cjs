@@ -4,12 +4,115 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { test } = require('node:test');
-const { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, classifyFailure } = require('../../ai/gameplay-agent/lib/report.cjs');
+const { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, classifyFailure, classifyStepFailure } = require('../../ai/gameplay-agent/lib/report.cjs');
 const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, storeScenarioVariable, popupDismissalComplete, popupControlKind, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
+const { waitForArenaSkillButton } = require('../../ai/gameplay-agent/lib/home-arena-play.cjs');
 
 test('scenario ids cannot escape the reports directory', () => {
   assert.equal(safeRunId('../outside'), null);
   assert.match(safeRunId('20261013-120000'), /^20261013-120000$/);
+});
+
+test('home arena scenarios require fixed seed and real paced input; soak cannot claim less than twenty minutes', () => {
+  assert.doesNotThrow(() => validateScenario({ id: 'home-five', steps: [{ action: 'homeArenaPlay', seed: 5911, clickIntervalMs: 400 }] }));
+  assert.doesNotThrow(() => validateScenario({ id: 'home-soak', steps: [{ action: 'homeArenaSoak', seed: 5911, clickIntervalMs: 400, durationMs: 1200000 }] }));
+  assert.throws(() => validateScenario({ id: 'short-soak', steps: [{ action: 'homeArenaSoak', seed: 5911, clickIntervalMs: 400, durationMs: 1000 }] }), /twenty minutes/);
+  assert.throws(() => validateScenario({ id: 'fast-input', steps: [{ action: 'homeArenaPlay', seed: 5911, clickIntervalMs: 1 }] }), /clickIntervalMs/);
+});
+
+test('special challenge scenario starts and observes an actual V3 battle through visible UI', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/fate-secret-trial.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  assert.ok(scenario.steps.some((step) => step.action === 'click' && step.selector === '#FateChallengeControls [data-fate-challenge="start"]'));
+  assert.ok(scenario.steps.some((step) => step.action === 'call' && step.method === 'queryBattle'));
+  assert.ok(scenario.steps.some((step) => step.action === 'click' && step.selector === '[data-action=abandonBattle]'));
+  const settlementIndex = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'queryFinishedBattle' && step.as === 'abandonedBattle');
+  const resultModalIndex = scenario.steps.findIndex((step) => step.action === 'waitFor' && step.selector.includes('data-battle-fallback-exit'));
+  const criticalChoiceIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-critical-conv]');
+  const eventChoiceIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-vevent-choice=__auto]');
+  const eventResultIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '#V2EventOk');
+  assert.ok(settlementIndex >= 0 && settlementIndex < resultModalIndex,
+    'the scenario must record authoritative battle settlement before checking its UI result');
+  assert.ok(criticalChoiceIndex >= 0 && !scenario.steps.slice(criticalChoiceIndex + 1, resultModalIndex)
+    .some((step) => step.action === 'click' && step.selector === '.ux-nav-item[data-nav=PROJECT]'),
+  'the result popup may appear over the messenger page, so the scenario must acknowledge it before navigating');
+  assert.ok(criticalChoiceIndex < eventChoiceIndex && eventChoiceIndex < eventResultIndex && eventResultIndex < resultModalIndex,
+    'the scenario must resolve the surfaced V2 story event before asserting the battle-result popup');
+  assert.ok(scenario.steps.some((step) => step.action === 'waitFor' && step.selector.includes('data-battle-fallback-exit')));
+  assert.ok(scenario.steps.some((step) => step.action === 'call' && step.method === 'queryFateRun'));
+  assert.ok(scenario.steps.filter((step) => step.action === 'call').every((step) => step.method.startsWith('query')),
+    'challenge state must come from the existing authoritative battle and fate query APIs');
+});
+
+test('J fate recovery scenarios exercise choices, death, settlement, rebirth and talent through visible UI controls', () => {
+  const scenarioDir = path.join(__dirname, '../../ai/gameplay-agent/scenarios');
+  const scenarios = ['fate-chain-death-rebirth', 'fate-choice-negotiation'].map((id) =>
+    validateScenario(JSON.parse(fs.readFileSync(path.join(scenarioDir, `${id}.json`), 'utf8'))),
+  );
+  const chain = scenarios[0];
+  const clicks = chain.steps.filter((step) => step.action === 'click').map((step) => step.selector);
+  assert.ok(clicks.includes('#FateEventChoices [data-fate-choice="RISK"]'));
+  assert.ok(clicks.includes('#FateChallengeControls [data-fate-settle]'));
+  assert.ok(clicks.includes('#FateTalentList [data-fate-talent="born_cow"]'));
+  assert.ok(clicks.includes('#FateChallengeControls [data-fate-rebirth]'));
+  assert.ok(chain.steps.some((step) => step.action === 'restartGame'));
+  assert.ok(chain.steps.some((step) => step.action === 'waitFor' && step.selector.includes('data-event-id=coffee_event')),
+    'the chain replay must resolve the event queued ahead of intern_s4 before asserting the next story card');
+  assert.ok(chain.steps.some((step) => step.action === 'click' && step.selector === '#FateEventChoices [data-fate-choice="NEGOTIATE"]'),
+    'the queued coffee event must be resolved through its visible choice control');
+  assert.ok(chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterDeath.health' && step.expected === 0),
+    'the fatal risk assertion must verify zero run health without assuming which seeded probability branch won');
+  assert.ok(chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterDeath.eventHistory[5].choiceId' && step.expected === 'RISK'),
+    'the final intern choice follows the separately recorded queued coffee event in the authoritative history');
+  assert.ok(!chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterDeath.eventHistory[4].choiceId'),
+    'the scenario must not index the final intern choice as if no event had been interleaved');
+  assert.ok(!chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterDeath.terminalOutcomeId' && step.expected === 'intern_s5_LAST_STAND'),
+    'the replay must not hard-code the risk success branch when either success or failure ends the run');
+  assert.ok(chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterRestart.status'));
+  assert.ok(chain.steps.filter((step) => step.action === 'call').every((step) => step.method.startsWith('query')),
+    'the scenario must observe state only through facade calls; it cannot manufacture a death or reward');
+
+  const negotiation = scenarios[1];
+  assert.ok(negotiation.steps.some((step) => step.action === 'click' && step.selector === '#FateEventChoices [data-fate-choice="NEGOTIATE"]'));
+  assert.ok(negotiation.steps.some((step) => step.action === 'assert' && step.path === '@vars.after.work.salaryBalance'));
+  assert.ok(negotiation.steps.some((step) => step.action === 'assert' && step.path === '@vars.after.work.salaryBalance' && step.check === 'gt' && step.expected === '@vars.before.work.salaryBalance'));
+  assert.ok(negotiation.steps.some((step) => step.action === 'screenshot'));
+  assert.ok(negotiation.steps.filter((step) => step.action === 'call').every((step) => step.method.startsWith('query')),
+    'the alternate choice must be submitted through the rendered UI');
+});
+
+test('arena skill automation waits for the rendered button to catch up with authoritative cooldown state', async () => {
+  const ready = { skillUnlocked: true, skillRemainingMs: 0, complete: false };
+  let inspections = 0, now = 0;
+  const caughtUp = await waitForArenaSkillButton({
+    readState: async () => ready,
+    inspect: async () => ({ found: true, visible: true, disabled: ++inspections < 3 }),
+    delay: async (ms) => { now += ms; },
+    now: () => now,
+    timeoutMs: 50,
+    pollIntervalMs: 1,
+  });
+  assert.equal(caughtUp.status, 'ready');
+  assert.equal(inspections, 3);
+
+  const cooldown = await waitForArenaSkillButton({
+    readState: async () => ({ ...ready, skillRemainingMs: 10 }),
+    inspect: async () => ({ found: true, visible: true, disabled: true }),
+    delay: async () => {},
+  });
+  assert.equal(cooldown.status, 'not-ready');
+
+  const stuck = await waitForArenaSkillButton({
+    readState: async () => ready,
+    inspect: async () => ({ found: true, visible: true, disabled: true }),
+    delay: async (ms) => { now += ms; },
+    now: () => now,
+    timeoutMs: 5,
+    pollIntervalMs: 1,
+  });
+  assert.equal(stuck.status, 'inconsistent');
+  assert.equal(stuck.state.skillRemainingMs, 0);
+  assert.equal(stuck.target.disabled, true);
 });
 
 test('scenario validation rejects an unknown action before launching the EXE', () => {
@@ -64,11 +167,29 @@ test('waitFor rejects unbounded timeouts and state assertions reject unsafe path
   assert.throws(() => validateScenario({ id: 'bad-state', steps: [{ action: 'assertState', path: 'window.process', check: 'exists' }] }), /safe state path/);
 });
 
+test('scenario assertions can safely read namespaced outcome flags that contain colons', () => {
+  assert.doesNotThrow(() => validateScenario({ id: 'flag-path', steps: [{ action: 'assert', check: 'equals', path: '@vars.run.flags["challenge:secret_trial:DEFEAT"]', expected: true }] }));
+  const variables = createVariableScopes();
+  storeScenarioVariable(variables, 'after', { flags: { 'challenge:secret_trial:DEFEAT': true } });
+  assert.equal(readScenarioVariable(variables, '@vars.after.flags["challenge:secret_trial:DEFEAT"]'), true);
+});
+
 test('environment failures are classified separately from game and runner defects', () => {
   assert.equal(classifyFailure({ error: Object.assign(new Error('desktop session unavailable'), { failureClass: 'ENVIRONMENT_BLOCKED' }) }), 'ENVIRONMENT_BLOCKED');
   assert.equal(classifyFailure({ error: new Error('cannot create a Windows desktop window'), launchFailure: true, environmentBlocked: true }), 'ENVIRONMENT_BLOCKED');
   assert.equal(classifyFailure({ error: new Error('AUTOMATION: screenshot capture failed: connection closed') }), 'AUTOMATION_DEFECT');
   assert.equal(classifyFailure({ error: new Error('NOT_VERIFIED: authoritative state unavailable') }), 'NOT_VERIFIED');
+});
+
+test('a process exit does not turn an underlying CDP timeout into a game defect', () => {
+  const timeout = new Error('CDP command timed out: Page.captureScreenshot');
+  assert.equal(classifyStepFailure({ error: timeout, childExitCode: 0 }), 'AUTOMATION_DEFECT');
+  assert.equal(classifyStepFailure({ error: new Error('game closed unexpectedly'), childExitCode: 0 }), 'GAME_DEFECT');
+});
+
+test('failed scenario assertions are classified as assertion defects rather than game defects', () => {
+  assert.equal(classifyStepFailure({ step: { action: 'assert' }, error: new Error('expected value did not match') }), 'ASSERTION_DEFECT');
+  assert.equal(classifyStepFailure({ step: { action: 'assertState' }, error: new Error('authoritative assertion failed') }), 'ASSERTION_DEFECT');
 });
 
 test('failed rerun selects only scenarios that actually failed', () => {

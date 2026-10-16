@@ -1,7 +1,7 @@
 'use strict';
 
 const VARIABLE_NAME = /^[a-z][a-zA-Z0-9]{0,39}$/;
-const VARIABLE_PATH = /^@(vars|run)((?:\.[a-zA-Z_$][\w$]*|\[(?:\d+|"[a-zA-Z0-9_-]+")\])+)$/;
+const VARIABLE_PATH = /^@(vars|run)((?:\.[a-zA-Z_$][\w$]*|\[(?:\d+|"[a-zA-Z0-9_:-]+")\])+)$/;
 const TYPES = new Set(['array', 'boolean', 'null', 'number', 'object', 'string']);
 
 function createVariableScopes() {
@@ -94,7 +94,7 @@ function storeScenarioVariable(scopes, name, value, { scope = 'scenario', type }
 function readScenarioVariable(scopes, reference) {
   const match = VARIABLE_PATH.exec(reference);
   if (!match || /(?:__proto__|prototype|constructor)/i.test(reference)) throw new Error(`invalid scenario variable reference: ${reference}`);
-  const parts = [...match[2].matchAll(/\.([a-zA-Z_$][\w$]*)|\[(\d+|"[a-zA-Z0-9_-]+")\]/g)]
+  const parts = [...match[2].matchAll(/\.([a-zA-Z_$][\w$]*)|\[(\d+|"[a-zA-Z0-9_:-]+")\]/g)]
     .map((part) => part[1] ?? (part[2].startsWith('"') ? part[2].slice(1, -1) : Number(part[2])));
   const scopeName = match[1] === 'vars' ? 'scenario' : 'run';
   const root = scopes[scopeName][parts.shift()];

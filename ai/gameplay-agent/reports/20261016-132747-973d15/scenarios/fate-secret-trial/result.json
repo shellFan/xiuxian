@@ -1,0 +1,4404 @@
+{
+  "id": "fate-secret-trial",
+  "title": "Fund and resolve the hidden coffee branch, then verify secret trial defeat through the real V3 battle",
+  "status": "passed",
+  "startedAt": "2026-10-16T13:27:48.121Z",
+  "steps": [
+    {
+      "index": 1,
+      "action": "call",
+      "description": "Read authoritative initial character creation state",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → creation",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "INDUSTRY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211
+        }
+      },
+      "durationMs": 144
+    },
+    {
+      "index": 2,
+      "action": "assert",
+      "description": "A new isolated test profile starts at character creation",
+      "status": "passed",
+      "detail": "@vars.creation.status: \"CREATION_REQUIRED\"",
+      "durationMs": 4
+    },
+    {
+      "index": 3,
+      "action": "screenshot",
+      "description": "Capture the first creation step",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/001-creation-industry.png",
+      "detail": "001-creation-industry.png",
+      "durationMs": 959
+    },
+    {
+      "index": 4,
+      "action": "click",
+      "description": "Choose internet industry",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"industry:INTERNET\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "互联网\n代码、产品、流量与线上事故交织的修仙世界。"
+      },
+      "durationMs": 45
+    },
+    {
+      "index": 5,
+      "action": "wait",
+      "description": "Allow the industry selection and any dismissed event transition to settle",
+      "status": "passed",
+      "detail": "300ms",
+      "durationMs": 313
+    },
+    {
+      "index": 6,
+      "action": "clickUntilState",
+      "description": "Click the visible next-step button and wait for the authoritative direction state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"DIRECTION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "DIRECTION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 145
+    },
+    {
+      "index": 7,
+      "action": "call",
+      "description": "Confirm the second creation step",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → directionStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "DIRECTION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET"
+        }
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 8,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.directionStep.draft.step: \"DIRECTION\"",
+      "durationMs": 4
+    },
+    {
+      "index": 9,
+      "action": "screenshot",
+      "description": "creation-direction",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/002-creation-direction.png",
+      "detail": "002-creation-direction.png",
+      "durationMs": 924
+    },
+    {
+      "index": 10,
+      "action": "click",
+      "description": "Choose the available technical direction",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"direction:TECH_RND\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 284.59375,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 329.59375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "技术研发\n以代码、测试、系统运维踏上修行路。"
+      },
+      "durationMs": 44
+    },
+    {
+      "index": 11,
+      "action": "clickUntilState",
+      "description": "Advance to profession and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"PROFESSION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "PROFESSION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 175
+    },
+    {
+      "index": 12,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → professionStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "PROFESSION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": false,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 13,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.professionStep.draft.step: \"PROFESSION\"",
+      "durationMs": 4
+    },
+    {
+      "index": 14,
+      "action": "screenshot",
+      "description": "creation-profession",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/003-creation-profession.png",
+      "detail": "003-creation-profession.png",
+      "durationMs": 880
+    },
+    {
+      "index": 15,
+      "action": "click",
+      "description": "Choose Java backend profession",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"profession:JAVA_BACKEND\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 283.59375,
+          "width": 347.015625,
+          "height": 98.671875
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 283.59375,
+          "width": 347.015625,
+          "height": 98.671875
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 332.9296875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "Java后端\n代码剑修 · 稳定、技术流、擅长事故。后期强大，前期耐熬。"
+      },
+      "durationMs": 44
+    },
+    {
+      "index": 16,
+      "action": "clickUntilState",
+      "description": "Advance to identity and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"IDENTITY\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 176
+    },
+    {
+      "index": 17,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → identityStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "加班散修",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND"
+        }
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 18,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.identityStep.draft.step: \"IDENTITY\"",
+      "durationMs": 4
+    },
+    {
+      "index": 19,
+      "action": "screenshot",
+      "description": "creation-identity",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/004-creation-identity.png",
+      "detail": "004-creation-identity.png",
+      "durationMs": 959
+    },
+    {
+      "index": 20,
+      "action": "type",
+      "description": "Enter a test nickname with real keyboard input",
+      "status": "passed",
+      "detail": "typed 4 characters",
+      "durationMs": 53
+    },
+    {
+      "index": 21,
+      "action": "scroll",
+      "description": "Scroll the identity form until its save control is inside the clipped panel",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (150,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 47
+    },
+    {
+      "index": 22,
+      "action": "assertClickable",
+      "description": "Verify the identity save control is now visible and uncovered",
+      "status": "passed",
+      "detail": "[data-creation-action=\"save-identity\"]: found=true, visible=true, disabled=false, covered=false",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 495.28125,
+          "y": 335.09375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "保存昵称与形象"
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 23,
+      "action": "click",
+      "description": "Save identity through the creation UI",
+      "status": "passed",
+      "detail": "click [data-creation-action=\"save-identity\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 313.09375,
+          "width": 135.3125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 495.28125,
+          "y": 335.09375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "保存昵称与形象"
+      },
+      "durationMs": 52
+    },
+    {
+      "index": 24,
+      "action": "wait",
+      "description": "Wait for the identity form save to settle before changing the scroll region",
+      "status": "passed",
+      "detail": "250ms",
+      "durationMs": 255
+    },
+    {
+      "index": 25,
+      "action": "scroll",
+      "description": "Scroll to the background choices after saving identity",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (350,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 54
+    },
+    {
+      "index": 26,
+      "action": "click",
+      "description": "Choose a valid starting background",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"background:ORDINARY_WORKER\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 239.1875,
+          "width": 347.015625,
+          "height": 90
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 239.1875,
+          "width": 347.015625,
+          "height": 90
+        },
+        "clickPoint": {
+          "x": 601.1328125,
+          "y": 284.1875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "普通打工人\n从平凡工位起步，根骨 +1。"
+      },
+      "durationMs": 42
+    },
+    {
+      "index": 27,
+      "action": "waitFor",
+      "description": "Wait until the real character-creation UI reflects the selected background",
+      "status": "passed",
+      "detail": "[data-creation-choice=\"background:ORDINARY_WORKER\"].is-selected reached exists",
+      "durationMs": 6
+    },
+    {
+      "index": 28,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → savedIdentity",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "IDENTITY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "durationMs": 6
+    },
+    {
+      "index": 29,
+      "action": "assert",
+      "description": "Confirm the chosen background is the authoritative wizard state before advancing",
+      "status": "passed",
+      "detail": "@vars.savedIdentity.draft.background: \"ORDINARY_WORKER\"",
+      "durationMs": 4
+    },
+    {
+      "index": 30,
+      "action": "screenshot",
+      "description": "Verify the background choice through its selected UI state",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/005-creation-identity-backgrounds.png",
+      "detail": "005-creation-identity-backgrounds.png",
+      "durationMs": 946
+    },
+    {
+      "index": 31,
+      "action": "clickUntilState",
+      "description": "Advance to destiny and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"DESTINY\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "DESTINY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 174
+    },
+    {
+      "index": 32,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → destinyStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "DESTINY",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER"
+        }
+      },
+      "durationMs": 8
+    },
+    {
+      "index": 33,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.destinyStep.draft.step: \"DESTINY\"",
+      "durationMs": 5
+    },
+    {
+      "index": 34,
+      "action": "screenshot",
+      "description": "creation-destiny",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/006-creation-destiny.png",
+      "detail": "006-creation-destiny.png",
+      "durationMs": 1025
+    },
+    {
+      "index": 35,
+      "action": "scroll",
+      "description": "Scroll the tall destiny candidate cards into the visible area",
+      "status": "passed",
+      "detail": "scrolled .v59-step-content (0,0) → (120,0) in 1 CDP wheel attempt(s)",
+      "durationMs": 54
+    },
+    {
+      "index": 36,
+      "action": "click",
+      "description": "Choose a destiny candidate",
+      "status": "passed",
+      "detail": "click [data-creation-choice=\"candidate:A\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 427.625,
+          "y": 164.59375,
+          "width": 227.34375,
+          "height": 235.5078125
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 427.625,
+          "y": 201,
+          "width": 227.34375,
+          "height": 189
+        },
+        "clickPoint": {
+          "x": 541.296875,
+          "y": 295.5
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SMALL",
+          "id": null,
+          "className": ""
+        },
+        "text": "均衡型\n代码通灵体\n悟性\n10\n根骨\n9\n神识\n10\n机缘\n10\n心性\n11\n优点：技术任务进度提高 10%。\n代价：非技术事项没有额外加成。\n职业契合：契合互联网技术研发方向，不提供通用战斗加成。"
+      },
+      "durationMs": 37
+    },
+    {
+      "index": 37,
+      "action": "wait",
+      "description": "Allow the selected destiny to settle before advancing",
+      "status": "passed",
+      "detail": "300ms",
+      "durationMs": 319
+    },
+    {
+      "index": 38,
+      "action": "clickUntilState",
+      "description": "Advance to allocation and verify the authoritative wizard state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"ALLOCATION\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "ALLOCATION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 166
+    },
+    {
+      "index": 39,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → allocationStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "ALLOCATION",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "durationMs": 7
+    },
+    {
+      "index": 40,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.allocationStep.draft.step: \"ALLOCATION\"",
+      "durationMs": 5
+    },
+    {
+      "index": 41,
+      "action": "screenshot",
+      "description": "creation-allocation",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/007-creation-allocation.png",
+      "detail": "007-creation-allocation.png",
+      "durationMs": 954
+    },
+    {
+      "index": 42,
+      "action": "clickUntilState",
+      "description": "Keep the valid default allocation and verify the confirmation state",
+      "status": "passed",
+      "detail": "queryCharacterCreation().draft.step reached \"CONFIRM\" after 1 real UI click attempt(s)",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "CONFIRM",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1068.6640625,
+          "y": 427,
+          "width": 81.9921875,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1109.66015625,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "下一步"
+      },
+      "durationMs": 144
+    },
+    {
+      "index": 43,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → confirmStep",
+      "value": {
+        "status": "CREATION_REQUIRED",
+        "isNewCharacterCreationRequired": true,
+        "draft": {
+          "rulesVersion": "v59a.1",
+          "mode": "CREATE",
+          "seed": 5911,
+          "step": "CONFIRM",
+          "professionId": "JAVA_BACKEND",
+          "professionConfirmed": true,
+          "nickname": "试玩修士",
+          "avatarId": "avatar-3",
+          "candidates": [
+            {
+              "id": "A",
+              "destinyId": "CODE_SPIRIT",
+              "attributes": {
+                "insight": 10,
+                "constitution": 9,
+                "perception": 10,
+                "fortune": 10,
+                "willpower": 11
+              }
+            },
+            {
+              "id": "B",
+              "destinyId": "LABOR_SAINT",
+              "attributes": {
+                "insight": 16,
+                "constitution": 10,
+                "perception": 10,
+                "fortune": 7,
+                "willpower": 7
+              }
+            },
+            {
+              "id": "C",
+              "destinyId": "SCAPEGOAT",
+              "attributes": {
+                "insight": 9,
+                "constitution": 8,
+                "perception": 9,
+                "fortune": 16,
+                "willpower": 8
+              }
+            }
+          ],
+          "candidateHistory": [
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8",
+            "v59a.1|JAVA_BACKEND|A|CODE_SPIRIT|insight=10|constitution=9|perception=10|fortune=10|willpower=11||B|LABOR_SAINT|insight=16|constitution=10|perception=10|fortune=7|willpower=7||C|SCAPEGOAT|insight=9|constitution=8|perception=9|fortune=16|willpower=8"
+          ],
+          "rerollsUsed": 0,
+          "allocation": {
+            "insight": 0,
+            "constitution": 0,
+            "perception": 0,
+            "fortune": 0,
+            "willpower": 0
+          },
+          "startedAt": 1792157273211,
+          "industry": "INTERNET",
+          "direction": "TECH_RND",
+          "background": "ORDINARY_WORKER",
+          "selectedCandidateId": "A"
+        }
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 44,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.confirmStep.draft.step: \"CONFIRM\"",
+      "durationMs": 2
+    },
+    {
+      "index": 45,
+      "action": "screenshot",
+      "description": "creation-confirm",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/008-creation-confirm.png",
+      "detail": "008-creation-confirm.png",
+      "durationMs": 893
+    },
+    {
+      "index": 46,
+      "action": "click",
+      "description": "Finalize the character through the UI",
+      "status": "passed",
+      "detail": "click [data-creation-action=\"finalize\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1055.3359375,
+          "y": 427,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 1055.3359375,
+          "y": 427,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 1102.99609375,
+          "y": 449
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--primary"
+        },
+        "text": "确认入职"
+      },
+      "durationMs": 62
+    },
+    {
+      "index": 47,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryCharacterCreation() → completeCreation",
+      "value": {
+        "status": "COMPLETE",
+        "isNewCharacterCreationRequired": false
+      },
+      "durationMs": 7
+    },
+    {
+      "index": 48,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.completeCreation.status: \"COMPLETE\"",
+      "durationMs": 4
+    },
+    {
+      "index": 49,
+      "action": "screenshot",
+      "description": "creation-onboarding",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/009-creation-onboarding.png",
+      "detail": "009-creation-onboarding.png",
+      "durationMs": 939
+    },
+    {
+      "index": 50,
+      "action": "clickUntilState",
+      "description": "Enter the game through the real onboarding control and verify its authoritative state, retrying only while still at the first story step",
+      "status": "passed",
+      "detail": "queryCharacterOnboarding().step reached \"COMPLETE\" after 1 real UI click attempt(s)",
+      "value": {
+        "step": "COMPLETE",
+        "title": "入职剧情已完成",
+        "body": "第一张工单：排查接口异常",
+        "firstTaskTitle": "第一张工单：排查接口异常"
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 545.5078125,
+          "y": 513.046875,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1267,
+          "height": 685
+        },
+        "visibleBounds": {
+          "x": 545.5078125,
+          "y": 513.046875,
+          "width": 95.3203125,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 593.16796875,
+          "y": 535.046875
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "v59-btn v59-btn--quiet"
+        },
+        "text": "跳过剧情"
+      },
+      "durationMs": 313
+    },
+    {
+      "index": 51,
+      "action": "assert",
+      "description": "The onboarding action completed before dependent first-task checks",
+      "status": "passed",
+      "detail": "@vars.onboardingAfterSkip.step: \"COMPLETE\"",
+      "durationMs": 3
+    },
+    {
+      "index": 52,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryAssignedTasks() → firstTask",
+      "value": {
+        "top": [
+          {
+            "id": "at_mvb06axe_5rk",
+            "title": "第一张工单：排查接口异常",
+            "detail": "这是你的第一份可执行差事。完成后可领取工资、绩效與修为。",
+            "priority": "P2",
+            "source": "SYSTEM",
+            "createdDay": 1,
+            "createdAt": 1792157284562,
+            "status": "OPEN",
+            "rewardSalary": 60,
+            "rewardPerformance": 5,
+            "rewardCultivation": 20,
+            "rewardMind": 0,
+            "isFakeP0": false
+          }
+        ],
+        "openCount": 1,
+        "all": [
+          {
+            "id": "at_mvb06axe_5rk",
+            "title": "第一张工单：排查接口异常",
+            "detail": "这是你的第一份可执行差事。完成后可领取工资、绩效與修为。",
+            "priority": "P2",
+            "source": "SYSTEM",
+            "createdDay": 1,
+            "createdAt": 1792157284562,
+            "status": "OPEN",
+            "rewardSalary": 60,
+            "rewardPerformance": 5,
+            "rewardCultivation": 20,
+            "rewardMind": 0,
+            "isFakeP0": false
+          }
+        ]
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 53,
+      "action": "assert",
+      "description": "Onboarding creates its first real assigned task",
+      "status": "passed",
+      "detail": "@vars.firstTask.openCount: 1 >= 1",
+      "durationMs": 2
+    },
+    {
+      "index": 54,
+      "action": "screenshot",
+      "description": "home",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/010-home.png",
+      "detail": "010-home.png",
+      "durationMs": 1142
+    },
+    {
+      "index": 55,
+      "action": "setViewport",
+      "description": "",
+      "status": "passed",
+      "detail": "CDP content viewport 1280×720 at scale 1; outer Windows window size is not asserted",
+      "durationMs": 15
+    },
+    {
+      "index": 56,
+      "action": "call",
+      "description": "Read the existing salary wallet before completing the first assigned task",
+      "status": "passed",
+      "detail": "queryHomeSnapshot() → beforeTask",
+      "value": {
+        "work": {
+          "professionId": "JAVA_BACKEND",
+          "professionName": "Java后端",
+          "dayIndex": 1,
+          "weekday": 5,
+          "weekdayName": "周五",
+          "isWeekend": false,
+          "clockText": "21:31",
+          "countdownMs": 0,
+          "workState": "OVERTIME",
+          "workStateText": "加班中",
+          "workMode": "FISHING",
+          "workModeText": "带薪摸鱼中",
+          "currentTask": null,
+          "openTaskCount": 0,
+          "todayEarned": 0,
+          "todayCultivation": 0,
+          "salaryBalance": 0,
+          "fatigue": 0,
+          "onboardingTask": {
+            "id": "at_mvb06axe_5rk",
+            "title": "第一张工单：排查接口异常",
+            "source": "入职"
+          }
+        },
+        "goals": [
+          {
+            "kind": "WORK",
+            "title": "完成一个工作任务",
+            "description": "在任务页接一份差事，干完领奖励",
+            "progress": 0,
+            "target": 1,
+            "completed": false,
+            "claimed": false,
+            "reward": {
+              "salary": 80,
+              "cultivation": 20,
+              "mind": 0
+            }
+          },
+          {
+            "kind": "GROWTH",
+            "title": "获得一次真实成长",
+            "description": "修炼一次或完成带来修为的任务",
+            "progress": 0,
+            "target": 1,
+            "completed": false,
+            "claimed": false,
+            "reward": {
+              "salary": 30,
+              "cultivation": 45,
+              "mind": 0
+            }
+          },
+          {
+            "kind": "LIFE",
+            "title": "执行一次生活或社交行为",
+            "description": "喝杯咖啡、吃顿饭，或切到社交划水 3 分钟",
+            "progress": 0,
+            "target": 1,
+            "completed": false,
+            "claimed": false,
+            "reward": {
+              "salary": 20,
+              "cultivation": 10,
+              "mind": 12
+            }
+          }
+        ],
+        "nextAction": {
+          "id": "GET_TASK",
+          "icon": "📋",
+          "text": "领取一个任务",
+          "sub": "任务库 18 份差事等你挑",
+          "btn": "去任务页",
+          "page": "TASKS",
+          "command": null,
+          "commandArg": null
+        },
+        "life": [
+          {
+            "kind": "COFFEE",
+            "label": "喝咖啡",
+            "icon": "☕",
+            "price": 18,
+            "effectText": "疲劳 -12，道心 +6",
+            "used": 0,
+            "remaining": 3,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥18）"
+          },
+          {
+            "kind": "MILK_TEA",
+            "label": "喝奶茶",
+            "icon": "🧋",
+            "price": 16,
+            "effectText": "道心 +8",
+            "used": 0,
+            "remaining": 2,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥16）"
+          },
+          {
+            "kind": "LUNCH",
+            "label": "吃午餐",
+            "icon": "🍜",
+            "price": 25,
+            "effectText": "疲劳 -8，道心 +5",
+            "used": 0,
+            "remaining": 1,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥25）"
+          },
+          {
+            "kind": "SNACK",
+            "label": "吃零食",
+            "icon": "🍪",
+            "price": 8,
+            "effectText": "道心 +3",
+            "used": 0,
+            "remaining": 3,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥8）"
+          },
+          {
+            "kind": "DINNER",
+            "label": "下班聚餐",
+            "icon": "🍲",
+            "price": 68,
+            "effectText": "疲劳 -40，道心 +15",
+            "used": 0,
+            "remaining": 1,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥68）"
+          }
+        ]
+      },
+      "durationMs": 11
+    },
+    {
+      "index": 57,
+      "action": "assertClickable",
+      "description": "Verify the real onboarding-task control is visible and unobstructed",
+      "status": "passed",
+      "detail": ".ux59f-onboarding [data-action=assignedDone]: found=true, visible=true, disabled=false, covered=false",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1001,
+          "y": 366,
+          "width": 140,
+          "height": 38
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 1001,
+          "y": 366,
+          "width": 140,
+          "height": 38
+        },
+        "clickPoint": {
+          "x": 1071,
+          "y": 385
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-btn ux-btn--blue ux-btn--sm"
+        },
+        "text": "完成入职任务"
+      },
+      "durationMs": 8
+    },
+    {
+      "index": 58,
+      "action": "click",
+      "description": "Complete the first assigned task through its visible UI and canonical task service",
+      "status": "passed",
+      "detail": "click .ux59f-onboarding [data-action=assignedDone]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1001,
+          "y": 366,
+          "width": 140,
+          "height": 38
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 1001,
+          "y": 366,
+          "width": 140,
+          "height": 38
+        },
+        "clickPoint": {
+          "x": 1071,
+          "y": 385
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-btn ux-btn--blue ux-btn--sm"
+        },
+        "text": "完成入职任务"
+      },
+      "durationMs": 99
+    },
+    {
+      "index": 59,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryHomeSnapshot() → afterTask",
+      "value": {
+        "work": {
+          "professionId": "JAVA_BACKEND",
+          "professionName": "Java后端",
+          "dayIndex": 1,
+          "weekday": 5,
+          "weekdayName": "周五",
+          "isWeekend": false,
+          "clockText": "21:31",
+          "countdownMs": 0,
+          "workState": "OVERTIME",
+          "workStateText": "加班中",
+          "workMode": "FISHING",
+          "workModeText": "带薪摸鱼中",
+          "currentTask": null,
+          "openTaskCount": 0,
+          "todayEarned": 60,
+          "todayCultivation": 20,
+          "salaryBalance": 60,
+          "fatigue": 0,
+          "onboardingTask": null
+        },
+        "goals": [
+          {
+            "kind": "WORK",
+            "title": "完成一个工作任务",
+            "description": "在任务页接一份差事，干完领奖励",
+            "progress": 1,
+            "target": 1,
+            "completed": true,
+            "claimed": false,
+            "reward": {
+              "salary": 80,
+              "cultivation": 20,
+              "mind": 0
+            }
+          },
+          {
+            "kind": "GROWTH",
+            "title": "获得一次真实成长",
+            "description": "修炼一次或完成带来修为的任务",
+            "progress": 1,
+            "target": 1,
+            "completed": true,
+            "claimed": false,
+            "reward": {
+              "salary": 30,
+              "cultivation": 45,
+              "mind": 0
+            }
+          },
+          {
+            "kind": "LIFE",
+            "title": "执行一次生活或社交行为",
+            "description": "喝杯咖啡、吃顿饭，或切到社交划水 3 分钟",
+            "progress": 0,
+            "target": 1,
+            "completed": false,
+            "claimed": false,
+            "reward": {
+              "salary": 20,
+              "cultivation": 10,
+              "mind": 12
+            }
+          }
+        ],
+        "nextAction": {
+          "id": "GET_TASK",
+          "icon": "📋",
+          "text": "领取一个任务",
+          "sub": "任务库 18 份差事等你挑",
+          "btn": "去任务页",
+          "page": "TASKS",
+          "command": null,
+          "commandArg": null
+        },
+        "life": [
+          {
+            "kind": "COFFEE",
+            "label": "喝咖啡",
+            "icon": "☕",
+            "price": 18,
+            "effectText": "疲劳 -12，道心 +6",
+            "used": 0,
+            "remaining": 3,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "MILK_TEA",
+            "label": "喝奶茶",
+            "icon": "🧋",
+            "price": 16,
+            "effectText": "道心 +8",
+            "used": 0,
+            "remaining": 2,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "LUNCH",
+            "label": "吃午餐",
+            "icon": "🍜",
+            "price": 25,
+            "effectText": "疲劳 -8，道心 +5",
+            "used": 0,
+            "remaining": 1,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "SNACK",
+            "label": "吃零食",
+            "icon": "🍪",
+            "price": 8,
+            "effectText": "道心 +3",
+            "used": 0,
+            "remaining": 3,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "DINNER",
+            "label": "下班聚餐",
+            "icon": "🍲",
+            "price": 68,
+            "effectText": "疲劳 -40，道心 +15",
+            "used": 0,
+            "remaining": 1,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥8）"
+          }
+        ]
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 60,
+      "action": "assert",
+      "description": "The real task reward funds coffee without injecting wallet state",
+      "status": "passed",
+      "detail": "@vars.afterTask.work.salaryBalance: 60 >= 18",
+      "durationMs": 5
+    },
+    {
+      "index": 61,
+      "action": "clickUntilState",
+      "description": "Defeat the first enemy with the visible attack control",
+      "status": "passed",
+      "detail": "queryHomeArena().kills reached 1 after 3 real UI click attempt(s)",
+      "value": {
+        "version": 1,
+        "stage": 1,
+        "kills": 1,
+        "hp": 30,
+        "complete": false,
+        "clearedStages": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "rewardedEnemies": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rngState": 1081163374,
+        "combo": 3,
+        "lastClickAt": 1792157288477,
+        "lastAttackAt": 1792157288477,
+        "skillReadyAt": 0,
+        "stageActiveMs": 3254,
+        "requests": [
+          "ui-1792157286297-1",
+          "ui-1792157287413-2",
+          "ui-1792157288477-3"
+        ],
+        "metrics": {
+          "attacks": 3,
+          "crits": 0,
+          "maxCombo": 3,
+          "autoAttacks": 0,
+          "skillUses": 0,
+          "totalKills": 1,
+          "stageTimesMs": []
+        },
+        "rewards": {
+          "experience": 2,
+          "materials": {
+            "mat_code_fragment": 1
+          }
+        },
+        "recentDrops": [],
+        "ready": true,
+        "active": true,
+        "stageName": "实习生的第一个 Bug",
+        "enemy": {
+          "id": "1:1",
+          "name": "空指针小虫",
+          "hp": 30,
+          "maxHp": 30,
+          "elite": false,
+          "level": 1
+        },
+        "enemyTotal": 16,
+        "attack": 12,
+        "critChance": 0.05,
+        "comboBonus": 0,
+        "autoUnlocked": false,
+        "skillUnlocked": false,
+        "autoIntervalSeconds": 2,
+        "skillRemainingMs": 0,
+        "skillDamage": 60,
+        "rewardPreview": "修为 +10 · 功法残页 ×1"
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 295,
+          "y": 477,
+          "width": 654,
+          "height": 54
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 295,
+          "y": 477,
+          "width": 654,
+          "height": 54
+        },
+        "clickPoint": {
+          "x": 622,
+          "y": 504
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": "ArenaAttack",
+          "className": "arena-attack"
+        },
+        "text": "⚡ 点击攻击"
+      },
+      "durationMs": 2363
+    },
+    {
+      "index": 62,
+      "action": "clickUntilState",
+      "description": "Reach the first intern event milestone through visible combat",
+      "status": "passed",
+      "detail": "queryHomeArena().kills reached 2 after 3 real UI click attempt(s)",
+      "value": {
+        "version": 1,
+        "stage": 1,
+        "kills": 2,
+        "hp": 30,
+        "complete": false,
+        "clearedStages": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "rewardedEnemies": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rngState": 314747253,
+        "combo": 6,
+        "lastClickAt": 1792157290809,
+        "lastAttackAt": 1792157290809,
+        "skillReadyAt": 0,
+        "stageActiveMs": 5237,
+        "requests": [
+          "ui-1792157286297-1",
+          "ui-1792157287413-2",
+          "ui-1792157288477-3",
+          "ui-1792157288624-4",
+          "ui-1792157289764-5",
+          "ui-1792157290809-6"
+        ],
+        "metrics": {
+          "attacks": 6,
+          "crits": 0,
+          "maxCombo": 6,
+          "autoAttacks": 0,
+          "skillUses": 0,
+          "totalKills": 2,
+          "stageTimesMs": []
+        },
+        "rewards": {
+          "experience": 4,
+          "materials": {
+            "mat_code_fragment": 2
+          }
+        },
+        "recentDrops": [],
+        "ready": true,
+        "active": true,
+        "stageName": "实习生的第一个 Bug",
+        "enemy": {
+          "id": "1:2",
+          "name": "空指针小虫",
+          "hp": 30,
+          "maxHp": 30,
+          "elite": false,
+          "level": 1
+        },
+        "enemyTotal": 16,
+        "attack": 12,
+        "critChance": 0.05,
+        "comboBonus": 0.05,
+        "autoUnlocked": false,
+        "skillUnlocked": false,
+        "autoIntervalSeconds": 2,
+        "skillRemainingMs": 0,
+        "skillDamage": 60,
+        "rewardPreview": "修为 +10 · 功法残页 ×1"
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 295,
+          "y": 477,
+          "width": 654,
+          "height": 54
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 295,
+          "y": 477,
+          "width": 654,
+          "height": 54
+        },
+        "clickPoint": {
+          "x": 622,
+          "y": 504
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": "ArenaAttack",
+          "className": "arena-attack"
+        },
+        "text": "⚡ 点击攻击"
+      },
+      "durationMs": 2349
+    },
+    {
+      "index": 63,
+      "action": "waitFor",
+      "description": "",
+      "status": "passed",
+      "detail": "#FateEventCard[data-event-id=intern_s1]:not([hidden]) reached visible",
+      "durationMs": 7
+    },
+    {
+      "index": 64,
+      "action": "click",
+      "description": "Help the intern through the visible event option",
+      "status": "passed",
+      "detail": "click #FateEventChoices [data-fate-choice=HELP]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 636,
+          "y": 194.8984375,
+          "width": 304,
+          "height": 30
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 636,
+          "y": 194.8984375,
+          "width": 304,
+          "height": 30
+        },
+        "clickPoint": {
+          "x": 788,
+          "y": 209.8984375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": ""
+        },
+        "text": "陪实习生复现故障并留存证据"
+      },
+      "durationMs": 60
+    },
+    {
+      "index": 65,
+      "action": "waitFor",
+      "description": "",
+      "status": "passed",
+      "detail": "#FateEventCard[data-event-id=intern_s2]:not([hidden]) reached visible",
+      "durationMs": 26
+    },
+    {
+      "index": 66,
+      "action": "click",
+      "description": "Choose the branch that unlocks the hidden coffee event",
+      "status": "passed",
+      "detail": "click #FateEventChoices [data-fate-choice=HELP]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 636,
+          "y": 194.8984375,
+          "width": 304,
+          "height": 30
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 636,
+          "y": 194.8984375,
+          "width": 304,
+          "height": 30
+        },
+        "clickPoint": {
+          "x": 788,
+          "y": 209.8984375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": ""
+        },
+        "text": "陪实习生复现故障并留存证据"
+      },
+      "durationMs": 38
+    },
+    {
+      "index": 67,
+      "action": "waitFor",
+      "description": "",
+      "status": "passed",
+      "detail": "#FateEventCard[data-event-id=intern_s3]:not([hidden]) reached visible",
+      "durationMs": 5
+    },
+    {
+      "index": 68,
+      "action": "click",
+      "description": "Continue the intern chain using its rendered choice",
+      "status": "passed",
+      "detail": "click #FateEventChoices [data-fate-choice=HELP]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 636,
+          "y": 194.8984375,
+          "width": 304,
+          "height": 30
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 636,
+          "y": 194.8984375,
+          "width": 304,
+          "height": 30
+        },
+        "clickPoint": {
+          "x": 788,
+          "y": 209.8984375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": ""
+        },
+        "text": "陪实习生复现故障并留存证据"
+      },
+      "durationMs": 60
+    },
+    {
+      "index": 69,
+      "action": "clickUntilState",
+      "description": "Continue the first stage toward the coffee-event milestone",
+      "status": "passed",
+      "detail": "queryHomeArena().kills reached 3 after 3 real UI click attempt(s)",
+      "value": {
+        "version": 1,
+        "stage": 1,
+        "kills": 3,
+        "hp": 30,
+        "complete": false,
+        "clearedStages": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "rewardedEnemies": [
+          3,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rngState": 3606478595,
+        "combo": 9,
+        "lastClickAt": 1792157293372,
+        "lastAttackAt": 1792157293372,
+        "skillReadyAt": 0,
+        "stageActiveMs": 8224,
+        "requests": [
+          "ui-1792157286297-1",
+          "ui-1792157287413-2",
+          "ui-1792157288477-3",
+          "ui-1792157288624-4",
+          "ui-1792157289764-5",
+          "ui-1792157290809-6",
+          "ui-1792157291218-7",
+          "ui-1792157292339-8",
+          "ui-1792157293371-9"
+        ],
+        "metrics": {
+          "attacks": 9,
+          "crits": 0,
+          "maxCombo": 9,
+          "autoAttacks": 0,
+          "skillUses": 0,
+          "totalKills": 3,
+          "stageTimesMs": []
+        },
+        "rewards": {
+          "experience": 6,
+          "materials": {
+            "mat_code_fragment": 3
+          }
+        },
+        "recentDrops": [],
+        "ready": true,
+        "active": true,
+        "stageName": "实习生的第一个 Bug",
+        "enemy": {
+          "id": "1:3",
+          "name": "空指针小虫",
+          "hp": 30,
+          "maxHp": 30,
+          "elite": false,
+          "level": 1
+        },
+        "enemyTotal": 16,
+        "attack": 14,
+        "critChance": 0.09,
+        "comboBonus": 0.05,
+        "autoUnlocked": false,
+        "skillUnlocked": false,
+        "autoIntervalSeconds": 1.8,
+        "skillRemainingMs": 0,
+        "skillDamage": 70,
+        "rewardPreview": "修为 +10 · 功法残页 ×1"
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 295,
+          "y": 477,
+          "width": 654,
+          "height": 54
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 295,
+          "y": 477,
+          "width": 654,
+          "height": 54
+        },
+        "clickPoint": {
+          "x": 622,
+          "y": 504
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": "ArenaAttack",
+          "className": "arena-attack"
+        },
+        "text": "⚡ 点击攻击"
+      },
+      "durationMs": 2300
+    },
+    {
+      "index": 70,
+      "action": "clickUntilState",
+      "description": "Continue the first stage toward the coffee-event milestone",
+      "status": "passed",
+      "detail": "queryHomeArena().kills reached 4 after 2 real UI click attempt(s)",
+      "value": {
+        "version": 1,
+        "stage": 1,
+        "kills": 4,
+        "hp": 30,
+        "complete": false,
+        "clearedStages": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "rewardedEnemies": [
+          4,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rngState": 1193414666,
+        "combo": 11,
+        "lastClickAt": 1792157294638,
+        "lastAttackAt": 1792157294638,
+        "skillReadyAt": 0,
+        "stageActiveMs": 9209,
+        "requests": [
+          "ui-1792157286297-1",
+          "ui-1792157287413-2",
+          "ui-1792157288477-3",
+          "ui-1792157288624-4",
+          "ui-1792157289764-5",
+          "ui-1792157290809-6",
+          "ui-1792157291218-7",
+          "ui-1792157292339-8",
+          "ui-1792157293371-9",
+          "ui-1792157293521-10",
+          "ui-1792157294638-11"
+        ],
+        "metrics": {
+          "attacks": 11,
+          "crits": 0,
+          "maxCombo": 11,
+          "autoAttacks": 0,
+          "skillUses": 0,
+          "totalKills": 4,
+          "stageTimesMs": []
+        },
+        "rewards": {
+          "experience": 8,
+          "materials": {
+            "mat_code_fragment": 4
+          }
+        },
+        "recentDrops": [],
+        "ready": true,
+        "active": true,
+        "stageName": "实习生的第一个 Bug",
+        "enemy": {
+          "id": "1:4",
+          "name": "空指针小虫",
+          "hp": 30,
+          "maxHp": 30,
+          "elite": false,
+          "level": 1
+        },
+        "enemyTotal": 16,
+        "attack": 14,
+        "critChance": 0.09,
+        "comboBonus": 0.1,
+        "autoUnlocked": false,
+        "skillUnlocked": false,
+        "autoIntervalSeconds": 1.8,
+        "skillRemainingMs": 0,
+        "skillDamage": 70,
+        "rewardPreview": "修为 +10 · 功法残页 ×1"
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 295,
+          "y": 477,
+          "width": 654,
+          "height": 54
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 295,
+          "y": 477,
+          "width": 654,
+          "height": 54
+        },
+        "clickPoint": {
+          "x": 622,
+          "y": 504
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": "ArenaAttack",
+          "className": "arena-attack"
+        },
+        "text": "⚡ 点击攻击"
+      },
+      "durationMs": 1270
+    },
+    {
+      "index": 71,
+      "action": "clickUntilState",
+      "description": "Reach the authored arena:1:5 hidden-event trigger",
+      "status": "passed",
+      "detail": "queryHomeArena().kills reached 5 after 2 real UI click attempt(s)",
+      "value": {
+        "version": 1,
+        "stage": 1,
+        "kills": 5,
+        "hp": 30,
+        "complete": false,
+        "clearedStages": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "rewardedEnemies": [
+          5,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rngState": 2947680576,
+        "combo": 13,
+        "lastClickAt": 1792157295906,
+        "lastAttackAt": 1792157295906,
+        "skillReadyAt": 0,
+        "stageActiveMs": 11189,
+        "requests": [
+          "ui-1792157286297-1",
+          "ui-1792157287413-2",
+          "ui-1792157288477-3",
+          "ui-1792157288624-4",
+          "ui-1792157289764-5",
+          "ui-1792157290809-6",
+          "ui-1792157291218-7",
+          "ui-1792157292339-8",
+          "ui-1792157293371-9",
+          "ui-1792157293521-10",
+          "ui-1792157294638-11",
+          "ui-1792157294796-12",
+          "ui-1792157295906-13"
+        ],
+        "metrics": {
+          "attacks": 13,
+          "crits": 0,
+          "maxCombo": 13,
+          "autoAttacks": 0,
+          "skillUses": 0,
+          "totalKills": 5,
+          "stageTimesMs": []
+        },
+        "rewards": {
+          "experience": 10,
+          "materials": {
+            "mat_code_fragment": 5
+          }
+        },
+        "recentDrops": [],
+        "ready": true,
+        "active": true,
+        "stageName": "实习生的第一个 Bug",
+        "enemy": {
+          "id": "1:5",
+          "name": "空指针小虫",
+          "hp": 30,
+          "maxHp": 30,
+          "elite": false,
+          "level": 1
+        },
+        "enemyTotal": 16,
+        "attack": 14,
+        "critChance": 0.09,
+        "comboBonus": 0.1,
+        "autoUnlocked": false,
+        "skillUnlocked": false,
+        "autoIntervalSeconds": 1.8,
+        "skillRemainingMs": 0,
+        "skillDamage": 70,
+        "rewardPreview": "修为 +10 · 功法残页 ×1"
+      },
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 295,
+          "y": 477,
+          "width": 654,
+          "height": 54
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 295,
+          "y": 477,
+          "width": 654,
+          "height": 54
+        },
+        "clickPoint": {
+          "x": 622,
+          "y": 504
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": "ArenaAttack",
+          "className": "arena-attack"
+        },
+        "text": "⚡ 点击攻击"
+      },
+      "durationMs": 1258
+    },
+    {
+      "index": 72,
+      "action": "waitFor",
+      "description": "Wait for the hidden event unlocked by the prior visible story choices",
+      "status": "passed",
+      "detail": "#FateEventCard[data-event-id=coffee_event]:not([hidden]) reached visible",
+      "durationMs": 8
+    },
+    {
+      "index": 73,
+      "action": "screenshot",
+      "description": "Capture the hidden event and its real choices before selecting",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/011-secret-trial-choice.png",
+      "detail": "011-secret-trial-choice.png",
+      "durationMs": 420
+    },
+    {
+      "index": 74,
+      "action": "assertClickable",
+      "description": "",
+      "status": "passed",
+      "detail": "#FateEventChoices [data-fate-choice=HELP]: found=true, visible=true, disabled=false, covered=false",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 636,
+          "y": 194.8984375,
+          "width": 304,
+          "height": 30
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 636,
+          "y": 194.8984375,
+          "width": 304,
+          "height": 30
+        },
+        "clickPoint": {
+          "x": 788,
+          "y": 209.8984375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": ""
+        },
+        "text": "付 ¥18 买咖啡"
+      },
+      "durationMs": 12
+    },
+    {
+      "index": 75,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryHomeSnapshot() → beforeCoffee",
+      "value": {
+        "work": {
+          "professionId": "JAVA_BACKEND",
+          "professionName": "Java后端",
+          "dayIndex": 1,
+          "weekday": 5,
+          "weekdayName": "周五",
+          "isWeekend": false,
+          "clockText": "21:34",
+          "countdownMs": 0,
+          "workState": "OVERTIME",
+          "workStateText": "加班中",
+          "workMode": "FISHING",
+          "workModeText": "带薪摸鱼中",
+          "currentTask": null,
+          "openTaskCount": 0,
+          "todayEarned": 60,
+          "todayCultivation": 20,
+          "salaryBalance": 60,
+          "fatigue": 0,
+          "onboardingTask": null
+        },
+        "goals": [
+          {
+            "kind": "WORK",
+            "title": "完成一个工作任务",
+            "description": "在任务页接一份差事，干完领奖励",
+            "progress": 1,
+            "target": 1,
+            "completed": true,
+            "claimed": false,
+            "reward": {
+              "salary": 80,
+              "cultivation": 20,
+              "mind": 0
+            }
+          },
+          {
+            "kind": "GROWTH",
+            "title": "获得一次真实成长",
+            "description": "修炼一次或完成带来修为的任务",
+            "progress": 1,
+            "target": 1,
+            "completed": true,
+            "claimed": false,
+            "reward": {
+              "salary": 30,
+              "cultivation": 45,
+              "mind": 0
+            }
+          },
+          {
+            "kind": "LIFE",
+            "title": "执行一次生活或社交行为",
+            "description": "喝杯咖啡、吃顿饭，或切到社交划水 3 分钟",
+            "progress": 0,
+            "target": 1,
+            "completed": false,
+            "claimed": false,
+            "reward": {
+              "salary": 20,
+              "cultivation": 10,
+              "mind": 12
+            }
+          }
+        ],
+        "nextAction": {
+          "id": "GET_TASK",
+          "icon": "📋",
+          "text": "领取一个任务",
+          "sub": "任务库 18 份差事等你挑",
+          "btn": "去任务页",
+          "page": "TASKS",
+          "command": null,
+          "commandArg": null
+        },
+        "life": [
+          {
+            "kind": "COFFEE",
+            "label": "喝咖啡",
+            "icon": "☕",
+            "price": 18,
+            "effectText": "疲劳 -12，道心 +6",
+            "used": 0,
+            "remaining": 3,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "MILK_TEA",
+            "label": "喝奶茶",
+            "icon": "🧋",
+            "price": 16,
+            "effectText": "道心 +8",
+            "used": 0,
+            "remaining": 2,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "LUNCH",
+            "label": "吃午餐",
+            "icon": "🍜",
+            "price": 25,
+            "effectText": "疲劳 -8，道心 +5",
+            "used": 0,
+            "remaining": 1,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "SNACK",
+            "label": "吃零食",
+            "icon": "🍪",
+            "price": 8,
+            "effectText": "道心 +3",
+            "used": 0,
+            "remaining": 3,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "DINNER",
+            "label": "下班聚餐",
+            "icon": "🍲",
+            "price": 68,
+            "effectText": "疲劳 -40，道心 +15",
+            "used": 0,
+            "remaining": 1,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥8）"
+          }
+        ]
+      },
+      "durationMs": 7
+    },
+    {
+      "index": 76,
+      "action": "click",
+      "description": "Buy coffee through its real event choice and debit the existing salary wallet",
+      "status": "passed",
+      "detail": "click #FateEventChoices [data-fate-choice=HELP]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 636,
+          "y": 194.8984375,
+          "width": 304,
+          "height": 30
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 636,
+          "y": 194.8984375,
+          "width": 304,
+          "height": 30
+        },
+        "clickPoint": {
+          "x": 788,
+          "y": 209.8984375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": ""
+        },
+        "text": "付 ¥18 买咖啡"
+      },
+      "durationMs": 55
+    },
+    {
+      "index": 77,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryHomeSnapshot() → afterCoffee",
+      "value": {
+        "work": {
+          "professionId": "JAVA_BACKEND",
+          "professionName": "Java后端",
+          "dayIndex": 1,
+          "weekday": 5,
+          "weekdayName": "周五",
+          "isWeekend": false,
+          "clockText": "21:34",
+          "countdownMs": 0,
+          "workState": "OVERTIME",
+          "workStateText": "加班中",
+          "workMode": "FISHING",
+          "workModeText": "带薪摸鱼中",
+          "currentTask": null,
+          "openTaskCount": 0,
+          "todayEarned": 60,
+          "todayCultivation": 20,
+          "salaryBalance": 42,
+          "fatigue": 0,
+          "onboardingTask": null
+        },
+        "goals": [
+          {
+            "kind": "WORK",
+            "title": "完成一个工作任务",
+            "description": "在任务页接一份差事，干完领奖励",
+            "progress": 1,
+            "target": 1,
+            "completed": true,
+            "claimed": false,
+            "reward": {
+              "salary": 80,
+              "cultivation": 20,
+              "mind": 0
+            }
+          },
+          {
+            "kind": "GROWTH",
+            "title": "获得一次真实成长",
+            "description": "修炼一次或完成带来修为的任务",
+            "progress": 1,
+            "target": 1,
+            "completed": true,
+            "claimed": false,
+            "reward": {
+              "salary": 30,
+              "cultivation": 45,
+              "mind": 0
+            }
+          },
+          {
+            "kind": "LIFE",
+            "title": "执行一次生活或社交行为",
+            "description": "喝杯咖啡、吃顿饭，或切到社交划水 3 分钟",
+            "progress": 1,
+            "target": 1,
+            "completed": true,
+            "claimed": false,
+            "reward": {
+              "salary": 20,
+              "cultivation": 10,
+              "mind": 12
+            }
+          }
+        ],
+        "nextAction": {
+          "id": "GET_TASK",
+          "icon": "📋",
+          "text": "领取一个任务",
+          "sub": "任务库 18 份差事等你挑",
+          "btn": "去任务页",
+          "page": "TASKS",
+          "command": null,
+          "commandArg": null
+        },
+        "life": [
+          {
+            "kind": "COFFEE",
+            "label": "喝咖啡",
+            "icon": "☕",
+            "price": 18,
+            "effectText": "疲劳 -12，道心 +6",
+            "used": 1,
+            "remaining": 2,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "MILK_TEA",
+            "label": "喝奶茶",
+            "icon": "🧋",
+            "price": 16,
+            "effectText": "道心 +8",
+            "used": 0,
+            "remaining": 2,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "LUNCH",
+            "label": "吃午餐",
+            "icon": "🍜",
+            "price": 25,
+            "effectText": "疲劳 -8，道心 +5",
+            "used": 0,
+            "remaining": 1,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "SNACK",
+            "label": "吃零食",
+            "icon": "🍪",
+            "price": 8,
+            "effectText": "道心 +3",
+            "used": 0,
+            "remaining": 3,
+            "affordable": true,
+            "available": true,
+            "reason": null
+          },
+          {
+            "kind": "DINNER",
+            "label": "下班聚餐",
+            "icon": "🍲",
+            "price": 68,
+            "effectText": "疲劳 -40，道心 +15",
+            "used": 0,
+            "remaining": 1,
+            "affordable": false,
+            "available": false,
+            "reason": "余额不足（还差 ¥26）"
+          }
+        ]
+      },
+      "durationMs": 7
+    },
+    {
+      "index": 78,
+      "action": "assert",
+      "description": "The hidden event charges the canonical wallet exactly ¥18 before opening the trial",
+      "status": "passed",
+      "detail": "@vars.afterCoffee.work.salaryBalance changed by -18; expected -18",
+      "durationMs": 5
+    },
+    {
+      "index": 79,
+      "action": "call",
+      "description": "Read the canonical run after resolving the hidden event",
+      "status": "passed",
+      "detail": "queryFateRun() → afterUnlock",
+      "value": {
+        "runId": "fate-mvb0bcqz-1-hvp2zy",
+        "startedAt": 1792157520203,
+        "seed": 1081163374,
+        "rngCursor": 0,
+        "status": "ACTIVE",
+        "health": 100,
+        "maxHealth": 100,
+        "stage": 3,
+        "eventQueue": [
+          "intern_s4"
+        ],
+        "firedEventIds": [
+          "intern_s1",
+          "intern_s2",
+          "intern_s3",
+          "coffee_event",
+          "intern_s4"
+        ],
+        "eventHistory": [
+          {
+            "eventId": "intern_s1",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157560372
+          },
+          {
+            "eventId": "intern_s2",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157561634
+          },
+          {
+            "eventId": "intern_s3",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157563033
+          },
+          {
+            "eventId": "coffee_event",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157648732
+          }
+        ],
+        "flags": {
+          "intern_s1_help": true,
+          "intern_s2_help": true,
+          "intern_s3_help": true,
+          "coffee_event_help": true
+        },
+        "combatModifiers": [
+          {
+            "id": "intern_buddy_focus",
+            "expiresAt": 1792157680372,
+            "attackMultiplier": 1.2,
+            "critChanceDelta": 0.04,
+            "autoIntervalMultiplier": 0.9,
+            "skillCooldownMultiplier": 0.8
+          }
+        ],
+        "activeChallengeId": "secret_trial",
+        "activeChallengeBattleRunId": null,
+        "activeChallengeStartedAt": null,
+        "terminalOutcomeId": null
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 80,
+      "action": "assert",
+      "description": "",
+      "status": "passed",
+      "detail": "@vars.afterUnlock.activeChallengeId: \"secret_trial\"",
+      "durationMs": 4
+    },
+    {
+      "index": 81,
+      "action": "assertClickable",
+      "description": "",
+      "status": "passed",
+      "detail": "#FateChallengeControls [data-fate-challenge=\"start\"]: found=true, visible=true, disabled=false, covered=false",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 305,
+          "y": 562,
+          "width": 82,
+          "height": 24
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 305,
+          "y": 562,
+          "width": 82,
+          "height": 24
+        },
+        "clickPoint": {
+          "x": 346,
+          "y": 574
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": ""
+        },
+        "text": "进入特殊战斗"
+      },
+      "durationMs": 7
+    },
+    {
+      "index": 82,
+      "action": "click",
+      "description": "Start the challenge through its visible control, backed by V3 BattleService",
+      "status": "passed",
+      "detail": "click #FateChallengeControls [data-fate-challenge=\"start\"]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 305,
+          "y": 562,
+          "width": 82,
+          "height": 24
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 305,
+          "y": 562,
+          "width": 82,
+          "height": 24
+        },
+        "clickPoint": {
+          "x": 346,
+          "y": 574
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": ""
+        },
+        "text": "进入特殊战斗"
+      },
+      "durationMs": 68
+    },
+    {
+      "index": 83,
+      "action": "call",
+      "description": "",
+      "status": "passed",
+      "detail": "queryFateRun() → duringChallenge",
+      "value": {
+        "runId": "fate-mvb0bcqz-1-hvp2zy",
+        "startedAt": 1792157520203,
+        "seed": 1081163374,
+        "rngCursor": 0,
+        "status": "ACTIVE",
+        "health": 100,
+        "maxHealth": 100,
+        "stage": 3,
+        "eventQueue": [
+          "intern_s4"
+        ],
+        "firedEventIds": [
+          "intern_s1",
+          "intern_s2",
+          "intern_s3",
+          "coffee_event",
+          "intern_s4"
+        ],
+        "eventHistory": [
+          {
+            "eventId": "intern_s1",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157560372
+          },
+          {
+            "eventId": "intern_s2",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157561634
+          },
+          {
+            "eventId": "intern_s3",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157563033
+          },
+          {
+            "eventId": "coffee_event",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157648732
+          }
+        ],
+        "flags": {
+          "intern_s1_help": true,
+          "intern_s2_help": true,
+          "intern_s3_help": true,
+          "coffee_event_help": true
+        },
+        "combatModifiers": [
+          {
+            "id": "intern_buddy_focus",
+            "expiresAt": 1792157680372,
+            "attackMultiplier": 1.2,
+            "critChanceDelta": 0.04,
+            "autoIntervalMultiplier": 0.9,
+            "skillCooldownMultiplier": 0.8
+          }
+        ],
+        "activeChallengeId": "secret_trial",
+        "activeChallengeBattleRunId": "run_mvb06kad_41d",
+        "activeChallengeStartedAt": 1792157651396,
+        "terminalOutcomeId": null
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 84,
+      "action": "assert",
+      "description": "The authoritative run must contain the actual V3 battle run ID",
+      "status": "passed",
+      "detail": "@vars.duringChallenge.activeChallengeBattleRunId: \"run_mvb06kad_41d\"",
+      "durationMs": 7
+    },
+    {
+      "index": 85,
+      "action": "click",
+      "description": "Open the existing project battle page from its main navigation control",
+      "status": "passed",
+      "detail": "click .ux-nav-item[data-nav=PROJECT]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 426.671875,
+          "y": 658,
+          "width": 213.3359375,
+          "height": 62
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 426.671875,
+          "y": 658,
+          "width": 213.3359375,
+          "height": 62
+        },
+        "clickPoint": {
+          "x": 533.33984375,
+          "y": 689
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "⚔️\n项目"
+      },
+      "durationMs": 63
+    },
+    {
+      "index": 86,
+      "action": "waitFor",
+      "description": "",
+      "status": "passed",
+      "detail": ".ux-battle2 reached visible",
+      "durationMs": 9
+    },
+    {
+      "index": 87,
+      "action": "call",
+      "description": "Read the existing authoritative V3 battle run without mutating it",
+      "status": "passed",
+      "detail": "queryBattle() → actualBattle",
+      "value": {
+        "runId": "run_mvb06kad_41d",
+        "source": "INCIDENT",
+        "linkedTaskId": null,
+        "linkedIncidentId": "secret_trial",
+        "buildId": "build_jvm",
+        "night": false,
+        "dayIndex": 1,
+        "status": "FIGHTING",
+        "wave": 0,
+        "waveTotal": 5,
+        "playerHp": 165,
+        "playerMaxHp": 165,
+        "shield": 0,
+        "attack": 12,
+        "intervalSec": 1,
+        "critChance": 0.06,
+        "level": 1,
+        "exp": 0,
+        "expNext": 30,
+        "skills": [
+          "skill_gc"
+        ],
+        "skillLevels": {
+          "skill_gc": 1
+        },
+        "evolvedSkills": [],
+        "synergies": [],
+        "skillOffers": null,
+        "skillOfferKind": null,
+        "enemies": [
+          {
+            "uid": "mon_lock_table_fx12",
+            "defId": "mon_lock_table",
+            "name": "锁表蛛",
+            "tier": "NORMAL",
+            "hp": 42,
+            "maxHp": 42,
+            "attack": 6,
+            "intervalSec": 1.9,
+            "attackTimer": 0,
+            "timers": {},
+            "telegraphed": {},
+            "revived": 0
+          },
+          {
+            "uid": "mon_thread_pool_burst_gjxh",
+            "defId": "mon_thread_pool_burst",
+            "name": "线程池爆满兽",
+            "tier": "NORMAL",
+            "hp": 40,
+            "maxHp": 40,
+            "attack": 8,
+            "intervalSec": 1.8,
+            "attackTimer": 0,
+            "timers": {},
+            "telegraphed": {},
+            "revived": 0
+          },
+          {
+            "uid": "mon_null_pointer_asm2",
+            "defId": "mon_null_pointer",
+            "name": "空指针小鬼",
+            "tier": "NORMAL",
+            "hp": 30,
+            "maxHp": 30,
+            "attack": 5,
+            "intervalSec": 1.6,
+            "attackTimer": 0,
+            "timers": {},
+            "telegraphed": {},
+            "revived": 0
+          }
+        ],
+        "kills": 0,
+        "loot": {
+          "materials": {},
+          "equipment": [],
+          "spiritStones": 0,
+          "expGained": 0
+        },
+        "bossDrops": [],
+        "lockedSkill": null,
+        "lockedSeconds": 0,
+        "blindSeconds": 0,
+        "slowedSeconds": 0,
+        "slowedMul": 1,
+        "runSeconds": 0,
+        "immuneReadyAt": 0,
+        "usedRevive": false,
+        "rewardsClaimed": false,
+        "replayOf": null,
+        "challengeBossId": "boss_fate_secret_trial",
+        "log": [
+          "你进入了项目。",
+          "第 1/5 波：锁表蛛、线程池爆满兽、空指针小鬼"
+        ]
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 88,
+      "action": "assert",
+      "description": "The special challenge is backed by the existing incident battle mode",
+      "status": "passed",
+      "detail": "@vars.actualBattle.source: \"INCIDENT\"",
+      "durationMs": 8
+    },
+    {
+      "index": 89,
+      "action": "screenshot",
+      "description": "Capture the actual challenge boss and V3 battle controls",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/012-secret-trial-battle.png",
+      "detail": "012-secret-trial-battle.png",
+      "durationMs": 199
+    },
+    {
+      "index": 90,
+      "action": "assertClickable",
+      "description": "",
+      "status": "passed",
+      "detail": "[data-action=abandonBattle]: found=true, visible=true, disabled=false, covered=false",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1056,
+          "y": 331,
+          "width": 192,
+          "height": 38
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 1056,
+          "y": 331,
+          "width": 192,
+          "height": 38
+        },
+        "clickPoint": {
+          "x": 1152,
+          "y": 350
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-btn ux-btn--gray ux-btn--sm"
+        },
+        "text": "放弃项目"
+      },
+      "durationMs": 14
+    },
+    {
+      "index": 91,
+      "action": "click",
+      "description": "Use the rendered battle exit control to produce a real failed challenge result",
+      "status": "passed",
+      "detail": "click [data-action=abandonBattle]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 1056,
+          "y": 331,
+          "width": 192,
+          "height": 38
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 1056,
+          "y": 331,
+          "width": 192,
+          "height": 38
+        },
+        "clickPoint": {
+          "x": 1152,
+          "y": 350
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-btn ux-btn--gray ux-btn--sm"
+        },
+        "text": "放弃项目"
+      },
+      "durationMs": 51
+    },
+    {
+      "index": 92,
+      "action": "waitFor",
+      "description": "Wait for the real critical-message choice that took priority over battle settlement",
+      "status": "passed",
+      "detail": "[data-critical-conv] reached visible",
+      "durationMs": 1091
+    },
+    {
+      "index": 93,
+      "action": "click",
+      "description": "Choose the actual boss conversation option and let the game close its message modal",
+      "status": "passed",
+      "detail": "click [data-critical-conv]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 351,
+          "y": 408.4453125,
+          "width": 578,
+          "height": 42
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 351,
+          "y": 408.4453125,
+          "width": 578,
+          "height": 42
+        },
+        "clickPoint": {
+          "x": 640,
+          "y": 429.4453125
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-event-option"
+        },
+        "text": "老板\n（老板正在输入……）"
+      },
+      "durationMs": 59
+    },
+    {
+      "index": 94,
+      "action": "call",
+      "description": "Read the authoritative terminal battle snapshot after dismissing the higher-priority message",
+      "status": "passed",
+      "detail": "queryFinishedBattle() → abandonedBattle",
+      "value": {
+        "runId": "run_mvb06kad_41d",
+        "source": "INCIDENT",
+        "linkedTaskId": null,
+        "linkedIncidentId": "secret_trial",
+        "buildId": "build_jvm",
+        "night": false,
+        "dayIndex": 1,
+        "status": "DEFEAT",
+        "wave": 0,
+        "waveTotal": 5,
+        "playerHp": 165,
+        "playerMaxHp": 165,
+        "shield": 0,
+        "attack": 12,
+        "intervalSec": 1,
+        "critChance": 0.06,
+        "level": 1,
+        "exp": 0,
+        "expNext": 30,
+        "skills": [
+          "skill_gc"
+        ],
+        "skillLevels": {
+          "skill_gc": 1
+        },
+        "evolvedSkills": [],
+        "synergies": [],
+        "skillOffers": null,
+        "skillOfferKind": null,
+        "enemies": [
+          {
+            "uid": "mon_lock_table_fx12",
+            "defId": "mon_lock_table",
+            "name": "锁表蛛",
+            "tier": "NORMAL",
+            "hp": 8,
+            "maxHp": 42,
+            "attack": 6,
+            "intervalSec": 1.9,
+            "attackTimer": 1,
+            "timers": {},
+            "telegraphed": {},
+            "revived": 0
+          },
+          {
+            "uid": "mon_thread_pool_burst_gjxh",
+            "defId": "mon_thread_pool_burst",
+            "name": "线程池爆满兽",
+            "tier": "NORMAL",
+            "hp": 40,
+            "maxHp": 40,
+            "attack": 8,
+            "intervalSec": 1.8,
+            "attackTimer": 1,
+            "timers": {},
+            "telegraphed": {},
+            "revived": 0
+          },
+          {
+            "uid": "mon_null_pointer_asm2",
+            "defId": "mon_null_pointer",
+            "name": "空指针小鬼",
+            "tier": "NORMAL",
+            "hp": 30,
+            "maxHp": 30,
+            "attack": 5,
+            "intervalSec": 1.6,
+            "attackTimer": 1,
+            "timers": {},
+            "telegraphed": {},
+            "revived": 0
+          }
+        ],
+        "kills": 0,
+        "loot": {
+          "materials": {},
+          "equipment": [],
+          "spiritStones": 0,
+          "expGained": 0
+        },
+        "bossDrops": [],
+        "lockedSkill": null,
+        "lockedSeconds": 0,
+        "blindSeconds": 0,
+        "slowedSeconds": 0,
+        "slowedMul": 1,
+        "runSeconds": 1,
+        "immuneReadyAt": 0,
+        "usedRevive": false,
+        "rewardsClaimed": true,
+        "replayOf": null,
+        "challengeBossId": "boss_fate_secret_trial",
+        "log": [
+          "你进入了项目。",
+          "第 1/5 波：锁表蛛、线程池爆满兽、空指针小鬼",
+          "你对锁表蛛造成 17 伤害",
+          "你对锁表蛛造成 17 伤害",
+          "你退出了项目。"
+        ]
+      },
+      "durationMs": 4
+    },
+    {
+      "index": 95,
+      "action": "assert",
+      "description": "The message flow must not consume or hide the actual battle result",
+      "status": "passed",
+      "detail": "@vars.abandonedBattle.status: \"DEFEAT\"",
+      "durationMs": 3
+    },
+    {
+      "index": 96,
+      "action": "waitFor",
+      "description": "Wait for the surfaced no-choice story event before the battle result",
+      "status": "passed",
+      "detail": "[data-vevent-choice=__auto] reached visible",
+      "durationMs": 4
+    },
+    {
+      "index": 97,
+      "action": "click",
+      "description": "Resolve the real story-event acknowledgement through its visible control",
+      "status": "passed",
+      "detail": "click [data-vevent-choice=__auto]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 590,
+          "y": 510.8984375,
+          "width": 100,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 590,
+          "y": 510.8984375,
+          "width": 100,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 640,
+          "y": 532.8984375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-btn ux-btn--gold ux-btn--md"
+        },
+        "text": "知道了"
+      },
+      "durationMs": 43
+    },
+    {
+      "index": 98,
+      "action": "waitFor",
+      "description": "Wait for the canonical story-event result acknowledgement",
+      "status": "passed",
+      "detail": "#V2EventOk reached visible",
+      "durationMs": 5
+    },
+    {
+      "index": 99,
+      "action": "click",
+      "description": "Acknowledge the resolved story event through the visible continue control",
+      "status": "passed",
+      "detail": "click #V2EventOk",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 600,
+          "y": 442.1484375,
+          "width": 80,
+          "height": 44
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 600,
+          "y": 442.1484375,
+          "width": 80,
+          "height": 44
+        },
+        "clickPoint": {
+          "x": 640,
+          "y": 464.1484375
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": "V2EventOk",
+          "className": "ux-btn ux-btn--gold ux-btn--md"
+        },
+        "text": "继续"
+      },
+      "durationMs": 34
+    },
+    {
+      "index": 100,
+      "action": "waitFor",
+      "description": "Wait for the real battle-abort result dialog and its explicit exit control",
+      "status": "passed",
+      "detail": "[data-battle-fallback-exit] reached visible",
+      "durationMs": 20
+    },
+    {
+      "index": 101,
+      "action": "assertClickable",
+      "description": "",
+      "status": "passed",
+      "detail": "[data-battle-fallback-exit]: found=true, visible=true, disabled=false, covered=false",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 351,
+          "y": 435.1953125,
+          "width": 578,
+          "height": 42
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 351,
+          "y": 435.1953125,
+          "width": 578,
+          "height": 42
+        },
+        "clickPoint": {
+          "x": 640,
+          "y": 456.1953125
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-event-option"
+        },
+        "text": "返回项目\n接受结果，继续修仙之路。"
+      },
+      "durationMs": 8
+    },
+    {
+      "index": 102,
+      "action": "click",
+      "description": "Acknowledge the visible abort result through its fallback UI control",
+      "status": "passed",
+      "detail": "click [data-battle-fallback-exit]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 351,
+          "y": 435.1953125,
+          "width": 578,
+          "height": 42
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 351,
+          "y": 435.1953125,
+          "width": 578,
+          "height": 42
+        },
+        "clickPoint": {
+          "x": 640,
+          "y": 456.1953125
+        },
+        "covered": false,
+        "hit": {
+          "tag": "BUTTON",
+          "id": null,
+          "className": "ux-event-option"
+        },
+        "text": "返回项目\n接受结果，继续修仙之路。"
+      },
+      "durationMs": 44
+    },
+    {
+      "index": 103,
+      "action": "click",
+      "description": "Return to the existing project battle page after acknowledging the result",
+      "status": "passed",
+      "detail": "click .ux-nav-item[data-nav=PROJECT]",
+      "interaction": {
+        "found": true,
+        "visible": true,
+        "disabled": false,
+        "bounds": {
+          "x": 426.671875,
+          "y": 658,
+          "width": 213.3359375,
+          "height": 62
+        },
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "visibleBounds": {
+          "x": 426.671875,
+          "y": 658,
+          "width": 213.3359375,
+          "height": 62
+        },
+        "clickPoint": {
+          "x": 533.33984375,
+          "y": 689
+        },
+        "covered": false,
+        "hit": {
+          "tag": "SPAN",
+          "id": null,
+          "className": ""
+        },
+        "text": "⚔️\n项目"
+      },
+      "durationMs": 31
+    },
+    {
+      "index": 104,
+      "action": "wait",
+      "description": "",
+      "status": "passed",
+      "detail": "500ms",
+      "durationMs": 513
+    },
+    {
+      "index": 105,
+      "action": "call",
+      "description": "Read the authoritative challenge result after normal game-loop settlement",
+      "status": "passed",
+      "detail": "queryFateRun() → afterDefeat",
+      "value": {
+        "runId": "fate-mvb0bcqz-1-hvp2zy",
+        "startedAt": 1792157520203,
+        "seed": 1081163374,
+        "rngCursor": 0,
+        "status": "ACTIVE",
+        "health": 85,
+        "maxHealth": 100,
+        "stage": 3,
+        "eventQueue": [
+          "intern_s4"
+        ],
+        "firedEventIds": [
+          "intern_s1",
+          "intern_s2",
+          "intern_s3",
+          "coffee_event",
+          "intern_s4"
+        ],
+        "eventHistory": [
+          {
+            "eventId": "intern_s1",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157560372
+          },
+          {
+            "eventId": "intern_s2",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157561634
+          },
+          {
+            "eventId": "intern_s3",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157563033
+          },
+          {
+            "eventId": "coffee_event",
+            "choiceId": "HELP",
+            "resultId": "SUCCESS",
+            "resolvedAt": 1792157648732
+          }
+        ],
+        "flags": {
+          "intern_s1_help": true,
+          "intern_s2_help": true,
+          "intern_s3_help": true,
+          "coffee_event_help": true,
+          "challenge:secret_trial:DEFEAT": true
+        },
+        "combatModifiers": [
+          {
+            "id": "intern_buddy_focus",
+            "expiresAt": 1792157680372,
+            "attackMultiplier": 1.2,
+            "critChanceDelta": 0.04,
+            "autoIntervalMultiplier": 0.9,
+            "skillCooldownMultiplier": 0.8
+          }
+        ],
+        "activeChallengeId": null,
+        "activeChallengeBattleRunId": null,
+        "activeChallengeStartedAt": null,
+        "terminalOutcomeId": null
+      },
+      "durationMs": 5
+    },
+    {
+      "index": 106,
+      "action": "assert",
+      "description": "Challenge loss is recorded under its namespaced authoritative outcome flag",
+      "status": "passed",
+      "detail": "@vars.afterDefeat.flags[\"challenge:secret_trial:DEFEAT\"]: true",
+      "durationMs": 2
+    },
+    {
+      "index": 107,
+      "action": "assert",
+      "description": "The settled challenge clears its active battle reference",
+      "status": "passed",
+      "detail": "@vars.afterDefeat.activeChallengeBattleRunId: null",
+      "durationMs": 4
+    },
+    {
+      "index": 108,
+      "action": "screenshot",
+      "description": "Capture the post-settlement run state for the replay record",
+      "status": "passed",
+      "evidence": "scenarios/fate-secret-trial/evidence/screenshots/013-secret-trial-defeat.png",
+      "detail": "013-secret-trial-defeat.png",
+      "durationMs": 140
+    }
+  ],
+  "defects": [],
+  "authoritativeState": "scenarios/fate-secret-trial/evidence/authoritative-state.json",
+  "consoleExceptions": [],
+  "experienceMetrics": {
+    "firstPlayableHomeStep": null,
+    "firstTaskInteractionStep": 51,
+    "firstPositiveWalletStep": null,
+    "successfulInputOperations": 24,
+    "blockedSteps": 0,
+    "thresholdsApplied": false
+  },
+  "execution": {
+    "electronWindow": "visible",
+    "input": "CDP synthetic input",
+    "screenshotSource": "CDP renderer surface",
+    "platform": "win32",
+    "validationModes": {
+      "UI_REAL_EXE": "NOT_VERIFIED",
+      "ELECTRON_E2E": "PASS",
+      "SERVICE_SIM": "NOT_RUN",
+      "NOT_VERIFIED": [
+        "physical Windows pointer/keyboard verification",
+        "outer window-size matrix"
+      ]
+    }
+  },
+  "finishedAt": "2026-10-16T13:28:20.184Z",
+  "durationMs": 32063
+}

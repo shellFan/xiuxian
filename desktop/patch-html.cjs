@@ -114,6 +114,12 @@ if (fs.existsSync(htmlPath)) {
     console.log('[patch-html] Copied ui-v59f-home.js');
   }
 
+  for (const name of ['ui-home-arena.js', 'ui-home-arena.css']) {
+    fs.copyFileSync(path.join(__dirname, name), path.join(buildDir, name));
+  }
+  if (!html.includes('ui-home-arena.css')) html = html.replace('</head>', '<link rel="stylesheet" href="ui-home-arena.css">\n</head>');
+  if (!html.includes('ui-home-arena.js')) html = html.replace('</head>', '<script defer src="ui-home-arena.js"></script>\n</head>');
+
   // Copy sliced design assets (docs/img/image5.png → desktop/assets/ui-slice)
   const sliceSrc = path.join(__dirname, 'assets', 'ui-slice');
   const sliceDest = path.join(buildDir, 'ui-slice');

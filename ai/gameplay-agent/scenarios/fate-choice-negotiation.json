@@ -1,0 +1,22 @@
+{
+  "id": "fate-choice-negotiation",
+  "title": "Negotiation choice changes the canonical wage and records a different story branch",
+  "setup": "new-player",
+  "setupFailureClass": "SETUP_BLOCKED",
+  "steps": [
+    { "action": "setViewport", "width": 1280, "height": 720 },
+    { "action": "call", "method": "queryHomeSnapshot", "as": "before", "asType": "object", "description": "Read the existing authoritative home projection before the choice" },
+    { "action": "clickUntilState", "selector": "#ArenaAttack", "method": "queryHomeArena", "path": "kills", "from": 0, "expected": 1, "maxAttempts": 3, "timeoutMs": 1000, "description": "Defeat the first enemy through visible input" },
+    { "action": "clickUntilState", "selector": "#ArenaAttack", "method": "queryHomeArena", "path": "kills", "from": 1, "expected": 2, "maxAttempts": 3, "timeoutMs": 1000, "description": "Defeat the second enemy to trigger the event" },
+    { "action": "waitFor", "selector": "#FateEventCard[data-event-id=intern_s1]:not([hidden])", "timeoutMs": 5000 },
+    { "action": "screenshot", "name": "negotiation-event", "description": "Capture the event choices before committing" },
+    { "action": "assertClickable", "selector": "#FateEventChoices [data-fate-choice=\"NEGOTIATE\"]" },
+    { "action": "click", "selector": "#FateEventChoices [data-fate-choice=\"NEGOTIATE\"]", "description": "Negotiate using the rendered choice control" },
+    { "action": "call", "method": "queryHomeSnapshot", "as": "after", "asType": "object", "description": "Read the canonical wage projection after resolving the choice" },
+    { "action": "call", "method": "queryFateRun", "as": "run", "asType": "object" },
+    { "action": "assert", "check": "gt", "path": "@vars.after.work.salaryBalance", "expected": "@vars.before.work.salaryBalance", "description": "The successful negotiation credits the existing salary wallet" },
+    { "action": "assert", "check": "equals", "path": "@vars.run.eventHistory[0].choiceId", "expected": "NEGOTIATE", "description": "The authoritative history records the selected branch" },
+    { "action": "assert", "check": "equals", "path": "@vars.run.flags.intern_s1_negotiate", "expected": true },
+    { "action": "screenshot", "name": "negotiation-result", "description": "Capture the wage-changing negotiation outcome" }
+  ]
+}

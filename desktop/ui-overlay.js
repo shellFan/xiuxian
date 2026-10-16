@@ -487,6 +487,10 @@
    * their owning services remain the sole source of truth.
    */
   function dispatchNextModal(requestedAttempt) {
+    if (isV59FlowActive()) return null;
+    /* Campaign combat is uninterrupted; canonical events remain pending and are
+       available through the existing task/message entries or Pause combat. */
+    if (window.__HOME_ARENA__ && window.__HOME_ARENA__.deferAutomaticModals()) return null;
     if (popupOpen()) return null;
     var f = facade();
     if (!f || typeof f.queryNextPresentation !== 'function') return null;
@@ -1078,7 +1082,7 @@
         backfillBanner +
         homeTopbarHtml(hud) +
         '<aside class="ux-home-col ux-home-left">' + homeLeftHtml(hud) + '</aside>' +
-        '<main class="ux-home-col ux-home-center">' + homeCenterHtml(hud) + '</main>' +
+        '<main class="ux-home-col ux-home-center">' + (window.__HOME_ARENA__ ? window.__HOME_ARENA__.render() : homeCenterHtml(hud)) + '</main>' +
         '<aside class="ux-home-col ux-home-right">' + v59fPanel + homeRightHtml(hud) + '</aside>' +
       '</div>';
   }
@@ -3393,7 +3397,25 @@
     /* 首页禁纵向滚动（§134）：加 home 修饰类，其余页面保持可滚动。 */
     body.classList.toggle('ux-body--home', currentPage() === 'HOME');
     /* 只重绘 body + header 内容，保持弹窗/toast 层不被打断 */
-    body.innerHTML = renderCurrent();
+    var oldArena = document.getElementById('HomeArena');
+    var nextHtml = renderCurrent();
+    if (oldArena && currentPage() === 'HOME' && !isV59FlowActive()) {
+      /* Keep the battlefield connected across mouse down/up and CSS effects.
+         Moving it out and back cancels real browser click synthesis. */
+      var fresh = document.createElement('template');
+      fresh.innerHTML = nextHtml;
+      var freshHome = fresh.content.querySelector('.ux-home');
+      var liveHome = body.querySelector('.ux-home');
+      if (freshHome && liveHome && freshHome.querySelector('#HomeArena')) {
+        ['.ux-topbar', '.ux-home-left', '.ux-home-right', '.v59-backfill-banner'].forEach(function (selector) {
+          var previous = liveHome.querySelector(selector), next = freshHome.querySelector(selector);
+          if (previous && next) previous.replaceWith(next);
+          else if (previous) previous.remove();
+          else if (next) liveHome.prepend(next);
+        });
+      } else body.innerHTML = nextHtml;
+    } else body.innerHTML = nextHtml;
+    if (window.__HOME_ARENA__) window.__HOME_ARENA__.update();
     body.scrollTop = scrollTop;
     var nextCreationContent = $('.v59-step-content', body);
     if (creationScrollTop != null && nextCreationContent) {

@@ -1,0 +1,30 @@
+{
+  "head": "4db842d3b6efb83bd513143ab764deb4de6a2a69",
+  "branch": "feature/v59f-z-playability",
+  "functional": [
+    "assets/scripts/v59f.meta",
+    "assets/scripts/v59f/home-service.ts",
+    "assets/scripts/v59f/home-service.ts.meta",
+    "desktop/ui-v59f-home.js",
+    "tests/v59f/home-playability.test.ts"
+  ],
+  "hashes": {
+    "assets/scripts/core/game-context.ts": "2d3af939cc23ef3c307af5cfff2507226a5aa90612e2d5d79586ebf980a1a294",
+    "assets/scripts/facade/game-facade.ts": "6a562860108e6d0ec5607a7068089fb6a646e9ad5c90c7d848b263adcbca1cc7",
+    "assets/scripts/v57/fatigue-service.ts": "2fd39d6bde1f01cdaa4cfe3c3cb353703525de3e89d3f49dc499e3700c676fe3",
+    "desktop/patch-html.cjs": "db6016d4d3676f4cdffa2472514ee85ea2140a0f10fa5ebf1b4ba62582694a71",
+    "desktop/ui-overlay.css": "e808d0dfc309437c1416e899347f17c682944c9df3fa7ff058226951661a57d4",
+    "desktop/ui-overlay.js": "6997bb5677e73df5551eb2d75dc76c384580397f5aa95243dc1f22c4f6e21a62",
+    "scripts/build-manifest.cjs": "528fc37f65309e39a4723c2b4e1da46a5c947cdd5172c9e223f992f14e57dce4",
+    "scripts/check-web-v1-build.cjs": "2802e7db49f00f7df42ad4d3c99ca7c0436ba0ddae5eb842280aa1113061bf3f",
+    "tests/facade/game-facade.test.ts": "6d9f769104ff824f1453b871899ba3332705498781ea6af4529b267cd87bac0e",
+    "tests/v59/desktop-creation-ui.test.ts": "3a162508d3d11480eb9ecdf060c9d3ad38206dcba98b987a7849aefe81ba0c75",
+    "assets/scripts/v59f.meta": "c445e49fa9708be556d4dc1b624823e38d4e9e6c044bdbc3b99b328169871d5a",
+    "assets/scripts/v59f/home-service.ts": "8615221bd8e8bc3e5c6a2cd8ab55f07c34bede1175a9dba12b9ac046bb9c304a",
+    "assets/scripts/v59f/home-service.ts.meta": "a76f2974201afadda3ec12208a174db07f0379634a66ddf750ef4a0e4ab05514",
+    "desktop/ui-v59f-home.js": "997bf8176acc5fbdcd178b1bf0c731a24dcff71cc8b7e09ea0fe8b4613d8e450",
+    "tests/v59f/home-playability.test.ts": "212b7d26a1663e2125f01e054bdf35cdfca58b12e335001dae9a7f2c60014d2e"
+  },
+  "preservationVerifiedAt": "2026-10-15T09:30:34.310Z",
+  "originalChangedFiles": []
+}

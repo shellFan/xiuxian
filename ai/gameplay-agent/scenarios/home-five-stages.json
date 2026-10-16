@@ -1,0 +1,13 @@
+{
+  "id": "home-five-stages",
+  "title": "Paced homepage campaign: five stages, real loot and EXE restart",
+  "setup": "new-player",
+  "steps": [
+    { "action": "setViewport", "width": 1280, "height": 720 },
+    { "action": "assertClickable", "selector": "#ArenaAttack" },
+    { "action": "assert", "check": "inBounds", "selector": "#ArenaAttack" },
+    { "action": "assert", "check": "inBounds", "selector": "#ArenaHp" },
+    { "action": "assert", "check": "inBounds", "selector": "#ArenaStorm" },
+    { "action": "homeArenaPlay", "seed": 5911, "clickIntervalMs": 400 }
+  ]
+}

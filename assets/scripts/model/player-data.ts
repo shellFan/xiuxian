@@ -1,4 +1,5 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState, type FateRunState, type RebirthMetaState } from './save-data';
+import { cloneFateRun, cloneRebirthMeta, normalizeFateRun, normalizeRebirthMeta } from '../v59j/fate-state';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -81,6 +82,8 @@ export interface PlayerDataOptions {
   readonly handledWelcomeItemIds?: readonly string[];
   readonly lifetimeStats?: Readonly<Record<string, number>>;
   readonly activeBattleRun?: unknown;
+  readonly homeArena?: unknown;
+  readonly regularWorkRewardRemainders?: { salary: number; cultivation: number };
   readonly conversations?: readonly MessengerConversationState[];
   readonly messages?: readonly MessengerMessageState[];
   readonly storyDirector?: StoryDirectorState;
@@ -134,6 +137,8 @@ export interface PlayerDataOptions {
   readonly careerChoices?: readonly { readonly dayIndex: number; readonly kind: string; readonly label: string }[];
   readonly pendingOffer?: PendingOfferState | null;
   readonly teamDailyAssignment?: { readonly day: number; readonly count: number } | null;
+  readonly fateRun?: FateRunState | null;
+  readonly rebirthMeta?: RebirthMetaState;
 }
 
 export class PlayerData {
@@ -230,6 +235,8 @@ export class PlayerData {
   public handledWelcomeItemIds: string[];
   public lifetimeStats: Record<string, number>;
   public activeBattleRun: unknown;
+  public homeArena: unknown;
+  public regularWorkRewardRemainders: { salary: number; cultivation: number };
   public conversations: MessengerConversationState[];
   public messages: MessengerMessageState[];
   public storyDirector: StoryDirectorState;
@@ -284,6 +291,8 @@ export class PlayerData {
   public careerChoices: { dayIndex: number; kind: string; label: string }[];
   public pendingOffer: PendingOfferState | null;
   public teamDailyAssignment: { day: number; count: number } | null;
+  public fateRun: FateRunState | null;
+  public rebirthMeta: RebirthMetaState;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -363,6 +372,8 @@ export class PlayerData {
     this.handledWelcomeItemIds = Array.from(new Set(options.handledWelcomeItemIds ?? [])).slice(-100);
     this.lifetimeStats = sanitizeLifetime(options.lifetimeStats);
     this.activeBattleRun = options.activeBattleRun ?? null;
+    this.homeArena = cloneUnknown(options.homeArena ?? null);
+    this.regularWorkRewardRemainders = { ...(options.regularWorkRewardRemainders ?? { salary: 0, cultivation: 0 }) };
     this.conversations = [...(options.conversations ?? [])];
     this.messages = [...(options.messages ?? [])];
     this.storyDirector = (options.storyDirector ?? {
@@ -427,6 +438,8 @@ export class PlayerData {
     this.careerChoices = [...(options.careerChoices ?? [])];
     this.pendingOffer = options.pendingOffer ? { ...options.pendingOffer } : null;
     this.teamDailyAssignment = options.teamDailyAssignment ? { ...options.teamDailyAssignment } : null;
+    this.fateRun = normalizeFateRun(options.fateRun);
+    this.rebirthMeta = normalizeRebirthMeta(options.rebirthMeta);
   }
 
   public static createDefault(): PlayerData {
@@ -493,6 +506,8 @@ export class PlayerData {
       handledWelcomeItemIds: [...this.handledWelcomeItemIds],
       lifetimeStats: { ...this.lifetimeStats },
       activeBattleRun: cloneUnknown(this.activeBattleRun),
+      homeArena: cloneUnknown(this.homeArena),
+      regularWorkRewardRemainders: { ...this.regularWorkRewardRemainders },
       conversations: this.conversations.map((c) => ({ ...c, participants: [...c.participants] })),
       messages: this.messages.map((m) => ({ ...m })),
       storyDirector: JSON.parse(JSON.stringify(this.storyDirector)) as StoryDirectorState,
@@ -545,6 +560,8 @@ export class PlayerData {
       careerChoices: this.careerChoices.map((c) => ({ ...c })),
       pendingOffer: this.pendingOffer ? { ...this.pendingOffer } : null,
       teamDailyAssignment: this.teamDailyAssignment ? { ...this.teamDailyAssignment } : null,
+      fateRun: cloneFateRun(this.fateRun),
+      rebirthMeta: cloneRebirthMeta(this.rebirthMeta),
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });

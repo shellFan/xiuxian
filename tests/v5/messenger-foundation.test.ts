@@ -97,6 +97,8 @@ function testOpeningConversationDoesNotResolvePendingReply(): void {
     assert.ok(event);
     facade.context.messenger.deliverEvent(event, clock.now(), 'test:open-before-reply');
     facade.markConversationRead('conv_boss');
+    assert.equal(facade.queryMessengerBadge().hasCritical, false,
+      'opening a critical conversation must clear its unread interrupt even while a reply remains pending');
     const pending = facade.queryMessages('conv_boss').find((m) => m.options.length > 0);
     assert.ok(pending, 'opening a conversation must not consume its reply options');
     assert.equal(facade.replyToMessage(pending.id, 'ignore').ok, true, 'visible option remains actionable after opening');

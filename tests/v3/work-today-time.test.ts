@@ -132,8 +132,8 @@ function testCrossMidnightOwnershipSurvivesRestartAndRetries(): void {
 }
 
 function testV6MigrationAndImmutableRoundTrip(): void {
-  // V5.9：saveVersion 14（角色创建、天命与成长数据入档）
-  assert.equal(CURRENT_SAVE_VERSION, 14);
+  // V5.9-J: fate run and rebirth metadata advance the current save schema to v15.
+  assert.equal(CURRENT_SAVE_VERSION, 15);
   const storage = new MemoryStorageAdapter();
   const v6Day = {
     dayIndex: 4,

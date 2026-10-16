@@ -990,6 +990,25 @@ export class GameFacade {
   public queryHomeSnapshot(): HomeSnapshot {
     return this.context.home.snapshot();
   }
+  public queryHomeArena() { return this.context.homeArena.view(); }
+  public setHomeArenaActive(active: boolean) { this.context.homeArena.setActive(active); }
+  public attackHomeArena(enemyId: string, requestId: string) { return this.context.homeArena.attack(enemyId, requestId); }
+  public castHomeArenaStorm(requestId: string) { return this.context.homeArena.storm(requestId); }
+  public replayHomeArena() { return this.context.homeArena.replay(); }
+  public queryHomeArenaHits() { return this.context.homeArena.drainHits(); }
+  public queryFateRun() { return this.context.fateEvents.state(); }
+  public queryFateEvent() { return this.context.fateEvents.currentEvent(); }
+  public queryFateEventOptions() { return this.context.fateEvents.visibleOptions(); }
+  public resolveFateEvent(eventId: string, optionId: string) { return this.context.fateEvents.choose(eventId, optionId); }
+  public startFateChallenge(buildId: string) { return this.context.fateEvents.startActiveChallenge(buildId); }
+  public settleFateChallenge() { return this.context.fateEvents.settleActiveChallenge(); }
+  public settleFateRun() { return this.context.rebirth.settleRun(); }
+  public rebirthFateRun(seed: number) { return this.context.rebirth.rebirth(seed); }
+  public purchaseFateTalent(id: string) { return this.context.rebirth.purchaseTalent(id); }
+  public queryFateMeta() { return { ...this.context.player.rebirthMeta, talentRanks: { ...this.context.player.rebirthMeta.talentRanks } }; }
+  public queryFateTalentOptions() { return this.context.rebirth.talentOptions(); }
+  public queryFateNPCs() { return this.context.fateEvents.npcRelationships(); }
+
   public queryHomeTodayWork() { return this.context.home.todayWork(); }
   public queryHomeGoals() { return this.context.home.goals(); }
   public queryHomeNextAction() { return this.context.home.nextAction(); }

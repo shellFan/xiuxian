@@ -1,3 +1,4 @@
+import { calculateBattleDamage } from './battle-damage';
 import type { GameContext } from '../core/game-context';
 import type { AssignedTaskState } from '../model/save-data';
 import {
@@ -114,6 +115,8 @@ export interface BattleRunState {
   rewardsClaimed: boolean;
   /** 复盘重刷（历史 Boss 回忆，不掉历史结局）。 */
   replayOf?: string | null;
+  /** Optional authored V5.9-J challenge boss that replaces the final wave. */
+  challengeBossId?: string;
   /** 最近若干条战斗日志（伤害数字/事件），UI 展示用。 */
   log: string[];
 }
@@ -239,6 +242,7 @@ export class BattleService {
       usedRevive: false,
       rewardsClaimed: false,
       replayOf: options.replayOf ?? null,
+      challengeBossId: options.replayBossId,
       log: [night ? '夜间加班：怪物更强，掉落更多。' : '你进入了项目。'],
     };
     // 职业等级 perk：被动/技能免费领悟
@@ -324,7 +328,7 @@ export class BattleService {
           // V5.8 词条联动：装备流派词条（如"JVM技能+8%"）按当前出手技能 tag 增伤。
           // 出手技能 = 攻击技能池中首个有 tag 的主动技；无词条时乘数 1。
           const tagMul = this.equippedTagMulForRun(run);
-          let damage = Math.max(1, Math.floor(player.attack * specialtyMul * tagMul * (crit ? 1.8 : 1)));
+          let damage = calculateBattleDamage(player.attack * specialtyMul * tagMul, crit);
           // 执行加成（覆盖索引/极限审判）：Boss 残血伤害翻倍
           if (player.executePct > 0 && target.maxHp > 0 && target.hp / target.maxHp <= player.executePct) {
             damage = Math.floor(damage * 2);
@@ -929,7 +933,7 @@ export class BattleService {
     run.playerHp = Math.min(run.playerMaxHp, run.playerHp + Math.floor(run.playerMaxHp * 0.25));
     const player = this.playerSkillStats(run);
     if (player.shieldPerWave > 0) run.shield += player.shieldPerWave;
-    this.spawnWave(run);
+    this.spawnWave(run, run.challengeBossId);
     this.evaluateSynergies(run);
   }
 
@@ -1051,6 +1055,15 @@ export class BattleService {
   }
 
   /** 装备战斗聚合（开局缓存于聚合函数，避免每 tick 重算）。 */
+  public homeAttackProfile(clearedStages: number) {
+    const eq = this.context.loot.battleStats();
+    const fate = this.context.fateEvents.combatModifiers();
+    return {
+      attack: Math.max(10, Math.floor((10 + Math.floor(Math.sqrt(this.context.player.cultivationExp) / 2) + clearedStages * 2) * (1 + eq.atkMul) * fate.attackMultiplier)),
+      critChance: Math.max(0, Math.min(0.8, 0.05 * characterEffectMultiplier(this.context.player, 'BATTLE_CRIT_CHANCE') + eq.critBonus + fate.critChanceDelta)),
+    };
+  }
+
   private equipmentCache: import('../v57/loot-service').EquipmentBattleStats | null = null;
 
   private equipmentStats() {
@@ -1193,6 +1206,10 @@ export class BattleService {
       damageMul += perks.atkMul;
       this.perkEvidenceBonusCache = perks.evidenceBonus;
     }
+    const fate = this.context.fateEvents.combatModifiers();
+    damageMul += fate.attackMultiplier - 1;
+    intervalMul += fate.autoIntervalMultiplier - 1;
+    critBonus += fate.critChanceDelta;
     return {
       attack: run.attack * (1 + damageMul),
       intervalSec: Math.max(0.3, run.intervalSec * (1 + Math.max(-0.7, intervalMul)) * (run.slowedMul ?? 1) * (1 - eq.aspdMul)),

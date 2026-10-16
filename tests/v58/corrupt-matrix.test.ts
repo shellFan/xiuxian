@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData } from '../../assets/scripts/model/player-data';
+import { CURRENT_SAVE_VERSION } from '../../assets/scripts/model/save-data';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { SaveService } from '../../assets/scripts/services/save-service';
 import { ElectronStorageAdapter } from '../../assets/scripts/services/electron-storage-adapter';
@@ -65,7 +66,7 @@ function runUnitMatrix(): void {
       // emulate the real chain: storage value → SaveService (via GameContext)
       if (c.expect === 'NO_SAVE') {
         const data = new SaveService(adapter, 'game-save', clock()).load();
-        assert.equal(data.saveVersion, 14);
+        assert.equal(data.saveVersion, CURRENT_SAVE_VERSION);
         verdict = 'PASS: fresh player';
       } else if (c.expect === 'LOAD_FAILED') {
         let threw = false;

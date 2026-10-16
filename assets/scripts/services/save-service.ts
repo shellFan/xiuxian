@@ -1,6 +1,8 @@
 import type { ProjectState } from '../model/save-data';
+import { normalizeHomeArena } from '../v59i1/home-arena-service';
 import { CURRENT_SAVE_VERSION, type ActiveMessageChainState, type DailyRealityEntryState, type FirstWeekStoryState, type GameSaveData, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type WorkerSaveData, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState } from '../model/save-data';
 import { PlayerData } from '../model/player-data';
+import { cloneFateRun, cloneRebirthMeta, normalizeFateRun, normalizeRebirthMeta } from '../v59j/fate-state';
 import type { StorageAdapter } from './storage-adapter';
 
 /** F01: Thrown when persisted save data exists but cannot be parsed or migrated. */
@@ -32,7 +34,7 @@ export class SaveService {
     try {
       const parsed = JSON.parse(raw) as unknown;
       const data = migrate(parsed, now);
-      if (tutorialMigrationChanged(parsed, data)) {
+      if (saveMigrationChanged(parsed, data)) {
         try { this.storage.setItem(this.key, JSON.stringify(data)); } catch { /* load remains usable if migration cannot be persisted */ }
       }
       return this.commitLoaded(data);
@@ -110,6 +112,7 @@ function migrate(raw: unknown, now: number): GameSaveData {
   if (!isRecord(raw) || (raw.saveVersion !== undefined && (!isFiniteNumber(raw.saveVersion) || raw.saveVersion > CURRENT_SAVE_VERSION))) {
     throw new Error('Unsupported save data');
   }
+  if (raw.homeArena != null && !normalizeHomeArena(raw.homeArena)) throw new Error('Invalid persistent home campaign');
   const workers = sanitizeWorkers(raw.workers);
   const maxWorkerLevel = isNonNegativeSafeInteger(raw.maxWorkerLevel) ? raw.maxWorkerLevel : workers.reduce((max, worker) => Math.max(max, worker.level), 0);
   const tutorialCompleted = raw.tutorialCompleted === true
@@ -234,6 +237,11 @@ function migrate(raw: unknown, now: number): GameSaveData {
       new Set(assignedTasks.map((task) => task.id)),
       new Set(incidents.map((incident) => incident.id)),
     ),
+    homeArena: normalizeHomeArena(raw.homeArena),
+    regularWorkRewardRemainders: {
+      salary: isRecord(raw.regularWorkRewardRemainders) && Number.isSafeInteger(raw.regularWorkRewardRemainders.salary) && Number(raw.regularWorkRewardRemainders.salary) >= 0 && Number(raw.regularWorkRewardRemainders.salary) < 1000000 ? Number(raw.regularWorkRewardRemainders.salary) : 0,
+      cultivation: isRecord(raw.regularWorkRewardRemainders) && Number.isSafeInteger(raw.regularWorkRewardRemainders.cultivation) && Number(raw.regularWorkRewardRemainders.cultivation) >= 0 && Number(raw.regularWorkRewardRemainders.cultivation) < 1000000 ? Number(raw.regularWorkRewardRemainders.cultivation) : 0,
+    },
     conversations: normalizeConversations(raw.conversations),
     messages: normalizeMessages(raw.messages),
     storyDirector: normalizeStoryDirector(raw.storyDirector),
@@ -292,6 +300,8 @@ function migrate(raw: unknown, now: number): GameSaveData {
     careerChoices: normalizeRecords(raw.careerChoices, isCareerChoice),
     pendingOffer: normalizePendingOffer(raw.pendingOffer),
     teamDailyAssignment: normalizeTeamDailyAssignment(raw.teamDailyAssignment),
+    fateRun: normalizeFateRun(raw.fateRun),
+    rebirthMeta: normalizeRebirthMeta(raw.rebirthMeta),
   });
   return merged;
 }
@@ -894,7 +904,7 @@ function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultiva
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {
-  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'WELCOME', tutorialCompleted: data.tutorialCompleted ?? false, tutorialVersion: data.tutorialVersion ?? TUTORIAL_VERSION, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })), pendingEvents: (data.pendingEvents ?? []).map((event) => ({ ...event })), handledWelcomeItemIds: [...(data.handledWelcomeItemIds ?? [])], offlineDecisionSession: data.offlineDecisionSession ? { ...data.offlineDecisionSession, pendingEventIds: [...data.offlineDecisionSession.pendingEventIds], resolvedEventIds: [...data.offlineDecisionSession.resolvedEventIds] } : null, overtimeStats: data.overtimeStats ? { ...data.overtimeStats } : undefined, activeBattleRun: cloneUnknown(data.activeBattleRun), gameDay: data.gameDay ? { ...data.gameDay, durations: { ...data.gameDay.durations }, income: { ...data.gameDay.income }, situationIds: [...data.gameDay.situationIds], settlementInputs: { ...data.gameDay.settlementInputs }, eventHistory: data.gameDay.eventHistory.map((entry) => ({ ...entry })) } : null };
+  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'WELCOME', tutorialCompleted: data.tutorialCompleted ?? false, tutorialVersion: data.tutorialVersion ?? TUTORIAL_VERSION, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })), pendingEvents: (data.pendingEvents ?? []).map((event) => ({ ...event })), handledWelcomeItemIds: [...(data.handledWelcomeItemIds ?? [])], offlineDecisionSession: data.offlineDecisionSession ? { ...data.offlineDecisionSession, pendingEventIds: [...data.offlineDecisionSession.pendingEventIds], resolvedEventIds: [...data.offlineDecisionSession.resolvedEventIds] } : null, overtimeStats: data.overtimeStats ? { ...data.overtimeStats } : undefined, activeBattleRun: cloneUnknown(data.activeBattleRun), fateRun: cloneFateRun(data.fateRun), rebirthMeta: cloneRebirthMeta(data.rebirthMeta), homeArena: cloneUnknown(data.homeArena), regularWorkRewardRemainders: data.regularWorkRewardRemainders ? { ...data.regularWorkRewardRemainders } : undefined, gameDay: data.gameDay ? { ...data.gameDay, durations: { ...data.gameDay.durations }, income: { ...data.gameDay.income }, situationIds: [...data.gameDay.situationIds], settlementInputs: { ...data.gameDay.settlementInputs }, eventHistory: data.gameDay.eventHistory.map((entry) => ({ ...entry })) } : null };
 }
 
 function cloneUnknown(value: unknown): unknown {
@@ -943,9 +953,12 @@ function applyTutorialState(player: PlayerData, state: TutorialState): void {
   player.tutorialCompleted = state.tutorialCompleted;
   player.tutorialStartedAt = state.tutorialStartedAt;
 }
-function tutorialMigrationChanged(raw: unknown, data: GameSaveData): boolean {
+function saveMigrationChanged(raw: unknown, data: GameSaveData): boolean {
   if (!isRecord(raw)) return true;
-  return raw.tutorialVersion !== data.tutorialVersion
+  return raw.saveVersion !== data.saveVersion
+    || JSON.stringify(raw.fateRun ?? null) !== JSON.stringify(data.fateRun ?? null)
+    || JSON.stringify(raw.rebirthMeta ?? null) !== JSON.stringify(data.rebirthMeta ?? null)
+    || raw.tutorialVersion !== data.tutorialVersion
     || raw.tutorialStep !== data.tutorialStep
     || raw.tutorialCompleted !== data.tutorialCompleted
     || raw.tutorialStartedAt !== data.tutorialStartedAt;

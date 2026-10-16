@@ -1,0 +1,81 @@
+{
+  "clock": {
+    "hour": 21,
+    "minute": 34,
+    "weekday": 5,
+    "isWeekend": false
+  },
+  "mode": "FISHING",
+  "salaryBalance": 42,
+  "todayEarned": 60,
+  "incomeRate": {
+    "perSecond": 0.0016666666666666668,
+    "perMinute": 0.1,
+    "perHour": 6
+  },
+  "todo": {
+    "pendingCount": 4,
+    "items": [
+      {
+        "id": "msg_fw57_w1f_typing_root_1792157465235_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_jun_001_root_1792157480686_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_prod_003_root_1792157496687_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      },
+      {
+        "id": "msg_ms_prod_016_root_1792157512923_0",
+        "title": "回复飞剑传书",
+        "source": "传书",
+        "priority": "待回复"
+      }
+    ]
+  },
+  "messages": {
+    "unreadCount": 3,
+    "pendingReplyCount": 4,
+    "latest": ""
+  },
+  "activity": [
+    {
+      "time": 1792157483100,
+      "text": "完成指派任务「第一张工单：排查接口异常」",
+      "kind": "WORK"
+    },
+    {
+      "time": 1792157648731,
+      "text": "☕ 喝咖啡（-¥18）",
+      "kind": "LIFE"
+    },
+    {
+      "time": 1792157657543,
+      "text": "⚔ 项目受挫：0 击杀",
+      "kind": "INCIDENT"
+    }
+  ],
+  "life": [
+    {
+      "kind": "COFFEE",
+      "count": 1,
+      "label": "咖啡",
+      "icon": "☕"
+    }
+  ],
+  "task": [],
+  "project": null,
+  "goal": {
+    "title": "接下今天的第一个任务",
+    "detail": "任务页挑选差事——完成领工资、修为与绩效，工时正等着你"
+  }
+}
