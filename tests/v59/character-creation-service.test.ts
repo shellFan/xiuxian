@@ -34,6 +34,8 @@ function advanceToDestiny(context: GameContext): void {
   assert.equal(service.selectDirection('TECH_RND').success, true);
   assert.equal(service.advance().draft.step, 'PROFESSION');
   assert.equal(service.selectProfession('QA').success, true);
+  assert.equal(service.advance().draft.step, 'SECT');
+  assert.equal(service.selectSect('OUTSOURCING').success, true);
   assert.equal(service.advance().draft.step, 'IDENTITY');
   assert.equal(service.setIdentity('测试剑修', 'avatar-2').success, true);
   assert.equal(service.setBackground('CULTIVATION_GRAD').success, true);
@@ -48,6 +50,8 @@ const tests: Array<[string, () => void]> = [
       service.selectIndustry('INTERNET'); service.advance();
       service.selectDirection('TECH_RND'); service.advance();
       assert.equal(service.selectProfession(professionId).success, true);
+      service.advance();
+      assert.equal(service.selectSect('OUTSOURCING').success, true);
       service.advance();
       service.setIdentity('青云牛马', 'avatar-1');
       service.setBackground('ORDINARY_WORKER');
@@ -77,7 +81,7 @@ const tests: Array<[string, () => void]> = [
     assert.equal(resumed.player.profession, undefined);
     assert.equal(resumed.player.ownedTechniques.length, 0);
   }],
-  ['seven-step navigation validates fields and back navigation preserves draft values', () => {
+  ['eight-step navigation validates fields and back navigation preserves draft values', () => {
     const context = createContext(new MemoryStorageAdapter());
     const service = (context as any).characterCreation;
     assert.equal(service.advance().success, false);
@@ -87,6 +91,11 @@ const tests: Array<[string, () => void]> = [
     assert.equal(service.selectDirection('TECH_RND').success, true);
     assert.equal(service.advance().draft.step, 'PROFESSION');
     assert.equal(service.selectProfession('QA').success, true);
+    assert.equal(service.advance().draft.step, 'SECT');
+    assert.equal(service.advance().success, false);
+    assert.equal(service.selectSect('INVALID').success, false);
+    assert.equal(service.selectSect('STARTUP').success, false, 'the legacy startup id is not offered to new characters');
+    assert.equal(service.selectSect('OUTSOURCING').success, true);
     assert.equal(service.advance().draft.step, 'IDENTITY');
     assert.equal(service.setIdentity('青云牛马', 'avatar-1').success, true);
     assert.equal(service.setBackground('ORDINARY_WORKER').success, true);
@@ -95,11 +104,13 @@ const tests: Array<[string, () => void]> = [
     assert.equal(service.advance().draft.step, 'ALLOCATION');
     assert.equal(service.back().draft.step, 'DESTINY');
     assert.equal(service.back().draft.step, 'IDENTITY');
+    assert.equal(service.back().draft.step, 'SECT');
     assert.equal(service.back().draft.step, 'PROFESSION');
     const draft = service.query().draft;
     assert.equal(draft.industry, 'INTERNET');
     assert.equal(draft.direction, 'TECH_RND');
     assert.equal(draft.professionId, 'QA');
+    assert.equal(draft.sectId, 'OUTSOURCING');
     assert.equal(draft.nickname, '青云牛马');
     assert.equal(draft.background, 'ORDINARY_WORKER');
     assert.equal(draft.selectedCandidateId, 'B');
@@ -144,6 +155,7 @@ const tests: Array<[string, () => void]> = [
     const save = context.player.toSaveData();
     assert.equal(save.characterSetupStatus, 'COMPLETE');
     assert.equal(save.profession, 'QA');
+    assert.equal(save.sectId, 'OUTSOURCING');
     assert.equal(save.characterName, '测试剑修');
     assert.equal(save.characterAvatarId, 'avatar-2');
     assert.equal(save.characterIndustry, 'INTERNET');

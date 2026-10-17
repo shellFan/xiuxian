@@ -40,7 +40,7 @@ function testPublishedDomainConstants(): void {
 
 function testCreationStatesAndBackgroundIds(): void {
   assert.deepEqual(CREATION_STEPS, [
-    'INDUSTRY', 'DIRECTION', 'PROFESSION', 'IDENTITY', 'DESTINY', 'ALLOCATION', 'CONFIRM',
+    'INDUSTRY', 'DIRECTION', 'PROFESSION', 'SECT', 'IDENTITY', 'DESTINY', 'ALLOCATION', 'CONFIRM',
   ]);
   assert.deepEqual(BACKGROUND_IDS, ['ORDINARY_WORKER', 'CULTIVATION_GRAD', 'CAREER_CHANGER']);
 }

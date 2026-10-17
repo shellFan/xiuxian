@@ -187,7 +187,8 @@ function paidOvertimeBaseRatePerSecond(context: GameContext): number {
   const list = idleConfig.salaryPerHour;
   const levelIndex = Math.min(Math.max(1, context.player.careerLevel) - 1, list.length - 1);
   const perHour = list[levelIndex] ?? list[0] ?? 0;
-  return perHour / 3600;
+  return perHour * context.career.current().salaryMultiplier
+    * context.sect.salaryMultiplierForProfession(context.profession.currentId()) / 3600;
 }
 
 /** Optional config stays backward-compatible and cannot introduce an invalid runtime multiplier. */

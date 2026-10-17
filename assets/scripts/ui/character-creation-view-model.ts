@@ -1,4 +1,5 @@
 import type { CharacterCreationView } from '../v59/character-creation-service';
+import type { SectConfig } from '../model/config-types';
 import {
   ALLOCATION_POINT_BUDGET,
   ALLOCATION_INCREMENT,
@@ -71,6 +72,7 @@ const STEP_COPY: Record<CreationStep, { readonly title: string; readonly descrip
   INDUSTRY: { title: '选择行业', description: '互联网行业已开放，其他行业仍在招募中。' },
   DIRECTION: { title: '选择方向', description: '从技术研发开始你的职场修仙路。' },
   PROFESSION: { title: '选择职业', description: '职业决定初始技能、装备和天命属性倾向。' },
+  SECT: { title: '选择入职宗门', description: '宗门决定工资倍率、工作压力、加班制度与专属机会。' },
   IDENTITY: { title: '定义身份与出身', description: '输入昵称，选择本地角色形象和出身履历。' },
   DESTINY: { title: '选择天命', description: '三套天命只能选择一套，免费推演最多三次。' },
   ALLOCATION: { title: '分配潜力', description: '增加操作一次投入 5 点；已投入的点可逐点撤回。' },
@@ -209,7 +211,7 @@ export function buildCharacterCreationViewModel(source: CharacterCreationView): 
           : '尚未分配该属性，不能降低基础值',
     };
   }) : [];
-  const options = buildOptions(draft.step, draft);
+  const options = buildOptions(draft.step, draft, source.sects ?? []);
   const avatarOptions = buildAvatarOptions(draft);
   const backgroundOptions = buildBackgroundOptions(draft);
   const stepValid = isStepValid(draft.step, draft);
@@ -248,6 +250,7 @@ export function buildCharacterCreationViewModel(source: CharacterCreationView): 
     confirmationLines: draft.step === 'CONFIRM' && selectedCandidate ? [
       `昵称：${draft.nickname}`,
       `职业：${professionName(draft.professionId)}`,
+      `宗门：${source.sects?.find((sect) => sect.id === draft.sectId)?.name ?? '未选择'}`,
       `出身：${backgroundName(draft.background)}`,
       `天命：${DESTINY_COPY[selectedCandidate.destinyId].name}`,
       ...stats.map((stat) => `${stat.label}：${stat.value}`),
@@ -258,6 +261,7 @@ export function buildCharacterCreationViewModel(source: CharacterCreationView): 
 function buildOptions(
   step: CreationStep,
   draft: NonNullable<CharacterCreationView['draft']>,
+  sects: readonly SectConfig[],
 ): readonly CharacterCreationOptionViewModel[] {
   switch (step) {
     case 'INDUSTRY':
@@ -279,6 +283,21 @@ function buildOptions(
         option('QA', '测试工程师', '洞察风险，擅长发现破绽', draft.professionConfirmed && draft.professionId === 'QA'),
         option('DEVOPS', '运维工程师', '体魄强韧，擅长稳定局势', draft.professionConfirmed && draft.professionId === 'DEVOPS'),
       ];
+    case 'SECT':
+      return sects.map((sect) => {
+        const profile = sect.employment;
+        const estimate = Math.round(120 * sect.modifiers.salaryMultiplier);
+        const salary = sect.id === 'FREELANCE' ? '固定日薪：无，按项目合同结算' : `预估基础日薪：¥${estimate}`;
+        const description = [
+          sect.description ?? '',
+          salary,
+          profile ? `压力 ${profile.pressure}/100 · 加班 ${overtimeRuleName(profile.overtimeRule)}${profile.overtimeApprovalPercent === null ? '' : ` ${profile.overtimeApprovalPercent}%`}` : '',
+          profile ? `晋升：${profile.promotionStyle}` : '',
+          profile ? `优势：${profile.advantages.join('、')}` : '',
+          profile ? `代价：${profile.disadvantages.join('、')}` : '',
+        ].filter(Boolean).join('\n');
+        return option(sect.id, sect.name, description, draft.sectId === sect.id);
+      });
     case 'IDENTITY':
     case 'DESTINY':
     case 'ALLOCATION':
@@ -311,6 +330,7 @@ function isStepValid(step: CreationStep, draft: NonNullable<CharacterCreationVie
     case 'INDUSTRY': return draft.industry === 'INTERNET';
     case 'DIRECTION': return draft.direction === 'TECH_RND';
     case 'PROFESSION': return draft.professionConfirmed;
+    case 'SECT': return draft.sectId !== undefined;
     case 'IDENTITY': return validateNickname(draft.nickname).valid
       && /^avatar-[1-4]$/.test(draft.avatarId)
       && draft.background !== undefined;
@@ -320,6 +340,7 @@ function isStepValid(step: CreationStep, draft: NonNullable<CharacterCreationVie
     case 'CONFIRM': return !!draft.industry
       && !!draft.direction
       && draft.professionConfirmed
+      && !!draft.sectId
       && validateNickname(draft.nickname).valid
       && !!draft.background
       && !!draft.selectedCandidateId
@@ -329,6 +350,10 @@ function isStepValid(step: CreationStep, draft: NonNullable<CharacterCreationVie
 
 function professionName(id: string): string {
   return ({ JAVA_BACKEND: 'Java 后端', FRONTEND: '前端开发', QA: '测试工程师', DEVOPS: '运维工程师' } as Record<string, string>)[id] ?? id;
+}
+
+function overtimeRuleName(rule: string): string {
+  return ({ REQUEST: '申请/安排', CLIENT_APPROVAL: '客户审批', SUPERVISOR_APPROVAL: '主管审批', SELF_DIRECTED: '自主接单', PRE_APPROVED: '预先审批', NEGOTIATED: '协商审批' } as Record<string, string>)[rule] ?? rule;
 }
 
 function backgroundName(id: string | undefined): string {

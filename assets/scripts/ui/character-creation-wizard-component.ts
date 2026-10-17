@@ -34,6 +34,7 @@ export type CharacterCreationFacade = Pick<GameFacade,
   | 'characterCreationSelectIndustry'
   | 'characterCreationSelectDirection'
   | 'characterCreationSelectProfession'
+  | 'characterCreationSelectSect'
   | 'characterCreationSetIdentity'
   | 'characterCreationSetBackground'
   | 'characterCreationSelectCandidate'
@@ -52,7 +53,7 @@ interface ButtonBinding {
 }
 
 /**
- * Cocos Creator 3.8 controller for the seven-step V5.9-A character wizard.
+ * Cocos Creator 3.8 controller for the V5.9 character wizard.
  * It owns presentation only: every read and mutation goes through GameFacade.
  */
 @ccclass('CharacterCreationWizardComponent')
@@ -245,7 +246,8 @@ export class CharacterCreationWizardComponent extends Component {
     if (this.optionSectionNode) {
       this.optionSectionNode.active = vm.step === 'INDUSTRY'
         || vm.step === 'DIRECTION'
-        || vm.step === 'PROFESSION';
+        || vm.step === 'PROFESSION'
+        || vm.step === 'SECT';
     }
     if (this.identitySectionNode) this.identitySectionNode.active = vm.step === 'IDENTITY';
     if (this.destinySectionNode) this.destinySectionNode.active = vm.step === 'DESTINY';
@@ -351,6 +353,7 @@ export class CharacterCreationWizardComponent extends Component {
       case 'INDUSTRY': this.perform(() => this.facade!.characterCreationSelectIndustry(selected.id)); break;
       case 'DIRECTION': this.perform(() => this.facade!.characterCreationSelectDirection(selected.id)); break;
       case 'PROFESSION': this.perform(() => this.facade!.characterCreationSelectProfession(selected.id)); break;
+      case 'SECT': this.perform(() => this.facade!.characterCreationSelectSect(selected.id)); break;
       case 'IDENTITY':
       case 'DESTINY':
       case 'ALLOCATION':

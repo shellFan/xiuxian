@@ -39,6 +39,7 @@ export const CREATION_STEPS = [
   'INDUSTRY',
   'DIRECTION',
   'PROFESSION',
+  'SECT',
   'IDENTITY',
   'DESTINY',
   'ALLOCATION',

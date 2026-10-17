@@ -79,7 +79,8 @@ export class WorkService {
     const hourly = this.rateForBoard(this.salaryPerHour)
       * (override?.salaryMul ?? rules.salaryMul)
       * this.context.buffs.getMultiplier('WORK_SALARY_BOOST')
-      * this.context.career.current().salaryMultiplier;
+      * this.context.career.current().salaryMultiplier
+      * this.context.sect.salaryMultiplierForProfession(this.context.profession.currentId());
     return Object.freeze({ perSecond: hourly / 3600, perMinute: hourly / 60, perHour: hourly });
   }
 
@@ -135,7 +136,10 @@ export class WorkService {
     const mindRemainderKey = MODE_RULES[mode].secondsKey.replace('Seconds', 'MindRemainder') as
       'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder';
     const mindResult = accumulate(Math.abs(mindRate), standardSeconds, 1, this.context.player[mindRemainderKey] ?? 0, 3600);
-    const baseSalary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier);
+    const baseSalary = Math.floor(
+      salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier
+      * this.context.sect.salaryMultiplierForProfession(this.context.profession.currentId()),
+    );
     const outputMultiplier = characterEffectMultiplier(this.context.player, 'REGULAR_WORK_OUTPUT');
     const salaryProjection = accumulateCharacterReward(baseSalary, outputMultiplier, this.context.player.regularWorkRewardRemainders.salary);
     const salary = mode === 'WORK' ? salaryProjection.reward : baseSalary;

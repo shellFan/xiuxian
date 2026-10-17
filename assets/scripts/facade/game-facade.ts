@@ -220,6 +220,7 @@ export class GameFacade {
   public characterCreationSelectIndustry(id: string) { return this.context.characterCreation.selectIndustry(id); }
   public characterCreationSelectDirection(id: string) { return this.context.characterCreation.selectDirection(id); }
   public characterCreationSelectProfession(id: string) { return this.context.characterCreation.selectProfession(id); }
+  public characterCreationSelectSect(id: string) { return this.context.characterCreation.selectSect(id); }
   public characterCreationSetIdentity(nickname: string, avatarId: string) { return this.context.characterCreation.setIdentity(nickname, avatarId); }
   public characterCreationSetBackground(id: string) { return this.context.characterCreation.setBackground(id); }
   public characterCreationSelectCandidate(id: string) { return this.context.characterCreation.selectCandidate(id); }
@@ -249,6 +250,7 @@ export class GameFacade {
       industry: player.characterIndustry,
       direction: player.characterDirection,
       professionId: player.profession,
+      sectId: player.sectId ?? undefined,
       background: player.characterBackground,
       destinyId: player.destinyId,
       innate: player.innateAttributes ? { ...player.innateAttributes } : undefined,
@@ -878,11 +880,14 @@ export class GameFacade {
     return id ? this.context.configService.talent.talents.find(t => t.id === id) : undefined;
   }
 
-  /** All available sects. */
-  public querySects() { return this.context.configService.sect.sects; }
+  /** Sects currently open for joining. Legacy definitions remain in ConfigService for save compatibility. */
+  public querySects() { return this.context.sect.available(); }
 
   /** Change/choose sect. First choice is free, subsequent changes have 24h cooldown. */
   public changeSect(sectId: string): { success: boolean; reason?: string } {
+    if (!this.context.sect.available().some((sect) => sect.id === sectId)) {
+      return { success: false, reason: '该宗门暂不开放加入' };
+    }
     const current = this.context.player.sectId;
     if (current === sectId) return { success: false, reason: '已经是该宗门' };
 

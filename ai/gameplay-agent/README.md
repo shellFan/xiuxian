@@ -8,11 +8,12 @@ GamePlay Agent is the repository-owned Windows desktop playtest runner for 《�
 |---|---|
 | `npm run gameplay-agent:smoke` | Launch the EXE and check the first creation screen, next-step control, and creation flow. |
 | `npm run gameplay-agent:test` | Run every JSON playtest scenario against the packaged EXE. |
-| `npm run gameplay-agent:creation` | Run the seven-step character creation and main-page stage by itself. |
+| `npm run gameplay-agent:creation` | Run the eight-step character creation, including the sect choice, and main-page stage by itself. |
+| `npm run gameplay-agent:sect-creation` | Run the new-player journey and verify the selected sect in the saved character profile. |
 | `npm run gameplay-agent:l` | Run the V5.9-L attribute creation, first card-battle win, defense/enemy turn, card event choice, and save/restart scenarios in isolated profiles. |
 | `npm run gameplay-agent:economy` | Run the task, wage accrual and ¥18 coffee stage by itself. |
 | `npm run gameplay-agent:time-save` | Run 07:59/08:00/08:01 clock checks, settlement, three workdays and save recovery. |
-| `npm run gameplay-agent:full-journey` | Run the seven-step new-player journey and first playable home checks. |
+| `npm run gameplay-agent:full-journey` | Run the eight-step new-player journey and first playable home checks. |
 | `npm run gameplay-agent:fate-choice` | Replay the negotiation choice and verify its wage effect and persistent story flag. |
 | `npm run gameplay-agent:fate-rebirth` | Replay the intern story chain, fatal choice, karma settlement, talent purchase, rebirth and EXE restart recovery. |
 | `npm run gameplay-agent:fate-challenge` | Complete the first assigned task, buy coffee through the hidden event, start the existing V3 battle, and verify its defeat flag. |

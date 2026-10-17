@@ -123,29 +123,29 @@ function testMindClampsAtBoundsAndThrowsOnBadInput(): void {
 }
 
 // ---------------------------------------------------------------------------
-// 4. Sect: exactly 4 sects, each boosts one distinct dimension
+// 4. Sect: eight configured workplace paths with distinct employment policies
 // ---------------------------------------------------------------------------
-function testSectHasFourDistinctModifiers(): void {
+function testSectHasEightDistinctWorkplaceProfiles(): void {
   const { context } = makeContext();
+  const configuredSects = context.configService.sect.sects;
   const sects = context.sect.available();
-  assert.equal(sects.length, 4);
-  // Web V1 设计图: 民企宗/外企宗/国企宗/大厂宗，每个宗门两条差异化加成。
-  assert.deepStrictEqual(sects.map((s) => s.name), ['民企宗', '外企宗', '国企宗', '大厂宗']);
-  for (const s of sects) {
+  assert.equal(configuredSects.length, 8, 'the legacy startup definition remains available for old saves');
+  assert.equal(sects.length, 7, 'new hires only see sectors included in this release scope');
+  assert.deepStrictEqual(sects.map((s) => s.name), ['大厂宗', '外包宗', '内包宗', '自由宗', '国企宗', '小厂宗', '外企宗']);
+  for (const s of configuredSects) {
     const m = s.modifiers;
     for (const v of [m.salaryMultiplier, m.cultivationMultiplier, m.mindMultiplier, m.performanceMultiplier]) {
-      assert.ok(v > 0, `${s.id} multipliers must be positive`);
+      assert.ok(v >= 0, `${s.id} multipliers must be non-negative`);
     }
-    const active = [m.salaryMultiplier, m.cultivationMultiplier, m.mindMultiplier, m.performanceMultiplier]
-      .filter((v) => v !== 1).length + (m.offlineGainMultiplier && m.offlineGainMultiplier !== 1 ? 1 : 0);
-    assert.ok(active >= 1 && active <= 2, `${s.id} must have 1-2 distinct modifiers`);
+    assert.ok(s.employment, `${s.id} should define an employment profile`);
+    assert.ok(s.employment?.advantages.length && s.employment.disadvantages.length && s.employment.taskPool.length && s.employment.eventIds.length);
   }
   // 国企宗独有离线收益加成。
-  const state = sects.find((s) => s.id === 'STATE');
+  const state = configuredSects.find((s) => s.id === 'STATE');
   assert.equal(state?.modifiers.offlineGainMultiplier, 1.2);
-  assert.ok(!sects.filter((s) => s.id !== 'STATE').some((s) => s.modifiers.offlineGainMultiplier));
+  assert.ok(!configuredSects.filter((s) => s.id !== 'STATE').some((s) => s.modifiers.offlineGainMultiplier));
   // No two sects share the same name.
-  assert.equal(new Set(sects.map((s) => s.name)).size, 4, 'sect names are unique');
+  assert.equal(new Set(configuredSects.map((s) => s.name)).size, 8, 'configured sect names are unique');
 }
 
 function testSectChoicePersistsAndBlocksSecondChoice(): void {
@@ -433,7 +433,7 @@ testSaveMigrationRejectsFutureVersion();
 testSaveRoundTripPreservesPhaseTwoFields();
 testIdleBoundariesZeroEightHourCap();
 testMindClampsAtBoundsAndThrowsOnBadInput();
-testSectHasFourDistinctModifiers();
+testSectHasEightDistinctWorkplaceProfiles();
 testSectChoicePersistsAndBlocksSecondChoice();
 testTalentFixedRngThreeChoices();
 testTalentReloadKeepsSameChoices();

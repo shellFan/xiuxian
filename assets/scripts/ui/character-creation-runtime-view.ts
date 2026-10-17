@@ -133,12 +133,12 @@ export function mountCharacterCreationRuntimeView(
   const optionTitleLabels: RuntimeLabel[] = [];
   const optionDescriptionLabels: RuntimeLabel[] = [];
   const optionButtons: CharacterCreationButtonLike[] = [];
-  for (let index = 0; index < 4; index += 1) {
-    const row = createButton(cc, optionSection, `CreationOptionButton${index}`, '', 570, 122, 0, 245 - index * 145);
+  for (let index = 0; index < 8; index += 1) {
+    const row = createButton(cc, optionSection, `CreationOptionButton${index}`, '', 570, 74, 0, 280 - index * 80);
     optionNodes.push(row.node);
     optionButtons.push(row.button);
-    optionTitleLabels.push(createLabel(cc, row.node, `CreationOptionTitle${index}`, '', 27, 520, 38, 0, 22));
-    optionDescriptionLabels.push(createLabel(cc, row.node, `CreationOptionDescription${index}`, '', 19, 520, 48, 0, -28));
+    optionTitleLabels.push(createLabel(cc, row.node, `CreationOptionTitle${index}`, '', 22, 530, 28, 0, 21));
+    optionDescriptionLabels.push(createLabel(cc, row.node, `CreationOptionDescription${index}`, '', 13, 540, 44, 0, -12));
   }
 
   const identitySection = createNode(cc, 'CreationIdentitySection', card, 600, 680, 0, -5);

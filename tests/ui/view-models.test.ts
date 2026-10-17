@@ -238,7 +238,8 @@ test('buildSectViewModel: returns sect data', () => {
   assert.equal(vm.currentSectId, null);
   assert.equal(vm.currentSectName, '散修');
   assert.ok(Array.isArray(vm.sects));
-  assert.equal(vm.sects.length, 4); // PRIVATE, FOREIGN, STATE, BIG_TECH
+  assert.equal(vm.sects.length, 7); // Startup remains in config for legacy saves but is out of new-player scope.
+  assert.ok(!vm.sects.some((sect) => sect.id === 'STARTUP'));
 });
 
 // ── Immutability ────────────────────────────────────────────────────────────

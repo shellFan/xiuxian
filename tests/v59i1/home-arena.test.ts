@@ -17,6 +17,7 @@ function make(storage = new MemoryStorageAdapter()) {
     f.characterCreationSelectIndustry('INTERNET'); f.characterCreationAdvance();
     f.characterCreationSelectDirection('TECH_RND'); f.characterCreationAdvance();
     f.characterCreationSelectProfession('JAVA_BACKEND'); f.characterCreationAdvance();
+    f.characterCreationSelectSect('BIG_TECH'); f.characterCreationAdvance();
     f.characterCreationSetIdentity('点击剑修', 'avatar-1'); f.characterCreationSetBackground('ORDINARY_WORKER'); f.characterCreationAdvance();
     f.characterCreationSelectCandidate('A'); f.characterCreationAdvance(); f.characterCreationAdvance();
     assert.equal(f.characterCreationFinalize().success, true);

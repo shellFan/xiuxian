@@ -18,7 +18,19 @@ export interface EconomyConfig {
   readonly cultivationRewards?: readonly number[];
 }
 export interface GameConfig { readonly board: Readonly<{ columns: number; rows: number }>; }
-export type SectId = 'PRIVATE' | 'FOREIGN' | 'STATE' | 'BIG_TECH';
+export const SECT_IDS = ['PRIVATE', 'FOREIGN', 'STATE', 'BIG_TECH', 'OUTSOURCING', 'INTERNAL', 'FREELANCE', 'STARTUP'] as const;
+export type SectId = typeof SECT_IDS[number];
+export type SectOvertimeRule = 'REQUEST' | 'CLIENT_APPROVAL' | 'SUPERVISOR_APPROVAL' | 'SELF_DIRECTED' | 'PRE_APPROVED' | 'NEGOTIATED';
+export interface SectEmploymentProfile {
+  readonly pressure: number;
+  readonly overtimeRule: SectOvertimeRule;
+  readonly overtimeApprovalPercent: number | null;
+  readonly promotionStyle: string;
+  readonly advantages: readonly string[];
+  readonly disadvantages: readonly string[];
+  readonly taskPool: readonly string[];
+  readonly eventIds: readonly string[];
+}
 export interface SectModifiers {
   readonly salaryMultiplier: number;
   readonly cultivationMultiplier: number;
@@ -34,7 +46,9 @@ export interface SectModifiers {
 export interface SectConfig {
   readonly id: SectId;
   readonly name: string;
+  readonly description?: string;
   readonly modifiers: SectModifiers;
+  readonly employment?: SectEmploymentProfile;
 }
 export interface SectBundle { readonly sects: readonly SectConfig[]; }
 export interface TalentConfig {

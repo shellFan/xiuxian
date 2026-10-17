@@ -45,15 +45,16 @@
     "gameplay-agent:creation": "node ai/gameplay-agent/index.cjs test --scenario=character-creation",
     "gameplay-agent:full-journey": "node ai/gameplay-agent/index.cjs test --scenario=new-player-full-journey",
     "gameplay-agent:l": "node ai/gameplay-agent/index.cjs test --scenario=character-creation-attributes,card-battle-first-win,card-battle-defense,card-battle-random-event,card-battle-save-reload",
-      "gameplay-agent:fate-choice": "node ai/gameplay-agent/index.cjs test --scenario=fate-choice-negotiation",
-      "gameplay-agent:fate-rebirth": "node ai/gameplay-agent/index.cjs test --scenario=fate-chain-death-rebirth",
-      "gameplay-agent:fate-challenge": "node ai/gameplay-agent/index.cjs test --scenario=fate-secret-trial",
+    "gameplay-agent:fate-choice": "node ai/gameplay-agent/index.cjs test --scenario=fate-choice-negotiation",
+    "gameplay-agent:fate-rebirth": "node ai/gameplay-agent/index.cjs test --scenario=fate-chain-death-rebirth",
+    "gameplay-agent:fate-challenge": "node ai/gameplay-agent/index.cjs test --scenario=fate-secret-trial",
     "gameplay-agent:economy": "node ai/gameplay-agent/index.cjs test --scenario=economy",
     "gameplay-agent:time-save": "node ai/gameplay-agent/index.cjs test --scenario=time-save",
     "gameplay-agent:viewport": "node ai/gameplay-agent/index.cjs test --scenario=viewport-matrix",
     "gameplay-agent:report": "node ai/gameplay-agent/index.cjs report",
     "gameplay-agent:rerun-failed": "node ai/gameplay-agent/index.cjs rerun-failed",
-    "gameplay-agent:gate": "node ai/gameplay-agent/index.cjs gate"
+    "gameplay-agent:gate": "node ai/gameplay-agent/index.cjs gate",
+    "gameplay-agent:sect-creation": "node ai/gameplay-agent/index.cjs test --scenario=sect-character-creation"
   },
   "dependencies": {
     "ajv": "^8.17.1",

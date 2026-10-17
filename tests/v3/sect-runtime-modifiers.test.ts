@@ -65,25 +65,31 @@ function candidateWeights(context: GameContext): Map<string, number> {
 }
 
 function testSectOvertimePayMultipliersAndFreeOvertime(): void {
-  const modifiers: Partial<Record<SectId, Partial<SectModifiers>>> = {
-    PRIVATE: { overtimePayMultiplier: 1.20 },
-    FOREIGN: { overtimePayMultiplier: 0.90 },
-    STATE: { overtimePayMultiplier: 0.80 },
-    BIG_TECH: { overtimePayMultiplier: 1.35 },
+  const multipliers: Partial<Record<SectId, number>> = {
+    PRIVATE: 1.20,
+    FOREIGN: 0.90,
+    STATE: 0.80,
+    BIG_TECH: 1.35,
   };
-  assert.equal(paidCompensatedHour(contextFor('PRIVATE', modifiers)), 24);
-  assert.equal(paidCompensatedHour(contextFor('FOREIGN', modifiers)), 18);
-  assert.equal(paidCompensatedHour(contextFor('STATE', modifiers)), 16);
-  assert.equal(paidCompensatedHour(contextFor('BIG_TECH', modifiers)), 27);
-  assert.equal(paidCompensatedHour(contextFor('BIG_TECH', modifiers), true), 0, 'free overtime remains unpaid');
+  for (const [sectId, multiplier] of Object.entries(multipliers) as [SectId, number][]) {
+    const baseline = paidCompensatedHour(contextFor(sectId, { [sectId]: { overtimePayMultiplier: 1 } }));
+    const withMultiplier = paidCompensatedHour(contextFor(sectId, { [sectId]: { overtimePayMultiplier: multiplier } }));
+    assert.ok(
+      withMultiplier >= Math.floor(baseline * multiplier)
+        && withMultiplier <= Math.floor((baseline + 1) * multiplier),
+      `${sectId} overtime pay multiplier must scale the unrounded base rate`,
+    );
+  }
+  assert.equal(paidCompensatedHour(contextFor('BIG_TECH', { BIG_TECH: { overtimePayMultiplier: 1.35 } }), true), 0, 'free overtime remains unpaid');
 }
 
 function testLegacySectConfigDefaultsOvertimePayToOne(): void {
-  assert.equal(paidCompensatedHour(contextFor('PRIVATE', { PRIVATE: { overtimePayMultiplier: undefined } })), 20);
+  const baseline = paidCompensatedHour(contextFor('PRIVATE', { PRIVATE: { overtimePayMultiplier: 1 } }));
+  assert.equal(paidCompensatedHour(contextFor('PRIVATE', { PRIVATE: { overtimePayMultiplier: undefined } })), baseline);
 }
 
 function testIncidentRiskScalesOnlyBugCandidateWeights(): void {
-  const riskBySect: Record<SectId, number> = { PRIVATE: 1.15, FOREIGN: 0.85, STATE: 0.70, BIG_TECH: 1.25 };
+  const riskBySect: Record<SectId, number> = { PRIVATE: 1.2, FOREIGN: 0.85, STATE: 0.70, BIG_TECH: 1.25, OUTSOURCING: 1.1, INTERNAL: 0.95, FREELANCE: 1.15, STARTUP: 1.2 };
   const sourceBug = EVENTS.find((event) => event.category === 'BUG');
   const sourceNonBug = EVENTS.find((event) => event.category !== 'BUG');
   assert.ok(sourceBug);

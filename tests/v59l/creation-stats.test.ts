@@ -32,6 +32,7 @@ function advanceToDestiny(context: GameContext): any {
   service.selectIndustry('INTERNET'); service.advance();
   service.selectDirection('TECH_RND'); service.advance();
   service.selectProfession('QA'); service.advance();
+  service.selectSect('BIG_TECH'); service.advance();
   service.setIdentity('量纲剑修', 'avatar-2');
   service.setBackground('CULTIVATION_GRAD'); service.advance();
   return service;
@@ -101,9 +102,13 @@ function testDraftNavigationAndRestartCannotRefreshAttributesOrAllocation(): voi
 
   assert.equal(service.resetAllocation().success, true);
   assert.deepEqual(service.query().draft.allocation, emptyAllocation());
-  service.back(); service.back(); service.back();
+  service.back(); service.back(); service.back(); service.back();
   assert.equal(service.query().draft.step, 'PROFESSION');
   service.selectProfession('QA');
+  service.advance();
+  assert.equal(service.query().draft.step, 'SECT');
+  service.selectSect('BIG_TECH');
+  service.advance();
   assert.deepEqual(service.query().draft.candidates, original, 're-entering the same profession replays the original seed');
 }
 

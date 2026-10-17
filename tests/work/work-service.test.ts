@@ -33,6 +33,16 @@ function testWorkTickUsesFullRatesAndConsumesMind(): void {
   assert.match(storage.getItem('game-save') ?? '', /"workSeconds":30/);
 }
 
+function testIncomeRateUsesSectAndProfessionCoefficientsAndFreelanceHasNoFixedWage(): void {
+  const storage = new MemoryStorageAdapter();
+  const context = new GameContext({ player: new PlayerData({ workMode: 'WORK', sectId: 'BIG_TECH', profession: 'JAVA_BACKEND' }), saveService: new SaveService(storage), clock: workdayTestClock(), board: null });
+  const work = new WorkService(context, { salaryPerHour: 100, cultivationPerHour: 0, mindPerHour: 0 });
+  assert.equal(work.incomeRate().perHour, 100 * 1.3 * 1.5 * 1.1);
+
+  const freelance = new GameContext({ player: new PlayerData({ workMode: 'WORK', sectId: 'FREELANCE', profession: 'JAVA_BACKEND' }), saveService: new SaveService(new MemoryStorageAdapter()), clock: workdayTestClock(), board: null });
+  assert.equal(new WorkService(freelance, { salaryPerHour: 100, cultivationPerHour: 0, mindPerHour: 0 }).incomeRate().perHour, 0);
+}
+
 function testFishingTickUsesHalfRatesAndRecoversMind(): void {
   const { context } = createContext(new PlayerData({ mind: 10, workMode: 'FISHING' }));
   context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
@@ -258,6 +268,7 @@ function testLegacyGenericMindRemainderMigratesOncePerMode(): void {
 }
 
 testWorkTickUsesFullRatesAndConsumesMind();
+testIncomeRateUsesSectAndProfessionCoefficientsAndFreelanceHasNoFixedWage();
 testFishingTickUsesHalfRatesAndRecoversMind();
 testShortTicksMatchSingleTickForBothModes();
 testModeSwitchPersistsAndChangesFutureTicks();

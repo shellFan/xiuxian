@@ -64,8 +64,8 @@ async function runInElectron(): Promise<void> {
     await win.webContents.executeJavaScript(readFileSync(join(process.cwd(), 'desktop', 'ui-home-arena.js'), 'utf8'));
     await waitFor(win, `document.querySelector('.v59-creation .v59-stepper span') !== null`);
 
-    const sevenSteps = await win.webContents.executeJavaScript(`document.querySelectorAll('.v59-stepper span').length`);
-    assert.equal(sevenSteps, 7);
+    const eightSteps = await win.webContents.executeJavaScript(`document.querySelectorAll('.v59-stepper span').length`);
+    assert.equal(eightSteps, 8);
     const creationArbitration = await win.webContents.executeJavaScript(`(() => {
       const f = window.__GAME_FACADE__, original = f.queryMessengerBadge;
       f.queryMessengerBadge = () => ({hasCritical:true,criticalUnread:1});
@@ -79,6 +79,12 @@ async function runInElectron(): Promise<void> {
     await click(win, '[data-creation-choice="direction:TECH_RND"]');
     await click(win, '[data-creation-action="advance"]');
     await click(win, '[data-creation-choice="profession:QA"]');
+    await click(win, '[data-creation-action="advance"]');
+    const sectorOptions = await win.webContents.executeJavaScript(`Array.from(document.querySelectorAll('[data-creation-choice^="sect:"]')).map(function (node) { return node.textContent; })`);
+    assert.equal(sectorOptions.length, 7, 'only in-scope employers are presented before character identity');
+    assert.ok(!sectorOptions.some((text: string) => text.includes('创业公司宗')));
+    assert.match(sectorOptions.find((text: string) => text.includes('外包宗')) ?? '', /客户审批/);
+    await click(win, '[data-creation-choice="sect:OUTSOURCING"]');
     await click(win, '[data-creation-action="advance"]');
     await win.webContents.executeJavaScript(`document.querySelector('#v59-nickname').value = '青云牛马'`);
     await click(win, '[data-creation-choice="avatar:avatar-2"]');
@@ -149,7 +155,7 @@ async function runInElectron(): Promise<void> {
     await click(win, '[data-creation-action="allocate"][data-stat="insight"][data-delta="5"]');
     await click(win, '[data-creation-action="advance"]');
     const confirmVisible = await win.webContents.executeJavaScript(`document.querySelector('.v59-confirm-card') !== null`);
-    assert.equal(confirmVisible, true, 'step 7 displays a formal character confirmation card');
+    assert.equal(confirmVisible, true, 'step 8 displays a formal character confirmation card');
     await click(win, '[data-creation-action="finalize"]');
     const intro = await win.webContents.executeJavaScript(`window.__GAME_FACADE__.queryCharacterOnboarding().step`);
     assert.equal(intro, 'INTRO_1', 'finalization enters the persisted onboarding story');
@@ -158,12 +164,14 @@ async function runInElectron(): Promise<void> {
       step: window.__GAME_FACADE__.queryCharacterOnboarding().step,
       status: window.__GAME_FACADE__.queryCharacterProfile().setupStatus,
       profession: window.__GAME_FACADE__.queryCharacterProfile().professionId,
+      sectId: window.__GAME_FACADE__.context.player.sectId,
       assigned: window.__GAME_FACADE__.context.player.assignedTasks.map(function (task) { return task.title; }),
       receipt: window.__GAME_FACADE__.context.player.characterOnboardingTaskReceipt
     })`);
     assert.equal(result.step, 'COMPLETE');
     assert.equal(result.status, 'COMPLETE');
     assert.equal(result.profession, 'QA');
+    assert.equal(result.sectId, 'OUTSOURCING');
     assert.equal(result.assigned.length, 1);
     assert.match(result.assigned[0], /无法复现的 Bug/);
     assert.ok(result.receipt);

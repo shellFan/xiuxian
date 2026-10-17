@@ -1,53 +1,60 @@
 {
   "sects": [
     {
-      "id": "PRIVATE",
-      "name": "民企宗",
-      "modifiers": {
-        "salaryMultiplier": 1.15,
-        "cultivationMultiplier": 1,
-        "mindMultiplier": 0.9,
-        "performanceMultiplier": 1,
-        "overtimePayMultiplier": 1.2,
-        "incidentRiskMultiplier": 1.15
-      }
+      "id": "BIG_TECH",
+      "name": "大厂宗",
+      "description": "高薪高压、绩效严格，核心项目竞争激烈。",
+      "modifiers": { "salaryMultiplier": 1.5, "cultivationMultiplier": 1, "mindMultiplier": 0.8, "performanceMultiplier": 1.2, "overtimePayMultiplier": 1.35, "incidentRiskMultiplier": 1.25 },
+      "employment": { "pressure": 82, "overtimeRule": "REQUEST", "overtimeApprovalPercent": 80, "promotionStyle": "绩效与核心项目影响力", "advantages": ["日薪倍率高", "绩效奖金空间大"], "disadvantages": ["压力高", "末位竞争"], "taskPool": ["核心项目攻坚", "线上事故修复", "高并发架构优化"], "eventIds": ["SECT_BIG_TECH_PERFORMANCE_CRISIS", "SECT_BIG_TECH_CORE_PROJECT"] }
     },
     {
-      "id": "FOREIGN",
-      "name": "外企宗",
-      "modifiers": {
-        "salaryMultiplier": 1.05,
-        "cultivationMultiplier": 1,
-        "mindMultiplier": 1.15,
-        "performanceMultiplier": 1,
-        "overtimePayMultiplier": 0.9,
-        "incidentRiskMultiplier": 0.85
-      }
+      "id": "OUTSOURCING",
+      "name": "外包宗",
+      "description": "驻场交付，任何计薪加班都要先经过客户审批。",
+      "modifiers": { "salaryMultiplier": 0.85, "cultivationMultiplier": 1, "mindMultiplier": 0.9, "performanceMultiplier": 0.95, "overtimePayMultiplier": 1, "incidentRiskMultiplier": 1.1 },
+      "employment": { "pressure": 74, "overtimeRule": "CLIENT_APPROVAL", "overtimeApprovalPercent": 55, "promotionStyle": "客户评价、续约与交付质量", "advantages": ["项目经历丰富", "交付成果清晰"], "disadvantages": ["客户审批加班", "合同稳定性较低"], "taskPool": ["驻场需求交付", "客户缺陷修复", "验收资料整理"], "eventIds": ["SECT_OUTSOURCE_CLIENT_REJECTS_OVERTIME", "SECT_OUTSOURCE_CLIENT_CONVERTS"] }
+    },
+    {
+      "id": "INTERNAL",
+      "name": "内包宗",
+      "description": "服务集团内部项目，跨部门协作与流程审批较多。",
+      "modifiers": { "salaryMultiplier": 1.05, "cultivationMultiplier": 1, "mindMultiplier": 1, "performanceMultiplier": 1.05, "overtimePayMultiplier": 1.05, "incidentRiskMultiplier": 0.95 },
+      "employment": { "pressure": 54, "overtimeRule": "SUPERVISOR_APPROVAL", "overtimeApprovalPercent": 70, "promotionStyle": "内部职级、协作口碑与交付", "advantages": ["项目连续", "内部转岗机会"], "disadvantages": ["审批链较长", "跨部门依赖"], "taskPool": ["内部系统迭代", "跨部门接口联调", "审批流程优化"], "eventIds": ["SECT_INTERNAL_APPROVAL_STALLED", "SECT_INTERNAL_BLAME_GAME"] }
+    },
+    {
+      "id": "FREELANCE",
+      "name": "自由宗",
+      "description": "没有固定日薪，以项目合同和验收结果取得收入。",
+      "modifiers": { "salaryMultiplier": 0, "cultivationMultiplier": 1, "mindMultiplier": 1.1, "performanceMultiplier": 1.1, "overtimePayMultiplier": 1, "incidentRiskMultiplier": 1.15 },
+      "employment": { "pressure": 68, "overtimeRule": "SELF_DIRECTED", "overtimeApprovalPercent": null, "promotionStyle": "履历、客户评价与合同规模", "advantages": ["工作安排自由", "合同报酬可谈"], "disadvantages": ["收入波动", "没有固定日薪"], "taskPool": ["独立项目开发", "紧急客户订单", "技术咨询交付"], "eventIds": ["SECT_FREELANCE_CLIENT_CANCELS", "SECT_FREELANCE_URGENT_CONTRACT"] }
     },
     {
       "id": "STATE",
       "name": "国企宗",
-      "modifiers": {
-        "salaryMultiplier": 0.95,
-        "cultivationMultiplier": 1,
-        "mindMultiplier": 1,
-        "performanceMultiplier": 1,
-        "offlineGainMultiplier": 1.2,
-        "overtimePayMultiplier": 0.8,
-        "incidentRiskMultiplier": 0.7
-      }
+      "description": "稳定福利与明确流程，晋升节奏相对平缓。",
+      "modifiers": { "salaryMultiplier": 1.1, "cultivationMultiplier": 1, "mindMultiplier": 1.05, "performanceMultiplier": 1, "offlineGainMultiplier": 1.2, "overtimePayMultiplier": 1.1, "incidentRiskMultiplier": 0.7 },
+      "employment": { "pressure": 43, "overtimeRule": "PRE_APPROVED", "overtimeApprovalPercent": 65, "promotionStyle": "年度评审、资历与稳健交付", "advantages": ["福利稳定", "事故风险低"], "disadvantages": ["晋升较慢", "流程较多"], "taskPool": ["内部平台维护", "合规数据治理", "基础设施升级"], "eventIds": ["SECT_STATE_PROMOTION_REVIEW", "SECT_STATE_BENEFIT_CHOICE"] }
     },
     {
-      "id": "BIG_TECH",
-      "name": "大厂宗",
-      "modifiers": {
-        "salaryMultiplier": 1,
-        "cultivationMultiplier": 1.2,
-        "mindMultiplier": 0.8,
-        "performanceMultiplier": 1,
-        "overtimePayMultiplier": 1.35,
-        "incidentRiskMultiplier": 1.25
-      }
+      "id": "STARTUP",
+      "name": "创业公司宗",
+      "description": "成长快、职责宽，团队会共同承担资金和上线风险。",
+      "modifiers": { "salaryMultiplier": 0.9, "cultivationMultiplier": 1, "mindMultiplier": 0.9, "performanceMultiplier": 1.2, "overtimePayMultiplier": 1.1, "incidentRiskMultiplier": 1.2 },
+      "employment": { "pressure": 78, "overtimeRule": "NEGOTIATED", "overtimeApprovalPercent": 90, "promotionStyle": "里程碑贡献与团队成长", "advantages": ["成长机会多", "贡献容易被看见"], "disadvantages": ["经营风险", "职责边界宽"], "taskPool": ["MVP 快速交付", "产品上线冲刺", "全栈紧急修复"], "eventIds": ["SECT_STARTUP_FUNDING_CRUNCH", "SECT_STARTUP_LAUNCH_SPRINT"] }
+    },
+    {
+      "id": "PRIVATE",
+      "name": "小厂宗",
+      "description": "一人多职、需求变化快，做成的事情也很容易被看见。",
+      "modifiers": { "salaryMultiplier": 0.95, "cultivationMultiplier": 1, "mindMultiplier": 0.85, "performanceMultiplier": 1.05, "overtimePayMultiplier": 1, "incidentRiskMultiplier": 1.2 },
+      "employment": { "pressure": 76, "overtimeRule": "SUPERVISOR_APPROVAL", "overtimeApprovalPercent": 75, "promotionStyle": "多面手能力与实际交付", "advantages": ["职责宽、成长快", "决策链短"], "disadvantages": ["一人多岗", "临时改需求"], "taskPool": ["全栈功能开发", "临时需求插单", "旧系统维护"], "eventIds": ["SECT_SMALL_COMPANY_THREE_ROLES", "SECT_SMALL_COMPANY_SCOPE_CHANGE"] }
+    },
+    {
+      "id": "FOREIGN",
+      "name": "外企宗",
+      "description": "流程规范、专业门槛高，跨时区协作需要良好规划。",
+      "modifiers": { "salaryMultiplier": 1.35, "cultivationMultiplier": 1, "mindMultiplier": 1.15, "performanceMultiplier": 1.1, "overtimePayMultiplier": 1, "incidentRiskMultiplier": 0.85 },
+      "employment": { "pressure": 50, "overtimeRule": "PRE_APPROVED", "overtimeApprovalPercent": 50, "promotionStyle": "专业能力、目标达成与跨区协作", "advantages": ["专业规范", "薪酬福利较好"], "disadvantages": ["加班需预先审批", "跨时区会议"], "taskPool": ["国际化功能交付", "规范化质量审查", "跨时区系统支持"], "eventIds": ["SECT_FOREIGN_CROSS_TIMEZONE", "SECT_FOREIGN_OVERTIME_REJECTED"] }
     }
   ]
 }

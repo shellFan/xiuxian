@@ -76,6 +76,13 @@ test('GameFacade.querySects returns sect configs', () => {
   const facade = createTestFacade();
   const sects = facade.querySects();
   assert.ok(Array.isArray(sects));
+  assert.equal(sects.some((sect) => sect.id === 'STARTUP'), false, 'new hires must not be offered the excluded startup sect');
+});
+
+test('GameFacade.queryCharacterProfile exposes the authoritative chosen sect', () => {
+  const facade = createTestFacade();
+  facade.context.player.sectId = 'OUTSOURCING';
+  assert.equal((facade.queryCharacterProfile() as { sectId?: string }).sectId, 'OUTSOURCING');
 });
 
 test('GameFacade.queryOfficeName returns office name', () => {

@@ -1,0 +1,16 @@
+{
+  "id": "sect-character-creation",
+  "title": "Choose outsourcing in the character wizard and verify the saved character profile",
+  "setup": "new-player",
+  "setupFailureClass": "SETUP_BLOCKED",
+  "steps": [
+    {"action":"call","method":"queryCharacterProfile","as":"createdCharacter","asType":"object","description":"Read authoritative player profile after the real eight-step creation flow"},
+    {"action":"assert","check":"equals","path":"@vars.createdCharacter.sectId","expected":"OUTSOURCING","description":"The selected sect is committed to the formal profile"},
+    {"action":"call","method":"querySects","as":"joinableSects","asType":"array","description":"Read the sects available to new employees"},
+    {"action":"assert","check":"gte","path":"@vars.joinableSects.length","expected":7,"description":"The employment list exposes the seven in-scope sect choices"},
+    {"action":"assertClickable","selector":".ux-char-sect","description":"The home character card exposes its real sect navigation control"},
+    {"action":"click","selector":".ux-char-sect","description":"Open the sect page from the home character card"},
+    {"action":"assertVisible","selector":".ux-sect-card","description":"The real sect page renders the available workplace cards"},
+    {"action":"screenshot","name":"sect-character-created","description":"Save the created-character sect evidence"}
+  ]
+}

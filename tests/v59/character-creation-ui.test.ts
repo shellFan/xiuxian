@@ -3,6 +3,7 @@ import Module from 'node:module';
 
 import type { CharacterCreationDraft, CharacterCreationResult, CharacterCreationView } from '../../assets/scripts/v59/character-creation-service';
 import type { CharacterStats, CreationStep, StatKey } from '../../assets/scripts/v59/character-rules';
+import type { SectConfig } from '../../assets/scripts/model/config-types';
 
 const moduleApi = Module as unknown as { _load: (request: string, parent: NodeModule | null, isMain: boolean) => unknown };
 const loader = moduleApi._load;
@@ -21,6 +22,11 @@ const { CharacterCreationWizardComponent } = require('../../assets/scripts/ui/ch
 moduleApi._load = loader;
 
 const EMPTY: CharacterStats = { insight: 0, constitution: 0, perception: 0, fortune: 0, willpower: 0 };
+const SECTS: readonly SectConfig[] = [{
+  id: 'BIG_TECH',
+  name: '大厂宗',
+  modifiers: { salaryMultiplier: 1.5, cultivationMultiplier: 1, mindMultiplier: 1, performanceMultiplier: 1 },
+}];
 
 function draft(step: CreationStep, overrides: Partial<CharacterCreationDraft> = {}): CharacterCreationDraft {
   return {
@@ -46,10 +52,10 @@ function draft(step: CreationStep, overrides: Partial<CharacterCreationDraft> = 
 }
 
 function view(step: CreationStep, overrides: Partial<CharacterCreationDraft> = {}): CharacterCreationView {
-  return { status: 'CREATION_REQUIRED', isNewCharacterCreationRequired: true, draft: draft(step, overrides) };
+  return { status: 'CREATION_REQUIRED', isNewCharacterCreationRequired: true, draft: draft(step, overrides), sects: SECTS };
 }
 
-function testSevenStepsAndValidation(): void {
+function testEightStepsAndValidation(): void {
   const inputs: Array<[CreationStep, Partial<CharacterCreationDraft>, boolean]> = [
     ['INDUSTRY', {}, false],
     ['INDUSTRY', { industry: 'INTERNET' }, true],
@@ -57,6 +63,8 @@ function testSevenStepsAndValidation(): void {
     ['DIRECTION', { direction: 'TECH_RND' }, true],
     ['PROFESSION', {}, false],
     ['PROFESSION', { professionConfirmed: true }, true],
+    ['SECT', {}, false],
+    ['SECT', { sectId: 'BIG_TECH' }, true],
     ['IDENTITY', { nickname: '', background: 'ORDINARY_WORKER' }, false],
     ['IDENTITY', { nickname: '青云牛马' }, false],
     ['IDENTITY', { nickname: '青云牛马', background: 'ORDINARY_WORKER' }, true],
@@ -68,6 +76,7 @@ function testSevenStepsAndValidation(): void {
       industry: 'INTERNET',
       direction: 'TECH_RND',
       professionConfirmed: true,
+      sectId: 'BIG_TECH',
       background: 'ORDINARY_WORKER',
       selectedCandidateId: 'A',
       allocation: { ...EMPTY, insight: 5 },
@@ -79,7 +88,7 @@ function testSevenStepsAndValidation(): void {
     assert.equal(vm.step, step);
     assert.equal(vm.canContinue, enabled, `${step} continue state`);
   }
-  assert.equal(buildCharacterCreationViewModel(view('INDUSTRY')).totalSteps, 7);
+  assert.equal(buildCharacterCreationViewModel(view('INDUSTRY')).totalSteps, 8);
 }
 
 function testDestinyAndAllocationProjection(): void {
@@ -109,6 +118,7 @@ function testDestinyAndAllocationProjection(): void {
     industry: 'INTERNET',
     direction: 'TECH_RND',
     professionConfirmed: true,
+    sectId: 'BIG_TECH',
     background: 'ORDINARY_WORKER',
     selectedCandidateId: 'A',
     allocation: { ...EMPTY, insight: 5 },
@@ -165,6 +175,7 @@ class FakeFacade {
   }
   public characterCreationSelectDirection(id: string): CharacterCreationResult { this.calls.push(`direction:${id}`); return { success: true }; }
   public characterCreationSelectProfession(id: string): CharacterCreationResult { this.calls.push(`profession:${id}`); return { success: true }; }
+  public characterCreationSelectSect(id: string): CharacterCreationResult { this.calls.push(`sect:${id}`); return { success: true }; }
   public characterCreationSetIdentity(nickname: string, avatarId: string): CharacterCreationResult {
     this.calls.push(`identity:${nickname}:${avatarId}`);
     if (this.state.draft) {
@@ -262,6 +273,10 @@ function testEveryDisplayedActionHasAFacadeRoute(): void {
   component.refresh();
   optionButtons[2].click();
 
+  facade.state = view('SECT');
+  component.refresh();
+  optionButtons[0].click();
+
   facade.state = view('IDENTITY', { background: 'ORDINARY_WORKER' });
   nickname.string = '工位剑仙';
   component.refresh();
@@ -288,6 +303,7 @@ function testEveryDisplayedActionHasAFacadeRoute(): void {
     industry: 'INTERNET',
     direction: 'TECH_RND',
     professionConfirmed: true,
+    sectId: 'BIG_TECH',
     background: 'ORDINARY_WORKER',
     selectedCandidateId: 'A',
     allocation: { ...EMPTY, insight: 5 },
@@ -306,6 +322,7 @@ function testEveryDisplayedActionHasAFacadeRoute(): void {
   assert.deepEqual(facade.calls, [
     'direction:TECH_RND',
     'profession:QA',
+    'sect:BIG_TECH',
     'identity:工位剑仙:avatar-2',
     'background:CAREER_CHANGER',
     'identity:工位剑仙:avatar-2',
@@ -321,10 +338,10 @@ function testEveryDisplayedActionHasAFacadeRoute(): void {
   component.unbindFacade();
 }
 
-testSevenStepsAndValidation();
+testEightStepsAndValidation();
 testDestinyAndAllocationProjection();
 testBackfillViewModel();
 testComponentRoutesControlsThroughFacade();
 testComponentSurfacesFacadeFailure();
 testEveryDisplayedActionHasAFacadeRoute();
-console.log('V5.9-A character creation UI tests passed');
+console.log('V5.9-A/M character creation UI tests passed');

@@ -311,13 +311,13 @@ function validateAchievements(achievements: Record<string, unknown>): void {
 }
 
 function validateSect(sect: Record<string, unknown>): void {
-  if (!Array.isArray(sect.sects) || sect.sects.length !== 4) fail('sect.sects must contain exactly 4 sects');
+  if (!Array.isArray(sect.sects) || ![4, 8].includes(sect.sects.length)) fail('sect.sects must contain the 4 legacy sects or all 8 V5.9-M sects');
   const ids = new Set<string>();
   (sect.sects as unknown[]).forEach((raw, index) => {
     requireObject(raw, `sect.sects[${index}]`);
     const item = raw as Record<string, unknown>;
     requireString(item.id, `sect.sects[${index}].id`); requireString(item.name, `sect.sects[${index}].name`);
-    if (!['PRIVATE', 'FOREIGN', 'STATE', 'BIG_TECH'].includes(item.id as string)) fail(`sect.sects[${index}].id is invalid`);
+    if (!['PRIVATE', 'FOREIGN', 'STATE', 'BIG_TECH', 'OUTSOURCING', 'INTERNAL', 'FREELANCE', 'STARTUP'].includes(item.id as string)) fail(`sect.sects[${index}].id is invalid`);
     if (ids.has(item.id as string)) fail(`sect.sects contains duplicate id ${item.id}`); ids.add(item.id as string);
     requireObject(item.modifiers, `sect.sects[${index}].modifiers`);
     const modifiers = item.modifiers as Record<string, unknown>;
@@ -330,8 +330,29 @@ function validateSect(sect: Record<string, unknown>): void {
       requireNumber(modifiers[key], `sect.sects[${index}].modifiers.${key}`);
       if ((modifiers[key] as number) < 0) fail(`sect.sects[${index}].modifiers.${key} must be non-negative`);
     }
+    if (item.employment !== undefined) validateSectEmployment(item.employment, `sect.sects[${index}].employment`);
   });
   for (const id of ['PRIVATE', 'FOREIGN', 'STATE', 'BIG_TECH']) if (!ids.has(id)) fail(`sect.sects is missing ${id}`);
+  if (sect.sects.length === 8) {
+    for (const id of ['OUTSOURCING', 'INTERNAL', 'FREELANCE', 'STARTUP']) if (!ids.has(id)) fail(`sect.sects is missing ${id}`);
+  }
+}
+
+function validateSectEmployment(raw: unknown, path: string): void {
+  requireObject(raw, path);
+  const employment = raw as Record<string, unknown>;
+  requireNumber(employment.pressure, `${path}.pressure`);
+  if (!Number.isSafeInteger(employment.pressure) || (employment.pressure as number) < 0 || (employment.pressure as number) > 100) fail(`${path}.pressure must be an integer from 0 to 100`);
+  if (!['REQUEST', 'CLIENT_APPROVAL', 'SUPERVISOR_APPROVAL', 'SELF_DIRECTED', 'PRE_APPROVED', 'NEGOTIATED'].includes(employment.overtimeRule as string)) fail(`${path}.overtimeRule is invalid`);
+  if (employment.overtimeApprovalPercent !== null) {
+    requireNumber(employment.overtimeApprovalPercent, `${path}.overtimeApprovalPercent`);
+    if (!Number.isSafeInteger(employment.overtimeApprovalPercent) || (employment.overtimeApprovalPercent as number) < 0 || (employment.overtimeApprovalPercent as number) > 100) fail(`${path}.overtimeApprovalPercent must be null or an integer from 0 to 100`);
+  }
+  requireString(employment.promotionStyle, `${path}.promotionStyle`);
+  for (const key of ['advantages', 'disadvantages', 'taskPool', 'eventIds']) {
+    if (!Array.isArray(employment[key]) || (employment[key] as unknown[]).some((value) => typeof value !== 'string' || value.trim() === '')) fail(`${path}.${key} must be a string array`);
+    if ((employment[key] as unknown[]).length === 0) fail(`${path}.${key} must not be empty`);
+  }
 }
 
 function validateCareer(career: Record<string, unknown>): void {
@@ -421,10 +442,14 @@ function defaultCareerConfig(): CareerConfig {
 
 function defaultSectConfig(): SectBundle {
   return { sects: [
-    { id: 'PRIVATE', name: '私企', modifiers: { salaryMultiplier: 1.2, cultivationMultiplier: 1, mindMultiplier: 1, performanceMultiplier: 1 } },
-    { id: 'FOREIGN', name: '外企', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1.2, mindMultiplier: 1, performanceMultiplier: 1 } },
-    { id: 'STATE', name: '国企', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1, mindMultiplier: 1.2, performanceMultiplier: 1 } },
-    { id: 'BIG_TECH', name: '大厂', modifiers: { salaryMultiplier: 1, cultivationMultiplier: 1, mindMultiplier: 1, performanceMultiplier: 1.2 } },
+    { id: 'BIG_TECH', name: '大厂宗', modifiers: { salaryMultiplier: 1.5, cultivationMultiplier: 1, mindMultiplier: 0.8, performanceMultiplier: 1.2 } },
+    { id: 'OUTSOURCING', name: '外包宗', modifiers: { salaryMultiplier: 0.85, cultivationMultiplier: 1, mindMultiplier: 0.9, performanceMultiplier: 0.95 } },
+    { id: 'INTERNAL', name: '内包宗', modifiers: { salaryMultiplier: 1.05, cultivationMultiplier: 1, mindMultiplier: 1, performanceMultiplier: 1 } },
+    { id: 'FREELANCE', name: '自由宗', modifiers: { salaryMultiplier: 0, cultivationMultiplier: 1, mindMultiplier: 1.1, performanceMultiplier: 1.1 } },
+    { id: 'STATE', name: '国企宗', modifiers: { salaryMultiplier: 1.1, cultivationMultiplier: 1, mindMultiplier: 1.05, performanceMultiplier: 1 } },
+    { id: 'STARTUP', name: '创业公司宗', modifiers: { salaryMultiplier: 0.9, cultivationMultiplier: 1, mindMultiplier: 0.9, performanceMultiplier: 1.2 } },
+    { id: 'PRIVATE', name: '小厂宗', modifiers: { salaryMultiplier: 0.95, cultivationMultiplier: 1, mindMultiplier: 0.85, performanceMultiplier: 1.05 } },
+    { id: 'FOREIGN', name: '外企宗', modifiers: { salaryMultiplier: 1.35, cultivationMultiplier: 1, mindMultiplier: 1.15, performanceMultiplier: 1.1 } },
   ] };
 }
 

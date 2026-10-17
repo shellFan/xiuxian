@@ -1,5 +1,6 @@
 import type { GameContext } from '../core/game-context';
 import type { GameSaveData } from '../model/save-data';
+import { SECT_IDS, type SectConfig, type SectId } from '../model/config-types';
 import { PlayerData } from '../model/player-data';
 import type { StorageAdapter } from '../services/storage-adapter';
 import { hasMeaningfulCharacterProgress } from '../services/save-service';
@@ -45,6 +46,7 @@ export interface CharacterCreationDraft {
   readonly direction?: 'TECH_RND';
   readonly professionId: ProfessionId;
   readonly professionConfirmed: boolean;
+  readonly sectId?: SectId;
   readonly nickname: string;
   readonly avatarId: CharacterAvatarId;
   readonly background?: CharacterBackground;
@@ -60,6 +62,7 @@ export interface CharacterCreationView {
   readonly status: 'CREATION_REQUIRED' | 'BACKFILL_REQUIRED' | 'COMPLETE';
   readonly isNewCharacterCreationRequired: boolean;
   readonly draft?: CharacterCreationDraft;
+  readonly sects?: readonly SectConfig[];
   readonly error?: string;
 }
 
@@ -167,6 +170,7 @@ function isDraft(value: unknown): value is CharacterCreationDraft {
     && validMode
     && Number.isSafeInteger(draft.seed)
     && isProfessionId(draft.professionId)
+    && (draft.sectId === undefined || (SECT_IDS as readonly string[]).includes(String(draft.sectId)))
     && typeof draft.professionConfirmed === 'boolean'
     && validStep
     && typeof draft.nickname === 'string'
@@ -291,7 +295,7 @@ export class CharacterCreationService {
     if (status === 'COMPLETE') return { status, isNewCharacterCreationRequired: false };
     try {
       const draft = this.loadOrCreateDraft(status);
-      return { status, isNewCharacterCreationRequired: status === 'CREATION_REQUIRED', draft: cloneDraft(draft) };
+      return { status, isNewCharacterCreationRequired: status === 'CREATION_REQUIRED', draft: cloneDraft(draft), sects: this.context.sect.available() };
     } catch (error) {
       return {
         status,
@@ -331,6 +335,15 @@ export class CharacterCreationService {
         allocation: emptyAllocation(),
       };
     }, '当前步骤不能修改职业');
+  }
+
+  public selectSect(sectId: string): CharacterCreationResult {
+    if (!(SECT_IDS as readonly string[]).includes(sectId)) return this.failure('请选择有效的职场宗门');
+    if (!this.context.sect.available().some((sect) => sect.id === sectId)) return this.failure('该宗门暂不开放新角色加入');
+    try { this.context.sect.get(sectId as SectId); } catch { return this.failure('该宗门配置不可用'); }
+    return this.updateDraft((draft) => draft.mode === 'CREATE' && draft.step === 'SECT'
+      ? { ...draft, sectId: sectId as SectId }
+      : draft, '当前步骤不能修改宗门');
   }
 
   public setIdentity(nickname: string, avatarId: string): CharacterCreationResult {
@@ -450,6 +463,7 @@ export class CharacterCreationService {
     const before = player.toSaveData();
     try {
       player.profession = draft.professionId;
+      player.sectId = draft.sectId!;
       player.characterSetupStatus = 'COMPLETE';
       player.characterName = draft.nickname;
       player.characterAvatarId = draft.avatarId;
@@ -507,6 +521,14 @@ export class CharacterCreationService {
       if (!isDraft(parsed) || (status === 'CREATION_REQUIRED' && parsed.mode !== 'CREATE')
         || (status === 'BACKFILL_REQUIRED' && parsed.mode !== 'BACKFILL')) {
         throw new Error('角色草稿版本或内容无效，已保护当前存档');
+      }
+      // V5.9-L drafts predate the sector step. Resume them at the new required
+      // choice instead of finalizing an implicit default employer.
+      if (parsed.mode === 'CREATE' && !parsed.sectId
+        && CREATION_STEPS.indexOf(parsed.step) > CREATION_STEPS.indexOf('PROFESSION')) {
+        const migrated = { ...parsed, step: 'SECT' as const };
+        this.writeDraft(migrated);
+        return migrated;
       }
       return parsed;
     }
@@ -600,6 +622,7 @@ export class CharacterCreationService {
       case 'INDUSTRY': return draft.industry ? undefined : '请选择行业';
       case 'DIRECTION': return draft.direction ? undefined : '请选择技术研发方向';
       case 'PROFESSION': return draft.professionConfirmed && isProfessionId(draft.professionId) ? undefined : '请选择已开放职业';
+      case 'SECT': return draft.sectId && (SECT_IDS as readonly string[]).includes(draft.sectId) ? undefined : '请选择入职宗门';
       case 'IDENTITY': return validateNickname(draft.nickname).valid && CHARACTER_AVATAR_IDS.includes(draft.avatarId) && draft.background ? undefined : '请填写合法昵称、选择形象和出身';
       case 'DESTINY': return draft.selectedCandidateId ? undefined : '请选择一套天命';
       case 'ALLOCATION': return draft.selectedCandidateId ? undefined : '请先选择一套天命';
@@ -609,6 +632,7 @@ export class CharacterCreationService {
 
   private validateCompleteDraft(draft: CharacterCreationDraft): string | undefined {
     if (!draft.industry || !draft.direction || !draft.professionConfirmed || !isProfessionId(draft.professionId)) return '行业、方向或职业选择不完整';
+    if (!draft.sectId || !(SECT_IDS as readonly string[]).includes(draft.sectId)) return '请选择入职宗门';
     if (!validateNickname(draft.nickname).valid || !CHARACTER_AVATAR_IDS.includes(draft.avatarId)) return '角色名称或形象无效';
     if (!draft.background || !BACKGROUND_IDS.includes(draft.background)) return '出身背景无效';
     if (!draft.selectedCandidateId || !this.findCandidate(draft)) return '请先选择一套完整天命';

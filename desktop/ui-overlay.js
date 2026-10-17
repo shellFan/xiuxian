@@ -3279,8 +3279,8 @@
     }
   }
 
-  var CREATION_STEP_LABELS = ['选择行业', '职业方向', '具体职业', '创建身份', '天命推演', '自由加点', '确认入职'];
-  var CREATION_STEP_IDS = ['INDUSTRY', 'DIRECTION', 'PROFESSION', 'IDENTITY', 'DESTINY', 'ALLOCATION', 'CONFIRM'];
+  var CREATION_STEP_LABELS = ['选择行业', '职业方向', '具体职业', '选择宗门', '创建身份', '天命推演', '自由加点', '确认入职'];
+  var CREATION_STEP_IDS = ['INDUSTRY', 'DIRECTION', 'PROFESSION', 'SECT', 'IDENTITY', 'DESTINY', 'ALLOCATION', 'CONFIRM'];
   var CREATION_STAT_LABELS = { insight: '悟性', constitution: '根骨', perception: '神识', fortune: '机缘', willpower: '心性' };
   var CREATION_DESTINY = {
     LABOR_SAINT: { name: '天生牛马圣体', benefit: '疲劳增长降低 20%。', cost: '当前没有额外负面命格效果。', fit: '适合所有职业的稳健耐久路线。' },
@@ -3303,7 +3303,7 @@
       return '<span class="' + (index < stepIndex ? 'is-done ' : '') + (index === stepIndex ? 'is-current' : '') + '"><i>' + (index + 1) + '</i>' + escHtml(label) + '</span>';
     }).join('') + '</div>';
     var profile = '<aside class="v59-profile"><div class="v59-avatar v59-avatar--' + escHtml(draft.avatarId) + '">🧑‍💻</div><span class="v59-kicker">牛马宗 · 入职档案</span><h2>' + escHtml(draft.nickname || '待命名修士') + '</h2><p>' + escHtml(draft.professionId || '尚未选择职业') + '</p><div class="v59-profile-note">工位即洞府<br>日报即经文</div></aside>';
-    var content = backfill ? renderBackfillStep(draft) : renderCreationStep(draft);
+    var content = backfill ? renderBackfillStep(draft) : renderCreationStep(draft, state);
     var nav = backfill
       ? '<footer class="v59-actions"><button class="v59-btn v59-btn--quiet" data-creation-action="close-backfill">稍后补录</button><button class="v59-btn v59-btn--primary" data-creation-action="complete-backfill"' + (!draft.selectedCandidateId ? ' disabled' : '') + '>确认补录天命</button></footer>'
       : '<footer class="v59-actions">' + (stepIndex > 0 ? '<button class="v59-btn v59-btn--quiet" data-creation-action="back">上一步</button>' : '<span></span>') +
@@ -3317,7 +3317,7 @@
     return '<button class="v59-choice' + (selected || '') + '" data-creation-choice="' + escHtml(kind) + ':' + escHtml(id) + '"' + (disabled ? ' disabled aria-disabled="true"' : '') + '><strong>' + escHtml(title) + '</strong><span>' + escHtml(detail) + '</span></button>';
   }
 
-  function renderCreationStep(draft) {
+  function renderCreationStep(draft, state) {
     var f = facade();
     if (draft.step === 'INDUSTRY') return '<h2>选择行业</h2><p>先选定你要踏入的职场天地。</p><div class="v59-choice-grid">' +
       creationCard('industry', 'INTERNET', '互联网', '代码、产品、流量与线上事故交织的修仙世界。', creationSelected(draft, 'industry', 'INTERNET'), false) +
@@ -3330,6 +3330,16 @@
       try { views = f && f.queryProfessions ? f.queryProfessions() : []; } catch (e) { views = []; }
       return '<h2>选择具体职业</h2><p>职业决定任务池、职业技能与专精路线。</p><div class="v59-choice-grid">' + views.filter(function (item) { return ['JAVA_BACKEND', 'FRONTEND', 'QA', 'DEVOPS'].indexOf(item.id) >= 0; }).map(function (item) {
         return creationCard('profession', item.id, item.name, item.title + ' · ' + item.description, creationSelected(draft, 'professionId', item.id), item.locked);
+      }).join('') + '</div>';
+    }
+    if (draft.step === 'SECT') {
+      var sects = state && Array.isArray(state.sects) ? state.sects : [];
+      return '<h2>选择入职宗门</h2><p>宗门会影响基础工资、工作压力、加班审批和专属任务。</p><div class="v59-choice-grid v59-sect-grid">' + sects.map(function (sect) {
+        var employment = sect.employment || {};
+        var salary = sect.id === 'FREELANCE' ? '无固定日薪 · 按项目合同结算' : '预估基础日薪 ¥' + Math.round(120 * sect.modifiers.salaryMultiplier);
+        var overtime = employment.overtimeRule === 'SELF_DIRECTED' ? '自主接单' : '加班审批 ' + (employment.overtimeApprovalPercent == null ? '待协商' : employment.overtimeApprovalPercent + '%');
+        var detail = [sect.description || '', salary, '压力 ' + (employment.pressure == null ? '—' : employment.pressure) + '/100 · ' + overtime, '晋升：' + (employment.promotionStyle || '按实际表现'), '优势：' + (employment.advantages || []).join('、'), '代价：' + (employment.disadvantages || []).join('、')].filter(Boolean).join('。');
+        return creationCard('sect', sect.id, sect.name, detail, creationSelected(draft, 'sectId', sect.id), false);
       }).join('') + '</div>';
     }
     if (draft.step === 'IDENTITY') return '<h2>创建牛马身份</h2><p>昵称限 12 个可见字符，形象使用本地基础头像。</p><label class="v59-label">角色昵称<input id="v59-nickname" maxlength="24" value="' + escHtml(draft.nickname) + '" autocomplete="nickname"></label><div class="v59-avatar-row">' + [1,2,3,4].map(function (n) {
@@ -3345,7 +3355,8 @@
       var chosen = draft.candidates.find(function (item) { return item.id === draft.selectedCandidateId; });
       var destiny = chosen && CREATION_DESTINY[chosen.destinyId];
       var stats = chosen ? Object.keys(CREATION_STAT_LABELS).map(function (key) { return '<span>' + CREATION_STAT_LABELS[key] + ' <b>' + (chosen.attributes[key] + draft.allocation[key]) + '</b></span>'; }).join('') : '';
-      return '<h2>确认入职</h2><p>检查你的角色档案。确认后，创建结果会一次写入正式存档。</p><div class="v59-confirm-card"><div><small>角色</small><b>' + escHtml(draft.nickname) + ' · ' + escHtml(draft.professionId) + '</b><span>出身：' + escHtml(draft.background || '') + '</span></div><div><small>天命</small><b>' + escHtml(destiny ? destiny.name : chosen ? chosen.destinyId : '未选择') + '</b><span>' + (chosen ? '未分配潜力：' + (5 - Object.keys(draft.allocation).reduce(function (sum, key) { return sum + draft.allocation[key]; }, 0)) : '') + '</span></div><div class="v59-stats">' + stats + '</div></div>';
+      var chosenSect = (state && state.sects || []).find(function (sect) { return sect.id === draft.sectId; });
+      return '<h2>确认入职</h2><p>检查你的角色档案。确认后，创建结果会一次写入正式存档。</p><div class="v59-confirm-card"><div><small>角色</small><b>' + escHtml(draft.nickname) + ' · ' + escHtml(draft.professionId) + '</b><span>宗门：' + escHtml(chosenSect ? chosenSect.name : '未选择') + ' · 出身：' + escHtml(draft.background || '') + '</span></div><div><small>天命</small><b>' + escHtml(destiny ? destiny.name : chosen ? chosen.destinyId : '未选择') + '</b><span>' + (chosen ? '未分配潜力：' + (5 - Object.keys(draft.allocation).reduce(function (sum, key) { return sum + draft.allocation[key]; }, 0)) : '') + '</span></div><div class="v59-stats">' + stats + '</div></div>';
     }
     return '<h2>角色创建</h2>';
   }
@@ -3573,6 +3584,7 @@
           if (choiceKind === 'industry') choiceResult = fCreation.characterCreationSelectIndustry(choiceValue);
           else if (choiceKind === 'direction') choiceResult = fCreation.characterCreationSelectDirection(choiceValue);
           else if (choiceKind === 'profession') choiceResult = fCreation.characterCreationSelectProfession(choiceValue);
+          else if (choiceKind === 'sect') choiceResult = fCreation.characterCreationSelectSect(choiceValue);
           else if (choiceKind === 'avatar') {
             var nicknameInput = $('#v59-nickname');
             choiceResult = fCreation.characterCreationSetIdentity(nicknameInput ? nicknameInput.value : '', choiceValue);
