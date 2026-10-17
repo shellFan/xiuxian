@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState, type FateRunState, type RebirthMetaState } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState, type FateRunState, type RebirthMetaState, type CardBattleDeckEntry } from './save-data';
 import { cloneFateRun, cloneRebirthMeta, normalizeFateRun, normalizeRebirthMeta } from '../v59j/fate-state';
 
 export interface PlayerDataOptions {
@@ -82,6 +82,7 @@ export interface PlayerDataOptions {
   readonly handledWelcomeItemIds?: readonly string[];
   readonly lifetimeStats?: Readonly<Record<string, number>>;
   readonly activeBattleRun?: unknown;
+  readonly cardBattleDeck?: readonly CardBattleDeckEntry[];
   readonly homeArena?: unknown;
   readonly regularWorkRewardRemainders?: { salary: number; cultivation: number };
   readonly conversations?: readonly MessengerConversationState[];
@@ -235,6 +236,7 @@ export class PlayerData {
   public handledWelcomeItemIds: string[];
   public lifetimeStats: Record<string, number>;
   public activeBattleRun: unknown;
+  public cardBattleDeck?: CardBattleDeckEntry[];
   public homeArena: unknown;
   public regularWorkRewardRemainders: { salary: number; cultivation: number };
   public conversations: MessengerConversationState[];
@@ -372,6 +374,7 @@ export class PlayerData {
     this.handledWelcomeItemIds = Array.from(new Set(options.handledWelcomeItemIds ?? [])).slice(-100);
     this.lifetimeStats = sanitizeLifetime(options.lifetimeStats);
     this.activeBattleRun = options.activeBattleRun ?? null;
+    this.cardBattleDeck = options.cardBattleDeck?.map((entry) => ({ ...entry }));
     this.homeArena = cloneUnknown(options.homeArena ?? null);
     this.regularWorkRewardRemainders = { ...(options.regularWorkRewardRemainders ?? { salary: 0, cultivation: 0 }) };
     this.conversations = [...(options.conversations ?? [])];
@@ -506,6 +509,7 @@ export class PlayerData {
       handledWelcomeItemIds: [...this.handledWelcomeItemIds],
       lifetimeStats: { ...this.lifetimeStats },
       activeBattleRun: cloneUnknown(this.activeBattleRun),
+      cardBattleDeck: this.cardBattleDeck?.map((entry) => ({ ...entry })),
       homeArena: cloneUnknown(this.homeArena),
       regularWorkRewardRemainders: { ...this.regularWorkRewardRemainders },
       conversations: this.conversations.map((c) => ({ ...c, participants: [...c.participants] })),

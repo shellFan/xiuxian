@@ -25,6 +25,15 @@ import {
 } from '../v57/battle-merge';
 import { fishBuildId } from '../v57/profession-content-service';
 import { characterEffectMultiplier } from '../v59/character-attributes';
+import {
+  CardBattleEngine,
+  createCardBattleState,
+  validateCardBattleState,
+  type CardBattleState,
+  type CreateCardBattleOptions,
+  type EventId,
+  type OperationReceipt,
+} from '../v59l/card-battle-engine';
 
 // ── 运行时状态 ───────────────────────────────────────────────────────────────
 
@@ -119,6 +128,11 @@ export interface BattleRunState {
   challengeBossId?: string;
   /** 最近若干条战斗日志（伤害数字/事件），UI 展示用。 */
   log: string[];
+  /** V5.9-L card mode reuses this authoritative run and save lifecycle. */
+  battleMode?: 'LEGACY' | 'CARD';
+  cardBattle?: CardBattleState;
+  cardStartingFatigue?: number;
+  cardConsequencesApplied?: boolean;
 }
 
 const MAX_LOG = 12;
@@ -148,7 +162,12 @@ export class BattleService {
 
   public finished(): BattleRunState | null {
     const run = this.storedRun();
-    return run && run.status !== 'FIGHTING' ? run : null;
+    return run && run.battleMode !== 'CARD' && run.status !== 'FIGHTING' ? run : null;
+  }
+
+  public cardBattle(): CardBattleState | null {
+    const run = this.storedRun();
+    return run?.battleMode === 'CARD' && run.cardBattle ? new CardBattleEngine(run.cardBattle).inspect() : null;
   }
 
   /** V5.7 职业分家：Build 选项 = 本职业 Build + 摸鱼流。 */
@@ -269,6 +288,92 @@ export class BattleService {
     return run;
   }
 
+  /** Starts V5.9-L card combat inside the existing authoritative battle-run slot. */
+  public startCardBattle(encounterId: CreateCardBattleOptions['encounterId'] = 'NORMAL', seed = 5919): CardBattleState {
+    if (this.current()) throw new Error('已有进行中的战斗');
+    const savedDeck = this.context.player.cardBattleDeck;
+    const engine = new CardBattleEngine(createCardBattleState({
+      encounterId,
+      seed,
+      deckCardIds: savedDeck?.map((entry) => entry.cardId),
+      professionId: cardProfessionId(this.context.player.profession),
+      player: {
+        will: this.context.player.mind,
+        maxWill: this.context.player.maxMind,
+        fatigue: this.context.player.fatigue,
+        relationship: this.cardRelationshipValue(),
+      },
+    }));
+    for (let index = 0; index < (savedDeck?.length ?? 0); index += 1) {
+      if (savedDeck![index].upgraded) engine.upgradeCard(`card-${index + 1}`, `restore-${index + 1}`);
+    }
+    engine.start('start');
+    const cardBattle = engine.inspect();
+    const dayIndex = Math.max(1, this.context.player.gameDay?.dayIndex ?? 1);
+    const run: BattleRunState = {
+      runId: `card:${cardBattle.battleId}`,
+      source: 'PROJECT', linkedTaskId: null, linkedIncidentId: null, buildId: fishBuildId(), night: false, dayIndex,
+      status: 'FIGHTING', wave: 1, waveTotal: 1, playerHp: cardBattle.player.hp, playerMaxHp: cardBattle.player.maxHp,
+      shield: cardBattle.player.block, attack: 1, intervalSec: 1, critChance: 0, level: 1, exp: 0, expNext: 1,
+      skills: [], skillOffers: null, enemies: [], kills: 0,
+      loot: { materials: {}, equipment: [], spiritStones: 0, expGained: 0 }, rewardsClaimed: false,
+      log: ['进入卡牌战斗。'], battleMode: 'CARD', cardBattle,
+      cardStartingFatigue: this.context.player.fatigue, cardConsequencesApplied: false,
+    };
+    this.persist(run);
+    this.context.events.emit('playerChanged', { reason: 'battleStarted', mode: this.context.player.workMode });
+    return engine.inspect();
+  }
+
+  public playCard(instanceId: string, targetId?: string, operationId?: string): OperationReceipt {
+    return this.mutateCardBattle((engine) => engine.playCard(instanceId, targetId, operationId));
+  }
+
+  public endCardTurn(operationId?: string): OperationReceipt {
+    return this.mutateCardBattle((engine) => engine.endTurn(operationId));
+  }
+
+  public drawCardEvent(operationId?: string): OperationReceipt {
+    return this.mutateCardBattle((engine) => engine.drawEvent(operationId));
+  }
+
+  public chooseCardEvent(eventId: EventId, choiceId: string, operationId?: string): OperationReceipt {
+    return this.mutateCardBattle((engine) => engine.chooseEvent(eventId, choiceId, operationId));
+  }
+
+  public chooseCardReward(rewardId: string, operationId?: string): OperationReceipt {
+    return this.mutateCardBattle((engine) => engine.chooseReward(rewardId, operationId));
+  }
+
+  public upgradeCard(instanceId: string, operationId?: string): OperationReceipt {
+    const receipt = this.mutateCardBattle((engine) => engine.upgradeCard(instanceId, operationId));
+    if (receipt.applied) this.syncPermanentCardDeck();
+    return receipt;
+  }
+
+  public removeCard(instanceId: string, operationId?: string): OperationReceipt {
+    const receipt = this.mutateCardBattle((engine) => engine.removeCard(instanceId, operationId));
+    if (receipt.applied) this.syncPermanentCardDeck();
+    return receipt;
+  }
+
+  public claimCardRewards(operationId?: string): OperationReceipt {
+    const receipt = this.mutateCardBattle((engine) => engine.claimRewards(operationId));
+    const run = this.storedRun();
+    if (receipt.applied && run?.battleMode === 'CARD' && run.cardBattle?.settlement?.claimed && !run.cardConsequencesApplied) {
+      for (const [kind, count] of Object.entries(run.cardBattle.materials)) {
+        if (count > 0) this.context.v2Items.addMaterial(kind === 'rare' ? 'mat_legacy_code' : kind, count);
+      }
+      const fatigueDelta = Math.max(0, run.cardBattle.player.fatigue - (run.cardStartingFatigue ?? 0));
+      if (fatigueDelta > 0) this.context.fatigue.addDelta(fatigueDelta);
+      run.cardConsequencesApplied = true;
+      run.rewardsClaimed = true;
+      this.syncPermanentCardDeck();
+      this.persist(run);
+    }
+    return receipt;
+  }
+
   /** V5.5 §20：主动释放技能——立即结算一次攻击步，并触发技能（若有定义行为）。 */
   public castSkill(skillId: string): void {
     const run = this.current();
@@ -285,6 +390,7 @@ export class BattleService {
   public tick(seconds: number): void {
     const run = this.current();
     if (!run || run.status !== 'FIGHTING') return;
+    if (run.battleMode === 'CARD') return;
     if (!Number.isFinite(seconds) || seconds <= 0) return;
 
     run.runSeconds = (run.runSeconds ?? 0) + seconds;
@@ -786,6 +892,21 @@ export class BattleService {
   public abandon(): void {
     const run = this.current();
     if (!run) return;
+    if (run.battleMode === 'CARD' && run.cardBattle) {
+      const state = new CardBattleEngine(run.cardBattle).inspect();
+      state.player.hp = 0;
+      state.phase = 'DEFEAT';
+      state.pendingEventId = undefined;
+      state.settlement = state.settlement ?? {
+        receiptId: `settle:${state.battleId}:abandon`, result: 'DEFEAT', claimed: false, fatigue: 0, rewardBudget: 0,
+      };
+      run.cardBattle = state;
+      run.playerHp = 0;
+      run.status = 'DEFEAT';
+      run.log.push('你退出了卡牌战斗。');
+      this.persist(run);
+      return;
+    }
     run.status = 'DEFEAT';
     run.log.push('你退出了项目。');
     this.claimRewards(run, true);
@@ -1243,6 +1364,41 @@ export class BattleService {
     this.context.player.activeBattleRun = { ...run, log: run.log.slice(-MAX_LOG) };
   }
 
+  private mutateCardBattle(operation: (engine: CardBattleEngine) => OperationReceipt): OperationReceipt {
+    const run = this.storedRun();
+    if (!run || run.battleMode !== 'CARD' || !run.cardBattle) throw new Error('没有进行中的卡牌战斗');
+    const engine = new CardBattleEngine(run.cardBattle);
+    const receipt = operation(engine);
+    const state = engine.inspect();
+    run.cardBattle = state;
+    run.status = state.phase === 'VICTORY' ? 'VICTORY' : state.phase === 'DEFEAT' ? 'DEFEAT' : 'FIGHTING';
+    run.playerHp = state.player.hp;
+    run.playerMaxHp = state.player.maxHp;
+    run.shield = state.player.block;
+    run.rewardsClaimed = state.settlement?.claimed ?? false;
+    run.log = state.actionLog.slice(-MAX_LOG).map((entry) => entry.message);
+    this.persist(run);
+    return receipt;
+  }
+
+  private syncPermanentCardDeck(): void {
+    const run = this.storedRun();
+    if (!run || run.battleMode !== 'CARD' || !run.cardBattle) return;
+    const cards = [
+      ...run.cardBattle.piles.draw,
+      ...run.cardBattle.piles.hand,
+      ...run.cardBattle.piles.discard,
+      ...run.cardBattle.piles.exhaust,
+    ].filter((card) => !card.temporary).sort((left, right) => left.instanceId.localeCompare(right.instanceId, undefined, { numeric: true }));
+    this.context.player.cardBattleDeck = cards.map((card) => ({ cardId: card.cardId, upgraded: card.upgraded }));
+  }
+
+  private cardRelationshipValue(): number {
+    const values = Object.values(this.context.player.relationships ?? {}).filter((value) => Number.isFinite(value));
+    if (values.length === 0) return 50;
+    return Math.max(0, Math.min(100, Math.round(values.reduce((sum, value) => sum + value, 0) / values.length)));
+  }
+
   /** Old or corrupted saves must never become a fake active battle. */
   private storedRun(): BattleRunState | null {
     const candidate = this.context.player.activeBattleRun;
@@ -1271,6 +1427,10 @@ interface PlayerStats {
 
 // 延迟绑定已上移至文件头（EVOLUTIONS / SYNERGIES 顶部导入）。
 
+function cardProfessionId(value: string | undefined): 'JAVA_BACKEND' | 'FRONTEND' | 'QA' | 'DEVOPS' {
+  return value === 'FRONTEND' || value === 'QA' || value === 'DEVOPS' ? value : 'JAVA_BACKEND';
+}
+
 function isBattleRunState(value: unknown): value is BattleRunState {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const run = value as Record<string, unknown>;
@@ -1283,5 +1443,17 @@ function isBattleRunState(value: unknown): value is BattleRunState {
   if (!Array.isArray(run.enemies) || !Array.isArray(run.log) || !run.log.every((entry) => typeof entry === 'string')) return false;
   if (!run.loot || typeof run.loot !== 'object' || Array.isArray(run.loot)) return false;
   const loot = run.loot as Record<string, unknown>;
-  return typeof loot.materials === 'object' && loot.materials !== null && Array.isArray(loot.equipment) && typeof loot.spiritStones === 'number' && typeof loot.expGained === 'number';
+  if (!(typeof loot.materials === 'object' && loot.materials !== null && Array.isArray(loot.equipment) && typeof loot.spiritStones === 'number' && typeof loot.expGained === 'number')) return false;
+  if (run.battleMode === 'CARD') {
+    if (!run.cardBattle || typeof run.cardBattle !== 'object' || Array.isArray(run.cardBattle)) return false;
+    try {
+      const cardBattle = run.cardBattle as unknown as CardBattleState;
+      if (validateCardBattleState(cardBattle).length > 0) return false;
+      const expectedStatus = cardBattle.phase === 'VICTORY' ? 'VICTORY' : cardBattle.phase === 'DEFEAT' ? 'DEFEAT' : 'FIGHTING';
+      return run.status === expectedStatus;
+    } catch {
+      return false;
+    }
+  }
+  return true;
 }

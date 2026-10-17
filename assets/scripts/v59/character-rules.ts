@@ -120,38 +120,9 @@ export function mixRerollSeed(baseSeed: number, rerollNumber: number): number {
   return mixed === 0 ? ZERO_SEED_FALLBACK : mixed;
 }
 
-const FIXED_PROFESSION_STATS: Readonly<Record<ProfessionId, CharacterStats>> = {
-  JAVA_BACKEND: { insight: 16, constitution: 10, perception: 10, fortune: 7, willpower: 7 },
-  FRONTEND: { insight: 15, constitution: 8, perception: 12, fortune: 7, willpower: 8 },
-  QA: { insight: 13, constitution: 8, perception: 16, fortune: 7, willpower: 6 },
-  DEVOPS: { insight: 12, constitution: 14, perception: 10, fortune: 7, willpower: 7 },
-};
-
-function makeBalancedStats(rng: XorShift32): CharacterStats {
-  const values = [10, 10, 10, 10, 10];
-  const minusIndex = rng.nextInt(0, STAT_KEYS.length);
-  const plusCandidates = STAT_KEYS.map((_, index) => index).filter((index) => index !== minusIndex);
-  const plusIndex = plusCandidates[rng.nextInt(0, plusCandidates.length)];
-  values[minusIndex] -= 1;
-  values[plusIndex] += 1;
-  return statsFromValues(values);
-}
-
-function makeFortuneStats(rng: XorShift32): CharacterStats {
-  const otherValues = [9, 9, 8, 8];
-  const donorIndex = rng.nextInt(0, otherValues.length);
-  const recipientCandidates = otherValues.map((_, index) => index).filter((index) => index !== donorIndex);
-  const recipientIndex = recipientCandidates[rng.nextInt(0, recipientCandidates.length)];
-  otherValues[donorIndex] -= 1;
-  otherValues[recipientIndex] += 1;
-  return {
-    insight: otherValues[0],
-    constitution: otherValues[1],
-    perception: otherValues[2],
-    fortune: 16,
-    willpower: otherValues[3],
-  };
-}
+export const CHARACTER_ATTRIBUTE_MIN = 50;
+export const CHARACTER_ATTRIBUTE_MAX = 88;
+export const ALLOCATION_INCREMENT = 5;
 
 function statsFromValues(values: readonly number[]): CharacterStats {
   return {
@@ -161,6 +132,11 @@ function statsFromValues(values: readonly number[]): CharacterStats {
     fortune: values[3],
     willpower: values[4],
   };
+}
+
+function rollCreationStats(rng: XorShift32): CharacterStats {
+  return statsFromValues(STAT_KEYS.map(() =>
+    rng.nextInt(CHARACTER_ATTRIBUTE_MIN, CHARACTER_ATTRIBUTE_MAX + 1)));
 }
 
 function drawDistinctDestinies(rng: XorShift32): readonly [DestinyId, DestinyId, DestinyId] {
@@ -180,13 +156,12 @@ export function generateCandidateTriplet(
     throw new RangeError(`Unknown profession: ${String(professionId)}`);
   }
   const rng = new XorShift32(seed);
-  const balanced = makeBalancedStats(rng);
-  const fortune = makeFortuneStats(rng);
+  const attributes = [rollCreationStats(rng), rollCreationStats(rng), rollCreationStats(rng)] as const;
   const destinies = drawDistinctDestinies(rng);
   return [
-    { id: 'A', destinyId: destinies[0], attributes: balanced },
-    { id: 'B', destinyId: destinies[1], attributes: { ...FIXED_PROFESSION_STATS[professionId] } },
-    { id: 'C', destinyId: destinies[2], attributes: fortune },
+    { id: 'A', destinyId: destinies[0], attributes: attributes[0] },
+    { id: 'B', destinyId: destinies[1], attributes: attributes[1] },
+    { id: 'C', destinyId: destinies[2], attributes: attributes[2] },
   ];
 }
 
@@ -285,7 +260,7 @@ export interface AllocationState {
   readonly remainingPoints: number;
 }
 
-export type AllocationError = 'INVALID_DELTA' | 'STAT_CAP_EXCEEDED' | 'POINTS_EXCEEDED';
+export type AllocationError = 'INVALID_DELTA' | 'STAT_CAP_EXCEEDED' | 'POINTS_EXCEEDED' | 'NO_ALLOCATED_POINT';
 
 export type AllocationResult =
   | ({ readonly ok: true } & AllocationState)
@@ -299,7 +274,7 @@ function validateAllocationState(base: CharacterStats, allocation: CharacterStat
   let spent = 0;
   const attributeValues: number[] = [];
   for (const key of STAT_KEYS) {
-    if (!Number.isInteger(base[key]) || base[key] < 6 || base[key] > 16) {
+    if (!Number.isInteger(base[key]) || base[key] < CHARACTER_ATTRIBUTE_MIN || base[key] > CHARACTER_ATTRIBUTE_MAX) {
       throw new RangeError(`Invalid base attribute ${key}`);
     }
     if (!Number.isInteger(allocation[key]) || allocation[key] < 0) {
@@ -307,7 +282,7 @@ function validateAllocationState(base: CharacterStats, allocation: CharacterStat
     }
     spent += allocation[key];
     const finalValue = base[key] + allocation[key];
-    if (finalValue > 20) {
+    if (finalValue > CHARACTER_ATTRIBUTE_MAX) {
       throw new RangeError(`Existing allocation exceeds stat cap for ${key}`);
     }
     attributeValues.push(finalValue);
@@ -329,13 +304,18 @@ export function applyAllocation(
   delta: number,
 ): AllocationResult {
   const current = validateAllocationState(base, allocation);
-  if (!Number.isInteger(delta) || delta < 0) {
+  if (delta !== -1 && delta !== 0 && delta !== ALLOCATION_INCREMENT) {
     return { ok: false, error: 'INVALID_DELTA', ...current };
+  }
+  if (delta === -1) {
+    if (allocation[stat] <= 0) return { ok: false, error: 'NO_ALLOCATED_POINT', ...current };
+    const nextAllocation = { ...allocation, [stat]: allocation[stat] - 1 };
+    return { ok: true, ...validateAllocationState(base, nextAllocation) };
   }
   if (delta > current.remainingPoints) {
     return { ok: false, error: 'POINTS_EXCEEDED', ...current };
   }
-  if (base[stat] + allocation[stat] + delta > 20) {
+  if (base[stat] + allocation[stat] + delta > CHARACTER_ATTRIBUTE_MAX) {
     return { ok: false, error: 'STAT_CAP_EXCEEDED', ...current };
   }
   const nextAllocation = { ...allocation, [stat]: allocation[stat] + delta };

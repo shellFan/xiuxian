@@ -2225,17 +2225,29 @@
 
   /* ── 6c-2. 项目（V4 战斗主场，首页只留入口横幅） ── */
 
+  var _cardOperationSeq = 0;
+  function cardOperationId(prefix) { _cardOperationSeq += 1; return 'ui-' + prefix + '-' + Date.now().toString(36) + '-' + _cardOperationSeq; }
+
   function renderProject() {
     var f = facade();
     var run = f && typeof f.queryBattle === 'function' ? (function () { try { return f.queryBattle(); } catch (e) { return null; } })() : null;
+    var cardRun = f && typeof f.queryCardBattle === 'function' ? (function () { try { return f.queryCardBattle(); } catch (e) { return null; } })() : null;
     var html = '<div class="ux-project-page">';
-    html += battleHtml();
-    if (!run) {
+    if (cardRun) {
+      html += cardBattleHtml(f, cardRun);
+    } else {
+      html += battleHtml();
+    }
+    if (!run && !cardRun) {
       html += '<div class="ux-card ux-project-intro">' +
-        '<div class="ux-task-name">⚔️ 项目攻坚</div>' +
-        '<div class="ux-recipe-desc">以 Build 迎战五波推进：普通 → 精英 → Boss。Boss 胜利自动完成当前待办，掉落材料与法宝。</div>' +
-        '<div class="ux-recipe-desc">夜班（22:00 后）掉落加成，代价是第二天更难起床。</div>' +
-        '<div class="ux-dialog-actions"><button class="ux-btn ux-btn--gold ux-btn--md" data-action="projectEntry">选择 Build 进入项目</button></div>' +
+        '<div class="ux-task-name">⚔️ 项目攻坚 · 卡牌战斗</div>' +
+        '<div class="ux-recipe-desc">每回合抽 5 张牌，使用攻击、防御、技能与命运牌。观察敌人意图，选择出牌或结束回合。</div>' +
+        '<div class="ux-dialog-actions ux-card-starts">' +
+          '<button class="ux-btn ux-btn--gold ux-btn--md" data-action="startCardBattle" data-encounter="NORMAL">挑战工位 Bug</button>' +
+          '<button class="ux-btn ux-btn--purple ux-btn--md" data-action="startCardBattle" data-encounter="MUTANT_BUG_KING">挑战变异 Bug 王</button>' +
+          '<button class="ux-btn ux-btn--red ux-btn--md" data-action="startCardBattle" data-encounter="BLAME_MANAGER">挑战甩锅主管</button>' +
+          '<button class="ux-btn ux-btn--gray ux-btn--md" data-action="projectEntry">旧式 Build 项目</button>' +
+        '</div>' +
       '</div>';
     }
     html += '</div>';
@@ -2262,6 +2274,53 @@
       }
     }
     return html;
+  }
+
+  function cardBattleHtml(f, state) {
+    var catalog = [];
+    var events = [];
+    try { catalog = f.queryCardCatalog ? f.queryCardCatalog() : []; } catch (e) { catalog = []; }
+    try { events = f.queryCardEventCatalog ? f.queryCardEventCatalog() : []; } catch (e) { events = []; }
+    var byId = {};
+    catalog.forEach(function (c) { byId[c.id] = c; });
+    var enemy = (state.enemies || []).filter(function (e) { return e.hp > 0; })[0] || (state.enemies || [])[0];
+    var intent = enemy && enemy.intent ? enemy.intent : null;
+    var pct = function (v, max) { return max > 0 ? Math.max(0, Math.min(100, Math.round(v / max * 100))) : 0; };
+    var isTerminal = state.phase === 'VICTORY' || state.phase === 'DEFEAT';
+    var cards = (state.piles && state.piles.hand || []).map(function (instance) {
+      var def = byId[instance.cardId] || { name: instance.cardId, description: '', cost: 0, type: 'SKILL', rarity: 'COMMON', target: 'NONE' };
+      var noEnergy = state.player.energy < def.cost;
+      var needsTarget = def.target === 'ENEMY';
+      var disabled = isTerminal || state.phase !== 'PLAYER_ACTION' || noEnergy || (needsTarget && !enemy);
+      return '<button class="ux-cardbattle-card ux-cardbattle-' + String(def.type).toLowerCase() + '" data-action="cardPlay" data-instance="' + escHtml(instance.instanceId) + '" data-target="' + escHtml(needsTarget && enemy ? enemy.id : '') + '" title="' + escHtml(def.description) + '"' + (disabled ? ' disabled' : '') + '>' +
+        '<span class="ux-cbc-cost">' + def.cost + '</span><b>' + escHtml(def.name) + (instance.upgraded ? ' +' : '') + '</b><small>' + escHtml(def.description) + '</small><i>' + escHtml(def.type) + ' · ' + escHtml(def.rarity) + (instance.temporary ? ' · 临时' : '') + '</i></button>';
+    }).join('') || '<div class="ux-cardbattle-empty">当前没有手牌</div>';
+    var enemyHtml = enemy ? '<div class="ux-cardbattle-enemy"><b>' + escHtml(enemy.name) + (enemy.phase === 2 ? ' · 第二阶段' : '') + '</b><div class="ux-cardbattle-meter"><i style="width:' + pct(enemy.hp, enemy.maxHp) + '%"></i><span>' + enemy.hp + ' / ' + enemy.maxHp + '</span></div><div>意图：' + escHtml(intent ? intent.detail : '观察中') + '</div><div class="ux-cardbattle-status">状态：' + escHtml(Object.keys(enemy.statuses || {}).map(function (k) { return k + ' ' + enemy.statuses[k]; }).join(' · ') || '无') + '</div></div>' : '<div class="ux-cardbattle-enemy">敌人已被击败</div>';
+    var player = state.player || {};
+    var pendingEvent = state.pendingEventId && events.filter(function (ev) { return ev.id === state.pendingEventId; })[0];
+    var eventHtml = pendingEvent ? '<div class="ux-cardbattle-event"><b>职场事件：' + escHtml(pendingEvent.name) + '</b><div class="ux-cardbattle-choices">' + pendingEvent.choices.map(function (choice) { return '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="cardEvent" data-event="' + pendingEvent.id + '" data-choice="' + choice.id + '">' + escHtml(choice.id + ' · ' + choice.text) + '</button>'; }).join('') + '</div></div>' : '';
+    var logHtml = (state.actionLog || []).slice(-5).reverse().map(function (l) { return '<li>' + escHtml(l.message) + '</li>'; }).join('');
+    var rewards = (state.rewards || []).map(function (reward) {
+      var rewardLabel = reward.kind === 'ADD_CARD' ? '加入 ' + ((byId[reward.cardId] || {}).name || reward.cardId) : reward.kind === 'UPGRADE' ? '升级一张卡' : '获得材料 ×' + (reward.amount || 1);
+      return '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="cardReward" data-id="' + escHtml(reward.id) + '"' + (reward.chosen ? ' disabled' : '') + '>' + escHtml(rewardLabel) + (reward.chosen ? ' ✓ 已选' : '') + '</button>';
+    }).join('');
+    var resultHtml = '';
+    if (isTerminal) {
+      resultHtml = '<div class="ux-cardbattle-result"><b>' + (state.phase === 'VICTORY' ? '胜利！战斗结算' : '战斗失败') + '</b><span>奖励预算 ' + state.rewardBudget + ' · 疲劳 +' + (state.settlement ? state.settlement.fatigue : player.fatigue || 0) + '</span>' +
+        (rewards ? '<div class="ux-cardbattle-choices">' + rewards + '</div>' : '') +
+        (state.settlement && !state.settlement.claimed ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="cardClaim">领取并结算</button>' : '') +
+        '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="cardClear">返回项目入口</button></div>';
+    }
+    return '<section class="ux-cardbattle" data-card-phase="' + escHtml(state.phase) + '">' +
+      '<header class="ux-cardbattle-head"><div><b>卡牌攻坚</b><span>第 ' + (state.turn || 0) + ' 回合 · ' + escHtml(state.phase) + '</span></div><div>生命 ' + player.hp + '/' + player.maxHp + ' · 道心 ' + player.will + '/' + player.maxWill + ' · 护盾 ' + player.block + ' · 疲劳 ' + player.fatigue + '</div></header>' +
+      '<div class="ux-cardbattle-board"><div class="ux-cardbattle-player"><b>行动能量 ' + player.energy + '/' + player.maxEnergy + '</b><div>敌方意图会在行动前公开</div></div>' + enemyHtml + '<div class="ux-cardbattle-piles">抽牌 ' + state.piles.draw.length + ' · 弃牌 ' + state.piles.discard.length + ' · 消耗 ' + state.piles.exhaust.length + ' · 移除 ' + state.piles.removed.length + '</div></div>' +
+      eventHtml +
+      '<div class="ux-cardbattle-hand">' + cards + '</div>' +
+      '<div class="ux-cardbattle-actions">' +
+        (!isTerminal && !pendingEvent ? '<button class="ux-btn ux-btn--gold ux-btn--md" data-action="cardEndTurn"' + (state.phase !== 'PLAYER_ACTION' ? ' disabled' : '') + '>结束回合</button>' : '') +
+        (!isTerminal && !pendingEvent ? '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="cardDrawEvent"' + (state.phase !== 'PLAYER_ACTION' ? ' disabled' : '') + '>触发职场事件</button>' : '') +
+        '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="abandonCardBattle">撤退</button></div>' +
+      resultHtml + '<ul class="ux-cardbattle-log">' + logHtml + '</ul></section>';
   }
 
   /* ── 6c-3. 修仙（境界 / 功法 / 法宝） ── */
@@ -3298,7 +3357,7 @@
       var stats = Object.keys(CREATION_STAT_LABELS).map(function (key) { return '<span><i>' + CREATION_STAT_LABELS[key] + '</i><b>' + candidate.attributes[key] + '</b></span>'; }).join('');
       return '<button class="v59-destiny' + (selected === candidate.id ? ' is-selected' : '') + '" data-creation-choice="candidate:' + escHtml(candidate.id) + '"><span class="v59-destiny-type">' + (candidate.id === 'A' ? '均衡型' : candidate.id === 'B' ? '职业优势型' : '机缘型') + '</span><strong>' + escHtml(destiny.name) + '</strong><div class="v59-stats">' + stats + '</div><small>优点：' + escHtml(destiny.benefit) + '</small><small>代价：' + escHtml(destiny.cost) + '</small><small>职业契合：' + escHtml(destiny.fit || '职业选择不受命格限制。') + '</small></button>';
     }).join('');
-    return '<h2>' + (backfill ? '选择一份天命补录' : '天命推演 · 三选一') + '</h2><p>三套基础属性总值均为 50。命格与属性将一起锁定。</p><div class="v59-destiny-grid">' + cards + '</div>' + (!backfill ? '<button class="v59-btn v59-btn--quiet" data-creation-action="reroll"' + (draft.rerollsUsed >= 3 ? ' disabled' : '') + '>重新推演（剩余 ' + (3 - draft.rerollsUsed) + ' 次）</button>' : '');
+    return '<h2>' + (backfill ? '选择一份天命补录' : '天命推演 · 三选一') + '</h2><p>每项基础属性会在 50–88 之间推演。命格与属性将一起锁定。</p><div class="v59-destiny-grid">' + cards + '</div>' + (!backfill ? '<button class="v59-btn v59-btn--quiet" data-creation-action="reroll"' + (draft.rerollsUsed >= 3 ? ' disabled' : '') + '>重新推演（剩余 ' + (3 - draft.rerollsUsed) + ' 次）</button>' : '');
   }
 
   function renderAllocation(draft) {
@@ -3309,7 +3368,11 @@
     var rows = Object.keys(CREATION_STAT_LABELS).map(function (key) {
       var base = candidate.attributes[key];
       var added = draft.allocation[key] || 0;
-      return '<div class="v59-alloc-row"><span>' + CREATION_STAT_LABELS[key] + '</span><b>' + base + ' <i>+' + added + '</i></b><div><button data-creation-action="allocate" data-stat="' + key + '" data-delta="-1"' + (added <= 0 ? ' disabled' : '') + '>−</button><button data-creation-action="allocate" data-stat="' + key + '" data-delta="1"' + (remaining <= 0 || base + added >= 20 ? ' disabled' : '') + '>+</button></div></div>';
+      var decreaseReason = added <= 0 ? '尚未分配该属性，不能降低基础值' : '';
+      var increaseReason = remaining < 5
+        ? '剩余潜力不足 5 点'
+        : base + added + 5 > 88 ? '增加 5 点将超过属性上限 88' : '';
+      return '<div class="v59-alloc-row"><span>' + CREATION_STAT_LABELS[key] + '</span><b>' + base + ' <i>+' + added + '</i></b><div><button data-creation-action="allocate" data-stat="' + key + '" data-delta="-1"' + (decreaseReason ? ' disabled title="' + decreaseReason + '"' : '') + '>−1</button><button data-creation-action="allocate" data-stat="' + key + '" data-delta="5"' + (increaseReason ? ' disabled title="' + increaseReason + '"' : '') + '>+5</button></div></div>';
     }).join('');
     var preview = Object.keys(CREATION_STAT_LABELS).map(function (key) { return '<span>' + CREATION_STAT_LABELS[key] + ' <b>' + (candidate.attributes[key] + draft.allocation[key]) + '</b></span>'; }).join('');
     return '<h2>自由分配潜力</h2><p>获得 5 点，可分配或保留未用点数。</p><div class="v59-alloc-list">' + rows + '</div><div class="v59-remaining">剩余潜力 <b>' + remaining + '</b> / 5' + (remaining ? '<small>未分配的潜力会保留到未来。</small>' : '') + '</div><button class="v59-btn v59-btn--quiet" data-creation-action="reset-allocation">全部重置</button><div class="v59-preview">最终属性预览 ' + preview + '</div>';
@@ -3757,6 +3820,67 @@
         case 'projectEntry':
           openBuildSelectModal();
           break;
+        case 'startCardBattle': {
+          var fCardStart = facade();
+          if (!fCardStart || typeof fCardStart.startCardBattle !== 'function') { toast('卡牌战斗服务尚未就绪', 'error'); break; }
+          try {
+            fCardStart.startCardBattle(el.dataset.encounter || 'NORMAL');
+            _screen = 'PROJECT'; _subPage = null;
+            toast('进入卡牌战场：观察意图，合理分配能量。', 'success');
+            fullRefresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'cardPlay': {
+          var fCardPlay = facade();
+          if (!fCardPlay || typeof fCardPlay.playCard !== 'function') break;
+          try {
+            var played = fCardPlay.playCard(el.dataset.instance, el.dataset.target || undefined, cardOperationId('play'));
+            if (played && played.applied === false) toast(played.reason || '当前无法使用这张牌', 'info');
+            refresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'cardEndTurn': {
+          var fCardTurn = facade();
+          try { var turnResult = fCardTurn.endCardBattleTurn(cardOperationId('turn')); if (turnResult && turnResult.applied === false) toast(turnResult.reason || '当前不能结束回合', 'info'); refresh(); }
+          catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'cardDrawEvent': {
+          var fCardEventDraw = facade();
+          try { var eventResult = fCardEventDraw.drawCardBattleEvent(cardOperationId('event')); if (eventResult && eventResult.applied === false) toast(eventResult.reason || '当前无法触发事件', 'info'); refresh(); }
+          catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'cardEvent': {
+          var fCardEvent = facade();
+          try { var choiceResult = fCardEvent.chooseCardBattleEvent(el.dataset.event, el.dataset.choice, cardOperationId('choice')); if (choiceResult && choiceResult.applied === false) toast(choiceResult.reason || '选项未生效', 'info'); else toast('选择已写入战斗状态。', 'success'); refresh(); }
+          catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'cardReward': {
+          var fCardReward = facade();
+          try { var rewardResult = fCardReward.chooseCardBattleReward(el.dataset.id, cardOperationId('reward')); if (rewardResult && rewardResult.applied === false) toast(rewardResult.reason || '奖励不可选', 'info'); refresh(); }
+          catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'cardClaim': {
+          var fCardClaim = facade();
+          try { var claimResult = fCardClaim.claimCardBattleRewards(cardOperationId('claim')); if (claimResult && claimResult.applied === false) toast(claimResult.reason || '结算尚未满足领取条件', 'info'); else toast('战斗奖励已领取。', 'success'); refresh(); }
+          catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'cardClear': {
+          var fCardClear = facade();
+          try { fCardClear.clearFinishedBattle(); _battleResultShown = null; refresh(); } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'abandonCardBattle': {
+          var fCardAbandon = facade();
+          try { fCardAbandon.abandonBattleRun(); toast('已撤出卡牌战斗。', 'info'); refresh(); } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
         case 'openIncidentDungeon': {
           var fDungeon = facade();
           if (!fDungeon || typeof fDungeon.startIncidentDungeon !== 'function') { toast('线上禁地未就绪', 'error'); break; }

@@ -1,4 +1,6 @@
 import {
+  CHARACTER_ATTRIBUTE_MAX,
+  CHARACTER_ATTRIBUTE_MIN,
   DESTINY_IDS,
   STAT_KEYS,
   type CharacterStats,
@@ -62,7 +64,7 @@ const DESTINY_ID_SET: ReadonlySet<string> = new Set<string>(DESTINY_IDS);
 const MIN_RUNTIME_DELTA = -20;
 const MAX_RUNTIME_DELTA = 20;
 const MIN_EFFECTIVE_ATTRIBUTE = 0;
-const MAX_EFFECTIVE_ATTRIBUTE = 40;
+const MAX_EFFECTIVE_ATTRIBUTE = CHARACTER_ATTRIBUTE_MAX + 60;
 const MIN_COMBINED_MULTIPLIER = 0.5;
 const MAX_COMBINED_MULTIPLIER = 1.5;
 
@@ -110,9 +112,12 @@ export function characterEffectMultiplier(
   if (!attributes) return 1;
 
   const attributeRule = ATTRIBUTE_HOOK_RULES[hook];
+  const effectValue = attributeRule
+    ? normalizeAttributeForEffects(attributes[attributeRule.stat], record.innateAttributes!)
+    : 10;
   const attributeMultiplier = attributeRule
     ? clamp(
-      1 + (attributes[attributeRule.stat] - 10) * attributeRule.ratePerPointFromTen,
+      1 + (effectValue - 10) * attributeRule.ratePerPointFromTen,
       attributeRule.minimum,
       attributeRule.maximum,
     )
@@ -140,12 +145,25 @@ export function applyCharacterEffectToInteger(
 function isInnateAttributes(value: CharacterStats | undefined): value is CharacterStats {
   if (!value) return false;
   let total = 0;
+  let isLegacyScale = true;
+  let isCreationScale = true;
   for (const key of STAT_KEYS) {
     const stat = value[key];
-    if (!Number.isSafeInteger(stat) || stat < 6 || stat > 20) return false;
+    if (!Number.isSafeInteger(stat)) return false;
+    isLegacyScale = isLegacyScale && stat >= 6 && stat <= 20;
+    isCreationScale = isCreationScale && stat >= CHARACTER_ATTRIBUTE_MIN && stat <= CHARACTER_ATTRIBUTE_MAX;
     total += stat;
   }
-  return total >= 50 && total <= 55;
+  return isCreationScale || (isLegacyScale && total >= 50 && total <= 55);
+}
+
+function normalizeAttributeForEffects(value: number, innate: CharacterStats): number {
+  const usesCreationScale = STAT_KEYS.every((key) =>
+    innate[key] >= CHARACTER_ATTRIBUTE_MIN && innate[key] <= CHARACTER_ATTRIBUTE_MAX);
+  if (!usesCreationScale) return value;
+  const bounded = clamp(value, CHARACTER_ATTRIBUTE_MIN, CHARACTER_ATTRIBUTE_MAX);
+  return 10 + ((bounded - CHARACTER_ATTRIBUTE_MIN) * 10)
+    / (CHARACTER_ATTRIBUTE_MAX - CHARACTER_ATTRIBUTE_MIN);
 }
 
 function isEarnedDelta(value: Partial<CharacterStats> | undefined): boolean {

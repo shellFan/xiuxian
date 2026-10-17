@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "runId": "20261016-163533-b37d83",
+  "mode": "smoke",
+  "startedAt": "2026-10-16T16:35:33.669Z",
+  "host": {
+    "platform": "win32",
+    "node": "v20.20.1"
+  },
+  "sourceSha": "d3f0b8b1e328b96d98ec7587fca5e2cad3a65ba6",
+  "buildSha": null,
+  "buildGitHead": null,
+  "buildFresh": false,
+  "interactionMode": "Electron window with localhost CDP synthetic input",
+  "screenshotMode": "Chromium renderer capture through CDP",
+  "validationModes": {
+    "UI_REAL_EXE": "NOT_VERIFIED",
+    "ELECTRON_E2E": "NOT_VERIFIED",
+    "BUILD_PROVENANCE": "NOT_VERIFIED",
+    "SERVICE_SIM": "NOT_RUN",
+    "NOT_VERIFIED": [
+      "physical Windows pointer/keyboard verification",
+      "outer window-size matrix"
+    ]
+  },
+  "exe": null,
+  "asarSha256": null,
+  "repairAttempts": {},
+  "scenarios": [
+    {
+      "id": "smoke",
+      "title": "Default window, creation next button and first playable home screen",
+      "status": "not_verified",
+      "steps": [],
+      "defects": [],
+      "error": "Windows test EXE not found; set GAMEPLAY_AGENT_EXE or package the game."
+    }
+  ],
+  "summary": {
+    "status": "NOT_VERIFIED",
+    "total": 1,
+    "passed": 0,
+    "failed": 0,
+    "blocked": 0,
+    "notVerified": 1
+  },
+  "finishedAt": "2026-10-16T16:35:33.670Z"
+}

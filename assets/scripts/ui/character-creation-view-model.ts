@@ -1,6 +1,8 @@
 import type { CharacterCreationView } from '../v59/character-creation-service';
 import {
   ALLOCATION_POINT_BUDGET,
+  ALLOCATION_INCREMENT,
+  CHARACTER_ATTRIBUTE_MAX,
   CREATION_STEPS,
   STAT_KEYS,
   validateNickname,
@@ -32,6 +34,8 @@ export interface CharacterStatViewModel {
   readonly value: number;
   readonly canIncrease: boolean;
   readonly canDecrease: boolean;
+  readonly increaseDisabledReason?: string;
+  readonly decreaseDisabledReason?: string;
 }
 
 export interface CharacterCreationViewModel {
@@ -69,7 +73,7 @@ const STEP_COPY: Record<CreationStep, { readonly title: string; readonly descrip
   PROFESSION: { title: '选择职业', description: '职业决定初始技能、装备和天命属性倾向。' },
   IDENTITY: { title: '定义身份与出身', description: '输入昵称，选择本地角色形象和出身履历。' },
   DESTINY: { title: '选择天命', description: '三套天命只能选择一套，免费推演最多三次。' },
-  ALLOCATION: { title: '分配潜力', description: '把 5 点潜力分配完，再进入最终确认。' },
+  ALLOCATION: { title: '分配潜力', description: '增加操作一次投入 5 点；已投入的点可逐点撤回。' },
   CONFIRM: { title: '确认降世', description: '检查角色资料，确认后正式入职。' },
 };
 
@@ -183,14 +187,26 @@ export function buildCharacterCreationViewModel(source: CharacterCreationView): 
   const stats = selectedCandidate ? STAT_KEYS.map((key) => {
     const allocated = draft.allocation[key];
     const value = selectedCandidate.attributes[key] + allocated;
+    const inAllocationStep = draft.step === 'ALLOCATION';
+    const canIncrease = inAllocationStep
+      && remainingPoints >= ALLOCATION_INCREMENT
+      && value + ALLOCATION_INCREMENT <= CHARACTER_ATTRIBUTE_MAX;
+    const canDecrease = inAllocationStep && allocated > 0;
     return {
       id: key,
       label: STAT_LABELS[key],
       baseValue: selectedCandidate.attributes[key],
       allocated,
       value,
-      canIncrease: draft.step === 'ALLOCATION' && remainingPoints > 0 && value < 20,
-      canDecrease: draft.step === 'ALLOCATION' && allocated > 0,
+      canIncrease,
+      canDecrease,
+      increaseDisabledReason: canIncrease ? undefined
+        : !inAllocationStep ? '当前步骤不可分配潜力'
+          : remainingPoints < ALLOCATION_INCREMENT ? `剩余潜力不足 ${ALLOCATION_INCREMENT} 点`
+            : `增加 ${ALLOCATION_INCREMENT} 点将超过属性上限 ${CHARACTER_ATTRIBUTE_MAX}`,
+      decreaseDisabledReason: canDecrease ? undefined
+        : !inAllocationStep ? '当前步骤不可撤回潜力'
+          : '尚未分配该属性，不能降低基础值',
     };
   }) : [];
   const options = buildOptions(draft.step, draft);

@@ -150,7 +150,8 @@ const tests: Array<[string, () => void]> = [
     assert.equal(save.characterDirection, 'TECH_RND');
     assert.equal(save.characterBackground, 'CULTIVATION_GRAD');
     assert.equal(save.earnedAttributeDelta && save.earnedAttributeDelta.insight, 1);
-    assert.equal(save.innateAttributes && Object.values(save.innateAttributes).reduce((sum, value) => sum + value, 0), 50);
+    assert.ok(save.innateAttributes && Object.values(save.innateAttributes)
+      .every((value) => Number.isInteger(value) && value >= 50 && value <= 88));
     assert.equal(save.unspentPotential, 5);
     assert.ok(save.characterCreationReceipt);
     assert.ok(context.professionContent.activeSkills().includes(context.profession.def().initialSkill));

@@ -43,6 +43,9 @@ const isDev = process.argv.includes('--dev') || process.argv.includes('--debug')
 const requestedSeed = process.argv.find(arg => /^--gameplay-agent-test=\d{1,10}$/.test(arg));
 const isolatedTestProfile = path.dirname(path.resolve(app.getPath('userData'))).toLowerCase() === path.resolve(require('os').tmpdir()).toLowerCase()
   && path.basename(app.getPath('userData')).startsWith('xiuxian-gameplay-agent-');
+const e2eHidden = process.argv.includes('--e2e-hidden')
+  && isolatedTestProfile
+  && process.argv.some(arg => arg.startsWith('--remote-debugging-port='));
 const controlledSeed = requestedSeed && isolatedTestProfile ? Number(requestedSeed.split('=')[1]) >>> 0 : null;
 
 // ── Storage Init ───────────────────────────────────────────────────────────
@@ -161,8 +164,12 @@ async function createWindow() {
 
   // Show window when ready
   mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
-    console.log('[Electron] Window shown');
+    if (e2eHidden) {
+      console.log('[Electron] Window kept hidden for isolated E2E');
+    } else {
+      mainWindow.show();
+      console.log('[Electron] Window shown');
+    }
   });
 
   // DevTools in dev mode (auto-open until black screen is fixed)

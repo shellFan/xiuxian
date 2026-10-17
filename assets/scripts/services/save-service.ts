@@ -3,6 +3,7 @@ import { normalizeHomeArena } from '../v59i1/home-arena-service';
 import { CURRENT_SAVE_VERSION, type ActiveMessageChainState, type DailyRealityEntryState, type FirstWeekStoryState, type GameSaveData, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type WorkerSaveData, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState } from '../model/save-data';
 import { PlayerData } from '../model/player-data';
 import { cloneFateRun, cloneRebirthMeta, normalizeFateRun, normalizeRebirthMeta } from '../v59j/fate-state';
+import { CARD_CATALOG, validateCardBattleState, type CardBattleState } from '../v59l/card-battle-engine';
 import type { StorageAdapter } from './storage-adapter';
 
 /** F01: Thrown when persisted save data exists but cannot be parsed or migrated. */
@@ -237,6 +238,7 @@ function migrate(raw: unknown, now: number): GameSaveData {
       new Set(assignedTasks.map((task) => task.id)),
       new Set(incidents.map((incident) => incident.id)),
     ),
+    cardBattleDeck: normalizeCardBattleDeck(raw.cardBattleDeck),
     homeArena: normalizeHomeArena(raw.homeArena),
     regularWorkRewardRemainders: {
       salary: isRecord(raw.regularWorkRewardRemainders) && Number.isSafeInteger(raw.regularWorkRewardRemainders.salary) && Number(raw.regularWorkRewardRemainders.salary) >= 0 && Number(raw.regularWorkRewardRemainders.salary) < 1000000 ? Number(raw.regularWorkRewardRemainders.salary) : 0,
@@ -739,6 +741,17 @@ function normalizeBattleRun(value: unknown, taskIds: ReadonlySet<string>, incide
     || !Array.isArray(value.enemies) || !value.enemies.every(isBattleEnemy)
     || !isNonNegativeSafeInteger(value.kills) || !isBattleLoot(value.loot)
     || typeof value.rewardsClaimed !== 'boolean' || !Array.isArray(value.log) || !value.log.every(isString)) return null;
+  if (value.battleMode === 'CARD') {
+    if (!isRecord(value.cardBattle)) return null;
+    try {
+      const cardBattle = value.cardBattle as unknown as CardBattleState;
+      if (validateCardBattleState(cardBattle).length > 0) return null;
+      const expectedStatus = cardBattle.phase === 'VICTORY' ? 'VICTORY' : cardBattle.phase === 'DEFEAT' ? 'DEFEAT' : 'FIGHTING';
+      if (value.status !== expectedStatus) return null;
+    } catch {
+      return null;
+    }
+  }
   const linkedTaskId = typeof value.linkedTaskId === 'string' && taskIds.has(value.linkedTaskId) ? value.linkedTaskId : null;
   const linkedIncidentId = typeof value.linkedIncidentId === 'string' && incidentIds.has(value.linkedIncidentId) ? value.linkedIncidentId : null;
   return {
@@ -754,7 +767,19 @@ function normalizeBattleRun(value: unknown, taskIds: ReadonlySet<string>, incide
       equipment: uniqueIds((value.loot as Record<string, unknown>).equipment as unknown[]),
     },
     log: [...value.log],
+    cardBattle: value.battleMode === 'CARD' ? cloneUnknown(value.cardBattle) : undefined,
   };
+}
+
+const CARD_IDS = new Set(CARD_CATALOG.map((entry) => entry.id));
+function normalizeCardBattleDeck(value: unknown): GameSaveData['cardBattleDeck'] {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value) || value.length === 0 || value.length > 100) return undefined;
+  const deck = value.map((entry) => {
+    if (!isRecord(entry) || typeof entry.cardId !== 'string' || !CARD_IDS.has(entry.cardId as never) || typeof entry.upgraded !== 'boolean') return null;
+    return { cardId: entry.cardId as import('../v59l/card-battle-engine').CardId, upgraded: entry.upgraded };
+  });
+  return deck.some((entry) => entry === null) ? undefined : deck as NonNullable<GameSaveData['cardBattleDeck']>;
 }
 
 function isBattleEnemy(value: unknown): boolean {
@@ -904,7 +929,7 @@ function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultiva
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {
-  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'WELCOME', tutorialCompleted: data.tutorialCompleted ?? false, tutorialVersion: data.tutorialVersion ?? TUTORIAL_VERSION, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })), pendingEvents: (data.pendingEvents ?? []).map((event) => ({ ...event })), handledWelcomeItemIds: [...(data.handledWelcomeItemIds ?? [])], offlineDecisionSession: data.offlineDecisionSession ? { ...data.offlineDecisionSession, pendingEventIds: [...data.offlineDecisionSession.pendingEventIds], resolvedEventIds: [...data.offlineDecisionSession.resolvedEventIds] } : null, overtimeStats: data.overtimeStats ? { ...data.overtimeStats } : undefined, activeBattleRun: cloneUnknown(data.activeBattleRun), fateRun: cloneFateRun(data.fateRun), rebirthMeta: cloneRebirthMeta(data.rebirthMeta), homeArena: cloneUnknown(data.homeArena), regularWorkRewardRemainders: data.regularWorkRewardRemainders ? { ...data.regularWorkRewardRemainders } : undefined, gameDay: data.gameDay ? { ...data.gameDay, durations: { ...data.gameDay.durations }, income: { ...data.gameDay.income }, situationIds: [...data.gameDay.situationIds], settlementInputs: { ...data.gameDay.settlementInputs }, eventHistory: data.gameDay.eventHistory.map((entry) => ({ ...entry })) } : null };
+  return { ...data, workers: data.workers.map((worker) => ({ ...worker })), kpiProgress: { ...data.kpiProgress }, unlockedAchievementIds: [...(data.unlockedAchievementIds ?? [])], claimedAchievementIds: [...(data.claimedAchievementIds ?? [])], dailySignIn: data.dailySignIn ? { ...data.dailySignIn } : null, dailyTasks: (data.dailyTasks ?? []).map((t) => ({ ...t })), dailyTaskDay: data.dailyTaskDay ?? -1, tutorialStep: data.tutorialStep ?? 'WELCOME', tutorialCompleted: data.tutorialCompleted ?? false, tutorialVersion: data.tutorialVersion ?? TUTORIAL_VERSION, activeTasks: (data.activeTasks ?? []).map((t) => ({ ...t })), pendingEvents: (data.pendingEvents ?? []).map((event) => ({ ...event })), handledWelcomeItemIds: [...(data.handledWelcomeItemIds ?? [])], offlineDecisionSession: data.offlineDecisionSession ? { ...data.offlineDecisionSession, pendingEventIds: [...data.offlineDecisionSession.pendingEventIds], resolvedEventIds: [...data.offlineDecisionSession.resolvedEventIds] } : null, overtimeStats: data.overtimeStats ? { ...data.overtimeStats } : undefined, activeBattleRun: cloneUnknown(data.activeBattleRun), cardBattleDeck: data.cardBattleDeck?.map((entry) => ({ ...entry })), fateRun: cloneFateRun(data.fateRun), rebirthMeta: cloneRebirthMeta(data.rebirthMeta), homeArena: cloneUnknown(data.homeArena), regularWorkRewardRemainders: data.regularWorkRewardRemainders ? { ...data.regularWorkRewardRemainders } : undefined, gameDay: data.gameDay ? { ...data.gameDay, durations: { ...data.gameDay.durations }, income: { ...data.gameDay.income }, situationIds: [...data.gameDay.situationIds], settlementInputs: { ...data.gameDay.settlementInputs }, eventHistory: data.gameDay.eventHistory.map((entry) => ({ ...entry })) } : null };
 }
 
 function cloneUnknown(value: unknown): unknown {
@@ -992,12 +1017,16 @@ function isCharacterOnboardingStep(value: unknown): value is NonNullable<GameSav
 function isCharacterStats(value: unknown): value is NonNullable<GameSaveData['innateAttributes']> {
   if (!isRecord(value)) return false;
   let total = 0;
+  let isLegacyScale = true;
+  let isCreationScale = true;
   for (const key of V59_STAT_KEYS) {
     const stat = value[key];
-    if (!Number.isSafeInteger(stat) || (stat as number) < 6 || (stat as number) > 20) return false;
+    if (!Number.isSafeInteger(stat)) return false;
+    isLegacyScale = isLegacyScale && (stat as number) >= 6 && (stat as number) <= 20;
+    isCreationScale = isCreationScale && (stat as number) >= 50 && (stat as number) <= 88;
     total += stat as number;
   }
-  return total >= 50 && total <= 55;
+  return isCreationScale || (isLegacyScale && total >= 50 && total <= 55);
 }
 
 function normalizeCharacterAttributeDelta(value: unknown): GameSaveData['earnedAttributeDelta'] {

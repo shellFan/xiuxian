@@ -1,0 +1,334 @@
+{
+  "version": "5.9-L",
+  "format": "png",
+  "dimensions": {
+    "width": 512,
+    "height": 720
+  },
+  "cards": {
+    "ATK-01": {
+      "path": "v59l/card-art/atk-01",
+      "file": "atk-01.png",
+      "mainVisual": "扳手修复代码",
+      "name": "普通修复",
+      "type": "attack",
+      "rarity": "common",
+      "composition": "composition-01"
+    },
+    "ATK-02": {
+      "path": "v59l/card-art/atk-02",
+      "file": "atk-02.png",
+      "mainVisual": "双重提交印章",
+      "name": "双重提交",
+      "type": "attack",
+      "rarity": "common",
+      "composition": "composition-02"
+    },
+    "ATK-03": {
+      "path": "v59l/card-art/atk-03",
+      "file": "atk-03.png",
+      "mainVisual": "三段代码剑光",
+      "name": "三连代码斩",
+      "type": "attack",
+      "rarity": "common",
+      "composition": "composition-03"
+    },
+    "ATK-04": {
+      "path": "v59l/card-art/atk-04",
+      "file": "atk-04.png",
+      "mainVisual": "十连爆发熔炉",
+      "name": "十连爆发",
+      "type": "attack",
+      "rarity": "rare",
+      "composition": "composition-04"
+    },
+    "ATK-05": {
+      "path": "v59l/card-art/atk-05",
+      "file": "atk-05.png",
+      "mainVisual": "SQL 锁链",
+      "name": "SQL 注入反击",
+      "type": "attack",
+      "rarity": "uncommon",
+      "composition": "composition-05"
+    },
+    "ATK-06": {
+      "path": "v59l/card-art/atk-06",
+      "file": "atk-06.png",
+      "mainVisual": "代码旋风",
+      "name": "代码风暴",
+      "type": "attack",
+      "rarity": "uncommon",
+      "composition": "composition-06"
+    },
+    "ATK-07": {
+      "path": "v59l/card-art/atk-07",
+      "file": "atk-07.png",
+      "mainVisual": "编译火花",
+      "name": "暴击编译",
+      "type": "attack",
+      "rarity": "uncommon",
+      "composition": "composition-07"
+    },
+    "ATK-08": {
+      "path": "v59l/card-art/atk-08",
+      "file": "atk-08.png",
+      "mainVisual": "线上补丁",
+      "name": "线上热修复",
+      "type": "attack",
+      "rarity": "uncommon",
+      "composition": "composition-08"
+    },
+    "ATK-09": {
+      "path": "v59l/card-art/atk-09",
+      "file": "atk-09.png",
+      "mainVisual": "多线程齿轮",
+      "name": "多线程打击",
+      "type": "attack",
+      "rarity": "rare",
+      "composition": "composition-09"
+    },
+    "ATK-10": {
+      "path": "v59l/card-art/atk-10",
+      "file": "atk-10.png",
+      "mainVisual": "终极合并光束",
+      "name": "终极提交",
+      "type": "attack",
+      "rarity": "rare",
+      "composition": "composition-10"
+    },
+    "ATK-11": {
+      "path": "v59l/card-art/atk-11",
+      "file": "atk-11.png",
+      "mainVisual": "连锁补丁",
+      "name": "连锁修复",
+      "type": "attack",
+      "rarity": "uncommon",
+      "composition": "composition-11"
+    },
+    "ATK-12": {
+      "path": "v59l/card-art/atk-12",
+      "file": "atk-12.png",
+      "mainVisual": "祖传卷轴",
+      "name": "祖传代码",
+      "type": "attack",
+      "rarity": "rare",
+      "composition": "composition-12"
+    },
+    "DEF-01": {
+      "path": "v59l/card-art/def-01",
+      "file": "def-01.png",
+      "mainVisual": "代码审查盾牌",
+      "name": "代码审查",
+      "type": "defense",
+      "rarity": "common",
+      "composition": "composition-01"
+    },
+    "DEF-02": {
+      "path": "v59l/card-art/def-02",
+      "file": "def-02.png",
+      "mainVisual": "回滚按钮",
+      "name": "紧急回滚",
+      "type": "defense",
+      "rarity": "common",
+      "composition": "composition-02"
+    },
+    "DEF-03": {
+      "path": "v59l/card-art/def-03",
+      "file": "def-03.png",
+      "mainVisual": "会议日历",
+      "name": "假装开会",
+      "type": "defense",
+      "rarity": "uncommon",
+      "composition": "composition-03"
+    },
+    "DEF-04": {
+      "path": "v59l/card-art/def-04",
+      "file": "def-04.png",
+      "mainVisual": "摸鱼工位",
+      "name": "摸鱼护体",
+      "type": "defense",
+      "rarity": "common",
+      "composition": "composition-04"
+    },
+    "DEF-05": {
+      "path": "v59l/card-art/def-05",
+      "file": "def-05.png",
+      "mainVisual": "工位阵法",
+      "name": "工位结界",
+      "type": "defense",
+      "rarity": "uncommon",
+      "composition": "composition-05"
+    },
+    "DEF-06": {
+      "path": "v59l/card-art/def-06",
+      "file": "def-06.png",
+      "mainVisual": "甩锅回旋镖",
+      "name": "反向甩锅",
+      "type": "defense",
+      "rarity": "uncommon",
+      "composition": "composition-06"
+    },
+    "DEF-07": {
+      "path": "v59l/card-art/def-07",
+      "file": "def-07.png",
+      "mainVisual": "安全扫描仪",
+      "name": "安全扫描",
+      "type": "defense",
+      "rarity": "common",
+      "composition": "composition-07"
+    },
+    "DEF-08": {
+      "path": "v59l/card-art/def-08",
+      "file": "def-08.png",
+      "mainVisual": "九命护身符",
+      "name": "九命牛马",
+      "type": "defense",
+      "rarity": "rare",
+      "composition": "composition-08"
+    },
+    "SKL-01": {
+      "path": "v59l/card-art/skl-01",
+      "file": "skl-01.png",
+      "mainVisual": "脚本终端",
+      "name": "自动脚本",
+      "type": "skill",
+      "rarity": "uncommon",
+      "composition": "composition-09"
+    },
+    "SKL-02": {
+      "path": "v59l/card-art/skl-02",
+      "file": "skl-02.png",
+      "mainVisual": "加速符",
+      "name": "代码加速",
+      "type": "skill",
+      "rarity": "common",
+      "composition": "composition-10"
+    },
+    "SKL-03": {
+      "path": "v59l/card-art/skl-03",
+      "file": "skl-03.png",
+      "mainVisual": "咖啡杯",
+      "name": "咖啡续命",
+      "type": "skill",
+      "rarity": "common",
+      "composition": "composition-11"
+    },
+    "SKL-04": {
+      "path": "v59l/card-art/skl-04",
+      "file": "skl-04.png",
+      "mainVisual": "定心莲",
+      "name": "道心稳定",
+      "type": "skill",
+      "rarity": "common",
+      "composition": "composition-12"
+    },
+    "SKL-05": {
+      "path": "v59l/card-art/skl-05",
+      "file": "skl-05.png",
+      "mainVisual": "突破经脉",
+      "name": "技术突破",
+      "type": "skill",
+      "rarity": "uncommon",
+      "composition": "composition-01"
+    },
+    "SKL-06": {
+      "path": "v59l/card-art/skl-06",
+      "file": "skl-06.png",
+      "mainVisual": "超频机箱",
+      "name": "超频工作",
+      "type": "skill",
+      "rarity": "uncommon",
+      "composition": "composition-02"
+    },
+    "SKL-07": {
+      "path": "v59l/card-art/skl-07",
+      "file": "skl-07.png",
+      "mainVisual": "Bug 红标",
+      "name": "Bug 标记",
+      "type": "skill",
+      "rarity": "uncommon",
+      "composition": "composition-03"
+    },
+    "SKL-08": {
+      "path": "v59l/card-art/skl-08",
+      "file": "skl-08.png",
+      "mainVisual": "扩容服务器",
+      "name": "服务器扩容",
+      "type": "skill",
+      "rarity": "rare",
+      "composition": "composition-04"
+    },
+    "FTE-01": {
+      "path": "v59l/card-art/fte-01",
+      "file": "fte-01.png",
+      "mainVisual": "危险试剂",
+      "name": "危险实验",
+      "type": "fate",
+      "rarity": "uncommon",
+      "composition": "composition-05"
+    },
+    "FTE-02": {
+      "path": "v59l/card-art/fte-02",
+      "file": "fte-02.png",
+      "mainVisual": "变异晶核",
+      "name": "怪物变异",
+      "type": "fate",
+      "rarity": "rare",
+      "composition": "composition-06"
+    },
+    "FTE-03": {
+      "path": "v59l/card-art/fte-03",
+      "file": "fte-03.png",
+      "mainVisual": "命运罗盘",
+      "name": "命运逆转",
+      "type": "fate",
+      "rarity": "rare",
+      "composition": "composition-07"
+    },
+    "FTE-04": {
+      "path": "v59l/card-art/fte-04",
+      "file": "fte-04.png",
+      "mainVisual": "同事援手",
+      "name": "同事支援",
+      "type": "fate",
+      "rarity": "uncommon",
+      "composition": "composition-08"
+    },
+    "FTE-05": {
+      "path": "v59l/card-art/fte-05",
+      "file": "fte-05.png",
+      "mainVisual": "画饼合同",
+      "name": "老板画饼",
+      "type": "fate",
+      "rarity": "uncommon",
+      "composition": "composition-09"
+    },
+    "FTE-06": {
+      "path": "v59l/card-art/fte-06",
+      "file": "fte-06.png",
+      "mainVisual": "生死天平",
+      "name": "生死一搏",
+      "type": "fate",
+      "rarity": "rare",
+      "composition": "composition-10"
+    },
+    "FTE-07": {
+      "path": "v59l/card-art/fte-07",
+      "file": "fte-07.png",
+      "mainVisual": "传承玉简",
+      "name": "神秘传承",
+      "type": "fate",
+      "rarity": "rare",
+      "composition": "composition-11"
+    },
+    "FTE-08": {
+      "path": "v59l/card-art/fte-08",
+      "file": "fte-08.png",
+      "mainVisual": "觉醒牛角",
+      "name": "牛马觉醒",
+      "type": "fate",
+      "rarity": "rare",
+      "composition": "composition-12"
+    }
+  }
+}

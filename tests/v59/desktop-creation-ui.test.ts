@@ -49,7 +49,10 @@ async function runInElectron(): Promise<void> {
       var GameFacade = require(${JSON.stringify(facadePath)}).GameFacade;
       var MemoryStorageAdapter = require(${JSON.stringify(storagePath)}).MemoryStorageAdapter;
       window.__V59_STORAGE__ = new MemoryStorageAdapter();
-      window.__GAME_FACADE__ = new GameFacade({ storage: window.__V59_STORAGE__, board: null, modeSwitchCooldownMs: 0 });
+      window.__GAME_FACADE__ = new GameFacade({
+        storage: window.__V59_STORAGE__, board: null, modeSwitchCooldownMs: 0,
+        characterSeedProvider: () => 2
+      });
       return typeof window.__GAME_FACADE__.queryCharacterCreation === 'function';
     })()`);
     assert.equal(setup, true);
@@ -97,7 +100,53 @@ async function runInElectron(): Promise<void> {
     await click(win, '[data-creation-action="advance"]');
     await click(win, '[data-creation-choice^="candidate:"]');
     await click(win, '[data-creation-action="advance"]');
-    await click(win, '[data-creation-action="allocate"][data-stat="insight"][data-delta="1"]');
+    const initialAllocationControls = await win.webContents.executeJavaScript(`(() => {
+      const button = (stat, delta) => document.querySelector('[data-creation-action="allocate"][data-stat="' + stat + '"][data-delta="' + delta + '"]');
+      const insightPlus = button('insight', 5), insightMinus = button('insight', -1), willpowerPlus = button('willpower', 5);
+      return {
+        insightBase: window.__GAME_FACADE__.queryCharacterCreation().draft.candidates[0].attributes.insight,
+        insightPlusExists: !!insightPlus,
+        insightPlusDisabled: insightPlus ? insightPlus.disabled : null,
+        insightMinusDisabled: insightMinus ? insightMinus.disabled : null,
+        insightMinusReason: insightMinus ? insightMinus.title : '',
+        willpowerBase: window.__GAME_FACADE__.queryCharacterCreation().draft.candidates[0].attributes.willpower,
+        willpowerPlusDisabled: willpowerPlus ? willpowerPlus.disabled : null,
+        willpowerPlusReason: willpowerPlus ? willpowerPlus.title : ''
+      };
+    })()`);
+    assert.deepEqual(initialAllocationControls, {
+      insightBase: 50,
+      insightPlusExists: true,
+      insightPlusDisabled: false,
+      insightMinusDisabled: true,
+      insightMinusReason: '尚未分配该属性，不能降低基础值',
+      willpowerBase: 84,
+      willpowerPlusDisabled: true,
+      willpowerPlusReason: '增加 5 点将超过属性上限 88',
+    });
+    await click(win, '[data-creation-action="allocate"][data-stat="insight"][data-delta="5"]');
+    const afterPlus = await win.webContents.executeJavaScript(`(() => {
+      const draft = window.__GAME_FACADE__.queryCharacterCreation().draft;
+      const row = document.querySelector('[data-creation-action="allocate"][data-stat="insight"]').closest('.v59-alloc-row');
+      const blocked = document.querySelector('[data-creation-action="allocate"][data-stat="perception"][data-delta="5"]');
+      const minus = document.querySelector('[data-creation-action="allocate"][data-stat="insight"][data-delta="-1"]');
+      return {allocated:draft.allocation.insight, rowText:row.textContent, blocked:blocked.disabled, reason:blocked.title, minusDisabled:minus.disabled};
+    })()`);
+    assert.equal(afterPlus.allocated, 5);
+    assert.match(afterPlus.rowText, /\+5/, 'allocation refreshes the visible row immediately');
+    assert.equal(afterPlus.blocked, true);
+    assert.equal(afterPlus.reason, '剩余潜力不足 5 点');
+    assert.equal(afterPlus.minusDisabled, false);
+    for (let index = 0; index < 5; index += 1) {
+      await click(win, '[data-creation-action="allocate"][data-stat="insight"][data-delta="-1"]');
+    }
+    const restored = await win.webContents.executeJavaScript(`(() => {
+      const draft = window.__GAME_FACADE__.queryCharacterCreation().draft;
+      const minus = document.querySelector('[data-creation-action="allocate"][data-stat="insight"][data-delta="-1"]');
+      return {allocated:draft.allocation.insight, minusDisabled:minus.disabled, reason:minus.title};
+    })()`);
+    assert.deepEqual(restored, { allocated: 0, minusDisabled: true, reason: '尚未分配该属性，不能降低基础值' });
+    await click(win, '[data-creation-action="allocate"][data-stat="insight"][data-delta="5"]');
     await click(win, '[data-creation-action="advance"]');
     const confirmVisible = await win.webContents.executeJavaScript(`document.querySelector('.v59-confirm-card') !== null`);
     assert.equal(confirmVisible, true, 'step 7 displays a formal character confirmation card');

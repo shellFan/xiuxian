@@ -48,6 +48,7 @@ import { selectOfflineWelcomeLine } from '../v3/offline-welcome-content';
 import { selectNextPresentation, type PresentationCandidate } from '../v2/v2-event-service';
 import { allEquipmentDefs, AFFIX_MAP, SET_MAP, RARITY_CN, V57_SETS, type LootEquipmentDef } from '../v57/loot-service';
 import { WEEK_CONTENT } from '../v57/week-service';
+import { CARD_CATALOG, EVENT_CATALOG, type CreateCardBattleOptions, type EventId } from '../v59l/card-battle-engine';
 import { messengerEventById } from '../v5/messenger-content';
 import { EVOLUTIONS } from '../v57/battle-merge';
 import { projectCharacterAttributes } from '../v59/character-attributes';
@@ -224,7 +225,9 @@ export class GameFacade {
   public characterCreationSelectCandidate(id: string) { return this.context.characterCreation.selectCandidate(id); }
   public characterCreationReroll() { return this.context.characterCreation.reroll(); }
   public characterCreationAllocate(stat: import('../v59/character-rules').StatKey, delta: number) {
-    return this.context.characterCreation.allocate(stat, delta);
+    // The legacy desktop shell still emits +1 for its single increase action.
+    // Normalize that transport value at the facade boundary; domain allocation is atomic +5.
+    return this.context.characterCreation.allocate(stat, delta === 1 ? 5 : delta);
   }
   public characterCreationResetAllocation() { return this.context.characterCreation.resetAllocation(); }
   public characterCreationAdvance() { return this.context.characterCreation.advance(); }
@@ -793,7 +796,61 @@ export class GameFacade {
   // ── V4 项目战斗竖切 ──────────────────────────────────────────────────────
 
   /** 当前战斗（含日志/掉落/三选一）。 */
-  public queryBattle() { return this.context.battle.current(); }
+  public queryBattle() {
+    const run = this.context.battle.current();
+    return run?.battleMode === 'CARD' ? null : run;
+  }
+  /** V5.9-L card battle snapshot, including terminal reward selection until dismissed. */
+  public queryCardBattle() { return this.context.battle.cardBattle(); }
+  public queryCardCatalog() { return CARD_CATALOG.map((entry) => ({ ...entry, upgrade: { ...entry.upgrade } })); }
+  public queryCardEventCatalog() {
+    return EVENT_CATALOG.map((entry) => ({ ...entry, choices: entry.choices.map((choice) => ({ ...choice })) }));
+  }
+  public startCardBattle(encounterId?: CreateCardBattleOptions['encounterId'], seed?: number) {
+    const state = this.context.battle.startCardBattle(encounterId, seed);
+    this.context.saveService.save(this.context.player);
+    return state;
+  }
+  public playCard(instanceId: string, targetId?: string, operationId?: string) {
+    const receipt = this.context.battle.playCard(instanceId, targetId, operationId);
+    this.context.saveService.save(this.context.player);
+    return receipt;
+  }
+  public endCardBattleTurn(operationId?: string) {
+    const receipt = this.context.battle.endCardTurn(operationId);
+    this.context.saveService.save(this.context.player);
+    return receipt;
+  }
+  public drawCardBattleEvent(operationId?: string) {
+    const receipt = this.context.battle.drawCardEvent(operationId);
+    this.context.saveService.save(this.context.player);
+    return receipt;
+  }
+  public chooseCardBattleEvent(eventId: EventId, choiceId: string, operationId?: string) {
+    const receipt = this.context.battle.chooseCardEvent(eventId, choiceId, operationId);
+    this.context.saveService.save(this.context.player);
+    return receipt;
+  }
+  public chooseCardBattleReward(rewardId: string, operationId?: string) {
+    const receipt = this.context.battle.chooseCardReward(rewardId, operationId);
+    this.context.saveService.save(this.context.player);
+    return receipt;
+  }
+  public upgradeCard(instanceId: string, operationId?: string) {
+    const receipt = this.context.battle.upgradeCard(instanceId, operationId);
+    this.context.saveService.save(this.context.player);
+    return receipt;
+  }
+  public removeCard(instanceId: string, operationId?: string) {
+    const receipt = this.context.battle.removeCard(instanceId, operationId);
+    this.context.saveService.save(this.context.player);
+    return receipt;
+  }
+  public claimCardBattleRewards(operationId?: string) {
+    const receipt = this.context.battle.claimCardRewards(operationId);
+    this.context.saveService.save(this.context.player);
+    return receipt;
+  }
   public queryBattleBuildOptions() { return this.context.battle.buildOptions(); }
   /** 技能定义（名称/描述/进化），供三选一 UI 展示。 */
   public queryBattleSkillDefs() { return this.context.battle.skillDefs(); }

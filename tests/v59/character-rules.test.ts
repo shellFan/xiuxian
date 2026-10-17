@@ -21,22 +21,10 @@ import {
   type ProfessionId,
 } from '../../assets/scripts/v59/character-rules';
 
-const FIXED_STATS: Readonly<Record<ProfessionId, CharacterStats>> = {
-  JAVA_BACKEND: { insight: 16, constitution: 10, perception: 10, fortune: 7, willpower: 7 },
-  FRONTEND: { insight: 15, constitution: 8, perception: 12, fortune: 7, willpower: 8 },
-  QA: { insight: 13, constitution: 8, perception: 16, fortune: 7, willpower: 6 },
-  DEVOPS: { insight: 12, constitution: 14, perception: 10, fortune: 7, willpower: 7 },
-};
-
-function sumStats(stats: CharacterStats): number {
-  return STAT_KEYS.reduce((sum, key) => sum + stats[key], 0);
-}
-
 function assertValidCandidate(candidate: CharacterCandidate): void {
-  assert.equal(sumStats(candidate.attributes), 50);
   for (const key of STAT_KEYS) {
     assert.ok(Number.isInteger(candidate.attributes[key]));
-    assert.ok(candidate.attributes[key] >= 6 && candidate.attributes[key] <= 16);
+    assert.ok(candidate.attributes[key] >= 50 && candidate.attributes[key] <= 88);
   }
 }
 
@@ -84,23 +72,11 @@ function testRerollSeedsAreStableAndOneBased(): void {
   assert.throws(() => mixRerollSeed(1234, 1.5), /one-based/i);
 }
 
-function testCandidateTripletsFollowAllThreeStrategies(): void {
+function testCandidateTripletsUseTheCreationAttributeRange(): void {
   for (const professionId of PROFESSION_IDS) {
     const candidates = generateCandidateTriplet(0x12345678, professionId);
     assert.deepEqual(candidates.map((candidate) => candidate.id), ['A', 'B', 'C']);
     candidates.forEach(assertValidCandidate);
-
-    const aValues = STAT_KEYS.map((key) => candidates[0].attributes[key]);
-    assert.equal(aValues.filter((value) => value === 9).length, 1);
-    assert.equal(aValues.filter((value) => value === 11).length, 1);
-    assert.equal(aValues.filter((value) => value === 10).length, 3);
-
-    assert.deepEqual(candidates[1].attributes, FIXED_STATS[professionId]);
-
-    assert.equal(candidates[2].attributes.fortune, 16);
-    const cOther = STAT_KEYS.filter((key) => key !== 'fortune').map((key) => candidates[2].attributes[key]);
-    const deltas = cOther.map((value, index) => value - [9, 9, 8, 8][index]);
-    assert.deepEqual([...deltas].sort((left, right) => left - right), [-1, 0, 0, 1]);
 
     assert.equal(new Set(candidates.map((candidate) => candidate.destinyId)).size, 3);
     assert.equal(new Set(candidates.map(serializeCandidate)).size, 3);
@@ -152,24 +128,25 @@ function testNicknameFallbackGroupsMarksAndJoinerSequences(): void {
 }
 
 function testAllocationAppliesAtMostFivePointsWithoutBreakingCaps(): void {
-  const base: CharacterStats = { insight: 16, constitution: 10, perception: 10, fortune: 7, willpower: 7 };
+  const base: CharacterStats = { insight: 50, constitution: 86, perception: 70, fortune: 60, willpower: 80 };
   const empty = emptyAllocation();
   assert.deepEqual(empty, { insight: 0, constitution: 0, perception: 0, fortune: 0, willpower: 0 });
 
-  const first = applyAllocation(base, empty, 'insight', 4);
+  const first = applyAllocation(base, empty, 'insight', 5);
   assert.equal(first.ok, true);
-  assert.deepEqual(first.allocation, { ...empty, insight: 4 });
-  assert.deepEqual(first.attributes, { ...base, insight: 20 });
-  assert.equal(first.remainingPoints, 1);
+  assert.deepEqual(first.allocation, { ...empty, insight: 5 });
+  assert.deepEqual(first.attributes, { ...base, insight: 55 });
+  assert.equal(first.remainingPoints, 0);
 
-  const second = applyAllocation(base, first.allocation, 'fortune', 1);
+  const second = applyAllocation(base, first.allocation, 'insight', -1);
   assert.equal(second.ok, true);
-  assert.equal(second.remainingPoints, 0);
-  assert.equal(second.attributes.fortune, 8);
+  assert.equal(second.remainingPoints, 1);
+  assert.equal(second.attributes.insight, 54);
 
-  assert.equal(applyAllocation(base, second.allocation, 'willpower', 1).ok, false);
-  assert.equal(applyAllocation(base, empty, 'insight', 5).ok, false);
+  assert.equal(applyAllocation(base, second.allocation, 'willpower', 5).ok, false);
+  assert.equal(applyAllocation(base, empty, 'constitution', 5).ok, false);
   assert.equal(applyAllocation(base, empty, 'fortune', -1).ok, false);
+  assert.equal(applyAllocation(base, empty, 'fortune', 1).ok, false);
   assert.equal(applyAllocation(base, empty, 'fortune', 1.5).ok, false);
 
   const reset = resetAllocation(base);
@@ -179,9 +156,9 @@ function testAllocationAppliesAtMostFivePointsWithoutBreakingCaps(): void {
 }
 
 function testAllocationRejectsInvalidBaseAndExistingAllocation(): void {
-  const valid: CharacterStats = { insight: 10, constitution: 10, perception: 10, fortune: 10, willpower: 10 };
+  const valid: CharacterStats = { insight: 50, constitution: 50, perception: 50, fortune: 50, willpower: 50 };
   assert.throws(
-    () => applyAllocation({ ...valid, insight: 5 }, emptyAllocation(), 'insight', 1),
+    () => applyAllocation({ ...valid, insight: 49 }, emptyAllocation(), 'insight', 5),
     /base attribute/i,
   );
   assert.throws(
@@ -198,7 +175,7 @@ testPublishedDomainConstants();
 testCreationStatesAndBackgroundIds();
 testXorShift32IsDeterministicAndNormalizesZero();
 testRerollSeedsAreStableAndOneBased();
-testCandidateTripletsFollowAllThreeStrategies();
+testCandidateTripletsUseTheCreationAttributeRange();
 testCandidateReplayAndCanonicalSerialization();
 testNicknameValidationUsesVisibleGraphemeClusters();
 testNicknameFallbackGroupsMarksAndJoinerSequences();

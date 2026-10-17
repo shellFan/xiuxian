@@ -191,7 +191,7 @@ export function mountCharacterCreationRuntimeView(
     statLabels.push(createLabel(cc, allocationSection, `CreationStatLabel${index}`, '', 25, 330, 54, -100, y));
     const decrease = createButton(cc, allocationSection, `CreationStatDecreaseButton${index}`, '−', 76, 60, 130, y);
     statDecreaseButtons.push(decrease.button);
-    const increase = createButton(cc, allocationSection, `CreationStatIncreaseButton${index}`, '+', 76, 60, 220, y);
+    const increase = createButton(cc, allocationSection, `CreationStatIncreaseButton${index}`, '+5', 76, 60, 220, y);
     statIncreaseButtons.push(increase.button);
   }
   const resetAllocation = createButton(cc, allocationSection, 'CreationResetAllocationButton', '重置分配', 260, 66, 0, -328);

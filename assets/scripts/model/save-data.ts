@@ -1,6 +1,12 @@
 import type { CharacterBackground, CharacterStats, DestinyId } from '../v59/character-rules';
+import type { CardId } from '../v59l/card-battle-engine';
 
 export const CURRENT_SAVE_VERSION = 15;
+
+export interface CardBattleDeckEntry {
+  readonly cardId: CardId;
+  readonly upgraded: boolean;
+}
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -357,6 +363,8 @@ export interface GameSaveData {
   readonly lifetimeStats?: Readonly<Record<string, number>>;
   /** 进行中的项目战斗（V4 战斗竖切；结构由 v3/battle-service 校验）。 */
   readonly activeBattleRun?: unknown;
+  /** V5.9-L permanent non-temporary card deck; absent legacy saves use the engine starter deck. */
+  readonly cardBattleDeck?: readonly CardBattleDeckEntry[];
   readonly homeArena?: unknown;
   readonly regularWorkRewardRemainders?: { salary: number; cultivation: number };
 

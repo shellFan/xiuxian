@@ -6,6 +6,8 @@ import { hasMeaningfulCharacterProgress } from '../services/save-service';
 import {
   ALLOCATION_POINT_BUDGET,
   BACKGROUND_IDS,
+  CHARACTER_ATTRIBUTE_MAX,
+  CHARACTER_ATTRIBUTE_MIN,
   CREATION_STEPS,
   DESTINY_IDS,
   PROFESSION_IDS,
@@ -126,11 +128,12 @@ function isCandidateId(value: unknown): value is CharacterCandidateId {
   return value === 'A' || value === 'B' || value === 'C';
 }
 
-function isCharacterStats(value: unknown): value is CharacterStats {
+function isCharacterStatsInRange(value: unknown, minimum: number, maximum: number): value is CharacterStats {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const stats = value as Record<string, unknown>;
   const keys = ['insight', 'constitution', 'perception', 'fortune', 'willpower'];
-  return keys.every((key) => Number.isSafeInteger(stats[key]) && (stats[key] as number) >= 0 && (stats[key] as number) <= 20);
+  return keys.every((key) => Number.isSafeInteger(stats[key])
+    && (stats[key] as number) >= minimum && (stats[key] as number) <= maximum);
 }
 
 function isCandidateTriplet(value: unknown): value is CharacterCandidateTriplet {
@@ -140,10 +143,10 @@ function isCandidateTriplet(value: unknown): value is CharacterCandidateTriplet 
   for (const candidate of value as unknown[]) {
     if (!candidate || typeof candidate !== 'object') return false;
     const item = candidate as Record<string, unknown>;
-    if (!isCandidateId(item.id) || !isCharacterStats(item.attributes) || typeof item.destinyId !== 'string'
+    if (!isCandidateId(item.id)
+      || !isCharacterStatsInRange(item.attributes, CHARACTER_ATTRIBUTE_MIN, CHARACTER_ATTRIBUTE_MAX)
+      || typeof item.destinyId !== 'string'
       || !(DESTINY_IDS as readonly string[]).includes(item.destinyId)) return false;
-    const total = Object.values(item.attributes as CharacterStats).reduce((sum, stat) => sum + stat, 0);
-    if (total !== 50 || Object.values(item.attributes as CharacterStats).some((stat) => stat < 6 || stat > 16)) return false;
     ids.add(item.id);
     destinies.add(item.destinyId);
   }
@@ -157,7 +160,7 @@ function isDraft(value: unknown): value is CharacterCreationDraft {
   const validMode = draft.mode === 'CREATE' || draft.mode === 'BACKFILL';
   const validHistory = Array.isArray(draft.candidateHistory) && draft.candidateHistory.length <= 16
     && draft.candidateHistory.every((entry) => typeof entry === 'string' && entry.length <= 512);
-  const validAllocation = isCharacterStats(draft.allocation)
+  const validAllocation = isCharacterStatsInRange(draft.allocation, 0, ALLOCATION_POINT_BUDGET)
     && Object.values(draft.allocation as CharacterStats).every((value) => Number.isSafeInteger(value) && value >= 0 && value <= 5)
     && Object.values(draft.allocation as CharacterStats).reduce((sum, value) => sum + value, 0) <= ALLOCATION_POINT_BUDGET;
   return draft.rulesVersion === V59A_RULES_VERSION
@@ -437,7 +440,12 @@ export class CharacterCreationService {
     const allocation = applyAllocation(candidate.attributes, draft.allocation, 'insight', 0);
     if (!allocation.ok) return this.failure(allocation.error);
     const backgroundBonus = BACKGROUND_STARTING_BONUS[draft.background!];
-    const earnedAttributes = { ...emptyAllocation(), [backgroundBonus]: 1 };
+    // earnedAttributeDelta records the bonus actually applied. At the hard cap,
+    // the background grant is consumed without making the authoritative total 89.
+    const earnedAttributes = {
+      ...emptyAllocation(),
+      [backgroundBonus]: allocation.attributes[backgroundBonus] < CHARACTER_ATTRIBUTE_MAX ? 1 : 0,
+    };
     const player = this.context.player;
     const before = player.toSaveData();
     try {

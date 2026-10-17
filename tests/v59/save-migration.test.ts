@@ -80,6 +80,23 @@ const tests: Array<[string, () => void]> = [
     assert.equal(service.load().characterSetupStatus, 'BACKFILL_REQUIRED');
     assert.equal(JSON.parse(storage.getItem('game-save') ?? '{}').salary, 500);
   }],
+  ['V5.9-L creation attributes survive migration while legacy attributes remain compatible', () => {
+    const creation = { insight: 88, constitution: 50, perception: 69, fortune: 77, willpower: 60 };
+    const created = loadRaw(baseline({
+      destinyId: 'LABOR_SAINT', innateAttributes: creation, earnedAttributeDelta: {},
+      characterSetupStatus: 'COMPLETE', characterCreationReceipt: 'V59A_CREATE_V1:42:A',
+    })).data;
+    assert.deepEqual(created.innateAttributes, creation);
+    assert.equal(created.characterSetupStatus, 'COMPLETE');
+
+    const legacy = { insight: 10, constitution: 10, perception: 10, fortune: 10, willpower: 10 };
+    const old = loadRaw(baseline({
+      destinyId: 'LABOR_SAINT', innateAttributes: legacy, earnedAttributeDelta: {},
+      characterSetupStatus: 'COMPLETE', characterCreationReceipt: 'V59A_CREATE_V1:legacy:A',
+    })).data;
+    assert.deepEqual(old.innateAttributes, legacy);
+    assert.equal(old.characterSetupStatus, 'COMPLETE');
+  }],
   ['corrupt persisted save fails closed and leaves raw save untouched', () => {
     const storage = new MemoryStorageAdapter();
     storage.setItem('game-save', '{broken');

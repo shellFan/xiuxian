@@ -104,6 +104,18 @@ function testPureHooksAreBoundedAndRequireACompleteRecord(): void {
   assert.ok(effects.characterEffectMultiplier(v59Options('LABOR_SAINT', 'constitution'), 'FATIGUE_GAIN') >= 0.5);
 }
 
+function testCreationScaleMapsBackToTheExistingEffectCurve(): void {
+  const record = (insight: number): PlayerDataOptions => ({
+    destinyId: 'LABOR_SAINT',
+    innateAttributes: { insight, constitution: 50, perception: 50, fortune: 50, willpower: 50 },
+    earnedAttributeDelta: {},
+    characterSetupStatus: 'COMPLETE',
+  });
+  assert.equal(effects.characterEffectMultiplier(record(50), 'CULTIVATION_REWARD'), 1);
+  assert.equal(effects.characterEffectMultiplier(record(69), 'CULTIVATION_REWARD'), 1.1);
+  assert.equal(effects.characterEffectMultiplier(record(88), 'CULTIVATION_REWARD'), 1.2);
+}
+
 function testInsightIncreasesCultivationSettlementWithoutDestinySubstitution(): void {
   const baseContext = makeContext({ mind: 100, lastCultivateTime: 0 });
   const baseService = new CultivationService(baseContext, { cultivationClickReward: 100, clock: new FakeClock(10_000) });
@@ -227,6 +239,7 @@ function testSocialFateBoostsRelationshipsAndPenalizesSoloTaskProgress(): void {
 
 testProjectionIsImmutableAndComposesLegalDeltas();
 testPureHooksAreBoundedAndRequireACompleteRecord();
+testCreationScaleMapsBackToTheExistingEffectCurve();
 testInsightIncreasesCultivationSettlementWithoutDestinySubstitution();
 testConstitutionAndLaborSaintReduceFatigueGain();
 testPerceptionAcceleratesTaskProgress();
