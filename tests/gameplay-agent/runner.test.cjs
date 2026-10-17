@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { test } = require('node:test');
 const { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, classifyFailure, classifyStepFailure } = require('../../ai/gameplay-agent/lib/report.cjs');
-const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, storeScenarioVariable, popupDismissalComplete, popupControlKind, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
+const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, readStatePath, storeScenarioVariable, popupDismissalComplete, popupControlKind, popupChoiceCanBeClicked, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
 const { waitForArenaSkillButton } = require('../../ai/gameplay-agent/lib/home-arena-play.cjs');
 
 test('scenario ids cannot escape the reports directory', () => {
@@ -145,6 +145,26 @@ test('scenario validation accepts bounded UI clicks that wait for authoritative 
   }] }), /maxAttempts/);
 });
 
+test('clickUntilState can wait on an indexed authoritative reward field', () => {
+  assert.doesNotThrow(() => validateScenario({ id: 'indexed-state', steps: [{
+    action: 'clickUntilState', selector: '[data-action="cardReward"]', method: 'queryCardBattle',
+    path: 'rewards[0].chosen', from: false, expected: true, maxAttempts: 3,
+  }] }));
+  assert.equal(readStatePath({ rewards: [{ chosen: true }] }, 'rewards[0].chosen'), true);
+  assert.equal(readStatePath({ data: { byId: { 'reward:one': { chosen: true } } } }, 'data.byId["reward:one"].chosen'), true);
+});
+
+test('scenario popup recovery choices are constrained to real controls under the visible modal layer', () => {
+  assert.doesNotThrow(() => validateScenario({ id: 'popup-choice', steps: [{
+    action: 'clickUntilState', selector: '#attack', method: 'queryCardBattle', path: 'turn', from: 1, expected: 2, maxAttempts: 1,
+    popupChoiceSelector: '.ux-modal-layer .ux-event-option[data-weekend=\'SECLUDED_CULTIVATE\']',
+  }] }));
+  assert.throws(() => validateScenario({ id: 'popup-choice-outside-layer', steps: [{
+    action: 'clickUntilState', selector: '#attack', method: 'queryCardBattle', path: 'turn', from: 1, expected: 2, maxAttempts: 1,
+    popupChoiceSelector: '#unrelated-button',
+  }] }), /inside .ux-modal-layer/);
+});
+
 test('scroll recovery routes are optional but must be valid selectors', () => {
   assert.doesNotThrow(() => validateScenario({ id: 'scroll-route-recovery', steps: [{
     action: 'scroll', selector: '.home-scroll', deltaY: 400, recoverySelector: '[data-nav="HOME"]',
@@ -247,6 +267,14 @@ test('an obscured game choice remains blocked until the event popup is gone and 
   assert.equal(popupDismissalComplete({ closed: false }, { covered: false }), false);
   assert.equal(popupDismissalComplete({ closed: true }, { covered: true }), false);
   assert.equal(popupDismissalComplete({ closed: true }, { covered: false }), true);
+});
+
+test('a scenario popup choice is usable only when the real modal control is visible, enabled and uncovered', () => {
+  const popup = { visible: true };
+  assert.equal(popupChoiceCanBeClicked?.(popup, { found: true, visible: true, disabled: false, covered: false }) ?? false, true);
+  assert.equal(popupChoiceCanBeClicked?.(popup, { found: true, visible: true, disabled: false, covered: true }) ?? false, false);
+  assert.equal(popupChoiceCanBeClicked?.(popup, { found: true, visible: true, disabled: true, covered: false }) ?? false, false);
+  assert.equal(popupChoiceCanBeClicked?.({ visible: false }, { found: true, visible: true, disabled: false, covered: false }) ?? false, false);
 });
 
 test('a popup that appears during pointer movement is recoverable only through a visible supported control', () => {

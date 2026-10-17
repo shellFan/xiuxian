@@ -1,0 +1,21 @@
+{
+  "id": "card-battle-save-reload",
+  "title": "A played card and its enemy damage survive closing and restarting the EXE",
+  "setup": "new-player",
+  "steps": [
+    { "action": "click", "selector": "[data-nav=\"PROJECT\"]" },
+    { "action": "waitFor", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]", "timeoutMs": 5000 },
+    { "action": "click", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]" },
+    { "action": "waitFor", "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]", "timeoutMs": 5000 },
+    { "action": "click", "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])", "description": "Play an attack using the real card control" },
+    { "action": "call", "method": "queryCardBattle", "as": "beforeRestart", "asType": "object" },
+    { "action": "assert", "check": "gte", "path": "@vars.beforeRestart.hitLog.length", "expected": 1 },
+    { "action": "screenshot", "name": "card-battle-before-restart" },
+    { "action": "restartGame" },
+    { "action": "call", "method": "queryCardBattle", "as": "afterRestart", "asType": "object" },
+    { "action": "assert", "check": "equals", "path": "@vars.afterRestart.hitLog.length", "expected": "@vars.beforeRestart.hitLog.length" },
+    { "action": "assert", "check": "equals", "path": "@vars.afterRestart.enemies[0].hp", "expected": "@vars.beforeRestart.enemies[0].hp" },
+    { "action": "assert", "check": "equals", "path": "@vars.afterRestart.phase", "expected": "PLAYER_ACTION" },
+    { "action": "screenshot", "name": "card-battle-after-restart" }
+  ]
+}

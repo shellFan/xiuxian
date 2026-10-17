@@ -1,0 +1,22 @@
+{
+  "id": "card-battle-random-event",
+  "title": "Resolve a deterministic battle event through its visible choice and verify its result",
+  "setup": "new-player",
+  "steps": [
+    { "action": "click", "selector": "[data-nav=\"PROJECT\"]" },
+    { "action": "waitFor", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]", "timeoutMs": 5000 },
+    { "action": "click", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]" },
+    { "action": "waitFor", "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]", "timeoutMs": 5000 },
+    { "action": "click", "selector": "[data-action=\"cardDrawEvent\"]", "description": "Draw a battle event from the seeded authoritative event stream" },
+    { "action": "waitFor", "selector": ".ux-cardbattle-event [data-action=\"cardEvent\"][data-choice=\"A\"]", "timeoutMs": 5000 },
+    { "action": "call", "method": "queryCardBattle", "as": "pending", "asType": "object" },
+    { "action": "assert", "check": "equals", "path": "@vars.pending.pendingEventId", "expected": "EVT-07", "description": "The fixed event seed produces the rare-card encounter" },
+    { "action": "screenshot", "name": "card-battle-event-choice" },
+    { "action": "click", "selector": ".ux-cardbattle-event [data-action=\"cardEvent\"][data-choice=\"A\"]", "description": "Choose the visible rare-card outcome" },
+    { "action": "call", "method": "queryCardBattle", "as": "resolved", "asType": "object" },
+    { "action": "assert", "check": "equals", "path": "@vars.resolved.eventLog[0].eventId", "expected": "EVT-07" },
+    { "action": "assert", "check": "equals", "path": "@vars.resolved.eventLog[0].choiceId", "expected": "A" },
+    { "action": "assert", "check": "equals", "path": "@vars.resolved.piles.discard.length", "expected": 1, "description": "The selected event adds a temporary card to the discard pile" },
+    { "action": "screenshot", "name": "card-battle-event-result" }
+  ]
+}

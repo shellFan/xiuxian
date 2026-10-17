@@ -18,6 +18,11 @@ function popupDismissalComplete(popup, target) {
   return popup.closed === true && target.covered === false;
 }
 
+function popupChoiceCanBeClicked(popup, choice) {
+  return popup?.visible === true && choice?.found === true && choice.visible === true
+    && choice.disabled !== true && choice.covered === false;
+}
+
 function canRecoverObstructedClick(target, popup) {
   return target?.covered === true && popup?.visible === true
     && !!popup.control && popup.control.disabled !== true;
@@ -107,6 +112,16 @@ function readScenarioVariable(scopes, reference) {
   return value;
 }
 
+function readStatePath(value, reference) {
+  const tokens = String(reference).match(/(?:^|\.)([a-zA-Z_$][\w$]*)|\[(\d+|"[a-zA-Z0-9_:-]+")\]/g) ?? [];
+  const keys = tokens.map((token) => {
+    const bracket = token.startsWith('[') ? token.slice(1, -1) : token.replace(/^\./, '');
+    if (/^\d+$/.test(bracket)) return Number(bracket);
+    return bracket.startsWith('"') ? JSON.parse(bracket) : bracket;
+  });
+  return keys.reduce((current, key) => current == null ? undefined : current[key], value);
+}
+
 function formatHitTarget(hit) {
   if (hit == null) return 'unknown element';
   if (typeof hit === 'string') return hit;
@@ -116,4 +131,4 @@ function formatHitTarget(hit) {
   return `${hit.tag ?? 'element'}${className} (${JSON.stringify(hit)})`;
 }
 
-module.exports = { createVariableScopes, storeScenarioVariable, readScenarioVariable, formatHitTarget, popupDismissalComplete, popupControlKind, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds };
+module.exports = { createVariableScopes, storeScenarioVariable, readScenarioVariable, readStatePath, formatHitTarget, popupDismissalComplete, popupChoiceCanBeClicked, popupControlKind, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds };

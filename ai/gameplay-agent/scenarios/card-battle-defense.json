@@ -1,0 +1,21 @@
+{
+  "id": "card-battle-defense",
+  "title": "A visible defense card grants block and the enemy performs its announced action",
+  "setup": "new-player",
+  "steps": [
+    { "action": "click", "selector": "[data-nav=\"PROJECT\"]" },
+    { "action": "waitFor", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]", "timeoutMs": 5000 },
+    { "action": "click", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]" },
+    { "action": "waitFor", "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]", "timeoutMs": 5000 },
+    { "action": "assertClickable", "selector": ".ux-cardbattle-card.ux-cardbattle-defense:not([disabled])" },
+    { "action": "screenshot", "name": "card-battle-defense-intent" },
+    { "action": "click", "selector": ".ux-cardbattle-card.ux-cardbattle-defense:not([disabled])", "description": "Play a real visible defense card" },
+    { "action": "call", "method": "queryCardBattle", "as": "defended", "asType": "object" },
+    { "action": "assert", "check": "gte", "path": "@vars.defended.player.block", "expected": 8 },
+    { "action": "clickUntilState", "selector": "[data-action=\"cardEndTurn\"]", "method": "queryCardBattle", "path": "turn", "from": 1, "expected": 2, "maxAttempts": 1, "timeoutMs": 1500, "description": "End the turn and resolve the enemy's visible opening attack" },
+    { "action": "call", "method": "queryCardBattle", "as": "afterEnemy", "asType": "object" },
+    { "action": "assert", "check": "equals", "path": "@vars.afterEnemy.enemies[0].intentIndex", "expected": 1 },
+    { "action": "assert", "check": "equals", "path": "@vars.afterEnemy.phase", "expected": "PLAYER_ACTION" },
+    { "action": "screenshot", "name": "card-battle-after-enemy-action" }
+  ]
+}

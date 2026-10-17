@@ -10,7 +10,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const { CdpSession, listenPort } = require('./lib/cdp.cjs');
 const { runHomeArena } = require('./lib/home-arena-play.cjs');
 const { classifyFailure, classifyStepFailure, collectFailedScenarioIds, safeRunId, summarizeResults, validateScenario } = require('./lib/report.cjs');
-const { boundsWithinViewport, canRecoverObstructedClick, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupControlKind, popupDismissalComplete, readScenarioVariable, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldContinuePopupRecovery, shouldRestoreScrollContextAfterPopup, shouldWaitForObscuringPopup, storeScenarioVariable } = require('./lib/scenario-state.cjs');
+const { boundsWithinViewport, canRecoverObstructedClick, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupChoiceCanBeClicked, popupControlKind, popupDismissalComplete, readScenarioVariable, readStatePath, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldContinuePopupRecovery, shouldRestoreScrollContextAfterPopup, shouldWaitForObscuringPopup, storeScenarioVariable } = require('./lib/scenario-state.cjs');
 
 const root = path.resolve(__dirname, '..', '..');
 const scenarioDir = path.join(__dirname, 'scenarios');
@@ -191,12 +191,20 @@ async function waitForObscuringPopup(cdp, selector, timeoutMs = 1800) {
   return { target, popup };
 }
 
-async function inputClick(cdp, selector, clickCount = 1) {
+async function inputClick(cdp, selector, clickCount = 1, popupChoiceSelector = null) {
   let item = await inspectElement(cdp, selector);
   const dismissedInterruptions = [];
   const dismissalAttempts = [];
   const popupBaseline = item.found && item.visible && item.covered
     ? await collectInteractionDiagnostics(cdp, selector, []) : null;
+  const choosePopupControl = async (popup) => {
+    if (popup.control && popup.control.disabled !== true) return popup.control;
+    if (!popupChoiceSelector || popup.visible !== true) return null;
+    const choice = await inspectElement(cdp, popupChoiceSelector);
+    return popupChoiceCanBeClicked(popup, choice)
+      ? { ...choice, selector: popupChoiceSelector, kind: 'scenario-popup-choice' }
+      : null;
+  };
   for (let attempt = 1; item.found && item.visible && item.covered && attempt <= 3; attempt++) {
     let popup = await inspectRandomEventPopup(cdp);
     if (shouldWaitForObscuringPopup(item, popup)) {
@@ -206,16 +214,17 @@ async function inputClick(cdp, selector, clickCount = 1) {
       if (!item.covered) break;
     }
     if (!popup.visible) break;
-    if (!popup.control || popup.control.disabled) {
+    const control = await choosePopupControl(popup);
+    if (!control) {
       const error = new Error(`AUTOMATION: a visible modal covers ${selector}, but no scenario-supported interactive choice is available`);
       error.failureClass = 'AUTOMATION_DEFECT';
       try { error.diagnostics = await collectInteractionDiagnostics(cdp, selector, dismissalAttempts); } catch (captureError) { error.diagnostics = { beforeAction: popupBaseline, captureError: captureError.message }; }
       throw error;
     }
-    const record = { attempt, control: popup.control, actions: [] };
+    const record = { attempt, control, actions: [] };
     try {
-      await dispatchClick(cdp, popup.control, popup.control.selector);
-      record.actions.push(popup.control.kind === 'critical-message-choice' ? 'CDP pointer choice of the visible critical conversation' : 'CDP pointer click');
+      await dispatchClick(cdp, control, control.selector);
+      record.actions.push(control.kind === 'critical-message-choice' ? 'CDP pointer choice of the visible critical conversation' : control.kind === 'scenario-popup-choice' ? 'CDP pointer choice of the scenario-declared visible modal option' : 'CDP pointer click');
     } catch (error) {
       record.actions.push(`CDP pointer click error: ${error.message}`);
       record.error = error.message;
@@ -232,7 +241,7 @@ async function inputClick(cdp, selector, clickCount = 1) {
     record.popupClosed = !popupAfter.visible;
     record.targetUncovered = !item.covered;
     dismissalAttempts.push(record);
-    if (popupDismissalComplete({ closed: record.popupClosed }, { covered: item.covered })) dismissedInterruptions.push(popup.control.kind);
+    if (popupDismissalComplete({ closed: record.popupClosed }, { covered: item.covered })) dismissedInterruptions.push(control.kind);
   }
   if (item.found && item.visible && item.covered && dismissalAttempts.length) {
     const error = new Error(`AUTOMATION: failed to dismiss the visible random-event popup after ${dismissalAttempts.length} attempts; blocked click refused: ${selector}`);
@@ -271,14 +280,16 @@ async function inputClick(cdp, selector, clickCount = 1) {
         item = await dispatchClick(cdp, { ...item, clickCount }, selector);
         break;
       }
-      if (!canRecoverObstructedClick(item, popup)) {
+      const control = await choosePopupControl(popup);
+      const recoverablePopup = control ? { ...popup, control } : popup;
+      if (!canRecoverObstructedClick(item, recoverablePopup)) {
         error.diagnostics = { ...error.diagnostics, popup, observedTarget: item };
         throw error;
       }
-      const record = { attempt, control: popup.control, actions: [] };
+      const record = { attempt, control, actions: [] };
       try {
-        await dispatchClick(cdp, popup.control, popup.control.selector);
-        record.actions.push(popup.control.kind === 'critical-message-choice' ? 'CDP pointer choice of the visible critical conversation' : 'CDP pointer click');
+        await dispatchClick(cdp, control, control.selector);
+        record.actions.push(control.kind === 'critical-message-choice' ? 'CDP pointer choice of the visible critical conversation' : control.kind === 'scenario-popup-choice' ? 'CDP pointer choice of the scenario-declared visible modal option' : 'CDP pointer click');
       } catch (dismissError) {
         record.actions.push(`CDP pointer click error: ${dismissError.message}`);
         record.error = dismissError.message;
@@ -303,7 +314,7 @@ async function inputClick(cdp, selector, clickCount = 1) {
         catch (captureError) { wrapped.diagnostics = { selector, attempts: dismissalAttempts, captureError: captureError.message }; }
         throw wrapped;
       }
-      dismissedInterruptions.push(popup.control.kind);
+      dismissedInterruptions.push(control.kind);
       if (attempt === 3) {
         const wrapped = new Error(`AUTOMATION: modal recovery reached the three-attempt limit before clicking ${selector}`);
         wrapped.failureClass = 'AUTOMATION_DEFECT';
@@ -478,7 +489,7 @@ async function applyStep({ step, context, screenshotDir }) {
         error.diagnostics = { path: step.path, from: step.from, expected: step.expected, state: lastState, attempts };
         throw error;
       }
-      const interaction = await inputClick(session, step.selector);
+      const interaction = await inputClick(session, step.selector, 1, step.popupChoiceSelector ?? null);
       const deadline = Date.now() + timeoutMs;
       do {
         await delay(100);
@@ -551,7 +562,7 @@ async function applyStep({ step, context, screenshotDir }) {
     return { detail: `clicked actual modal control and verified it closed: ${step.selector}`, element: item };
   }
   if (step.action === 'click' || step.action === 'doubleClick') {
-    const item = await inputClick(session, step.selector, step.action === 'doubleClick' ? 2 : 1);
+    const item = await inputClick(session, step.selector, step.action === 'doubleClick' ? 2 : 1, step.popupChoiceSelector ?? null);
     return { detail: `${step.action} ${step.selector}`, element: item };
   }
   if (step.action === 'type') {
@@ -751,7 +762,7 @@ async function readFacadeState(session, method, args = []) {
 }
 
 function readObjectPath(value, pathValue) {
-  return pathValue.split('.').reduce((current, key) => current == null ? undefined : current[key], value);
+  return readStatePath(value, pathValue);
 }
 
 async function resolveArguments(session, args, variables) {

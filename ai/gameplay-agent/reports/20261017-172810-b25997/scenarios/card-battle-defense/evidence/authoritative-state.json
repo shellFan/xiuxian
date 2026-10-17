@@ -1,0 +1,40 @@
+{
+  "clock": {
+    "hour": 1,
+    "minute": 32,
+    "weekday": 0,
+    "isWeekend": true
+  },
+  "mode": "FISHING",
+  "salaryBalance": 0,
+  "todayEarned": 0,
+  "incomeRate": {
+    "perSecond": 0.0016666666666666668,
+    "perMinute": 0.1,
+    "perHour": 6
+  },
+  "todo": {
+    "pendingCount": 1,
+    "items": [
+      {
+        "id": "at_mvco7b0n_5mo",
+        "title": "第一张工单：排查接口异常",
+        "source": "SYSTEM",
+        "priority": "P2"
+      }
+    ]
+  },
+  "messages": {
+    "unreadCount": 0,
+    "pendingReplyCount": 0,
+    "latest": ""
+  },
+  "activity": [],
+  "life": [],
+  "task": [],
+  "project": null,
+  "goal": {
+    "title": "接下今天的第一个任务",
+    "detail": "任务页挑选差事——完成领工资、修为与绩效，工时正等着你"
+  }
+}

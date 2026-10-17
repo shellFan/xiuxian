@@ -5,6 +5,7 @@ const ACTIONS = new Set(['click', 'clickIfPresent', 'clickUntilState', 'doubleCl
 const FAILURE_CLASSES = new Set(['SETUP_BLOCKED', 'AUTOMATION_DEFECT', 'GAME_DEFECT', 'ASSERTION_DEFECT', 'ENVIRONMENT_BLOCKED', 'NOT_VERIFIED']);
 const VALUE_TYPES = new Set(['array', 'boolean', 'null', 'number', 'object', 'string']);
 const SAFE_STATE_PATH = /^(?:@[a-z][a-zA-Z0-9]*)?(?:\.[a-zA-Z_$][\w$]*|\[(?:\d+|"[a-zA-Z0-9_:-]+")\])*$/;
+const SAFE_CLICK_STATE_PATH = /^[a-zA-Z_$][\w$]*(?:(?:\.[a-zA-Z_$][\w$]*)|\[(?:\d+|"[a-zA-Z0-9_:-]+")\])*$/;
 
 function safeRunId(value) {
   return typeof value === 'string' && SAFE_ID.test(value) && !value.includes('..') ? value : null;
@@ -32,12 +33,13 @@ function validateScenario(scenario) {
     if (['waitFor', 'clickIfPresent'].includes(step.action) && step.timeoutMs !== undefined && (!Number.isFinite(step.timeoutMs) || step.timeoutMs < 1 || step.timeoutMs > 120000)) throw new Error(`scenario ${scenario.id} step ${index + 1}: ${step.action} timeoutMs must be between 1 and 120000`);
     if (step.action === 'clickUntilState') {
       if (typeof step.method !== 'string' || !/^([a-zA-Z_$][\w$]*\.)*[a-zA-Z_$][\w$]*$/.test(step.method)) throw new Error(`scenario ${scenario.id} step ${index + 1}: clickUntilState needs a valid facade method`);
-      if (typeof step.path !== 'string' || !/^[a-zA-Z_$][\w$]*(?:\.[a-zA-Z_$][\w$]*)*$/.test(step.path) || /(?:__proto__|prototype|constructor|window|globalThis|process|require)/i.test(step.path)) throw new Error(`scenario ${scenario.id} step ${index + 1}: clickUntilState needs a safe state path`);
+      if (typeof step.path !== 'string' || !SAFE_CLICK_STATE_PATH.test(step.path) || /(?:__proto__|prototype|constructor|window|globalThis|process|require)/i.test(step.path)) throw new Error(`scenario ${scenario.id} step ${index + 1}: clickUntilState needs a safe state path`);
       if (!Object.hasOwn(step, 'from') || !Object.hasOwn(step, 'expected')) throw new Error(`scenario ${scenario.id} step ${index + 1}: clickUntilState needs from and expected states`);
       if (!Number.isInteger(step.maxAttempts) || step.maxAttempts < 1 || step.maxAttempts > 3) throw new Error(`scenario ${scenario.id} step ${index + 1}: clickUntilState maxAttempts must be between 1 and 3`);
       if (step.timeoutMs !== undefined && (!Number.isFinite(step.timeoutMs) || step.timeoutMs < 1 || step.timeoutMs > 120000)) throw new Error(`scenario ${scenario.id} step ${index + 1}: clickUntilState timeoutMs must be between 1 and 120000`);
       if (step.as !== undefined && !/^[a-z][a-zA-Z0-9]{0,39}$/.test(step.as)) throw new Error(`scenario ${scenario.id} step ${index + 1}: invalid result alias`);
     }
+    if (step.popupChoiceSelector !== undefined && (typeof step.popupChoiceSelector !== 'string' || !/^\.ux-modal-layer\s+/.test(step.popupChoiceSelector) || step.popupChoiceSelector.length > 500)) throw new Error(`scenario ${scenario.id} step ${index + 1}: popupChoiceSelector must target a control inside .ux-modal-layer`);
     if (step.action === 'scroll' && step.ensureVisibleSelector !== undefined && (typeof step.ensureVisibleSelector !== 'string' || !step.ensureVisibleSelector.trim())) throw new Error(`scenario ${scenario.id} step ${index + 1}: ensureVisibleSelector must be a nonempty selector`);
     if (step.action === 'scroll' && step.recoverySelector !== undefined && (typeof step.recoverySelector !== 'string' || !step.recoverySelector.trim())) throw new Error(`scenario ${scenario.id} step ${index + 1}: recoverySelector must be a nonempty selector`);
     if (['getGameState', 'call'].includes(step.action) && step.as !== undefined && !/^[a-z][a-zA-Z0-9]{0,39}$/.test(step.as)) throw new Error(`scenario ${scenario.id} step ${index + 1}: invalid result alias`);

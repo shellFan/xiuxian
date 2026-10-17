@@ -44,6 +44,7 @@
     "gameplay-agent:test": "node ai/gameplay-agent/index.cjs test",
     "gameplay-agent:creation": "node ai/gameplay-agent/index.cjs test --scenario=character-creation",
     "gameplay-agent:full-journey": "node ai/gameplay-agent/index.cjs test --scenario=new-player-full-journey",
+    "gameplay-agent:l": "node ai/gameplay-agent/index.cjs test --scenario=character-creation-attributes,card-battle-first-win,card-battle-defense,card-battle-random-event,card-battle-save-reload",
       "gameplay-agent:fate-choice": "node ai/gameplay-agent/index.cjs test --scenario=fate-choice-negotiation",
       "gameplay-agent:fate-rebirth": "node ai/gameplay-agent/index.cjs test --scenario=fate-chain-death-rebirth",
       "gameplay-agent:fate-challenge": "node ai/gameplay-agent/index.cjs test --scenario=fate-secret-trial",

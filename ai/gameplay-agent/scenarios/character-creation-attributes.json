@@ -1,0 +1,20 @@
+{
+  "id": "character-creation-attributes",
+  "title": "Creation attributes stay in range and plus-five/minus-one controls restore the draft",
+  "setup": "new-player",
+  "steps": [
+    { "action": "call", "method": "queryCharacterProfile", "as": "profile", "asType": "object", "description": "Read the authoritative saved creation attributes after the visible adjustment cycle" },
+    { "action": "assert", "check": "equals", "path": "@vars.profile.setupStatus", "expected": "COMPLETE" },
+    { "action": "assert", "check": "gte", "path": "@vars.profile.effective.insight", "expected": 50 },
+    { "action": "assert", "check": "lte", "path": "@vars.profile.effective.insight", "expected": 88 },
+    { "action": "assert", "check": "gte", "path": "@vars.profile.effective.constitution", "expected": 50 },
+    { "action": "assert", "check": "lte", "path": "@vars.profile.effective.constitution", "expected": 88 },
+    { "action": "assert", "check": "gte", "path": "@vars.profile.effective.perception", "expected": 50 },
+    { "action": "assert", "check": "lte", "path": "@vars.profile.effective.perception", "expected": 88 },
+    { "action": "assert", "check": "gte", "path": "@vars.profile.effective.fortune", "expected": 50 },
+    { "action": "assert", "check": "lte", "path": "@vars.profile.effective.fortune", "expected": 88 },
+    { "action": "assert", "check": "gte", "path": "@vars.profile.effective.willpower", "expected": 50 },
+    { "action": "assert", "check": "lte", "path": "@vars.profile.effective.willpower", "expected": 88 },
+    { "action": "screenshot", "name": "saved-creation-attributes", "description": "Capture the completed character after the real plus-five and five minus-one UI inputs" }
+  ]
+}
