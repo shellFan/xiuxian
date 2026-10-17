@@ -9,6 +9,7 @@ V5.9-L meets the project-defined entry gate for continuing to V5.9-M. The packag
 ## Baseline and changes
 
 - L branch: `feature/v59l-card-battle`
+- L implementation commit: `93419355bfe1e2a2263121095f497080085bd68b`
 - Starting HEAD: `1bb3221aaf6782d372186f3e3ebf71b077c0f0f9`
 - Build input hash: `73078246b46812ba59d438f7c451b93d63cd15e70d4aad08c8419f77197d6b3e`
 - The L implementation contains 36 catalogued cards, 12 battle events, two phase-capable bosses, and 36 card-art PNGs.
