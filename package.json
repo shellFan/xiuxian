@@ -49,12 +49,16 @@
     "gameplay-agent:fate-rebirth": "node ai/gameplay-agent/index.cjs test --scenario=fate-chain-death-rebirth",
     "gameplay-agent:fate-challenge": "node ai/gameplay-agent/index.cjs test --scenario=fate-secret-trial",
     "gameplay-agent:economy": "node ai/gameplay-agent/index.cjs test --scenario=economy",
+    "gameplay-agent:overtime": "node ai/gameplay-agent/index.cjs test --scenario=sect-overtime-approval",
     "gameplay-agent:time-save": "node ai/gameplay-agent/index.cjs test --scenario=time-save",
     "gameplay-agent:viewport": "node ai/gameplay-agent/index.cjs test --scenario=viewport-matrix",
     "gameplay-agent:report": "node ai/gameplay-agent/index.cjs report",
     "gameplay-agent:rerun-failed": "node ai/gameplay-agent/index.cjs rerun-failed",
     "gameplay-agent:gate": "node ai/gameplay-agent/index.cjs gate",
-    "gameplay-agent:sect-creation": "node ai/gameplay-agent/index.cjs test --scenario=sect-character-creation"
+    "gameplay-agent:sect-creation": "node ai/gameplay-agent/index.cjs test --scenario=sect-character-creation",
+    "gameplay-agent:sect-project": "node ai/gameplay-agent/index.cjs test --scenario=sect-project-contract",
+    "gameplay-agent:sect-career": "node ai/gameplay-agent/index.cjs test --scenario=sect-career-interview",
+    "gameplay-agent:m-acceptance": "node ai/gameplay-agent/index.cjs test --scenario=sect-character-creation,economy,time-save,sect-overtime-approval,sect-project-contract,sect-career-interview"
   },
   "dependencies": {
     "ajv": "^8.17.1",

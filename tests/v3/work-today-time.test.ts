@@ -132,8 +132,8 @@ function testCrossMidnightOwnershipSurvivesRestartAndRetries(): void {
 }
 
 function testV6MigrationAndImmutableRoundTrip(): void {
-  // V5.9-J: fate run and rebirth metadata advance the current save schema to v15.
-  assert.equal(CURRENT_SAVE_VERSION, 15);
+  // V5.9-M: work-life, career and project contract state advance the save schema to v17.
+  assert.equal(CURRENT_SAVE_VERSION, 17);
   const storage = new MemoryStorageAdapter();
   const v6Day = {
     dayIndex: 4,

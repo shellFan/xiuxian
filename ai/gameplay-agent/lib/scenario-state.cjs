@@ -18,9 +18,16 @@ function popupDismissalComplete(popup, target) {
   return popup.closed === true && target.covered === false;
 }
 
+function canFinishClickAfterFinalPopupDismissal({ popupClosed, target, attempt, maxAttempts }) {
+  return attempt === maxAttempts && popupClosed === true && target?.found === true
+    && target.visible === true && target.disabled !== true && target.covered === false
+    && boundsWithinViewport(target.bounds, target.viewport);
+}
+
 function popupChoiceCanBeClicked(popup, choice) {
   return popup?.visible === true && choice?.found === true && choice.visible === true
-    && choice.disabled !== true && choice.covered === false;
+    && choice.disabled !== true && choice.covered === false
+    && boundsWithinViewport(choice.bounds, choice.viewport);
 }
 
 function canRecoverObstructedClick(target, popup) {
@@ -122,6 +129,10 @@ function readStatePath(value, reference) {
   return keys.reduce((current, key) => current == null ? undefined : current[key], value);
 }
 
+function scenarioStateMatchesFrom(value, from) {
+  return from === null ? value == null : value === from;
+}
+
 function formatHitTarget(hit) {
   if (hit == null) return 'unknown element';
   if (typeof hit === 'string') return hit;
@@ -131,4 +142,4 @@ function formatHitTarget(hit) {
   return `${hit.tag ?? 'element'}${className} (${JSON.stringify(hit)})`;
 }
 
-module.exports = { createVariableScopes, storeScenarioVariable, readScenarioVariable, readStatePath, formatHitTarget, popupDismissalComplete, popupChoiceCanBeClicked, popupControlKind, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds };
+module.exports = { createVariableScopes, storeScenarioVariable, readScenarioVariable, readStatePath, formatHitTarget, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupChoiceCanBeClicked, popupControlKind, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds, scenarioStateMatchesFrom };

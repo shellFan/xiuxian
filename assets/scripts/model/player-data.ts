@@ -1,4 +1,4 @@
-import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState, type FateRunState, type RebirthMetaState, type CardBattleDeckEntry } from './save-data';
+import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type OvertimeApplicationState, type SectJobApplicationState, type PendingSectContractState, type SectCareerRecordState, type SectProjectContractState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState, type FateRunState, type RebirthMetaState, type CardBattleDeckEntry } from './save-data';
 import { cloneFateRun, cloneRebirthMeta, normalizeFateRun, normalizeRebirthMeta } from '../v59j/fate-state';
 
 export interface PlayerDataOptions {
@@ -15,6 +15,10 @@ export interface PlayerDataOptions {
   readonly performance?: number;
   readonly sectId?: string | null;
   readonly lastSectSwitchTime?: number;
+  readonly sectApplications?: readonly SectJobApplicationState[];
+  readonly pendingSectContract?: PendingSectContractState | null;
+  readonly sectCareerHistory?: readonly SectCareerRecordState[];
+  readonly sectProjectContract?: SectProjectContractState | null;
   readonly talentId?: string | null;
   readonly workMode?: WorkMode;
   readonly workSeconds?: number;
@@ -72,6 +76,10 @@ export interface PlayerDataOptions {
   readonly overtimeFatigue?: OvertimeFatigueState;
   // ── Gameplay V4 ──
   readonly activeOvertimeSession?: OvertimeSessionState | null;
+  readonly overtimeApplications?: readonly OvertimeApplicationState[];
+  readonly settledOvertimeSessionIds?: readonly string[];
+  readonly health?: number;
+  readonly mood?: number;
   readonly evidence?: readonly EvidenceItemState[];
   readonly responsibilityCases?: readonly ResponsibilityCaseState[];
   readonly incidents?: readonly IncidentState[];
@@ -162,6 +170,10 @@ export class PlayerData {
   public performance: number;
   public sectId: string | null;
   public lastSectSwitchTime: number;
+  public sectApplications: SectJobApplicationState[];
+  public pendingSectContract: PendingSectContractState | null;
+  public sectCareerHistory: SectCareerRecordState[];
+  public sectProjectContract: SectProjectContractState | null;
   public talentId: string | null;
   public workMode: WorkMode;
   public workSeconds: number;
@@ -226,6 +238,10 @@ export class PlayerData {
   public overtimeFatigue: OvertimeFatigueState;
   // ── Gameplay V4 ──
   public activeOvertimeSession: OvertimeSessionState | null;
+  public overtimeApplications: OvertimeApplicationState[];
+  public settledOvertimeSessionIds: string[];
+  public health: number;
+  public mood: number;
   public evidence: EvidenceItemState[];
   public responsibilityCases: ResponsibilityCaseState[];
   public incidents: IncidentState[];
@@ -308,6 +324,10 @@ export class PlayerData {
     this.performance = options.performance ?? 0;
     this.sectId = options.sectId ?? null;
     this.lastSectSwitchTime = options.lastSectSwitchTime ?? 0;
+    this.sectApplications = (options.sectApplications ?? []).map((application) => ({ ...application })).slice(-30);
+    this.pendingSectContract = options.pendingSectContract ? { ...options.pendingSectContract } : null;
+    this.sectCareerHistory = (options.sectCareerHistory ?? []).map((record) => ({ ...record })).slice(-30);
+    this.sectProjectContract = options.sectProjectContract ? { ...options.sectProjectContract } : null;
     this.talentId = options.talentId ?? null;
     this.workMode = options.workMode ?? 'FISHING';
     this.workSeconds = options.workSeconds ?? 0;
@@ -363,6 +383,10 @@ export class PlayerData {
     this.lastOvertimeWorkdayStartAt = Number.isSafeInteger(options.lastOvertimeWorkdayStartAt) && options.lastOvertimeWorkdayStartAt! >= 0 ? options.lastOvertimeWorkdayStartAt! : 0;
     this.overtimeFatigue = options.overtimeFatigue === 'EXHAUSTED' || options.overtimeFatigue === 'TIRED' ? options.overtimeFatigue : 'RESTED';
     this.activeOvertimeSession = sanitizeSession(options.activeOvertimeSession);
+    this.overtimeApplications = (options.overtimeApplications ?? []).filter(isOvertimeApplication).map((application) => ({ ...application })).slice(-30);
+    this.settledOvertimeSessionIds = Array.from(new Set(options.settledOvertimeSessionIds ?? [])).filter((id) => typeof id === 'string' && id.length > 0).slice(-90);
+    this.health = clampInt(options.health, 0, 100, 100);
+    this.mood = clampInt(options.mood, 0, 100, 60);
     this.evidence = [...(options.evidence ?? [])];
     this.responsibilityCases = [...(options.responsibilityCases ?? [])];
     this.incidents = [...(options.incidents ?? [])];
@@ -457,7 +481,11 @@ export class PlayerData {
       lastSaveTime: this.lastSaveTime,
       workers: this.workers.map((worker) => ({ ...worker })),
       cultivationExp: this.cultivationExp, careerLevel: this.careerLevel, mind: this.mind, maxMind: this.maxMind,
-      performance: this.performance, sectId: this.sectId, lastSectSwitchTime: this.lastSectSwitchTime, talentId: this.talentId, workMode: this.workMode,
+      performance: this.performance, sectId: this.sectId, lastSectSwitchTime: this.lastSectSwitchTime,
+      sectApplications: this.sectApplications.map((application) => ({ ...application })),
+      pendingSectContract: this.pendingSectContract ? { ...this.pendingSectContract } : null,
+      sectCareerHistory: this.sectCareerHistory.map((record) => ({ ...record })), talentId: this.talentId, workMode: this.workMode,
+      sectProjectContract: this.sectProjectContract ? { ...this.sectProjectContract } : null,
       workSeconds: this.workSeconds, fishingSeconds: this.fishingSeconds, kpiProgress: { ...this.kpiProgress },
       promotionFailCount: this.promotionFailCount, officeLevel: this.officeLevel, lastIdleSettlementId: this.lastIdleSettlementId,
       unlockedAchievementIds: [...this.unlockedAchievementIds],
@@ -499,6 +527,10 @@ export class PlayerData {
       lastOvertimeWorkdayStartAt: this.lastOvertimeWorkdayStartAt,
       overtimeFatigue: this.overtimeFatigue,
       activeOvertimeSession: this.activeOvertimeSession ? { ...this.activeOvertimeSession } : null,
+      overtimeApplications: this.overtimeApplications.map((application) => ({ ...application })),
+      settledOvertimeSessionIds: [...this.settledOvertimeSessionIds],
+      health: this.health,
+      mood: this.mood,
       evidence: this.evidence.map((e) => ({ ...e })),
       responsibilityCases: this.responsibilityCases.map((c) => ({ ...c, evidenceIds: [...c.evidenceIds], relationshipEffects: { ...c.relationshipEffects } })),
       incidents: this.incidents.map((i) => ({ ...i })),
@@ -609,6 +641,8 @@ function sanitizeSession(session: OvertimeSessionState | null | undefined): Over
   if (!session || typeof session !== 'object') return null;
   if (!session.source || typeof session.plannedSeconds !== 'number' || session.plannedSeconds <= 0) return null;
   return {
+    ...(typeof session.sessionId === 'string' && session.sessionId.length > 0 ? { sessionId: session.sessionId } : {}),
+    ...(typeof session.approvalId === 'string' && session.approvalId.length > 0 ? { approvalId: session.approvalId } : {}),
     source: session.source,
     free: session.free === true,
     plannedSeconds: Math.max(0, Math.floor(session.plannedSeconds)),
@@ -617,6 +651,20 @@ function sanitizeSession(session: OvertimeSessionState | null | undefined): Over
     status: session.status === 'ACTIVE' ? 'ACTIVE' : 'OFFERED',
     startedAt: typeof session.startedAt === 'number' ? session.startedAt : null,
   };
+}
+
+function isOvertimeApplication(value: unknown): value is OvertimeApplicationState {
+  if (!value || typeof value !== 'object') return false;
+  const application = value as OvertimeApplicationState;
+  return typeof application.id === 'string' && application.id.length > 0
+    && Number.isSafeInteger(application.dayIndex) && application.dayIndex > 0
+    && typeof application.sectId === 'string' && typeof application.professionId === 'string'
+    && typeof application.taskId === 'string'
+    && Number.isSafeInteger(application.plannedSeconds) && application.plannedSeconds > 0
+    && Number.isSafeInteger(application.approvalPercent) && application.approvalPercent >= 0 && application.approvalPercent <= 100
+    && Number.isSafeInteger(application.approvalRoll) && application.approvalRoll >= 1 && application.approvalRoll <= 100
+    && ['APPROVED', 'REJECTED', 'STARTED', 'SETTLED'].includes(application.status)
+    && Number.isSafeInteger(application.appliedAt) && application.appliedAt >= 0;
 }
 
 function isAutoPolicy(value: unknown): value is AutoPolicy {

@@ -125,7 +125,7 @@ function testLongRunMatrixIsSeededCompleteAndNumeric(): void {
   assert.equal(first.overtime[7].ALWAYS.overtimeDays, 5);
   assert.equal(first.overtime[7].ALWAYS.salary, 210);
   assert.equal(first.overtime[7].ALWAYS.freeOvertimeHours, 4);
-  assert.equal(first.overtime[7].ALWAYS.sustainableScore, 677.82965);
+  assert.equal(first.overtime[7].ALWAYS.sustainableScore, 634.82965);
   assert.equal(first.overtime[30].NEVER.overtimeDays, 0);
   assert.equal(first.overtime[60].SELECTIVE.workdays, 44);
   assert.equal(first.criteria.FREE_OVERTIME.value, 35);

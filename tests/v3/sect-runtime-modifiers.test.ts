@@ -4,6 +4,7 @@ import { GameContext } from '../../assets/scripts/core/game-context';
 import type { SectId, SectModifiers } from '../../assets/scripts/model/config-types';
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import { ConfigService, ConfigValidationError } from '../../assets/scripts/services/config-service';
+import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import type { EventDefinition } from '../../assets/scripts/v2/event-engine';
 import { EVENTS } from '../../assets/scripts/v2/v2-event-service';
 
@@ -19,6 +20,9 @@ function configWithSectModifiers(overrides: Partial<Record<SectId, Partial<SectM
     sect: {
       sects: base.sect.sects.map((sect) => ({
         ...sect,
+        // This suite isolates pay multipliers; approval behavior has its own
+        // tests and must not be bypassed by calling the legacy paid-session API.
+        employment: { ...sect.employment, overtimeRule: 'PRE_APPROVED' },
         modifiers: { ...sect.modifiers, ...overrides[sect.id] },
       })),
     },
@@ -30,6 +34,7 @@ function contextFor(sectId: SectId, overrides: Partial<Record<SectId, Partial<Se
   const context = new GameContext({
     board: null,
     clock,
+    storage: new MemoryStorageAdapter(),
     configService: configWithSectModifiers(overrides),
     player: new PlayerData({ lastSaveTime: clock.now(), sectId }),
   });

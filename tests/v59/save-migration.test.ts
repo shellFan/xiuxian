@@ -44,7 +44,7 @@ const tests: Array<[string, () => void]> = [
   }],
   ['pristine v13 save without a profession still routes to creation', () => {
     const { data } = loadRaw(baseline());
-    assert.equal(data.saveVersion, 15);
+    assert.equal(data.saveVersion, 17);
     assert.equal(data.profession, undefined);
     assert.equal(data.characterSetupStatus, 'CREATION_REQUIRED');
   }],

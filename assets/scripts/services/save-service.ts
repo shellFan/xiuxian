@@ -133,9 +133,15 @@ function migrate(raw: unknown, now: number): GameSaveData {
     careerLevel: isPositiveSafeInteger(raw.careerLevel) ? raw.careerLevel : 1,
     mind: isNonNegativeSafeInteger(raw.mind) ? raw.mind : 100,
     maxMind: isPositiveSafeInteger(raw.maxMind) ? raw.maxMind : 100,
+    health: isNonNegativeSafeInteger(raw.health) ? Math.min(100, raw.health) : 100,
+    mood: isNonNegativeSafeInteger(raw.mood) ? Math.min(100, raw.mood) : 60,
     performance: isNonNegativeSafeInteger(raw.performance) ? raw.performance : 0,
     sectId: typeof raw.sectId === 'string' ? raw.sectId : null,
     lastSectSwitchTime: isNonNegativeSafeInteger(raw.lastSectSwitchTime) ? raw.lastSectSwitchTime : 0,
+    sectApplications: Array.isArray(raw.sectApplications) ? raw.sectApplications.filter(isSectJobApplication).slice(-30) : [],
+    pendingSectContract: normalizePendingSectContract(raw.pendingSectContract),
+    sectCareerHistory: Array.isArray(raw.sectCareerHistory) ? raw.sectCareerHistory.filter(isSectCareerRecord).slice(-30) : [],
+    sectProjectContract: normalizeSectProjectContract(raw.sectProjectContract),
     talentId: typeof raw.talentId === 'string' ? raw.talentId : null,
     // ULTRA-DEEP F2（MEDIUM 修复）：workMode 四值全持久化 —— 此前二值化把
     // CULTIVATING/SOCIAL 静默降级为 FISHING（玩家选修炼/社交，回来变摸鱼）。
@@ -224,6 +230,9 @@ function migrate(raw: unknown, now: number): GameSaveData {
   const incidents = sanitizeUniqueRecords(raw.incidents, isIncidentState);
   Object.assign(merged, {
     activeOvertimeSession: normalizeOvertimeSession(raw.activeOvertimeSession),
+    overtimeApplications: normalizeOvertimeApplications(raw.overtimeApplications),
+    settledOvertimeSessionIds: Array.isArray(raw.settledOvertimeSessionIds)
+      ? uniqueIds(raw.settledOvertimeSessionIds).slice(-90) : [],
     evidence: sanitizeUniqueRecords(raw.evidence, isEvidenceItem),
     responsibilityCases: sanitizeUniqueRecords(raw.responsibilityCases, isResponsibilityCase),
     incidents,
@@ -586,9 +595,47 @@ function normalizeProject(value: unknown): ProjectState | null {
 function isDailyRealityEntry(value: unknown): value is DailyRealityEntryState {
   if (!isRecord(value) || typeof value.text !== 'string' || !isFiniteNonNegativeNumber(value.time)) return false;
   const kinds = ['WORK', 'FAVOR', 'MEETING', 'INCIDENT', 'OVERTIME', 'CHANGE', 'BLAME', 'REST', 'LIFE'];
-  const actions = ['COFFEE', 'LUNCH', 'MILK_TEA', 'CODE_COMMIT', 'DOCUMENT'];
+  const actions = ['COFFEE', 'LUNCH', 'MILK_TEA', 'SNACK', 'DINNER', 'WALK', 'EXERCISE', 'MEDITATE', 'GAMING', 'READING', 'HOT_SPRING', 'SOCIAL', 'CODE_COMMIT', 'DOCUMENT'];
   return typeof value.kind === 'string' && kinds.includes(value.kind)
     && (value.lifeAction === undefined || (typeof value.lifeAction === 'string' && actions.includes(value.lifeAction)));
+}
+
+function isSectJobApplication(value: unknown): value is import('../model/save-data').SectJobApplicationState {
+  if (!isRecord(value)) return false;
+  return typeof value.id === 'string' && typeof value.sourceSectId === 'string' && typeof value.targetSectId === 'string'
+    && isNonNegativeSafeInteger(value.appliedAt)
+    && (value.status === 'INTERVIEW' || value.status === 'OFFERED' || value.status === 'REJECTED' || value.status === 'ACCEPTED');
+}
+
+function isSectCareerRecord(value: unknown): value is import('../model/save-data').SectCareerRecordState {
+  return isRecord(value) && typeof value.sectId === 'string' && isNonNegativeSafeInteger(value.startedAt)
+    && (value.endedAt === undefined || isNonNegativeSafeInteger(value.endedAt));
+}
+
+function normalizeSectProjectContract(value: unknown): import('../model/save-data').SectProjectContractState | null {
+  if (!isRecord(value)) return null;
+  const status = value.status;
+  const risk = value.risk;
+  if (typeof value.id !== 'string' || typeof value.sectId !== 'string' || typeof value.title !== 'string'
+    || !isPositiveSafeInteger(value.dayIndex) || !isPositiveSafeInteger(value.workMinutes)
+    || !isNonNegativeSafeInteger(value.rewardSalary) || !isNonNegativeSafeInteger(value.rewardPerformance)
+    || !['LOW', 'MEDIUM', 'HIGH'].includes(risk as string)
+    || !['ACCEPTED', 'ACTIVE', 'COMPLETED', 'FAILED'].includes(status as string)) return null;
+  return {
+    id: value.id, sectId: value.sectId, dayIndex: value.dayIndex, title: value.title,
+    risk: risk as import('../model/save-data').SectProjectRisk, workMinutes: value.workMinutes,
+    rewardSalary: value.rewardSalary, rewardPerformance: value.rewardPerformance,
+    status: status as import('../model/save-data').SectProjectContractState['status'],
+  };
+}
+
+function normalizePendingSectContract(value: unknown): GameSaveData['pendingSectContract'] {
+  if (!isRecord(value) || typeof value.applicationId !== 'string' || typeof value.sourceSectId !== 'string' || typeof value.sectId !== 'string'
+    || !isPositiveSafeInteger(value.effectiveDayIndex) || !isNonNegativeSafeInteger(value.acceptedAt)) return null;
+  return {
+    applicationId: value.applicationId, sourceSectId: value.sourceSectId, sectId: value.sectId,
+    effectiveDayIndex: value.effectiveDayIndex, acceptedAt: value.acceptedAt,
+  };
 }
 
 /** Non-optional V2 fields set by migrate() for old saves. */
@@ -706,6 +753,7 @@ function normalizeGameDay(value: unknown): GameSaveData['gameDay'] {
       meeting: duration('meeting'), lunch: duration('lunch'), overtime: duration('overtime'), incident: duration('incident'),
     },
     income: { salary: amount('salary'), cultivation: amount('cultivation'), performance: amount('performance') },
+    lifeExpenses: isNonNegativeSafeInteger(value.lifeExpenses) ? value.lifeExpenses : 0,
     eventsHandled: isNonNegativeSafeInteger(value.eventsHandled) ? value.eventsHandled : 0,
     materialsGained: isNonNegativeSafeInteger(value.materialsGained) ? value.materialsGained : 0,
     situationIds: uniqueIds(Array.isArray(value.situationIds) ? value.situationIds : []),
@@ -860,6 +908,8 @@ function normalizeOvertimeSession(value: unknown): import('../model/save-data').
     if (!isWorkMode(value.mode) || !isNonNegativeSafeInteger(value.startedAt)) return null;
   }
   return {
+    ...(isString(value.sessionId) ? { sessionId: value.sessionId } : {}),
+    ...(isString(value.approvalId) ? { approvalId: value.approvalId } : {}),
     source,
     free: value.free,
     plannedSeconds: value.plannedSeconds,
@@ -868,6 +918,23 @@ function normalizeOvertimeSession(value: unknown): import('../model/save-data').
     status: value.status,
     startedAt: value.status === 'ACTIVE' ? value.startedAt as number : null,
   };
+}
+
+function normalizeOvertimeApplications(value: unknown): import('../model/save-data').OvertimeApplicationState[] {
+  if (!Array.isArray(value)) return [];
+  const valid = value.filter((entry): entry is import('../model/save-data').OvertimeApplicationState => {
+    if (!isRecord(entry)) return false;
+    return isString(entry.id) && isPositiveSafeInteger(entry.dayIndex)
+      && isString(entry.sectId) && isString(entry.professionId) && isString(entry.taskId)
+      && isPositiveSafeInteger(entry.plannedSeconds)
+      && isNonNegativeSafeInteger(entry.approvalPercent) && entry.approvalPercent <= 100
+      && isPositiveSafeInteger(entry.approvalRoll) && entry.approvalRoll <= 100
+      && (entry.status === 'APPROVED' || entry.status === 'REJECTED' || entry.status === 'STARTED' || entry.status === 'SETTLED')
+      && isNonNegativeSafeInteger(entry.appliedAt);
+  });
+  const byId = new Map<string, import('../model/save-data').OvertimeApplicationState>();
+  for (const entry of valid) byId.set(entry.id, { ...entry });
+  return Array.from(byId.values()).slice(-30);
 }
 
 function isEvidenceItem(value: unknown): value is import('../model/save-data').EvidenceItemState {

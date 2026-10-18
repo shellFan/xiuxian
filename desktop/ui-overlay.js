@@ -276,7 +276,12 @@
     if (!f) return null;
     try {
       var cur = f.querySect ? f.querySect() : null;
-      return { sects: f.querySects() || [], currentId: cur ? cur.id : null };
+      return {
+        sects: f.querySects() || [], currentId: cur ? cur.id : null,
+        jobs: f.querySectJobs ? (f.querySectJobs() || []) : [],
+        applications: f.querySectApplications ? (f.querySectApplications() || []) : [],
+        pendingContract: f.queryPendingSectContract ? f.queryPendingSectContract() : null
+      };
     } catch (e) { return { sects: [], currentId: null }; }
   }
 
@@ -1077,13 +1082,14 @@
     /* V5.9-F-Z：主页面可玩性面板（今日工作/三目标/建议行动/玩法入口/生活行为），数据来自 queryHomeSnapshot。 */
     var v59fPanel = '';
     try { v59fPanel = window.__V59F__ ? window.__V59F__.homePanelHtml() : ''; } catch (e) { v59fPanel = ''; }
+    var arenaTimedActions = window.__HOME_ARENA__ ? homeTimedActionsHtml(hud) : '';
     return '' +
       '<div class="ux-home">' +
         backfillBanner +
         homeTopbarHtml(hud) +
         '<aside class="ux-home-col ux-home-left">' + homeLeftHtml(hud) + '</aside>' +
         '<main class="ux-home-col ux-home-center">' + (window.__HOME_ARENA__ ? window.__HOME_ARENA__.render() : homeCenterHtml(hud)) + '</main>' +
-        '<aside class="ux-home-col ux-home-right">' + v59fPanel + homeRightHtml(hud) + '</aside>' +
+        '<aside class="ux-home-col ux-home-right">' + arenaTimedActions + v59fPanel + homeRightHtml(hud) + '</aside>' +
       '</div>';
   }
 
@@ -1175,6 +1181,68 @@
       todayCapacityHtml() + journeyGuideHtml() + actionSelectorHtml(hud) + actionDetailHtml(hud);
   }
 
+  function homeWorkActionButtons(ctx) {
+    var stripRight = '';
+    if (ctx.overtime && ctx.overtime.status === 'OFFERED') {
+      stripRight = '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="acceptFreeOvertime">接受加班</button>' +
+        '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="declineOvertime">婉拒，准时下班</button>';
+    } else if (ctx.overtimeActive) {
+      stripRight = '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="finishOvertime">结束加班</button>';
+    } else if (ctx.preOffWork && ctx.overtimeStatus && ctx.overtimeStatus.status === 'COMPLETED') {
+      stripRight = '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>加班询问已处理</button>';
+    } else if (ctx.preOffWork) {
+      if (ctx.overtimeApplication && ctx.overtimeApplication.status === 'APPROVED') {
+        stripRight = '<span class="ux-status-ribbon">审批通过 · ' + escHtml(ctx.overtimeApplication.taskId || '宗门加班任务') + '</span>' +
+          '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="startApprovedOvertime" data-application="' + escHtml(ctx.overtimeApplication.id) + '">开始获批加班</button>';
+      } else if (ctx.overtimeApplication && ctx.overtimeApplication.status === 'REJECTED') {
+        stripRight = '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>审批未通过 · 今日不可重抽</button>';
+      } else if (ctx.overtimeApplication && (ctx.overtimeApplication.status === 'STARTED' || ctx.overtimeApplication.status === 'SETTLED')) {
+        stripRight = '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>今日加班申请已使用</button>';
+      } else {
+        stripRight = '<span class="ux-status-ribbon">按宗门规则申请审批，获批后才开始计薪</span>' +
+          '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="applyOvertimeApproval" data-seconds="3600">申请 1h</button>' +
+          '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="applyOvertimeApproval" data-seconds="7200">申请 2h</button>' +
+          '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="applyOvertimeApproval" data-seconds="10800">申请 3h</button>';
+      }
+    } else if (!ctx.weekend && ctx.view.countdownMs <= 0) {
+      stripRight = ctx.f && typeof ctx.f.queryCanSettleDay === 'function' && ctx.f.queryCanSettleDay()
+        ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="doSettle">查看今日结算</button>'
+        : '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>今日已结算</button>';
+    } else if (ctx.weekend) {
+      stripRight = '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">主动渡劫（加班 2h）</button>';
+    } else {
+      stripRight = '<span class="ux-idle-timer">今日工时 <b>' + hms(ctx.view.allocatedSeconds || 0) + '</b></span>';
+    }
+    return stripRight;
+  }
+
+  function homeTimedActionsHtml(hud) {
+    var f = facade();
+    var view = null;
+    try { view = f && f.queryWorkToday ? f.queryWorkToday() : null; } catch (e) { view = null; }
+    if (!view) return '';
+    var overtime = null;
+    var overtimeStatus = null;
+    var gameClock = null;
+    var day = null;
+    var applications = [];
+    try { overtime = f && f.queryOvertime ? f.queryOvertime() : null; } catch (e) { overtime = null; }
+    overtimeStatus = overtime ? { source: overtime.source, status: overtime.status, free: overtime.free } : null;
+    try { if (f && f.queryOvertimeStatus) overtimeStatus = f.queryOvertimeStatus(); } catch (e) { /* retain session projection */ }
+    try { gameClock = f && f.queryGameClock ? f.queryGameClock() : null; } catch (e) { gameClock = null; }
+    try { day = f && f.queryGameDay ? f.queryGameDay() : null; } catch (e) { day = null; }
+    try { applications = f && f.queryOvertimeApplications ? f.queryOvertimeApplications() || [] : []; } catch (e) { applications = []; }
+    var dayIndex = day && day.dayIndex;
+    var overtimeApplication = applications.filter(function (item) { return !dayIndex || item.dayIndex === dayIndex; }).slice(-1)[0] || null;
+    var weekend = !!(gameClock && gameClock.isWeekend);
+    var preOffWork = !weekend && view.countdownMs > 0 && view.countdownMs <= 5 * 60 * 1000;
+    var overtimeActive = !!(overtime && overtime.status === 'ACTIVE');
+    if (!weekend && !overtimeActive && !(overtime && overtime.status === 'OFFERED') && !preOffWork && view.countdownMs > 0) return '';
+    return '<section class="ux-card ux-home-timed-actions"><div class="ux-card-title">今日工作操作</div>' +
+      '<div class="ux-home-time-controls">' + homeWorkActionButtons({ f: f, view: view, overtime: overtime, overtimeStatus: overtimeStatus,
+        overtimeApplication: overtimeApplication, weekend: weekend, preOffWork: preOffWork, overtimeActive: overtimeActive }) + '</div></section>';
+  }
+
   /* 中栏顶部：办公室场景 + 下班倒计时 + 今日已赚浮层（§12~§20） */
   function workSceneHtml(hud) {
     var f = facade();
@@ -1192,6 +1260,14 @@
     var runtime = readRuntimeData();
     var rates = runtime ? runtime.incomeRate : null;
     var day = f && typeof f.queryGameDay === 'function' ? (function () { try { return f.queryGameDay(); } catch (e) { return null; } })() : null;
+    var overtimeApplication = null;
+    if (f && typeof f.queryOvertimeApplications === 'function') {
+      try {
+        var applications = f.queryOvertimeApplications() || [];
+        var dayIndex = day && day.dayIndex;
+        overtimeApplication = applications.filter(function (item) { return !dayIndex || item.dayIndex === dayIndex; }).slice(-1)[0] || null;
+      } catch (e) { overtimeApplication = null; }
+    }
     var income = runtime ? runtime.todayEarned : 0;
 
     var weekend = !!(g && g.isWeekend);
@@ -1249,27 +1325,10 @@
       }
     }
 
-    /* 底部操作条（§103~§107）：加班/结算按钮只在对应时段出现 */
+    /* 底部操作条（§103~§107）：在普通主页和战场主页共用权威动作投影。 */
     var stripLeft = '<span class="ux-status-ribbon">' + escHtml(homeStatusText(hud)) + '</span>';
-    var stripRight = '';
-    if (overtime && overtime.status === 'OFFERED') {
-      stripRight = '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="acceptFreeOvertime">接受加班</button>' +
-        '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="declineOvertime">婉拒，准时下班</button>';
-    } else if (overtimeActive) {
-      stripRight = '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="finishOvertime">结束加班</button>';
-    } else if (preOffWork && overtimeStatus && overtimeStatus.status === 'COMPLETED') {
-      stripRight = '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>加班询问已处理</button>';
-    } else if (preOffWork) {
-      stripRight = '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="requestFreeOvertime">处理加班询问</button>';
-    } else if (!weekend && view.countdownMs <= 0) {
-      stripRight = f && typeof f.queryCanSettleDay === 'function' && f.queryCanSettleDay()
-        ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="doSettle">查看今日结算</button>'
-        : '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>今日已结算</button>';
-    } else if (weekend) {
-      stripRight = '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="voluntaryOvertime">主动渡劫（加班 2h）</button>';
-    } else {
-      stripRight = '<span class="ux-idle-timer">今日工时 <b>' + hms(view.allocatedSeconds || 0) + '</b></span>';
-    }
+    var stripRight = homeWorkActionButtons({ f: f, view: view, overtime: overtime, overtimeStatus: overtimeStatus,
+      overtimeApplication: overtimeApplication, weekend: weekend, preOffWork: preOffWork, overtimeActive: overtimeActive });
 
     /* 项目进行中 → 场景横幅入口（首页保持干净，战场在项目页） */
     var battleBanner = '';
@@ -1957,7 +2016,7 @@
     return '<div class="ux-card ux-life">' +
       '<div class="ux-card-title">今日生活</div>' +
       '<div class="ux-life-power">' + power + '</div>' +
-      '<div class="ux-life-actions"><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="life" data-life="COFFEE">喝咖啡</button><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="life" data-life="LUNCH">吃午饭</button><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="life" data-life="MILK_TEA">喝奶茶</button></div>' +
+      '<div class="ux-life-actions"><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="life" data-life="COFFEE">喝咖啡</button><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="life" data-life="LUNCH">吃午饭</button><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="life" data-life="MILK_TEA">喝奶茶</button><button class="ux-btn ux-btn--blue ux-btn--sm" data-action="openLifeMenu">安排下班生活</button></div>' +
     '</div>';
   }
 
@@ -1990,6 +2049,16 @@
         var time = new Date(entry.occurredAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
         return '<div class="ux-recent-item"><span>' + time + '</span>' + escHtml(TIMELINE_NAMES[entry.eventId] || entry.eventId || entry.kind) + '</div>';
       }).join('') + '</div>' : '<div class="ux-agenda-empty">今天还风平浪静。</div>';
+    } else if (kind === 'life-menu') {
+      title = '下班生活安排';
+      var options = f && typeof f.queryHomeLifeOptions === 'function' ? (function () { try { return f.queryHomeLifeOptions(); } catch (e) { return []; } })() : [];
+      body = '<div class="ux-life-menu">' + options.map(function (option) {
+        var limit = option.remaining > 0 ? '今日剩余 ' + option.remaining + ' 次' : (option.reason || '今日次数已用完');
+        return '<button class="ux-life-option" data-action="life" data-life="' + escHtml(option.kind) + '"' + (option.available ? '' : ' disabled title="' + escHtml(option.reason || '当前不可用') + '"') + '>' +
+          '<span class="ux-life-option__name">' + escHtml(option.icon + ' ' + option.label) + '</span>' +
+          '<span class="ux-life-option__cost">¥' + option.price + ' · ' + option.timeMinutes + ' 分钟 · ' + escHtml(limit) + '</span>' +
+          '<span class="ux-life-option__effect">' + escHtml(option.effectText) + '</span></button>';
+      }).join('') + (options.length ? '' : '<div class="ux-agenda-empty">生活安排暂不可用。</div>') + '</div>';
     } else if (kind === 'power') {
       title = '今日生活';
       var lifeRuntime = readRuntimeData();
@@ -2250,6 +2319,26 @@
         '</div>' +
       '</div>';
     }
+    if (!run && !cardRun && f && typeof f.querySectProjectOffers === 'function') {
+      var contract = null;
+      var offers = [];
+      try { contract = f.querySectProject(); offers = f.querySectProjectOffers() || []; } catch (e) { contract = null; offers = []; }
+      html += '<div class="ux-card ux-sect-project-contract"><div class="ux-card-title">今日项目合同</div>';
+      if (contract && contract.status === 'ACCEPTED') {
+        html += '<div class="ux-recipe-desc">' + escHtml(contract.title) + ' · ' + escHtml(contract.risk) + '风险 · ' + contract.workMinutes + '分钟 · 奖励 ¥' + contract.rewardSalary + ' + 绩效 ' + contract.rewardPerformance + '</div>' +
+          '<button class="ux-btn ux-btn--gold ux-btn--md" data-action="startSectProject" data-id="' + escHtml(contract.id) + '">开始合同战斗</button>';
+      } else if (contract && (contract.status === 'COMPLETED' || contract.status === 'FAILED')) {
+        html += '<div class="ux-recipe-desc">今日合同「' + escHtml(contract.title) + '」已' + (contract.status === 'COMPLETED' ? '完成' : '失败') + '，今日收入与时间已结算。</div>';
+      } else if (contract && contract.status === 'ACTIVE') {
+        html += '<div class="ux-recipe-desc">合同战斗进行中：' + escHtml(contract.title) + '</div>';
+      } else {
+        html += '<div class="ux-recipe-desc">选择一个风险等级。战斗结果影响项目收入、绩效与权威游戏时间；自由宗收入来自合同结算。</div>' +
+          '<div class="ux-dialog-actions ux-card-starts">' + offers.map(function (offer) {
+            return '<button class="ux-btn ux-btn--gray ux-btn--md" data-action="acceptSectProject" data-risk="' + escHtml(offer.risk) + '" data-id="' + escHtml(offer.id) + '">' + escHtml(offer.risk) + ' · ' + escHtml(offer.title) + ' · ' + offer.workMinutes + '分钟 · ¥' + offer.rewardSalary + '</button>';
+          }).join('') + '</div>';
+      }
+      html += '</div>';
+    }
     html += '</div>';
     /* V5.7：项目历史 + 战绩（§58/§62） */
     if (f && typeof f.queryProjectHistory === 'function') {
@@ -2279,8 +2368,10 @@
   function cardBattleHtml(f, state) {
     var catalog = [];
     var events = [];
+    var projectContract = null;
     try { catalog = f.queryCardCatalog ? f.queryCardCatalog() : []; } catch (e) { catalog = []; }
     try { events = f.queryCardEventCatalog ? f.queryCardEventCatalog() : []; } catch (e) { events = []; }
+    try { projectContract = f.querySectProject ? f.querySectProject() : null; } catch (e) { projectContract = null; }
     var byId = {};
     catalog.forEach(function (c) { byId[c.id] = c; });
     var enemy = (state.enemies || []).filter(function (e) { return e.hp > 0; })[0] || (state.enemies || [])[0];
@@ -2297,6 +2388,7 @@
     }).join('') || '<div class="ux-cardbattle-empty">当前没有手牌</div>';
     var enemyHtml = enemy ? '<div class="ux-cardbattle-enemy"><b>' + escHtml(enemy.name) + (enemy.phase === 2 ? ' · 第二阶段' : '') + '</b><div class="ux-cardbattle-meter"><i style="width:' + pct(enemy.hp, enemy.maxHp) + '%"></i><span>' + enemy.hp + ' / ' + enemy.maxHp + '</span></div><div>意图：' + escHtml(intent ? intent.detail : '观察中') + '</div><div class="ux-cardbattle-status">状态：' + escHtml(Object.keys(enemy.statuses || {}).map(function (k) { return k + ' ' + enemy.statuses[k]; }).join(' · ') || '无') + '</div></div>' : '<div class="ux-cardbattle-enemy">敌人已被击败</div>';
     var player = state.player || {};
+    var projectContractHtml = projectContract ? '<div class="ux-card ux-project-intro">合同：' + escHtml(projectContract.title) + ' · ' + escHtml(projectContract.risk) + '风险 · 预计 ' + projectContract.workMinutes + ' 分钟 · 胜利奖励 ¥' + projectContract.rewardSalary + ' / 绩效 ' + projectContract.rewardPerformance + '</div>' : '';
     var pendingEvent = state.pendingEventId && events.filter(function (ev) { return ev.id === state.pendingEventId; })[0];
     var eventHtml = pendingEvent ? '<div class="ux-cardbattle-event"><b>职场事件：' + escHtml(pendingEvent.name) + '</b><div class="ux-cardbattle-choices">' + pendingEvent.choices.map(function (choice) { return '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="cardEvent" data-event="' + pendingEvent.id + '" data-choice="' + choice.id + '">' + escHtml(choice.id + ' · ' + choice.text) + '</button>'; }).join('') + '</div></div>' : '';
     var logHtml = (state.actionLog || []).slice(-5).reverse().map(function (l) { return '<li>' + escHtml(l.message) + '</li>'; }).join('');
@@ -2311,7 +2403,7 @@
         (state.settlement && !state.settlement.claimed ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="cardClaim">领取并结算</button>' : '') +
         '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="cardClear">返回项目入口</button></div>';
     }
-    return '<section class="ux-cardbattle" data-card-phase="' + escHtml(state.phase) + '">' +
+    return '<section class="ux-cardbattle" data-card-phase="' + escHtml(state.phase) + '">' + projectContractHtml +
       '<header class="ux-cardbattle-head"><div><b>卡牌攻坚</b><span>第 ' + (state.turn || 0) + ' 回合 · ' + escHtml(state.phase) + '</span></div><div>生命 ' + player.hp + '/' + player.maxHp + ' · 道心 ' + player.will + '/' + player.maxWill + ' · 护盾 ' + player.block + ' · 疲劳 ' + player.fatigue + '</div></header>' +
       '<div class="ux-cardbattle-board"><div class="ux-cardbattle-player"><b>行动能量 ' + player.energy + '/' + player.maxEnergy + '</b><div>敌方意图会在行动前公开</div></div>' + enemyHtml + '<div class="ux-cardbattle-piles">抽牌 ' + state.piles.draw.length + ' · 弃牌 ' + state.piles.discard.length + ' · 消耗 ' + state.piles.exhaust.length + ' · 移除 ' + state.piles.removed.length + '</div></div>' +
       eventHtml +
@@ -2441,18 +2533,30 @@
 
   function renderSect() {
     var data = readSects();
-    var html = '<div class="ux-section-ribbon">选择宗门</div>';
+    var html = '<div class="ux-section-ribbon">宗门招聘 · 薪资按职业估算，合同于次日生效</div>';
     if (!data.sects.length) return html + emptyState('⚔️', '暂无宗门', '');
+    if (data.pendingContract) html += '<div class="ux-card">录用已确认：' + escHtml((data.sects.filter(function (item) { return item.id === data.pendingContract.sectId; })[0] || {}).name || '新宗门') + ' · 第 ' + data.pendingContract.effectiveDayIndex + ' 个工作日生效</div>';
     data.sects.forEach(function (s) {
       var isCur = data.currentId === s.id;
-      var btn = isCur
-        ? '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>已选择</button>'
-        : '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="sect" data-id="' + s.id + '">选择</button>';
+      var job = data.jobs.filter(function (entry) { return entry.id === s.id; })[0] || {};
+      var application = data.applications.filter(function (entry) { return entry.targetSectId === s.id && ['INTERVIEW', 'OFFERED', 'ACCEPTED'].indexOf(entry.status) >= 0; }).slice(-1)[0];
+      var btn;
+      if (isCur) btn = '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>当前合同</button>';
+      else if (data.pendingContract) btn = '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>新合同次日生效</button>';
+      else if (application && application.status === 'INTERVIEW') btn =
+        '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="sectInterview" data-id="' + escHtml(application.id) + '" data-answer="DELIVERY">展示交付成果</button>' +
+        '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="sectInterview" data-id="' + escHtml(application.id) + '" data-answer="TEAMWORK">团队协作</button>' +
+        '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="sectInterview" data-id="' + escHtml(application.id) + '" data-answer="RISK">风险复盘</button>';
+      else if (application && application.status === 'OFFERED') btn = '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="acceptSectOffer" data-id="' + escHtml(application.id) + '">接受录用</button>';
+      else if (application && application.status === 'ACCEPTED') btn = '<button class="ux-btn ux-btn--gray ux-btn--sm" disabled>等待次日合同</button>';
+      else btn = '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="sect" data-id="' + escHtml(s.id) + '">申请面试</button>';
       html += '<div class="ux-card ux-sect-card">' +
         (isCur ? '<span class="ux-sect-current">当前宗门</span>' : '') +
         img(SECT_IMAGES[s.id] || 'sect-minying', 'ux-sect-img') +
         '<div class="ux-sect-info">' +
           '<div class="ux-sect-name">' + escHtml(s.name) + '</div>' +
+          '<div class="ux-sect-bonus">职业日薪估算 ¥' + fmtNum(job.salaryEstimate || 0) + ' · 压力 ' + (job.pressure || 0) + '/100 · 加班制度 ' + escHtml(job.overtimeRule || '审批') + '</div>' +
+          '<div class="ux-sect-bonus">' + escHtml((job.advantages || []).join(' · ')) + '</div>' +
           sectEffectLines(s.modifiers || {}) +
         '</div>' + btn + '</div>';
     });
@@ -3765,13 +3869,14 @@
           break;
         case 'life': {
           var fLife = facade();
+          var isLifeMenu = !!(el.closest && el.closest('.ux-life-menu'));
           try {
-            if (!fLife || typeof fLife.recordTodayLife !== 'function') throw new Error('今日生活服务尚未就绪');
-            var lifeResult = fLife.recordTodayLife(el.dataset.life);
+            if (!fLife || typeof fLife.consumeHomeLife !== 'function') throw new Error('生活消费服务尚未就绪');
+            var lifeResult = fLife.consumeHomeLife(el.dataset.life);
             if (!lifeResult || lifeResult.ok === false) throw new Error((lifeResult && lifeResult.reason) || '记录失败');
-            toast('已记录今日生活行为。', 'success');
-            refresh();
-          } catch (e) { toast(errMsg(e), 'error'); }
+            toast('已完成 ' + (lifeResult.label || '生活活动') + '：消费 ¥' + lifeResult.cost + '，推进 ' + lifeResult.timeMinutes + ' 分钟。', 'success');
+            if (isLifeMenu) openHomeModal('life-menu'); else refresh();
+          } catch (e) { toast(errMsg(e), 'error'); if (isLifeMenu) openHomeModal('life-menu'); }
           break;
         }
         case 'voluntaryOvertime': {
@@ -3780,6 +3885,27 @@
             if (!fOvertime) throw new Error('游戏尚未就绪');
             fOvertime.startVoluntaryOvertime(2 * 3600, false);
             toast('已开启 2 小时自愿奋斗：本次没有工资补偿。', 'info');
+            refresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'applyOvertimeApproval': {
+          var fApplyOvertime = facade();
+          try {
+            if (!fApplyOvertime || typeof fApplyOvertime.applyOvertimeApproval !== 'function') throw new Error('宗门加班审批尚未就绪');
+            var application = fApplyOvertime.applyOvertimeApproval(Number(el.dataset.seconds || 3600));
+            if (!application || !application.id) throw new Error('审批申请未能保存');
+            toast(application.status === 'APPROVED' ? '审批已通过。请确认后再开始计薪加班。' : '客户/主管未批准本次加班；今日结果已保存，不可重抽。', application.status === 'APPROVED' ? 'success' : 'info');
+            refresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'startApprovedOvertime': {
+          var fStartApprovedOvertime = facade();
+          try {
+            if (!fStartApprovedOvertime || typeof fStartApprovedOvertime.startApprovedOvertime !== 'function') throw new Error('获批加班服务尚未就绪');
+            fStartApprovedOvertime.startApprovedOvertime(el.dataset.application || '');
+            toast('已开始获批的宗门专属任务；按实际工时计薪。', 'success');
             refresh();
           } catch (e) { toast(errMsg(e), 'error'); }
           break;
@@ -3829,6 +3955,9 @@
         case 'openModal':
           openHomeModal(el.dataset.modal);
           break;
+        case 'openLifeMenu':
+          try { openHomeModal('life-menu'); } catch (e) { console.error('[overlay] life menu:', e); toast(errMsg(e), 'error'); }
+          break;
         case 'projectEntry':
           openBuildSelectModal();
           break;
@@ -3841,6 +3970,20 @@
             toast('进入卡牌战场：观察意图，合理分配能量。', 'success');
             fullRefresh();
           } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'acceptSectProject': {
+          var fProjectAccept = facade();
+          if (!fProjectAccept || typeof fProjectAccept.acceptSectProject !== 'function') break;
+          try { fProjectAccept.acceptSectProject(el.dataset.id); toast('项目合同已接受，可在此页面开始战斗。', 'success'); fullRefresh(); }
+          catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'startSectProject': {
+          var fProjectStart = facade();
+          if (!fProjectStart || typeof fProjectStart.startSectProject !== 'function') break;
+          try { fProjectStart.startSectProject(el.dataset.id); _screen = 'PROJECT'; _subPage = null; toast('项目合同战斗开始。', 'success'); fullRefresh(); }
+          catch (e) { toast(errMsg(e), 'error'); }
           break;
         }
         case 'cardPlay': {
@@ -4077,11 +4220,33 @@
           if (!cur) {
             cmdResult('changeSect', '已拜入' + sectName, sectId);
           } else {
-            showDialog('转宗确认', '转宗需要 <b>24 小时</b>冷却，确定要转投 ' + escHtml(sectName) + ' 吗？', [
+            showDialog('申请跳槽', '提交 ' + escHtml(sectName) + ' 招聘申请并参加面试。录用后新合同将在次日生效。', [
               { label: '取消', cls: 'gray' },
-              { label: '确定转宗', cls: 'gold', onClick: function () { cmdResult('changeSect', '已转投新宗门', sectId); } },
+              { label: '申请面试', cls: 'gold', onClick: function () {
+                var fJob = facade();
+                try { fJob.applySectJob(sectId); toast('招聘申请已保存，请选择面试回答。', 'success'); refresh(); }
+                catch (e) { toast(errMsg(e), 'error'); }
+              } },
             ]);
           }
+          break;
+        }
+        case 'sectInterview': {
+          var fInterview = facade();
+          try {
+            var interview = fInterview.resolveSectInterview(el.dataset.id, el.dataset.answer);
+            toast(interview.status === 'OFFERED' ? ('面试通过 ' + interview.score + ' 分，等待你接受录用。') : ('面试未通过 ' + interview.score + ' 分，暂不能转宗。'), interview.status === 'OFFERED' ? 'success' : 'info');
+            refresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
+        case 'acceptSectOffer': {
+          var fAcceptSect = facade();
+          try {
+            var contract = fAcceptSect.acceptSectOffer(el.dataset.id);
+            toast('已接受录用，新合同将在第 ' + contract.effectiveDayIndex + ' 个工作日生效。', 'success');
+            refresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
           break;
         }
         case 'visit':

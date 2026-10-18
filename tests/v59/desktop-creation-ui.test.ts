@@ -42,6 +42,7 @@ async function runInElectron(): Promise<void> {
       width: 1280, height: 720, useContentSize: true, show: false,
       webPreferences: { contextIsolation: false, sandbox: false, nodeIntegration: true },
     });
+    win.webContents.debugger.attach('1.3');
     await win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(
       `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body><div id="UiOverlay"></div></body></html>`,
     )}`);
@@ -76,13 +77,17 @@ async function runInElectron(): Promise<void> {
     assert.equal(creationArbitration, false, 'pending messages cannot obscure unfinished character creation');
     await click(win, '[data-creation-choice="industry:INTERNET"]');
     await click(win, '[data-creation-action="advance"]');
-    await click(win, '[data-creation-choice="direction:TECH_RND"]');
+    await clickWithCdp(win, '[data-creation-choice="direction:TECH_RND"]');
+    const selectedDirection = await win.webContents.executeJavaScript(`window.__GAME_FACADE__.queryCharacterCreation().draft.direction`);
+    assert.equal(selectedDirection, 'TECH_RND', 'a physical CDP pointer click on the visible direction card updates the authoritative creation draft');
     await click(win, '[data-creation-action="advance"]');
+    const directionAdvanced = await win.webContents.executeJavaScript(`window.__GAME_FACADE__.queryCharacterCreation().draft.step`);
+    assert.equal(directionAdvanced, 'PROFESSION', 'the selected authoritative direction allows the wizard to advance');
     await click(win, '[data-creation-choice="profession:QA"]');
     await click(win, '[data-creation-action="advance"]');
     const sectorOptions = await win.webContents.executeJavaScript(`Array.from(document.querySelectorAll('[data-creation-choice^="sect:"]')).map(function (node) { return node.textContent; })`);
-    assert.equal(sectorOptions.length, 7, 'only in-scope employers are presented before character identity');
-    assert.ok(!sectorOptions.some((text: string) => text.includes('创业公司宗')));
+    assert.equal(sectorOptions.length, 8, 'all eight configured employers are presented before character identity');
+    assert.ok(sectorOptions.some((text: string) => text.includes('创业公司宗')));
     assert.match(sectorOptions.find((text: string) => text.includes('外包宗')) ?? '', /客户审批/);
     await click(win, '[data-creation-choice="sect:OUTSOURCING"]');
     await click(win, '[data-creation-action="advance"]');
@@ -177,6 +182,41 @@ async function runInElectron(): Promise<void> {
     assert.ok(result.receipt);
     await click(win, '[data-nav="HOME"]');
     await waitFor(win, `document.querySelector('.ux-home-col.ux-home-right') !== null`);
+    const arenaOvertimeVisible = await win.webContents.executeJavaScript(`(() => {
+      window.__GAME_FACADE__.devJumpToHour(17, 55);
+      window.UiOverlay.fullRefresh();
+      const button = document.querySelector('.ux-home-timed-actions [data-action="applyOvertimeApproval"][data-seconds="3600"]');
+      return { arena: !!window.__HOME_ARENA__, button: !!button, disabled: button ? button.disabled : null };
+    })()`);
+    assert.equal(arenaOvertimeVisible.arena, true, 'the new-player flow still displays the homepage arena');
+    assert.equal(arenaOvertimeVisible.button, true, 'time-sensitive overtime approval remains visible while the arena replaces the home center');
+    assert.equal(arenaOvertimeVisible.disabled, false);
+    await clickWithCdp(win, '.ux-home-timed-actions [data-action="applyOvertimeApproval"][data-seconds="3600"]');
+    const arenaApproval = await win.webContents.executeJavaScript(`window.__GAME_FACADE__.queryOvertimeApplications()`);
+    assert.equal(arenaApproval.length, 1, 'the home-shell action submits the authoritative overtime request');
+    await win.webContents.executeJavaScript(`window.__GAME_FACADE__.context.economy.applyIdleSalary(120)`);
+    await click(win, '[data-action="openLifeMenu"]');
+    const lifeMenu = await win.webContents.executeJavaScript(`({
+      options: Array.from(document.querySelectorAll('.ux-life-menu [data-life]')).map(function (button) { return {kind:button.dataset.life,disabled:button.disabled,text:button.textContent}; }),
+      title: document.querySelector('.ux-life-menu')?.textContent || ''
+    })`);
+    assert.equal(lifeMenu.options.length, 12, 'the playable after-work menu exposes all twelve life activities');
+    assert.ok(lifeMenu.options.every((option: { disabled: boolean; text: string }) => option.text.includes('¥') && option.text.includes('分钟')),
+      'each activity explains its real cost and game-time cost');
+    assert.ok(lifeMenu.options.some((option: { kind: string }) => option.kind === 'HOT_SPRING'));
+    const salaryBeforeCoffee = await win.webContents.executeJavaScript(`window.__GAME_FACADE__.context.player.salary`);
+    await click(win, '[data-action="life"][data-life="COFFEE"]');
+    const coffeeResult = await win.webContents.executeJavaScript(`({
+      salary: window.__GAME_FACADE__.context.player.salary,
+      coffee: window.__GAME_FACADE__.queryHomeLifeOptions().find(function (option) { return option.kind === 'COFFEE'; }),
+      expense: window.__GAME_FACADE__.context.player.gameDay.lifeExpenses,
+      now: window.__GAME_FACADE__.context.clockV2.now(),
+      gameDay: window.__GAME_FACADE__.context.gameDay.current(),
+      lifeRecords: window.__GAME_FACADE__.context.player.dailyReality.filter(function (record) { return record.kind === 'LIFE'; })
+    })`);
+    assert.equal(coffeeResult.salary, salaryBeforeCoffee - 18, 'coffee spends the authoritative wallet balance');
+    assert.equal(coffeeResult.expense, 18, 'coffee appears in the current wage-day expense ledger');
+    assert.equal(coffeeResult.coffee.used, 1, 'consumption updates the activity limit immediately: ' + JSON.stringify(coffeeResult));
     await click(win, '[data-action="openMessenger"]');
     const messengerPage = await win.webContents.executeJavaScript(`({
       messenger: document.querySelector('.ux-messenger') !== null,
@@ -208,9 +248,23 @@ async function click(win: TestWindow, selector: string): Promise<void> {
   const clicked = await win.webContents.executeJavaScript(`(function () {
     var element = document.querySelector(${JSON.stringify(selector)});
     if (!element || element.disabled) return false;
-    element.click(); return true;
+    try { element.click(); return true; }
+    catch (error) { return { error: error && error.stack ? error.stack : String(error), html: document.querySelector('#PopupLayer')?.innerHTML || '' }; }
   })()`);
   assert.equal(clicked, true, `Expected enabled control ${selector}`);
+}
+
+async function clickWithCdp(win: TestWindow, selector: string): Promise<void> {
+  const point = await win.webContents.executeJavaScript(`(() => {
+    const element = document.querySelector(${JSON.stringify(selector)});
+    if (!element || element.disabled) return null;
+    const rect = element.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  })()`);
+  assert.ok(point, `Expected enabled pointer target ${selector}`);
+  await win.webContents.debugger.sendCommand('Input.dispatchMouseEvent', { type: 'mouseMoved', x: point.x, y: point.y });
+  await win.webContents.debugger.sendCommand('Input.dispatchMouseEvent', { type: 'mousePressed', x: point.x, y: point.y, button: 'left', clickCount: 1 });
+  await win.webContents.debugger.sendCommand('Input.dispatchMouseEvent', { type: 'mouseReleased', x: point.x, y: point.y, button: 'left', clickCount: 1 });
 }
 
 async function waitFor(win: TestWindow, expression: string): Promise<void> {
@@ -224,5 +278,12 @@ async function waitFor(win: TestWindow, expression: string): Promise<void> {
 interface TestWindow {
   loadURL(url: string): Promise<void>;
   destroy(): void;
-  webContents: { executeJavaScript(code: string): Promise<any> };
+  webContents: {
+    executeJavaScript(code: string): Promise<any>;
+    debugger: {
+      attach(version: string): void;
+      sendCommand(method: string, params: Record<string, unknown>): Promise<any>;
+      detach(): void;
+    };
+  };
 }

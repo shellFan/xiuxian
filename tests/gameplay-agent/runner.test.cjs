@@ -5,12 +5,50 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { test } = require('node:test');
 const { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, classifyFailure, classifyStepFailure } = require('../../ai/gameplay-agent/lib/report.cjs');
-const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, readStatePath, storeScenarioVariable, popupDismissalComplete, popupControlKind, popupChoiceCanBeClicked, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
-const { waitForArenaSkillButton } = require('../../ai/gameplay-agent/lib/home-arena-play.cjs');
+const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, readStatePath, storeScenarioVariable, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupControlKind, popupChoiceCanBeClicked, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, scenarioStateMatchesFrom } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
+const { waitForArenaSkillButton, waitForArenaControl } = require('../../ai/gameplay-agent/lib/home-arena-play.cjs');
+const { cleanupIsolatedProfile } = require('../../ai/gameplay-agent/lib/profile-cleanup.cjs');
 
 test('scenario ids cannot escape the reports directory', () => {
   assert.equal(safeRunId('../outside'), null);
   assert.match(safeRunId('20261013-120000'), /^20261013-120000$/);
+});
+
+test('shared new-player setup waits for authoritative character creation completion', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/_new-player.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  assert.ok(scenario.steps.some((step) => step.action === 'clickUntilState'
+    && step.selector === '[data-creation-action="finalize"]'
+    && step.method === 'queryCharacterCreation'
+    && step.path === 'status'
+    && step.from === 'CREATION_REQUIRED'
+    && step.expected === 'COMPLETE'
+    && step.maxAttempts === 3),
+  'the setup must wait for durable character creation before dependent UI scenarios continue');
+});
+
+test('new-player sect and background choices retry until their authoritative draft fields are selected', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/_new-player.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  for (const [selector, path, expected] of [
+    ['[data-creation-choice="sect:OUTSOURCING"]', 'draft.sectId', 'OUTSOURCING'],
+    ['[data-creation-choice="background:ORDINARY_WORKER"]', 'draft.background', 'ORDINARY_WORKER'],
+  ]) {
+    const selection = scenario.steps.find((step) => step.selector === selector);
+    assert.equal(selection?.action, 'clickUntilState', `${selector} must be verified through bounded UI input`);
+    assert.equal(selection.method, 'queryCharacterCreation');
+    assert.equal(selection.path, path);
+    assert.equal(selection.from, null, 'null represents an absent optional field in the authoritative draft');
+    assert.equal(selection.expected, expected);
+    assert.equal(selection.maxAttempts, 3);
+  }
+});
+
+test('stateful clicks treat an absent draft field as the explicit null starting state only', () => {
+  assert.equal(scenarioStateMatchesFrom(undefined, null), true);
+  assert.equal(scenarioStateMatchesFrom(null, null), true);
+  assert.equal(scenarioStateMatchesFrom('OUTSOURCING', null), false);
+  assert.equal(scenarioStateMatchesFrom(undefined, 'SECT'), false);
 });
 
 test('home arena scenarios require fixed seed and real paced input; soak cannot claim less than twenty minutes', () => {
@@ -18,6 +56,27 @@ test('home arena scenarios require fixed seed and real paced input; soak cannot 
   assert.doesNotThrow(() => validateScenario({ id: 'home-soak', steps: [{ action: 'homeArenaSoak', seed: 5911, clickIntervalMs: 400, durationMs: 1200000 }] }));
   assert.throws(() => validateScenario({ id: 'short-soak', steps: [{ action: 'homeArenaSoak', seed: 5911, clickIntervalMs: 400, durationMs: 1000 }] }), /twenty minutes/);
   assert.throws(() => validateScenario({ id: 'fast-input', steps: [{ action: 'homeArenaPlay', seed: 5911, clickIntervalMs: 1 }] }), /clickIntervalMs/);
+});
+
+test('home arena waits for the replay control to render after authoritative campaign completion', async () => {
+  let time = 0;
+  let inspections = 0;
+  const result = await waitForArenaControl({
+    selector: '#ArenaReplay',
+    inspect: async () => {
+      inspections += 1;
+      return inspections < 3
+        ? { found: true, visible: false, disabled: false, covered: false }
+        : { found: true, visible: true, disabled: false, covered: false };
+    },
+    delay: async (ms) => { time += ms; },
+    now: () => time,
+    timeoutMs: 200,
+    pollIntervalMs: 50,
+  });
+  assert.equal(result.status, 'ready');
+  assert.equal(result.target.visible, true);
+  assert.equal(inspections, 3);
 });
 
 test('special challenge scenario starts and observes an actual V3 battle through visible UI', () => {
@@ -28,16 +87,24 @@ test('special challenge scenario starts and observes an actual V3 battle through
   assert.ok(scenario.steps.some((step) => step.action === 'click' && step.selector === '[data-action=abandonBattle]'));
   const settlementIndex = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'queryFinishedBattle' && step.as === 'abandonedBattle');
   const resultModalIndex = scenario.steps.findIndex((step) => step.action === 'waitFor' && step.selector.includes('data-battle-fallback-exit'));
-  const criticalChoiceIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-critical-conv]');
-  const eventChoiceIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-vevent-choice=__auto]');
-  const eventResultIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '#V2EventOk');
+  const abandonIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-action=abandonBattle]');
+  const defeatAssertIndex = scenario.steps.findIndex((step) => step.action === 'assert' && step.path === '@vars.abandonedBattle.status' && step.expected === 'DEFEAT');
+  const queuedEventChoiceIndex = scenario.steps.findIndex((step) => step.action === 'waitFor'
+    && step.selector === '.ux-modal-layer [data-vevent-choice="__auto"]');
+  const queuedEventResultIndex = scenario.steps.findIndex((step) => step.action === 'waitFor'
+    && step.selector === '.ux-modal-layer #V2EventOk');
+  const eventChoiceIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '.ux-modal-layer [data-vevent-choice="__auto"]');
+  const eventResultIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '.ux-modal-layer #V2EventOk');
   assert.ok(settlementIndex >= 0 && settlementIndex < resultModalIndex,
     'the scenario must record authoritative battle settlement before checking its UI result');
-  assert.ok(criticalChoiceIndex >= 0 && !scenario.steps.slice(criticalChoiceIndex + 1, resultModalIndex)
-    .some((step) => step.action === 'click' && step.selector === '.ux-nav-item[data-nav=PROJECT]'),
-  'the result popup may appear over the messenger page, so the scenario must acknowledge it before navigating');
-  assert.ok(criticalChoiceIndex < eventChoiceIndex && eventChoiceIndex < eventResultIndex && eventResultIndex < resultModalIndex,
-    'the scenario must resolve the surfaced V2 story event before asserting the battle-result popup');
+  assert.ok(abandonIndex < settlementIndex && settlementIndex < defeatAssertIndex
+    && defeatAssertIndex < queuedEventChoiceIndex && queuedEventChoiceIndex < queuedEventResultIndex,
+  'authoritative defeat must be recorded before resolving the real event popup that can interrupt its result UI');
+  assert.ok(!scenario.steps.some((step) => step.action === 'waitFor' && step.selector === '[data-critical-conv]'),
+    'the scenario must not require a critical conversation that the authoritative failed-battle flow does not create');
+  assert.ok(queuedEventChoiceIndex < eventChoiceIndex && eventChoiceIndex < queuedEventResultIndex
+    && queuedEventResultIndex < eventResultIndex && eventResultIndex < resultModalIndex,
+    'the scenario must verify defeat, then resolve the real V2 event before asserting the battle-result popup');
   assert.ok(scenario.steps.some((step) => step.action === 'waitFor' && step.selector.includes('data-battle-fallback-exit')));
   assert.ok(scenario.steps.some((step) => step.action === 'call' && step.method === 'queryFateRun'));
   assert.ok(scenario.steps.filter((step) => step.action === 'call').every((step) => step.method.startsWith('query')),
@@ -165,6 +232,56 @@ test('scenario popup recovery choices are constrained to real controls under the
   }] }), /inside .ux-modal-layer/);
 });
 
+test('popup controls clipped below the viewport are not treated as clickable before a real scroll brings them into view', () => {
+  const popup = { visible: true };
+  assert.equal(popupChoiceCanBeClicked(popup, {
+    found: true, visible: true, disabled: false, covered: false,
+    bounds: { x: 351, y: 832, width: 578, height: 38 }, viewport: { width: 1280, height: 720 },
+  }), false);
+  assert.equal(popupChoiceCanBeClicked(popup, {
+    found: true, visible: true, disabled: false, covered: false,
+    bounds: { x: 351, y: 640, width: 578, height: 38 }, viewport: { width: 1280, height: 720 },
+  }), true);
+});
+
+test('card battle first-win scenario closes the visible weekly recap before attacking and verifies it is gone', () => {
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/card-battle-first-win.json'), 'utf8')));
+  const statefulAttack = scenario.steps.find((step) => step.action === 'clickUntilState' && step.selector?.includes('ux-cardbattle-attack'));
+  assert.match(statefulAttack.popupChoiceSelector, /\.ux-week-close/);
+  const close = scenario.steps.find((step) => step.action === 'clickIfPresent' && step.selector === '.ux-weekly-popup .ux-week-close');
+  assert.ok(close, 'weekly recap must be closed through its real button when it is visible');
+  assert.equal(close.timeoutMs, 3000, 'runner must wait for the real control to disappear after clicking');
+  for (const selector of [".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME']", '#V2EventOk', ".ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']"]) {
+    assert.ok(scenario.steps.some((step) => step.action === 'clickIfPresent' && step.selector === selector), `queued home modal must be resolved through its real UI control: ${selector}`);
+  }
+  const attacks = scenario.steps.filter((step) => step.action === 'clickUntilState' && step.selector?.includes('ux-cardbattle-attack'));
+  assert.ok(attacks.length > 0 && attacks.every((step) => step.popupChoiceSelector?.includes('[data-vevent-choice="__auto"]')),
+    'attack recovery must include the real visible no-choice workplace-event acknowledgement');
+});
+
+test('isolated Chromium profile cleanup retries transient Windows locks and reports a deferred cleanup without throwing', async () => {
+  let removals = 0;
+  const delays = [];
+  const recovered = await cleanupIsolatedProfile('isolated-profile', {
+    remove: async () => {
+      removals += 1;
+      if (removals < 3) throw Object.assign(new Error('file in use'), { code: 'EBUSY' });
+    },
+    delay: async (ms) => delays.push(ms),
+  });
+  assert.deepEqual(recovered, { status: 'removed', attempts: 3 });
+  assert.deepEqual(delays, [100, 200]);
+
+  const deferred = await cleanupIsolatedProfile('isolated-profile', {
+    attempts: 2,
+    remove: async () => { throw Object.assign(new Error('file in use'), { code: 'EBUSY' }); },
+    delay: async () => {},
+  });
+  assert.equal(deferred.status, 'deferred');
+  assert.equal(deferred.attempts, 2);
+  assert.match(deferred.error, /EBUSY/);
+});
+
 test('scroll recovery routes are optional but must be valid selectors', () => {
   assert.doesNotThrow(() => validateScenario({ id: 'scroll-route-recovery', steps: [{
     action: 'scroll', selector: '.home-scroll', deltaY: 400, recoverySelector: '[data-nav="HOME"]',
@@ -267,14 +384,19 @@ test('an obscured game choice remains blocked until the event popup is gone and 
   assert.equal(popupDismissalComplete({ closed: false }, { covered: false }), false);
   assert.equal(popupDismissalComplete({ closed: true }, { covered: true }), false);
   assert.equal(popupDismissalComplete({ closed: true }, { covered: false }), true);
+  const target = { found: true, visible: true, disabled: false, covered: false, bounds: { x: 10, y: 10, width: 20, height: 20 }, viewport: { width: 100, height: 100 } };
+  assert.equal(canFinishClickAfterFinalPopupDismissal({ popupClosed: true, target, attempt: 3, maxAttempts: 3 }), true);
+  assert.equal(canFinishClickAfterFinalPopupDismissal({ popupClosed: false, target, attempt: 3, maxAttempts: 3 }), false);
+  assert.equal(canFinishClickAfterFinalPopupDismissal({ popupClosed: true, target: { ...target, covered: true }, attempt: 3, maxAttempts: 3 }), false);
 });
 
 test('a scenario popup choice is usable only when the real modal control is visible, enabled and uncovered', () => {
   const popup = { visible: true };
-  assert.equal(popupChoiceCanBeClicked?.(popup, { found: true, visible: true, disabled: false, covered: false }) ?? false, true);
-  assert.equal(popupChoiceCanBeClicked?.(popup, { found: true, visible: true, disabled: false, covered: true }) ?? false, false);
-  assert.equal(popupChoiceCanBeClicked?.(popup, { found: true, visible: true, disabled: true, covered: false }) ?? false, false);
-  assert.equal(popupChoiceCanBeClicked?.({ visible: false }, { found: true, visible: true, disabled: false, covered: false }) ?? false, false);
+  const inWindow = { bounds: { x: 10, y: 10, width: 20, height: 20 }, viewport: { width: 100, height: 100 } };
+  assert.equal(popupChoiceCanBeClicked?.(popup, { ...inWindow, found: true, visible: true, disabled: false, covered: false }) ?? false, true);
+  assert.equal(popupChoiceCanBeClicked?.(popup, { ...inWindow, found: true, visible: true, disabled: false, covered: true }) ?? false, false);
+  assert.equal(popupChoiceCanBeClicked?.(popup, { ...inWindow, found: true, visible: true, disabled: true, covered: false }) ?? false, false);
+  assert.equal(popupChoiceCanBeClicked?.({ visible: false }, { ...inWindow, found: true, visible: true, disabled: false, covered: false }) ?? false, false);
 });
 
 test('a popup that appears during pointer movement is recoverable only through a visible supported control', () => {

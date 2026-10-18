@@ -3,39 +3,278 @@
   "title": "Play the visible opening hand, win, claim a card reward and restore the claimed result",
   "setup": "new-player",
   "steps": [
-    { "action": "setViewport", "width": 1280, "height": 720 },
-    { "action": "click", "selector": "[data-nav=\"PROJECT\"]", "description": "Open the project page through the visible navigation" },
-    { "action": "waitFor", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]", "timeoutMs": 5000 },
-    { "action": "assertClickable", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]" },
-    { "action": "click", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]", "description": "Start a normal card battle from the player-facing UI" },
-    { "action": "waitFor", "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]", "timeoutMs": 5000 },
-    { "action": "call", "method": "queryCardBattle", "as": "opening", "asType": "object" },
-    { "action": "assert", "check": "equals", "path": "@vars.opening.player.energy", "expected": 3 },
-    { "action": "assert", "check": "equals", "path": "@vars.opening.piles.hand.length", "expected": 5 },
-    { "action": "screenshot", "name": "card-battle-opening-hand" },
-    { "action": "clickUntilState", "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "hitLog.length", "from": 0, "expected": 1, "maxAttempts": 3, "timeoutMs": 1500, "description": "Play the first real attack card and verify enemy damage" },
-    { "action": "clickUntilState", "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "hitLog.length", "from": 1, "expected": 2, "maxAttempts": 3, "timeoutMs": 1500, "description": "Play the next visible attack card" },
-    { "action": "call", "method": "queryCardBattle", "as": "firstTurn", "asType": "object" },
-    { "action": "assert", "check": "lte", "path": "@vars.firstTurn.enemies[0].hp", "expected": 31 },
-    { "action": "clickUntilState", "selector": "[data-action=\"cardEndTurn\"]", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "turn", "from": 1, "expected": 2, "maxAttempts": 3, "timeoutMs": 1500, "description": "End the first turn and allow the enemy intent to resolve" },
-    { "action": "clickUntilState", "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "hitLog.length", "from": 2, "expected": 3, "maxAttempts": 3, "timeoutMs": 1500 },
-    { "action": "clickUntilState", "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "hitLog.length", "from": 3, "expected": 4, "maxAttempts": 3, "timeoutMs": 1500 },
-    { "action": "clickUntilState", "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "hitLog.length", "from": 4, "expected": 5, "maxAttempts": 3, "timeoutMs": 1500 },
-    { "action": "clickUntilState", "selector": "[data-action=\"cardEndTurn\"]", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "turn", "from": 2, "expected": 3, "maxAttempts": 3, "timeoutMs": 1500, "description": "End the second turn to restore energy before the final attack" },
-    { "action": "clickUntilState", "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "hitLog.length", "from": 5, "expected": 6, "maxAttempts": 3, "timeoutMs": 1500, "description": "Continue the fight through a visible attack, without injecting battle state" },
-    { "action": "clickUntilState", "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "phase", "from": "PLAYER_ACTION", "expected": "VICTORY", "maxAttempts": 3, "timeoutMs": 1500, "description": "Use another available attack when the enemy's announced guard absorbed part of the previous hit" },
-    { "action": "waitFor", "selector": ".ux-cardbattle[data-card-phase=\"VICTORY\"]", "timeoutMs": 5000 },
-    { "action": "call", "method": "queryCardBattle", "as": "victory", "asType": "object" },
-    { "action": "assert", "check": "equals", "path": "@vars.victory.phase", "expected": "VICTORY" },
-    { "action": "screenshot", "name": "card-battle-victory" },
-    { "action": "clickUntilState", "selector": "[data-action=\"cardReward\"]", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "rewards[0].chosen", "from": false, "expected": true, "maxAttempts": 3, "timeoutMs": 1000, "description": "Resolve any actual workplace modal through its visible choice, then choose the first card reward and verify authoritative selection" },
-    { "action": "clickUntilState", "selector": "[data-action=\"cardClaim\"]", "method": "queryCardBattle", "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']", "path": "settlement.claimed", "from": false, "expected": true, "maxAttempts": 3, "timeoutMs": 1000, "description": "Resolve any actual workplace modal through its visible choice, claim the victory reward once, and verify authoritative settlement" },
-    { "action": "call", "method": "queryCardBattle", "as": "claimed", "asType": "object" },
-    { "action": "assert", "check": "truthy", "path": "@vars.claimed.settlement.claimed" },
-    { "action": "restartGame", "description": "Close and relaunch the packaged EXE with this scenario's isolated save" },
-    { "action": "call", "method": "queryCardBattle", "as": "restored", "asType": "object" },
-    { "action": "assert", "check": "equals", "path": "@vars.restored.phase", "expected": "VICTORY" },
-    { "action": "assert", "check": "truthy", "path": "@vars.restored.settlement.claimed" },
-    { "action": "screenshot", "name": "card-battle-reward-restored" }
+    {
+      "action": "setViewport",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "action": "click",
+      "selector": "[data-nav=\"PROJECT\"]",
+      "description": "Open the project page through the visible navigation"
+    },
+    {
+      "action": "waitFor",
+      "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]",
+      "timeoutMs": 5000
+    },
+    {
+      "action": "assertClickable",
+      "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]"
+    },
+    {
+      "action": "click",
+      "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]",
+      "description": "Start a normal card battle from the player-facing UI"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]",
+      "timeoutMs": 5000
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-weekly-popup .ux-week-close",
+      "timeoutMs": 3000,
+      "description": "Close an already visible weekly recap through its actual UI button and wait for it to disappear"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME']",
+      "timeoutMs": 3000,
+      "description": "Resolve the queued NOT_HOME event through its visible choice if the weekly recap surfaced it"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "#V2EventOk",
+      "timeoutMs": 3000,
+      "description": "Acknowledge the actual event result button and wait for the result modal to close"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']",
+      "timeoutMs": 3000,
+      "description": "Resolve a queued weekend-choice modal through its real option before continuing the battle"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "opening",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.opening.player.energy",
+      "expected": 3
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.opening.piles.hand.length",
+      "expected": 5
+    },
+    {
+      "action": "screenshot",
+      "name": "card-battle-opening-hand"
+    },
+    {
+      "action": "clickUntilState",
+      "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "hitLog.length",
+      "from": 0,
+      "expected": 1,
+      "maxAttempts": 3,
+      "timeoutMs": 1500,
+      "description": "Play the first real attack card; if the weekly recap covers the battle, close it through 收下，下周继续 and verify the battle target is uncovered"
+    },
+    {
+      "action": "clickUntilState",
+      "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "hitLog.length",
+      "from": 1,
+      "expected": 2,
+      "maxAttempts": 3,
+      "timeoutMs": 1500,
+      "description": "Play the next visible attack card"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "firstTurn",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "lte",
+      "path": "@vars.firstTurn.enemies[0].hp",
+      "expected": 31
+    },
+    {
+      "action": "clickUntilState",
+      "selector": "[data-action=\"cardEndTurn\"]",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "turn",
+      "from": 1,
+      "expected": 2,
+      "maxAttempts": 3,
+      "timeoutMs": 1500,
+      "description": "End the first turn and allow the enemy intent to resolve"
+    },
+    {
+      "action": "clickUntilState",
+      "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "hitLog.length",
+      "from": 2,
+      "expected": 3,
+      "maxAttempts": 3,
+      "timeoutMs": 1500
+    },
+    {
+      "action": "clickUntilState",
+      "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "hitLog.length",
+      "from": 3,
+      "expected": 4,
+      "maxAttempts": 3,
+      "timeoutMs": 1500
+    },
+    {
+      "action": "clickUntilState",
+      "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "hitLog.length",
+      "from": 4,
+      "expected": 5,
+      "maxAttempts": 3,
+      "timeoutMs": 1500
+    },
+    {
+      "action": "clickUntilState",
+      "selector": "[data-action=\"cardEndTurn\"]",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "turn",
+      "from": 2,
+      "expected": 3,
+      "maxAttempts": 3,
+      "timeoutMs": 1500,
+      "description": "End the second turn to restore energy before the final attack"
+    },
+    {
+      "action": "clickUntilState",
+      "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "hitLog.length",
+      "from": 5,
+      "expected": 6,
+      "maxAttempts": 3,
+      "timeoutMs": 1500,
+      "description": "Continue the fight through a visible attack, without injecting battle state"
+    },
+    {
+      "action": "clickUntilState",
+      "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "phase",
+      "from": "PLAYER_ACTION",
+      "expected": "VICTORY",
+      "maxAttempts": 3,
+      "timeoutMs": 1500,
+      "description": "Use another available attack when the enemy's announced guard absorbed part of the previous hit"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".ux-cardbattle[data-card-phase=\"VICTORY\"]",
+      "timeoutMs": 5000
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "victory",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.victory.phase",
+      "expected": "VICTORY"
+    },
+    {
+      "action": "screenshot",
+      "name": "card-battle-victory"
+    },
+    {
+      "action": "clickUntilState",
+      "selector": "[data-action=\"cardReward\"]",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "rewards[0].chosen",
+      "from": false,
+      "expected": true,
+      "maxAttempts": 3,
+      "timeoutMs": 1000,
+      "description": "Resolve any actual workplace modal through its visible choice, then choose the first card reward and verify authoritative selection"
+    },
+    {
+      "action": "clickUntilState",
+      "selector": "[data-action=\"cardClaim\"]",
+      "method": "queryCardBattle",
+      "popupChoiceSelector": ".ux-modal-layer .ux-event-option[data-vevent-choice='NOT_HOME'], .ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE'], .ux-weekly-popup .ux-week-close, .ux-modal-layer #V2EventOk, .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "path": "settlement.claimed",
+      "from": false,
+      "expected": true,
+      "maxAttempts": 3,
+      "timeoutMs": 1000,
+      "description": "Resolve any actual workplace modal through its visible choice, claim the victory reward once, and verify authoritative settlement"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "claimed",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "truthy",
+      "path": "@vars.claimed.settlement.claimed"
+    },
+    {
+      "action": "restartGame",
+      "description": "Close and relaunch the packaged EXE with this scenario's isolated save"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "restored",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.restored.phase",
+      "expected": "VICTORY"
+    },
+    {
+      "action": "assert",
+      "check": "truthy",
+      "path": "@vars.restored.settlement.claimed"
+    },
+    {
+      "action": "screenshot",
+      "name": "card-battle-reward-restored"
+    }
   ]
 }

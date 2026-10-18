@@ -168,7 +168,7 @@ function testSaveMigration(): void {
   const { facade } = makeFacade();
   try {
     const raw = facade.context.player.toSaveData();
-    assert.equal(raw.saveVersion, 15, 'save version 15');
+    assert.equal(raw.saveVersion, 17, 'current save version 17');
     const stored = new (facade.context.player.constructor as never as { new(o?: unknown): instanceOfPlayer })(JSON.parse(JSON.stringify(raw)));
     assert.deepEqual(stored.skillEvolutions, {}, 'skillEvolutions default empty');
     assert.deepEqual(stored.codex.monsters, [], 'codex default empty');

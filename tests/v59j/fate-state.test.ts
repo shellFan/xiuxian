@@ -30,15 +30,15 @@ function legacySave(overrides: Record<string, unknown> = {}): Record<string, unk
 }
 
 const tests: Array<[string, () => void]> = [
-  ['legacy migration persists schema 15 instead of repeating migration on every load', () => {
+  ['legacy migration persists the current schema instead of repeating migration on every load', () => {
     const storage = new MemoryStorageAdapter();
     storage.setItem(SAVE_KEY, JSON.stringify(legacySave()));
     const service = new SaveService(storage, SAVE_KEY, () => NOW);
     service.load();
     const migrated = JSON.parse(storage.getItem(SAVE_KEY) ?? '{}') as Record<string, unknown>;
-    assert.equal(migrated.saveVersion, 15);
+    assert.equal(migrated.saveVersion, 17);
     assert.deepEqual(migrated.rebirthMeta, { karma: 0, talentRanks: {}, unlockedEndings: [], settledRunIds: [] });
-    assert.equal(service.load().saveVersion, 15);
+    assert.equal(service.load().saveVersion, 17);
   }],
   ['new players serialize independent default fate metadata and save snapshots are deeply cloned', () => {
     const player = new PlayerData({ salary: 450, spiritStones: 9 });
@@ -53,7 +53,7 @@ const tests: Array<[string, () => void]> = [
   }],
   ['v14 migration initializes an empty fate run and account rebirth metadata without changing legacy progression', () => {
     const data = load(legacySave());
-    assert.equal(data.saveVersion, 15);
+    assert.equal(data.saveVersion, 17);
     assert.equal(data.fateRun, null);
     assert.deepEqual(data.rebirthMeta, {
       karma: 0,

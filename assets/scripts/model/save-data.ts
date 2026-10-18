@@ -1,7 +1,42 @@
 import type { CharacterBackground, CharacterStats, DestinyId } from '../v59/character-rules';
 import type { CardId } from '../v59l/card-battle-engine';
 
-export const CURRENT_SAVE_VERSION = 15;
+export const CURRENT_SAVE_VERSION = 17;
+
+export type SectApplicationStatus = 'INTERVIEW' | 'OFFERED' | 'REJECTED' | 'ACCEPTED';
+export interface SectJobApplicationState {
+  readonly id: string;
+  readonly sourceSectId: string;
+  readonly targetSectId: string;
+  readonly appliedAt: number;
+  status: SectApplicationStatus;
+  interviewScore?: number;
+  interviewThreshold?: number;
+}
+export interface PendingSectContractState {
+  readonly applicationId: string;
+  readonly sourceSectId: string;
+  readonly sectId: string;
+  readonly effectiveDayIndex: number;
+  readonly acceptedAt: number;
+}
+export interface SectCareerRecordState {
+  readonly sectId: string;
+  readonly startedAt: number;
+  readonly endedAt?: number;
+}
+export type SectProjectRisk = 'LOW' | 'MEDIUM' | 'HIGH';
+export interface SectProjectContractState {
+  readonly id: string;
+  readonly sectId: string;
+  readonly dayIndex: number;
+  readonly title: string;
+  readonly risk: SectProjectRisk;
+  readonly workMinutes: number;
+  readonly rewardSalary: number;
+  readonly rewardPerformance: number;
+  status: 'ACCEPTED' | 'ACTIVE' | 'COMPLETED' | 'FAILED';
+}
 
 export interface CardBattleDeckEntry {
   readonly cardId: CardId;
@@ -50,6 +85,8 @@ export type OvertimeFatigueState = 'RESTED' | 'TIRED' | 'EXHAUSTED';
 
 /** 活跃/待接受加班会话的持久化形态（V4：重启后恢复，不允许靠重开清加班）。 */
 export interface OvertimeSessionState {
+  sessionId?: string;
+  approvalId?: string;
   source: Exclude<OvertimeSource, null>;
   free: boolean;
   plannedSeconds: number;
@@ -57,6 +94,21 @@ export interface OvertimeSessionState {
   mode: WorkMode | null;
   status: 'OFFERED' | 'ACTIVE';
   startedAt: number | null;
+}
+
+export type OvertimeApplicationStatus = 'APPROVED' | 'REJECTED' | 'STARTED' | 'SETTLED';
+export interface OvertimeApplicationState {
+  readonly id: string;
+  readonly dayIndex: number;
+  readonly sectId: string;
+  readonly professionId: string;
+  readonly taskId: string;
+  readonly plannedSeconds: number;
+  readonly approvalPercent: number;
+  readonly approvalRoll: number;
+  status: OvertimeApplicationStatus;
+  readonly appliedAt: number;
+  sessionId?: string;
 }
 
 // ── Gameplay V4 职场地狱存档类型 ────────────────────────────────────────────
@@ -159,6 +211,8 @@ export interface GameDayState {
   settled: boolean;
   durations: ActivityDurationsState;
   income: { salary: number; cultivation: number; performance: number };
+  /** Wallet spending recorded by paid life activities; absent in legacy saves. */
+  lifeExpenses?: number;
   eventsHandled: number;
   materialsGained: number;
   /** 今日局势 modifier id（公司/老板/项目/个人 各一条）。 */
@@ -191,6 +245,8 @@ export interface OfflineDecisionSession {
 export interface DaySummaryState {
   dayIndex: number;
   salary: number;
+  expenses?: number;
+  netCashChange?: number;
   cultivation: number;
   performance: number;
   mindEnd: number;
@@ -274,6 +330,10 @@ export interface GameSaveData {
   readonly performance: number;
   readonly sectId: string | null;
   readonly lastSectSwitchTime?: number;
+  readonly sectApplications?: readonly SectJobApplicationState[];
+  readonly pendingSectContract?: PendingSectContractState | null;
+  readonly sectCareerHistory?: readonly SectCareerRecordState[];
+  readonly sectProjectContract?: SectProjectContractState | null;
   readonly talentId: string | null;
   readonly workMode: WorkMode;
   readonly workSeconds: number;
@@ -343,6 +403,13 @@ export interface GameSaveData {
   // ── Gameplay V4 字段（saveVersion 8；旧存档迁移时补默认值） ──
   /** 进行中/待接受的加班会话（跨重启恢复）。 */
   readonly activeOvertimeSession?: OvertimeSessionState | null;
+  /** Persistent client/manager overtime decisions; one application per workday. */
+  readonly overtimeApplications?: readonly OvertimeApplicationState[];
+  /** Idempotency keys for overtime payroll already committed to the save. */
+  readonly settledOvertimeSessionIds?: readonly string[];
+  /** Player condition values are independent from cultivation and wallet resources. */
+  readonly health?: number;
+  readonly mood?: number;
   /** 玩家持有的证据（解锁事件选项）。 */
   readonly evidence?: readonly EvidenceItemState[];
   /** 责任判定案件（甩锅/复盘）。 */
@@ -729,7 +796,7 @@ export interface DailyRealityEntryState {
   readonly text: string;
   readonly kind: 'WORK' | 'FAVOR' | 'MEETING' | 'INCIDENT' | 'OVERTIME' | 'CHANGE' | 'BLAME' | 'REST' | 'LIFE';
   /** Explicit player action used by the living-home summary; never a UI-derived purchase-power value. */
-  readonly lifeAction?: 'COFFEE' | 'LUNCH' | 'MILK_TEA' | 'CODE_COMMIT' | 'DOCUMENT';
+  readonly lifeAction?: 'COFFEE' | 'LUNCH' | 'MILK_TEA' | 'SNACK' | 'DINNER' | 'WALK' | 'EXERCISE' | 'MEDITATE' | 'GAMING' | 'READING' | 'HOT_SPRING' | 'SOCIAL' | 'CODE_COMMIT' | 'DOCUMENT';
 }
 
 

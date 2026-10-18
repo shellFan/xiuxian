@@ -23,8 +23,8 @@ const config = ConfigService.load({
 
 function testOffersEightConfiguredSects(): void {
   const service = new SectService({ configService: config, player: new PlayerData(), saveService: new SaveService(new MemoryStorageAdapter()) } as never);
-  assert.deepEqual(service.available().map((sect) => sect.id), ['PRIVATE', 'FOREIGN', 'STATE', 'BIG_TECH', 'OUTSOURCING', 'INTERNAL', 'FREELANCE']);
-  assert.equal(service.get('STARTUP').id, 'STARTUP', 'legacy saves can still resolve their stored sect');
+  assert.deepEqual(service.available().map((sect) => sect.id), ['PRIVATE', 'FOREIGN', 'STATE', 'BIG_TECH', 'OUTSOURCING', 'INTERNAL', 'FREELANCE', 'STARTUP']);
+  assert.equal(service.get('STARTUP').id, 'STARTUP', 'startup is an employer option, not a player-created sect');
   assert.equal(service.get('PRIVATE').modifiers.salaryMultiplier, 1.2);
   assert.equal(service.get('FOREIGN').modifiers.cultivationMultiplier, 1.2);
   assert.equal(service.get('STATE').modifiers.mindMultiplier, 1.2);
@@ -50,9 +50,9 @@ function testFailedSaveDoesNotSelectSect(): void {
   assert.equal(player.sectId, null);
 }
 
-function testLegacyStartupSectCannotBeChosenByNewCharacters(): void {
+function testStartupIsAnEmployerButCannotBePlayerCreated(): void {
   const service = new SectService({ configService: config, player: new PlayerData(), saveService: new SaveService(new MemoryStorageAdapter()) } as never);
-  assert.throws(() => service.choose('STARTUP'), /not available for new characters/);
+  assert.equal(service.choose('STARTUP').id, 'STARTUP', 'players may join a startup employer');
 }
 
 function testProductionSectConfigContainsEightCompleteWorkplaceProfiles(): void {
@@ -63,5 +63,5 @@ function testProductionSectConfigContainsEightCompleteWorkplaceProfiles(): void 
   assert.equal(loaded.sect.sects.find((sect) => sect.id === 'OUTSOURCING')?.employment?.overtimeRule, 'CLIENT_APPROVAL');
 }
 
-testOffersEightConfiguredSects(); testChoiceIsSavedAndCannotChange(); testFailedSaveDoesNotSelectSect(); testLegacyStartupSectCannotBeChosenByNewCharacters(); testProductionSectConfigContainsEightCompleteWorkplaceProfiles();
+testOffersEightConfiguredSects(); testChoiceIsSavedAndCannotChange(); testFailedSaveDoesNotSelectSect(); testStartupIsAnEmployerButCannotBePlayerCreated(); testProductionSectConfigContainsEightCompleteWorkplaceProfiles();
 console.log('sect tests passed');

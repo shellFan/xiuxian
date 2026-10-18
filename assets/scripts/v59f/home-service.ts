@@ -1,4 +1,5 @@
 import type { GameContext } from '../core/game-context';
+import { PlayerData } from '../model/player-data';
 
 /**
  * V5.9-F-Z — 主页面可玩性服务。
@@ -16,7 +17,7 @@ import type { GameContext } from '../core/game-context';
  */
 
 export type HomeGoalKind = 'WORK' | 'GROWTH' | 'LIFE';
-export type HomeLifeKind = 'COFFEE' | 'MILK_TEA' | 'LUNCH' | 'SNACK' | 'DINNER';
+export type HomeLifeKind = 'COFFEE' | 'MILK_TEA' | 'LUNCH' | 'SNACK' | 'DINNER' | 'WALK' | 'EXERCISE' | 'MEDITATE' | 'GAMING' | 'READING' | 'HOT_SPRING' | 'SOCIAL';
 
 /** 生活行为定义：价格/效果全部走既有经济与状态服务，非 UI 摆设。 */
 interface HomeLifeDef {
@@ -25,6 +26,9 @@ interface HomeLifeDef {
   readonly icon: string;
   readonly price: number;
   readonly itemId: string | null;
+  readonly timeMinutes: number;
+  readonly healthDelta: number;
+  readonly moodDelta: number;
   readonly fatigueDelta: number;
   readonly mindDelta: number;
   readonly dailyLimit: number;
@@ -33,11 +37,18 @@ interface HomeLifeDef {
 
 /** 每日生活行为表（价格/次数 = 产品口径；效果即时生效并如实展示）。 */
 const HOME_LIFE_DEFS: readonly HomeLifeDef[] = [
-  { kind: 'COFFEE', label: '喝咖啡', icon: '☕', price: 18, itemId: 'cons_coffee', fatigueDelta: -12, mindDelta: 6, dailyLimit: 3, effectText: '疲劳 -12，道心 +6' },
-  { kind: 'MILK_TEA', label: '喝奶茶', icon: '🧋', price: 16, itemId: null, fatigueDelta: 0, mindDelta: 8, dailyLimit: 2, effectText: '道心 +8' },
-  { kind: 'LUNCH', label: '吃午餐', icon: '🍜', price: 25, itemId: null, fatigueDelta: -8, mindDelta: 5, dailyLimit: 1, effectText: '疲劳 -8，道心 +5' },
-  { kind: 'SNACK', label: '吃零食', icon: '🍪', price: 8, itemId: null, fatigueDelta: 0, mindDelta: 3, dailyLimit: 3, effectText: '道心 +3' },
-  { kind: 'DINNER', label: '下班聚餐', icon: '🍲', price: 68, itemId: null, fatigueDelta: -40, mindDelta: 15, dailyLimit: 1, effectText: '疲劳 -40，道心 +15' },
+  { kind: 'COFFEE', label: '喝咖啡', icon: '☕', price: 18, itemId: 'cons_coffee', timeMinutes: 10, healthDelta: 0, moodDelta: 1, fatigueDelta: -12, mindDelta: 6, dailyLimit: 3, effectText: '10 分钟 · 疲劳 -12，道心 +6' },
+  { kind: 'MILK_TEA', label: '喝奶茶', icon: '🧋', price: 16, itemId: null, timeMinutes: 15, healthDelta: 0, moodDelta: 3, fatigueDelta: 0, mindDelta: 8, dailyLimit: 2, effectText: '15 分钟 · 心情 +3，道心 +8' },
+  { kind: 'LUNCH', label: '吃午餐', icon: '🍜', price: 25, itemId: null, timeMinutes: 30, healthDelta: 5, moodDelta: 2, fatigueDelta: -8, mindDelta: 5, dailyLimit: 1, effectText: '30 分钟 · 健康 +5，疲劳 -8，道心 +5' },
+  { kind: 'SNACK', label: '吃零食', icon: '🍪', price: 8, itemId: null, timeMinutes: 5, healthDelta: 0, moodDelta: 2, fatigueDelta: 0, mindDelta: 3, dailyLimit: 3, effectText: '5 分钟 · 心情 +2，道心 +3' },
+  { kind: 'DINNER', label: '下班聚餐', icon: '🍲', price: 68, itemId: null, timeMinutes: 90, healthDelta: 8, moodDelta: 12, fatigueDelta: -20, mindDelta: 15, dailyLimit: 1, effectText: '90 分钟 · 健康 +8，心情 +12，道心 +15' },
+  { kind: 'WALK', label: '公园散步', icon: '🚶', price: 10, itemId: null, timeMinutes: 30, healthDelta: 3, moodDelta: 6, fatigueDelta: -8, mindDelta: 2, dailyLimit: 1, effectText: '30 分钟 · 健康 +3，心情 +6，疲劳 -8' },
+  { kind: 'EXERCISE', label: '健身锻炼', icon: '🏃', price: 20, itemId: null, timeMinutes: 45, healthDelta: 12, moodDelta: 2, fatigueDelta: 4, mindDelta: 1, dailyLimit: 1, effectText: '45 分钟 · 健康 +12，疲劳 +4' },
+  { kind: 'MEDITATE', label: '静心冥想', icon: '🧘', price: 15, itemId: null, timeMinutes: 30, healthDelta: 2, moodDelta: 5, fatigueDelta: -4, mindDelta: 12, dailyLimit: 1, effectText: '30 分钟 · 心情 +5，道心 +12' },
+  { kind: 'GAMING', label: '游戏放松', icon: '🎮', price: 25, itemId: null, timeMinutes: 45, healthDelta: -2, moodDelta: 12, fatigueDelta: 4, mindDelta: 1, dailyLimit: 1, effectText: '45 分钟 · 心情 +12，疲劳 +4' },
+  { kind: 'READING', label: '阅读修习', icon: '📚', price: 12, itemId: null, timeMinutes: 30, healthDelta: 1, moodDelta: 3, fatigueDelta: -2, mindDelta: 8, dailyLimit: 1, effectText: '30 分钟 · 心情 +3，道心 +8' },
+  { kind: 'HOT_SPRING', label: '灵泉泡汤', icon: '♨️', price: 88, itemId: null, timeMinutes: 60, healthDelta: 20, moodDelta: 8, fatigueDelta: -24, mindDelta: 5, dailyLimit: 1, effectText: '60 分钟 · 健康 +20，疲劳 -24' },
+  { kind: 'SOCIAL', label: '好友小聚', icon: '🫖', price: 50, itemId: null, timeMinutes: 60, healthDelta: -2, moodDelta: 15, fatigueDelta: 3, mindDelta: 2, dailyLimit: 1, effectText: '60 分钟 · 心情 +15，疲劳 +3' },
 ];
 
 export interface HomeLifeOptionView {
@@ -45,6 +56,7 @@ export interface HomeLifeOptionView {
   readonly label: string;
   readonly icon: string;
   readonly price: number;
+  readonly timeMinutes: number;
   readonly effectText: string;
   readonly used: number;
   readonly remaining: number;
@@ -61,6 +73,9 @@ export interface HomeLifeResult {
   readonly fatigueDelta?: number;
   readonly mindDelta?: number;
   readonly balanceAfter?: number;
+  readonly timeMinutes?: number;
+  readonly healthDelta?: number;
+  readonly moodDelta?: number;
 }
 
 export interface HomeGoalView {
@@ -463,7 +478,7 @@ export class HomeService {
       if (remaining <= 0) reason = `今日已享 ${used}/${def.dailyLimit} 次`;
       else if (!affordable) reason = `余额不足（还差 ¥${def.price - balance}）`;
       return {
-        kind: def.kind, label: def.label, icon: def.icon, price: def.price, effectText: def.effectText,
+        kind: def.kind, label: def.label, icon: def.icon, price: def.price, timeMinutes: def.timeMinutes, effectText: def.effectText,
         used, remaining, affordable, available: remaining > 0 && affordable, reason,
       };
     });
@@ -481,28 +496,29 @@ export class HomeService {
     const used = this.lifeUsed(def.kind);
     if (used >= def.dailyLimit) return { ok: false, reason: `今日次数已用完（${used}/${def.dailyLimit}）` };
     if (c.player.salary < def.price) return { ok: false, reason: `工资余额不足（需 ¥${def.price}，现有 ¥${c.player.salary}）` };
-
-    // 真实扣款（价格经济域唯一入口语义与 v2Items.buy 一致：负向 salary 变更）。
-    const before = c.player.salary;
-    const after = before - def.price;
-    if (!Number.isSafeInteger(after) || after < 0) return { ok: false, reason: '扣款校验失败' };
-    c.player.salary = after;
-    c.events.emit('salaryChanged', { amount: -def.price, total: after });
-
-    // 真实效果：疲劳与道心（效果值来自定义表，非 UI 编造）。
-    if (def.fatigueDelta !== 0) c.fatigue.addDelta(def.fatigueDelta);
-    if (def.mindDelta !== 0) c.mind.applyDelta(def.mindDelta);
-    // 挂接到正式消耗品的行为保持：有对应道具定义时同步消耗库存（咖啡走真实道具）。
-    if (def.itemId && c.v2Items.materialCount(def.itemId) > 0) {
-      c.v2Items.useConsumable(def.itemId);
+    const before = c.player.toSaveData();
+    let after = c.player.salary;
+    try {
+      c.gameDay.ensureStarted();
+      // 真实扣款：统一工资钱包入口；由本业务事务保存完整结果。
+      after = c.economy.spendSalary(def.price, { publish: false });
+      if (def.fatigueDelta !== 0) c.fatigue.addDelta(def.fatigueDelta);
+      if (def.mindDelta !== 0) c.mind.applyDelta(def.mindDelta);
+      c.player.health = Math.max(0, Math.min(100, c.player.health + def.healthDelta));
+      c.player.mood = Math.max(0, Math.min(100, c.player.mood + def.moodDelta));
+      if (def.itemId && c.v2Items.materialCount(def.itemId) > 0) c.v2Items.useConsumable(def.itemId);
+      const day = c.gameDay.current();
+      if (day) c.player.gameDay = { ...day, lifeExpenses: (day.lifeExpenses ?? 0) + def.price };
+      c.messenger.appendReality({ time: c.clockV2.now(), text: `${def.icon} ${def.label}（-¥${def.price}，${def.timeMinutes} 分钟）`, kind: 'LIFE', lifeAction: def.kind });
+      this.noteLifeAction();
+      setFlagNum(c, 'homeGoal_lifeCount', flagNum(c, 'homeGoal_lifeCount') + 1);
+      if (options.persist !== false) c.saveService.save(c.player);
+    } catch (error) {
+      Object.assign(c.player, new PlayerData(before));
+      return { ok: false, reason: error instanceof Error ? error.message : '生活活动未能保存' };
     }
-
-    // 履历 + 当日生活计数（目标系统进度）+ 持久化。
-    c.gameDay.ensureStarted();
-    c.messenger.appendReality({ time: c.clockV2.now(), text: `${def.icon} ${def.label}（-¥${def.price}）`, kind: 'LIFE', lifeAction: def.kind === 'SNACK' || def.kind === 'DINNER' ? undefined : (def.kind as 'COFFEE' | 'LUNCH' | 'MILK_TEA') });
-    this.noteLifeAction();
-    setFlagNum(c, 'homeGoal_lifeCount', flagNum(c, 'homeGoal_lifeCount') + 1);
-    if (options.persist !== false) c.saveService.save(c.player);
+    c.clockV2.consumeGameMinutes(def.timeMinutes);
+    try { c.events.emit('salaryChanged', { amount: -def.price, total: after }); } catch { /* committed action */ }
     c.events.emit('playerChanged', { reason: 'homeLifeConsumed' });
     return {
       ok: true,
@@ -511,6 +527,9 @@ export class HomeService {
       fatigueDelta: def.fatigueDelta,
       mindDelta: def.mindDelta,
       balanceAfter: c.player.salary,
+      timeMinutes: def.timeMinutes,
+      healthDelta: def.healthDelta,
+      moodDelta: def.moodDelta,
     };
   }
 

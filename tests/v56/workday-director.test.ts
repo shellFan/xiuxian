@@ -176,7 +176,7 @@ function testSaveV11Migration(): void {
     const snapshot = facade.save();
     void snapshot;
     const raw = JSON.parse(storage.getItem('game-save') ?? '{}') as { saveVersion: number; fatigue: number; project: unknown };
-    assert.equal(raw.saveVersion, 15, 'legacy save migrates to v15');
+    assert.equal(raw.saveVersion, 17, 'legacy save migrates to the current v17 schema');
     assert.equal(raw.fatigue, 0, 'fatigue defaults 0');
     assert.equal(raw.project, null, 'project defaults null');
     console.log('save v14 migration passed');

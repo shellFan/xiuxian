@@ -73,6 +73,7 @@ export interface BattleRunState {
   readonly runId: string;
   readonly source: 'PROJECT' | 'INCIDENT';
   readonly linkedTaskId: string | null;
+  readonly linkedSectProjectId?: string | null;
   readonly linkedIncidentId: string | null;
   readonly buildId: string;
   readonly night: boolean;
@@ -289,7 +290,7 @@ export class BattleService {
   }
 
   /** Starts V5.9-L card combat inside the existing authoritative battle-run slot. */
-  public startCardBattle(encounterId: CreateCardBattleOptions['encounterId'] = 'NORMAL', seed = 5919): CardBattleState {
+  public startCardBattle(encounterId: CreateCardBattleOptions['encounterId'] = 'NORMAL', seed = 5919, linkedSectProjectId: string | null = null): CardBattleState {
     if (this.current()) throw new Error('已有进行中的战斗');
     const savedDeck = this.context.player.cardBattleDeck;
     const engine = new CardBattleEngine(createCardBattleState({
@@ -312,7 +313,7 @@ export class BattleService {
     const dayIndex = Math.max(1, this.context.player.gameDay?.dayIndex ?? 1);
     const run: BattleRunState = {
       runId: `card:${cardBattle.battleId}`,
-      source: 'PROJECT', linkedTaskId: null, linkedIncidentId: null, buildId: fishBuildId(), night: false, dayIndex,
+      source: 'PROJECT', linkedTaskId: null, linkedSectProjectId, linkedIncidentId: null, buildId: fishBuildId(), night: false, dayIndex,
       status: 'FIGHTING', wave: 1, waveTotal: 1, playerHp: cardBattle.player.hp, playerMaxHp: cardBattle.player.maxHp,
       shield: cardBattle.player.block, attack: 1, intervalSec: 1, critChance: 0, level: 1, exp: 0, expNext: 1,
       skills: [], skillOffers: null, enemies: [], kills: 0,
@@ -361,6 +362,7 @@ export class BattleService {
     const receipt = this.mutateCardBattle((engine) => engine.claimRewards(operationId));
     const run = this.storedRun();
     if (receipt.applied && run?.battleMode === 'CARD' && run.cardBattle?.settlement?.claimed && !run.cardConsequencesApplied) {
+      if (run.linkedSectProjectId) this.context.sectProjects.resolve(run.linkedSectProjectId, run.cardBattle.phase === 'VICTORY');
       for (const [kind, count] of Object.entries(run.cardBattle.materials)) {
         if (count > 0) this.context.v2Items.addMaterial(kind === 'rare' ? 'mat_legacy_code' : kind, count);
       }

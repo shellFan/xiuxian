@@ -1,0 +1,158 @@
+{
+  "id": "sect-career-interview",
+  "title": "Compare sect contracts and complete a visible job application and interview",
+  "setup": "new-player",
+  "setupFailureClass": "SETUP_BLOCKED",
+  "steps": [
+    {
+      "action": "call",
+      "method": "querySectJobs",
+      "as": "jobOffers",
+      "asType": "array",
+      "description": "Read the eight canonical employer salary projections"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.jobOffers.length",
+      "expected": 8,
+      "description": "All eight configured employers are available to compare"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.jobOffers[3].id",
+      "expected": "FREELANCE",
+      "description": "Resolve the freelance employer by its canonical ID in the salary projection list"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.jobOffers[3].salaryMultiplier",
+      "expected": 0,
+      "description": "The freelance employer has no fixed salary multiplier and requires project contracts"
+    },
+    {
+      "action": "click",
+      "selector": ".ux-char-sect",
+      "description": "Open the employer board from the normal home character card"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".ux-sect-card",
+      "timeoutMs": 5000,
+      "description": "Wait for the visible employer board"
+    },
+    {
+      "action": "scroll",
+      "selector": ".ux-body",
+      "deltaY": 500,
+      "ensureVisibleSelector": "[data-action=\"sect\"][data-id=\"FREELANCE\"]",
+      "description": "Scroll the normal employer list until the freelance contract control is inside the viewport"
+    },
+    {
+      "action": "waitFor",
+      "selector": "[data-action=\"sect\"][data-id=\"FREELANCE\"]",
+      "state": "visible",
+      "timeoutMs": 3000,
+      "description": "Confirm the freelance contract button is actually visible after scrolling"
+    },
+    {
+      "action": "assertClickable",
+      "selector": "[data-action=\"sect\"][data-id=\"FREELANCE\"]",
+      "description": "Verify the target employer application is in bounds and reachable"
+    },
+    {
+      "action": "screenshot",
+      "name": "sect-job-board",
+      "description": "Capture the salary comparison and current contract controls"
+    },
+    {
+      "action": "click",
+      "selector": "[data-action=\"sect\"][data-id=\"FREELANCE\"]",
+      "description": "Select the freelance employer from the rendered job board"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".ux-dialog-actions .ux-btn[data-idx=\"1\"]",
+      "timeoutMs": 3000,
+      "description": "Wait for the visible interview application confirmation"
+    },
+    {
+      "action": "click",
+      "selector": ".ux-dialog-actions .ux-btn[data-idx=\"1\"]",
+      "description": "Submit the job application through the visible dialog button"
+    },
+    {
+      "action": "call",
+      "method": "querySectApplications",
+      "as": "interviewRequest",
+      "asType": "array"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.interviewRequest[0].status",
+      "expected": "INTERVIEW"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "timeoutMs": 4000,
+      "description": "Acknowledge any no-choice event result interrupt through its real visible button before continuing the interview"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer #V2EventOk",
+      "timeoutMs": 4000,
+      "description": "Acknowledge the resulting event summary through its real continue button"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".ux-modal-layer",
+      "state": "hidden",
+      "timeoutMs": 3000,
+      "description": "Wait until the event result modal has actually closed"
+    },
+    {
+      "action": "assertClickable",
+      "selector": "[data-action=\"sectInterview\"][data-answer=\"RISK\"]"
+    },
+    {
+      "action": "click",
+      "selector": "[data-action=\"sectInterview\"][data-answer=\"RISK\"]",
+      "description": "Complete the interview with a visible risk-review answer"
+    },
+    {
+      "action": "call",
+      "method": "querySectApplications",
+      "as": "afterInterview",
+      "asType": "array"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.afterInterview[0].status",
+      "expected": "REJECTED",
+      "description": "The low-experience application records its real interview result"
+    },
+    {
+      "action": "call",
+      "method": "querySect",
+      "as": "currentSect",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.currentSect.id",
+      "expected": "OUTSOURCING",
+      "description": "A failed interview leaves the current contract unchanged"
+    },
+    {
+      "action": "screenshot",
+      "name": "sect-interview-rejected",
+      "description": "Capture the visible interview outcome and unchanged employer"
+    }
+  ]
+}

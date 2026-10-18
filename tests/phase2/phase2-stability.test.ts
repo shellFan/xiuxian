@@ -130,8 +130,8 @@ function testSectHasEightDistinctWorkplaceProfiles(): void {
   const configuredSects = context.configService.sect.sects;
   const sects = context.sect.available();
   assert.equal(configuredSects.length, 8, 'the legacy startup definition remains available for old saves');
-  assert.equal(sects.length, 7, 'new hires only see sectors included in this release scope');
-  assert.deepStrictEqual(sects.map((s) => s.name), ['大厂宗', '外包宗', '内包宗', '自由宗', '国企宗', '小厂宗', '外企宗']);
+  assert.equal(sects.length, 8, 'all eight employers are available; this does not create a player-owned sect');
+  assert.deepStrictEqual(sects.map((s) => s.name), ['大厂宗', '外包宗', '内包宗', '自由宗', '国企宗', '创业公司宗', '小厂宗', '外企宗']);
   for (const s of configuredSects) {
     const m = s.modifiers;
     for (const v of [m.salaryMultiplier, m.cultivationMultiplier, m.mindMultiplier, m.performanceMultiplier]) {

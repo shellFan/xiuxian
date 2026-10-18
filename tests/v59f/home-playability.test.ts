@@ -66,7 +66,7 @@ function testHomeSnapshotShape(): void {
     assert.equal(snap.goals.length, 3, 'three goals');
     assert.deepEqual(snap.goals.map((g) => g.kind), ['WORK', 'GROWTH', 'LIFE']);
     assert.ok(snap.nextAction && snap.nextAction.id, 'next action computed');
-    assert.equal(snap.life.length, 5, 'five life options');
+    assert.equal(snap.life.length, 12, 'twelve paid life options');
     assert.ok(snap.life.every((l) => l.price > 0), 'life prices are real');
     console.log('1. home snapshot shape passed');
   } finally { facade.destroy(); }
@@ -218,7 +218,9 @@ function testLifeConsumption(): void {
     // 入口数据真实
     facade.context.player.salary = 500;
     const life = facade.queryHomeLifeOptions();
-    assert.equal(life.length, 5);
+    assert.equal(life.length, 12);
+    assert.ok(life.every((entry) => entry.price > 0), 'all activities have a real price');
+    assert.ok(life.every((entry) => (entry as unknown as { timeMinutes?: number }).timeMinutes! > 0), 'all activities consume game time');
     const coffee = life.find((l) => l.kind === 'COFFEE')!;
     assert.equal(coffee.price, 18);
     assert.equal(coffee.remaining, 3, 'coffee 3/day');
@@ -261,6 +263,16 @@ function testLifeConsumption(): void {
     assert.equal(facade.context.player.salary, 482, 'balance state deducted');
     assert.ok(facade.context.player.fatigue < 60, `fatigue reduced: 60 → ${facade.context.player.fatigue}`);
     assert.ok((ok.fatigueDelta ?? 0) < 0, 'reported fatigue delta negative');
+    const beforeWalkTime = facade.queryGameClock().hour * 60 + facade.queryGameClock().minute;
+    const moodBeforeWalk = facade.context.player.mood;
+    facade.context.player.health = 70;
+    const healthBeforeWalk = facade.context.player.health;
+    const walk = facade.consumeHomeLife('WALK') as unknown as { ok: boolean; timeMinutes: number; healthDelta: number; moodDelta: number };
+    assert.equal(walk.ok, true);
+    assert.equal(walk.timeMinutes, 30);
+    assert.equal(facade.queryGameClock().hour * 60 + facade.queryGameClock().minute - beforeWalkTime, 30, 'walk advances authoritative game clock');
+    assert.ok(facade.context.player.health > healthBeforeWalk, 'walk improves health');
+    assert.ok(facade.context.player.mood > moodBeforeWalk, 'walk improves mood');
     // 次数上限
     facade.consumeHomeLife('COFFEE');
     facade.consumeHomeLife('COFFEE');
@@ -414,9 +426,55 @@ function testOldSaveCompat(): void {
     assert.ok(snap.work, 'legacy save home snapshot works');
     assert.equal(snap.goals.length, 3, 'legacy save gets fresh goals');
     assert.ok(snap.goals.every((g) => !g.claimed), 'stripped flags → claims cleared');
-    assert.equal(snap.life.length, 5, 'life menu available on legacy save');
+    assert.equal(snap.life.length, 12, 'life menu available on legacy save');
     console.log('20. old save compat passed');
   } finally { facade2.destroy(); }
+}
+
+function testLifeExpenseAppearsInDailySettlement(): void {
+  const { facade, clock } = readyFacade(4601);
+  try {
+    facade.context.player.salary = 500;
+    facade.context.player.health = 50;
+    facade.context.player.mood = 50;
+    const result = facade.consumeHomeLife('WALK');
+    assert.equal(result.ok, true);
+    const healthNextDay = facade.context.player.health;
+    const moodNextDay = facade.context.player.mood;
+    clock.set(Date.parse('2026-09-21T18:00:00+08:00'));
+    const bill = facade.settleDay() as unknown as { income: { salary: number }; expenses: number; netCashChange: number };
+    assert.equal(bill.expenses, 10);
+    assert.equal(bill.netCashChange, bill.income.salary - 10);
+    clock.set(Date.parse('2026-09-22T09:00:00+08:00'));
+    facade.context.gameDay.ensureStarted();
+    assert.equal(facade.context.player.health, healthNextDay, 'health from life choices carries into the next day');
+    assert.equal(facade.context.player.mood, moodNextDay, 'mood from life choices carries into the next day');
+  } finally { facade.destroy(); }
+}
+
+function testLifeConsumptionRollsBackWhenPersistenceFails(): void {
+  class FailNextSave extends MemoryStorageAdapter {
+    public failNext = false;
+    public override setItem(key: string, value: string): void {
+      if (this.failNext) { this.failNext = false; throw new Error('disk full'); }
+      super.setItem(key, value);
+    }
+  }
+  const storage = new FailNextSave();
+  const { facade } = makeFacade(4602, { salary: 500 }, storage);
+  try {
+    const before = facade.context.player.toSaveData();
+    const beforeClock = facade.queryGameClock();
+    storage.failNext = true;
+    const failed = facade.consumeHomeLife('WALK');
+    assert.equal(failed.ok, false);
+    assert.match(failed.reason ?? '', /disk full/);
+    assert.equal(facade.context.player.salary, before.salary);
+    assert.equal(facade.context.player.health, before.health);
+    assert.equal(facade.context.player.mood, before.mood);
+    assert.equal(facade.queryGameClock().hour, beforeClock.hour);
+    assert.equal(facade.queryHomeLifeOptions().find((item) => item.kind === 'WALK')!.used, 0);
+  } finally { facade.destroy(); }
 }
 
 testHomeSnapshotShape();
@@ -433,4 +491,6 @@ testSettlementEntry();
 testDayRolloverReset();
 testRestartPersistence();
 testOldSaveCompat();
+testLifeExpenseAppearsInDailySettlement();
+testLifeConsumptionRollsBackWhenPersistenceFails();
 console.log('V59F HOME PLAYABILITY TESTS PASSED');

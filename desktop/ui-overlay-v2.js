@@ -160,6 +160,22 @@
     var canSettle = fQuery('queryCanSettleDay');
     var clock = fQuery('queryGameClock');
     if (!day) return H.emptyState('🌇', '还未开工', '进入工作时段自动开工');
+    if (day.settled) {
+      var history = fQuery('queryDailySettlementHistory') || [];
+      var slip = history.length ? history[history.length - 1] : null;
+      var salary = slip && Number.isFinite(slip.salary) ? slip.salary : (day.income && day.income.salary) || 0;
+      var expenses = slip && Number.isFinite(slip.expenses) ? slip.expenses : day.lifeExpenses || 0;
+      var netCashChange = slip && Number.isFinite(slip.netCashChange) ? slip.netCashChange : salary - expenses;
+      return '<div class="ux-card ux-settlement-history" data-settlement-day="' + (slip ? slip.dayIndex : day.dayIndex) + '">' +
+        '<div class="ux-dialog-title">第 ' + (slip ? slip.dayIndex : day.dayIndex) + ' 个牛马修仙日 · 工资单</div>' +
+        '<div class="ux-req-rows">' +
+          H.reqRow('salary', '工资收入', salary, 0, salary > 0, 'blue') +
+          H.reqRow('expenses', '生活支出', expenses, 0, expenses > 0, 'orange') +
+          H.reqRow('net', '净现金变化', netCashChange, 0, netCashChange > 0, netCashChange >= 0 ? 'blue' : 'orange') +
+        '</div>' +
+        (slip ? '<div class="ux-recipe-desc">评级 ' + H.escHtml(slip.rank || '—') + ' · 修为 +' + (slip.cultivation || 0) + ' · 绩效 ' + (slip.performance || 0) + '</div>' : '') +
+      '</div>';
+    }
     if (!canSettle) {
       return '<div class="ux-card" style="text-align:center;padding:40px 20px">' +
         '<div style="font-size:56px;margin-bottom:12px">⏳</div>' +
@@ -527,6 +543,8 @@
               '<div class="ux-off-row">' + H.icon('salary') + '<span class="rn">工资</span><span class="rv">+' + H.fmtNum(view.income.salary) + '</span></div>' +
               '<div class="ux-off-row">' + H.icon('cultivation') + '<span class="rn">修为</span><span class="rv">+' + H.fmtNum(view.income.cultivation) + '</span></div>' +
               '<div class="ux-off-row">' + H.icon('performance') + '<span class="rn">绩效</span><span class="rv">+' + H.fmtNum(view.income.performance) + '</span></div>' +
+              '<div class="ux-off-row"><span>🛍️</span><span class="rn">生活支出</span><span class="rv">-¥' + H.fmtNum(view.expenses || 0) + '</span></div>' +
+              '<div class="ux-off-row"><span>💰</span><span class="rn">净现金变化</span><span class="rv">' + (view.netCashChange >= 0 ? '+' : '-') + '¥' + H.fmtNum(Math.abs(view.netCashChange || 0)) + '</span></div>' +
             '</div>' +
             '<div class="ux-recipe-desc" style="margin-top:12px;line-height:1.9">' +
               '💼 ' + dur(view.durations.work) + ' · 🐟 ' + dur(view.durations.fishing) + '<br>' +

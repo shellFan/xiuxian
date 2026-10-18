@@ -1,0 +1,27 @@
+{
+  "id": "sect-overtime-approval",
+  "title": "Request outsourcing overtime from the home UI and verify the single saved decision",
+  "setup": "new-player",
+  "setupFailureClass": "SETUP_BLOCKED",
+  "steps": [
+    { "action": "call", "method": "devJumpToHour", "args": [17, 55], "description": "Use the canonical game clock to enter the five-minute pre-off-work approval window" },
+    { "action": "call", "method": "queryGameClock", "as": "overtimeClock", "asType": "object", "description": "Read authoritative game date and hour before using the overtime UI" },
+    { "action": "assert", "check": "equals", "path": "@vars.overtimeClock.hour", "expected": 17, "description": "Overtime approval is requested before the 18:00 workday boundary" },
+    { "action": "call", "method": "queryWorkToday", "as": "workToday", "asType": "object", "description": "Read the canonical work service countdown before using the approval window" },
+    { "action": "assert", "check": "lte", "path": "@vars.workToday.countdownMs", "expected": 300000, "description": "The work service confirms the five-minute overtime approval window is active" },
+    { "action": "assert", "check": "gt", "path": "@vars.workToday.countdownMs", "expected": 0, "description": "The request is still before the workday boundary" },
+    { "action": "waitFor", "selector": "[data-action=\"applyOvertimeApproval\"][data-seconds=\"3600\"]", "state": "clickable", "timeoutMs": 4000, "description": "Wait for the authoritative game clock update to reach the periodic home UI render" },
+    { "action": "assertClickable", "selector": "[data-action=\"applyOvertimeApproval\"][data-seconds=\"3600\"]", "description": "The home shell keeps the real one-hour approval action reachable during homepage combat" },
+    { "action": "click", "selector": "[data-action=\"applyOvertimeApproval\"][data-seconds=\"3600\"]", "description": "Submit the outsourcing overtime request through the visible home control" },
+    { "action": "wait", "ms": 250, "description": "Allow the approval result and home projection to refresh" },
+    { "action": "call", "method": "queryOvertimeApplications", "as": "approvalBeforeRestart", "asType": "array", "description": "Read the authoritative persisted approval decision" },
+    { "action": "assert", "check": "equals", "path": "@vars.approvalBeforeRestart.length", "expected": 1, "description": "A new game day has one durable overtime application" },
+    { "action": "assert", "check": "exists", "path": "@vars.approvalBeforeRestart[0].status", "description": "The application stores either an approval or rejection decision" },
+    { "action": "screenshot", "name": "overtime-approval-result", "description": "Capture the visible post-request home state" },
+    { "action": "restartGame", "description": "Close and relaunch the packaged EXE using this isolated scenario profile" },
+    { "action": "call", "method": "queryOvertimeApplications", "as": "approvalAfterRestart", "asType": "array", "description": "Read the approval history after restarting the actual EXE" },
+    { "action": "assert", "check": "equals", "path": "@vars.approvalAfterRestart[0].status", "expected": "@vars.approvalBeforeRestart[0].status", "description": "Restart cannot reroll or change the saved client approval result" },
+    { "action": "clickIfPresent", "selector": "[data-action=\"startApprovedOvertime\"]", "optional": true, "timeoutMs": 1200, "description": "If approved, start paid overtime using the real UI; a rejection exposes no start action" },
+    { "action": "screenshot", "name": "overtime-after-restart", "description": "Keep evidence that the decision survives a packaged EXE restart" }
+  ]
+}

@@ -16,6 +16,17 @@ async function waitForArenaSkillButton({ readState, inspect, delay, now = Date.n
   } while (now() < deadline);
   return { status: 'inconsistent', state, target };
 }
+async function waitForArenaControl({ inspect, delay, now = Date.now, timeoutMs = 1500, pollIntervalMs = 50 }) {
+  const deadline = now() + timeoutMs;
+  let target;
+  do {
+    target = await inspect();
+    if (target?.found && target.visible && !target.disabled && !target.covered) return { status: 'ready', target };
+    if (now() >= deadline) break;
+    await delay(Math.min(pollIntervalMs, deadline - now()));
+  } while (now() < deadline);
+  return { status: 'inconsistent', target };
+}
 const observerSource = `(() => {
   const intervals=new Set(), frames=new Set(), si=window.setInterval.bind(window),ci=window.clearInterval.bind(window),raf=window.requestAnimationFrame.bind(window),caf=window.cancelAnimationFrame.bind(window);
   window.setInterval=(...args)=>{const id=si(...args);intervals.add(id);return id;};
@@ -76,6 +87,17 @@ async function runHomeArena({ step, context, screenshotDir, readFacadeState, ins
       if (current.complete && step.action === 'homeArenaPlay') break;
       if (current.complete) {
         const completedRewards = JSON.stringify(current.rewards);
+        const replayReady = await waitForArenaControl({
+          inspect: () => inspectElement(session, '#ArenaReplay'), delay, timeoutMs: 1500,
+        });
+        if (replayReady.status !== 'ready') {
+          const diagnostics = await session.evaluate('({focused:document.hasFocus(),hidden:document.hidden,modal:document.querySelector("#PopupLayer .ux-modal-layer")?.innerText??null,button:document.querySelector("#ArenaReplay")?.outerHTML??null})');
+          const error = new Error('GAME_DEFECT: authoritative campaign completion did not produce a visible replay control within 1.5 seconds');
+          error.failureClass = 'GAME_DEFECT';
+          error.diagnostics = { selector: '#ArenaReplay', inspectedTarget: replayReady.target, renderer: diagnostics };
+          record({ type: 'replay-control-not-ready', elapsedMs: Date.now() - startedAt, ...error.diagnostics });
+          throw error;
+        }
         const interaction = await inputClick(session, '#ArenaReplay');
         record({ type: 'click', elapsedMs: Date.now() - startedAt, selector: '#ArenaReplay', interaction, before: compact(current) });
         current = await readFacadeState(session, 'queryHomeArena');
@@ -168,4 +190,4 @@ async function runHomeArena({ step, context, screenshotDir, readFacadeState, ins
     fs.writeFileSync(metricsPath, JSON.stringify({ seed: step.seed, startedAt, finishedAt: finishedAt ?? Date.now(), inputCount, stages, samples, screenshots, finalState: current, beforeRestart, afterRestart }, null, 2));
   }
 }
-module.exports = { runHomeArena, waitForArenaSkillButton };
+module.exports = { runHomeArena, waitForArenaSkillButton, waitForArenaControl };

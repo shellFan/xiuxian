@@ -94,7 +94,7 @@ const tests: Array<[string, () => void]> = [
     assert.equal(service.advance().draft.step, 'SECT');
     assert.equal(service.advance().success, false);
     assert.equal(service.selectSect('INVALID').success, false);
-    assert.equal(service.selectSect('STARTUP').success, false, 'the legacy startup id is not offered to new characters');
+    assert.equal(service.selectSect('STARTUP').success, true, 'startup is a supported employer; players still do not create sects');
     assert.equal(service.selectSect('OUTSOURCING').success, true);
     assert.equal(service.advance().draft.step, 'IDENTITY');
     assert.equal(service.setIdentity('青云牛马', 'avatar-1').success, true);

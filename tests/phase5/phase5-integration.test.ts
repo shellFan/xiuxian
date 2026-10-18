@@ -76,7 +76,8 @@ test('GameFacade.querySects returns sect configs', () => {
   const facade = createTestFacade();
   const sects = facade.querySects();
   assert.ok(Array.isArray(sects));
-  assert.equal(sects.some((sect) => sect.id === 'STARTUP'), false, 'new hires must not be offered the excluded startup sect');
+  assert.equal(sects.length, 8);
+  assert.equal(sects.some((sect) => sect.id === 'STARTUP'), true, 'startup is an employer, not a player-owned sect');
 });
 
 test('GameFacade.queryCharacterProfile exposes the authoritative chosen sect', () => {

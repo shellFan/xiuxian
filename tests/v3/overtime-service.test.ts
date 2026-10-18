@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData } from '../../assets/scripts/model/player-data';
+import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { OvertimeService } from '../../assets/scripts/v3/overtime-service';
 
 function at(day: number, hour: number, minute = 0): number {
@@ -10,7 +11,7 @@ function at(day: number, hour: number, minute = 0): number {
 
 function make() {
   const clock = new FakeClock(at(21, 18));
-  const context = new GameContext({ player: new PlayerData({ lastSaveTime: clock.now() }), clock, board: null });
+  const context = new GameContext({ player: new PlayerData({ lastSaveTime: clock.now() }), storage: new MemoryStorageAdapter(), clock, board: null });
   context.gameDay.ensureStarted();
   return { clock, context, overtime: new OvertimeService(context, context.clockV2, context.gameDay) };
 }

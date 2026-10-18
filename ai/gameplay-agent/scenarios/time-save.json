@@ -3,74 +3,478 @@
   "title": "Clock boundaries, settlements, three workdays and save recovery",
   "setup": "new-player",
   "steps": [
-    { "action": "call", "method": "queryGameClock", "as": "clockInitial", "asType": "object" },
-    { "action": "call", "method": "devJumpToHour", "args": [7, 59], "description": "Use the canonical clock service to inspect 07:59" },
-    { "action": "call", "method": "queryGameClock", "as": "clock0759", "asType": "object" },
-    { "action": "assert", "check": "equals", "path": "@vars.clock0759.hour", "expected": 7 },
-    { "action": "assert", "check": "equals", "path": "@vars.clock0759.minute", "expected": 59 },
-    { "action": "assert", "check": "exists", "path": "@vars.clock0759.localDate" },
-    { "action": "assert", "check": "exists", "path": "@vars.clock0759.utcDate" },
-    { "action": "assert", "check": "exists", "path": "@vars.clock0759.dayNumber" },
-    { "action": "screenshot", "name": "clock-0759" },
-    { "action": "call", "method": "devJumpToHour", "args": [8, 0] },
-    { "action": "call", "method": "queryGameClock", "as": "clock0800", "asType": "object" },
-    { "action": "assert", "check": "equals", "path": "@vars.clock0800.hour", "expected": 8 },
-    { "action": "assert", "check": "equals", "path": "@vars.clock0800.minute", "expected": 0 },
-    { "action": "assert", "check": "exists", "path": "@vars.clock0800.localDate" },
-    { "action": "assert", "check": "exists", "path": "@vars.clock0800.utcDate" },
-    { "action": "assert", "check": "exists", "path": "@vars.clock0800.dayNumber" },
-    { "action": "screenshot", "name": "clock-0800" },
-    { "action": "call", "method": "devJumpToHour", "args": [8, 1] },
-    { "action": "call", "method": "queryGameClock", "as": "clock0801", "asType": "object" },
-    { "action": "assert", "check": "equals", "path": "@vars.clock0801.hour", "expected": 8 },
-    { "action": "assert", "check": "equals", "path": "@vars.clock0801.minute", "expected": 1 },
-    { "action": "assert", "check": "exists", "path": "@vars.clock0801.localDate" },
-    { "action": "assert", "check": "exists", "path": "@vars.clock0801.utcDate" },
-    { "action": "assert", "check": "exists", "path": "@vars.clock0801.dayNumber" },
-    { "action": "screenshot", "name": "clock-0801" },
-    { "action": "call", "method": "queryGameClock", "as": "clockBefore24h", "asType": "object" },
-    { "action": "call", "method": "devAdvanceTime", "args": [86400000], "description": "Advance exactly 24 hours using the existing clock service" },
-    { "action": "call", "method": "queryGameClock", "as": "clockAfter24h", "asType": "object" },
-    { "action": "assert", "check": "change", "path": "@vars.clockAfter24h.dayNumber", "from": "@vars.clockBefore24h.dayNumber", "expected": 1, "description": "The UTC day number changes after 24 game-clock hours; local 08:00 alone is not used as the oracle" },
-    { "action": "assert", "check": "exists", "path": "@vars.clockAfter24h.localDate" },
-    { "action": "assert", "check": "exists", "path": "@vars.clockAfter24h.utcDate" },
-    { "action": "screenshot", "name": "clock-after-24-hours" },
-    { "action": "call", "method": "devJumpToHour", "args": [9, 0] },
-    { "action": "call", "method": "tick", "args": [1], "description": "Start the first game workday through its real tick loop without jumping past it at the foreground play-time scale" },
-    { "action": "call", "method": "queryGameDay", "as": "workdayOne", "asType": "object" },
-    { "action": "assert", "check": "gte", "path": "@vars.workdayOne.dayIndex", "expected": 1 },
-    { "action": "screenshot", "name": "workday-one" },
-    { "action": "call", "method": "devJumpToHour", "args": [18, 0] },
-    { "action": "call", "method": "tick", "args": [60] },
-    { "action": "call", "method": "queryGameDay", "as": "settlementOne", "asType": "object", "description": "Read the existing game-day service after its real post-work tick performs daily settlement" },
-    { "action": "call", "method": "queryGameDay", "as": "settledOne", "asType": "object" },
-    { "action": "assert", "check": "equals", "path": "@vars.settledOne.settled", "expected": true },
-    { "action": "screenshot", "name": "settlement-one" },
-    { "action": "call", "method": "devJumpToHour", "args": [9, 0] },
-    { "action": "call", "method": "tick", "args": [1] },
-    { "action": "call", "method": "queryGameDay", "as": "workdayTwo", "asType": "object" },
-    { "action": "call", "method": "devJumpToHour", "args": [18, 0] },
-    { "action": "call", "method": "tick", "args": [60] },
-    { "action": "call", "method": "queryGameDay", "as": "settlementTwo", "asType": "object" },
-    { "action": "assert", "check": "equals", "path": "@vars.settlementTwo.settled", "expected": true, "description": "The second workday is settled exactly once by the existing game loop" },
-    { "action": "screenshot", "name": "settlement-two" },
-    { "action": "call", "method": "devJumpToHour", "args": [9, 0] },
-    { "action": "call", "method": "tick", "args": [1] },
-    { "action": "call", "method": "queryGameDay", "as": "workdayThree", "asType": "object" },
-    { "action": "call", "method": "devJumpToHour", "args": [18, 0] },
-    { "action": "call", "method": "tick", "args": [60] },
-    { "action": "call", "method": "queryGameDay", "as": "settlementThree", "asType": "object" },
-    { "action": "assert", "check": "equals", "path": "@vars.settlementThree.settled", "expected": true, "description": "The third workday is settled exactly once by the existing game loop" },
-    { "action": "call", "method": "queryGameDay", "as": "threeWorkdays", "asType": "object" },
-    { "action": "assert", "check": "gte", "path": "@vars.threeWorkdays.dayIndex", "expected": 3, "description": "Three sequential workday settlements advance the canonical game-day service" },
-    { "action": "screenshot", "name": "three-workdays" },
-    { "action": "call", "method": "snapshot", "as": "beforeRestart", "asType": "object" },
-    { "action": "call", "method": "save", "description": "Persist through the existing save service" },
-    { "action": "restart", "description": "Close and reopen the real EXE with the same isolated test profile" },
-    { "action": "call", "method": "snapshot", "as": "afterRestart", "asType": "object" },
-    { "action": "assert", "check": "equals", "path": "@vars.afterRestart.salary", "expected": "@vars.beforeRestart.salary", "description": "Node-managed scenario variables survive game restart and salary recovers" },
-    { "action": "call", "method": "queryHomeSnapshot", "as": "homeAfterRestart", "asType": "object" },
-    { "action": "assert", "check": "exists", "path": "@vars.homeAfterRestart.work.professionId", "description": "The saved profession and main loop recover after relaunch" },
-    { "action": "screenshot", "name": "three-workdays-after-restart" }
+    {
+      "action": "call",
+      "method": "queryGameClock",
+      "as": "clockInitial",
+      "asType": "object"
+    },
+    {
+      "action": "call",
+      "method": "devJumpToHour",
+      "args": [
+        7,
+        59
+      ],
+      "description": "Use the canonical clock service to inspect 07:59"
+    },
+    {
+      "action": "call",
+      "method": "queryGameClock",
+      "as": "clock0759",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.clock0759.hour",
+      "expected": 7
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.clock0759.minute",
+      "expected": 59
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clock0759.localDate"
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clock0759.utcDate"
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clock0759.dayNumber"
+    },
+    {
+      "action": "screenshot",
+      "name": "clock-0759"
+    },
+    {
+      "action": "call",
+      "method": "devJumpToHour",
+      "args": [
+        8,
+        0
+      ]
+    },
+    {
+      "action": "call",
+      "method": "queryGameClock",
+      "as": "clock0800",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.clock0800.hour",
+      "expected": 8
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.clock0800.minute",
+      "expected": 0
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clock0800.localDate"
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clock0800.utcDate"
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clock0800.dayNumber"
+    },
+    {
+      "action": "screenshot",
+      "name": "clock-0800"
+    },
+    {
+      "action": "call",
+      "method": "devJumpToHour",
+      "args": [
+        8,
+        1
+      ]
+    },
+    {
+      "action": "call",
+      "method": "queryGameClock",
+      "as": "clock0801",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.clock0801.hour",
+      "expected": 8
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.clock0801.minute",
+      "expected": 1
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clock0801.localDate"
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clock0801.utcDate"
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clock0801.dayNumber"
+    },
+    {
+      "action": "screenshot",
+      "name": "clock-0801"
+    },
+    {
+      "action": "call",
+      "method": "queryGameClock",
+      "as": "clockBefore24h",
+      "asType": "object"
+    },
+    {
+      "action": "call",
+      "method": "devAdvanceTime",
+      "args": [
+        86400000
+      ],
+      "description": "Advance exactly 24 hours using the existing clock service"
+    },
+    {
+      "action": "call",
+      "method": "queryGameClock",
+      "as": "clockAfter24h",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "change",
+      "path": "@vars.clockAfter24h.dayNumber",
+      "from": "@vars.clockBefore24h.dayNumber",
+      "expected": 1,
+      "description": "The UTC day number changes after 24 game-clock hours; local 08:00 alone is not used as the oracle"
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clockAfter24h.localDate"
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.clockAfter24h.utcDate"
+    },
+    {
+      "action": "screenshot",
+      "name": "clock-after-24-hours"
+    },
+    {
+      "action": "call",
+      "method": "devJumpToHour",
+      "args": [
+        9,
+        0
+      ]
+    },
+    {
+      "action": "call",
+      "method": "tick",
+      "args": [
+        1
+      ],
+      "description": "Start the first game workday through its real tick loop without jumping past it at the foreground play-time scale"
+    },
+    {
+      "action": "call",
+      "method": "queryGameDay",
+      "as": "workdayOne",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "gte",
+      "path": "@vars.workdayOne.dayIndex",
+      "expected": 1
+    },
+    {
+      "action": "screenshot",
+      "name": "workday-one"
+    },
+    {
+      "action": "call",
+      "method": "devJumpToHour",
+      "args": [
+        18,
+        0
+      ]
+    },
+    {
+      "action": "call",
+      "method": "tick",
+      "args": [
+        1
+      ],
+      "description": "Process the authoritative 18:00 boundary through the normal game loop"
+    },
+    {
+      "action": "call",
+      "method": "queryGameDay",
+      "as": "settledOne",
+      "asType": "object",
+      "description": "Read the authoritative daily ledger after the automatic idempotent day close"
+    },
+    {
+      "action": "call",
+      "method": "queryDailySettlementHistory",
+      "as": "settlementHistoryOne",
+      "asType": "array",
+      "description": "Read the saved wage slip because the live game-day projection has already rolled over"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.settlementHistoryOne[0].dayIndex",
+      "expected": "@vars.workdayOne.dayIndex",
+      "description": "The persisted slip proves the first workday settled before the live clock advanced"
+    },
+    {
+      "action": "screenshot",
+      "name": "settlement-one"
+    },
+    {
+      "action": "click",
+      "selector": "[data-nav=\"MORE\"]",
+      "description": "Open the normal More navigation to reach the saved daily wage slip"
+    },
+    {
+      "action": "waitFor",
+      "selector": "[data-action=\"goto\"][data-page=\"settlement\"]",
+      "timeoutMs": 3000
+    },
+    {
+      "action": "click",
+      "selector": "[data-action=\"goto\"][data-page=\"settlement\"]",
+      "description": "Open the visible settlement page through the ordinary navigation"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".ux-settlement-history",
+      "timeoutMs": 3000,
+      "description": "Wait for the persisted wage statement after automatic settlement"
+    },
+    {
+      "action": "call",
+      "method": "queryDailySettlementHistory",
+      "as": "dailySlipOne",
+      "asType": "array",
+      "description": "Read the saved salary, life expenses and net cash result from the authoritative settlement history"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.dailySlipOne[0].netCashChange",
+      "expected": 0,
+      "description": "The wage slip reports zero net cash when the day has no wage income or life spending"
+    },
+    {
+      "action": "screenshot",
+      "name": "daily-wage-slip"
+    },
+    {
+      "action": "call",
+      "method": "devJumpToHour",
+      "args": [
+        9,
+        0
+      ]
+    },
+    {
+      "action": "call",
+      "method": "tick",
+      "args": [
+        1
+      ]
+    },
+    {
+      "action": "call",
+      "method": "queryGameDay",
+      "as": "workdayTwo",
+      "asType": "object"
+    },
+    {
+      "action": "call",
+      "method": "devJumpToHour",
+      "args": [
+        18,
+        0
+      ]
+    },
+    {
+      "action": "call",
+      "method": "tick",
+      "args": [
+        60
+      ]
+    },
+    {
+      "action": "call",
+      "method": "queryGameDay",
+      "as": "settlementTwo",
+      "asType": "object"
+    },
+    {
+      "action": "call",
+      "method": "queryDailySettlementHistory",
+      "as": "settlementHistoryTwo",
+      "asType": "array",
+      "description": "Read durable settlement records after the second live day rolls over"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.settlementHistoryTwo[2].dayIndex",
+      "expected": "@vars.settlementTwo.dayIndex",
+      "description": "The latest persisted wage slip matches the authoritative day that just settled"
+    },
+    {
+      "action": "screenshot",
+      "name": "settlement-two"
+    },
+    {
+      "action": "call",
+      "method": "devJumpToHour",
+      "args": [
+        9,
+        0
+      ]
+    },
+    {
+      "action": "call",
+      "method": "tick",
+      "args": [
+        1
+      ]
+    },
+    {
+      "action": "call",
+      "method": "queryGameDay",
+      "as": "workdayThree",
+      "asType": "object"
+    },
+    {
+      "action": "call",
+      "method": "devJumpToHour",
+      "args": [
+        18,
+        0
+      ]
+    },
+    {
+      "action": "call",
+      "method": "tick",
+      "args": [
+        60
+      ]
+    },
+    {
+      "action": "call",
+      "method": "queryGameDay",
+      "as": "settlementThree",
+      "asType": "object"
+    },
+    {
+      "action": "call",
+      "method": "queryDailySettlementHistory",
+      "as": "settlementHistoryThree",
+      "asType": "array",
+      "description": "Read durable settlement records after the third live day rolls over"
+    },
+    {
+      "action": "assert",
+      "check": "gte",
+      "path": "@vars.settlementHistoryThree.length",
+      "expected": 3,
+      "description": "The saved wage ledger contains at least three completed workday settlements"
+    },
+    {
+      "action": "call",
+      "method": "queryGameDay",
+      "as": "threeWorkdays",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "gte",
+      "path": "@vars.threeWorkdays.dayIndex",
+      "expected": 3,
+      "description": "Three sequential workday settlements advance the canonical game-day service"
+    },
+    {
+      "action": "screenshot",
+      "name": "three-workdays"
+    },
+    {
+      "action": "call",
+      "method": "snapshot",
+      "as": "beforeRestart",
+      "asType": "object"
+    },
+    {
+      "action": "call",
+      "method": "save",
+      "description": "Persist through the existing save service"
+    },
+    {
+      "action": "restart",
+      "description": "Close and reopen the real EXE with the same isolated test profile"
+    },
+    {
+      "action": "call",
+      "method": "snapshot",
+      "as": "afterRestart",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.afterRestart.salary",
+      "expected": "@vars.beforeRestart.salary",
+      "description": "Node-managed scenario variables survive game restart and salary recovers"
+    },
+    {
+      "action": "call",
+      "method": "queryHomeSnapshot",
+      "as": "homeAfterRestart",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "exists",
+      "path": "@vars.homeAfterRestart.work.professionId",
+      "description": "The saved profession and main loop recover after relaunch"
+    },
+    {
+      "action": "screenshot",
+      "name": "three-workdays-after-restart"
+    }
   ]
 }

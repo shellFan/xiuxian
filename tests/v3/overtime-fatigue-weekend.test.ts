@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData } from '../../assets/scripts/model/player-data';
+import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 
 function at(day: number, hour: number): number {
   return new Date(2026, 8, day, hour, 0, 0, 0).getTime();
@@ -9,7 +10,7 @@ function at(day: number, hour: number): number {
 
 function testOvernightOvertimePersistsExhaustionUntilWeekendRecovery(): void {
   const clock = new FakeClock(at(20, 18)); // Saturday
-  const context = new GameContext({ clock, board: null, player: new PlayerData({ lastSaveTime: clock.now() }) });
+  const context = new GameContext({ clock, storage: new MemoryStorageAdapter(), board: null, player: new PlayerData({ lastSaveTime: clock.now() }) });
   context.gameDay.ensureStarted();
   context.overtime.startVoluntary(8 * 3600, false);
   context.overtime.tick(8 * 3600);
@@ -23,7 +24,7 @@ function testOvernightOvertimePersistsExhaustionUntilWeekendRecovery(): void {
 
 function testWeekendOffersVoluntaryOvertimeAsARealSession(): void {
   const clock = new FakeClock(at(20, 18));
-  const context = new GameContext({ clock, board: null, player: new PlayerData({ lastSaveTime: clock.now() }) });
+  const context = new GameContext({ clock, storage: new MemoryStorageAdapter(), board: null, player: new PlayerData({ lastSaveTime: clock.now() }) });
   context.gameDay.ensureStarted();
   assert.ok(context.weekend.options().some((option) => option.id === 'VOLUNTARY_OVERTIME'));
   context.weekend.choose('VOLUNTARY_OVERTIME');

@@ -22,7 +22,7 @@ import { PHASE2_REFRESH_EVENTS } from '../core/game-events';
 import { GameSnapshot, createSnapshot, snapshotEqual } from './game-snapshot';
 import { type UiEventCategory, type UiEvent, resolveCategory } from './ui-event-types';
 import { type RewardType, type RewardResult } from '../services/reward-provider';
-import type { WorkMode } from '../model/save-data';
+import type { DaySummaryState, WorkMode } from '../model/save-data';
 import { DebugProtection, type DebugProtectionOptions } from '../services/debug-protection';
 import { type RecruitmentResult } from '../services/recruitment-service';
 import type { CareerEventConfig, TalentConfig, SectConfig, PromotionOption } from '../model/config-types';
@@ -560,6 +560,11 @@ export class GameFacade {
   public offerOvertime(source: 'VOLUNTARY' | 'REQUESTED' | 'FORCED' | 'EMERGENCY' | 'WEEKEND' | 'COMPENSATED', free: boolean, seconds: number) {
     return this.context.overtime.offer(source, free, seconds);
   }
+  /** Apply once for today's sect/profession contract; the result is persisted by OvertimeService. */
+  public applyOvertimeApproval(seconds: number) { return this.context.overtime.applyForApproval(seconds); }
+  public queryOvertimeApplications() { return this.context.player.overtimeApplications.map((application) => ({ ...application })); }
+  /** Start only after the saved approval decision is granted. */
+  public startApprovedOvertime(applicationId: string) { return this.context.overtime.startApprovedOvertime(applicationId); }
   public acceptOvertime(mode: WorkMode) { return this.context.overtime.accept(mode); }
   public startVoluntaryOvertime(seconds: number, paid: boolean) { return this.context.overtime.startVoluntary(seconds, paid); }
   public finishOvertime() { this.context.overtime.finish(); }
@@ -655,6 +660,10 @@ export class GameFacade {
   /** V2 日结算。 */
   public queryCanSettleDay() { return this.context.daySettlement.canSettle(); }
   public settleDay() { return this.context.daySettlement.settle(); }
+  /** Read-only saved daily wage slips; the live game day may already have rolled over. */
+  public queryDailySettlementHistory(): readonly Readonly<DaySummaryState>[] {
+    return Object.freeze(this.context.player.dailyHistory.map((summary) => Object.freeze({ ...summary })));
+  }
   /** 周末活动。 */
   public queryWeekendOptions() { return this.context.weekend.options(); }
   public queryWeekendChosen() { return this.context.weekend.hasChosen(); }
@@ -813,6 +822,16 @@ export class GameFacade {
     this.context.saveService.save(this.context.player);
     return state;
   }
+  public querySectProjectOffers() { return this.context.sectProjects.offers(); }
+  public querySectProject() { return this.context.sectProjects.current(); }
+  public acceptSectProject(offerId: string) { return this.context.sectProjects.accept(offerId); }
+  public startSectProject(contractId: string, seed = 5919) {
+    if (!this.context.battle.canStart()) throw new Error('当前无法开始项目战斗');
+    const encounterId = this.context.sectProjects.start(contractId);
+    const state = this.context.battle.startCardBattle(encounterId, seed, contractId);
+    this.context.saveService.save(this.context.player);
+    return state;
+  }
   public playCard(instanceId: string, targetId?: string, operationId?: string) {
     const receipt = this.context.battle.playCard(instanceId, targetId, operationId);
     this.context.saveService.save(this.context.player);
@@ -874,6 +893,14 @@ export class GameFacade {
 
   /** Current sect info. */
   public querySect() { return this.context.sect.current(); }
+  public querySectJobs() { return this.context.sectCareer.jobs(); }
+  public querySectApplications() { return this.context.sectCareer.applications(); }
+  public queryPendingSectContract() { return this.context.player.pendingSectContract ? { ...this.context.player.pendingSectContract } : null; }
+  public applySectJob(sectId: string) { return this.context.sectCareer.apply(sectId); }
+  public resolveSectInterview(applicationId: string, answer: import('../services/sect-career-service').InterviewAnswer) {
+    return this.context.sectCareer.resolveInterview(applicationId, answer);
+  }
+  public acceptSectOffer(applicationId: string) { return this.context.sectCareer.acceptOffer(applicationId); }
 
   /** Talent config by ID. */
   public queryTalent(id: string | null) {
@@ -895,6 +922,7 @@ export class GameFacade {
     if (current === null || current === undefined) {
       try {
         this.context.sect.choose(sectId as import('../model/config-types').SectId);
+        this.context.sectCareer.syncActiveSectFlags();
         this.context.events.emit('sectChanged', { sectId });
         return { success: true };
       } catch (e: unknown) {
@@ -914,6 +942,7 @@ export class GameFacade {
     // Switch sect
     this.context.player.sectId = sectId;
     this.context.player.lastSectSwitchTime = nowGame;
+    this.context.sectCareer.syncActiveSectFlags();
     this.context.saveService.save(this.context.player);
     this.context.events.emit('sectChanged', { sectId });
     return { success: true };

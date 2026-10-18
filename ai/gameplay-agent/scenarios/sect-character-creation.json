@@ -4,13 +4,111 @@
   "setup": "new-player",
   "setupFailureClass": "SETUP_BLOCKED",
   "steps": [
-    {"action":"call","method":"queryCharacterProfile","as":"createdCharacter","asType":"object","description":"Read authoritative player profile after the real eight-step creation flow"},
-    {"action":"assert","check":"equals","path":"@vars.createdCharacter.sectId","expected":"OUTSOURCING","description":"The selected sect is committed to the formal profile"},
-    {"action":"call","method":"querySects","as":"joinableSects","asType":"array","description":"Read the sects available to new employees"},
-    {"action":"assert","check":"gte","path":"@vars.joinableSects.length","expected":7,"description":"The employment list exposes the seven in-scope sect choices"},
-    {"action":"assertClickable","selector":".ux-char-sect","description":"The home character card exposes its real sect navigation control"},
-    {"action":"click","selector":".ux-char-sect","description":"Open the sect page from the home character card"},
-    {"action":"assertVisible","selector":".ux-sect-card","description":"The real sect page renders the available workplace cards"},
-    {"action":"screenshot","name":"sect-character-created","description":"Save the created-character sect evidence"}
+    {
+      "action": "call",
+      "method": "queryCharacterProfile",
+      "as": "createdCharacter",
+      "asType": "object",
+      "description": "Read authoritative player profile after the real eight-step creation flow"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.createdCharacter.sectId",
+      "expected": "OUTSOURCING",
+      "description": "The selected sect is committed to the formal profile"
+    },
+    {
+      "action": "call",
+      "method": "querySects",
+      "as": "joinableSects",
+      "asType": "array",
+      "description": "Read the sects available to new employees"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.joinableSects.length",
+      "expected": 8,
+      "description": "The employment list exposes all eight configured sect employers"
+    },
+    {
+      "action": "assertClickable",
+      "selector": ".ux-char-sect",
+      "description": "The home character card exposes its real sect navigation control"
+    },
+    {
+      "action": "click",
+      "selector": ".ux-char-sect",
+      "description": "Open the sect page from the home character card"
+    },
+    {
+      "action": "assertVisible",
+      "selector": ".ux-sect-card",
+      "description": "The real sect page renders the available workplace cards"
+    },
+    {
+      "action": "screenshot",
+      "name": "sect-character-created",
+      "description": "Save the created-character sect evidence"
+    },
+    {
+      "action": "click",
+      "selector": "[data-nav=\"HOME\"]",
+      "description": "Return through the normal navigation to inspect after-work life"
+    },
+    {
+      "action": "call",
+      "method": "queryHomeLifeOptions",
+      "as": "lifeOptions",
+      "asType": "array",
+      "description": "Read all authoritative daily life choices"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.lifeOptions.length",
+      "expected": 12,
+      "description": "All twelve activities are backed by the life service"
+    },
+    {
+      "action": "scroll",
+      "selector": ".ux-home-col.ux-home-right",
+      "deltaY": 2600,
+      "ensureVisibleSelector": "[data-action=\"openLifeMenu\"]",
+      "description": "Scroll the home column to its lower content until the after-work life control is visible before clicking it"
+    },
+    {
+      "action": "assertClickable",
+      "selector": "[data-action=\"openLifeMenu\"]",
+      "description": "Confirm the after-work life control is now inside the viewport and can receive input"
+    },
+    {
+      "action": "click",
+      "selector": "[data-action=\"openLifeMenu\"]",
+      "description": "Open the playable after-work life menu from the home screen"
+    },
+    {
+      "action": "assertVisible",
+      "selector": ".ux-life-menu",
+      "description": "The modal presents the full life activity menu"
+    },
+    {
+      "action": "scroll",
+      "selector": ".ux-popup-card--scroll",
+      "deltaY": 1200,
+      "ensureVisibleSelector": ".ux-life-menu [data-life=\"HOT_SPRING\"]",
+      "description": "Scroll the life-menu card to its later activities using the real modal scroll container"
+    },
+    {
+      "action": "assertVisible",
+      "selector": ".ux-life-menu [data-life=\"HOT_SPRING\"]",
+      "description": "Long-form activities are reachable in the scrollable life menu"
+    },
+    {
+      "action": "screenshot",
+      "name": "sect-after-work-life-menu",
+      "description": "Capture the complete after-work life menu"
+    }
   ]
 }

@@ -1,0 +1,231 @@
+{
+  "id": "sect-project-contract",
+  "title": "Accept a daily employer project from the visible UI and start its risk-specific card battle",
+  "setup": "new-player",
+  "setupFailureClass": "SETUP_BLOCKED",
+  "steps": [
+    {
+      "action": "setViewport",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "action": "click",
+      "selector": "[data-nav=\"PROJECT\"]",
+      "description": "Open the project page through the normal bottom navigation"
+    },
+    {
+      "action": "waitFor",
+      "selector": "[data-action=\"acceptSectProject\"][data-risk=\"LOW\"]",
+      "timeoutMs": 5000
+    },
+    {
+      "action": "call",
+      "method": "querySectProjectOffers",
+      "as": "offers",
+      "asType": "array",
+      "description": "Read the three authoritative daily contract offers"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.offers.length",
+      "expected": 3
+    },
+    {
+      "action": "screenshot",
+      "name": "daily-project-offers",
+      "description": "Capture low, medium and high risk employer offers"
+    },
+    {
+      "action": "click",
+      "selector": "[data-action=\"acceptSectProject\"][data-risk=\"LOW\"]",
+      "description": "Accept the low-risk contract from the visible offer list"
+    },
+    {
+      "action": "call",
+      "method": "querySectProject",
+      "as": "accepted",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.accepted.status",
+      "expected": "ACCEPTED"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.accepted.risk",
+      "expected": "LOW"
+    },
+    {
+      "action": "click",
+      "selector": "[data-action=\"startSectProject\"]",
+      "description": "Start the card battle attached to the accepted contract"
+    },
+    {
+      "action": "wait",
+      "ms": 800,
+      "description": "Allow queued end-of-week UI to finish its initial presentation before checking the real dismiss control"
+    },
+    {
+      "action": "scroll",
+      "selector": ".ux-weekly-popup",
+      "ensureVisibleSelector": "[data-v57-close-weekly]",
+      "deltaY": 600,
+      "optional": true,
+      "description": "If the real weekly report interrupts this Sunday test, scroll its visible content to the actual close control"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "[data-v57-close-weekly]",
+      "timeoutMs": 4000,
+      "description": "If the weekly report opened, dismiss it through its visible 收下，下周继续 control and verify the popup closes"
+    },
+    {
+      "action": "wait",
+      "ms": 300,
+      "description": "Allow any queued message interruption to appear after the weekly report closes"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "[data-critical-conv]",
+      "timeoutMs": 4000,
+      "description": "If a real critical-message popup is queued, open it through its visible conversation choice and verify the modal closes"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer [data-vevent-choice]",
+      "timeoutMs": 4000,
+      "description": "If a V2 workplace event interrupts the contract battle, resolve it through its real visible event choice"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer #V2EventOk",
+      "timeoutMs": 4000,
+      "description": "Acknowledge the real event result and verify its popup closes before proceeding to combat"
+    },
+    {
+      "action": "wait",
+      "ms": 300,
+      "description": "Allow another queued workplace event to surface after acknowledging the previous modal"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "optional": true,
+      "timeoutMs": 1200,
+      "description": "Resolve a second queued workplace event only through its real visible acknowledgement"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer #V2EventOk",
+      "optional": true,
+      "timeoutMs": 1200,
+      "description": "Acknowledge the second real event result and verify the modal closes"
+    },
+    {
+      "action": "wait",
+      "ms": 300,
+      "description": "Allow any third queued workplace event to surface"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "optional": true,
+      "timeoutMs": 1200,
+      "description": "Resolve a third queued workplace event through its real UI control"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer #V2EventOk",
+      "optional": true,
+      "timeoutMs": 1200,
+      "description": "Acknowledge the third real event result before proceeding"
+    },
+    {
+      "action": "call",
+      "method": "querySectProject",
+      "as": "active",
+      "asType": "object",
+      "description": "Confirm the visible start action activated the authoritative daily contract"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.active.status",
+      "expected": "ACTIVE",
+      "description": "The project contract must remain active after queued UI events are handled"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "startedBattle",
+      "asType": "object",
+      "description": "Confirm the existing card-battle service started from the normal project UI action"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.startedBattle.phase",
+      "expected": "PLAYER_ACTION",
+      "description": "The project UI must open a playable card battle"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]",
+      "timeoutMs": 5000
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.active.status",
+      "expected": "ACTIVE"
+    },
+    {
+      "action": "assertVisible",
+      "selector": ".ux-cardbattle-enemy",
+      "description": "The accepted contract opens an actual card battle"
+    },
+    {
+      "action": "screenshot",
+      "name": "contract-card-battle",
+      "description": "Keep evidence of the visible contract battle"
+    },
+    {
+      "action": "restartGame",
+      "description": "Restart the packaged game with the isolated scenario save"
+    },
+    {
+      "action": "call",
+      "method": "querySectProject",
+      "as": "resumed",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.resumed.status",
+      "expected": "ACTIVE"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "resumedBattle",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.resumedBattle.enemies[0].kind",
+      "expected": "WORK_BUG"
+    },
+    {
+      "action": "screenshot",
+      "name": "contract-battle-resumed",
+      "description": "Verify the persisted active contract and linked card battle"
+    }
+  ]
+}

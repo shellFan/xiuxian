@@ -141,7 +141,20 @@ export class WorkService {
       * this.context.sect.salaryMultiplierForProfession(this.context.profession.currentId()),
     );
     const outputMultiplier = characterEffectMultiplier(this.context.player, 'REGULAR_WORK_OUTPUT');
-    const salaryProjection = accumulateCharacterReward(baseSalary, outputMultiplier, this.context.player.regularWorkRewardRemainders.salary);
+    // Apply the full paid-work multiplier before flooring. Flooring career/sect
+    // pay on every small fixed tick used to discard every fractional yuan
+    // (for example, outsourcing pay at level 1), so wages never reached either
+    // the wallet or the daily payroll ledger. Keep the remainder in the save
+    // data just like the base salary accumulator.
+    const paidWorkMultiplier = salaryBuffMul
+      * careerMul.salaryMultiplier
+      * this.context.sect.salaryMultiplierForProfession(this.context.profession.currentId())
+      * outputMultiplier;
+    const salaryProjection = accumulateCharacterReward(
+      salaryResult.reward,
+      paidWorkMultiplier,
+      this.context.player.regularWorkRewardRemainders.salary,
+    );
     const salary = mode === 'WORK' ? salaryProjection.reward : baseSalary;
     const attributeCultivationExp = applyCharacterEffectToInteger(
       Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier),

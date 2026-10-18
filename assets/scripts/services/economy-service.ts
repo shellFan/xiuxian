@@ -56,6 +56,18 @@ export class EconomyService {
     this.context.player.salary = total;
   }
 
+  /** Spend the single authoritative salary wallet; composite callers own persistence. */
+  public spendSalary(amount: number, options: { readonly publish?: boolean } = {}): number {
+    validateRewardAmount(amount, 'salary');
+    const total = this.context.player.salary - amount;
+    if (!Number.isSafeInteger(total) || total < 0) throw new Error('工资余额不足');
+    this.context.player.salary = total;
+    if (options.publish !== false) {
+      try { this.context.events.emit('salaryChanged', { amount: -amount, total }); } catch { /* committed transaction */ }
+    }
+    return total;
+  }
+
   /** Add spirit stones (灵石) to the player. */
   public addSpiritStones(amount: number): void {
     validateRewardAmount(amount, 'spiritStones');

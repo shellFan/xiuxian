@@ -239,6 +239,8 @@ export interface DailySettlementView {
   readonly rank: string;
   readonly durations: { work: number; fishing: number; cultivating: number; social: number; overtime: number; incident: number };
   readonly income: { salary: number; cultivation: number; performance: number };
+  readonly expenses: number;
+  readonly netCashChange: number;
   /** Free overtime is shown separately so the UI cannot imply it was paid. */
   readonly freeOvertimeSeconds: number;
   readonly statusText: string;
@@ -305,6 +307,8 @@ export class DaySettlementService {
     const summary: DaySummaryState = {
       dayIndex: day.dayIndex,
       salary: day.income.salary,
+      expenses: day.lifeExpenses ?? 0,
+      netCashChange: day.income.salary - (day.lifeExpenses ?? 0),
       cultivation: day.income.cultivation,
       performance: day.income.performance,
       mindEnd: p.mind,
@@ -327,6 +331,8 @@ export class DaySettlementService {
         overtime: day.durations.overtime, incident: day.durations.incident,
       },
       income: { ...day.income },
+      expenses: day.lifeExpenses ?? 0,
+      netCashChange: day.income.salary - (day.lifeExpenses ?? 0),
       freeOvertimeSeconds: day.overtimeFree ? day.durations.overtime : 0,
       statusText: day.durations.overtime > 0 ? '工资已经下班了，你还没有。' : '准时下班，今晚的工位归还给夜色。',
       mindDelta: 0, // UI 可与昨日对比；此处存终值

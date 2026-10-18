@@ -12,7 +12,7 @@ function at(day: number, hour: number, minute = 0): number {
 
 function make(): { clock: FakeClock; context: GameContext } {
   const clock = new FakeClock(at(21, 10));
-  const context = new GameContext({ player: new PlayerData({ lastSaveTime: clock.now() }), clock, board: null });
+  const context = new GameContext({ player: new PlayerData({ lastSaveTime: clock.now() }), storage: new MemoryStorageAdapter(), clock, board: null });
   context.gameDay.ensureStarted();
   return { clock, context };
 }

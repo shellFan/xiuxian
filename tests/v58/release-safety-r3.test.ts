@@ -37,7 +37,7 @@ function testF01CorruptSaveFailsClosed(): void {
   // 4. NO_SAVE (empty storage) still creates a fresh save — the safe path must keep working
   var emptyAdapter = new MemoryStorageAdapter();
   var fresh = new SaveService(emptyAdapter, 'game-save', clock).load();
-  assert.equal(fresh.saveVersion, 15, 'empty storage → fresh v15 save');
+  assert.equal(fresh.saveVersion, 17, 'empty storage → fresh current v17 save');
 
   // 5. Semantically corrupt (version too new / wrong shape) also fails closed
   var futureAdapter = new MemoryStorageAdapter();

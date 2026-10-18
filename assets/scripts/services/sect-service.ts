@@ -8,8 +8,8 @@ export class SectService {
     this.sects = context.configService.sect.sects;
   }
 
-  /** Sect definitions remain available for migrated saves; only seven employers are open to new hires in V5.9-M. */
-  public available(): readonly SectConfig[] { return this.sects.filter((sect) => sect.id !== 'STARTUP'); }
+  /** Eight configured employers are valid contracts; players never create or own a sect. */
+  public available(): readonly SectConfig[] { return this.sects; }
 
   public get(id: SectId): SectConfig {
     const sect = this.sects.find((item) => item.id === id);
@@ -40,6 +40,7 @@ export class SectService {
     if (!this.available().some((candidate) => candidate.id === id)) throw new Error('Sect is not available for new characters');
     if (this.context.player.sectId !== null) throw new Error('Sect already chosen');
     this.context.player.sectId = sect.id;
+    this.context.sectCareer?.syncActiveSectFlags();
     try {
       this.context.saveService.save(this.context.player);
     } catch (error) {

@@ -88,6 +88,8 @@ import { HomeArenaService } from '../v59i1/home-arena-service';
 import { FateEventService } from '../v59j/fate-event-service';
 import { RebirthService } from '../services/rebirth-service';
 import { HomeService } from '../v59f/home-service';
+import { SectCareerService } from '../services/sect-career-service';
+import { SectProjectService } from '../services/sect-project-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
 import craftConfig from '../../configs/craft.json';
@@ -242,6 +244,8 @@ export class GameContext {
   public readonly characterCreation: CharacterCreationService;
   /** V5.9-F-Z 主页面可玩性（今日工作/三目标/行动建议/生活行为）。 */
   public readonly home: HomeService;
+  public readonly sectCareer: SectCareerService;
+  public readonly sectProjects: SectProjectService;
   public readonly homeArena: HomeArenaService;
   /** V5.9-J authoritative fate event queue and choice resolution. */
   public readonly fateEvents: FateEventService;
@@ -365,6 +369,8 @@ export class GameContext {
     // ── V5.9-F-Z 主页面可玩性（依赖齐全，最后构建） ──
     this.home = new HomeService(this);
     this.homeArena = new HomeArenaService(this, options.clock, options.homeArenaSeed);
+    this.sectCareer = new SectCareerService(this);
+    this.sectProjects = new SectProjectService(this);
     this.fateEvents = new FateEventService(this);
     this.rebirth = new RebirthService(this);
   }
