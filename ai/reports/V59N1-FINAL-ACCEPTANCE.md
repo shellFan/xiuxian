@@ -8,7 +8,7 @@
 
 - 起始 HEAD：`5797e4fa6b30d208fdc21f3a743db78dfe1cd6ff`
 - 分支：`feature/v59n-career-life-growth`
-- 原始工作区 `D:\git\fan\xiuxian` 未触碰；本轮未提交、推送或合并。
+- 原始工作区 `D:\git\fan\xiuxian` 未触碰；本轮未推送或合并。
 
 ## 本检查点实际执行
 
@@ -24,7 +24,7 @@
 | 最终版本 20 分钟 soak | NOT_VERIFIED | 未执行 |
 | 30/100 日指定分支模拟 | NOT_VERIFIED | 全量 `npm test` 中已有 100 日就业循环测试，但不覆盖所要求的四种模拟矩阵 |
 | 物理 Windows 鼠标/键盘 | NOT_VERIFIED | 自动化使用 CDP 合成输入 |
-| 最终 Git 提交 | 未完成 | 工作仍在进行；没有把验证未完的版本标记 COMPLETE |
+| 阶段 Git 提交 | PASS | `56dd11e` (`feat: add N.1 layoff and career growth foundation`)；保存本阶段经单测/构建验证的工作，不等同于 N.1 最终验收提交 |
 
 ## EXE 与 ASAR
 
@@ -45,6 +45,6 @@
 
 - 保留此前工作树全部修改和未跟踪的 GamePlay 历史报告；未触碰正式玩家存档。
 - 未运行 `git clean`、`git reset`、`git restore` 或强制推送。
-- 尚无本轮最终 HEAD 或提交 SHA。
+- 阶段 HEAD：`56dd11e`；尚无满足所有最终验收条件的 N.1 完成提交。
 
 本文件是持续更新的验收记录。只有 N.1 指令中全部最终完成条件都取得新鲜证据后，才可将状态改为 `COMPLETE`。
