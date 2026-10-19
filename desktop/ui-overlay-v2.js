@@ -186,6 +186,10 @@
         '<div class="ux-card"><div class="ux-recipe-desc">经验 ' + depth.exp + ' · 距下级 ' + depth.expToNext + '</div>' +
         '<div class="ux-recipe-desc">主动专长：' + activeSkills + '</div><div class="ux-recipe-desc">被动专长：' + passiveSkills + '</div>' + perks + '</div>';
     }
+    var growthSkills = (life.careerSkills || []).map(function (skill) {
+      return '<div class="ux-recipe-desc">Lv' + skill.level + '/' + skill.maxLevel + ' · ' + H.escHtml(skill.name) + '：' + H.escHtml(skill.effect) + '</div>';
+    }).join('');
+    if (growthSkills) skillHtml += '<div class="ux-section-ribbon">职场专精实际效果</div><div class="ux-card">' + growthSkills + '</div>';
     var goals = (life.goals || []).map(function (goal) {
       return '<div class="ux-card"><div class="ux-card-title">' + H.escHtml(goal.title) + '</div>' +
         '<div class="ux-recipe-desc">进度 ' + goal.progress + ' / ' + goal.target + ' · 奖励：' + H.escHtml(goal.reward) + '</div>' +
@@ -196,8 +200,27 @@
     var promotionAction = promotion.allowed
       ? '<button class="ux-btn ux-btn--gold ux-btn--md" data-action="startDefense">申请晋升并参加三题答辩</button>'
       : '<div class="ux-recipe-desc">晋升条件：' + H.escHtml(promotion.reason || life.promotion.sectReason || '尚未满足') + '</div>';
+    var layoff = life.layoff || { pressure: 0, warningActive: false, responseSelected: false };
+    var fateRun = fQuery('queryFateRun');
+    var sectChain = life.employment === 'EMPLOYED'
+      ? '<div class="ux-recipe-desc">宗门因果事件沿用 Fate 状态与存档，并按当前在职宗门进入对应剧情链。</div>' +
+        (fateRun && fateRun.status === 'ENDED'
+          ? '<div class="ux-recipe-desc">当前命运轮回已结束，请先完成轮回后再继续宗门剧情。</div>'
+          : '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="careerSectFateChain">触发宗门因果事件</button>')
+      : '';
+    var layoffHtml = !layoff.warningActive
+      ? '<div class="ux-recipe-desc">宗门经营压力 ' + layoff.pressure + '/100 · 高于预警线时，可提交成果、寻求支持或提前求职。</div>' +
+        '<button class="ux-btn ux-btn--orange ux-btn--sm" data-action="careerLayoffWarning">评估裁员预警</button>'
+      : '<div class="ux-event-bubble">宗门经营压力预警已触发。处理结果会进入职业履历；接受方案将结算一次游戏内补偿并停止旧工资。</div>' +
+        (layoff.responseSelected
+          ? '<button class="ux-btn ux-btn--red ux-btn--sm" data-action="careerLayoffResolve">确认岗位判定与补偿</button>'
+          : '<div class="ux-dialog-actions">' +
+            '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="careerLayoffResponse" data-response="PROVE_VALUE">提交成果争取保岗</button>' +
+            '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="careerLayoffResponse" data-response="NPC_SUPPORT">寻求领导支持</button>' +
+            '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="careerLayoffResponse" data-response="JOB_SEARCH">提前开始求职</button>' +
+            '<button class="ux-btn ux-btn--red ux-btn--sm" data-action="careerLayoffResponse" data-response="ACCEPT_PACKAGE">接受补偿方案</button></div>');
     var employment = life.employment === 'EMPLOYED'
-      ? '<div class="ux-recipe-desc">当前状态：在职 · 宗门 ' + H.escHtml(life.sectId || '未知') + ' · 职级 ' + life.careerLevel + ' · 预计月薪 ¥' + H.fmtNum(life.monthlySalary || 0) + '</div>' +
+      ? '<div class="ux-recipe-desc">当前状态：在职 · 宗门 ' + H.escHtml(life.sectId || '未知') + ' · 职级 ' + life.careerLevel + ' · 预计月薪 ¥' + H.fmtNum(life.monthlySalary || 0) + '</div>' + sectChain + layoffHtml +
         '<button class="ux-btn ux-btn--red ux-btn--sm" data-action="careerResignPrompt">办理离职</button>'
       : '<div class="ux-recipe-desc">当前状态：待业 · 宗门合同无固定工资；可前往宗门页申请职位。</div>' +
         '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="goto" data-page="sect">查看招聘职位</button>';

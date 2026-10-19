@@ -18,6 +18,17 @@
     { "action": "click", "selector": "[data-action=\"careerNpcInteract\"][data-npc=\"BOSS\"][data-kind=\"SUPPORT\"]", "description": "Support the manager through the visible NPC interaction control" },
     { "action": "call", "method": "queryCareerLife", "as": "careerAfterNpc", "asType": "object", "description": "Read the authoritative persisted relationship projection after the UI action" },
     { "action": "assert", "check": "gt", "path": "@vars.careerAfterNpc.relationships[0].trust", "expected": "@vars.careerBeforeNpc.relationships[0].trust", "description": "The visible support action changes memory-backed trust" },
-    { "action": "screenshot", "name": "career-npc-relationship", "description": "Capture the updated NPC relation metrics and memories" }
+    { "action": "screenshot", "name": "career-npc-relationship", "description": "Capture the updated NPC relation metrics and memories" },
+    { "action": "click", "selector": "[data-nav=\"PROMOTION\"]", "description": "Return to the career panel to launch this employer's Fate-backed story chain" },
+    { "action": "waitFor", "selector": "[data-action=\"careerSectFateChain\"]", "state": "visible", "timeoutMs": 4000, "description": "Confirm the employed player can enter the sector-specific causal event chain" },
+    { "action": "click", "selector": "[data-action=\"careerSectFateChain\"]", "description": "Start the outsourcing chain through the visible UI and shared Fate event service" },
+    { "action": "call", "method": "queryFateEvent", "as": "outsourcingChainStart", "asType": "object", "description": "Read the authoritative chain head selected for the current employer" },
+    { "action": "assert", "check": "equals", "path": "@vars.outsourcingChainStart.id", "expected": "sect_outsourcing_s1" },
+    { "action": "waitFor", "selector": "[data-fate-choice=\"DOCUMENT\"]", "state": "visible", "timeoutMs": 4000, "description": "Wait for the actual Fate choice control" },
+    { "action": "screenshot", "name": "outsourcing-chain-stage-one", "description": "Capture the first causal event and its choices" },
+    { "action": "click", "selector": "[data-fate-choice=\"DOCUMENT\"]", "description": "Choose the client delivery evidence route through the Fate UI" },
+    { "action": "call", "method": "queryFateEvent", "as": "outsourcingChainNext", "asType": "object", "description": "Verify the selected outcome queued the next linked event" },
+    { "action": "assert", "check": "equals", "path": "@vars.outsourcingChainNext.id", "expected": "sect_outsourcing_s2", "description": "Fate persisted the causal chain transition" },
+    { "action": "screenshot", "name": "outsourcing-chain-stage-two", "description": "Capture the next event after the player choice" }
   ]
 }

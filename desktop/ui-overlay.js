@@ -4126,6 +4126,48 @@
           if (V2 && V2.showCareerResignModal) V2.showCareerResignModal();
           break;
         }
+        case 'careerLayoffWarning': {
+          var fLayoffWarning = facade();
+          if (!fLayoffWarning || typeof fLayoffWarning.beginCareerLayoffWarning !== 'function') break;
+          try {
+            var warningResult = fLayoffWarning.beginCareerLayoffWarning();
+            toast(warningResult.success ? '经营压力预警已记录，请选择应对方案。' : warningResult.reason || '暂时没有可处理的岗位预警。', warningResult.success ? 'info' : 'info');
+          } catch (e) { toast(errMsg(e), 'error'); }
+          fullRefresh();
+          break;
+        }
+        case 'careerSectFateChain': {
+          var fSectChain = facade();
+          if (!fSectChain || typeof fSectChain.triggerCareerSectEventChain !== 'function') break;
+          try {
+            var chainEvents = fSectChain.triggerCareerSectEventChain();
+            toast(chainEvents.length ? '宗门因果事件已进入 Fate 队列。' : '当前状态无法启动新的宗门剧情。', chainEvents.length ? 'success' : 'info');
+          } catch (e) { toast(errMsg(e), 'error'); }
+          fullRefresh();
+          break;
+        }
+        case 'careerLayoffResponse': {
+          var fLayoffChoice = facade();
+          if (!fLayoffChoice || typeof fLayoffChoice.chooseCareerLayoffResponse !== 'function') break;
+          try {
+            var layoffChoice = fLayoffChoice.chooseCareerLayoffResponse(el.dataset.response);
+            toast(layoffChoice.success ? '裁员应对方案已存档。' : layoffChoice.reason || '当前无法选择该方案。', layoffChoice.success ? 'success' : 'info');
+          } catch (e) { toast(errMsg(e), 'error'); }
+          fullRefresh();
+          break;
+        }
+        case 'careerLayoffResolve': {
+          var fLayoffResolve = facade();
+          if (!fLayoffResolve || typeof fLayoffResolve.resolveCareerLayoffWarning !== 'function') break;
+          try {
+            var layoffResult = fLayoffResolve.resolveCareerLayoffWarning();
+            toast(layoffResult.success
+              ? (layoffResult.outcome === 'RETAINED' ? '你保住了岗位。' : '裁员已结算：游戏内补偿 ¥' + layoffResult.compensation + '，现在可以求职。')
+              : layoffResult.reason || '岗位判定尚未完成。', layoffResult.success ? 'success' : 'info');
+          } catch (e) { toast(errMsg(e), 'error'); }
+          fullRefresh();
+          break;
+        }
         case 'careerResignConfirm': {
           var fCareerResign = facade();
           if (!fCareerResign || typeof fCareerResign.resignCareer !== 'function') break;

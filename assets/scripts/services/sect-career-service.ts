@@ -69,7 +69,8 @@ export class SectCareerService {
     const answerBonus: Readonly<Record<InterviewAnswer, number>> = { DELIVERY: 15, TEAMWORK: 12, RISK: 8 };
     const threshold = 50 + (stableHash(application.targetSectId) % 31);
     const score = Math.min(100, Math.max(0, Math.floor(this.context.player.performance))
-      + Math.min(10, this.context.player.careerLevel * 2) + answerBonus[answer]);
+      + Math.min(10, this.context.player.careerLevel * 2) + answerBonus[answer]
+      + this.context.profession.interviewBonus(answer));
     const updated = { ...application, interviewScore: score, interviewThreshold: threshold, status: score >= threshold ? 'OFFERED' as const : 'REJECTED' as const };
     this.replaceApplication(updated);
     this.context.saveService.save(this.context.player);

@@ -178,7 +178,8 @@ export class OvertimeService {
     // 付费加班在结束时一次性发薪（免费加班永远是 0，§12/§176）。
     const sessionId = session.sessionId || this.createSessionId(session.source);
     const alreadySettled = this.context.player.settledOvertimeSessionIds.includes(sessionId);
-    if (!session.free && !alreadySettled) {
+    const playerIsUnemployed = this.context.player.eventFlags['career:unemployed'] === true;
+    if (!session.free && !alreadySettled && !playerIsUnemployed) {
       const pay = this.paidOvertimeSalary(session);
       if (pay > 0) {
         this.context.economy.applyIdleSalary(pay);

@@ -19,6 +19,9 @@ type CareerLifeApi = {
   startCareerPromotionInterview(): readonly { id: string; options: readonly { id: string; text: string }[] }[];
   submitCareerPromotionInterview(answers: readonly string[]): { passed: boolean; newLevel: number; total: number };
   claimCareerGoal(goalId: string): { success: boolean; reason?: string };
+  beginLayoffWarning(): { success: boolean; warningId?: string; pressure?: number; reason?: string };
+  chooseLayoffResponse(response: 'PROVE_VALUE' | 'NPC_SUPPORT' | 'JOB_SEARCH' | 'ACCEPT_PACKAGE'): { success: boolean; reason?: string };
+  resolveLayoffWarning(): { success: boolean; outcome?: 'RETAINED' | 'LAID_OFF'; compensation?: number; reason?: string };
 };
 
 function create(options: { sectId?: string; salary?: number; level?: number; workday?: string } = {}) {
@@ -83,6 +86,62 @@ test('resignation stops fixed wage while preserving wallet, level and employable
     clock.set(clock.now() + 3600_000);
     assert.equal(facade.context.idle.preview('unemployed-offline').salary, 0, 'offline progress cannot create fixed wages while unemployed');
     assert.throws(() => facade.context.overtime.applyForApproval(3600), /待业/, 'unemployment cannot request paid overtime');
+  } finally { facade.destroy(); }
+});
+
+test('layoff warning response can preserve employment and is persisted against duplicate resolution', () => {
+  const { facade, api } = create({ sectId: 'OUTSOURCING', salary: 1000 });
+  try {
+    const warning = facade.beginCareerLayoffWarning();
+    assert.equal(warning.success, true);
+    assert.ok((warning.pressure ?? 0) >= 0 && (warning.pressure ?? 0) <= 100);
+    assert.equal(facade.chooseCareerLayoffResponse('PROVE_VALUE').success, true);
+    const decision = facade.resolveCareerLayoffWarning();
+    assert.equal(decision.outcome, 'RETAINED');
+    assert.equal(facade.snapshot().sectId, 'OUTSOURCING');
+    assert.equal(api.queryCareerLife().employment, 'EMPLOYED');
+    assert.equal(facade.resolveCareerLayoffWarning().success, false, 'the same warning cannot settle twice');
+  } finally { facade.destroy(); }
+});
+
+test('accepted layoff package pays once, moves the player to unemployment and permits the existing rehire flow', () => {
+  const { facade, api } = create({ sectId: 'OUTSOURCING', salary: 1000 });
+  try {
+    facade.context.player.sectProjectContract = {
+      id: 'pending-old-employer-project', sectId: 'OUTSOURCING', dayIndex: facade.context.gameDay.dayIndex(),
+      title: '待交付项目', risk: 'HIGH', workMinutes: 75, rewardSalary: 139, rewardPerformance: 20, status: 'ACTIVE',
+    };
+    assert.equal(facade.beginCareerLayoffWarning().success, true);
+    assert.equal(facade.chooseCareerLayoffResponse('ACCEPT_PACKAGE').success, true);
+    const before = facade.snapshot().salary;
+    const first = facade.resolveCareerLayoffWarning();
+    assert.equal(first.outcome, 'LAID_OFF');
+    assert.ok((first.compensation ?? 0) > 0);
+    const after = facade.snapshot().salary;
+    assert.equal(after, before + first.compensation!);
+    assert.equal(facade.resolveCareerLayoffWarning().success, false);
+    assert.equal(facade.snapshot().salary, after, 'compensation is idempotent');
+    assert.equal(facade.snapshot().sectId, null);
+    assert.equal(api.queryCareerLife().employment, 'UNEMPLOYED');
+    assert.equal(facade.context.player.sectProjectContract?.status, 'FAILED', 'unsettled work cannot be claimed after employment ends');
+
+    const application = facade.applySectJob('BIG_TECH');
+    const offer = facade.resolveSectInterview(application.id, 'DELIVERY');
+    assert.equal(offer.status, 'OFFERED');
+    assert.equal(facade.acceptSectOffer(application.id).sectId, 'BIG_TECH');
+  } finally { facade.destroy(); }
+});
+
+test('a paid overtime session from the old employer cannot pay after layoff', () => {
+  const { facade } = create({ sectId: 'FOREIGN', salary: 1000 });
+  try {
+    facade.context.overtime.startVoluntary(3600, true);
+    facade.context.overtime.tick(1800);
+    const beforeLayoff = facade.snapshot().salary;
+    assert.equal(facade.resolveCareerLayoff().success, true);
+    facade.context.overtime.tick(1800);
+    facade.context.overtime.finish();
+    assert.equal(facade.snapshot().salary, beforeLayoff, 'old-employer overtime cannot create post-layoff pay');
   } finally { facade.destroy(); }
 });
 

@@ -41,6 +41,41 @@ export interface ProfessionView {
   readonly selected: boolean;
 }
 
+export interface ProfessionCareerSkillView {
+  readonly id: string;
+  readonly name: string;
+  readonly level: number;
+  readonly maxLevel: 5;
+  readonly effect: string;
+}
+
+const CAREER_SKILLS: Readonly<Record<string, readonly { id: string; name: string; effect: string }[]>> = {
+  JAVA_BACKEND: [
+    { id: 'database', name: '数据库优化', effect: '降低项目工时并提高专业怪战斗专精' },
+    { id: 'concurrency', name: '并发处理', effect: '降低项目工时并提高专业怪战斗专精' },
+    { id: 'api', name: '接口架构', effect: '提高技术岗位面试评分' },
+    { id: 'incident', name: '故障排查', effect: '提高风险题面试评分' },
+  ],
+  FRONTEND: [
+    { id: 'components', name: '组件设计', effect: '降低项目工时并提升项目绩效' },
+    { id: 'performance', name: '页面性能', effect: '降低项目工时并提升项目绩效' },
+    { id: 'ui', name: 'UI 实现', effect: '提高交付题面试评分' },
+    { id: 'compatibility', name: '兼容性处理', effect: '提高团队协作面试评分' },
+  ],
+  QA: [
+    { id: 'automation', name: '自动化测试', effect: '降低项目工时并提高专业怪战斗专精' },
+    { id: 'triage', name: '缺陷定位', effect: '提高风险题面试评分' },
+    { id: 'performance', name: '性能测试', effect: '提升项目绩效奖励' },
+    { id: 'quality', name: '质量保障', effect: '提高交付题面试评分' },
+  ],
+  DEVOPS: [
+    { id: 'release', name: '部署发布', effect: '降低项目工时并提升项目绩效' },
+    { id: 'recovery', name: '故障恢复', effect: '提高风险题面试评分并增强战斗专精' },
+    { id: 'monitoring', name: '监控告警', effect: '提高交付题面试评分' },
+    { id: 'capacity', name: '容量规划', effect: '提升项目绩效奖励' },
+  ],
+};
+
 /** 职业等级：技术路线，与公司职级分离（§195~§197）。 */
 export const PROFESSION_LEVEL_EXP = [0, 120, 320, 700, 1300, 2200, 3500, 5300, 7800, 11500] as const;
 
@@ -176,6 +211,29 @@ export class ProfessionService {
     return level >= PROFESSION_LEVEL_EXP.length ? 0 : PROFESSION_LEVEL_EXP[level] - exp;
   }
 
+  /** Four profession-specific directions share the existing bounded profession experience. */
+  public careerSkills(): readonly ProfessionCareerSkillView[] {
+    const skills = CAREER_SKILLS[this.currentId()] ?? (this.currentId() === 'DBA' ? CAREER_SKILLS.JAVA_BACKEND : CAREER_SKILLS.FRONTEND);
+    const level = Math.max(1, Math.min(5, Math.ceil(this.level() / 2)));
+    return skills.map((skill) => ({ ...skill, level, maxLevel: 5 }));
+  }
+
+  private careerSkillRank(): number { return Math.max(0, this.careerSkills()[0].level - 1); }
+
+  public projectTimeMultiplier(): number { return Math.max(0.8, 1 - this.careerSkillRank() * 0.04); }
+
+  public projectPerformanceBonus(): number { return Math.min(4, this.careerSkillRank()); }
+
+  public interviewBonus(answer: 'DELIVERY' | 'TEAMWORK' | 'RISK'): number {
+    const rank = this.careerSkillRank();
+    if (rank === 0) return 0;
+    const preferred: Readonly<Record<string, 'DELIVERY' | 'TEAMWORK' | 'RISK'>> = {
+      JAVA_BACKEND: 'RISK', FRONTEND: 'DELIVERY', QA: 'RISK', DEVOPS: 'RISK',
+      DBA: 'RISK', PRODUCT_OWNER: 'TEAMWORK',
+    };
+    return Math.min(8, rank + (preferred[this.currentId()] === answer ? rank : Math.floor(rank / 2)));
+  }
+
   /** 职业经验来源：任务完成/项目贡献/职业怪击杀（§195）。 */
   public grantExp(amount: number): void {
     if (!Number.isSafeInteger(amount) || amount <= 0) return;
@@ -193,7 +251,7 @@ export class ProfessionService {
   public specialtyMultiplier(monsterDefId: string): number {
     const def = this.def();
     const monster = def.monsters.includes(monsterDefId);
-    return monster ? 1 + def.specialtyBonus : 1;
+    return monster ? Math.min(2.5, 1 + def.specialtyBonus + this.careerSkillRank() * 0.02) : 1;
   }
 
   /** 本职业 Build 列表（§152~§158）。 */

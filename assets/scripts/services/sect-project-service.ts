@@ -40,8 +40,10 @@ export class SectProjectService {
       const sectorFactor = 0.85 + sect.modifiers.performanceMultiplier * 0.15;
       const rewardSalary = Math.max(1, Math.round(45 * RISK_MULTIPLIER[risk] * wageRate * sectorFactor));
       return Object.freeze({
-        id, sectId: sect.id, dayIndex, title, risk, workMinutes: RISK_MINUTES[risk],
-        rewardSalary, rewardPerformance: RISK_PERFORMANCE[risk], encounterId: RISK_ENCOUNTER[risk],
+        id, sectId: sect.id, dayIndex, title, risk,
+        workMinutes: Math.max(1, Math.ceil(RISK_MINUTES[risk] * this.context.profession.projectTimeMultiplier())),
+        rewardSalary,
+        rewardPerformance: RISK_PERFORMANCE[risk] + this.context.profession.projectPerformanceBonus(), encounterId: RISK_ENCOUNTER[risk],
       });
     });
   }

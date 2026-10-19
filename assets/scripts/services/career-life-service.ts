@@ -3,8 +3,24 @@ import type { NpcId } from '../v2/npc-weekend-service';
 import type { NpcMemoryKind } from '../v57/npc-memory-service';
 import type { PromotionCheckV2, DefenseQuestion, DefenseScore } from '../v2/v2-settlement-service';
 import { PlayerData } from '../model/player-data';
+import type { ProfessionCareerSkillView } from '../v5/profession-service';
 
 export type CareerInteraction = 'SUPPORT' | 'SOCIALIZE' | 'CHALLENGE';
+export type LayoffResponse = 'PROVE_VALUE' | 'NPC_SUPPORT' | 'JOB_SEARCH' | 'ACCEPT_PACKAGE';
+
+export interface LayoffWarningResult {
+  readonly success: boolean;
+  readonly warningId?: string;
+  readonly pressure?: number;
+  readonly reason?: string;
+}
+
+export interface LayoffResolutionResult {
+  readonly success: boolean;
+  readonly outcome?: 'RETAINED' | 'LAID_OFF';
+  readonly compensation?: number;
+  readonly reason?: string;
+}
 
 export interface CareerRelationshipView {
   readonly npcId: NpcId;
@@ -32,10 +48,12 @@ export interface CareerLifeView {
   readonly profession: string;
   readonly professionLevel: number;
   readonly skillExperience: number;
+  readonly careerSkills: readonly ProfessionCareerSkillView[];
   readonly promotion: PromotionCheckV2 & { readonly sectRequirement: boolean; readonly sectReason: string };
   readonly relationships: readonly CareerRelationshipView[];
   readonly goals: readonly CareerGoalView[];
   readonly history: readonly { readonly dayIndex: number; readonly kind: string; readonly label: string }[];
+  readonly layoff: { readonly pressure: number; readonly warningActive: boolean; readonly responseSelected: boolean };
 }
 
 const UNEMPLOYED_FLAG = 'career:unemployed';
@@ -65,10 +83,16 @@ export class CareerLifeService {
       profession: this.context.profession.currentId(),
       professionLevel: this.context.profession.level(),
       skillExperience: this.context.profession.exp(),
+      careerSkills: this.context.profession.careerSkills(),
       promotion,
       relationships: NPC_IDS.map((npcId) => this.relationship(npcId)),
       goals: this.goals(),
       history: this.context.player.careerChoices.slice(-24).map((entry) => ({ ...entry })),
+      layoff: {
+        pressure: this.layoffPressure(),
+        warningActive: this.context.player.eventFlags['career:layoff:warning-active'] === true,
+        responseSelected: this.context.player.eventFlags['career:layoff:response-selected'] === true,
+      },
     };
   }
 
@@ -134,6 +158,138 @@ export class CareerLifeService {
     }
     this.context.events.emit('playerChanged', { reason: 'careerUnemployed' });
     return { success: true };
+  }
+
+  /** Evaluate employer pressure and persist one warning for the current workday. */
+  public beginLayoffWarning(): LayoffWarningResult {
+    const sectId = this.context.player.sectId;
+    if (!sectId || !this.isEmployed()) return { success: false, reason: '待业期间没有可触发的裁员预警' };
+    if (sectId === 'FREELANCE') return { success: false, reason: '自由宗门按客户合同中断处理，不适用员工裁员' };
+    const day = Math.max(1, this.context.gameDay.dayIndex());
+    const flags = this.context.player.eventFlags;
+    if (flags['career:layoff:warning-active'] === true) return { success: false, reason: '当前已有待处理的裁员预警' };
+    const lastResolvedDay = this.context.player.careerChoices
+      .filter((entry) => entry.kind === 'LAYOFF_RESOLVED')
+      .reduce((latest, entry) => Math.max(latest, entry.dayIndex), 0);
+    if (lastResolvedDay > 0 && day - lastResolvedDay < 7) return { success: false, reason: '裁员事件冷却中' };
+
+    const pressure = this.layoffPressure();
+    if (pressure < 45) return { success: false, pressure, reason: '当前经营压力尚未达到岗位预警线' };
+    const warningId = `${day}-${sectId}`;
+    const before = this.context.player.toSaveData();
+    try {
+      this.context.player.eventFlags = {
+        ...flags,
+        'career:layoff:warning-active': true,
+        'career:layoff:response-selected': false,
+        [`career:layoff:warning:${warningId}`]: true,
+      };
+      this.recordChoice('LAYOFF_WARNING', `${sectId} 经营压力 ${pressure}/100，收到岗位预警`);
+      this.context.saveService.save(this.context.player);
+    } catch (error) {
+      Object.assign(this.context.player, new PlayerData(before));
+      return { success: false, reason: error instanceof Error ? error.message : '裁员预警保存失败' };
+    }
+    this.context.events.emit('playerChanged', { reason: 'careerLayoffWarning' });
+    return { success: true, warningId, pressure };
+  }
+
+  /** Persist a single strategic response; choices change the later retention threshold. */
+  public chooseLayoffResponse(response: LayoffResponse): { success: boolean; reason?: string } {
+    if (!this.context.player.eventFlags['career:layoff:warning-active']) return { success: false, reason: '当前没有待处理的裁员预警' };
+    if (!['PROVE_VALUE', 'NPC_SUPPORT', 'JOB_SEARCH', 'ACCEPT_PACKAGE'].includes(response)) return { success: false, reason: '无效的裁员应对选择' };
+    if (this.context.player.eventFlags['career:layoff:response-selected']) return { success: false, reason: '本次预警已经选择应对方案' };
+    const before = this.context.player.toSaveData();
+    try {
+      const effectFlags: Record<LayoffResponse, boolean> = {
+        PROVE_VALUE: response === 'PROVE_VALUE', NPC_SUPPORT: response === 'NPC_SUPPORT',
+        JOB_SEARCH: response === 'JOB_SEARCH', ACCEPT_PACKAGE: response === 'ACCEPT_PACKAGE',
+      };
+      this.context.player.eventFlags = {
+        ...this.context.player.eventFlags,
+        'career:layoff:response-selected': true,
+        'career:layoff:response:PROVE_VALUE': effectFlags.PROVE_VALUE,
+        'career:layoff:response:NPC_SUPPORT': effectFlags.NPC_SUPPORT,
+        'career:layoff:response:JOB_SEARCH': effectFlags.JOB_SEARCH,
+        'career:layoff:response:ACCEPT_PACKAGE': effectFlags.ACCEPT_PACKAGE,
+        ...(response === 'PROVE_VALUE' ? { 'career:layoff:proof-prepared': true } : {}),
+        ...(response === 'JOB_SEARCH' ? { 'career:layoff:search-started': true } : {}),
+      };
+      if (response === 'PROVE_VALUE') this.context.player.performance = Math.max(0, this.context.player.performance + 5);
+      if (response === 'NPC_SUPPORT') this.context.npc.change('BOSS', 3);
+      if (response === 'ACCEPT_PACKAGE') this.context.player.mind = Math.max(0, this.context.player.mind - 2);
+      const labels: Record<LayoffResponse, string> = {
+        PROVE_VALUE: '提交交付成果争取保岗', NPC_SUPPORT: '寻求领导支持',
+        JOB_SEARCH: '提前启动外部求职', ACCEPT_PACKAGE: '接受离职补偿方案',
+      };
+      this.recordChoice('LAYOFF_RESPONSE', labels[response]);
+      this.context.saveService.save(this.context.player);
+    } catch (error) {
+      Object.assign(this.context.player, new PlayerData(before));
+      return { success: false, reason: error instanceof Error ? error.message : '裁员应对保存失败' };
+    }
+    this.context.events.emit('playerChanged', { reason: 'careerLayoffResponse' });
+    return { success: true };
+  }
+
+  /** Settle retention or severance exactly once through the existing salary wallet and employment record. */
+  public resolveLayoffWarning(): LayoffResolutionResult {
+    const flags = this.context.player.eventFlags;
+    if (!flags['career:layoff:warning-active'] || !flags['career:layoff:response-selected']) {
+      return { success: false, reason: '裁员预警或应对选择尚未完成' };
+    }
+    const warning = Object.keys(flags).find((key) => key.startsWith('career:layoff:warning:') && flags[key]);
+    if (!warning) return { success: false, reason: '找不到当前预警凭据' };
+    const warningId = warning.slice('career:layoff:warning:'.length);
+    const receipt = `career:layoff:resolved:${warningId}`;
+    if (this.context.player.milestones.includes(receipt)) return { success: false, reason: '本次裁员结果已经结算' };
+
+    const response: LayoffResponse = flags['career:layoff:response:PROVE_VALUE'] ? 'PROVE_VALUE'
+      : flags['career:layoff:response:NPC_SUPPORT'] ? 'NPC_SUPPORT'
+        : flags['career:layoff:response:JOB_SEARCH'] ? 'JOB_SEARCH' : 'ACCEPT_PACKAGE';
+    const adjustedPressure = this.layoffPressure()
+      - (response === 'PROVE_VALUE' ? 20 : response === 'NPC_SUPPORT' ? 15 : response === 'JOB_SEARCH' ? 5 : 0);
+    const retained = response !== 'ACCEPT_PACKAGE' && adjustedPressure < 65;
+    const compensation = retained ? 0 : Math.max(50, Math.round(this.monthlySalary() * 0.25));
+    const before = this.context.player.toSaveData();
+    try {
+      if (!retained) {
+        const now = this.context.clockV2.now();
+        const formerSectId = this.context.player.sectId;
+        const history = [...this.context.player.sectCareerHistory];
+        const active = history[history.length - 1];
+        if (active && !active.endedAt) history[history.length - 1] = { ...active, endedAt: now };
+        else if (this.context.player.sectId) history.push({ sectId: this.context.player.sectId, startedAt: this.context.player.lastSectSwitchTime || 0, endedAt: now });
+        this.context.player.sectCareerHistory = history.slice(-30);
+        const project = this.context.player.sectProjectContract;
+        if (project && project.sectId === formerSectId && (project.status === 'ACCEPTED' || project.status === 'ACTIVE')) {
+          this.context.player.sectProjectContract = { ...project, status: 'FAILED' };
+        }
+        if (this.context.player.pendingSectContract?.sourceSectId === formerSectId) this.context.player.pendingSectContract = null;
+        this.context.player.sectApplications = this.context.player.sectApplications.map((application) =>
+          application.sourceSectId === formerSectId && (application.status === 'INTERVIEW' || application.status === 'OFFERED')
+            ? { ...application, status: 'REJECTED' }
+            : application);
+        this.context.player.sectId = null;
+        this.context.player.eventFlags = { ...this.context.player.eventFlags, [UNEMPLOYED_FLAG]: true };
+        this.context.sectCareer.syncActiveSectFlags();
+        this.context.economy.applyIdleSalary(compensation);
+      }
+      this.context.player.eventFlags = {
+        ...this.context.player.eventFlags,
+        [warning]: false,
+        'career:layoff:warning-active': false,
+        'career:layoff:response-selected': false,
+      };
+      this.context.player.milestones = [...this.context.player.milestones, receipt].slice(-128);
+      this.recordChoice('LAYOFF_RESOLVED', retained ? '通过应对保住岗位' : `裁员离职并结算游戏内补偿 ${compensation}`);
+      this.context.saveService.save(this.context.player);
+    } catch (error) {
+      Object.assign(this.context.player, new PlayerData(before));
+      return { success: false, reason: error instanceof Error ? error.message : '裁员结果保存失败' };
+    }
+    this.context.events.emit('playerChanged', { reason: retained ? 'careerLayoffRetained' : 'careerLayoffResolved' });
+    return { success: true, outcome: retained ? 'RETAINED' : 'LAID_OFF', compensation };
   }
 
   public promotionCheck(): CareerLifeView['promotion'] {
@@ -244,6 +400,15 @@ export class CareerLifeService {
     if (!this.isEmployed() || !this.context.player.sectId || this.context.player.sectId === 'FREELANCE') return 0;
     const job = this.context.sectCareer.jobs().find((candidate) => candidate.id === this.context.player.sectId);
     return Math.max(0, Math.round((job?.salaryEstimate ?? 0) * this.context.career.current().salaryMultiplier * 22));
+  }
+
+  private layoffPressure(): number {
+    const sectId = this.context.player.sectId;
+    const sectPressure = this.context.sectCareer.jobs().find((job) => job.id === sectId)?.pressure ?? 50;
+    const performanceRelief = Math.min(20, Math.floor(Math.max(0, this.context.player.performance) / 10));
+    const bossSupport = Math.min(10, Math.floor(Math.max(0, this.context.player.relationships.BOSS ?? 0) / 5));
+    const projectRelief = this.context.player.projectHistory.some((project) => project.status === 'COMPLETED') ? 5 : 0;
+    return Math.max(0, Math.min(100, sectPressure - performanceRelief - bossSupport - projectRelief));
   }
 }
 

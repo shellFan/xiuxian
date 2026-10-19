@@ -909,6 +909,11 @@ export class GameFacade {
   }
   public resignCareer() { return this.context.careerLife.resign(); }
   public resolveCareerLayoff() { return this.context.careerLife.resign('LAID_OFF'); }
+  public beginCareerLayoffWarning() { return this.context.careerLife.beginLayoffWarning(); }
+  public chooseCareerLayoffResponse(response: import('../services/career-life-service').LayoffResponse) {
+    return this.context.careerLife.chooseLayoffResponse(response);
+  }
+  public resolveCareerLayoffWarning() { return this.context.careerLife.resolveLayoffWarning(); }
   public checkCareerPromotion() { return this.context.careerLife.promotionCheck(); }
   public startCareerPromotionInterview() { return this.context.careerLife.startPromotionInterview(); }
   public submitCareerPromotionInterview(answers: readonly string[]) {
@@ -1113,6 +1118,20 @@ export class GameFacade {
   public queryFateMeta() { return { ...this.context.player.rebirthMeta, talentRanks: { ...this.context.player.rebirthMeta.talentRanks } }; }
   public queryFateTalentOptions() { return this.context.rebirth.talentOptions(); }
   public queryFateNPCs() { return this.context.fateEvents.npcRelationships(); }
+  public triggerCareerSectEventChain(): string[] {
+    const sectId = this.context.player.sectId;
+    if (!sectId || !this.context.careerLife.isEmployed()) return [];
+    let run = this.context.fateEvents.state();
+    if (!run) {
+      let sectHash = 0;
+      for (const character of sectId) sectHash = (sectHash * 31 + character.charCodeAt(0)) >>> 0;
+      const day = Math.max(1, this.context.gameDay.dayIndex());
+      this.context.fateEvents.beginRun((sectHash ^ day) >>> 0);
+      run = this.context.fateEvents.state();
+    }
+    if (!run || run.status !== 'ACTIVE') return [];
+    return this.context.fateEvents.triggerMilestone(`career:sect-chain:${sectId}`);
+  }
 
   public queryHomeTodayWork() { return this.context.home.todayWork(); }
   public queryHomeGoals() { return this.context.home.goals(); }

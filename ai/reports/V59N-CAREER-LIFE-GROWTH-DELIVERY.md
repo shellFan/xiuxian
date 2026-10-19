@@ -48,6 +48,20 @@
 - **MEDIUM：** 物理 Windows UI 输入未验证；修订后的完整 Gate 待重跑。
 - **LOW：** 无新增结论。
 
+## V5.9-N.1 续作检查点（2026-10-19）
+
+- 续作分支：`feature/v59n-career-life-growth`；起始 HEAD：`5797e4fa6b30d208fdc21f3a743db78dfe1cd6ff`。原始工作区未触碰。
+- 续作期间保留已有 tracked 改动和全部 untracked GamePlay 历史报告；没有 stash、reset、restore、clean、提交或推送。
+- 本轮实现续作在工作树中的代码包含裁员预警/四种应对/保岗或离职结算、补偿幂等、失业后关闭旧项目和合同、共享 Fate 的八宗门五阶段剧情链、四职业有限成长效果、裁员 UI 场景。代码的详细验收仍以完整 Gate 和后续专题场景为准。
+- `npm test`：**PASS**，退出码 0。编译与完整测试套件结束；输出包括 N 专项裁员、职业成长、宗门因果链及 GamePlay Agent Runner 合约测试。当前总测试文件/测试数未由脚本汇总，故不推断精确计数。
+- `npm run pc:build`：**PASS（产物已生成）**；Cocos Creator 子进程报告退出码 36，但仓库脚本基于新鲜构建产物完成校验并返回 0。该非零子进程退出码保留为构建风险，不能单独视为完整打包验证。
+- `npm run pc:pack`：**PASS**；`npm run pc:check`：**PASS**，构建清单与 overlay 哈希匹配。
+- 当前构建标识：`af95e5d1f7a3153c9980f60901425778fe9f03efec425e37f4f398cf368d5d06`；EXE SHA-256：`e10410e805c536b470d4d6938d14d7cf343ac7303da01f97b261ead82aa91cd1`；ASAR SHA-256：`9d5e294842a6a753c3dcded77a1654c2a77fcff8f8299083e761a8183733830b`。
+- 新增场景 `career-layoff-reemployment` 于 Gate 场景清单校验中被验证为结构有效，但当前 EXE 执行 **FAIL / NOT_VERIFIED**：运行 `20261019-071132-5cef23` 在 35 秒启动时限内未得到 `GameFacade`。紧接着 `npm run gameplay-agent:smoke` 的运行 `20261019-071413-51d972` 也遇到同类启动失败。截图与日志显示 Electron 窗口停在“正在唤醒游戏数据”；未进入场景操作。不得归类为裁员游戏逻辑失败。
+- 诊断：以上复测没有输出 renderer 控制台异常；一次快照显示 Cocos 引擎初始化、一次快照显示引擎初始化尚未完成。当前根因未确认，归类为 **NOT_VERIFIED / 启动阻断**。此前历史 Gate `20261019-054908-564e35` 亦为 2/23 场景通过、19 失败、2 阻断；其大多数失败同属启动未就绪。
+- `UI_REAL_EXE=NOT_VERIFIED`（CDP 合成输入不等于物理 Windows 输入）；当前 `ELECTRON_E2E=FAIL`；`SERVICE_SIM=PASS`（仅适用于本轮全量单元/集成测试，未覆盖要求中的分支矩阵模拟）。
+- 本检查点没有执行最终完整 Gate、至少 20 分钟最终版本 soak、30/100 游戏日的四种指定模拟、完整新玩家职业闭环或本地提交；N.1 仍为 **IN_PROGRESS**。
+
 ## 后续顺序
 
 1. 补齐或修复裁员因果闭环并增加回归测试。

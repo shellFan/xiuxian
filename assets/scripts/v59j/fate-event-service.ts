@@ -4,6 +4,7 @@ import { normalizeFateRun } from './fate-state';
 import { PlayerData } from '../model/player-data';
 import content from '../../configs/v2/fate-events.json';
 import npcContent from '../../configs/v2/fate-npcs.json';
+import { SECT_CAREER_FATE_EVENTS } from './sect-career-fate-events';
 
 export interface FateEventChoiceResult {
   readonly eventId: string;
@@ -21,7 +22,7 @@ export interface FateChallengeStartResult {
   readonly buildId: string;
 }
 
-const FATE_EVENTS = (content as { events: FateEventDefinition[] }).events;
+const FATE_EVENTS = [...(content as { events: FateEventDefinition[] }).events, ...SECT_CAREER_FATE_EVENTS];
 const FATE_EVENT_MAP = new Map(FATE_EVENTS.map((event) => [event.id, event]));
 const FATE_NPCS = (npcContent as { npcs: { id: string; name: string; role: string; description: string }[] }).npcs;
 const QUEUE_LIMIT = 5;
