@@ -12,6 +12,7 @@ import type { RandomService, Rng } from './random-service';
 import eventsConfig from '../../configs/v2/events.json';
 import { OVERTIME_EVENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_EVENTS } from '../v3/workplace-content';
+import { CAREER_LIFE_EVENTS } from '../v3/career-life-content';
 import { applyCharacterEffectToInteger, characterEffectMultiplier } from '../v59/character-attributes';
 import {
   type EventDefinition,
@@ -30,7 +31,7 @@ export const EVENTS: readonly EventDefinition[] = mergeUniqueById(
     OVERTIME_EVENTS,
     'event',
   ),
-  WORKPLACE_EVENTS,
+  mergeUniqueById(WORKPLACE_EVENTS, CAREER_LIFE_EVENTS, 'event'),
   'event',
 );
 export const EVENT_MAP: ReadonlyMap<string, EventDefinition> = new Map(EVENTS.map((e) => [e.id, e]));
@@ -122,6 +123,7 @@ export class V2EventService {
       overtimeActive: this.context.overtime.current()?.status === 'ACTIVE',
       situationIds: day?.situationIds ?? [],
       sectId: p.sectId,
+      employed: p.eventFlags['career:unemployed'] !== true,
       relationships: { ...p.relationships },
       materials: { ...p.materials },
       ownedTechniques: [...p.ownedTechniques],
@@ -215,6 +217,7 @@ export class V2EventService {
     for (const pending of this.context.player.pendingEvents) {
       const def = EVENT_MAP.get(pending.eventId);
       if (!def) continue;
+      if (def.requiresEmployment && this.context.player.eventFlags['career:unemployed'] === true) continue;
       if (isS1Event(def) && this.isInsideFirstFiveMinutes(now)) continue;
       presentable.push(def);
     }

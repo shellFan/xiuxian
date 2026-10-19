@@ -131,6 +131,24 @@
           '</div>' +
         '</div></div>';
     });
+    var life = fQuery('queryCareerLife');
+    var legacyNpcHtml = html;
+    if (life && life.relationships) {
+      html = '<div class="ux-section-ribbon">职场关系 · 信任与专业认可</div>';
+      life.relationships.forEach(function (r) {
+        var title = (views.find(function (n) { return n.id === r.npcId; }) || {}).name || r.npcId;
+        html += '<div class="ux-card ux-friend-card"><div class="ux-friend-info">' +
+          '<div class="ux-friend-name">' + H.escHtml(title) + ' · 好感 ' + r.affinity + '</div>' +
+          '<div class="ux-recipe-desc">信任 ' + r.trust + ' · 专业认可 ' + r.recognition + ' · 冲突 ' + r.conflict + '</div>' +
+          '<div class="ux-dialog-actions">' +
+          '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="careerNpcInteract" data-npc="' + H.escHtml(r.npcId) + '" data-kind="SUPPORT">协作支持</button>' +
+          '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="careerNpcInteract" data-npc="' + H.escHtml(r.npcId) + '" data-kind="SOCIALIZE">下班交流</button>' +
+          '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="careerNpcInteract" data-npc="' + H.escHtml(r.npcId) + '" data-kind="CHALLENGE">公开质疑</button></div></div></div>';
+      });
+      html += legacyNpcHtml;
+    } else {
+      html = legacyNpcHtml;
+    }
     /* V5.7：NPC 记忆卡（关系阶段用文字，不显示内部数值 §118） */
     if (facadeObj && typeof facadeObj.queryNpcCard === 'function') {
       var memoryIds = ['VETERAN', 'TESTER', 'PRODUCT', 'OPS', 'JUNIOR', 'BOSS'];
@@ -151,6 +169,54 @@
       if (memoryBlocks) html += '<div class="ux-section-ribbon">他们记得的事</div>' + memoryBlocks;
     }
     return html;
+  }
+
+  function careerLifeSectionHtml() {
+    var life = fQuery('queryCareerLife');
+    if (!life) return '';
+    var depth = fQuery('queryProfessionDepth');
+    var skillHtml = '';
+    if (depth) {
+      var activeSkills = (depth.activeSkills || []).slice(0, 4).map(H.escHtml).join('、') || '随职业成长解锁';
+      var passiveSkills = (depth.passiveSkills || []).slice(0, 4).map(H.escHtml).join('、') || '随职业成长解锁';
+      var perks = (depth.perks || []).map(function (perk) {
+        return '<div class="ux-recipe-desc">Lv' + perk.level + ' · ' + H.escHtml(perk.desc) + (perk.reached ? ' ✓' : '（待解锁）') + '</div>';
+      }).join('');
+      skillHtml = '<div class="ux-section-ribbon">职业技能成长 · ' + H.escHtml(depth.name || depth.id) + ' Lv' + depth.level + '</div>' +
+        '<div class="ux-card"><div class="ux-recipe-desc">经验 ' + depth.exp + ' · 距下级 ' + depth.expToNext + '</div>' +
+        '<div class="ux-recipe-desc">主动专长：' + activeSkills + '</div><div class="ux-recipe-desc">被动专长：' + passiveSkills + '</div>' + perks + '</div>';
+    }
+    var goals = (life.goals || []).map(function (goal) {
+      return '<div class="ux-card"><div class="ux-card-title">' + H.escHtml(goal.title) + '</div>' +
+        '<div class="ux-recipe-desc">进度 ' + goal.progress + ' / ' + goal.target + ' · 奖励：' + H.escHtml(goal.reward) + '</div>' +
+        (goal.complete ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="careerGoalClaim" data-id="' + H.escHtml(goal.id) + '">领取目标奖励</button>' : '') +
+        '</div>';
+    }).join('');
+    var promotion = life.promotion;
+    var promotionAction = promotion.allowed
+      ? '<button class="ux-btn ux-btn--gold ux-btn--md" data-action="startDefense">申请晋升并参加三题答辩</button>'
+      : '<div class="ux-recipe-desc">晋升条件：' + H.escHtml(promotion.reason || life.promotion.sectReason || '尚未满足') + '</div>';
+    var employment = life.employment === 'EMPLOYED'
+      ? '<div class="ux-recipe-desc">当前状态：在职 · 宗门 ' + H.escHtml(life.sectId || '未知') + ' · 职级 ' + life.careerLevel + ' · 预计月薪 ¥' + H.fmtNum(life.monthlySalary || 0) + '</div>' +
+        '<button class="ux-btn ux-btn--red ux-btn--sm" data-action="careerResignPrompt">办理离职</button>'
+      : '<div class="ux-recipe-desc">当前状态：待业 · 宗门合同无固定工资；可前往宗门页申请职位。</div>' +
+        '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="goto" data-page="sect">查看招聘职位</button>';
+    return '<div class="ux-section-ribbon">职场人生</div><div class="ux-card">' + employment +
+      '<div class="ux-card-title">职级答辩</div>' + promotionAction + '</div>' +
+      skillHtml + '<div class="ux-section-ribbon">长期职业目标</div>' + (goals || H.emptyState('🎯', '暂无目标', '继续积累项目和工作履历'));
+  }
+
+  function showCareerResignModal() {
+    var life = fQuery('queryCareerLife');
+    var hud = fQuery('queryHUD');
+    if (!life || life.employment !== 'EMPLOYED') { H.toast('当前没有可结束的在职合同。', 'info'); return; }
+    var layer = H.popupLayer();
+    layer.innerHTML = '<div class="ux-modal-layer"><div class="ux-popup"><div class="ux-header" style="height:84px;border-radius:16px 16px 0 0;margin:0 -18px 16px">' +
+      '<span class="ux-header-title">确认离职</span></div><div class="ux-popup-card">' +
+      '<div class="ux-event-bubble">当前宗门：' + H.escHtml(life.sectId || '未知') + '<br>预计月薪：¥' + H.fmtNum(life.monthlySalary || 0) + '<br>当前钱包：¥' + H.fmtNum((hud && hud.salary) || 0) +
+      '<br>离职后固定工资停止，钱包、技能、卡牌和职业履历保留；已经完成工作的收入仍按原规则结算。你可以前往宗门页求职。</div>' +
+      '<div class="ux-dialog-actions"><button class="ux-btn ux-btn--gray ux-btn--md" data-action="closePopup">再考虑</button>' +
+      '<button class="ux-btn ux-btn--red ux-btn--md" data-action="careerResignConfirm">确认离职</button></div></div></div></div>';
   }
 
   /* ── 日结算页（§92/§93 手动入口） ── */
@@ -389,7 +455,8 @@
   /* ── 晋升答辩（§78-§82） ── */
 
   function promotionPageHtml(hud, kpi, next, readCareerAtFn) {
-    var check = fQuery('queryPromotionCheckV2');
+    var life = fQuery('queryCareerLife');
+    var check = life && life.promotion ? life.promotion : fQuery('queryPromotionCheckV2');
     if (!check) return null; // 演示模式回退
     var stageHtml =
       '<div class="ux-promo-stage">' +
@@ -442,14 +509,14 @@
       }[check.reason] || '条件未满足';
       btn = '<button class="ux-btn ux-btn--gray ux-btn--lg" disabled>' + H.escHtml(reasonText) + '</button>';
     }
-    return stageHtml + reqHtml + '<div class="ux-promo-action">' + btn + '</div>';
+    return stageHtml + careerLifeSectionHtml() + reqHtml + '<div class="ux-promo-action">' + btn + '</div>';
   }
 
   function showDefenseModal() {
     var f = H.facade();
     if (!f) { console.warn('[overlay] defense unavailable'); return; }
     var questions;
-    try { questions = f.startPromotionDefense(); } catch (e) { H.toast(H.errMsg(e), 'error'); return; }
+    try { questions = typeof f.startCareerPromotionInterview === 'function' ? f.startCareerPromotionInterview() : f.startPromotionDefense(); } catch (e) { H.toast(H.errMsg(e), 'error'); return; }
     var layer = H.popupLayer();
     var body = questions.map(function (q, i) {
       return '<div class="ux-defense-q">' +
@@ -478,7 +545,7 @@
         b.style.background = 'linear-gradient(180deg,var(--gold-hi),var(--gold))';
         if (answers.every(function (a) { return a !== null; })) {
           setTimeout(function () {
-            var score = f.submitPromotionDefense(answers);
+            var score = typeof f.submitCareerPromotionInterview === 'function' ? f.submitCareerPromotionInterview(answers) : f.submitPromotionDefense(answers);
             showDefenseResult(score);
           }, 350);
         }
@@ -660,5 +727,7 @@
     messengerIncidentBannerHtml: messengerIncidentBannerHtml,
     promotionPageHtml: promotionPageHtml,
     showDefenseModal: showDefenseModal,
+    careerLifeSectionHtml: careerLifeSectionHtml,
+    showCareerResignModal: showCareerResignModal,
   };
 })();

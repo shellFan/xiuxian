@@ -90,6 +90,7 @@ import { RebirthService } from '../services/rebirth-service';
 import { HomeService } from '../v59f/home-service';
 import { SectCareerService } from '../services/sect-career-service';
 import { SectProjectService } from '../services/sect-project-service';
+import { CareerLifeService } from '../services/career-life-service';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
 import craftConfig from '../../configs/craft.json';
@@ -246,6 +247,7 @@ export class GameContext {
   public readonly home: HomeService;
   public readonly sectCareer: SectCareerService;
   public readonly sectProjects: SectProjectService;
+  public readonly careerLife: CareerLifeService;
   public readonly homeArena: HomeArenaService;
   /** V5.9-J authoritative fate event queue and choice resolution. */
   public readonly fateEvents: FateEventService;
@@ -371,6 +373,7 @@ export class GameContext {
     this.homeArena = new HomeArenaService(this, options.clock, options.homeArenaSeed);
     this.sectCareer = new SectCareerService(this);
     this.sectProjects = new SectProjectService(this);
+    this.careerLife = new CareerLifeService(this);
     this.fateEvents = new FateEventService(this);
     this.rebirth = new RebirthService(this);
   }

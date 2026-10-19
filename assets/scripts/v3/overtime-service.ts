@@ -54,6 +54,7 @@ export class OvertimeService {
 
   public offer(source: Exclude<OvertimeSource, null>, free: boolean, plannedSeconds: number): OvertimeSession {
     this.assertDuration(plannedSeconds);
+    if (!free && this.context.player.eventFlags['career:unemployed'] === true) throw new Error('待业期间不能获得宗门带薪加班');
     if (!free) {
       const rule = this.context.sect.current()?.employment?.overtimeRule;
       if (rule && rule !== 'SELF_DIRECTED' && rule !== 'PRE_APPROVED') {
@@ -85,6 +86,7 @@ export class OvertimeService {
    * reload returns the original decision instead of drawing another roll. */
   public applyForApproval(plannedSeconds: number): OvertimeApplicationState {
     this.assertApprovedDuration(plannedSeconds);
+    if (this.context.player.eventFlags['career:unemployed'] === true) throw new Error('待业期间不能申请宗门带薪加班');
     this.gameDay.ensureStarted();
     const dayIndex = Math.max(1, this.gameDay.dayIndex());
     const previous = this.context.player.overtimeApplications.find((entry) => entry.dayIndex === dayIndex);
@@ -115,6 +117,7 @@ export class OvertimeService {
 
   /** Start paid work only from a successful, current-day approval record. */
   public startApprovedOvertime(applicationId: string): OvertimeSession {
+    if (this.context.player.eventFlags['career:unemployed'] === true) throw new Error('待业期间不能开始宗门带薪加班');
     const application = this.context.player.overtimeApplications.find((entry) => entry.id === applicationId);
     if (!application || application.status !== 'APPROVED') throw new Error('加班申请未获批准或已使用');
     if (application.dayIndex !== Math.max(1, this.gameDay.dayIndex())) throw new Error('加班审批已过期');

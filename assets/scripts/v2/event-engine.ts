@@ -148,6 +148,8 @@ export interface EventDefinition {
   readonly maxMinuteOfDay?: number;
   /** 仅在显式加班会话进行时可触发。 */
   readonly requiresOvertime?: boolean;
+  /** Gate workplace-only content when the canonical career contract is active. */
+  readonly requiresEmployment?: boolean;
   /** 默认工作日事件不在周末触发；此字段允许周末内容。 */
   readonly allowWeekend?: boolean;
   /** 内容分类：夜班 Boss，供内容校验和后续 dungeon 投影使用。 */
@@ -190,6 +192,8 @@ export interface EventWorldState {
   /** 今日局势 modifier ids。 */
   situationIds: string[];
   sectId: string | null;
+  /** Derived from the canonical employment lifecycle flag; never persisted separately. */
+  employed?: boolean;
   relationships: Record<string, number>;
   materials: Record<string, number>;
   ownedTechniques: readonly string[];
@@ -230,6 +234,7 @@ export function checkEventConditions(def: EventDefinition, world: EventWorldStat
   if (def.minCareer !== undefined && world.careerLevel < def.minCareer) return false;
   if (def.maxCareer !== undefined && world.careerLevel > def.maxCareer) return false;
   if (def.allowedModes && !def.allowedModes.includes(world.workMode)) return false;
+  if (def.requiresEmployment && world.employed !== true) return false;
   if (!checkRequirements(def.conditions, world)) return false;
   const isWeekend = world.weekday === 0 || world.weekday === 6;
   // 工作日内容不会挤入周末；周末夜班内容必须显式声明。

@@ -73,6 +73,9 @@ export class WorkService {
    * but UI must derive all units from this one authoritative nominal hourly rate.
    */
   public incomeRate(): WorkIncomeRate {
+    if (this.context.player.eventFlags['career:unemployed'] === true) {
+      return Object.freeze({ perSecond: 0, perMinute: 0, perHour: 0 });
+    }
     const mode = this.mode;
     const rules = MODE_RULES[mode];
     const override = this.options.modeMultipliers?.[mode];
@@ -155,7 +158,8 @@ export class WorkService {
       paidWorkMultiplier,
       this.context.player.regularWorkRewardRemainders.salary,
     );
-    const salary = mode === 'WORK' ? salaryProjection.reward : baseSalary;
+    const employed = this.context.player.eventFlags['career:unemployed'] !== true;
+    const salary = employed ? (mode === 'WORK' ? salaryProjection.reward : baseSalary) : 0;
     const attributeCultivationExp = applyCharacterEffectToInteger(
       Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier),
       this.context.player,
@@ -177,8 +181,11 @@ export class WorkService {
       this.context.cultivation.applyIdleExperience(cultivationExp);
       const actualMindDelta = this.context.mind.applyDelta(mindDelta);
       this.context.player[secondsKey] = nextSeconds;
-      if (mode === 'WORK') this.context.player.regularWorkRewardRemainders = { salary: salaryProjection.remainder, cultivation: cultivationProjection.remainder };
-      this.context.player.salaryRemainder = salaryResult.remainder;
+      if (mode === 'WORK') this.context.player.regularWorkRewardRemainders = {
+        salary: employed ? salaryProjection.remainder : this.context.player.regularWorkRewardRemainders.salary,
+        cultivation: cultivationProjection.remainder,
+      };
+      if (employed) this.context.player.salaryRemainder = salaryResult.remainder;
       this.context.player.cultivationRemainder = cultivationResult.remainder;
       this.context.player[mindRemainderKey] = mindResult.remainder;
       // V4: 实时工资全额记入当日结算账本（此前仅事件工资入账，日报少记普通工资）。

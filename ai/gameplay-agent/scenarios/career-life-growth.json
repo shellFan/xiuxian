@@ -1,0 +1,23 @@
+{
+  "id": "career-life-growth",
+  "title": "Use the career panel and NPC page through packaged game controls",
+  "setup": "new-player",
+  "setupFailureClass": "SETUP_BLOCKED",
+  "steps": [
+    { "action": "click", "selector": "[data-nav=\"PROMOTION\"]", "description": "Open career promotion from the normal bottom navigation" },
+    { "action": "waitFor", "selector": "[data-action=\"careerResignPrompt\"]", "state": "visible", "timeoutMs": 4000, "description": "Confirm the career-life panel is rendered in the existing promotion screen" },
+    { "action": "screenshot", "name": "career-life-panel", "description": "Capture employment, promotion, skill and long-term-goal UI" },
+    { "action": "click", "selector": "[data-action=\"careerResignPrompt\"]", "description": "Open the in-game resignation review before changing employment" },
+    { "action": "assertVisible", "selector": ".ux-modal-layer [data-action=\"careerResignConfirm\"]", "description": "The review explains current employment and what changes after leaving" },
+    { "action": "click", "selector": ".ux-modal-layer [data-action=\"closePopup\"]", "description": "Dismiss the review without changing the save" },
+    { "action": "call", "method": "queryCareerLife", "as": "careerBeforeNpc", "asType": "object", "description": "Read the authoritative career relationship before the UI interaction" },
+    { "action": "click", "selector": "[data-nav=\"HOME\"]", "popupChoiceSelector": ".ux-modal-layer [data-vevent-choice=\"__auto\"], .ux-modal-layer #V2EventOk, .ux-modal-layer [data-weekend=\"SECLUDED_CULTIVATE\"], .ux-weekly-popup .ux-week-close", "description": "Return to the playable home screen, resolving any visible gameplay recap through its real close/choice button first" },
+    { "action": "waitFor", "selector": "[data-action=\"goto\"][data-page=\"npc\"]", "state": "visible", "timeoutMs": 4000, "description": "Wait for the existing relationship shortcut" },
+    { "action": "click", "selector": "[data-action=\"goto\"][data-page=\"npc\"]", "description": "Open the existing NPC relationship page" },
+    { "action": "waitFor", "selector": "[data-action=\"careerNpcInteract\"][data-npc=\"BOSS\"][data-kind=\"SUPPORT\"]", "state": "visible", "timeoutMs": 4000, "description": "Wait for the supported relationship action" },
+    { "action": "click", "selector": "[data-action=\"careerNpcInteract\"][data-npc=\"BOSS\"][data-kind=\"SUPPORT\"]", "description": "Support the manager through the visible NPC interaction control" },
+    { "action": "call", "method": "queryCareerLife", "as": "careerAfterNpc", "asType": "object", "description": "Read the authoritative persisted relationship projection after the UI action" },
+    { "action": "assert", "check": "gt", "path": "@vars.careerAfterNpc.relationships[0].trust", "expected": "@vars.careerBeforeNpc.relationships[0].trust", "description": "The visible support action changes memory-backed trust" },
+    { "action": "screenshot", "name": "career-npc-relationship", "description": "Capture the updated NPC relation metrics and memories" }
+  ]
+}

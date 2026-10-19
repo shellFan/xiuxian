@@ -902,6 +902,20 @@ export class GameFacade {
   }
   public acceptSectOffer(applicationId: string) { return this.context.sectCareer.acceptOffer(applicationId); }
 
+  /** V5.9-N career growth, NPC relationship and employment lifecycle projections. */
+  public queryCareerLife() { return this.context.careerLife.view(); }
+  public interactWithNpc(npcId: string, action: import('../services/career-life-service').CareerInteraction) {
+    return this.context.careerLife.interact(npcId, action);
+  }
+  public resignCareer() { return this.context.careerLife.resign(); }
+  public resolveCareerLayoff() { return this.context.careerLife.resign('LAID_OFF'); }
+  public checkCareerPromotion() { return this.context.careerLife.promotionCheck(); }
+  public startCareerPromotionInterview() { return this.context.careerLife.startPromotionInterview(); }
+  public submitCareerPromotionInterview(answers: readonly string[]) {
+    return this.context.careerLife.submitPromotionInterview(answers);
+  }
+  public claimCareerGoal(goalId: string) { return this.context.careerLife.claimGoal(goalId); }
+
   /** Talent config by ID. */
   public queryTalent(id: string | null) {
     return id ? this.context.configService.talent.talents.find(t => t.id === id) : undefined;

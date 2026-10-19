@@ -26,7 +26,7 @@ export class SectCareerService {
     return this.context.sect.available().map((sect) => ({
       id: sect.id,
       name: sect.name,
-      current: sect.id === this.context.player.sectId,
+      current: this.context.player.eventFlags['career:unemployed'] !== true && sect.id === this.context.player.sectId,
       salaryEstimate: Math.round(120 * sect.modifiers.salaryMultiplier * (PROFESSION_WAGE[profession] ?? 1)),
       salaryMultiplier: sect.modifiers.salaryMultiplier,
       overtimeRule: sect.employment?.overtimeRule ?? 'REQUEST',
@@ -42,12 +42,15 @@ export class SectCareerService {
 
   public apply(sectId: string): SectJobApplicationState {
     const target = this.context.sect.get(sectId as SectId);
-    const current = this.context.player.sectId;
+    const unemployed = this.context.player.eventFlags['career:unemployed'] === true;
+    const current = this.context.player.sectId
+      ?? this.context.player.sectCareerHistory[this.context.player.sectCareerHistory.length - 1]?.sectId
+      ?? null;
     if (!current) throw new Error('尚未选择当前宗门');
-    if (target.id === current) throw new Error('已经在该宗门任职');
+    if (target.id === current && !unemployed) throw new Error('已经在该宗门任职');
     if (this.context.player.pendingSectContract) throw new Error('已有待生效的新合同');
     const now = this.context.clockV2.now();
-    if (this.context.player.lastSectSwitchTime > 0 && now - this.context.player.lastSectSwitchTime < SWITCH_COOLDOWN_MS) {
+    if (!unemployed && this.context.player.lastSectSwitchTime > 0 && now - this.context.player.lastSectSwitchTime < SWITCH_COOLDOWN_MS) {
       throw new Error('跳槽冷却中，请先稳定履职');
     }
     const dayIndex = Math.max(1, this.context.gameDay.dayIndex());
@@ -112,6 +115,9 @@ export class SectCareerService {
     history.push({ sectId: pending.sectId, startedAt: now });
     this.context.player.sectCareerHistory = history.slice(-30);
     this.context.player.sectId = pending.sectId;
+    const eventFlags = { ...this.context.player.eventFlags };
+    delete eventFlags['career:unemployed'];
+    this.context.player.eventFlags = eventFlags;
     this.syncActiveSectFlags();
     this.context.player.lastSectSwitchTime = now;
     this.context.player.pendingSectContract = null;

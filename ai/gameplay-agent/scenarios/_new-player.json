@@ -41,7 +41,7 @@
     {"action":"assert","check":"equals","path":"@vars.destinyStep.draft.step","expected":"DESTINY"},
     {"action":"screenshot","name":"creation-destiny"},
     {"action":"scroll","selector":".v59-step-content","deltaY":120,"description":"Scroll the tall destiny candidate cards into the visible area"},
-    {"action":"click","selector":"[data-creation-choice=\"candidate:A\"]","description":"Choose a destiny candidate"},
+    {"action":"clickUntilState","selector":"[data-creation-choice=\"candidate:A\"]","method":"queryCharacterCreation","path":"draft.selectedCandidateId","from":null,"expected":"A","maxAttempts":3,"timeoutMs":1000,"description":"Choose a destiny candidate and verify the authoritative draft records it before advancing"},
     {"action":"wait","ms":300,"description":"Allow the selected destiny to settle before advancing"},
     {"action":"clickUntilState","selector":"[data-creation-action=\"advance\"]","method":"queryCharacterCreation","path":"draft.step","from":"DESTINY","expected":"ALLOCATION","maxAttempts":3,"timeoutMs":1000,"description":"Advance to allocation and verify the authoritative wizard state"},
     {"action":"call","method":"queryCharacterCreation","as":"allocationStep"},

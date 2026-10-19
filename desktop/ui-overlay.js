@@ -2482,7 +2482,7 @@
       btn = '<button class="ux-btn ux-btn--gray ux-btn--lg" disabled>渡劫晋升</button>';
     }
 
-    return stageHtml + reqHtml + '<div class="ux-promo-action">' + btn + '</div>';
+    return stageHtml + (V2 && V2.careerLifeSectionHtml ? V2.careerLifeSectionHtml() : '') + reqHtml + '<div class="ux-promo-action">' + btn + '</div>';
   }
 
   function kpiShortLabel(type) {
@@ -4102,6 +4102,41 @@
             });
           }
           break;
+        case 'careerNpcInteract': {
+          var fCareerNpc = facade();
+          if (!fCareerNpc || typeof fCareerNpc.interactWithNpc !== 'function') break;
+          try {
+            var relationshipResult = fCareerNpc.interactWithNpc(el.dataset.npc, el.dataset.kind);
+            toast(relationshipResult.success ? '关系互动已记录。' : relationshipResult.reason || '今天无法进行这项互动。', relationshipResult.success ? 'success' : 'info');
+          } catch (e) { toast(errMsg(e), 'error'); }
+          fullRefresh();
+          break;
+        }
+        case 'careerGoalClaim': {
+          var fCareerGoal = facade();
+          if (!fCareerGoal || typeof fCareerGoal.claimCareerGoal !== 'function') break;
+          try {
+            var goalResult = fCareerGoal.claimCareerGoal(el.dataset.id);
+            toast(goalResult.success ? '职业目标奖励已领取。' : goalResult.reason || '目标奖励暂不可领取。', goalResult.success ? 'success' : 'info');
+          } catch (e) { toast(errMsg(e), 'error'); }
+          fullRefresh();
+          break;
+        }
+        case 'careerResignPrompt': {
+          if (V2 && V2.showCareerResignModal) V2.showCareerResignModal();
+          break;
+        }
+        case 'careerResignConfirm': {
+          var fCareerResign = facade();
+          if (!fCareerResign || typeof fCareerResign.resignCareer !== 'function') break;
+          try {
+            var resignResult = fCareerResign.resignCareer();
+            toast(resignResult.success ? '已离职，进入待业求职期。' : resignResult.reason || '离职未完成。', resignResult.success ? 'success' : 'info');
+          } catch (e) { toast(errMsg(e), 'error'); }
+          closePopup();
+          fullRefresh();
+          break;
+        }
         case 'doSettle': {
           var fSettle = facade();
           if (fSettle) {

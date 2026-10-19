@@ -165,7 +165,8 @@ export class IdleService {
     // Sect offline gain multiplier (Web V1: 国企宗 离线收益+20%)
     const sect = this.context.sect.current();
     const offlineGain = sect?.modifiers.offlineGainMultiplier ?? 1;
-    const salary = Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600 * offlineGain);
+    const employed = this.context.player.eventFlags['career:unemployed'] !== true;
+    const salary = employed ? Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600 * offlineGain) : 0;
     const cultivationExp = Math.floor(this.rateForBoard(this.cultivationPerHour) * elapsedSeconds / 3600 * offlineGain);
     const spiritStones = Math.floor(this.spiritStonesPerHour * elapsedSeconds / 3600 * offlineGain);
     return { salary, cultivationExp, spiritStones, elapsedSeconds, rawElapsedSeconds: deltaMilliseconds / 1000, capped, anomaly: false, now, projection };

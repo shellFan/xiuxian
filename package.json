@@ -58,7 +58,8 @@
     "gameplay-agent:sect-creation": "node ai/gameplay-agent/index.cjs test --scenario=sect-character-creation",
     "gameplay-agent:sect-project": "node ai/gameplay-agent/index.cjs test --scenario=sect-project-contract",
     "gameplay-agent:sect-career": "node ai/gameplay-agent/index.cjs test --scenario=sect-career-interview",
-    "gameplay-agent:m-acceptance": "node ai/gameplay-agent/index.cjs test --scenario=sect-character-creation,economy,time-save,sect-overtime-approval,sect-project-contract,sect-career-interview"
+    "gameplay-agent:m-acceptance": "node ai/gameplay-agent/index.cjs test --scenario=sect-character-creation,economy,time-save,sect-overtime-approval,sect-project-contract,sect-career-interview",
+    "gameplay-agent:n-career": "node ai/gameplay-agent/index.cjs test --scenario=career-life-growth"
   },
   "dependencies": {
     "ajv": "^8.17.1",

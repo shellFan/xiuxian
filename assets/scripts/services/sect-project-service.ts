@@ -100,6 +100,9 @@ export class SectProjectService {
       this.context.kpi.recordSalaryEarned(salary);
       this.context.player.performance = Math.max(0, this.context.player.performance + contract.rewardPerformance);
       this.context.gameDay.addIncome('performance', contract.rewardPerformance);
+      if (contract.risk === 'HIGH') {
+        this.context.player.eventFlags = { ...this.context.player.eventFlags, 'career:goal:high-risk-project': true };
+      }
     } else {
       const penalty = contract.risk === 'HIGH' ? 8 : contract.risk === 'MEDIUM' ? 4 : 2;
       this.context.player.performance = Math.max(0, this.context.player.performance - penalty);
