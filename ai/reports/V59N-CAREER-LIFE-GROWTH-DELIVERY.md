@@ -6,7 +6,7 @@
 
 - 仓库基线：`64f665394dc352466b1c93fcc91859160d17b497`
 - 分支：`feature/v59n-career-life-growth`
-- 本地提交：待提交；本轮不推送、不合并。
+- N 基础阶段本地提交：`2ccc768` (`feat: add career life growth foundation`)；本轮不推送、不合并。
 - 先核对了 [`V59M-SECT-WORKLIFE-ECONOMY-DELIVERY.md`](./V59M-SECT-WORKLIFE-ECONOMY-DELIVERY.md) 和 `566c7e5` 变更。M 报告记载八大宗门、工资调制、项目、加班审批、生活活动、日结和跳槽集成；本轮 Gate 中相关经济、项目、加班和角色创建场景通过。完整 Gate 的面试场景最初被建角前置步骤阻断，修正状态断言后定向重测通过。
 - 未接触原工作区 `D:\git\fan\xiuxian` 或正式玩家存档。所有 EXE 场景使用 GamePlay Agent 隔离测试档案。
 
