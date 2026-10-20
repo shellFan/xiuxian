@@ -8,6 +8,7 @@
     { "action": "click", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]" },
     { "action": "waitFor", "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]", "timeoutMs": 5000 },
     { "action": "click", "selector": "[data-action=\"cardDrawEvent\"]", "description": "Draw a battle event from the seeded authoritative event stream" },
+    { "action": "clickIfPresent", "selector": "#V2EventOk", "timeoutMs": 3000, "description": "Acknowledge a real Fate result popup through its visible button if the normal game clock presents one over combat" },
     { "action": "waitFor", "selector": ".ux-cardbattle-event [data-action=\"cardEvent\"][data-choice=\"A\"]", "timeoutMs": 5000 },
     { "action": "call", "method": "queryCardBattle", "as": "pending", "asType": "object" },
     { "action": "assert", "check": "equals", "path": "@vars.pending.pendingEventId", "expected": "EVT-07", "description": "The fixed event seed produces the rare-card encounter" },

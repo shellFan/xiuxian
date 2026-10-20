@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const script = readFileSync('desktop/ui-home-arena.js', 'utf8');
+const overlay = readFileSync('desktop/ui-overlay.js', 'utf8');
 const style = readFileSync('desktop/ui-home-arena.css', 'utf8');
 const overlayV2 = readFileSync('desktop/ui-overlay-v2.js', 'utf8');
 
@@ -16,7 +17,9 @@ assert.match(script, /data-fate-choice/);
 assert.match(script, /fate-event-card/);
 assert.match(style, /\.fate-event-card[^}]*position:absolute/);
 assert.match(style, /\.fate-event-card[^}]*right:/);
-assert.match(script, /attack\.disabled\s*=\s*!v\.ready\s*\|\|\s*v\.complete\s*\|\|\s*paused/);
+assert.match(script, /data-action="homeCardBattle"/);
+assert.doesNotMatch(script, /attackHomeArena\s*\(/, 'home enemy clicks must not trigger legacy direct combat damage');
+assert.match(overlay, /case 'homeCardBattle':[\s\S]{0,800}startCardBattle\(/, 'the home combat action must enter the authoritative card battle');
 assert.match(script, /id="FateRunPanel"/);
 assert.match(script, /data-fate-challenge/);
 assert.match(script, /data-fate-talent/);

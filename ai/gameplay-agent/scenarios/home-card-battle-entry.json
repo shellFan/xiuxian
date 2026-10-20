@@ -1,0 +1,22 @@
+{
+  "id": "home-card-battle-entry",
+  "title": "The normal home combat entrance starts turn-based cards and enemy clicks deal no damage",
+  "setup": "new-player",
+  "steps": [
+    { "action": "setViewport", "width": 1280, "height": 720 },
+    { "action": "assertClickable", "selector": "#ArenaAttack", "description": "The ordinary combat entry is visible from the playable home" },
+    { "action": "screenshot", "name": "home-combat-entry" },
+    { "action": "click", "selector": "#ArenaAttack", "description": "Enter combat using the normal home battle button" },
+    { "action": "waitFor", "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]", "timeoutMs": 5000 },
+    { "action": "call", "method": "queryCardBattle", "as": "opening", "asType": "object" },
+    { "action": "assert", "check": "equals", "path": "@vars.opening.piles.hand.length", "expected": 5 },
+    { "action": "assert", "check": "equals", "path": "@vars.opening.player.energy", "expected": 3 },
+    { "action": "screenshot", "name": "home-entry-card-battle-hand" },
+    { "action": "clickIfPresent", "selector": ".arena-enemy-target, [data-arena=\"attack\"]", "timeoutMs": 3000, "description": "Attempt the legacy enemy-click action if that target is still rendered" },
+    { "action": "call", "method": "queryCardBattle", "as": "afterEnemyClick", "asType": "object" },
+    { "action": "assert", "check": "equals", "path": "@vars.afterEnemyClick.enemies[0].hp", "expected": "@vars.opening.enemies[0].hp" },
+    { "action": "assert", "check": "equals", "path": "@vars.afterEnemyClick.hitLog.length", "expected": "@vars.opening.hitLog.length" },
+    { "action": "assert", "check": "equals", "path": "@vars.afterEnemyClick.phase", "expected": "PLAYER_ACTION" },
+    { "action": "screenshot", "name": "enemy-click-did-not-hit" }
+  ]
+}

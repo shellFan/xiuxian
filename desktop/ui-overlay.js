@@ -3836,6 +3836,17 @@
           _subPage = null;
           fullRefresh();
           break;
+        case 'homeCardBattle': {
+          var fHomeCardBattle = facade();
+          if (!fHomeCardBattle || typeof fHomeCardBattle.startCardBattle !== 'function') { toast('卡牌战斗服务尚未就绪', 'error'); break; }
+          try {
+            if (!fHomeCardBattle.queryCardBattle()) fHomeCardBattle.startCardBattle('NORMAL');
+            _screen = 'PROJECT'; _subPage = null;
+            toast('进入卡牌战场：先观察敌方意图，再选择出牌。', 'success');
+            fullRefresh();
+          } catch (e) { toast(errMsg(e), 'error'); }
+          break;
+        }
         case 'openPending': {
           var activeForResume = queryActiveIncident();
           if (activeForResume && activeIncidentBattle(activeForResume)) {

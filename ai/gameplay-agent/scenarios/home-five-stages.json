@@ -1,13 +1,83 @@
 {
   "id": "home-five-stages",
-  "title": "Paced homepage campaign: five stages, real loot and EXE restart",
+  "title": "Homepage standard combat opens the five-card turn-based battle, not the legacy click arena",
   "setup": "new-player",
   "steps": [
-    { "action": "setViewport", "width": 1280, "height": 720 },
-    { "action": "assertClickable", "selector": "#ArenaAttack" },
-    { "action": "assert", "check": "inBounds", "selector": "#ArenaAttack" },
-    { "action": "assert", "check": "inBounds", "selector": "#ArenaHp" },
-    { "action": "assert", "check": "inBounds", "selector": "#ArenaStorm" },
-    { "action": "homeArenaPlay", "seed": 5911, "clickIntervalMs": 400 }
+    {
+      "action": "setViewport",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "action": "assertClickable",
+      "selector": "#ArenaAttack",
+      "description": "The normal combat entry is visible on the playable home"
+    },
+    {
+      "action": "assert",
+      "check": "notObscured",
+      "selector": "#ArenaAttack",
+      "description": "The normal combat entry is not covered by another panel"
+    },
+    {
+      "action": "click",
+      "selector": "#ArenaAttack",
+      "description": "Enter normal combat from the home page"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]",
+      "timeoutMs": 5000
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "opening",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.opening.piles.hand.length",
+      "expected": 5
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.opening.player.energy",
+      "expected": 3
+    },
+    {
+      "action": "screenshot",
+      "name": "home-default-is-card-battle"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".arena-enemy-target, [data-arena=\"attack\"]",
+      "timeoutMs": 3000,
+      "description": "Attempt legacy direct attack only if an old target is visible"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "afterDirectClick",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.afterDirectClick.enemies[0].hp",
+      "expected": "@vars.opening.enemies[0].hp"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.afterDirectClick.hitLog.length",
+      "expected": "@vars.opening.hitLog.length"
+    },
+    {
+      "action": "screenshot",
+      "name": "no-legacy-enemy-click"
+    }
   ]
 }

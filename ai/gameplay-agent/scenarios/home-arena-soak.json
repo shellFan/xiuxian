@@ -1,9 +1,376 @@
 {
   "id": "home-arena-soak",
-  "title": "Twenty real minutes of paced homepage play and retained-resource sampling",
+  "title": "Twenty real minutes with the normal homepage card battle open; verify no hidden attacks or turns",
   "setup": "new-player",
   "steps": [
-    { "action": "setViewport", "width": 1280, "height": 720 },
-    { "action": "homeArenaSoak", "seed": 5911, "clickIntervalMs": 400, "durationMs": 1200000 }
+    {
+      "action": "setViewport",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "action": "click",
+      "selector": "#ArenaAttack",
+      "description": "Enter normal card combat from the home page"
+    },
+    {
+      "action": "waitFor",
+      "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]",
+      "timeoutMs": 5000
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "opening",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.opening.piles.hand.length",
+      "expected": 5
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.opening.player.energy",
+      "expected": 3
+    },
+    {
+      "action": "screenshot",
+      "name": "card-battle-soak-start"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 1/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 2/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 3/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 4/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 5/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 6/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 7/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 8/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 9/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 10/40"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "soakMark1",
+      "asType": "object",
+      "description": "Record authoritative card-battle state after 5 real minutes"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark1.enemies[0].hp",
+      "expected": "@vars.opening.enemies[0].hp",
+      "description": "Idle combat cannot deal unearned enemy damage"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark1.hitLog.length",
+      "expected": "@vars.opening.hitLog.length",
+      "description": "No hidden attack loop can bypass card input"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark1.turn",
+      "expected": "@vars.opening.turn",
+      "description": "No turn advances without a player action"
+    },
+    {
+      "action": "screenshot",
+      "name": "card-battle-soak-5m"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 11/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 12/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 13/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 14/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 15/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 16/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 17/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 18/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 19/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 20/40"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "soakMark2",
+      "asType": "object",
+      "description": "Record authoritative card-battle state after 10 real minutes"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark2.enemies[0].hp",
+      "expected": "@vars.opening.enemies[0].hp",
+      "description": "Idle combat cannot deal unearned enemy damage"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark2.hitLog.length",
+      "expected": "@vars.opening.hitLog.length",
+      "description": "No hidden attack loop can bypass card input"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark2.turn",
+      "expected": "@vars.opening.turn",
+      "description": "No turn advances without a player action"
+    },
+    {
+      "action": "screenshot",
+      "name": "card-battle-soak-10m"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 21/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 22/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 23/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 24/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 25/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 26/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 27/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 28/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 29/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 30/40"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "soakMark3",
+      "asType": "object",
+      "description": "Record authoritative card-battle state after 15 real minutes"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark3.enemies[0].hp",
+      "expected": "@vars.opening.enemies[0].hp",
+      "description": "Idle combat cannot deal unearned enemy damage"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark3.hitLog.length",
+      "expected": "@vars.opening.hitLog.length",
+      "description": "No hidden attack loop can bypass card input"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark3.turn",
+      "expected": "@vars.opening.turn",
+      "description": "No turn advances without a player action"
+    },
+    {
+      "action": "screenshot",
+      "name": "card-battle-soak-15m"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 31/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 32/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 33/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 34/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 35/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 36/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 37/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 38/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 39/40"
+    },
+    {
+      "action": "wait",
+      "ms": 30000,
+      "description": "Hold the packaged card battle open for real wall-clock sample 40/40"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "soakMark4",
+      "asType": "object",
+      "description": "Record authoritative card-battle state after 20 real minutes"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark4.enemies[0].hp",
+      "expected": "@vars.opening.enemies[0].hp",
+      "description": "Idle combat cannot deal unearned enemy damage"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark4.hitLog.length",
+      "expected": "@vars.opening.hitLog.length",
+      "description": "No hidden attack loop can bypass card input"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.soakMark4.turn",
+      "expected": "@vars.opening.turn",
+      "description": "No turn advances without a player action"
+    },
+    {
+      "action": "screenshot",
+      "name": "card-battle-soak-20m"
+    },
+    {
+      "action": "screenshot",
+      "name": "card-battle-soak-end"
+    }
   ]
 }

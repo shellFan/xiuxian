@@ -126,50 +126,30 @@
   }
   function update() {
     var f = facade(), root = document.getElementById('HomeArena');
-    if (!f || !f.queryHomeArena) return;
-    f.setHomeArenaActive(active());
+    if (!f) return;
+    if (f.setHomeArenaActive) f.setHomeArenaActive(false);
     if (!root) { pool = []; return; }
-    if (soundFacade !== f) { f.context.sound.setPlayer({ play: play }); soundFacade = f; }
-    var v = read(); if (!v) return;
+    var cardBattle = null;
+    try { cardBattle = f.queryCardBattle ? f.queryCardBattle() : null; } catch (_) {}
     updateFateCard(f);
-    root.classList.toggle('arena-reduced', !!options.reduced);
-    text('ArenaStage', '第 ' + v.stage + ' 关 / 5'); text('ArenaTitle', v.stageName);
-    text('ArenaEnemyName', v.enemy.name); text('ArenaHp', v.enemy.hp + ' / ' + v.enemy.maxHp);
-    text('ArenaProgress', v.complete ? '五关已通关 · 战利品已自动保存' : '击败 ' + v.kills + ' / ' + v.enemyTotal);
-    text('ArenaPower', '攻击 ' + v.attack + ' · 暴击 ' + Math.round(v.critChance * 100) + '%');
-    text('ArenaCombo', v.combo > 1 ? v.combo + ' 连击 · 伤害 +' + Math.round(v.comboBonus * 100) + '%' : '2 秒内连续攻击，叠加连击');
-    text('ArenaAuto', v.autoUnlocked ? (active() ? '自动攻击 · 每 2 秒一次' : '自动攻击 · 暂停') : '第 3 关解锁自动攻击');
-    text('ArenaPreview', v.rewardPreview);
-    var hpbar = root.querySelector('.arena-hp-fill'); hpbar.style.width = Math.max(0, v.enemy.hp / v.enemy.maxHp * 100) + '%';
-    root.classList.toggle('arena-elite', v.enemy.elite);
-    if (lastEnemy !== v.enemy.id && v.enemy.elite) flash(root.querySelector('.arena-bug'), 'arena-elite-entry 600ms ease-out');
-    lastEnemy = v.enemy.id;
-    var attack = document.getElementById('ArenaAttack'); attack.disabled = !v.ready || v.complete || paused; attack.dataset.enemy = v.enemy.id;
-    attack.textContent = v.complete ? '五关首通完成 ✓' : paused ? '战斗暂停' : '⚡ 点击攻击';
-    var skill = document.getElementById('ArenaStorm'); skill.disabled = !v.skillUnlocked || v.skillRemainingMs > 0 || v.complete || paused;
-    skill.textContent = !v.skillUnlocked ? '代码风暴 · 第 4 关解锁' : v.skillRemainingMs > 0 ? '代码风暴 · ' + (v.skillRemainingMs / 1000).toFixed(1) + 's' : '代码风暴 · 5 连击';
-    skill.title = '每击基础伤害 ' + v.attack + '，共 5 次；冷却 30 秒';
-    document.getElementById('ArenaReplay').hidden = !v.complete;
-    text('ArenaPause', paused ? '继续战斗' : '暂停战斗 · 处理待办');
-    text('ArenaDrops', '击杀修为 +' + v.rewards.experience + ' · 代码碎片 ×' + (v.rewards.materials.mat_code_fragment || 0) + ' · 晶核 ×' + (v.rewards.materials.mat_bug_crystal || 0));
-    var hits = f.queryHomeArenaHits(); hits.forEach(function (hit) { hitFx(root, hit); });
+    text('ArenaStage', '常规战斗');
+    text('ArenaTitle', cardBattle ? '卡牌战斗进行中' : '回合制卡牌攻坚');
+    text('ArenaPower', '每回合 3 点能量 · 抽取 5 张手牌');
+    text('ArenaProgress', cardBattle ? '你的卡牌战斗已保存，可继续出牌或结束回合。' : '攻击、防御与技能卡均通过出牌产生效果。');
+    var attack = document.getElementById('ArenaAttack');
+    if (attack) attack.textContent = cardBattle ? '继续卡牌战斗' : '⚔️ 开始卡牌战斗';
   }
   function loop(now) { if (now - lastPaint >= 100) { lastPaint = now; update(); } frame = requestAnimationFrame(loop); }
   function render() {
-    return '<section id="HomeArena" class="home-arena" aria-label="主页闯关战场">' +
+    return '<section id="HomeArena" class="home-arena home-arena--card-entry" aria-label="主页常规战斗入口">' +
       '<header class="arena-heading"><span id="ArenaStage"></span><b id="ArenaTitle"></b><small id="ArenaPower"></small></header>' +
       '<section id="FateEventCard" class="fate-event-card" aria-label="命运事件" aria-live="polite" hidden><small id="FateEventCount">命运事件</small><strong id="FateEventTitle"></strong><p id="FateEventDescription"></p><div id="FateEventChoices" class="fate-event-choices"></div><p id="FateEventResult" aria-live="polite"></p></section>' +
       '<section id="FateRunPanel" class="fate-run-panel" aria-label="本轮命运状态" hidden><strong id="FateRunSummary"></strong><small id="FateRunKarma"></small><small id="FateNpcRelations"></small><div id="FateChallengeControls"></div><div id="FateTalentList"></div></section>' +
-      '<div class="arena-enemy-head"><strong id="ArenaEnemyName"></strong><span id="ArenaHp"></span></div><div class="arena-hp"><i class="arena-hp-fill"></i></div>' +
       '<div class="arena-progress" id="ArenaProgress"></div>' +
-      '<div class="arena-scene"><div class="arena-desk-lines"></div><div class="arena-player"><span>🧑‍💻</span><i>编译仙剑</i></div>' +
-      '<button class="arena-enemy-target" data-arena="attack" aria-label="攻击当前敌人"><div class="arena-bug"><i class="arena-antenna"></i><span class="arena-eye"></span><span class="arena-eye"></span><b>BUG</b><i class="arena-legs"></i></div></button>' +
-      '<div class="arena-code-rain">{ } &lt;/&gt; 0101<br>const BUG = 0;<br>⚡ await fix() ⚡</div><div class="arena-floats" aria-live="off"></div><div class="arena-victory" id="ArenaVictory"></div></div>' +
-      '<div class="arena-combo" id="ArenaCombo"></div><div class="arena-reward" id="ArenaReward">击败 Bug 获得修为与材料，工资继续由工作系统结算。</div>' +
-      '<button id="ArenaAttack" class="arena-attack" data-arena="attack">⚡ 点击攻击</button>' +
-      '<div class="arena-abilities"><span id="ArenaAuto"></span><button id="ArenaStorm" data-arena="storm"></button></div>' +
-      '<div class="arena-loot"><span>本关首通 <b id="ArenaPreview"></b></span><span id="ArenaDrops"></span></div>' +
-      '<footer class="arena-options"><button id="ArenaPause" data-arena="pause"></button><button data-fate-journal>命运记录</button><button data-arena="reduced">低特效</button><button data-arena="shake">震动</button><button data-arena="sound">音效</button><button id="ArenaReplay" data-arena="replay" hidden>复盘演练（无重复奖励）</button></footer></section>';
+      '<div class="arena-card-entry-art" aria-hidden="true"><span>⚔️</span><b>出牌决胜</b><i>观察敌方意图，分配能量，构筑你的回合</i></div>' +
+      '<button id="ArenaAttack" class="arena-attack arena-card-entry-button" data-action="homeCardBattle">⚔️ 开始卡牌战斗</button>' +
+      '<div class="arena-card-entry-meta"><span>攻击牌 · 防御牌 · 职业技能</span><span>抽牌堆 · 弃牌堆 · 战斗奖励</span></div>' +
+      '<footer class="arena-options"><button data-fate-journal>命运记录</button></footer></section>';
   }
   document.addEventListener('click', function (event) {
     var settleButton = event.target.closest('[data-fate-settle]');
@@ -211,18 +191,6 @@
       }
       return;
     }
-    var button = event.target.closest('[data-arena]'); if (!button || button.disabled) return;
-    event.preventDefault(); event.stopImmediatePropagation();
-    var f = facade(); if (!f) return;
-    audioUnlock(); var action = button.dataset.arena;
-    try {
-      if (action === 'attack') { f.setHomeArenaActive(active()); var v = read(); f.attackHomeArena(v.enemy.id, 'ui-' + Date.now() + '-' + (++sequence)); }
-      else if (action === 'storm') f.castHomeArenaStorm('storm-' + Date.now() + '-' + (++sequence));
-      else if (action === 'pause') paused = !paused;
-      else if (action === 'replay') { paused = false; f.replayHomeArena(); }
-      else { options[action] = !options[action]; localStorage.setItem('home-arena-options', JSON.stringify(options)); button.setAttribute('aria-pressed', String(options[action])); }
-      update();
-    } catch (error) { text('ArenaReward', '保存未完成：' + error.message); }
   }, true);
   document.addEventListener('visibilitychange', update); window.addEventListener('blur', update); window.addEventListener('focus', update);
   window.__HOME_ARENA__ = { render: render, update: update, active: active, deferAutomaticModals: function () { var v = read(); return !!document.querySelector('#HomeArena') && !paused && v && v.ready; }, diagnostics: function () { return { floatingNodes: pool.length, animationLoops: frame === null ? 0 : 1, registeredGlobalListeners: 4, options: options }; } };

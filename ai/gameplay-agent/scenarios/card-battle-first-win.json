@@ -10,22 +10,8 @@
     },
     {
       "action": "click",
-      "selector": "[data-nav=\"PROJECT\"]",
-      "description": "Open the project page through the visible navigation"
-    },
-    {
-      "action": "waitFor",
-      "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]",
-      "timeoutMs": 5000
-    },
-    {
-      "action": "assertClickable",
-      "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]"
-    },
-    {
-      "action": "click",
-      "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]",
-      "description": "Start a normal card battle from the player-facing UI"
+      "selector": "#ArenaAttack",
+      "description": "Start normal combat from the primary home battle entrance"
     },
     {
       "action": "waitFor",
@@ -67,6 +53,31 @@
       "check": "equals",
       "path": "@vars.opening.player.energy",
       "expected": 3
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".arena-enemy-target, [data-arena=\"attack\"]",
+      "timeoutMs": 3000,
+      "description": "Check that the legacy enemy-click target is absent from normal card combat"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "afterEnemyClick",
+      "asType": "object"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.afterEnemyClick.enemies[0].hp",
+      "expected": "@vars.opening.enemies[0].hp",
+      "description": "A direct enemy click cannot substitute for playing an attack card"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.afterEnemyClick.hitLog.length",
+      "expected": "@vars.opening.hitLog.length"
     },
     {
       "action": "assert",
