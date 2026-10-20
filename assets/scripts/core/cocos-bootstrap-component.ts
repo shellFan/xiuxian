@@ -92,6 +92,7 @@ export class CocosBootstrapComponent extends Component {
     }
     CocosBootstrapComponent._instance = this;
 
+    this.markBootStage('COCOS_BOOTSTRAP_ONLOAD');
     console.log('[BOOT] Game bootstrap starting');
 
     // Create storage adapter — Electron file storage > Cocos localStorage > in-memory
@@ -133,15 +134,27 @@ export class CocosBootstrapComponent extends Component {
 
   /** F01: Async storage initialization. Returns the load result or null for sync adapters. */
   private async initializeStorage(storage: StorageAdapter): Promise<StorageLoadResult | null> {
-    if (storage.initialize) {
-      const result = await storage.initialize();
-      console.log('[BOOT] Storage initialization result:', result.status, result.error ?? '');
-      return result;
+    this.markBootStage('STORAGE_INITIALIZATION_STARTED');
+    try {
+      if (storage.initialize) {
+        const result = await storage.initialize();
+        this.markBootStage(result.status === 'LOAD_FAILED' ? 'STORAGE_LOAD_FAILED' : 'STORAGE_INITIALIZATION_COMPLETED', {
+          status: result.status,
+          error: result.status === 'LOAD_FAILED' ? this.safeErrorMessage(result.error) : undefined,
+        });
+        console.log('[BOOT] Storage initialization result:', result.status, result.error ?? '');
+        return result;
+      }
+      this.markBootStage('STORAGE_INITIALIZATION_COMPLETED', { status: 'SYNC_ADAPTER' });
+      return null; // sync adapter (browser/memory), no initialization needed
+    } catch (error) {
+      this.markBootStage('STORAGE_INITIALIZATION_REJECTED', { error: this.safeErrorMessage(error) });
+      throw error;
     }
-    return null; // sync adapter (browser/memory), no initialization needed
   }
 
   protected async start(): Promise<void> {
+    this.markBootStage('BOOTSTRAP_START_WAITING_FOR_STORAGE');
     // F01: Await storage initialization before creating GameFacade
     var loadResult: StorageLoadResult | null = null;
     if (this._initPromise) {
@@ -152,6 +165,7 @@ export class CocosBootstrapComponent extends Component {
       // F01 §3.2: LOAD_FAILED — do NOT create auto-saving facade that would overwrite old save
       console.error('[BOOT] F01 LOAD_FAILED — refusing to create auto-saving game. Error:', loadResult.error);
       this._loadFailed = true;
+      this.markBootStage('BOOTSTRAP_STOPPED_ON_LOAD_FAILURE', { error: this.safeErrorMessage(loadResult.error) });
       // F10: hard-disable every write path on the adapter — the close flush must
       // never rewrite the unreadable save (even with an empty/unchanged cache).
       this._storage?.markFailClosed?.();
@@ -161,12 +175,14 @@ export class CocosBootstrapComponent extends Component {
 
     // Storage is ready — safe to create GameFacade
     try {
+      this.markBootStage('GAME_CONTEXT_AND_FACADE_CREATION_STARTED');
       this.createFacade();
     } catch (e) {
       // F01: SaveService.load() throws SaveLoadError for corrupted save data
       var msg = e instanceof Error ? e.message : String(e);
       console.error('[BOOT] F01 GameFacade creation failed — save data corrupted:', msg);
       this._loadFailed = true;
+      this.markBootStage('GAME_FACADE_REGISTRATION_FAILED', { error: this.safeErrorMessage(e) });
       // F10: SaveService rejected the data the adapter cached — same hazard as
       // LOAD_FAILED: the close flush must not persist anything from here on.
       this._storage?.markFailClosed?.();
@@ -174,6 +190,7 @@ export class CocosBootstrapComponent extends Component {
       return;
     }
     this._facade?.start();
+    this.markBootStage('GAME_FACADE_STARTED');
     // F09/F15: facade now exists — wire audio lifecycle and release deferred component wiring
     this.wireAudioLifecycle();
     this.notifyFacadeReady();
@@ -193,6 +210,7 @@ export class CocosBootstrapComponent extends Component {
       characterSeedProvider: testSeed === undefined ? undefined : () => testSeed,
     });
     console.log('[BOOT] GameFacade initialized');
+    this.markBootStage('GAME_FACADE_REGISTERED');
 
     // Expose facade on window for DOM overlay UI access
     if (typeof window !== 'undefined') {
@@ -229,6 +247,19 @@ export class CocosBootstrapComponent extends Component {
       // paint its own loading screen over this error state.
       (window as unknown as Record<string, unknown>).__NIUNA_LOAD_FAILED__ = true;
     }
+  }
+
+  private safeErrorMessage(error: unknown): string {
+    const message = error instanceof Error ? error.message : String(error ?? 'Unknown error');
+    return message.slice(0, 500);
+  }
+
+  private markBootStage(stage: string, detail?: Record<string, unknown>): void {
+    if (typeof window === 'undefined') return;
+    const diagnostics = (window as unknown as {
+      __XIUXIAN_BOOT_DIAGNOSTICS__?: { mark?: (name: string, value?: unknown) => void };
+    }).__XIUXIAN_BOOT_DIAGNOSTICS__;
+    diagnostics?.mark?.(stage, detail ?? null);
   }
 
   protected update(dt: number): void {
@@ -369,6 +400,7 @@ export class CocosBootstrapComponent extends Component {
    * This verifies that the Canvas exists and the scene is active.
    */
   private checkGameReady(): void {
+    this.markBootStage('GAME_READY_CHECK');
     const canvas = document.querySelector('canvas');
     const gameDiv = document.getElementById('GameDiv');
     const canvasOk = !!canvas && canvas.width > 0 && canvas.height > 0;
@@ -376,6 +408,7 @@ export class CocosBootstrapComponent extends Component {
 
     if (canvasOk && gameDivOk) {
       console.log('[BOOT] ✅ GAME_READY — Canvas and GameDiv are active');
+      this.markBootStage('GAME_READY');
       // Notify Electron main process that the game is ready
       if (typeof window !== 'undefined' && (window as unknown as { electronAPI?: { gameReady?: () => void } }).electronAPI?.gameReady) {
         (window as unknown as { electronAPI: { gameReady: () => void } }).electronAPI.gameReady();

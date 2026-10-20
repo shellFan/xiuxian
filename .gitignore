@@ -31,3 +31,4 @@ tests/.compiled/
 
 # Cocos .meta files MUST be tracked (required for scene/prefab references)
 !assets/**/*.metatmp/
+!ai/reports/V59N2-STARTUP-RECOVERY-ACCEPTANCE.md

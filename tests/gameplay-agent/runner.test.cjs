@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { test } = require('node:test');
 const { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, classifyFailure, classifyStepFailure } = require('../../ai/gameplay-agent/lib/report.cjs');
-const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, readStatePath, storeScenarioVariable, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupControlKind, popupChoiceCanBeClicked, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, scenarioStateMatchesFrom } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
+const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, readStatePath, storeScenarioVariable, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupControlKind, popupControlSelector, popupChoiceCanBeClicked, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, scenarioStateMatchesFrom } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
 const { waitForArenaSkillButton, waitForArenaControl } = require('../../ai/gameplay-agent/lib/home-arena-play.cjs');
 const { cleanupIsolatedProfile } = require('../../ai/gameplay-agent/lib/profile-cleanup.cjs');
 
@@ -298,6 +298,139 @@ test('every maintained scenario validates before the runner can launch a game pr
   }
 });
 
+test('project contract flow scopes messenger back navigation before returning through the project tab', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/sect-project-contract.json'), 'utf8'));
+  const startIndex = scenario.steps.findIndex((step) => step.selector === '[data-action="startSectProject"]');
+  const backIndex = scenario.steps.findIndex((step) => step.action === 'clickIfPresent' && step.selector === '[data-action="back"]');
+  const messengerBackIndex = scenario.steps.findIndex((step, index) => index > startIndex && step.action === 'clickIfPresent' && step.selector === '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]');
+  const projectNavIndex = scenario.steps.findIndex((step, index) => index > startIndex && step.action === 'click' && step.selector === '[data-nav="PROJECT"]');
+  assert.ok(startIndex >= 0, 'the scenario starts its project contract visibly before resolving modal interruptions');
+  assert.equal(backIndex, -1, 'the global back control exists on the active project page and is not proof that the messenger is open');
+  assert.ok(messengerBackIndex >= 0 && messengerBackIndex < projectNavIndex, 'only the messenger-scoped back control may leave a critical conversation before restoring the project route');
+  assert.ok(projectNavIndex >= 0, 'the scenario should use the visible project tab to restore the intended route');
+});
+
+test('time-save compares the persisted second settlement with its workday rather than the possibly advanced current day', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/time-save.json'), 'utf8'));
+  const assertion = scenario.steps.find((step) => step.description === 'The second persisted wage slip matches the authoritative second workday');
+  assert.equal(assertion?.path, '@vars.settlementHistoryTwo[1].dayIndex', 'the second settlement returns two history records indexed 0 and 1');
+  assert.equal(assertion?.expected, '@vars.workdayTwo.dayIndex', 'the game loop can roll the current day forward while persisting settlement history');
+});
+
+test('release check recompiles test JavaScript before executing the compiled suite', () => {
+  const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8'));
+  const script = packageJson.scripts['release:check'];
+  assert.match(script, /tsc -p tsconfig\.game\.json --outDir tests\/\.compiled --noEmit false/,
+    'release check must refresh compiled tests so stale output cannot contradict source tests');
+  assert.match(script, /node tests\/run-all\.cjs/);
+});
+
+test('layoff reemployment returns to the career tab after dismissing an incidental single-choice event', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/career-layoff-reemployment.json'), 'utf8'));
+  const taskStartIndex = scenario.steps.findIndex((step) => step.selector === '[data-action="start"][data-id="task_system_migration"]');
+  const taskClaimIndex = scenario.steps.findIndex((step) => step.selector === '[data-action="claim"][data-id="task_system_migration"]');
+  const layoffWarningIndex = scenario.steps.findIndex((step) => step.selector === '[data-action="careerLayoffWarning"]');
+  assert.ok(taskStartIndex >= 0 && taskClaimIndex > taskStartIndex && taskClaimIndex < layoffWarningIndex,
+    'earn sufficient interview standing through a real task UI before entering the layoff flow');
+  const taskTickIndex = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'tick' && step.args?.[0] === 25200);
+  assert.equal(scenario.steps[taskTickIndex + 1].action, 'clickIfPresent');
+  assert.equal(scenario.steps[taskTickIndex + 1].selector, '[data-vevent-choice="__auto"]',
+    'acknowledge any single-choice event surfaced by elapsed game time through its actual UI button before inspecting task completion');
+  assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterSetupPerformance.performance'
+    && step.check === 'gte' && step.expected === 40), 'verify canonical performance came from the completed task');
+  const layoffWarningScreenshotIndex = scenario.steps.findIndex((step) => step.action === 'screenshot' && step.name === 'layoff-warning');
+  const layoffResponseIndex = scenario.steps.findIndex((step) => step.selector === '[data-action="careerLayoffResponse"][data-response="ACCEPT_PACKAGE"]');
+  const eventDrainSteps = scenario.steps.slice(layoffWarningScreenshotIndex + 1, layoffResponseIndex);
+  assert.deepEqual(eventDrainSteps.map((step) => step.selector), [
+    '[data-vevent-choice="__auto"]', '#V2EventOk',
+    '[data-vevent-choice="__auto"]', '#V2EventOk',
+    '[data-vevent-choice="__auto"]', '#V2EventOk',
+  ], 'resolve up to three visible Fate choice/result pairs through their real controls before selecting severance');
+  assert.ok(eventDrainSteps.every((step) => step.action === 'clickIfPresent'),
+    'each incidental Fate modal control must be actually clicked and verified closed before the layoff response');
+  const walletBeforePackageIndex = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'snapshot' && step.as === 'walletBeforePackage');
+  const layoffResolveIndex = scenario.steps.findIndex((step) => step.selector === '[data-action="careerLayoffResolve"]');
+  const settlementEventDrain = scenario.steps.slice(walletBeforePackageIndex + 1, layoffResolveIndex);
+  assert.deepEqual(settlementEventDrain.map((step) => step.selector), [
+    '[data-vevent-choice="__auto"]', '#V2EventOk',
+    '[data-vevent-choice="__auto"]', '#V2EventOk',
+    '[data-vevent-choice="__auto"]', '#V2EventOk',
+  ], 'resolve newly surfaced Fate choice/result pairs immediately before severance settlement');
+  const unemployedScreenshotIndex = scenario.steps.findIndex((step) => step.action === 'screenshot' && step.name === 'layoff-unemployed');
+  assert.ok(unemployedScreenshotIndex >= 0);
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 1].selector, '[data-vevent-choice="__auto"]');
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 2].selector, '[data-critical-conv]',
+    'open a real critical-message conversation through its visible modal control before choosing a reply');
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 3].selector, '.ux-reply-option',
+    'if a real critical messenger detail opened, choose its visible reply before leaving the detail');
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 4].selector, '[data-action="back"]');
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 4].action, 'click',
+    'leaving a page must use normal click recovery because the transition itself can surface a critical-message modal');
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 5].selector, '[data-critical-conv]',
+    'check for the real critical-message choice again after page navigation can dispatch it');
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 6].selector, '.ux-reply-option',
+    'resolve any message conversation opened during the navigation transition');
+  const recruitmentIndex = scenario.steps.findIndex((step) => step.selector === '[data-action="goto"][data-page="sect"]');
+  assert.ok(recruitmentIndex > unemployedScreenshotIndex + 6);
+  assert.equal(scenario.steps[recruitmentIndex - 1].selector, '[data-nav="PROMOTION"]');
+  const recruitmentScroll = scenario.steps.find((step) => step.action === 'scroll' && step.ensureVisibleSelector === '[data-action="sect"][data-id="BIG_TECH"]');
+  assert.deepEqual(recruitmentScroll.recoverySelectors, ['[data-nav="PROMOTION"]', '[data-action="goto"][data-page="sect"]']);
+  const eventDismissalAfterRecruitmentRoute = scenario.steps.findIndex((step, index) => index > recruitmentIndex
+    && step.action === 'clickIfPresent' && step.selector === '[data-vevent-choice="__auto"]');
+  assert.equal(eventDismissalAfterRecruitmentRoute, recruitmentIndex + 1,
+    'a workplace event may switch away from the recruitment page as that route opens; acknowledge it through its real button before inspecting the list');
+  assert.equal(scenario.steps[eventDismissalAfterRecruitmentRoute + 1].selector, '[data-nav="PROMOTION"]',
+    'after the event closes, restore the career tab through normal UI navigation');
+  assert.equal(scenario.steps[eventDismissalAfterRecruitmentRoute + 2].selector, '[data-action="goto"][data-page="sect"]',
+    'reopen the recruitment list before scrolling or targeting a sect card');
+  const applyIndex = scenario.steps.findIndex((step) => step.selector === '[data-action="sect"][data-id="INTERNAL"]');
+  assert.ok(applyIndex >= 0,
+    'choose an existing employer whose deterministic interview threshold the earned profile can meet');
+  assert.equal(scenario.steps[applyIndex + 1].selector, '#PopupLayer .ux-dialog-actions button[data-idx="1"]');
+  const interviewWaitIndex = scenario.steps.findIndex((step) => step.action === 'waitFor'
+    && step.selector === '[data-action="sectInterview"][data-answer="DELIVERY"]');
+  const eventDismissalAfterInterviewWait = scenario.steps.findIndex((step, index) => index > interviewWaitIndex
+    && step.action === 'clickIfPresent' && step.selector === '[data-vevent-choice="__auto"]');
+  assert.equal(eventDismissalAfterInterviewWait, interviewWaitIndex + 1,
+    'an event can arrive between observing the interview control and clicking it; close only through its real acknowledgement control');
+  assert.equal(scenario.steps[eventDismissalAfterInterviewWait + 1].selector, '[data-critical-conv]',
+    'a critical-message modal must be resolved by selecting its real conversation before restoring the recruitment route');
+  assert.equal(scenario.steps[eventDismissalAfterInterviewWait + 2].selector, '[data-nav="PROMOTION"]');
+  assert.equal(scenario.steps[eventDismissalAfterInterviewWait + 3].selector, '[data-action="goto"][data-page="sect"]');
+  assert.equal(scenario.steps[eventDismissalAfterInterviewWait + 4].action, 'waitFor',
+    'the interview control must be observed again after restoring its page');
+  const dayBeforeIndex = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'queryGameDay' && step.as === 'dayBeforeRehire');
+  const dayAfterIndex = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'queryGameDay' && step.as === 'dayAfterRehire');
+  assert.deepEqual(scenario.steps.slice(dayBeforeIndex + 1, dayAfterIndex).map((step) => ({ action: step.action, method: step.method, args: step.args, selector: step.selector })), [
+    { action: 'call', method: 'devJumpToHour', args: [18, 0], selector: undefined },
+    { action: 'call', method: 'tick', args: [60], selector: undefined },
+    { action: 'clickIfPresent', method: undefined, args: undefined, selector: '#SettleOk' },
+    { action: 'call', method: 'devJumpToHour', args: [9, 0], selector: undefined },
+    { action: 'call', method: 'tick', args: [60], selector: undefined },
+  ], 'next-day employment must be verified through real settlement and the authoritative next-workday service tick');
+  const homeAfterRehireIndex = scenario.steps.findIndex((step, index) => index > dayAfterIndex && step.action === 'click' && step.selector === '[data-nav="HOME"]');
+  const workModeIndex = scenario.steps.findIndex((step, index) => index > homeAfterRehireIndex && step.action === 'call' && step.method === 'changeWorkMode'
+    && JSON.stringify(step.args) === JSON.stringify(['WORK']));
+  const rehireWageDayIndex = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'queryGameDay' && step.as === 'rehireWageDay');
+  assert.ok(homeAfterRehireIndex > dayAfterIndex && workModeIndex > homeAfterRehireIndex && rehireWageDayIndex > workModeIndex,
+    'verify the new contract wage through the canonical work and game-loop services after UI re-employment');
+  const wageClockIndex = scenario.steps.findIndex((step, index) => index > workModeIndex && step.action === 'call' && step.method === 'devAdvanceTime');
+  assert.deepEqual(scenario.steps.slice(wageClockIndex, wageClockIndex + 2).map((step) => ({ method: step.method, args: step.args })), [
+    { method: 'devAdvanceTime', args: [600000] }, { method: 'tick', args: [600] },
+  ], 'advance enough canonical work time for fractional wage remainders to produce a wallet change');
+  assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.path === '@vars.rehireWageDay.income.salary'
+    && step.check === 'gt' && step.expected === 0), 'the effective-day wage must enter the authoritative daily salary ledger');
+  const restartIndex = scenario.steps.findIndex((step, index) => index > rehireWageDayIndex && step.action === 'restart');
+  assert.ok(restartIndex > rehireWageDayIndex && scenario.steps[restartIndex - 1].method === 'save'
+    && scenario.steps.slice(restartIndex + 1).some((step) => step.action === 'assert' && step.path === '@vars.careerAfterRestart.sectId'
+      && step.expected === 'INTERNAL'), 'the re-employment contract and earned wage must survive a real EXE restart');
+  const interviewClickIndex = scenario.steps.findIndex((step, index) => index > eventDismissalAfterInterviewWait
+    && step.action === 'click' && step.selector === '[data-action="sectInterview"][data-answer="DELIVERY"]');
+  assert.ok(interviewClickIndex > eventDismissalAfterInterviewWait + 3);
+  assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.path === '@vars.rehireContract.sectId'
+    && step.expected === 'INTERNAL'), 'the persisted next-day contract must match the employer selected in the UI');
+});
+
 test('waitFor rejects unbounded timeouts and state assertions reject unsafe paths', () => {
   assert.throws(() => validateScenario({ id: 'bad-timeout', steps: [{ action: 'waitFor', selector: '#home', timeoutMs: 999999 }] }), /timeoutMs/);
   assert.throws(() => validateScenario({ id: 'bad-modal-timeout', steps: [{ action: 'clickIfPresent', selector: '#SettleOk', timeoutMs: 999999 }] }), /timeoutMs/);
@@ -322,6 +455,11 @@ test('a process exit does not turn an underlying CDP timeout into a game defect'
   const timeout = new Error('CDP command timed out: Page.captureScreenshot');
   assert.equal(classifyStepFailure({ error: timeout, childExitCode: 0 }), 'AUTOMATION_DEFECT');
   assert.equal(classifyStepFailure({ error: new Error('game closed unexpectedly'), childExitCode: 0 }), 'GAME_DEFECT');
+});
+
+test('a missing GUI click target without captured interface evidence is not verified', () => {
+  const error = new Error('click target not found: [data-action="goto"][data-page="sect"]');
+  assert.equal(classifyStepFailure({ step: { action: 'click' }, error }), 'NOT_VERIFIED');
 });
 
 test('failed scenario assertions are classified as assertion defects rather than game defects', () => {
@@ -418,6 +556,14 @@ test('popup recovery can handle a result modal while respecting the three-attemp
   assert.equal(shouldContinuePopupRecovery({ found: true, visible: true, covered: true }, { visible: true }, 3), false);
   assert.equal(shouldContinuePopupRecovery({ found: true, visible: true, covered: true }, { visible: false }, 1), false);
   assert.equal(shouldContinuePopupRecovery({ found: true, visible: true, covered: false }, { visible: true }, 1), false);
+});
+
+test('single-outcome event acknowledgements resolve to their real visible button selector', () => {
+  assert.equal(popupControlSelector({ kind: 'acknowledge', veventChoice: '__auto' }), '[data-vevent-choice="__auto"]');
+  assert.equal(popupControlSelector({ kind: 'acknowledge', id: 'V2EventOk' }), '#V2EventOk');
+  assert.equal(popupControlSelector({ kind: 'critical-message-choice' }), '[data-critical-conv]');
+  assert.equal(popupControlSelector({ kind: 'close' }), null, 'existing close selectors must remain authoritative');
+  assert.equal(popupControlSelector({ kind: 'acknowledge' }), null);
 });
 
 test('critical-message popups require selecting their real conversation option', () => {

@@ -51,6 +51,13 @@ function popupControlKind({ presentationKind, hasCriticalChoice, hasClose, hasAc
   return null;
 }
 
+function popupControlSelector({ kind, veventChoice, id }) {
+  if (kind === 'critical-message-choice') return '[data-critical-conv]';
+  if (kind === 'acknowledge' && veventChoice === '__auto') return '[data-vevent-choice=\"__auto\"]';
+  if (kind === 'acknowledge' && id === 'V2EventOk') return '#V2EventOk';
+  return null;
+}
+
 function scrollPositionChanged(before, after) {
   return !!before && !!after && (before.scrollTop !== after.scrollTop || before.scrollLeft !== after.scrollLeft);
 }
@@ -142,4 +149,4 @@ function formatHitTarget(hit) {
   return `${hit.tag ?? 'element'}${className} (${JSON.stringify(hit)})`;
 }
 
-module.exports = { createVariableScopes, storeScenarioVariable, readScenarioVariable, readStatePath, formatHitTarget, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupChoiceCanBeClicked, popupControlKind, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds, scenarioStateMatchesFrom };
+module.exports = { createVariableScopes, storeScenarioVariable, readScenarioVariable, readStatePath, formatHitTarget, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupChoiceCanBeClicked, popupControlKind, popupControlSelector, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds, scenarioStateMatchesFrom };

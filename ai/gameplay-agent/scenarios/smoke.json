@@ -12,6 +12,9 @@
     {"action":"click","selector":"[data-creation-action=\"advance\"]","description":"Click the real next-step control"},
     {"action":"call","method":"queryCharacterCreation","as":"nextStep"},
     {"action":"assert","check":"equals","path":"@vars.nextStep.draft.step","expected":"DIRECTION","description":"The next-step button advances the eight-step wizard"},
-    {"action":"screenshot","name":"next-step-works"}
+    {"action":"screenshot","name":"next-step-works"},
+    {"action":"restart","description":"Close and reopen the packaged EXE with the same isolated profile"},
+    {"action":"call","method":"queryCharacterCreation","as":"afterRestart"},
+    {"action":"screenshot","name":"restart-recovered"}
   ]
 }

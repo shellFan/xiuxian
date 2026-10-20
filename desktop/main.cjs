@@ -37,6 +37,12 @@ let autoSaveTimer = null;
 let gameServer = null;
 let bootTimeoutTimer = null;
 let gameReady = false;
+const processStartedAt = Date.now();
+let mainBootStage = 'MAIN_PROCESS_START';
+function markMainBootStage(stage, details = {}) {
+  mainBootStage = stage;
+  console.log(`[BootDiagnostics] ${JSON.stringify({ stage, at: Date.now(), elapsedMs: Date.now() - processStartedAt, ...details })}`);
+}
 // F05: set while waiting for the renderer to flush its save on close
 let closeFlushInProgress = false;
 const isDev = process.argv.includes('--dev') || process.argv.includes('--debug');
@@ -107,6 +113,7 @@ ipcMain.handle('window:close', () => {
 // ── Game Ready Signal ──────────────────────────────────────────────────────
 ipcMain.on('game:ready', () => {
   gameReady = true;
+  markMainBootStage('GAME_READY_RECEIVED');
   if (bootTimeoutTimer) {
     clearTimeout(bootTimeoutTimer);
     bootTimeoutTimer = null;
@@ -116,6 +123,7 @@ ipcMain.on('game:ready', () => {
 
 // ── Window Creation ────────────────────────────────────────────────────────
 async function createWindow() {
+  markMainBootStage('GAME_SERVER_STARTING');
   closeFlushInProgress = false;
   // Start local game server FIRST
   const buildDir = path.join(__dirname, 'build', 'web-desktop');
@@ -130,6 +138,7 @@ async function createWindow() {
   let baseUrl;
   try {
     baseUrl = await gameServer.start();
+    markMainBootStage('GAME_SERVER_READY');
   } catch (e) {
     console.error('[Electron] Failed to start game server:', e);
     app.quit();
@@ -158,6 +167,7 @@ async function createWindow() {
     },
     autoHideMenuBar: true,
   });
+  markMainBootStage('WINDOW_CREATED');
 
   // Load via HTTP (NOT file://)
   mainWindow.loadURL(gameUrl);
@@ -180,10 +190,15 @@ async function createWindow() {
   // ── Diagnostics: did-finish-load ────────────────────────────────────────
   mainWindow.webContents.on('did-finish-load', () => {
     console.log('[Electron] HTML loaded successfully');
+    markMainBootStage('RENDERER_HTML_LOADED');
     // Start boot timeout AFTER HTML loads (Cocos engine still initializing)
     bootTimeoutTimer = setTimeout(() => {
       if (!gameReady) {
+        markMainBootStage('GAME_READY_TIMEOUT', { timeoutMs: BOOT_TIMEOUT_MS });
         console.error(`[Electron] GAME_BOOT_TIMEOUT: No GAME_READY signal after ${BOOT_TIMEOUT_MS / 1000}s`);
+        mainWindow?.webContents.executeJavaScript('JSON.stringify(window.__XIUXIAN_BOOT_DIAGNOSTICS__ ?? null)')
+          .then((state) => console.error(`[BootDiagnostics] RENDERER_TIMEOUT_SNAPSHOT ${state}`))
+          .catch((error) => console.error(`[BootDiagnostics] RENDERER_SNAPSHOT_FAILED ${error.message}`));
       }
     }, BOOT_TIMEOUT_MS);
     // Check game runtime state
@@ -208,6 +223,7 @@ async function createWindow() {
 
   // ── Diagnostics: did-fail-load ──────────────────────────────────────────
   mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+    markMainBootStage('RENDERER_LOAD_FAILED', { errorCode, errorDescription, url: validatedURL });
     console.error(`[Electron] FAILED TO LOAD: ${errorCode} ${errorDescription} URL=${validatedURL}`);
   });
 
@@ -288,6 +304,7 @@ function showRecoveryDialog(title, message) {
 
 // ── App Lifecycle ──────────────────────────────────────────────────────────
 app.whenReady().then(() => {
+  markMainBootStage('ELECTRON_APP_READY');
   createWindow();
 });
 

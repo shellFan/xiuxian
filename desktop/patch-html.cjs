@@ -14,6 +14,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { createRendererBootDiagnosticsScript } = require('./boot-diagnostics.cjs');
 
 const buildDir = process.argv[2] || path.join(__dirname, 'build', 'web-desktop');
 const htmlPath = path.join(buildDir, 'index.html');
@@ -78,6 +79,18 @@ if (fs.existsSync(htmlPath)) {
       if (div) div.innerHTML = '<div style="color:red;padding:20px;font-size:16px;">游戏启动失败: ' + (err && err.message || err) + '</div>';
     })`
   );
+
+  // Install structured boot tracing after SystemJS/import-map setup but before
+  // the Cocos entry import. This records import timing/rejections and renderer
+  // exceptions without changing readiness or skipping initialization.
+  if (!html.includes('__XIUXIAN_BOOT_DIAGNOSTICS__')) {
+    const importMapScript = /(<script\b[^>]*type=["']systemjs-importmap["'][^>]*>[\s\S]*?<\/script>)/i;
+    if (importMapScript.test(html)) {
+      html = html.replace(importMapScript, `$1\n<script>${createRendererBootDiagnosticsScript()}</script>`);
+    } else {
+      console.warn('[patch-html] SystemJS import map script not found; boot diagnostics were not injected');
+    }
+  }
 
   // Add viewport meta for desktop
   if (!html.includes('viewport')) {

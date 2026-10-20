@@ -5,6 +5,9 @@
   "setupFailureClass": "SETUP_BLOCKED",
   "steps": [
     { "action": "call", "method": "devJumpToHour", "args": [17, 55], "description": "Use the canonical game clock to enter the five-minute pre-off-work approval window" },
+    { "action": "call", "method": "queryHomeTodayWork", "as": "overtimeHomeWork", "asType": "object", "description": "Initialize the current workday through the same home projection used by the live UI" },
+    { "action": "assert", "check": "lte", "path": "@vars.overtimeHomeWork.countdownMs", "expected": 300000, "description": "The normal home projection confirms the five-minute overtime approval window" },
+    { "action": "assert", "check": "gt", "path": "@vars.overtimeHomeWork.countdownMs", "expected": 0, "description": "The home projection confirms work has not ended yet" },
     { "action": "call", "method": "queryGameClock", "as": "overtimeClock", "asType": "object", "description": "Read authoritative game date and hour before using the overtime UI" },
     { "action": "assert", "check": "equals", "path": "@vars.overtimeClock.hour", "expected": 17, "description": "Overtime approval is requested before the 18:00 workday boundary" },
     { "action": "call", "method": "queryWorkToday", "as": "workToday", "asType": "object", "description": "Read the canonical work service countdown before using the approval window" },

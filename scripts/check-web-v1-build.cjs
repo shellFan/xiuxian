@@ -11,6 +11,7 @@ const root = path.join(__dirname, '..');
 const scenePath = path.join(root, 'assets', 'scenes', 'Main.scene');
 const buildPath = path.join(root, 'desktop', 'build', 'web-desktop');
 const bundlePath = path.join(buildPath, 'assets', 'main', 'index.js');
+const htmlPath = path.join(buildPath, 'index.html');
 
 function fail(message) {
   console.error(`[web-v1-build] FAIL: ${message}`);
@@ -19,10 +20,17 @@ function fail(message) {
 
 if (!fs.existsSync(scenePath)) fail(`scene missing: ${scenePath}`);
 if (!fs.existsSync(bundlePath)) fail(`Cocos web build missing: ${bundlePath}`);
+if (!fs.existsSync(htmlPath)) fail(`Cocos web entry HTML missing: ${htmlPath}`);
 if (process.exitCode) process.exit();
 
 const scene = JSON.parse(fs.readFileSync(scenePath, 'utf8'));
 const bundle = fs.readFileSync(bundlePath, 'utf8');
+const html = fs.readFileSync(htmlPath, 'utf8');
+const bootDiagnosticsIndex = html.indexOf('__XIUXIAN_BOOT_DIAGNOSTICS__');
+const entryImportIndex = html.indexOf("System.import('./index.js')");
+if (bootDiagnosticsIndex < 0 || entryImportIndex < 0 || bootDiagnosticsIndex > entryImportIndex) {
+  fail('renderer boot diagnostics must be installed before the Cocos System.import entry');
+}
 const customTypes = [...new Set(scene
   .filter((object) => typeof object.__type__ === 'string')
   .map((object) => object.__type__)

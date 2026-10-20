@@ -42,6 +42,7 @@ function validateScenario(scenario) {
     if (step.popupChoiceSelector !== undefined && (typeof step.popupChoiceSelector !== 'string' || !/^\.ux-modal-layer\s+/.test(step.popupChoiceSelector) || step.popupChoiceSelector.length > 500)) throw new Error(`scenario ${scenario.id} step ${index + 1}: popupChoiceSelector must target a control inside .ux-modal-layer`);
     if (step.action === 'scroll' && step.ensureVisibleSelector !== undefined && (typeof step.ensureVisibleSelector !== 'string' || !step.ensureVisibleSelector.trim())) throw new Error(`scenario ${scenario.id} step ${index + 1}: ensureVisibleSelector must be a nonempty selector`);
     if (step.action === 'scroll' && step.recoverySelector !== undefined && (typeof step.recoverySelector !== 'string' || !step.recoverySelector.trim())) throw new Error(`scenario ${scenario.id} step ${index + 1}: recoverySelector must be a nonempty selector`);
+    if (step.action === 'scroll' && step.recoverySelectors !== undefined && (!Array.isArray(step.recoverySelectors) || step.recoverySelectors.length < 1 || step.recoverySelectors.length > 4 || step.recoverySelectors.some((selector) => typeof selector !== 'string' || !selector.trim()))) throw new Error(`scenario ${scenario.id} step ${index + 1}: recoverySelectors must contain one to four nonempty selectors`);
     if (['getGameState', 'call'].includes(step.action) && step.as !== undefined && !/^[a-z][a-zA-Z0-9]{0,39}$/.test(step.as)) throw new Error(`scenario ${scenario.id} step ${index + 1}: invalid result alias`);
     if (['getGameState', 'call'].includes(step.action) && step.asScope !== undefined && !['scenario', 'run'].includes(step.asScope)) throw new Error(`scenario ${scenario.id} step ${index + 1}: invalid result scope`);
     if (['getGameState', 'call'].includes(step.action) && step.asType !== undefined && !VALUE_TYPES.has(step.asType)) throw new Error(`scenario ${scenario.id} step ${index + 1}: invalid result type`);
@@ -92,6 +93,7 @@ function classifyFailure({ step, error, isSetup = false, setupFailureClass, laun
   if (environmentBlocked || error?.environmentBlocked) return 'ENVIRONMENT_BLOCKED';
   if (error?.message?.startsWith('ENVIRONMENT:')) return 'ENVIRONMENT_BLOCKED';
   if (error?.message?.startsWith('NOT_VERIFIED:')) return 'NOT_VERIFIED';
+  if (/click target not found:/.test(error?.message ?? '')) return 'NOT_VERIFIED';
   if (error?.message?.startsWith('AUTOMATION:') || /CDP command timed out/.test(error?.message ?? '')) return 'AUTOMATION_DEFECT';
   if (launchFailure) return 'NOT_VERIFIED';
   if (isSetup) return setupFailureClass ?? 'SETUP_BLOCKED';

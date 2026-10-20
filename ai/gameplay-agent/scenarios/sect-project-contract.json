@@ -66,6 +66,34 @@
       "description": "Start the card battle attached to the accepted contract"
     },
     {
+      "action": "call",
+      "method": "querySectProject",
+      "as": "startedContract",
+      "asType": "object",
+      "description": "Read the authoritative project state immediately after the visible start click"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.startedContract.status",
+      "expected": "ACTIVE",
+      "description": "The visible start action must activate the contract before queued popups are handled"
+    },
+    {
+      "action": "call",
+      "method": "queryCardBattle",
+      "as": "startedBattleImmediately",
+      "asType": "object",
+      "description": "Read the card battle created by the same UI action before popup recovery"
+    },
+    {
+      "action": "assert",
+      "check": "equals",
+      "path": "@vars.startedBattleImmediately.phase",
+      "expected": "PLAYER_ACTION",
+      "description": "The start action must create a playable battle without waiting for modal handling"
+    },
+    {
       "action": "wait",
       "ms": 800,
       "description": "Allow queued end-of-week UI to finish its initial presentation before checking the real dismiss control"
@@ -94,6 +122,12 @@
       "selector": "[data-critical-conv]",
       "timeoutMs": 4000,
       "description": "If a real critical-message popup is queued, open it through its visible conversation choice and verify the modal closes"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 4000,
+      "description": "If the critical conversation opened the messenger, leave it through the visible back control before returning to the project tab"
     },
     {
       "action": "clickIfPresent",
@@ -144,6 +178,11 @@
       "optional": true,
       "timeoutMs": 1200,
       "description": "Acknowledge the third real event result before proceeding"
+    },
+    {
+      "action": "click",
+      "selector": "[data-nav=\"PROJECT\"]",
+      "description": "Return to the active contract battle after resolving any queued message or event UI"
     },
     {
       "action": "call",

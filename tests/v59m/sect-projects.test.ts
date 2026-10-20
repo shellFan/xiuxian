@@ -63,22 +63,33 @@ test('project battle scenario dismisses the real weekly report control before as
   };
   const start = scenario.steps.findIndex((step) => step.selector === '[data-action="startSectProject"]');
   assert.ok(start >= 0);
-  assert.equal(scenario.steps[start + 1]?.action, 'wait');
-  assert.equal(scenario.steps[start + 1]?.ms, 800);
-  assert.equal(scenario.steps[start + 2]?.action, 'scroll');
-  assert.equal(scenario.steps[start + 2]?.selector, '.ux-weekly-popup');
-  assert.equal(scenario.steps[start + 2]?.optional, true);
-  assert.equal(scenario.steps[start + 2]?.ensureVisibleSelector, '[data-v57-close-weekly]');
-  assert.equal(scenario.steps[start + 3]?.action, 'clickIfPresent');
-  assert.equal(scenario.steps[start + 3]?.selector, '[data-v57-close-weekly]');
-  assert.equal(scenario.steps[start + 4]?.action, 'wait');
-  assert.equal(scenario.steps[start + 5]?.action, 'clickIfPresent');
-  assert.equal(scenario.steps[start + 5]?.selector, '[data-critical-conv]');
-  assert.equal(scenario.steps[start + 6]?.action, 'clickIfPresent');
-  assert.equal(scenario.steps[start + 6]?.selector, '.ux-modal-layer [data-vevent-choice]',
-    'a queued V2 event must be resolved through an actual event choice before the battle check');
+  assert.equal(scenario.steps[start + 1]?.method, 'querySectProject');
+  assert.equal(scenario.steps[start + 1]?.as, 'startedContract');
+  assert.equal(scenario.steps[start + 2]?.path, '@vars.startedContract.status');
+  assert.equal(scenario.steps[start + 2]?.expected, 'ACTIVE');
+  assert.equal(scenario.steps[start + 3]?.method, 'queryCardBattle');
+  assert.equal(scenario.steps[start + 3]?.as, 'startedBattleImmediately');
+  assert.equal(scenario.steps[start + 4]?.path, '@vars.startedBattleImmediately.phase');
+  assert.equal(scenario.steps[start + 4]?.expected, 'PLAYER_ACTION');
+  assert.equal(scenario.steps[start + 5]?.action, 'wait');
+  assert.equal(scenario.steps[start + 5]?.ms, 800);
+  assert.equal(scenario.steps[start + 6]?.action, 'scroll');
+  assert.equal(scenario.steps[start + 6]?.selector, '.ux-weekly-popup');
+  assert.equal(scenario.steps[start + 6]?.optional, true);
+  assert.equal(scenario.steps[start + 6]?.ensureVisibleSelector, '[data-v57-close-weekly]');
   assert.equal(scenario.steps[start + 7]?.action, 'clickIfPresent');
-  assert.equal(scenario.steps[start + 7]?.selector, '.ux-modal-layer #V2EventOk',
+  assert.equal(scenario.steps[start + 7]?.selector, '[data-v57-close-weekly]');
+  assert.equal(scenario.steps[start + 8]?.action, 'wait');
+  assert.equal(scenario.steps[start + 9]?.action, 'clickIfPresent');
+  assert.equal(scenario.steps[start + 9]?.selector, '[data-critical-conv]');
+  assert.equal(scenario.steps[start + 10]?.action, 'clickIfPresent');
+  assert.equal(scenario.steps[start + 10]?.selector, '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]',
+    'leave the messenger through its visible back control without matching unrelated page headers');
+  assert.equal(scenario.steps[start + 11]?.action, 'clickIfPresent');
+  assert.equal(scenario.steps[start + 11]?.selector, '.ux-modal-layer [data-vevent-choice]',
+    'a queued V2 event must be resolved through an actual event choice before the battle check');
+  assert.equal(scenario.steps[start + 12]?.action, 'clickIfPresent');
+  assert.equal(scenario.steps[start + 12]?.selector, '.ux-modal-layer #V2EventOk',
     'the actual event result must be acknowledged before checking the battle');
   const projectState = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'querySectProject' && step.as === 'active');
   const battleState = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'queryCardBattle' && step.as === 'startedBattle');
@@ -91,6 +102,33 @@ test('project battle scenario dismisses the real weekly report control before as
     && (step.selector === '.ux-modal-layer [data-vevent-choice="__auto"]' || step.selector === '.ux-modal-layer #V2EventOk')).length >= 4,
   'the bounded recovery must process multiple real queued event modals before waiting for battle controls');
   assert.ok(battleWait > battleState);
+});
+
+test('project battle scenario snapshots authoritative state immediately after the visible start click', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'ai/gameplay-agent/scenarios/sect-project-contract.json'), 'utf8')) as {
+    steps: { action: string; selector?: string; method?: string; as?: string; path?: string; expected?: unknown }[];
+  };
+  const start = scenario.steps.findIndex((step) => step.selector === '[data-action="startSectProject"]');
+  assert.ok(start >= 0);
+  assert.deepEqual(scenario.steps.slice(start + 1, start + 5).map((step) => [step.action, step.method, step.as, step.path, step.expected]), [
+    ['call', 'querySectProject', 'startedContract', undefined, undefined],
+    ['assert', undefined, undefined, '@vars.startedContract.status', 'ACTIVE'],
+    ['call', 'queryCardBattle', 'startedBattleImmediately', undefined, undefined],
+    ['assert', undefined, undefined, '@vars.startedBattleImmediately.phase', 'PLAYER_ACTION'],
+  ], 'capture whether the button started the contract battle before popup recovery can navigate elsewhere');
+});
+
+test('project battle scenario returns from a critical message to the active project page', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'ai/gameplay-agent/scenarios/sect-project-contract.json'), 'utf8')) as {
+    steps: { action: string; selector?: string; method?: string; as?: string }[];
+  };
+  const start = scenario.steps.findIndex((step) => step.selector === '[data-action="startSectProject"]');
+  const backFromMessenger = scenario.steps.findIndex((step, index) => index > start && step.action === 'clickIfPresent'
+    && step.selector === '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]');
+  const returnToProject = scenario.steps.findIndex((step, index) => index > start && step.action === 'click' && step.selector === '[data-nav="PROJECT"]');
+  const battleWait = scenario.steps.findIndex((step, index) => index > start && step.action === 'waitFor' && step.selector === '.ux-cardbattle[data-card-phase="PLAYER_ACTION"]');
+  assert.ok(backFromMessenger > start && backFromMessenger < returnToProject && returnToProject < battleWait,
+    'leave the critical message detail through its visible back control, then return to the project tab before asserting the active battle is visible');
 });
 
 test('M acceptance scenarios advance the authoritative work clock and scroll to the life action before clicking', () => {
@@ -127,17 +165,18 @@ test('M acceptance scenarios advance the authoritative work clock and scroll to 
   assert.ok((modalScroll.deltaY ?? 0) >= 600);
 });
 
-test('new-player setup asserts the authoritative direction choice before advancing the creation wizard', () => {
+test('new-player setup retries a direction choice until the authoritative creation draft records it', () => {
   const setup = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'ai/gameplay-agent/scenarios/_new-player.json'), 'utf8')) as {
-    steps: { action: string; selector?: string; method?: string; path?: string; expected?: unknown }[];
+    steps: { action: string; selector?: string; method?: string; path?: string; from?: string; expected?: unknown; maxAttempts?: number }[];
   };
   const selectDirection = setup.steps.findIndex((step) => step.selector === '[data-creation-choice="direction:TECH_RND"]');
   assert.ok(selectDirection >= 0);
-  assert.deepEqual(setup.steps.slice(selectDirection + 1, selectDirection + 3).map((step) => [step.action, step.method, step.path, step.expected]), [
-    ['call', 'queryCharacterCreation', undefined, undefined],
-    ['assert', undefined, '@vars.selectedDirection.draft.direction', 'TECH_RND'],
-  ]);
-  assert.equal(setup.steps[selectDirection + 3]?.action, 'clickUntilState');
+  assert.deepEqual(
+    [setup.steps[selectDirection]?.action, setup.steps[selectDirection]?.method, setup.steps[selectDirection]?.path,
+      setup.steps[selectDirection]?.from, setup.steps[selectDirection]?.expected, setup.steps[selectDirection]?.maxAttempts],
+    ['clickUntilState', 'queryCharacterCreation', 'draft.direction', null, 'TECH_RND', 3],
+  );
+  assert.equal(setup.steps[selectDirection + 1]?.action, 'clickUntilState');
 });
 
 test('contract battle risk changes encounter and settlement applies time and income exactly once', () => {

@@ -136,8 +136,8 @@ test('time-save verifies completed wage slips after the live game day rolls over
     && step.path === '@vars.settledOne.settled' && step.expected === true),
     'the new live day is unsettled by definition and must not be mistaken for the prior day close');
   assert.ok(scenario.steps.some((step) => step.action === 'assert'
-    && step.path === '@vars.settlementHistoryTwo[2].dayIndex' && step.expected === '@vars.settlementTwo.dayIndex'),
-    'later day-close assertions must match the latest persisted slip to the authoritative settled day');
+    && step.path === '@vars.settlementHistoryTwo[1].dayIndex' && step.expected === '@vars.workdayTwo.dayIndex'),
+    'later day-close assertions must match the second persisted slip to its authoritative workday, even if the live clock has advanced again');
   assert.ok(scenario.steps.some((step) => step.action === 'assert'
     && step.path === '@vars.settlementHistoryThree.length' && step.check === 'gte' && step.expected === 3),
     'the three-workday scenario must prove three durable settlements, not infer them from local display time');
@@ -165,4 +165,23 @@ test('the overtime GamePlay scenario applies through the home UI and verifies th
   assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.check === 'equals' && step.expected === '@vars.approvalBeforeRestart[0].status'));
   const scripts = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf8')) as { scripts: Record<string, string> };
   assert.match(scripts.scripts['gameplay-agent:overtime'] ?? '', /sect-overtime-approval/);
+});
+
+test('the overtime scenario starts the new workday through the canonical home projection before checking its countdown', () => {
+  const scenarioPath = path.resolve(process.cwd(), 'ai/gameplay-agent/scenarios/sect-overtime-approval.json');
+  const scenario = JSON.parse(fs.readFileSync(scenarioPath, 'utf8')) as {
+    steps: { action: string; method?: string; args?: unknown[]; as?: string; path?: string; check?: string; expected?: unknown }[];
+  };
+  const steps = scenario.steps;
+  const jump = steps.findIndex((step) => step.action === 'call'
+    && step.method === 'devJumpToHour' && JSON.stringify(step.args) === JSON.stringify([17, 55]));
+  const homeProjection = steps.findIndex((step) => step.action === 'call'
+    && step.method === 'queryHomeTodayWork' && step.as === 'overtimeHomeWork');
+  const workProjection = steps.findIndex((step) => step.action === 'call'
+    && step.method === 'queryWorkToday' && step.as === 'workToday');
+  assert.ok(jump >= 0 && homeProjection > jump && workProjection > homeProjection,
+    'the current date must be initialized through HomeService before its read-only work countdown is checked');
+  assert.ok(steps.some((step) => step.action === 'assert'
+    && step.path === '@vars.overtimeHomeWork.countdownMs' && step.check === 'lte' && step.expected === 300000),
+  'the normal home work view must confirm the same five-minute approval window');
 });

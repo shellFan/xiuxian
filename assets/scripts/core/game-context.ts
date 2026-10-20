@@ -317,7 +317,6 @@ export class GameContext {
     this.dailyTasks = new DailyTaskService(this, this.configService.dailyTasks, { clock: options.clock });
     this.tutorial = new TutorialService(this);
     this.debug = new DebugService(this, options.randomProvider);
-    this.tasks = new TaskService(this, { clock: options.clock });
     this.rewardedAd = new RewardedAdService({ clock: options.clock });
     this.idleEfficiency = new IdleEfficiencyService(this);
     this.leaderboard = new LeaderboardService(this);
@@ -326,6 +325,9 @@ export class GameContext {
     // ── Gameplay V2 services ──
     this.clockV2 = new GameClockV2({ clock: options.clock, playTimeScale: options.playTimeScale });
     this.clockV2.setDevOffsetMs(this.player.devTimeOffsetMs ?? 0);
+    // Task durations are authored in game seconds; keep them on the same
+    // authoritative clock as the workday and controlled test-time bridge.
+    this.tasks = new TaskService(this, { clock: this.clockV2 });
     this.randomV2 = options.randomV2 ?? new RandomService();
     this.gameDay = new GameDayService(this, this.clockV2, this.randomV2);
     this.overtime = new OvertimeService(this, this.clockV2, this.gameDay);

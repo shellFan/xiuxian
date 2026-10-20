@@ -276,8 +276,10 @@
     if (!f) return null;
     try {
       var cur = f.querySect ? f.querySect() : null;
+      var career = f.queryCareerLife ? f.queryCareerLife() : null;
+      var employment = career && career.employment === 'UNEMPLOYED' ? 'UNEMPLOYED' : 'EMPLOYED';
       return {
-        sects: f.querySects() || [], currentId: cur ? cur.id : null,
+        sects: f.querySects() || [], currentId: employment === 'UNEMPLOYED' ? null : (cur ? cur.id : null), employment: employment,
         jobs: f.querySectJobs ? (f.querySectJobs() || []) : [],
         applications: f.querySectApplications ? (f.querySectApplications() || []) : [],
         pendingContract: f.queryPendingSectContract ? f.queryPendingSectContract() : null
@@ -4291,13 +4293,15 @@
           break;
         }
         case 'sect': {
-          var cur = readSects().currentId;
+          var sectData = readSects();
+          var cur = sectData.currentId;
+          var unemployed = sectData.employment === 'UNEMPLOYED';
           var sectId = el.dataset.id;
-          var sectName = (readSects().sects.filter(function (s) { return s.id === sectId; })[0] || {}).name || '新宗门';
-          if (!cur) {
+          var sectName = (sectData.sects.filter(function (s) { return s.id === sectId; })[0] || {}).name || '新宗门';
+          if (!cur && !unemployed) {
             cmdResult('changeSect', '已拜入' + sectName, sectId);
           } else {
-            showDialog('申请跳槽', '提交 ' + escHtml(sectName) + ' 招聘申请并参加面试。录用后新合同将在次日生效。', [
+            showDialog(unemployed ? '申请入职' : '申请跳槽', '提交 ' + escHtml(sectName) + ' 招聘申请并参加面试。录用后新合同将在次日生效。', [
               { label: '取消', cls: 'gray' },
               { label: '申请面试', cls: 'gold', onClick: function () {
                 var fJob = facade();

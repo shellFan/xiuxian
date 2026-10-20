@@ -11,7 +11,7 @@ const { CdpSession, listenPort } = require('./lib/cdp.cjs');
 const { runHomeArena } = require('./lib/home-arena-play.cjs');
 const { cleanupIsolatedProfile } = require('./lib/profile-cleanup.cjs');
 const { classifyFailure, classifyStepFailure, collectFailedScenarioIds, safeRunId, summarizeResults, validateScenario } = require('./lib/report.cjs');
-const { boundsWithinViewport, canFinishClickAfterFinalPopupDismissal, canRecoverObstructedClick, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupChoiceCanBeClicked, popupControlKind, popupDismissalComplete, readScenarioVariable, readStatePath, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldContinuePopupRecovery, shouldRestoreScrollContextAfterPopup, shouldWaitForObscuringPopup, storeScenarioVariable, scenarioStateMatchesFrom } = require('./lib/scenario-state.cjs');
+const { boundsWithinViewport, canFinishClickAfterFinalPopupDismissal, canRecoverObstructedClick, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupChoiceCanBeClicked, popupControlKind, popupControlSelector, popupDismissalComplete, readScenarioVariable, readStatePath, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldContinuePopupRecovery, shouldRestoreScrollContextAfterPopup, shouldWaitForObscuringPopup, storeScenarioVariable, scenarioStateMatchesFrom } = require('./lib/scenario-state.cjs');
 
 const root = path.resolve(__dirname, '..', '..');
 const scenarioDir = path.join(__dirname, 'scenarios');
@@ -165,7 +165,7 @@ async function inspectRandomEventPopup(cdp) {
     const bubble=layer.querySelector('.ux-event-bubble');
     const buttons=[...(layer?.querySelectorAll('button')??[])];
     const visible=e=>{if(!e)return false;const r=e.getBoundingClientRect(),s=getComputedStyle(e);return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0;};
-    const records=buttons.map(button=>{const r=button.getBoundingClientRect(),hit=document.elementFromPoint(Math.max(0,Math.min(innerWidth-1,r.x+r.width/2)),Math.max(0,Math.min(innerHeight-1,r.y+r.height/2))),close=button.classList.contains('ux-close')||button.classList.contains('ux-week-close');return {text:(button.innerText||'').trim(),id:button.id||null,className:typeof button.className==='string'?button.className:null,criticalChoice:button.hasAttribute('data-critical-conv'),close,acknowledge:['知道了','继续'].includes((button.innerText||'').trim()),visible:visible(button),disabled:!!button.disabled,bounds:{x:r.x,y:r.y,width:r.width,height:r.height},viewport:{width:innerWidth,height:innerHeight},covered:!!hit&&hit!==button&&!button.contains(hit),selector:button.hasAttribute('data-critical-conv')?'[data-critical-conv]':button.classList.contains('ux-week-close')?'.ux-weekly-popup .ux-week-close':button.classList.contains('ux-close')?'.ux-modal-layer .ux-close':null,hit:hit?{tag:hit.tagName,id:hit.id||null,className:typeof hit.className==='string'?hit.className:null}:null};});
+    const records=buttons.map(button=>{const r=button.getBoundingClientRect(),hit=document.elementFromPoint(Math.max(0,Math.min(innerWidth-1,r.x+r.width/2)),Math.max(0,Math.min(innerHeight-1,r.y+r.height/2))),close=button.classList.contains('ux-close')||button.classList.contains('ux-week-close');return {text:(button.innerText||'').trim(),id:button.id||null,className:typeof button.className==='string'?button.className:null,criticalChoice:button.hasAttribute('data-critical-conv'),close,acknowledge:['知道了','继续'].includes((button.innerText||'').trim()),visible:visible(button),disabled:!!button.disabled,bounds:{x:r.x,y:r.y,width:r.width,height:r.height},viewport:{width:innerWidth,height:innerHeight},covered:!!hit&&hit!==button&&!button.contains(hit),selector:button.hasAttribute('data-critical-conv')?'[data-critical-conv]':button.classList.contains('ux-week-close')?'.ux-weekly-popup .ux-week-close':button.classList.contains('ux-close')?'.ux-modal-layer .ux-close':null,veventChoice:button.dataset.veventChoice??null,action:button.dataset.action??null,hit:hit?{tag:hit.tagName,id:hit.id||null,className:typeof hit.className==='string'?hit.className:null}:null};});
     return {visible:visible(layer),layerVisible:visible(layer),hasEventBubble:!!bubble,presentationKind:layer?.dataset?.presentationKind??null,buttons:records,layerHtml:layer?.outerHTML?.slice(0,12000)??null};
   })()`);
   if (!inspected.visible) return inspected;
@@ -177,7 +177,7 @@ async function inspectRandomEventPopup(cdp) {
   });
   if (!controlKind) return { ...inspected, control: null };
   const control = inspected.buttons.find((button) => controlKind === 'critical-message-choice' ? button.criticalChoice : controlKind === 'close' ? button.close : button.acknowledge);
-  return { ...inspected, control: { ...control, kind: controlKind } };
+  return { ...inspected, control: { ...control, kind: controlKind, selector: popupControlSelector({ kind: controlKind, veventChoice: control.veventChoice, id: control.id }) ?? control.selector } };
 }
 
 async function waitForObscuringPopup(cdp, selector, timeoutMs = 1800) {
@@ -285,7 +285,13 @@ async function inputClick(cdp, selector, clickCount = 1, popupChoiceSelector = n
     error.diagnostics = { beforeAction: popupBaseline, afterAction };
     throw error;
   }
-  if (!item.found) throw new Error(`click target not found: ${selector}`);
+  if (!item.found) {
+    const error = new Error(`NOT_VERIFIED: click target not found: ${selector}`);
+    error.failureClass = 'NOT_VERIFIED';
+    try { error.diagnostics = await collectInteractionDiagnostics(cdp, selector, dismissalAttempts); }
+    catch (captureError) { error.diagnostics = { selector, target: item, captureError: captureError.message }; }
+    throw error;
+  }
   if (!item.visible) {
     const error = new Error(`click target is hidden or fully clipped: ${selector}`);
     try { error.diagnostics = { beforeAction: popupBaseline, afterAction: await collectInteractionDiagnostics(cdp, selector, dismissalAttempts) }; }
@@ -373,7 +379,9 @@ async function collectInteractionDiagnostics(cdp, selector, attempts) {
     for(let node=e?.parentElement;node;node=node.parentElement){const style=getComputedStyle(node);if(style.overflowX!=='visible'||style.overflowY!=='visible'){const nr=node.getBoundingClientRect(),clip={tag:node.tagName,id:node.id||null,className:typeof node.className==='string'?node.className:null,overflowX:style.overflowX,overflowY:style.overflowY,rect:{x:nr.x,y:nr.y,width:nr.width,height:nr.height}};clippingAncestors.push(clip);if(style.overflowX!=='visible'){left=Math.max(left,nr.left);right=Math.min(right,nr.right);}if(style.overflowY!=='visible'){top=Math.max(top,nr.top);bottom=Math.min(bottom,nr.bottom);}}}
     const visibleBounds=right>left&&bottom>top?{x:left,y:top,width:right-left,height:bottom-top}:null; const point=visibleBounds?{x:left+(right-left)/2,y:top+(bottom-top)/2}:rawCenter; const hit=point&&document.elementFromPoint(point.x,point.y);
     const ancestors=[]; for(let node=e?.parentElement;node;node=node.parentElement){const style=getComputedStyle(node),nr=node.getBoundingClientRect();if(node.scrollHeight>node.clientHeight||node.scrollWidth>node.clientWidth||style.overflow!=='visible')ancestors.push({tag:node.tagName,id:node.id||null,className:typeof node.className==='string'?node.className:null,overflowX:style.overflowX,overflowY:style.overflowY,scrollTop:node.scrollTop,scrollLeft:node.scrollLeft,clientWidth:node.clientWidth,clientHeight:node.clientHeight,scrollWidth:node.scrollWidth,scrollHeight:node.scrollHeight,rect:{x:nr.x,y:nr.y,width:nr.width,height:nr.height}});}
-    return {url:location.href,eventPopup:{visible:visible(eventBubble),hasEventBubble:!!eventBubble,buttons,layerHtml:popup?.outerHTML?.slice(0,12000)??null},
+    const pageButtons=[...document.querySelectorAll('button')].filter(button=>!popup?.contains(button)&&visible(button)).slice(0,40).map(button=>({text:(button.innerText||'').trim().slice(0,100),action:button.getAttribute('data-action'),nav:button.getAttribute('data-nav'),page:button.getAttribute('data-page')}));
+    const headings=[...document.querySelectorAll('h1,h2,.ux-header-title,.ux-page-title')].filter(visible).slice(0,12).map(node=>(node.innerText||'').trim().slice(0,100));
+    return {url:location.href,documentTitle:document.title,headings,pageButtons,eventPopup:{visible:visible(eventBubble),hasEventBubble:!!eventBubble,buttons,layerHtml:popup?.outerHTML?.slice(0,12000)??null},
       target:{selector:${literal(selector)},found:!!e,visible:visible(e)&&!!visibleBounds,covered:!!hit&&hit!==e&&!e.contains(hit),point,rawCenterPoint:rawCenter,visibleBounds,hit:hit?{tag:hit.tagName,id:hit.id||null,className:typeof hit.className==='string'?hit.className:null,html:hit.outerHTML?.slice(0,1600)??null}:null,bounds:r?{x:r.x,y:r.y,width:r.width,height:r.height}:null,html:e?.outerHTML?.slice(0,4000)??null,clippingAncestors,ancestors},
       canvas:{present:!!canvas,width:canvas?.width??0,height:canvas?.height??0,rect:cr?{x:cr.x,y:cr.y,width:cr.width,height:cr.height}:null},
       attempts:${literal(attempts)},consoleMessages:${literal(cdp.messages.slice(-40))}};
@@ -452,11 +460,15 @@ async function launchScenario(exe, profile, logPath, screenshotDir) {
   await session.send('Page.bringToFront');
   const firstScreenshot = path.join(screenshotDir, 'launch-window.png');
   await session.screenshot(firstScreenshot);
-  const deadline = Date.now() + 35000;
+  const waitStartedAt = Date.now();
+  const deadline = waitStartedAt + 35000;
   while (Date.now() < deadline) {
     try {
       const ready = await session.evaluate('!!window.__GAME_FACADE__?.queryCharacterCreation');
-      if (ready) return { child, session, port };
+      if (ready) {
+        const bootDiagnostics = await evalJson(session, `(() => { const d=window.__XIUXIAN_BOOT_DIAGNOSTICS__; if(d){d.facadeRegistered=true;d.gameReady=true;d.mark('GAME_FACADE_READY')} return d??null })()`);
+        return { child, session, port, readyWaitMs: Date.now() - waitStartedAt, bootDiagnostics };
+      }
     } catch { /* wait for Cocos to initialize */ }
     await delay(500);
   }
@@ -484,6 +496,8 @@ async function launchScenario(exe, profile, logPath, screenshotDir) {
           importMap:document.querySelector('script[type="systemjs-importmap"]')?.textContent??null,
           registryCount:system?.registry?._registry?Object.keys(system.registry._registry).length:null,
           ccRegistered:!!system?.get?.('cc')},
+        bootDiagnostics:window.__XIUXIAN_BOOT_DIAGNOSTICS__??null,
+        runnerWait:{status:'WAITING_FOR_GAME_FACADE_TIMED_OUT',waitedMs:Date.now()-${waitStartedAt},readyPredicate:'window.__GAME_FACADE__.queryCharacterCreation'},
         overlay:!!window.__V59F__,facade:!!window.__GAME_FACADE__,
         scripts:[...document.scripts].map((script)=>({src:script.src,loaded:!!script.dataset.loaded})),
         resources:performance.getEntriesByType('resource').slice(-80).map((entry)=>({name:entry.name,duration:Math.round(entry.duration),transferSize:entry.transferSize,encodedBodySize:entry.encodedBodySize})),
@@ -687,28 +701,41 @@ async function applyStep({ step, context, screenshotDir }) {
           }
           after = await inspectScrollableState(session, step.selector);
           if (shouldRestoreScrollContextAfterPopup({ popupClosed: true, scrollContainerFound: !!after })) {
-            if (!step.recoverySelector) {
-              const error = new Error(`AUTOMATION: the modal closed but removed ${step.selector}; no recoverySelector is configured`);
+            const recoverySelectors = Array.isArray(step.recoverySelectors) ? step.recoverySelectors : step.recoverySelector ? [step.recoverySelector] : [];
+            if (!recoverySelectors.length) {
+              const error = new Error(`AUTOMATION: the modal closed but removed ${step.selector}; no recovery navigation is configured`);
               error.failureClass = 'AUTOMATION_DEFECT';
               error.diagnostics = { selector: step.selector, popup, popupRecovery, attempts };
               throw error;
             }
-            const recovery = await inspectElement(session, step.recoverySelector);
-            if (!recovery.found || !recovery.visible || recovery.disabled || recovery.covered || !boundsWithinViewport(recovery.bounds, recovery.viewport)) {
-              const error = new Error(`AUTOMATION: popup closed but recovery navigation is not safely clickable: ${step.recoverySelector}`);
-              error.failureClass = 'AUTOMATION_DEFECT';
-              error.diagnostics = { selector: step.selector, recoverySelector: step.recoverySelector, recovery, popupRecovery, attempts };
-              throw error;
-            }
-            const routeRestore = { selector: step.recoverySelector, control: recovery, action: 'CDP pointer navigation after popup closure' };
-            try {
-              await dispatchClick(session, recovery, step.recoverySelector);
-            } catch (error) {
-              routeRestore.error = error.message;
-              const wrapped = new Error(`AUTOMATION: could not restore the scroll page after popup closure: ${error.message}`);
-              wrapped.failureClass = 'AUTOMATION_DEFECT';
-              wrapped.diagnostics = { selector: step.selector, routeRestore, popupRecovery, attempts };
-              throw wrapped;
+            const routeRestore = { selectors: recoverySelectors, actions: [] };
+            for (const recoverySelector of recoverySelectors) {
+              const selectorDeadline = Date.now() + 2000;
+              let recovery = await inspectElement(session, recoverySelector);
+              while (!recovery.found && Date.now() < selectorDeadline) {
+                await delay(100);
+                recovery = await inspectElement(session, recoverySelector);
+              }
+              if (!recovery.found || !recovery.visible || recovery.disabled || recovery.covered || !boundsWithinViewport(recovery.bounds, recovery.viewport)) {
+                const error = new Error(`AUTOMATION: popup closed but recovery navigation is not safely clickable: ${recoverySelector}`);
+                error.failureClass = 'AUTOMATION_DEFECT';
+                error.diagnostics = { selector: step.selector, recoverySelector, recovery, routeRestore, popupRecovery, attempts };
+                throw error;
+              }
+              const action = { selector: recoverySelector, control: recovery, action: 'CDP pointer navigation after popup closure' };
+              try {
+                await dispatchClick(session, recovery, recoverySelector);
+                action.completed = true;
+                routeRestore.actions.push(action);
+                await delay(100);
+              } catch (error) {
+                action.error = error.message;
+                routeRestore.actions.push(action);
+                const wrapped = new Error(`AUTOMATION: could not restore the scroll page through ${recoverySelector}: ${error.message}`);
+                wrapped.failureClass = 'AUTOMATION_DEFECT';
+                wrapped.diagnostics = { selector: step.selector, routeRestore, popupRecovery, attempts };
+                throw wrapped;
+              }
             }
             const restoreDeadline = Date.now() + 3000;
             let restored = await inspectScrollableState(session, step.selector);
@@ -796,6 +823,8 @@ async function applyStep({ step, context, screenshotDir }) {
     const restarted = await launchScenario(context.exe, context.profile, context.logPath, screenshotDir);
     context.child = restarted.child;
     context.session = restarted.session;
+    context.bootDiagnostics = restarted.bootDiagnostics;
+    context.startupAttempts.push({ readyWaitMs: restarted.readyWaitMs, diagnostics: restarted.bootDiagnostics });
     return { detail: 'closed and relaunched the real EXE with this scenario’s isolated test save' };
   }
   throw new Error(`unsupported action: ${step.action}`);
@@ -834,13 +863,14 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
   fs.mkdirSync(screenshotDir, { recursive: true });
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'xiuxian-gameplay-agent-'));
   const logPath = path.join(evidenceDir, 'exe.log');
-  const context = { runDir, imageCounter: 1, child: null, session: null, exe, profile, logPath, variables: createVariableScopes() };
+  const context = { runDir, imageCounter: 1, child: null, session: null, exe, profile, logPath, variables: createVariableScopes(), startupAttempts: [] };
   context.variables.run = runVariables;
   let failed = false;
   let blocked = false;
   const operations = [];
   try {
     Object.assign(context, await launchScenario(exe, profile, logPath, screenshotDir));
+    context.startupAttempts.push({ readyWaitMs: context.readyWaitMs, diagnostics: context.bootDiagnostics });
     for (const [index, step] of scenario.steps.entries()) {
       const started = Date.now();
       const item = { index: index + 1, action: step.action, description: step.description ?? step.name ?? '', status: 'passed' };
@@ -925,6 +955,8 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
       result.authoritativeState = path.relative(runDir, path.join(evidenceDir, 'authoritative-state.json')).replace(/\\/g, '/');
     } catch (error) { result.stateSnapshotError = error.message; }
     result.consoleExceptions = context.session?.messages ?? [];
+    result.startupAttempts = context.startupAttempts;
+    result.bootDiagnostics = context.bootDiagnostics ?? null;
     const homeStep = operations.find((operation) => /\.ux59f-(?:work|life-card)/.test(operation.target?.selector ?? '') && operation.outcome === 'passed');
     const taskStep = operations.find((operation) => /task|任务/i.test(operation.replayStep.description ?? '') && operation.outcome === 'passed');
     const incomeStep = operations.find((operation) => Number(operation.afterState?.salary) > 0);

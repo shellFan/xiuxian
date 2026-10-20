@@ -66,6 +66,20 @@ test('normal sect page binds job applications, interview choices and next-day of
   assert.match(overlay, /applySectJob/);
 });
 
+test('an unemployed character applies and interviews instead of bypassing hiring with a first-sect change', () => {
+  const overlay = fs.readFileSync(path.resolve(process.cwd(), 'desktop/ui-overlay.js'), 'utf8');
+  const sectReader = overlay.slice(overlay.indexOf('function readSects()'), overlay.indexOf('function readLeaderboard()'));
+  const sectAction = overlay.slice(overlay.indexOf("case 'sect':"), overlay.indexOf("case 'sectInterview':"));
+  assert.match(sectReader, /queryCareerLife\(\)/,
+    'the visible recruitment action must consult authoritative employment state');
+  assert.match(sectAction, /sectData\.employment === 'UNEMPLOYED'/,
+    'the recruitment click must distinguish unemployment from first character creation');
+  assert.match(sectAction, /applySectJob\(sectId\)/,
+    'an unemployed player must enter the same persistent application/interview flow as a job switch');
+  assert.match(sectAction, /case 'sect'[^]*?UNEMPLOYED[^]*?申请面试/s,
+    'unemployment must not route the recruitment button to the first-character sect selection path');
+});
+
 test('sect-career UI GamePlay scenario applies, interviews, and verifies the saved no-offer path', () => {
   const scenario = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'ai/gameplay-agent/scenarios/sect-career-interview.json'), 'utf8')) as {
     steps: { action: string; selector?: string; ensureVisibleSelector?: string; method?: string; as?: string; check?: string; path?: string; expected?: unknown; state?: string }[];
@@ -100,4 +114,34 @@ test('sect-career UI GamePlay scenario applies, interviews, and verifies the sav
     'the interview must wait until the interrupting event modal is actually gone');
   assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterInterview[0].status' && step.expected === 'REJECTED'));
   assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.path === '@vars.currentSect.id' && step.expected === 'OUTSOURCING'));
+});
+
+test('career-life scenario leaves a critical messenger detail before looking for home shortcuts', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'ai/gameplay-agent/scenarios/career-life-growth.json'), 'utf8')) as {
+    steps: { action: string; selector?: string }[];
+  };
+  const home = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-nav="HOME"]');
+  const back = scenario.steps.findIndex((step, index) => index > home && step.action === 'clickIfPresent' && step.selector === '[data-action="back"]');
+  const npcShortcut = scenario.steps.findIndex((step) => step.action === 'waitFor' && step.selector === '[data-action="goto"][data-page="npc"]');
+  assert.ok(back > home && back < npcShortcut,
+    'the critical message choice can open messenger; return through its visible back control before waiting for home-only shortcuts');
+});
+
+test('career-life scenario resolves a new critical-message interruption before using the Fate chain choice', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'ai/gameplay-agent/scenarios/career-life-growth.json'), 'utf8')) as {
+    steps: { action: string; selector?: string; method?: string; as?: string }[];
+  };
+  const chain = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-action="careerSectFateChain"]');
+  const choice = scenario.steps.findIndex((step) => step.action === 'waitFor' && step.selector === '[data-fate-choice="DOCUMENT"]');
+  const popupSteps = scenario.steps.slice(chain + 1, choice);
+  const back = popupSteps.findIndex((step) => step.action === 'click' && step.selector === '[data-action="back"]');
+  assert.ok(chain >= 0 && choice > chain);
+  assert.ok(popupSteps.some((step) => step.action === 'clickIfPresent' && step.selector === '[data-critical-conv]'),
+    'resolve the actual critical conversation control if it appears over the promotion page');
+  assert.ok(popupSteps.some((step) => step.action === 'clickIfPresent' && step.selector === '.ux-modal-layer [data-vevent-choice="__auto"]'));
+  assert.ok(popupSteps.some((step) => step.action === 'clickIfPresent' && step.selector === '.ux-modal-layer #V2EventOk'));
+  assert.ok(popupSteps.some((step) => step.action === 'click' && step.selector === '[data-action="back"]'),
+    'use a regular navigation click for the messenger back button; clickIfPresent is reserved for controls that close a popup');
+  assert.ok(back >= 0 && popupSteps.slice(back + 1).some((step) => step.action === 'click' && step.selector === '[data-nav="HOME"]'),
+    'restore the home arena route after returning from messenger because the shared Fate choice card is rendered there');
 });
