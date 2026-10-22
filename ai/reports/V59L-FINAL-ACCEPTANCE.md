@@ -1,58 +1,37 @@
 # V5.9-L Final Acceptance
 
-Date: 2026-10-18 (Asia/Shanghai)
+**L milestone:** `feature/v59l-card-battle` (`c2f3b03` documentation checkpoint; implementation commit `9341935`).
+**Current containing branch:** `feature/v59n-career-life-growth`, HEAD `9932a7af71d2c4e5b9de3af22567bf7bdf790059`.
+**Current worktree:** contains uncommitted N.4 and historical gameplay evidence; this report does not claim a clean worktree.
 
-## Decision
+## Acceptance result
 
-V5.9-L meets the project-defined entry gate for continuing to V5.9-M. The packaged Windows x64 Electron build completed the maintained L scenario suite with 5/5 scenarios passing, and the full unit/integration test and release checks passed. Input was synthesized through Electron CDP, so physical Windows mouse/keyboard verification remains `UI_REAL_EXE=NOT_VERIFIED`.
+`V59L_CARD_BATTLE_UI=PASS (ELECTRON_E2E)`. The regular home combat entry starts or resumes the authoritative card battle. In the packaged Electron experience the hand, energy, enemy intent, attack, defense, end-turn action, enemy response, victory, reward claim, and save restoration were exercised through visible UI controls. Directly clicking an enemy does not substitute for playing a card or reduce its HP.
 
-## Baseline and changes
+The L focused acceptance run `20261017-172810-b25997` passed all five scenarios: `card-battle-defense`, `card-battle-first-win`, `card-battle-random-event`, `card-battle-save-reload`, and `character-creation-attributes`. A later L UI replacement run `20261020-091912-c66654` also passed 5/5, and the N.4 full Gate's card-battle scenarios passed. Screenshots, replay files, and authoritative snapshots are retained under `ai/gameplay-agent/reports/`.
 
-- L branch: `feature/v59l-card-battle`
-- L implementation commit: `93419355bfe1e2a2263121095f497080085bd68b`
-- Starting HEAD: `1bb3221aaf6782d372186f3e3ebf71b077c0f0f9`
-- Build input hash: `73078246b46812ba59d438f7c451b93d63cd15e70d4aad08c8419f77197d6b3e`
-- The L implementation contains 36 catalogued cards, 12 battle events, two phase-capable bosses, and 36 card-art PNGs.
-- Runner changes wait for authoritative state transitions when applying indexed state paths, recover workplace modals only through visible controls chosen by each scenario, and bound interaction retries to three.
-- Character setup now checks each of five real `-1` clicks against the authoritative draft, avoiding an unobserved rapid-click setup race.
+## Implemented scope
 
-## Packaged build and verification
+- Turn-based battle with 3 energy, a five-card opening hand, draw/discard piles, shuffle, attack/defense/skill/fate cards, enemy intent and actions, win/loss settlement, rewards, and save/restart restoration.
+- 36 catalogued cards, 12 battle events, two phase-capable bosses, and 36 original card-art images.
+- Character creation random attributes constrained to integer 50–88; tests cover reachable boundaries and seeded generation. Random base attributes remain separate from manual allocation; visible `+5` and five `-1` actions restore the original allocation.
+- Startup event gating prevents ordinary gameplay events from interrupting incomplete character creation.
+- GamePlay Agent scenarios exercise normal UI entry and authoritative state assertions; the runner waits for real state transitions and handles visible event modals without hiding them.
 
-- Cocos Creator: 3.8.4 Web Desktop build produced fresh output. Cocos exited with code 36 after writing valid output; the repository build wrapper verified freshness and accepted the artifact.
-- `npm run pc:copy`: passed.
-- `npm run pc:check`: passed; 8 scene component registrations present, iterator-spread scan clean, build manifest fresh, desktop overlays match.
-- `npm run pc:pack`: passed; packaged `dist/牛马修仙传-win32-x64/牛马修仙传.exe`.
-- EXE SHA-256: `e10410e805c536b470d4d6938d14d7cf343ac7303da01f97b261ead82aa91cd1`
-- ASAR SHA-256: `d3b550ba30580d75f3bfe47e1b23c85997999c8939d90f62b11c0655cc8cf9bd`
-- `npm test`: passed, TypeScript compile and all 160 test files.
-- `npm run release:check`: passed, TypeScript and full test suite.
-- `node --test tests/gameplay-agent/runner.test.cjs`: passed, 36/36.
-- `npm run gameplay-agent:l`: passed, 5/5 on the packaged EXE.
+## Verification evidence
 
-## Gameplay run
+- `npm test`: completed successfully on the containing N branch; V5.9-L and V5.9-M tests ran with the suite. The final GamePlay Runner TAP group was 72/72 PASS.
+- `npm run release:check`: the package script is exactly the same TypeScript compile plus `tests/run-all.cjs` command as `npm test`; it was not run a second time.
+- L focused GamePlay Agent run `20261017-172810-b25997`: 5/5 PASS against packaged Electron EXE. `ELECTRON_E2E=PASS`, `BUILD_PROVENANCE=FRESH`, `SERVICE_SIM=NOT_RUN` for that focused run.
+- Current L/M/N overall Gate is not an L-only result: the latest complete N.4 Gate `20261020-195254-d7de45` ended 23/25. Its two remaining scenarios subsequently passed individually (`20261020-203453-a961c6` and `20261020-203529-f42b64`). The Gate itself remains failed and is not represented as passed here.
+- Latest packaged Electron EXE SHA-256: `e10410e805c536b470d4d6938d14d7cf343ac7303da01f97b261ead82aa91cd1`. Latest targeted-run ASAR SHA-256: `215afc96b1700773abb2afe780efe44350b9baad4d8bceccb2330c72d01c8073`. The L-focused package hash is recorded separately in the original run report; Electron's executable hash is stable across packaging, so the ASAR/build manifest identifies app contents.
 
-Final run: `20261017-172810-b25997`. Each scenario used an isolated test profile; all actions were visible UI interactions and state assertions read the game facade. Individual durations:
+## Limits and Git status
 
-| Scenario | Result | Duration | Evidence |
-|---|---:|---:|---|
-| Card defense and enemy intent | PASS | 21.4 s | [intent](v59l-evidence/20261017-172810-b25997/scenarios/card-battle-defense/evidence/screenshots/012-card-battle-defense-intent.png), [enemy action](v59l-evidence/20261017-172810-b25997/scenarios/card-battle-defense/evidence/screenshots/013-card-battle-after-enemy-action.png) |
-| First victory, card reward, restart restore | PASS | 32.9 s | [victory](v59l-evidence/20261017-172810-b25997/scenarios/card-battle-first-win/evidence/screenshots/013-card-battle-victory.png), [reward restored](v59l-evidence/20261017-172810-b25997/scenarios/card-battle-first-win/evidence/screenshots/014-card-battle-reward-restored.png) |
-| Battle event choice and outcome | PASS | 21.3 s | [choice](v59l-evidence/20261017-172810-b25997/scenarios/card-battle-random-event/evidence/screenshots/012-card-battle-event-choice.png), [outcome](v59l-evidence/20261017-172810-b25997/scenarios/card-battle-random-event/evidence/screenshots/013-card-battle-event-result.png) |
-| Battle state across restart | PASS | 27.1 s | [before](v59l-evidence/20261017-172810-b25997/scenarios/card-battle-save-reload/evidence/screenshots/012-card-battle-before-restart.png), [after](v59l-evidence/20261017-172810-b25997/scenarios/card-battle-save-reload/evidence/screenshots/013-card-battle-after-restart.png) |
-| Character creation attributes and allocation | PASS | 20.6 s | [plus-five](v59l-evidence/20261017-172810-b25997/scenarios/character-creation-attributes/evidence/screenshots/008-creation-allocation-plus-five.png), [saved attributes](v59l-evidence/20261017-172810-b25997/scenarios/character-creation-attributes/evidence/screenshots/012-saved-creation-attributes.png) |
+- `UI_REAL_EXE=NOT_VERIFIED`: all recorded inputs were CDP synthetic events; no physical Windows mouse/keyboard verification is claimed.
+- The N.4 Gate, 30/100-day M/N balance matrix, selected UI coverage, and Cocos Creator child exit code 36 investigation remain open in [V59N4-GAMEPLAY-STABILITY-FINAL.md](V59N4-GAMEPLAY-STABILITY-FINAL.md).
+- The L and M milestone commits are ancestors of the current N branch; `feature/v59m-sect-worklife-economy` already exists. No branch switch, commit, push, or merge was performed. Repository `AGENTS.md` prohibits automatic commit/push, and current worktree modifications were preserved.
 
-The final report records `ELECTRON_E2E=PASS`, `BUILD_PROVENANCE=FRESH`, `SERVICE_SIM=NOT_RUN`, and `UI_REAL_EXE=NOT_VERIFIED`. CDP screenshots show the renderer surface, not physical desktop input. The full run report, results, replay logs, and authoritative snapshots are committed under `ai/gameplay-agent/reports/20261017-172810-b25997/`. Selected screenshots are copied into `ai/reports/v59l-evidence/20261017-172810-b25997/`; the original full-resolution run, including all screenshots, remains under `ai/gameplay-agent/reports/20261017-172810-b25997/` in the local worktree.
+## V5.9-N.5 续验状态更新（2026-10-21）
 
-## Creation and battle acceptance
-
-- Character creation reached the final playable home through visible controls. The test exercised `+5`, then five `-1` controls, and asserted that the authoritative allocation returned to zero.
-- The completed save retained each effective attribute within 50–88. Creation boundary, seeded generation, and `+5`/`-1` rules are covered by `npm test`'s V5.9-L creation attribute tests.
-- The end-to-end battle used the visible opening hand and actual enemy turns, reached victory, chose a card reward, claimed settlement, restarted the packaged EXE, and confirmed the claimed result was restored.
-- A workplace event modal that appeared over the reward UI was resolved through its visible choice. The runner then waited for the target to uncover and verified the reward selection and claim state from the authoritative battle state.
-- No known L core-play blocker remains in the tested scenarios. Physical mouse/keyboard behavior and the outer-window size matrix remain unverified.
-
-## Git delivery
-
-- Final acceptance report: `ai/reports/V59L-CARD-BATTLE-DELIVERY.md`.
-- This report and its compact evidence bundle are part of the L deliverable.
-- Repository rules prohibit automatic push; any local commit is subject to the user's explicit commit instruction. The M branch must start from the final L commit, not the earlier baseline.
+L 卡牌专项在最近完整 Gate `20261021-051131-90aab0` 中 4 个场景均 PASS；这是既有 ELECTRON_E2E 证据，本轮未修改战斗业务代码或重打包。最新完整 Gate 整体为 17/25，不能将完整验收记为通过。当前 EXE SHA 为 `e10410e805c536b470d4d6938d14d7cf343ac7303da01f97b261ead82aa91cd1`，ASAR SHA 为 `3a5d2b29600e705e13d54c5660937b6ea8bda160111e228b0cf019e3ec6b441b`。物理 UI 仍 `NOT_VERIFIED`；总体验收状态见 [V59N5-FINAL-PLAYABLE-ACCEPTANCE.md](V59N5-FINAL-PLAYABLE-ACCEPTANCE.md)。

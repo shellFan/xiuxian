@@ -106,7 +106,7 @@ test('economy GamePlay scenario buys coffee through the menu after earning enoug
 
 test('daily wage GamePlay scenario settles from the visible home action and confirms the saved daily ledger', () => {
   const scenario = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'ai/gameplay-agent/scenarios/time-save.json'), 'utf8')) as {
-    steps: { action: string; selector?: string; method?: string; args?: unknown[]; as?: string; path?: string; expected?: unknown; state?: string }[];
+    steps: { action: string; selector?: string; method?: string; args?: unknown[]; as?: string; path?: string; expected?: unknown; check?: string; state?: string }[];
   };
   const evening = scenario.steps.findIndex((step) => step.method === 'devJumpToHour' && JSON.stringify(step.args) === JSON.stringify([18, 0]));
   const settlement = scenario.steps.findIndex((step) => step.method === 'queryGameDay' && step.as === 'settledOne');
@@ -117,7 +117,9 @@ test('daily wage GamePlay scenario settles from the visible home action and conf
   assert.ok(evening >= 0 && settlement > evening && reportClick > settlement && reportVisible > reportClick && historyRead > reportVisible,
     'after the automatic idempotent day close, the normal More → Settlement UI must show the persisted wage slip');
   assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.path === '@vars.settlementHistoryOne[0].dayIndex'
-    && step.expected === '@vars.workdayOne.dayIndex'), 'settlement must be read from durable history after the day rollover');
+    && step.check === 'lte' && step.expected === '@vars.workdayOne.dayIndex'), 'the first persisted slip cannot be later than the authoritative workday');
+  assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.path === '@vars.workdayOne.dayIndex'
+    && step.check === 'gte' && step.expected === 1), 'a 24-hour clock advance does not itself imply the game day index increased');
   assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.path === '@vars.dailySlipOne[0].netCashChange'));
 });
 
@@ -129,14 +131,17 @@ test('time-save verifies completed wage slips after the live game day rolls over
     && step.method === 'queryDailySettlementHistory' && step.as === 'settlementHistoryOne');
   const settlementRecorded = scenario.steps.findIndex((step) => step.action === 'assert'
     && step.path === '@vars.settlementHistoryOne[0].dayIndex'
-    && step.expected === '@vars.workdayOne.dayIndex');
+    && step.check === 'lte' && step.expected === '@vars.workdayOne.dayIndex');
   assert.ok(settlementHistory >= 0 && settlementRecorded > settlementHistory,
-    'after rollover, a persisted wage slip must prove the prior day settled');
+    'the first persisted wage slip must be checked against the authoritative current game-day index');
+  assert.ok(scenario.steps.some((step) => step.action === 'assert'
+    && step.path === '@vars.workdayOne.dayIndex' && step.check === 'gte' && step.expected === 1),
+    'game day indexing remains independent from the 24-hour clock boundary');
   assert.ok(!scenario.steps.some((step) => step.action === 'assert'
     && step.path === '@vars.settledOne.settled' && step.expected === true),
     'the new live day is unsettled by definition and must not be mistaken for the prior day close');
   assert.ok(scenario.steps.some((step) => step.action === 'assert'
-    && step.path === '@vars.settlementHistoryTwo[1].dayIndex' && step.expected === '@vars.workdayTwo.dayIndex'),
+    && step.path === '@vars.settlementHistoryTwo[2].dayIndex' && step.expected === '@vars.workdayTwo.dayIndex'),
     'later day-close assertions must match the second persisted slip to its authoritative workday, even if the live clock has advanced again');
   assert.ok(scenario.steps.some((step) => step.action === 'assert'
     && step.path === '@vars.settlementHistoryThree.length' && step.check === 'gte' && step.expected === 3),

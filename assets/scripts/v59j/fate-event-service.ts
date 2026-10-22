@@ -47,6 +47,7 @@ export class FateEventService {
       startedAt: now,
       seed: seed >>> 0,
       rngCursor: 0,
+      cardBattleWins: 0,
       status: 'ACTIVE',
       health: 100,
       maxHealth: 100,
@@ -63,6 +64,23 @@ export class FateEventService {
     if (!run) throw new Error('Unable to initialize fate run');
     this.context.player.fateRun = run;
     return run;
+  }
+
+  /** Bridge normal card-battle victories into the persistent Fate story milestones. */
+  public recordCardBattleVictory(seed: number): string[] {
+    if (!this.context.player.fateRun) this.initializeRun(seed);
+    const current = this.context.player.fateRun;
+    if (!current || current.status !== 'ACTIVE') return [];
+    const wins = (current.cardBattleWins ?? 0) + 1;
+    this.transaction(() => {
+      const run = this.context.player.fateRun;
+      if (!run || run.status !== 'ACTIVE') throw new Error('Fate run is not active');
+      this.context.player.fateRun = { ...run, cardBattleWins: wins };
+    });
+    const milestone = wins === 1 ? 'card-battle:first-win'
+      : wins === 2 ? 'card-battle:second-win'
+        : `card-battle:win:${wins}`;
+    return this.triggerMilestone(milestone);
   }
 
   public state() {
@@ -187,7 +205,6 @@ export class FateEventService {
         activeChallengeId: outcome.challengeId ?? null,
         terminalOutcomeId,
       };
-      this.enqueueNewlyUnlockedHiddenEvents();
       return { eventId, optionId, success, outcomeText: outcome.text, endingId: terminalOutcomeId, challengeId: outcome.challengeId ?? null };
     });
     this.context.events.emit('fateEventResolved', { eventId, optionId, success: result.success, outcomeText: result.outcomeText });
@@ -307,16 +324,6 @@ export class FateEventService {
     const run = this.context.player.fateRun;
     if (!run || run.eventQueue.length >= QUEUE_LIMIT || !this.eventEligible(FATE_EVENT_MAP.get(id)!, run)) return;
     this.context.player.fateRun = { ...run, eventQueue: [...run.eventQueue, id], firedEventIds: [...run.firedEventIds, id].slice(-256) };
-  }
-
-  private enqueueNewlyUnlockedHiddenEvents(): void {
-    const run = this.context.player.fateRun;
-    if (!run || run.eventQueue.length >= QUEUE_LIMIT) return;
-    for (const event of this.definitions) {
-      if (!event.hidden || !this.eventEligible(event, this.context.player.fateRun!)) continue;
-      this.enqueue(event.id);
-      if (this.context.player.fateRun!.eventQueue.length >= QUEUE_LIMIT) break;
-    }
   }
 
   private applyOutcome(outcome: FateEventOutcome): void {

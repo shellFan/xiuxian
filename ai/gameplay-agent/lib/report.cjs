@@ -1,7 +1,7 @@
 'use strict';
 
 const SAFE_ID = /^[a-z0-9][a-z0-9-]{0,79}$/i;
-const ACTIONS = new Set(['click', 'clickIfPresent', 'clickUntilState', 'doubleClick', 'type', 'scroll', 'key', 'pressKey', 'wait', 'waitFor', 'screenshot', 'getGameState', 'assertVisible', 'assertClickable', 'assertState', 'call', 'assert', 'restart', 'restartGame', 'professionMatrix', 'setViewport', 'homeArenaPlay', 'homeArenaSoak']);
+const ACTIONS = new Set(['click', 'clickIfPresent', 'clickUntilState', 'cardBattleAdvance', 'doubleClick', 'type', 'scroll', 'key', 'pressKey', 'wait', 'waitFor', 'screenshot', 'getGameState', 'assertVisible', 'assertClickable', 'assertState', 'call', 'assert', 'restart', 'restartGame', 'professionMatrix', 'setViewport', 'homeArenaPlay', 'homeArenaSoak']);
 const FAILURE_CLASSES = new Set(['SETUP_BLOCKED', 'AUTOMATION_DEFECT', 'GAME_DEFECT', 'ASSERTION_DEFECT', 'ENVIRONMENT_BLOCKED', 'NOT_VERIFIED']);
 const VALUE_TYPES = new Set(['array', 'boolean', 'null', 'number', 'object', 'string']);
 const SAFE_STATE_PATH = /^(?:@[a-z][a-zA-Z0-9]*)?(?:\.[a-zA-Z_$][\w$]*|\[(?:\d+|"[a-zA-Z0-9_:-]+")\])*$/;
@@ -26,6 +26,7 @@ function validateScenario(scenario) {
       if (!Number.isInteger(step.clickIntervalMs) || step.clickIntervalMs < 200 || step.clickIntervalMs > 1000) throw new Error('home arena clickIntervalMs must be between 200 and 1000');
       if (step.action === 'homeArenaSoak' && (!Number.isInteger(step.durationMs) || step.durationMs < 1200000 || step.durationMs > 1800000)) throw new Error('home arena durationMs must cover at least twenty minutes and at most thirty real minutes');
     }
+    if (step.action === 'cardBattleAdvance' && step.timeoutMs !== undefined && (!Number.isFinite(step.timeoutMs) || step.timeoutMs < 1 || step.timeoutMs > 120000)) throw new Error(`scenario ${scenario.id} step ${index + 1}: cardBattleAdvance timeoutMs must be between 1 and 120000`);
     if (['click', 'clickIfPresent', 'clickUntilState', 'doubleClick', 'type', 'scroll', 'waitFor', 'assertVisible', 'assertClickable'].includes(step.action) && (typeof step.selector !== 'string' || !step.selector.trim())) {
       throw new Error(`scenario ${scenario.id} step ${index + 1}: ${step.action} needs a selector`);
     }

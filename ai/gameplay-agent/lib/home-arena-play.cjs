@@ -59,7 +59,7 @@ async function runHomeArena({ step, context, screenshotDir, readFacadeState, ins
     const heap = await session.send('Runtime.getHeapUsage');
     const dom = await session.send('Memory.getDOMCounters');
     const ui = await session.evaluate('({arena:window.__HOME_ARENA__?.diagnostics(),timers:window.__GAMEPLAY_OBSERVER__?.(),focused:document.hasFocus(),hidden:document.hidden})');
-    const item = { elapsedMs: Date.now() - startedAt, heap, dom, ui, arena: compact(await readFacadeState(session, 'queryHomeArena')) };
+    const item = { elapsedMs: Date.now() - startedAt, heap, dom, ui, arena: compact(await readFacadeState(session, 'queryHomeArena')), cdp: session.snapshotMetrics?.() ?? null };
     samples.push(item); record({ type: 'performance-sample', ...item });
     if (!ui.arena || ui.arena.floatingNodes > 24 || ui.arena.animationLoops !== 1) throw new Error('home arena visual pool or animation loop bound violated');
     return item;

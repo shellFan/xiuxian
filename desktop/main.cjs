@@ -20,6 +20,7 @@ const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
 const path = require('path');
 const { initStorage, saveGame, loadGame, backupSave, recoverSave } = require('./storage.cjs');
 const { GameServer } = require('./game-server.cjs');
+const { isIsolatedGameplayAgentRun, registerGameplayAgentCaptureHandler } = require('./gameplay-agent-capture.cjs');
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const GAME_TITLE = '牛马修仙传 - 上班也是渡劫';
@@ -53,6 +54,12 @@ const e2eHidden = process.argv.includes('--e2e-hidden')
   && isolatedTestProfile
   && process.argv.some(arg => arg.startsWith('--remote-debugging-port='));
 const controlledSeed = requestedSeed && isolatedTestProfile ? Number(requestedSeed.split('=')[1]) >>> 0 : null;
+const gameplayAgentCaptureEnabled = controlledSeed !== null && isIsolatedGameplayAgentRun({
+  argv: process.argv,
+  userDataDir: app.getPath('userData'),
+  tempDir: require('node:os').tmpdir(),
+});
+registerGameplayAgentCaptureHandler({ ipcMain, getWindow: () => mainWindow, enabled: gameplayAgentCaptureEnabled });
 
 // ── Storage Init ───────────────────────────────────────────────────────────
 initStorage(app.getPath('userData'));
@@ -159,7 +166,10 @@ async function createWindow() {
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
-      additionalArguments: controlledSeed === null ? [] : ['--xiuxian-test-seed=' + controlledSeed],
+      additionalArguments: controlledSeed === null ? [] : [
+        '--xiuxian-test-seed=' + controlledSeed,
+        ...(gameplayAgentCaptureEnabled ? ['--xiuxian-gameplay-agent-capture'] : []),
+      ],
       nodeIntegration: false,
       contextIsolation: true,
       webSecurity: true,

@@ -27,7 +27,7 @@ function context() {
 
 function endRun(game: ReturnType<typeof context>, expectedStatus: 'ENDED' | 'ACTIVE' = 'ENDED'): string {
   game.fateEvents.beginRun(988);
-  game.fateEvents.triggerMilestone('arena:1:2');
+  game.fateEvents.triggerMilestone('card-battle:first-win');
   for (let index = 0; index < 10 && game.fateEvents.currentEvent()?.id !== 'intern_s5'; index += 1) {
     const event = game.fateEvents.currentEvent();
     assert.ok(event);

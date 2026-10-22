@@ -124,6 +124,67 @@ function testVictoryClaimRoutesRewardsAndPermanentDeckThroughPlayerSave(): void 
   assert.equal(permanentCount, 11, 'starter cards are not duplicated when a saved deck exists');
 }
 
+function testCardBattleVictoryStartsAndPersistsTheFateStoryMilestone(): void {
+  const { facade, storage } = make();
+  const started = facade.startCardBattle('NORMAL', 5919);
+  const run = facade.context.player.activeBattleRun as { cardBattle: CardBattleState };
+  run.cardBattle.enemies[0].hp = 1;
+  const attack = firstPlayableAttack(facade.queryCardBattle()!, facade.queryCardCatalog());
+
+  const receipt = facade.playCard(attack.instanceId, attack.targetId, 'fate-story-first-win');
+  assert.equal(receipt.applied, true);
+  assert.equal(facade.queryCardBattle()?.phase, 'VICTORY');
+  assert.equal(facade.queryFateRun()?.cardBattleWins, 1);
+  assert.equal(facade.queryFateEvent()?.id, 'intern_s1');
+
+  const restarted = make(storage).facade;
+  assert.equal(restarted.queryFateRun()?.cardBattleWins, 1);
+  assert.equal(restarted.queryFateEvent()?.id, 'intern_s1');
+  assert.equal(restarted.queryCardBattle()?.battleId, started.battleId);
+}
+
+function winCardBattle(facade: GameFacade, operationId: string): void {
+  const run = facade.context.player.activeBattleRun as { cardBattle: CardBattleState };
+  run.cardBattle.enemies[0].hp = 1;
+  const attack = firstPlayableAttack(facade.queryCardBattle()!, facade.queryCardCatalog());
+  assert.equal(facade.playCard(attack.instanceId, attack.targetId, operationId).applied, true);
+  assert.equal(facade.queryCardBattle()?.phase, 'VICTORY');
+}
+
+function testSecondCardBattleVictoryQueuesTheGatedFateEvent(): void {
+  const { facade } = make();
+  facade.startCardBattle('NORMAL', 5919);
+  winCardBattle(facade, 'first-fate-win');
+  assert.equal(facade.queryFateEvent()?.id, 'intern_s1');
+  facade.resolveFateEvent('intern_s1', 'HELP');
+  assert.equal(facade.queryFateEvent()?.id, 'intern_s2');
+  facade.resolveFateEvent('intern_s2', 'HELP');
+  assert.equal(facade.queryFateEvent()?.id, 'intern_s3', 'the Fate chain continues after the gated choice');
+
+  facade.clearFinishedBattle();
+  facade.startCardBattle('NORMAL', 5920);
+  winCardBattle(facade, 'second-fate-win');
+
+  assert.equal(facade.queryFateRun()?.cardBattleWins, 2);
+  assert.ok(facade.queryFateRun()?.eventQueue.includes('coffee_event'), 'the second-win event is queued behind the ongoing story chain');
+}
+
+function testDuplicateVictoryOperationDoesNotAdvanceFateTwice(): void {
+  const { facade } = make();
+  const started = facade.startCardBattle('NORMAL', 5919);
+  const run = facade.context.player.activeBattleRun as { cardBattle: CardBattleState };
+  run.cardBattle.enemies[0].hp = 1;
+  const attack = firstPlayableAttack(facade.queryCardBattle()!, facade.queryCardCatalog());
+  const first = facade.playCard(attack.instanceId, attack.targetId, 'same-winning-operation');
+  assert.equal(first.applied, true);
+  assert.equal(facade.queryFateRun()?.cardBattleWins, 1);
+
+  const duplicate = facade.playCard(attack.instanceId, attack.targetId, 'same-winning-operation');
+  assert.equal(duplicate.applied, false);
+  assert.equal(facade.queryFateRun()?.cardBattleWins, 1);
+  assert.equal(facade.queryCardBattle()?.battleId, started.battleId);
+}
+
 const tests: Array<[string, () => void]> = [
   ['catalogs expose canonical engine content', testCatalogsExposeCanonicalEngineContent],
   ['deterministic start uses authoritative battle run', testDeterministicStartUsesAuthoritativeBattleRun],
@@ -131,6 +192,9 @@ const tests: Array<[string, () => void]> = [
   ['action persists across restart and receipt deduplicates', testActionPersistsAcrossRestartAndOperationReceiptDeduplicates],
   ['malformed nested card state cannot resume', testMalformedNestedCardStateCannotResume],
   ['victory claim routes rewards and permanent deck through player save', testVictoryClaimRoutesRewardsAndPermanentDeckThroughPlayerSave],
+  ['card battle victory starts and persists the fate story milestone', testCardBattleVictoryStartsAndPersistsTheFateStoryMilestone],
+  ['second card battle victory queues the gated Fate event', testSecondCardBattleVictoryQueuesTheGatedFateEvent],
+  ['duplicate victory operation does not advance Fate twice', testDuplicateVictoryOperationDoesNotAdvanceFateTwice],
 ];
 
 let failures = 0;

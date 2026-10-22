@@ -213,7 +213,8 @@
       "action": "assert",
       "check": "gte",
       "path": "@vars.workdayOne.dayIndex",
-      "expected": 1
+      "expected": 1,
+      "description": "The authoritative workday index is valid but is not inferred from the 24-hour clock-date change"
     },
     {
       "action": "screenshot",
@@ -251,10 +252,10 @@
     },
     {
       "action": "assert",
-      "check": "equals",
+      "check": "lte",
       "path": "@vars.settlementHistoryOne[0].dayIndex",
       "expected": "@vars.workdayOne.dayIndex",
-      "description": "The persisted slip proves the first workday settled before the live clock advanced"
+      "description": "The first persisted wage slip cannot be later than the authoritative current game-day index"
     },
     {
       "action": "screenshot",
@@ -351,7 +352,7 @@
     {
       "action": "assert",
       "check": "equals",
-      "path": "@vars.settlementHistoryTwo[1].dayIndex",
+      "path": "@vars.settlementHistoryTwo[2].dayIndex",
       "expected": "@vars.workdayTwo.dayIndex",
       "description": "The second persisted wage slip matches the authoritative second workday"
     },

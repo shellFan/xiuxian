@@ -885,9 +885,17 @@ export class GameFacade {
     this.context.saveService.save(this.context.player);
     return run;
   }
-  public abandonBattleRun() { this.context.battle.abandon(); this.context.saveService.save(this.context.player); }
+  public abandonBattleRun() {
+    this.context.battle.abandon();
+    this.context.fateEvents.settleActiveChallenge();
+    this.context.saveService.save(this.context.player);
+  }
   /** 清除已结束战斗的结算（UI 弹窗关闭后）。 */
-  public clearFinishedBattle() { this.context.battle.dismissFinished(); this.context.saveService.save(this.context.player); }
+  public clearFinishedBattle() {
+    this.context.fateEvents.settleActiveChallenge();
+    this.context.battle.dismissFinished();
+    this.context.saveService.save(this.context.player);
+  }
   /** 已结束未查看的战斗结算（UI 弹一次后由 UI 清除查看标记）。 */
   public queryFinishedBattle() { return this.context.battle.finished(); }
 

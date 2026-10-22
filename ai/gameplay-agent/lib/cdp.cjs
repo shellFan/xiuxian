@@ -65,8 +65,17 @@ class WebSocketClient {
   constructor(socket) {
     this.socket = socket;
     this.buffer = Buffer.alloc(0);
+    this.fragmentedMessage = null;
+    this.closed = false;
     this.onMessage = null;
+    this.onClose = null;
+    this.onError = null;
     socket.on('data', (chunk) => this.feed(chunk));
+    socket.on('close', () => {
+      this.closed = true;
+      this.onClose?.(new Error('CDP websocket closed'));
+    });
+    socket.on('error', (error) => this.onError?.(error));
   }
 
   feed(chunk) {
@@ -74,6 +83,7 @@ class WebSocketClient {
     this.buffer = Buffer.concat([this.buffer, chunk]);
     while (this.buffer.length >= 2) {
       const opcode = this.buffer[0] & 0x0f;
+      const finalFrame = (this.buffer[0] & 0x80) !== 0;
       const masked = (this.buffer[1] & 0x80) !== 0;
       let length = this.buffer[1] & 0x7f;
       let offset = 2;
@@ -86,15 +96,36 @@ class WebSocketClient {
       let payload = this.buffer.subarray(offset + maskLength, offset + maskLength + length);
       this.buffer = this.buffer.subarray(offset + maskLength + length);
       if (masked) payload = Buffer.from(payload.map((value, index) => value ^ mask[index % 4]));
-      if (opcode === 8) { this.socket.end(); return; }
+      if (opcode === 8) { this.closed = true; this.socket.end(); this.onClose?.(new Error('CDP websocket closed by peer')); return; }
       if (opcode === 9) { this.sendFrame(10, payload); continue; }
-      if (opcode === 1 && this.onMessage) this.onMessage(payload.toString('utf8'));
+      if (opcode === 10) continue;
+      if (opcode === 0) {
+        if (!this.fragmentedMessage) continue;
+        this.fragmentedMessage.chunks.push(payload);
+        this.fragmentedMessage.length += payload.length;
+        if (this.fragmentedMessage.length > 64 * 1024 * 1024) { this.close(); throw new Error('CDP message exceeds 64 MiB'); }
+        if (finalFrame) {
+          const message = this.fragmentedMessage;
+          this.fragmentedMessage = null;
+          if (message.opcode === 1) this.onMessage?.(Buffer.concat(message.chunks, message.length).toString('utf8'));
+        }
+        continue;
+      }
+      if (opcode === 1 || opcode === 2) {
+        if (this.fragmentedMessage) { this.close(); throw new Error('CDP websocket started a new message before finishing the previous one'); }
+        if (finalFrame) {
+          if (opcode === 1) this.onMessage?.(payload.toString('utf8'));
+        } else {
+          this.fragmentedMessage = { opcode, chunks: [payload], length: payload.length };
+        }
+      }
     }
   }
 
   send(text) { this.sendFrame(1, Buffer.from(text, 'utf8')); }
 
   sendFrame(opcode, payload) {
+    if (this.closed) throw new Error('CDP websocket is closed');
     const mask = crypto.randomBytes(4);
     const length = payload.length;
     let header;
@@ -108,18 +139,38 @@ class WebSocketClient {
   }
 
   close() {
+    if (this.closed) return;
     try { this.sendFrame(8, Buffer.alloc(0)); } catch { /* socket may already be closed */ }
+    this.closed = true;
     this.socket.end();
+    this.onClose?.(new Error('CDP websocket closed by client'));
   }
 }
 
+async function dispatchWheelAt(session, { x, y, deltaX = 0, deltaY }) {
+  if (![x, y, deltaX, deltaY].every(Number.isFinite)) throw new TypeError('wheel coordinates and deltas must be finite numbers');
+  // Chromium may dispatch a wheel packet to the last pointer target. Explicitly
+  // move into the requested scroll surface first so a stale cursor cannot send
+  // the wheel to another panel or the canvas behind the overlay.
+  await session.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y });
+  await session.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x, y, deltaX, deltaY });
+}
+
 class CdpSession {
-  constructor(webSocket) {
+  constructor(webSocket, options = {}) {
     this.webSocket = webSocket;
     this.nextId = 0;
     this.pending = new Map();
     this.messages = [];
     this.inflightRequests = new Map();
+    this.commandTimeoutMs = options.commandTimeoutMs ?? 15000;
+    this.screenshotTimeoutMs = options.screenshotTimeoutMs ?? 10000;
+    this.screenshotRetries = options.screenshotRetries ?? 1;
+    this.screenshotQueue = Promise.resolve();
+    this.closed = false;
+    this.metrics = { screenshotRequests: 0, screenshotSuccesses: 0, screenshotFailures: 0, screenshotRetries: 0, screenshotFallbacks: 0, screenshotBridgeCaptures: 0, screenshotTimeouts: 0, screenshotDurationsMs: [], commandTimeouts: 0, commandSamples: [], connectionCloses: 0 };
+    webSocket.onClose = (error) => this.failPending(error ?? new Error('CDP target closed'));
+    webSocket.onError = (error) => this.failPending(error ?? new Error('CDP websocket error'));
     webSocket.onMessage = (text) => {
       let message;
       try { message = JSON.parse(text); } catch { return; }
@@ -139,6 +190,7 @@ class CdpSession {
         const entry = this.pending.get(message.id);
         this.pending.delete(message.id);
         clearTimeout(entry.timer);
+        this.recordCommandSample(entry.method, message.error ? 'error' : 'success', entry.startedAt, entry.timeoutMs, entry.input);
         if (message.error) entry.reject(new Error(message.error.message));
         else entry.resolve(message.result);
       }
@@ -164,30 +216,156 @@ class CdpSession {
     throw new Error('Timed out waiting for the game EXE CDP page');
   }
 
-  send(method, params = {}) {
+  send(method, params = {}, timeoutMs = this.commandTimeoutMs) {
+    if (this.closed) return Promise.reject(new Error('CDP target connection is closed'));
     const id = ++this.nextId;
+    const startedAt = Date.now();
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
+        const entry = this.pending.get(id);
+        if (!entry) return;
         this.pending.delete(id);
+        if (method === 'Page.captureScreenshot') this.metrics.screenshotTimeouts++;
+        this.metrics.commandTimeouts++;
+        this.recordCommandSample(method, 'timeout', startedAt, timeoutMs, input);
         reject(new Error(`CDP command timed out: ${method}`));
-      }, 15000);
-      this.pending.set(id, { resolve, reject, timer });
-      this.webSocket.send(JSON.stringify({ id, method, params }));
+      }, timeoutMs);
+      const input = method === 'Input.dispatchMouseEvent'
+        ? Object.fromEntries(['type', 'x', 'y', 'deltaX', 'deltaY'].filter((key) => params[key] !== undefined).map((key) => [key, params[key]]))
+        : undefined;
+      this.pending.set(id, { resolve, reject, timer, method, startedAt, timeoutMs, input });
+      try { this.webSocket.send(JSON.stringify({ id, method, params })); }
+      catch (error) {
+        clearTimeout(timer);
+        this.pending.delete(id);
+        this.recordCommandSample(method, 'send_error', startedAt, timeoutMs, input);
+        reject(error);
+      }
     });
   }
 
-  async evaluate(expression) {
-    const result = await this.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
+  recordCommandSample(method, status, startedAt, timeoutMs, input) {
+    const samples = this.metrics.commandSamples;
+    const sample = {
+      method,
+      status,
+      elapsedMs: Math.max(0, Date.now() - startedAt),
+      timeoutMs,
+      pendingRequests: this.pending.size,
+      inflightNetworkRequests: this.inflightRequests.size,
+    };
+    if (input) sample.input = { ...input };
+    samples.push(sample);
+    if (samples.length > 100) samples.splice(0, samples.length - 100);
+  }
+
+  async evaluate(expression, timeoutMs = this.commandTimeoutMs) {
+    const result = await this.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, timeoutMs);
     if (result.exceptionDetails) throw new Error(result.exceptionDetails.exception?.description ?? result.exceptionDetails.text ?? 'page evaluation failed');
     return result.result.value;
   }
 
-  async screenshot(filePath) {
-    const result = await this.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-    require('node:fs').writeFileSync(filePath, Buffer.from(result.data, 'base64'));
+  screenshot(filePath) {
+    const capture = async () => {
+      const startedAt = Date.now();
+      this.metrics.screenshotRequests++;
+      try {
+        let result;
+        let viewport = null;
+        try {
+          viewport = await this.evaluate('({ width: window.innerWidth, height: window.innerHeight })', Math.min(1000, this.screenshotTimeoutMs));
+        } catch { /* use the 1280×720 desktop baseline if renderer evaluation is unavailable */ }
+        const width = Number.isFinite(viewport?.width) && viewport.width > 0 ? viewport.width : 1280;
+        const height = Number.isFinite(viewport?.height) && viewport.height > 0 ? viewport.height : 720;
+        const clip = { x: 0, y: 0, width, height, scale: 0.5 };
+        // The Electron bridge exists only for an isolated, seeded GamePlay Agent launch.
+        // Prefer it when present: Cocos/WebGL's compositor capture can stall for 10 seconds
+        // per CDP attempt on Windows, while Electron's main-process capture remains responsive.
+        let bridgeBase64 = null;
+        try {
+          bridgeBase64 = await this.evaluate(
+            'window.__XIUXIAN_GAMEPLAY_CAPTURE__ ? window.__XIUXIAN_GAMEPLAY_CAPTURE__() : null',
+            Math.max(this.screenshotTimeoutMs, 5000),
+          );
+        } catch { /* the regular CDP paths remain available when the test-only bridge is absent */ }
+        if (typeof bridgeBase64 === 'string' && /^[A-Za-z0-9+/]+={0,2}$/.test(bridgeBase64)) {
+          this.metrics.screenshotBridgeCaptures++;
+          result = { data: bridgeBase64 };
+        }
+        let screenshotError = null;
+        for (let attempt = 0; !result && attempt <= this.screenshotRetries; attempt++) {
+          try {
+            result = await this.send('Page.captureScreenshot', {
+              format: 'png', captureBeyondViewport: false, optimizeForSpeed: true, clip,
+              fromSurface: attempt === 0,
+            }, this.screenshotTimeoutMs);
+            break;
+          } catch (error) {
+            screenshotError = error;
+            if (attempt >= this.screenshotRetries || this.closed || !/timed out/i.test(error.message)) break;
+            this.metrics.screenshotRetries++;
+            await new Promise((resolve) => setTimeout(resolve, 150));
+          }
+        }
+        if (!result) {
+          if (this.closed || !/timed out/i.test(screenshotError?.message ?? '')) throw screenshotError ?? new Error('CDP screenshot failed');
+          const fallbackBase64 = await this.evaluate(
+            'window.__XIUXIAN_GAMEPLAY_CAPTURE__ ? window.__XIUXIAN_GAMEPLAY_CAPTURE__() : null',
+            Math.max(this.screenshotTimeoutMs, 5000),
+          );
+          if (typeof fallbackBase64 !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(fallbackBase64)) {
+            throw screenshotError;
+          }
+          this.metrics.screenshotFallbacks++;
+          result = { data: fallbackBase64 };
+        }
+        await require('node:fs/promises').writeFile(filePath, Buffer.from(result.data, 'base64'));
+        this.metrics.screenshotSuccesses++;
+      } catch (error) {
+        this.metrics.screenshotFailures++;
+        throw error;
+      } finally {
+        const durations = this.metrics.screenshotDurationsMs;
+        durations.push(Date.now() - startedAt);
+        if (durations.length > 256) durations.splice(0, durations.length - 256);
+      }
+    };
+    const queued = this.screenshotQueue.then(capture, capture);
+    this.screenshotQueue = queued.catch(() => {});
+    return queued;
   }
 
-  close() { this.webSocket.close(); }
+  snapshotMetrics() {
+    const sorted = [...this.metrics.screenshotDurationsMs].sort((a, b) => a - b);
+    const sum = sorted.reduce((total, value) => total + value, 0);
+    return {
+      ...this.metrics,
+      screenshotDurationsMs: undefined,
+      commandSamples: this.metrics.commandSamples.map((sample) => ({ ...sample })),
+      screenshotAverageMs: sorted.length ? Math.round(sum / sorted.length) : 0,
+      screenshotP95Ms: sorted.length ? sorted[Math.ceil(sorted.length * 0.95) - 1] : 0,
+      screenshotSamples: sorted.length,
+      pendingRequests: this.pending.size,
+      inflightNetworkRequests: this.inflightRequests.size,
+      connectionClosed: this.closed,
+    };
+  }
+
+  failPending(error) {
+    if (this.closed && this.pending.size === 0) return;
+    this.closed = true;
+    this.metrics.connectionCloses++;
+    for (const [id, entry] of this.pending) {
+      clearTimeout(entry.timer);
+      entry.reject(error);
+      this.pending.delete(id);
+    }
+  }
+
+  close() {
+    this.failPending(new Error('CDP target connection closed'));
+    this.webSocket.close();
+  }
 }
 
-module.exports = { CdpSession, listenPort };
+module.exports = { CdpSession, dispatchWheelAt, listenPort };

@@ -68,3 +68,17 @@
 2. 完成八大宗门各一条可玩的短事件链和四职业成长效果。
 3. 完成其余 9 个专项 GamePlay 场景及晋升、NPC、失业、求职 UI 路径。
 4. 再执行完整 Gate 与验证后更新本报告和提交 SHA。
+
+## V5.9-N.4 续验（2026-10-21）
+
+本节的最新补记见下方 10-21 定向复测：首轮 Gate 为 24/25，第二轮完整 Gate 实际为 23/25，失败项为 `card-battle-random-event` 与 `career-life-growth`；二者之后分别通过定向复测。最近一次完整 Gate 退出码仍为 1，不能将其记为 PASS。
+
+`npm test` 与 Gate 内 `release:check` 均退出码 0；fresh EXE smoke 1/1 PASS；20 分 26 秒 Electron/CDP soak 通过。首轮包指纹及 Creator 退出码风险见 [V59N4 验收报告](V59N4-GAMEPLAY-STABILITY-FINAL.md)。指定 30/100 日四画像矩阵、八宗门逐链 UI、四职业成长 UI 矩阵和物理输入仍 `NOT_VERIFIED`，N.1/N.2/N.4 状态保持 `IN_PROGRESS`。
+
+### 2026-10-21 定向复测补记
+
+第二次完整 Gate `20261020-195254-d7de45` 为 23/25。`card-battle-random-event` 在 `20261020-203453-a961c6` 通过 1/1：游戏 Fate 结果弹窗由场景使用其可见确认按钮关闭，分类为 `AUTOMATION_DEFECT`。`career-life-growth` 在 `20261020-203529-f42b64` 通过 1/1：触发后权威 run 为 `ACTIVE` 且队列含 `sect_outsourcing_s1`；原失败没有该快照，故原根因保留 `NOT_VERIFIED`，不认定为游戏缺陷。最新两个定向报告的 EXE SHA 为 `e10410e805c536b470d4d6938d14d7cf343ac7303da01f97b261ead82aa91cd1`、ASAR SHA 为 `215afc96b1700773abb2afe780efe44350b9baad4d8bceccb2330c72d01c8073`。25 场景都有过 PASS 记录，但最新完整 Gate 仍 FAIL；整体验收仍 `IN_PROGRESS`。
+
+## V5.9-N.5 续验状态更新（2026-10-21）
+
+最新完整 Gate `20261021-051131-90aab0` 为 17/25；Smoke `20261021-054658-da3abb` 为 1/1 PASS。一次新鲜 EXE 启动诊断观察到 Cocos `internal` 资源 `loadAny` 用时约 33 秒并超过 30 秒 Electron watchdog，另一次启动正常，属间歇性 readiness 阻断。再就业可见录用流程已确认权威合同，但重启失败；四组 N.5 玩家画像、最新完整 Gate、启动资源延时根因和 Creator 36 根因均未完成。N 继续为 `IN_PROGRESS`，完整证据见 [V59N5-FINAL-PLAYABLE-ACCEPTANCE.md](V59N5-FINAL-PLAYABLE-ACCEPTANCE.md)。

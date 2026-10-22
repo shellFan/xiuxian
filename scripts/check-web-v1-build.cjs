@@ -75,6 +75,11 @@ var manifestResult = manifest.verifyManifest();
 if (manifestResult.stale) {
   fail(`build manifest STALE: ${manifestResult.reason} — run npm run pc:build to refresh`);
 }
+const cocosManifest = require('./cocos-build-manifest.cjs');
+const cocosResult = cocosManifest.verifyCurrentCocosBuild(buildPath);
+if (!cocosResult.ok) {
+  fail(`Cocos build manifest STALE: ${cocosResult.reason} — run npm run pc:build before packaging`);
+}
 // Direct overlay SHA comparison (source vs build copy)
 var overlayFiles = ['ui-overlay.js', 'ui-overlay-v2.js', 'ui-v59f-home.js', 'ui-overlay.css'];
 for (var of of overlayFiles) {

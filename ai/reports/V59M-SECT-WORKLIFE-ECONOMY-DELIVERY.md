@@ -59,3 +59,15 @@
 - HIGH：无已确认的 M 核心服务/UI 逻辑缺陷。
 - MEDIUM：补做物理 Windows 输入验收；后续完整 Gate 可再执行一次作为单次全量快照。
 - LOW：无。
+
+## 2026-10-21 N.4 续验更新
+
+- 当前包含 L/M 的开发分支为 `feature/v59n-career-life-growth`，起始 HEAD `9932a7af71d2c4e5b9de3af22567bf7bdf790059`；L、M 的历史提交及 `feature/v59m-sect-worklife-economy` 分支均已核实存在。当前 N.4 工作树有大量未提交代码与历史 GamePlay 证据，均予以保留。
+- 本轮 `npm test` 完成；V59M 服务/模拟测试通过，GamePlay Runner 最后一个 TAP 组为 72/72。`release:check` 与 `npm test` 在当前 `package.json` 指向同一编译和测试命令，未重复执行。
+- 当前最新完整 Gate `20261020-195254-d7de45` 为 23/25，退出码 1。两个失败场景已分别定向通过：`card-battle-random-event`（`20261020-203453-a961c6`）与 `career-life-growth`（`20261020-203529-f42b64`）。这不把单次完整 Gate 改记为通过。二者复测使用 EXE SHA-256 `e10410e805c536b470d4d6938d14d7cf343ac7303da01f97b261ead82aa91cd1`、ASAR SHA-256 `215afc96b1700773abb2afe780efe44350b9baad4d8bceccb2330c72d01c8073`；输入为 CDP 合成事件，故 `UI_REAL_EXE=NOT_VERIFIED`。
+- L 版验收细节见 [V59L-FINAL-ACCEPTANCE.md](V59L-FINAL-ACCEPTANCE.md) 与 [V59L-CARD-BATTLE-DELIVERY.md](V59L-CARD-BATTLE-DELIVERY.md)。M/N 指定 30/100 日玩家画像矩阵、八宗门逐链 UI、四职业成长 UI 矩阵和 Creator 子进程退出码 36 根因仍未完成；总体保持 `IN_PROGRESS`。
+- 未提交或推送：当前仓库 `AGENTS.md` 明确禁止自动提交/推送，且工作树存在未提交变更。
+
+## V5.9-N.5 续验状态更新（2026-10-21）
+
+本轮完整 `npm test` 退出码 0，M 工资、加班、生活与职业回归继续通过。UI Gate 最新快照 `20261021-051131-90aab0` 只有 17/25 PASS；裁员再就业定向流程可见接受录用后权威合同为 `INTERNAL`、次日生效，但重启阶段被启动 readiness 阻断。指定四画像矩阵尚未完成，M/N 总体验收仍 `IN_PROGRESS`。详见 [V59N5-FINAL-PLAYABLE-ACCEPTANCE.md](V59N5-FINAL-PLAYABLE-ACCEPTANCE.md)。

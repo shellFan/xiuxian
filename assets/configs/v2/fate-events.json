@@ -8,7 +8,7 @@
       "category": "CHAIN",
       "weight": 10,
       "trigger": {
-        "milestone": "arena:1:2"
+        "milestone": "card-battle:first-win"
       },
       "chainId": "intern",
       "chainStage": 1,
@@ -2478,7 +2478,7 @@
       "category": "HIDDEN",
       "weight": 2,
       "trigger": {
-        "milestone": "arena:1:5"
+        "milestone": "card-battle:second-win"
       },
       "hidden": true,
       "requiredFlags": [

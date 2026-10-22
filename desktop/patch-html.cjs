@@ -30,6 +30,20 @@ if (fs.existsSync(settingsPath)) {
   fs.writeFileSync(settingsPath, JSON.stringify(settings));
 }
 
+// Creator emits Application as a separate SystemJS module. Record the actual
+// engine init/run phases so a loaded page that never registers GameFacade can
+// be localized without promoting a pending/failed boot to ready.
+const applicationPath = path.join(buildDir, 'application.js');
+if (fs.existsSync(applicationPath)) {
+  const { instrumentCocosApplicationBoot } = require('./boot-diagnostics.cjs');
+  const application = fs.readFileSync(applicationPath, 'utf8');
+  const instrumentedApplication = instrumentCocosApplicationBoot(application);
+  if (instrumentedApplication !== application) {
+    fs.writeFileSync(applicationPath, instrumentedApplication, 'utf8');
+    console.log('[patch-html] Installed Cocos application boot phase diagnostics');
+  }
+}
+
 // ── Patch index.html ────────────────────────────────────────────────────────
 if (fs.existsSync(htmlPath)) {
   let html = fs.readFileSync(htmlPath, 'utf-8');

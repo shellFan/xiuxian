@@ -1369,6 +1369,7 @@ export class BattleService {
   private mutateCardBattle(operation: (engine: CardBattleEngine) => OperationReceipt): OperationReceipt {
     const run = this.storedRun();
     if (!run || run.battleMode !== 'CARD' || !run.cardBattle) throw new Error('没有进行中的卡牌战斗');
+    const wasVictory = run.cardBattle.phase === 'VICTORY';
     const engine = new CardBattleEngine(run.cardBattle);
     const receipt = operation(engine);
     const state = engine.inspect();
@@ -1380,6 +1381,9 @@ export class BattleService {
     run.rewardsClaimed = state.settlement?.claimed ?? false;
     run.log = state.actionLog.slice(-MAX_LOG).map((entry) => entry.message);
     this.persist(run);
+    if (receipt.applied && !wasVictory && state.phase === 'VICTORY') {
+      this.context.fateEvents.recordCardBattleVictory(state.seed);
+    }
     return receipt;
   }
 

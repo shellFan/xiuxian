@@ -20,6 +20,7 @@ export function normalizeFateRun(value: unknown): FateRunState | null {
     || !safeInt(value.startedAt)
     || !safeInt(value.seed)
     || (value.rngCursor !== undefined && !safeInt(value.rngCursor))
+    || (value.cardBattleWins !== undefined && !safeInt(value.cardBattleWins))
     || (value.status !== 'ACTIVE' && value.status !== 'ENDED')
     || !safeInt(value.health)
     || !safeInt(value.maxHealth)
@@ -67,6 +68,7 @@ export function normalizeFateRun(value: unknown): FateRunState | null {
     startedAt: value.startedAt,
     seed: value.seed,
     rngCursor: safeInt(value.rngCursor) ? value.rngCursor : 0,
+    cardBattleWins: safeInt(value.cardBattleWins) ? Math.min(value.cardBattleWins, 1_000_000) : 0,
     status: value.status,
     health: value.health,
     maxHealth: value.maxHealth,

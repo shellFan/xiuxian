@@ -18,7 +18,7 @@ function createContext() {
 
 function startAtFirstFateEvent(context: ReturnType<typeof createContext>) {
   context.fateEvents.beginRun(73);
-  const queued = context.fateEvents.triggerMilestone('arena:1:2');
+  const queued = context.fateEvents.triggerMilestone('card-battle:first-win');
   assert.equal(queued.length, 1);
   const event = context.fateEvents.currentEvent();
   assert.ok(event);
@@ -80,7 +80,7 @@ function testSameSeedAndMilestonesProduceSameChoiceResult(): void {
   assert.deepEqual(first.player.fateRun, second.player.fateRun);
 }
 
-function testLiveHomeArenaProgressAutomaticallyQueuesTheFirstStory(): void {
+function testLiveHomeArenaProgressAutomaticallyQueuesItsLegacyStory(): void {
   const clock = new FakeClock(NOW);
   const context = new GameContext({
     board: null,
@@ -96,7 +96,7 @@ function testLiveHomeArenaProgressAutomaticallyQueuesTheFirstStory(): void {
     const result = context.homeArena.attack(view.enemy.id, `arena-milestone-${index}`);
     assert.equal(result.ok, true);
   }
-  assert.equal(context.fateEvents.currentEvent()?.id, 'intern_s1');
+  assert.equal(context.fateEvents.currentEvent()?.id, 'legacy_s1');
   assert.equal(context.player.fateRun?.eventQueue.length, 1);
 }
 
@@ -146,7 +146,7 @@ function actualV3FirstHitDamage(withFateBuff: boolean): number {
   context.gameDay.ensureStarted();
   if (withFateBuff) {
     context.fateEvents.beginRun(73);
-    context.fateEvents.triggerMilestone('arena:1:2');
+    context.fateEvents.triggerMilestone('card-battle:first-win');
     context.fateEvents.choose('intern_s1', 'HELP');
   }
   const run = context.battle.start('INCIDENT', 'build_java');
@@ -180,9 +180,13 @@ function testCoffeeFateChoiceChargesTheExistingWalletExactlyOnce(): void {
   });
   context.gameDay.ensureStarted();
   context.fateEvents.beginRun(73);
-  context.fateEvents.triggerMilestone('arena:1:2');
+  context.fateEvents.triggerMilestone('card-battle:first-win');
   context.fateEvents.choose('intern_s1', 'HELP');
   context.fateEvents.choose('intern_s2', 'HELP');
+  assert.equal(context.fateEvents.state()?.eventQueue.includes('coffee_event'), false,
+    'the required story flag alone must not bypass coffee_event’s second-card-battle milestone');
+  context.fateEvents.triggerMilestone('card-battle:second-win');
+  assert.equal(context.fateEvents.currentEvent()?.id, 'intern_s3');
   context.fateEvents.choose('intern_s3', 'HELP');
   const coffee = context.fateEvents.currentEvent();
   assert.equal(coffee?.id, 'coffee_event');
@@ -198,7 +202,7 @@ testRunAndEventChoiceUseOneAuthoritativeSave();
 testDuplicateAndOutOfOrderChoicesCannotResolve();
 testFailedPersistenceRollsBackTheWholeChoice();
 testSameSeedAndMilestonesProduceSameChoiceResult();
-testLiveHomeArenaProgressAutomaticallyQueuesTheFirstStory();
+testLiveHomeArenaProgressAutomaticallyQueuesItsLegacyStory();
 testAStoryChoiceChangesWhichLaterBranchIsAvailable();
 testStoryRewardChangesRealCombatCalculationsUntilGameClockExpiry();
 testFateCombatBuffChangesActualV3BattleDamage();

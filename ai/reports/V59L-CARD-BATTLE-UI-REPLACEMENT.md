@@ -52,3 +52,7 @@ Full Gate run: [20261020-084609-daccaf](../gameplay-agent/reports/20261020-08460
 - `UI_REAL_EXE=NOT_VERIFIED`: the packaged Windows EXE ran and displayed the UI, but pointer/keyboard input was generated over CDP; physical Windows mouse and keyboard input was not exercised. `SERVICE_SIM=NOT_RUN` in the focused L run.
 
 Final focused status: `V59L_CARD_BATTLE_UI=PASS (ELECTRON_E2E)` because the home player entry, card actions, enemy turn, victory reward and restart restore were exercised through visible UI in the packaged Electron application. The broader L/M/N GamePlay Gate remains `FAILED`, and the soak and physical-input checks remain unverified.
+
+## N.4 新鲜版本复核（2026-10-21）
+
+在 fresh ASAR `7c7d8eae7a7ac464cef4d948e5bd7c5a92c936887baa0e6baf4deb11e4643949` 上，L 五个 GamePlay 专项场景在 Gate 中均 PASS；主页卡牌入口场景也 PASS，证明正常入口仍是卡牌回合战斗且敌人点击不直接造成伤害。新版本 20:26 soak PASS。后续第二次完整 Gate 为 23/25；两个失败项已定向复测通过，但最近完整 Gate 仍 FAILED。`V59L_CARD_BATTLE_UI=PASS (ELECTRON_E2E)` 的卡牌专属证据保持有效。物理 Windows 输入仍 `UI_REAL_EXE=NOT_VERIFIED`；详见 [V59N4 验收报告](V59N4-GAMEPLAY-STABILITY-FINAL.md)。

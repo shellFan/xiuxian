@@ -117,3 +117,11 @@ N.1/N.2 仍为 `IN_PROGRESS / BLOCKED`。未提交、未推送、未合并；原
 - 最终 SHA 仍为 `b6572122738132922106edfbb3e7b94054717d56`。
 
 只有启动稳定、再就业闭环、八宗门/四职业完整验收、完整 Gate、20 分钟 soak、指定 30/100 日模拟和重启恢复都取得新鲜证据，并完成报告/本地提交后，才能改为 COMPLETE。
+
+## N.4 新鲜版本续验（2026-10-21）
+
+本工作树当前 HEAD 已从本报告旧记录推进至 `9932a7af71d2c4e5b9de3af22567bf7bdf790059`。本轮 fresh EXE smoke 1/1 PASS，启动诊断抵达 `GAME_FACADE_READY`；裁员再就业 UI 场景在 25 场景 Gate 中 PASS。Gate 其余覆盖共 24 场景通过，唯一 `fate-secret-trial` 的弹窗自动化缺陷经真实 DOM/hit-test 定位并通过 1/1 定向复测。20 分 26 秒 soak PASS；单次完整 Gate 仍记录 24/25 FAIL，后续 targeted rerun 将有效场景覆盖补齐至 25/25，不改写原始 Gate JSON。
+
+**2026-10-21 修正：** 后续第二次完整 Gate `20261020-195254-d7de45` 为 23/25 FAIL；`card-battle-random-event` 与 `career-life-growth` 随后分别在 `20261020-203453-a961c6` 和 `20261020-203529-f42b64` 定向 1/1 PASS。三个历史场景问题的具体分类和证据以 [V59N4 验收报告](V59N4-GAMEPLAY-STABILITY-FINAL.md) 为准。最近一次完整 Gate 仍失败，N.2 仍为 `IN_PROGRESS / BLOCKED`。
+
+N.2 总验收仍 `IN_PROGRESS / BLOCKED`：本轮 100 日职业循环单测通过，但指定的正常/高强度加班/自由合同/长期成长四画像矩阵只部分覆盖；八宗门逐条 UI 链、四职业全效果 UI、物理输入、Creator 子进程退出码 36 根因仍待验证。新包指纹、命令退出码和风险见 [V59N4 验收报告](V59N4-GAMEPLAY-STABILITY-FINAL.md)。

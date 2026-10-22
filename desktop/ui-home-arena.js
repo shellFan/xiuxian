@@ -2,7 +2,7 @@
 ;(function () {
   'use strict';
   if (window.__HOME_ARENA__) return;
-  var sequence = 0, frame = null, lastPaint = 0, paused = false, journalOpen = false, pool = [], poolIndex = 0, lastEnemy = null, soundFacade = null, audio = null, lastFateSignature = '';
+  var sequence = 0, frame = null, lastPaint = 0, paused = false, journalOpen = false, pool = [], poolIndex = 0, lastEnemy = null, soundFacade = null, audio = null, lastFateSignature = '', lastFateChoiceHost = null;
   var options = { reduced: false, shake: true, sound: true };
   try { Object.assign(options, JSON.parse(localStorage.getItem('home-arena-options') || '{}')); } catch (_) {}
   function facade() { return window.__GAME_FACADE__; }
@@ -103,16 +103,20 @@
     }
     var event = f.queryFateEvent();
     card.hidden = !event;
-    if (!event) { lastFateSignature = ''; return; }
+    if (!event) { lastFateSignature = ''; lastFateChoiceHost = null; return; }
     card.dataset.eventId = event.id;
     text('FateEventTitle', event.title);
     text('FateEventDescription', event.description);
     var choices = f.queryFateEventOptions();
     var signature = event.id + ':' + choices.map(function (choice) { return choice.id; }).join(',');
-    if (signature === lastFateSignature) return;
-    lastFateSignature = signature;
     var host = document.getElementById('FateEventChoices');
     if (!host) return;
+    var choicesMatch = host.children.length === choices.length && choices.every(function (choice, index) {
+      return host.children[index].dataset.fateChoice === choice.id;
+    });
+    if (signature === lastFateSignature && host === lastFateChoiceHost && choicesMatch) return;
+    lastFateSignature = signature;
+    lastFateChoiceHost = host;
     host.replaceChildren();
     choices.forEach(function (choice) {
       var button = document.createElement('button');
@@ -128,7 +132,7 @@
     var f = facade(), root = document.getElementById('HomeArena');
     if (!f) return;
     if (f.setHomeArenaActive) f.setHomeArenaActive(false);
-    if (!root) { pool = []; return; }
+    if (!root) { pool = []; lastFateChoiceHost = null; return; }
     var cardBattle = null;
     try { cardBattle = f.queryCardBattle ? f.queryCardBattle() : null; } catch (_) {}
     updateFateCard(f);

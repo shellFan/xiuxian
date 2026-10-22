@@ -39,6 +39,7 @@
     "pc:pack:portable": "cd desktop && npm run pack:portable",
     "pc:serve": "node scripts/serve-web-desktop.cjs",
     "gameplay-agent:smoke": "node ai/gameplay-agent/index.cjs smoke",
+    "gameplay-agent:startup": "node ai/gameplay-agent/index.cjs test --scenario=startup-stability",
     "gameplay-agent:home": "node ai/gameplay-agent/index.cjs test --scenario=home-five-stages",
     "gameplay-agent:soak": "node ai/gameplay-agent/index.cjs test --scenario=home-arena-soak",
     "gameplay-agent:test": "node ai/gameplay-agent/index.cjs test",

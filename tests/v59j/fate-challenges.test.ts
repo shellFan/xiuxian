@@ -3,6 +3,7 @@ import { GameContext } from '../../assets/scripts/core/game-context';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
+import { GameFacade } from '../../assets/scripts/facade/game-facade';
 
 const NOW = 1_800_000_000_000;
 
@@ -99,7 +100,30 @@ function testChallengeTimesOutAgainstTheAuthoritativeGameClock(): void {
   assert.equal(game.player.fateRun?.activeChallengeId, null);
 }
 
+function testFacadeAbandonSettlesFateChallengeBeforeFinishedBattleCanBeDismissed(): void {
+  const facade = new GameFacade({
+    player: new PlayerData({ profession: 'QA', characterSetupStatus: 'BACKFILL_REQUIRED' }),
+    storage: new MemoryStorageAdapter(),
+    clock: new FakeClock(NOW),
+    board: null,
+    playTimeScale: 1,
+  });
+  unlockOnlineIncident(facade.context);
+  facade.startFateChallenge('build_java');
+
+  facade.abandonBattleRun();
+
+  assert.equal(facade.queryFateRun()?.flags['challenge:online_incident:DEFEAT'], true,
+    'abandoning a challenge through the player facade must persist its Fate outcome synchronously');
+  assert.equal(facade.queryFateRun()?.activeChallengeId, null);
+  facade.clearFinishedBattle();
+  assert.equal(facade.queryFateRun()?.flags['challenge:online_incident:DEFEAT'], true,
+    'closing the visible result must not erase the battle record before challenge settlement');
+  facade.destroy();
+}
+
 testChallengeVictoryUsesV3BattleAndSettlesOnlyOnce();
 testChallengeDefeatUsesV3BattleAndRecordsFailureBranch();
 testChallengeTimesOutAgainstTheAuthoritativeGameClock();
+testFacadeAbandonSettlesFateChallengeBeforeFinishedBattleCanBeDismissed();
 console.log('v59j fate challenge tests passed');

@@ -1,0 +1,25 @@
+{
+  "id": "startup-stability",
+  "title": "Ten serial packaged EXE launches reach GameFacade.ready",
+  "steps": [
+    { "action": "screenshot", "name": "launch-01", "description": "Capture the first packaged launch after its readiness gate completes" },
+    { "action": "restart", "description": "Close and relaunch the same packaged EXE and isolated profile (launch 02)" },
+    { "action": "screenshot", "name": "launch-02", "description": "Capture the second launch after GameFacade.ready" },
+    { "action": "restart", "description": "Close and relaunch the same packaged EXE and isolated profile (launch 03)" },
+    { "action": "screenshot", "name": "launch-03", "description": "Capture the third launch after GameFacade.ready" },
+    { "action": "restart", "description": "Close and relaunch the same packaged EXE and isolated profile (launch 04)" },
+    { "action": "screenshot", "name": "launch-04", "description": "Capture the fourth launch after GameFacade.ready" },
+    { "action": "restart", "description": "Close and relaunch the same packaged EXE and isolated profile (launch 05)" },
+    { "action": "screenshot", "name": "launch-05", "description": "Capture the fifth launch after GameFacade.ready" },
+    { "action": "restart", "description": "Close and relaunch the same packaged EXE and isolated profile (launch 06)" },
+    { "action": "screenshot", "name": "launch-06", "description": "Capture the sixth launch after GameFacade.ready" },
+    { "action": "restart", "description": "Close and relaunch the same packaged EXE and isolated profile (launch 07)" },
+    { "action": "screenshot", "name": "launch-07", "description": "Capture the seventh launch after GameFacade.ready" },
+    { "action": "restart", "description": "Close and relaunch the same packaged EXE and isolated profile (launch 08)" },
+    { "action": "screenshot", "name": "launch-08", "description": "Capture the eighth launch after GameFacade.ready" },
+    { "action": "restart", "description": "Close and relaunch the same packaged EXE and isolated profile (launch 09)" },
+    { "action": "screenshot", "name": "launch-09", "description": "Capture the ninth launch after GameFacade.ready" },
+    { "action": "restart", "description": "Close and relaunch the same packaged EXE and isolated profile (launch 10)" },
+    { "action": "screenshot", "name": "launch-10", "description": "Capture the tenth launch after GameFacade.ready" }
+  ]
+}

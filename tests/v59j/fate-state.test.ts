@@ -80,6 +80,7 @@ const tests: Array<[string, () => void]> = [
       rebirthMeta: { karma: 8, talentRanks: { born_cow: 2 }, unlockedEndings: ['LAYOFF', 'LAYOFF'], settledRunIds: ['run-1'] },
     }));
     assert.equal((data.fateRun as Record<string, unknown>).runId, 'run-7');
+    assert.equal((data.fateRun as Record<string, unknown>).cardBattleWins, 0);
     assert.deepEqual((data.fateRun as Record<string, unknown>).eventQueue, ['evt-a']);
     assert.deepEqual(data.rebirthMeta, {
       karma: 8,

@@ -5,9 +5,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { test } = require('node:test');
 const { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, classifyFailure, classifyStepFailure } = require('../../ai/gameplay-agent/lib/report.cjs');
-const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, readStatePath, storeScenarioVariable, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupControlKind, popupControlSelector, popupChoiceCanBeClicked, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, scenarioStateMatchesFrom } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
+const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, readStatePath, storeScenarioVariable, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupControlKind, popupControlSelector, popupChoiceCanBeClicked, canRecoverObstructedClick, shouldInspectPopupForTarget, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, scenarioStateMatchesFrom, shouldRetryStatefulClick } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
 const { waitForArenaSkillButton, waitForArenaControl } = require('../../ai/gameplay-agent/lib/home-arena-play.cjs');
 const { cleanupIsolatedProfile } = require('../../ai/gameplay-agent/lib/profile-cleanup.cjs');
+const { chooseCardBattleAction, cardBattleActionAdvanced, cardBattleControlCandidate, dismissPopupAfterStalledCardAction, waitForCardBattleActionTransition, shouldRetryCardBattleAction } = require('../../ai/gameplay-agent/lib/card-battle-play.cjs');
+const { tabScrollTargetIntoView } = require('../../ai/gameplay-agent/lib/scroll-recovery.cjs');
 
 test('scenario ids cannot escape the reports directory', () => {
   assert.equal(safeRunId('../outside'), null);
@@ -25,6 +27,53 @@ test('shared new-player setup waits for authoritative character creation complet
     && step.expected === 'COMPLETE'
     && step.maxAttempts === 3),
   'the setup must wait for durable character creation before dependent UI scenarios continue');
+});
+
+test('shared new-player setup confirms industry selection in the authoritative draft before advancing', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/_new-player.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  const selection = scenario.steps.find((step) => step.selector === '[data-creation-choice="industry:INTERNET"]');
+  assert.equal(selection?.action, 'clickUntilState', 'industry selection must be confirmed through bounded visible UI input');
+  assert.equal(selection.method, 'queryCharacterCreation');
+  assert.equal(selection.path, 'draft.industry');
+  assert.equal(selection.from, null);
+  assert.equal(selection.expected, 'INTERNET');
+  assert.equal(selection.maxAttempts, 3);
+});
+
+test('long character creation scroll steps declare a real UI target for bounded keyboard fallback', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/_new-player.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  const scrolls = scenario.steps.filter((step) => step.action === 'scroll' && step.selector === '.v59-step-content');
+
+  assert.ok(scrolls.length >= 3);
+  assert.ok(scrolls.every((step) => typeof step.ensureVisibleSelector === 'string' && step.keyboardRecoveryMaxTabSteps === 24),
+    'each creation scroll must name the real control to expose and bound Tab focus recovery');
+});
+
+test('reemployment scenario confirms a next-day contract after the visible accept-offer click', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/career-layoff-reemployment.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  const acceptance = scenario.steps.find((step) => step.action === 'clickUntilState' && step.selector === '[data-action="acceptSectOffer"]');
+  assert.equal(acceptance?.action, 'clickUntilState', 'acceptance must retry only while the authoritative pending contract is absent');
+  assert.equal(acceptance.method, 'queryPendingSectContract');
+  assert.equal(acceptance.path, 'sectId');
+  assert.equal(acceptance.from, null);
+  assert.equal(acceptance.expected, 'INTERNAL');
+  assert.equal(acceptance.maxAttempts, 3);
+});
+
+test('shared new-player setup waits for authoritative allocation after clicking the plus-five control', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/_new-player.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  assert.ok(scenario.steps.some((step) => step.action === 'clickUntilState'
+    && step.selector === '[data-creation-action="allocate"][data-stat="insight"][data-delta="5"]'
+    && step.method === 'queryCharacterCreation'
+    && step.path === 'draft.allocation.insight'
+    && step.from === 0
+    && step.expected === 5
+    && step.maxAttempts === 3),
+  'the setup must wait for the visible +5 click to reach the persisted creation draft before asserting or continuing');
 });
 
 test('new-player sect and background choices retry until their authoritative draft fields are selected', () => {
@@ -49,6 +98,13 @@ test('stateful clicks treat an absent draft field as the explicit null starting 
   assert.equal(scenarioStateMatchesFrom(null, null), true);
   assert.equal(scenarioStateMatchesFrom('OUTSOURCING', null), false);
   assert.equal(scenarioStateMatchesFrom(undefined, 'SECT'), false);
+});
+
+test('stateful clicks retry when a null starting field is absent from the query object', () => {
+  assert.equal(shouldRetryStatefulClick({ current: undefined, from: null, attempt: 1, maxAttempts: 3 }), true);
+  assert.equal(shouldRetryStatefulClick({ current: null, from: null, attempt: 1, maxAttempts: 3 }), true);
+  assert.equal(shouldRetryStatefulClick({ current: 'OUTSOURCING', from: null, attempt: 1, maxAttempts: 3 }), false);
+  assert.equal(shouldRetryStatefulClick({ current: undefined, from: null, attempt: 3, maxAttempts: 3 }), false);
 });
 
 test('home arena scenarios require fixed seed and real paced input; soak cannot claim less than twenty minutes', () => {
@@ -86,29 +142,74 @@ test('special challenge scenario starts and observes an actual V3 battle through
   assert.ok(scenario.steps.some((step) => step.action === 'call' && step.method === 'queryBattle'));
   assert.ok(scenario.steps.some((step) => step.action === 'click' && step.selector === '[data-action=abandonBattle]'));
   const settlementIndex = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'queryFinishedBattle' && step.as === 'abandonedBattle');
-  const resultModalIndex = scenario.steps.findIndex((step) => step.action === 'waitFor' && step.selector.includes('data-battle-fallback-exit'));
+  const resultModalIndex = scenario.steps.findIndex((step) => step.action === 'clickIfPresent' && step.selector === '[data-battle-fallback-exit]');
   const abandonIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-action=abandonBattle]');
   const defeatAssertIndex = scenario.steps.findIndex((step) => step.action === 'assert' && step.path === '@vars.abandonedBattle.status' && step.expected === 'DEFEAT');
-  const queuedEventChoiceIndex = scenario.steps.findIndex((step) => step.action === 'waitFor'
+  const interruptionWaitIndex = scenario.steps.findIndex((step) => step.action === 'waitFor'
+    && step.selector.includes('[data-battle-fallback-exit]') && step.selector.includes('[data-vevent-choice]'));
+  assert.ok(interruptionWaitIndex >= 0,
+    'the challenge result wait must include the real Fate choice attribute used by the UI');
+  const interruptionWait = scenario.steps[interruptionWaitIndex];
+  const multiChoiceIndex = scenario.steps.findIndex((step, index) => index > interruptionWaitIndex
+    && step.action === 'clickIfPresent' && step.selector === '.ux-modal-layer [data-vevent-choice]');
+  const multiChoiceResultIndex = scenario.steps.findIndex((step, index) => index > multiChoiceIndex
+    && step.action === 'clickIfPresent' && step.selector === '.ux-modal-layer #V2EventOk');
+  const multiChoiceClosedIndex = scenario.steps.findIndex((step, index) => index > multiChoiceResultIndex
+    && step.action === 'waitFor' && step.state === 'hidden'
+    && step.selector.includes('.ux-modal-layer [data-vevent-choice]')
+    && step.selector.includes('.ux-modal-layer #V2EventOk'));
+  const queuedEventChoiceIndex = scenario.steps.findIndex((step) => step.action === 'clickIfPresent'
     && step.selector === '.ux-modal-layer [data-vevent-choice="__auto"]');
-  const queuedEventResultIndex = scenario.steps.findIndex((step) => step.action === 'waitFor'
+  const queuedEventResultIndex = scenario.steps.findIndex((step, index) => index > queuedEventChoiceIndex && step.action === 'clickIfPresent'
     && step.selector === '.ux-modal-layer #V2EventOk');
-  const eventChoiceIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '.ux-modal-layer [data-vevent-choice="__auto"]');
-  const eventResultIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '.ux-modal-layer #V2EventOk');
+  const resultAckIndex = scenario.steps.findIndex((step) => step.action === 'clickIfPresent' && step.selector === '[data-battle-fallback-exit]');
+  const resultClosedIndex = scenario.steps.findIndex((step, index) => index > resultAckIndex
+    && step.action === 'waitFor' && step.selector === '[data-battle-fallback-exit]' && step.state === 'hidden');
   assert.ok(settlementIndex >= 0 && settlementIndex < resultModalIndex,
     'the scenario must record authoritative battle settlement before checking its UI result');
+  assert.equal(interruptionWait?.failureClass, 'AUTOMATION_DEFECT');
+  assert.ok(multiChoiceIndex > interruptionWaitIndex && multiChoiceResultIndex > multiChoiceIndex
+    && multiChoiceClosedIndex > multiChoiceResultIndex,
+  'resolve the visible multi-choice Fate event and its result using real clicks, then wait until both modal controls are hidden');
+  assert.doesNotMatch(interruptionWait.selector, /\.ux-event-option\[data-choice\]/,
+    'the Fate interruption wait must use the real data-vevent-choice UI attribute');
   assert.ok(abandonIndex < settlementIndex && settlementIndex < defeatAssertIndex
-    && defeatAssertIndex < queuedEventChoiceIndex && queuedEventChoiceIndex < queuedEventResultIndex,
-  'authoritative defeat must be recorded before resolving the real event popup that can interrupt its result UI');
-  assert.ok(!scenario.steps.some((step) => step.action === 'waitFor' && step.selector === '[data-critical-conv]'),
-    'the scenario must not require a critical conversation that the authoritative failed-battle flow does not create');
-  assert.ok(queuedEventChoiceIndex < eventChoiceIndex && eventChoiceIndex < queuedEventResultIndex
-    && queuedEventResultIndex < eventResultIndex && eventResultIndex < resultModalIndex,
-    'the scenario must verify defeat, then resolve the real V2 event before asserting the battle-result popup');
+    && defeatAssertIndex < interruptionWaitIndex && interruptionWaitIndex < queuedEventChoiceIndex
+    && queuedEventChoiceIndex < queuedEventResultIndex && queuedEventResultIndex < resultModalIndex
+    && resultModalIndex === resultAckIndex && resultClosedIndex > resultAckIndex,
+  'the real interruption is acknowledged when present, then the actual visible defeat result control is clicked and confirmed hidden');
+  const criticalConversationIndex = scenario.steps.findIndex((step, index) => index > queuedEventResultIndex
+    && step.action === 'clickIfPresent' && step.selector === '[data-critical-conv]');
+  const criticalReplyIndex = scenario.steps.findIndex((step, index) => index > criticalConversationIndex
+    && step.action === 'clickIfPresent' && step.selector === '.ux-reply-option');
+  const messengerBackIndex = scenario.steps.findIndex((step, index) => index > criticalConversationIndex
+    && step.action === 'clickIfPresent' && step.selector === '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]');
+  const restoreProjectReadyIndex = scenario.steps.findIndex((step, index) => index > resultClosedIndex
+    && step.action === 'assertClickable' && step.selector === '.ux-nav-item[data-nav=PROJECT]');
+  const restoreProjectIndex = scenario.steps.findIndex((step, index) => index > restoreProjectReadyIndex
+    && step.action === 'click' && step.selector === '.ux-nav-item[data-nav=PROJECT]');
+  assert.ok(criticalConversationIndex > queuedEventResultIndex && criticalReplyIndex > criticalConversationIndex
+    && messengerBackIndex > criticalReplyIndex && resultModalIndex > messengerBackIndex
+    && resultClosedIndex > resultModalIndex && restoreProjectReadyIndex > resultClosedIndex
+    && restoreProjectIndex > restoreProjectReadyIndex,
+  'resolve the critical conversation, dismiss the visible defeat result, confirm it hidden, then restore project navigation');
+  assert.ok(scenario.steps.some((step) => step.action === 'waitFor'
+    && step.selector.includes('.ux-modal-layer [data-vevent-choice="__auto"]')
+    && step.selector.includes('[data-battle-fallback-exit]')),
+  'the scenario must accept either the queued workplace popup or the actual defeat result as the first visible interruption');
   assert.ok(scenario.steps.some((step) => step.action === 'waitFor' && step.selector.includes('data-battle-fallback-exit')));
   assert.ok(scenario.steps.some((step) => step.action === 'call' && step.method === 'queryFateRun'));
   assert.ok(scenario.steps.filter((step) => step.action === 'call').every((step) => step.method.startsWith('query')),
     'challenge state must come from the existing authoritative battle and fate query APIs');
+  const battleVisibleIndex = scenario.steps.findIndex((step) => step.action === 'waitFor' && step.selector === '.ux-battle2');
+  const eventChoiceIndex = scenario.steps.findIndex((step, index) => index > battleVisibleIndex
+    && step.action === 'clickIfPresent' && step.selector === '.ux-modal-layer .ux-event-option');
+  const eventAckIndex = scenario.steps.findIndex((step, index) => index > eventChoiceIndex
+    && step.action === 'clickIfPresent' && step.selector === '.ux-modal-layer #V2EventOk');
+  const abandonActionIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-action=abandonBattle]');
+  assert.ok(battleVisibleIndex >= 0 && eventChoiceIndex > battleVisibleIndex && eventAckIndex > eventChoiceIndex
+    && abandonActionIndex > eventAckIndex,
+  'resolve a currently visible real event first, then use the recovery-aware battle click so a newly appearing event cannot trip an immediate clickability assertion');
 });
 
 test('J fate recovery scenarios exercise choices, death, settlement, rebirth and talent through visible UI controls', () => {
@@ -117,22 +218,21 @@ test('J fate recovery scenarios exercise choices, death, settlement, rebirth and
     validateScenario(JSON.parse(fs.readFileSync(path.join(scenarioDir, `${id}.json`), 'utf8'))),
   );
   const chain = scenarios[0];
-  const clicks = chain.steps.filter((step) => step.action === 'click').map((step) => step.selector);
+  const clickableSteps = chain.steps.filter((step) => ['click', 'clickUntilState'].includes(step.action));
+  const clicks = clickableSteps.map((step) => step.selector);
   assert.ok(clicks.includes('#FateEventChoices [data-fate-choice="RISK"]'));
   assert.ok(clicks.includes('#FateChallengeControls [data-fate-settle]'));
   assert.ok(clicks.includes('#FateTalentList [data-fate-talent="born_cow"]'));
   assert.ok(clicks.includes('#FateChallengeControls [data-fate-rebirth]'));
   assert.ok(chain.steps.some((step) => step.action === 'restartGame'));
-  assert.ok(chain.steps.some((step) => step.action === 'waitFor' && step.selector.includes('data-event-id=coffee_event')),
-    'the chain replay must resolve the event queued ahead of intern_s4 before asserting the next story card');
-  assert.ok(chain.steps.some((step) => step.action === 'click' && step.selector === '#FateEventChoices [data-fate-choice="NEGOTIATE"]'),
-    'the queued coffee event must be resolved through its visible choice control');
   assert.ok(chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterDeath.health' && step.expected === 0),
     'the fatal risk assertion must verify zero run health without assuming which seeded probability branch won');
+  assert.ok(chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterDeath.eventHistory[3].eventId' && step.expected === 'coffee_event'),
+    'the unlocked coffee event is recorded between intern stages three and four');
+  assert.ok(chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterDeath.eventHistory[3].choiceId' && step.expected === 'NEGOTIATE'),
+    'the coffee event is resolved through its free-water branch');
   assert.ok(chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterDeath.eventHistory[5].choiceId' && step.expected === 'RISK'),
-    'the final intern choice follows the separately recorded queued coffee event in the authoritative history');
-  assert.ok(!chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterDeath.eventHistory[4].choiceId'),
-    'the scenario must not index the final intern choice as if no event had been interleaved');
+    'after the coffee event, the terminal risk choice is the sixth history entry');
   assert.ok(!chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterDeath.terminalOutcomeId' && step.expected === 'intern_s5_LAST_STAND'),
     'the replay must not hard-code the risk success branch when either success or failure ends the run');
   assert.ok(chain.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterRestart.status'));
@@ -146,6 +246,316 @@ test('J fate recovery scenarios exercise choices, death, settlement, rebirth and
   assert.ok(negotiation.steps.some((step) => step.action === 'screenshot'));
   assert.ok(negotiation.steps.filter((step) => step.action === 'call').every((step) => step.method.startsWith('query')),
     'the alternate choice must be submitted through the rendered UI');
+});
+
+test('Fate stories are progressed through visible card battles instead of legacy enemy-click combat', () => {
+  const scenarioDir = path.join(__dirname, '../../ai/gameplay-agent/scenarios');
+  const ids = ['fate-first-choice', 'fate-choice-negotiation', 'fate-chain-death-rebirth'];
+  const scenarios = ids.map((id) => validateScenario(JSON.parse(fs.readFileSync(path.join(scenarioDir, `${id}.json`), 'utf8'))));
+  for (const scenario of scenarios) {
+    assert.ok(!scenario.steps.some((step) => step.action === 'clickUntilState' && step.method === 'queryHomeArena'),
+      `${scenario.id} must not advance Fate through the retired HomeArena click loop`);
+    assert.ok(scenario.steps.some((step) => step.action === 'click' && step.selector === '#ArenaAttack'),
+      `${scenario.id} starts the normal card battle from the home combat entrance`);
+    assert.ok(scenario.steps.some((step) => step.selector === '.ux-cardbattle-card.ux-cardbattle-attack:not([disabled])'),
+      `${scenario.id} must play an actual rendered attack card`);
+    assert.ok(scenario.steps.some((step) => step.action === 'waitFor' && step.selector === '.ux-cardbattle[data-card-phase="VICTORY"]'),
+      `${scenario.id} must wait for authoritative card-battle victory UI`);
+    const victoryIndex = scenario.steps.findIndex((step) => step.action === 'waitFor'
+      && step.selector === '.ux-cardbattle[data-card-phase="VICTORY"]');
+    const rewardIndex = scenario.steps.findIndex((step, index) => index > victoryIndex
+      && step.action === 'clickUntilState' && step.selector === '[data-action="cardReward"]'
+      && step.method === 'queryCardBattle' && step.path === 'rewards[0].chosen' && step.expected === true);
+    const claimIndex = scenario.steps.findIndex((step, index) => index > rewardIndex
+      && step.action === 'clickUntilState' && step.selector === '[data-action="cardClaim"]'
+      && step.method === 'queryCardBattle' && step.path === 'settlement.claimed' && step.expected === true);
+    const firstFateEventIndex = scenario.steps.findIndex((step, index) => index > victoryIndex
+      && step.action === 'waitFor' && step.selector.includes('#FateEventCard'));
+    const queuedEventAssertIndex = scenario.steps.findIndex((step, index) => index > claimIndex
+      && step.action === 'assert' && step.path === '@vars.queuedFate.eventQueue[0]' && step.expected === 'intern_s1');
+    const returnHomeIndex = scenario.steps.findIndex((step, index) => index > queuedEventAssertIndex
+      && step.action === 'click' && step.selector === '[data-nav="HOME"]');
+    assert.ok(rewardIndex > victoryIndex && claimIndex > rewardIndex
+      && queuedEventAssertIndex > claimIndex && returnHomeIndex > queuedEventAssertIndex
+      && firstFateEventIndex > returnHomeIndex,
+    `${scenario.id} must claim the reward, verify Fate was queued, then return home before waiting for its HomeArena card`);
+  }
+});
+
+test('Fate death-rebirth scenario earns the coffee milestone through its second visible card-battle win', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/fate-chain-death-rebirth.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  const internS2Choice = scenario.steps.findIndex((step) => step.action === 'clickUntilState'
+    && step.selector === '#FateEventChoices [data-fate-choice=HELP]'
+    && step.method === 'queryFateRun' && step.path === 'eventQueue[0]'
+    && step.from === 'intern_s2' && step.expected === 'intern_s3');
+  const secondBattle = scenario.steps.findIndex((step, index) => index > internS2Choice
+    && step.action === 'click' && step.selector === '[data-action="startCardBattle"][data-encounter="NORMAL"]');
+  const secondVictory = scenario.steps.findIndex((step, index) => index > secondBattle
+    && step.action === 'waitFor' && step.selector === '.ux-cardbattle[data-card-phase="VICTORY"]');
+  const secondReward = scenario.steps.findIndex((step, index) => index > secondVictory
+    && step.action === 'clickUntilState' && step.selector === '[data-action="cardReward"]'
+    && step.method === 'queryCardBattle' && step.path === 'rewards[0].chosen' && step.expected === true);
+  const secondClaim = scenario.steps.findIndex((step, index) => index > secondReward
+    && step.action === 'clickUntilState' && step.selector === '[data-action="cardClaim"]'
+    && step.method === 'queryCardBattle' && step.path === 'settlement.claimed' && step.expected === true);
+  const secondClear = scenario.steps.findIndex((step, index) => index > secondClaim
+    && step.action === 'click' && step.selector === '[data-action="cardClear"]');
+  const secondWinQueue = scenario.steps.findIndex((step, index) => index > secondClear
+    && step.action === 'assert' && step.path === '@vars.afterSecondWin.eventQueue[1]'
+    && step.expected === 'coffee_event');
+  assert.ok(internS2Choice >= 0 && secondBattle > internS2Choice && secondVictory > secondBattle
+    && secondReward > secondVictory && secondClaim > secondReward && secondClear > secondClaim && secondWinQueue > secondClear,
+  'the scenario must earn card-battle:second-win through visible combat, claim and clear its reward before expecting the hidden coffee event');
+});
+
+test('secret coffee trial is unlocked by completed visible card battles rather than HomeArena kills', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/fate-secret-trial.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  assert.ok(!scenario.steps.some((step) => step.method === 'queryHomeArena'),
+    'the retired HomeArena kill counter cannot stand in for card-battle progress');
+  assert.ok(scenario.steps.some((step) => step.action === 'click' && step.selector === '#ArenaAttack'),
+    'the first normal battle starts through the existing home combat entry');
+  assert.ok(scenario.steps.some((step) => step.action === 'cardBattleAdvance'),
+    'the scenario must play actual cards without requiring a particular shuffled hand');
+  const battleInteractions = scenario.steps.filter((step) => step.action === 'cardBattleAdvance');
+  assert.ok(battleInteractions.length >= 16
+    && battleInteractions.every((step) => step.popupChoiceSelector?.includes('[data-vevent-choice="__auto"]')),
+  'card actions and turn endings must recover actual workplace-event popups before continuing a battle');
+  assert.ok(scenario.steps.filter((step) => step.selector === '[data-action="cardReward"]').length >= 2
+    && scenario.steps.filter((step) => step.selector === '[data-action="cardClaim"]').length >= 2,
+  'both normal battles must resolve visible card rewards and claims before they count toward Fate milestones');
+  const claims = scenario.steps.map((step, index) => ({ step, index })).filter(({ step }) => step.selector === '[data-action="cardClaim"]');
+  assert.ok(claims.length >= 2 && claims.every(({ index }) => scenario.steps.slice(index + 1, index + 3).some((step) => step.action === 'click' && step.selector === '[data-action="cardClear"]')),
+    'each claimed card-battle result must be dismissed through its visible Return to Project Entry control before the next flow');
+  assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterSecondWin.eventQueue[1]' && step.expected === 'coffee_event'),
+    'the second battle milestone queues coffee behind the unfinished intern story instead of making it current early');
+  assert.ok(scenario.steps.some((step) => step.action === 'assert' && step.path === '@vars.afterInternS3.eventQueue[0]' && step.expected === 'coffee_event'),
+    'resolving intern_s3 exposes the second-win coffee event before intern_s4 reaches its ending');
+  assert.ok(scenario.steps.some((step) => step.action === 'clickUntilState' && step.selector === '#FateEventChoices [data-fate-choice=HELP]'
+    && step.method === 'queryFateRun' && step.path === 'eventQueue[0]' && step.from === 'intern_s3' && step.expected === 'coffee_event'),
+  'the scenario must select intern_s3 through its visible UI before asserting the coffee event becomes current');
+  const secondWinIndex = scenario.steps.findIndex((step) => step.action === 'assert' && step.path === '@vars.afterSecondWin.eventQueue[1]');
+  const returnHomeIndex = scenario.steps.findIndex((step, index) => index > secondWinIndex && step.action === 'click' && step.selector === '[data-nav="HOME"]');
+  const internS3WaitIndex = scenario.steps.findIndex((step, index) => index > secondWinIndex && step.action === 'waitFor' && step.selector === '#FateEventCard[data-event-id=intern_s3]:not([hidden])');
+  assert.ok(returnHomeIndex > secondWinIndex && internS3WaitIndex > returnHomeIndex,
+    'after the second battle the visible home route must be restored before waiting for the queued intern event');
+  assert.ok(scenario.steps.some((step) => step.action === 'waitFor'
+    && step.selector === '#FateEventCard[data-event-id=coffee_event]:not([hidden])'),
+  'the hidden coffee event must be visibly rendered before its choice');
+  assert.ok(scenario.steps.some((step) => step.action === 'assert'
+    && step.path === '@vars.afterUnlock.activeChallengeId'
+    && step.expected === 'secret_trial'),
+  'the visible coffee choice must unlock the authoritative secret trial');
+});
+
+test('secret-trial normal battles adapt to shuffled hands through visible card play and end-turn controls', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/fate-secret-trial.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  const battleAdvances = scenario.steps.filter((step) => step.action === 'cardBattleAdvance');
+  assert.ok(battleAdvances.length >= 16, 'each normal battle must allow enough visible UI actions to handle defense-only hands');
+  assert.ok(battleAdvances.every((step) => step.popupChoiceSelector?.includes('[data-vevent-choice="__auto"]')),
+    'each card or end-turn interaction must resolve interruptions through their visible choice');
+  assert.ok(scenario.steps.filter((step) => step.selector === '.ux-cardbattle-card.ux-cardbattle-attack:not([disabled])').length <= 2,
+    'normal-battle progression cannot assume a randomly drawn hand always contains an attack card');
+  assert.ok(scenario.steps.filter((step) => step.action === 'assert' && step.path === '@vars.battleAfterAdvance.phase' && step.expected === 'VICTORY').length >= 2,
+    'both normal battles must still prove victory through authoritative state after UI actions');
+});
+
+test('secret-trial defeat uses a visible event choice before abandoning an obscured challenge battle', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/fate-secret-trial.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  const abandonIndex = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-action=abandonBattle]');
+  const abandon = scenario.steps[abandonIndex];
+  assert.ok(!scenario.steps.slice(0, abandonIndex).some((step) => step.action === 'assertClickable'
+    && step.selector === '[data-action=abandonBattle]'),
+  'do not make a one-shot clickability assertion before the recovery-aware visible click; a Fate popup can appear between checks');
+  assert.ok(abandon, 'the challenge defeat must use the real visible battle exit control');
+  assert.ok(abandon.popupChoiceSelector?.includes('.ux-modal-layer .ux-event-option'),
+    'the real challenge battle may be interrupted by a workplace event, so the scenario must select a visible event option before retrying abandon');
+});
+
+test('secret-trial dismisses the visible defeat result before clicking a navigation button it covers', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/fate-secret-trial.json'), 'utf8'));
+  const resultClick = scenario.steps.findIndex((step) => step.action === 'clickIfPresent'
+    && step.selector === '[data-battle-fallback-exit]');
+  const resultClosed = scenario.steps.findIndex((step, index) => index > resultClick
+    && step.action === 'waitFor' && step.selector === '[data-battle-fallback-exit]' && step.state === 'hidden');
+  const projectClickable = scenario.steps.findIndex((step, index) => index > resultClosed
+    && step.action === 'assertClickable' && step.selector === '.ux-nav-item[data-nav=PROJECT]');
+  const projectNavigation = scenario.steps.findIndex((step, index) => index > projectClickable
+    && step.action === 'click' && step.selector === '.ux-nav-item[data-nav=PROJECT]');
+  assert.ok(resultClick >= 0 && resultClosed > resultClick && projectClickable > resultClosed
+    && projectNavigation > projectClickable,
+  'click the actual “返回项目” result, confirm it hidden, then validate and click the normal project navigation');
+});
+
+test('career Fate chain scenario records its authoritative run around the visible trigger', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/career-life-growth.json'), 'utf8'));
+  const trigger = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-action="careerSectFateChain"]');
+  const runRead = scenario.steps.findIndex((step, index) => index > trigger && step.action === 'call' && step.method === 'queryFateRun');
+  const eventRead = scenario.steps.findIndex((step, index) => index > trigger && step.action === 'call' && step.method === 'queryFateEvent');
+  assert.ok(trigger >= 0 && runRead > trigger && eventRead > runRead,
+    'capture the Fate run and queued chain head after the visible trigger so a missing event is classified from authority');
+});
+
+test('layoff reemployment scenario resolves the real boss one-on-one popup before home navigation', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/career-layoff-reemployment.json'), 'utf8'));
+  const nextDay = scenario.steps.findIndex((step) => step.action === 'call' && step.method === 'tick'
+    && /next game day/i.test(step.description || ''));
+  const bossChoice = scenario.steps.findIndex((step, index) => index > nextDay && step.action === 'clickIfPresent'
+    && step.selector === '.ux-modal-layer .ux-event-option[data-vevent-choice="PLAN"]');
+  const resultAck = scenario.steps.findIndex((step, index) => index > bossChoice && step.action === 'clickIfPresent'
+    && step.selector === '.ux-modal-layer [data-vevent-choice="__auto"]');
+  const popupClosed = scenario.steps.findIndex((step, index) => index > resultAck && step.action === 'waitFor'
+    && step.selector === '.ux-modal-layer' && step.state === 'hidden');
+  const home = scenario.steps.findIndex((step, index) => index > popupClosed && step.action === 'click'
+    && step.selector === '[data-nav="HOME"]');
+  assert.ok(nextDay >= 0 && bossChoice > nextDay && resultAck > bossChoice && popupClosed > resultAck && home > popupClosed,
+    'choose through the visible boss event option, acknowledge its result, and wait for the modal to close before navigating');
+});
+
+test('career NPC interaction retries only while authoritative memory-backed trust is unchanged', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/career-life-growth.json'), 'utf8'));
+  const support = scenario.steps.find((step) => step.action === 'clickUntilState'
+    && step.selector === '[data-action="careerNpcInteract"][data-npc="BOSS"][data-kind="SUPPORT"]');
+  assert.equal(support?.action, 'clickUntilState');
+  assert.equal(support?.method, 'queryCareerLife');
+  assert.equal(support?.path, 'relationships[0].trust');
+  assert.equal(support?.from, 50);
+  assert.equal(support?.expected, 58);
+  assert.equal(support?.maxAttempts, 3);
+});
+
+test('card-battle progression chooses only visible real controls based on authoritative phase', () => {
+  const playerTurn = { phase: 'PLAYER_ACTION', turn: 2, hitLog: [], actionLog: [] };
+  assert.deepEqual(chooseCardBattleAction(playerTurn, { attack: true, otherCard: true, endTurn: true }), { kind: 'attack' });
+  assert.deepEqual(chooseCardBattleAction(playerTurn, { attack: false, otherCard: true, endTurn: true }), { kind: 'card' });
+  assert.deepEqual(chooseCardBattleAction(playerTurn, { attack: false, otherCard: false, endTurn: true }), { kind: 'endTurn' });
+  assert.deepEqual(chooseCardBattleAction({ ...playerTurn, phase: 'ENEMY_ACTION' }, { attack: true, otherCard: true, endTurn: true }), { kind: 'wait' });
+  assert.deepEqual(chooseCardBattleAction({ ...playerTurn, phase: 'VICTORY' }, { attack: true, otherCard: true, endTurn: true }), { kind: 'complete' });
+  assert.deepEqual(chooseCardBattleAction(playerTurn, { attack: false, otherCard: false, endTurn: false }), { kind: 'unavailable' });
+  assert.equal(cardBattleActionAdvanced(playerTurn, { ...playerTurn, hitLog: [{ id: 'hit-1' }] }, 'attack'), true);
+  assert.equal(cardBattleActionAdvanced(playerTurn, { ...playerTurn, actionLog: [{ id: 'action-1' }] }, 'card'), true);
+  assert.equal(cardBattleActionAdvanced(playerTurn, { ...playerTurn, turn: 3 }, 'endTurn'), true);
+  assert.equal(cardBattleActionAdvanced(playerTurn, { ...playerTurn, turn: 2 }, 'endTurn'), false);
+  assert.equal(cardBattleControlCandidate({ found: true, visible: true, disabled: false, covered: true }), true,
+    'a covered but rendered control must be handed to popup recovery instead of being mistaken for a missing card');
+  assert.equal(cardBattleControlCandidate({ found: true, visible: true, disabled: true, covered: false }), false);
+});
+
+test('a stalled card action retries only when the same authoritative state and safe control remain', () => {
+  const before = {
+    battleId: 'battle-1', phase: 'PLAYER_ACTION', turn: 1,
+    player: { energy: 3, hp: 100, block: 0 },
+    enemies: [{ id: 'bug-1', hp: 32 }],
+    piles: { hand: [{ instanceId: 'card-1' }] }, hitLog: [], actionLog: [{ id: 'log-1' }],
+  };
+  const control = { found: true, visible: true, disabled: false, covered: false };
+  assert.equal(shouldRetryCardBattleAction({ before, after: structuredClone(before), kind: 'attack', control, attempt: 1, maxAttempts: 2 }), true);
+  assert.equal(shouldRetryCardBattleAction({ before, after: { ...structuredClone(before), enemies: [{ id: 'bug-1', hp: 26 }] }, kind: 'attack', control, attempt: 1, maxAttempts: 2 }), false,
+    'a partially applied action must never be replayed');
+  assert.equal(shouldRetryCardBattleAction({ before, after: structuredClone(before), kind: 'attack', control: { ...control, covered: true }, attempt: 1, maxAttempts: 2 }), false,
+    'a covered control must go through popup recovery instead of retry');
+  assert.equal(shouldRetryCardBattleAction({ before, after: structuredClone(before), kind: 'attack', control, attempt: 2, maxAttempts: 2 }), false,
+    'the retry count stays bounded');
+});
+
+test('random-event battle acknowledges a visible Fate result before waiting for the card hand', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/card-battle-random-event.json'), 'utf8'));
+  const start = scenario.steps.findIndex((step) => step.action === 'click' && step.selector === '[data-action="startCardBattle"][data-encounter="NORMAL"]');
+  const battleWait = scenario.steps.findIndex((step, index) => index > start && step.action === 'waitFor' && step.selector === '.ux-cardbattle[data-card-phase="PLAYER_ACTION"]');
+  const resultAcknowledgement = scenario.steps.findIndex((step, index) => index > start && index < battleWait
+    && step.action === 'clickIfPresent' && step.selector === '.ux-modal-layer #V2EventOk');
+  assert.ok(start >= 0 && resultAcknowledgement > start && battleWait > resultAcknowledgement,
+    'a real Fate result can cover the newly opened battle; acknowledge its visible result before waiting for the card hand');
+});
+
+test('a popup that appears after a card click is closed through its visible control before battle input retries', async () => {
+  let popupVisible = true;
+  const clicked = [];
+  const result = await dismissPopupAfterStalledCardAction({
+    inspectPopup: async () => popupVisible
+      ? { visible: true, control: { selector: '#V2EventOk', visible: true, disabled: false } }
+      : { visible: false, control: null },
+    clickControl: async (control) => {
+      clicked.push(control.selector);
+      popupVisible = false;
+      return true;
+    },
+    delay: async () => {},
+  });
+  assert.deepEqual(clicked, ['#V2EventOk'], 'only the real acknowledgement button closes the popup');
+  assert.equal(result.status, 'dismissed');
+  assert.equal(result.attempts, 1);
+  assert.equal(result.popup.visible, false, 'the helper returns only after confirming the popup is gone');
+});
+
+test('popup recovery after a stalled card click stops after three real attempts when the popup remains visible', async () => {
+  let clicks = 0;
+  const result = await dismissPopupAfterStalledCardAction({
+    inspectPopup: async () => ({ visible: true, control: { selector: '#V2EventOk', visible: true, disabled: false } }),
+    clickControl: async () => { clicks += 1; return true; },
+    delay: async () => {},
+  });
+  assert.equal(clicks, 3);
+  assert.equal(result.status, 'still-visible');
+  assert.equal(result.attempts, 3);
+});
+
+test('card battle input waits for a delayed authoritative update instead of declaring a successful visible play failed', async () => {
+  const before = { phase: 'PLAYER_ACTION', turn: 1, hitLog: [], actionLog: [] };
+  const after = { ...before, hitLog: [{ id: 'hit-delayed' }] };
+  let elapsedMs = 0;
+  let reads = 0;
+  const result = await waitForCardBattleActionTransition({
+    before,
+    kind: 'attack',
+    readState: async () => (++reads < 18 ? before : after),
+    delay: async (ms) => { elapsedMs += ms; },
+    now: () => elapsedMs,
+    timeoutMs: 2500,
+    pollIntervalMs: 100,
+  });
+  assert.equal(result.status, 'advanced');
+  assert.deepEqual(result.state, after);
+  assert.ok(elapsedMs >= 1700, 'the delayed 1.8-second state update must be observed before failure classification');
+});
+
+test('Fate chain event waits opt into real popup recovery before waiting for the next stage', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/fate-chain-death-rebirth.json');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  const eventWaits = scenario.steps.filter((step) => step.action === 'waitFor' && step.selector.includes('#FateEventCard'));
+  assert.ok(eventWaits.length >= 5, 'the scenario keeps its five visible intern story stages');
+  assert.ok(eventWaits.every((step) => step.popupChoiceSelector?.startsWith('.ux-modal-layer .ux-event-option')),
+    'waiting for a Fate card must actively detect and resolve any interrupting modal through its real visible choice');
+  const chainTransitions = [
+    ['intern_s1', 'intern_s2'], ['intern_s2', 'intern_s3'], ['intern_s3', 'coffee_event'], ['coffee_event', 'intern_s4'], ['intern_s4', 'intern_s5'],
+  ];
+  for (const [from, expected] of chainTransitions) {
+    const choice = from === 'coffee_event' ? 'NEGOTIATE' : 'HELP';
+    assert.ok(scenario.steps.some((step) => step.action === 'clickUntilState'
+      && step.selector === `#FateEventChoices [data-fate-choice=${choice}]`
+      && step.method === 'queryFateRun'
+      && step.path === 'eventQueue[0]'
+      && step.from === from
+      && step.expected === expected),
+    `the visible ${choice} choice on ${from} must wait for the authoritative queue to advance to ${expected}`);
+  }
+  assert.ok(scenario.steps.some((step) => step.action === 'waitFor'
+    && step.selector === '#FateEventCard[data-event-id=coffee_event]:not([hidden])'),
+  'the scenario must wait for the actual coffee event card before selecting its free-water option');
+  assert.ok(scenario.steps.some((step) => step.action === 'assert'
+    && step.path === '@vars.afterCoffeeEvent.flags.coffee_event_negotiate'
+    && step.expected === true),
+  'the scenario must verify the coffee choice outcome in authoritative Fate state');
+  assert.ok(scenario.steps.some((step) => step.action === 'clickUntilState'
+    && step.selector === '#FateEventChoices [data-fate-choice="RISK"]'
+    && step.method === 'queryFateRun'
+    && step.path === 'status'
+    && step.from === 'ACTIVE'
+    && step.expected === 'ENDED'),
+  'the final visible risk choice must wait for the authoritative death ending before rebirth steps');
 });
 
 test('arena skill automation waits for the rendered button to catch up with authoritative cooldown state', async () => {
@@ -313,8 +723,18 @@ test('project contract flow scopes messenger back navigation before returning th
 test('time-save compares the persisted second settlement with its workday rather than the possibly advanced current day', () => {
   const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/time-save.json'), 'utf8'));
   const assertion = scenario.steps.find((step) => step.description === 'The second persisted wage slip matches the authoritative second workday');
-  assert.equal(assertion?.path, '@vars.settlementHistoryTwo[1].dayIndex', 'the second settlement returns two history records indexed 0 and 1');
+  assert.equal(assertion?.path, '@vars.settlementHistoryTwo[2].dayIndex', 'two earlier persisted calendar-day slips precede the scenario workdays');
   assert.equal(assertion?.expected, '@vars.workdayTwo.dayIndex', 'the game loop can roll the current day forward while persisting settlement history');
+});
+
+test('time-save does not infer the authoritative workday index from a 24-hour clock advance', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/time-save.json'), 'utf8'));
+  const firstWorkday = scenario.steps.find((step) => step.path === '@vars.workdayOne.dayIndex');
+  const firstSlip = scenario.steps.find((step) => step.path === '@vars.settlementHistoryOne[0].dayIndex');
+  assert.equal(firstWorkday?.check, 'gte');
+  assert.equal(firstWorkday?.expected, 1, 'a new save may still be on its first authoritative game day after the clock advances');
+  assert.equal(firstSlip?.check, 'lte');
+  assert.equal(firstSlip?.expected, '@vars.workdayOne.dayIndex', 'the persisted slip must not claim a day later than the authoritative workday');
 });
 
 test('release check recompiles test JavaScript before executing the compiled suite', () => {
@@ -482,6 +902,21 @@ test('a missing GUI is never represented as a passing release gate', () => {
   assert.equal(summary.passed, 0);
 });
 
+test('startup stability scenario performs ten serial ready-gated launches with evidence for each', () => {
+  const scenarioPath = path.join(__dirname, '../../ai/gameplay-agent/scenarios/startup-stability.json');
+  assert.ok(fs.existsSync(scenarioPath), 'the 10-launch startup acceptance must be a maintained scenario');
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(scenarioPath, 'utf8')));
+  assert.equal(scenario.steps.filter((step) => step.action === 'restart').length, 9,
+    'the initial launch plus nine serialized restarts make ten ready-gated launches');
+  assert.equal(scenario.steps.filter((step) => step.action === 'screenshot').length, 10,
+    'every launch must have its own captured startup evidence');
+  assert.ok(scenario.steps.slice(1).every((step) => step.action === 'restart' || step.action === 'screenshot'),
+    'the stability run must not inject game state or perform unrelated gameplay actions');
+  const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8'));
+  assert.equal(packageJson.scripts['gameplay-agent:startup'], 'node ai/gameplay-agent/index.cjs test --scenario=startup-stability',
+    'the ten-launch acceptance must be directly runnable through a maintained npm script');
+});
+
 test('scenario variables remain readable by the runner after a page restart', () => {
   const variables = createVariableScopes();
   storeScenarioVariable(variables, 'beforeRestart', { salary: 42, tasks: [{ id: 'task-1' }] }, { type: 'object' });
@@ -545,6 +980,13 @@ test('a popup that appears during pointer movement is recoverable only through a
   assert.equal(canRecoverObstructedClick({ covered: true }, { visible: true, control: { disabled: true } }), false);
 });
 
+test('popup recovery inspects the real modal when it temporarily removes the requested target', () => {
+  assert.equal(shouldInspectPopupForTarget({ found: false }, '.ux-modal-layer [data-vevent-choice="__auto"]'), true);
+  assert.equal(shouldInspectPopupForTarget({ found: false }, null), false);
+  assert.equal(shouldInspectPopupForTarget({ found: true, visible: true, covered: true }, null), true);
+  assert.equal(shouldInspectPopupForTarget({ found: true, visible: true, covered: false }, '.ux-modal-layer [data-vevent-choice="__auto"]'), false);
+});
+
 test('an obscuring popup transition is observed until its real control becomes visible', () => {
   assert.equal(shouldWaitForObscuringPopup({ covered: true }, { visible: false }), true);
   assert.equal(shouldWaitForObscuringPopup({ covered: true }, { visible: true }), false);
@@ -553,9 +995,19 @@ test('an obscuring popup transition is observed until its real control becomes v
 
 test('popup recovery can handle a result modal while respecting the three-attempt limit', () => {
   assert.equal(shouldContinuePopupRecovery({ found: true, visible: true, covered: true }, { visible: true }, 1), true);
-  assert.equal(shouldContinuePopupRecovery({ found: true, visible: true, covered: true }, { visible: true }, 3), false);
+  assert.equal(shouldContinuePopupRecovery({ found: true, visible: true, covered: true }, { visible: true }, 3, 3), false);
   assert.equal(shouldContinuePopupRecovery({ found: true, visible: true, covered: true }, { visible: false }, 1), false);
   assert.equal(shouldContinuePopupRecovery({ found: true, visible: true, covered: false }, { visible: true }, 1), false);
+});
+
+test('popup recovery handles a bounded chain of real event and result modals', () => {
+  const target = { found: true, visible: true, covered: true };
+  assert.equal(shouldContinuePopupRecovery(target, { visible: true }, 4), true,
+    'a second event result may still be covering the requested control after three real UI acknowledgements');
+  assert.equal(shouldContinuePopupRecovery(target, { visible: true }, 5), true,
+    'recovery may finish a short chain of queued event/result modals');
+  assert.equal(shouldContinuePopupRecovery(target, { visible: true }, 6), false,
+    'modal recovery remains strictly bounded');
 });
 
 test('single-outcome event acknowledgements resolve to their real visible button selector', () => {
@@ -585,6 +1037,36 @@ test('wheel automation waits until the scroll container reports a changed positi
   assert.equal(scrollPositionChanged(before, { scrollTop: 0, scrollLeft: 0 }), false);
   assert.equal(scrollPositionChanged(before, { scrollTop: 220, scrollLeft: 0 }), true);
   assert.equal(scrollPositionChanged(before, { scrollTop: 0, scrollLeft: 20 }), true);
+});
+
+test('keyboard scroll recovery tabs without activating controls and stops only when the requested target is safely visible', async () => {
+  let tabs = 0;
+  const result = await tabScrollTargetIntoView({
+    selector: '#save-identity',
+    maxTabSteps: 8,
+    inspectTarget: async () => ({ found: true, visible: tabs >= 3, covered: false, disabled: false }),
+    dispatchTab: async () => { tabs += 1; },
+    wait: async () => {},
+  });
+
+  assert.equal(result.visible, true);
+  assert.equal(result.tabSteps, 3);
+  assert.equal(tabs, 3, 'focus navigation must stop as soon as the requested control is visible');
+});
+
+test('keyboard scroll recovery fails closed when the target stays obscured after its bounded Tab attempts', async () => {
+  let tabs = 0;
+  const result = await tabScrollTargetIntoView({
+    selector: '#save-identity',
+    maxTabSteps: 2,
+    inspectTarget: async () => ({ found: true, visible: true, covered: true, disabled: false }),
+    dispatchTab: async () => { tabs += 1; },
+    wait: async () => {},
+  });
+
+  assert.equal(result.visible, false);
+  assert.equal(result.tabSteps, 2);
+  assert.equal(tabs, 2);
 });
 
 test('a scroll boundary is accepted only when the requested target is visibly reachable', () => {

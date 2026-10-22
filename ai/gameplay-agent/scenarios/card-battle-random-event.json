@@ -6,6 +6,7 @@
     { "action": "click", "selector": "[data-nav=\"PROJECT\"]" },
     { "action": "waitFor", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]", "timeoutMs": 5000 },
     { "action": "click", "selector": "[data-action=\"startCardBattle\"][data-encounter=\"NORMAL\"]" },
+    { "action": "clickIfPresent", "selector": ".ux-modal-layer #V2EventOk", "timeoutMs": 3000, "description": "Close a real gameplay Fate result through its visible button before waiting for the card hand" },
     { "action": "waitFor", "selector": ".ux-cardbattle[data-card-phase=\"PLAYER_ACTION\"]", "timeoutMs": 5000 },
     { "action": "click", "selector": "[data-action=\"cardDrawEvent\"]", "description": "Draw a battle event from the seeded authoritative event stream" },
     { "action": "clickIfPresent", "selector": "#V2EventOk", "timeoutMs": 3000, "description": "Acknowledge a real Fate result popup through its visible button if the normal game clock presents one over combat" },

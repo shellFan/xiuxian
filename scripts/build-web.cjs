@@ -4,6 +4,7 @@ const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 const { resolveCocosCreator, buildArgs } = require('./cocos-cli.cjs');
 const { getWebDesktopBuildDir } = require('./web-desktop-build-path.cjs');
+const { generateCocosBuildManifest } = require('./cocos-build-manifest.cjs');
 const {
   clearWebDesktopBuildDir,
   verifyFreshWebDesktopBuild,
@@ -40,4 +41,17 @@ if (!verification.ok) {
 if (result.status === 36) {
   console.warn('PROJECT_WARNING: Cocos Creator returned 36 after a verified fresh Web Desktop build; accepting the artifact.');
 }
-process.exit(getBuildResultExitCode(result.status, verification));
+const exitCode = getBuildResultExitCode(result.status, verification);
+if (exitCode === 0) {
+  let gitHead = 'unknown';
+  try { gitHead = require('node:child_process').execFileSync('git', ['rev-parse', 'HEAD'], { cwd: projectRoot, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); }
+  catch { /* source hash still identifies the inputs when Git is unavailable */ }
+  generateCocosBuildManifest(outDir, {
+    startedAtMs,
+    completedAtMs: Date.now(),
+    gitHead,
+    creatorVersion: resolved.version,
+  });
+  console.log('[pc:build] Wrote Cocos source/build provenance manifest.');
+}
+process.exit(exitCode);

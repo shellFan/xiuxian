@@ -3,6 +3,7 @@
 const VARIABLE_NAME = /^[a-z][a-zA-Z0-9]{0,39}$/;
 const VARIABLE_PATH = /^@(vars|run)((?:\.[a-zA-Z_$][\w$]*|\[(?:\d+|"[a-zA-Z0-9_:-]+")\])+)$/;
 const TYPES = new Set(['array', 'boolean', 'null', 'number', 'object', 'string']);
+const MAX_POPUP_RECOVERY_ACTIONS = 6;
 
 function createVariableScopes() {
   return { scenario: Object.create(null), run: Object.create(null) };
@@ -35,11 +36,15 @@ function canRecoverObstructedClick(target, popup) {
     && !!popup.control && popup.control.disabled !== true;
 }
 
+function shouldInspectPopupForTarget(target, popupChoiceSelector) {
+  return target?.covered === true || (target?.found === false && !!popupChoiceSelector);
+}
+
 function shouldWaitForObscuringPopup(target, popup) {
   return target?.covered === true && popup?.visible !== true;
 }
 
-function shouldContinuePopupRecovery(target, popup, attempt, maxAttempts = 3) {
+function shouldContinuePopupRecovery(target, popup, attempt, maxAttempts = MAX_POPUP_RECOVERY_ACTIONS) {
   return attempt < maxAttempts && target?.found === true && target.visible === true
     && target.covered === true && popup?.visible === true;
 }
@@ -140,6 +145,12 @@ function scenarioStateMatchesFrom(value, from) {
   return from === null ? value == null : value === from;
 }
 
+function shouldRetryStatefulClick({ current, from, attempt, maxAttempts }) {
+  return Number.isInteger(attempt) && Number.isInteger(maxAttempts)
+    && attempt < maxAttempts
+    && scenarioStateMatchesFrom(current, from);
+}
+
 function formatHitTarget(hit) {
   if (hit == null) return 'unknown element';
   if (typeof hit === 'string') return hit;
@@ -149,4 +160,4 @@ function formatHitTarget(hit) {
   return `${hit.tag ?? 'element'}${className} (${JSON.stringify(hit)})`;
 }
 
-module.exports = { createVariableScopes, storeScenarioVariable, readScenarioVariable, readStatePath, formatHitTarget, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupChoiceCanBeClicked, popupControlKind, popupControlSelector, canRecoverObstructedClick, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds, scenarioStateMatchesFrom };
+module.exports = { MAX_POPUP_RECOVERY_ACTIONS, createVariableScopes, storeScenarioVariable, readScenarioVariable, readStatePath, formatHitTarget, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupChoiceCanBeClicked, popupControlKind, popupControlSelector, canRecoverObstructedClick, shouldInspectPopupForTarget, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds, scenarioStateMatchesFrom, shouldRetryStatefulClick };

@@ -7,11 +7,14 @@ const http = require('node:http');
 const os = require('node:os');
 const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
-const { CdpSession, listenPort } = require('./lib/cdp.cjs');
+const { CdpSession, dispatchWheelAt, listenPort } = require('./lib/cdp.cjs');
+const { withLaunchResourceCleanup } = require('./lib/launch-lifecycle.cjs');
 const { runHomeArena } = require('./lib/home-arena-play.cjs');
+const { tabScrollTargetIntoView } = require('./lib/scroll-recovery.cjs');
 const { cleanupIsolatedProfile } = require('./lib/profile-cleanup.cjs');
+const { chooseCardBattleAction, cardBattleActionAdvanced, cardBattleControlCandidate, dismissPopupAfterStalledCardAction, waitForCardBattleActionTransition, shouldRetryCardBattleAction } = require('./lib/card-battle-play.cjs');
 const { classifyFailure, classifyStepFailure, collectFailedScenarioIds, safeRunId, summarizeResults, validateScenario } = require('./lib/report.cjs');
-const { boundsWithinViewport, canFinishClickAfterFinalPopupDismissal, canRecoverObstructedClick, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupChoiceCanBeClicked, popupControlKind, popupControlSelector, popupDismissalComplete, readScenarioVariable, readStatePath, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldContinuePopupRecovery, shouldRestoreScrollContextAfterPopup, shouldWaitForObscuringPopup, storeScenarioVariable, scenarioStateMatchesFrom } = require('./lib/scenario-state.cjs');
+const { MAX_POPUP_RECOVERY_ACTIONS, boundsWithinViewport, canFinishClickAfterFinalPopupDismissal, canRecoverObstructedClick, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupChoiceCanBeClicked, popupControlKind, popupControlSelector, popupDismissalComplete, readScenarioVariable, readStatePath, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldContinuePopupRecovery, shouldInspectPopupForTarget, shouldRestoreScrollContextAfterPopup, shouldWaitForObscuringPopup, storeScenarioVariable, scenarioStateMatchesFrom, shouldRetryStatefulClick } = require('./lib/scenario-state.cjs');
 
 const root = path.resolve(__dirname, '..', '..');
 const scenarioDir = path.join(__dirname, 'scenarios');
@@ -211,7 +214,7 @@ async function scrollModalControlIntoView(cdp, selector, maxAttempts = 3) {
     })()`);
     if (!scrollTarget) return { target, attempts };
     await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: scrollTarget.x, y: scrollTarget.y });
-    await cdp.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x: scrollTarget.x, y: scrollTarget.y, deltaX: scrollTarget.deltaX, deltaY: scrollTarget.deltaY });
+    await dispatchWheelAt(cdp, scrollTarget);
     await delay(150);
     attempts.push({ attempt, ...scrollTarget });
   }
@@ -239,9 +242,9 @@ async function inputClick(cdp, selector, clickCount = 1, popupChoiceSelector = n
       ? { ...located.target, selector: popupChoiceSelector, kind: 'scenario-popup-choice', scrollAttempts: located.attempts }
       : null;
   };
-  for (let attempt = 1; item.found && item.visible && item.covered && attempt <= 3; attempt++) {
+  for (let attempt = 1; shouldInspectPopupForTarget(item, popupChoiceSelector) && attempt <= MAX_POPUP_RECOVERY_ACTIONS; attempt++) {
     let popup = await inspectRandomEventPopup(cdp);
-    if (shouldWaitForObscuringPopup(item, popup)) {
+    if (item.found && item.visible && item.covered && shouldWaitForObscuringPopup(item, popup)) {
       const observed = await waitForObscuringPopup(cdp, selector);
       item = observed.target;
       popup = observed.popup;
@@ -277,7 +280,8 @@ async function inputClick(cdp, selector, clickCount = 1, popupChoiceSelector = n
     dismissalAttempts.push(record);
     if (popupDismissalComplete({ closed: record.popupClosed }, { covered: item.covered })) dismissedInterruptions.push(control.kind);
   }
-  if (item.found && item.visible && item.covered && dismissalAttempts.length) {
+  const lastDismissal = dismissalAttempts.at(-1);
+  if (dismissalAttempts.length && (lastDismissal.popupClosed !== true || item.covered)) {
     const error = new Error(`AUTOMATION: failed to dismiss the visible modal after ${dismissalAttempts.length} attempts; blocked click refused: ${selector}`);
     error.failureClass = 'AUTOMATION_DEFECT';
     let afterAction = null;
@@ -457,26 +461,40 @@ async function launchScenario(exe, profile, logPath, screenshotDir) {
   });
   fs.closeSync(logFd);
   const session = await CdpSession.connect(port);
-  await session.send('Page.bringToFront');
-  const firstScreenshot = path.join(screenshotDir, 'launch-window.png');
-  await session.screenshot(firstScreenshot);
-  const waitStartedAt = Date.now();
-  const deadline = waitStartedAt + 35000;
-  while (Date.now() < deadline) {
-    try {
-      const ready = await session.evaluate('!!window.__GAME_FACADE__?.queryCharacterCreation');
-      if (ready) {
-        const bootDiagnostics = await evalJson(session, `(() => { const d=window.__XIUXIAN_BOOT_DIAGNOSTICS__; if(d){d.facadeRegistered=true;d.gameReady=true;d.mark('GAME_FACADE_READY')} return d??null })()`);
-        return { child, session, port, readyWaitMs: Date.now() - waitStartedAt, bootDiagnostics };
+  let launchStage = 'BRING_TO_FRONT';
+  return withLaunchResourceCleanup({
+    stage: () => launchStage,
+    session,
+    child,
+    closeResources: gracefulClose,
+    execute: async () => {
+      await session.send('Page.bringToFront');
+      const firstScreenshot = path.join(screenshotDir, 'launch-window.png');
+      launchStage = 'WAITING_FOR_GAME_FACADE_READY';
+      const waitStartedAt = Date.now();
+      const deadline = waitStartedAt + 35000;
+      while (Date.now() < deadline) {
+        try {
+          const ready = await session.evaluate('!!window.__GAME_FACADE__?.queryCharacterCreation');
+          if (ready) {
+            const bootDiagnostics = await evalJson(session, `(() => { const d=window.__XIUXIAN_BOOT_DIAGNOSTICS__; if(d){d.facadeRegistered=true;d.gameReady=true;d.mark('GAME_FACADE_READY')} return d??null })()`);
+            // A full-surface capture can take seconds on high-DPI Windows. Do
+            // not issue it before Cocos has advanced its first frame and loaded
+            // Main.scene, or the automation itself can stall the boot path.
+            launchStage = 'INITIAL_SCREENSHOT_CAPTURE';
+            await session.screenshot(firstScreenshot);
+            launchStage = 'GAME_FACADE_READY';
+            return { child, session, port, readyWaitMs: Date.now() - waitStartedAt, bootDiagnostics };
+          }
+        } catch { /* wait for Cocos to initialize */ }
+        await delay(500);
       }
-    } catch { /* wait for Cocos to initialize */ }
-    await delay(500);
-  }
-  let diagnostics = {};
-  const timeoutScreenshot = path.join(screenshotDir, 'timeout-window.png');
-  try { await session.screenshot(timeoutScreenshot); } catch { /* keep DOM diagnostics if screenshot capture is unavailable */ }
-  try {
-    diagnostics = await evalJson(session, `(() => {
+      let diagnostics = {};
+      launchStage = 'GAME_FACADE_TIMEOUT_DIAGNOSTICS';
+      const timeoutScreenshot = path.join(screenshotDir, 'timeout-window.png');
+      try { await session.screenshot(timeoutScreenshot); } catch { /* keep DOM diagnostics if screenshot capture is unavailable */ }
+      try {
+        diagnostics = await evalJson(session, `(() => {
       const scene = window.cc?.director?.getScene?.();
       const canvas = document.querySelector('canvas');
       let webgl = null;
@@ -504,20 +522,104 @@ async function launchScenario(exe, profile, logPath, screenshotDir) {
         consoleErrors:[]
       };
     })()`);
-    diagnostics.pendingNetworkRequests = [...session.inflightRequests.values()];
-    diagnostics.consoleErrors = session.messages;
-  } catch (error) { diagnostics.error = error.message; }
-  await gracefulClose(session, child);
-  const failure = new Error('EXE opened a GUI window, but the authoritative GameFacade did not become ready within the 35-second boot limit');
-  failure.diagnostics = diagnostics;
-  failure.screenshot = path.relative(root, timeoutScreenshot).replace(/\\/g, '/');
-  throw failure;
+        diagnostics.pendingNetworkRequests = [...session.inflightRequests.values()];
+        diagnostics.consoleErrors = session.messages;
+      } catch (error) { diagnostics.error = error.message; }
+      const failure = new Error('EXE opened a GUI window, but the authoritative GameFacade did not become ready within the 35-second boot limit');
+      failure.diagnostics = diagnostics;
+      failure.screenshot = path.relative(root, timeoutScreenshot).replace(/\\/g, '/');
+      throw failure;
+    },
+  });
 }
 
 async function applyStep({ step, context, screenshotDir }) {
   const { session } = context;
   if (['homeArenaPlay', 'homeArenaSoak'].includes(step.action)) return runHomeArena({ step, context, screenshotDir, readFacadeState, inspectElement, inputClick, gracefulClose, launchScenario, delay });
   if (step.action === 'wait') { await delay(Math.max(0, Math.min(step.ms ?? 500, 30000))); return { detail: `${step.ms ?? 500}ms` }; }
+  if (step.action === 'cardBattleAdvance') {
+    const timeoutMs = step.timeoutMs ?? 5000;
+    const deadline = Date.now() + timeoutMs;
+    let lastState = null;
+    let popupRecoveries = 0;
+    let stalledActionAttempts = 0;
+    while (Date.now() < deadline) {
+      lastState = await readFacadeState(session, 'queryCardBattle');
+      const controls = {
+        attack: { selector: '.ux-cardbattle-card.ux-cardbattle-attack:not([disabled])', element: await inspectElement(session, '.ux-cardbattle-card.ux-cardbattle-attack:not([disabled])') },
+        otherCard: { selector: '.ux-cardbattle-card:not(.ux-cardbattle-attack):not([disabled])', element: await inspectElement(session, '.ux-cardbattle-card:not(.ux-cardbattle-attack):not([disabled])') },
+        endTurn: { selector: '[data-action="cardEndTurn"]', element: await inspectElement(session, '[data-action="cardEndTurn"]') },
+      };
+      // A supported modal may temporarily cover the real card control. Let inputClick inspect and dismiss
+      // that popup through its actual visible choice before it retries the requested card action.
+      const candidate = (element) => cardBattleControlCandidate(element) && boundsWithinViewport(element.bounds, element.viewport);
+      const choice = chooseCardBattleAction(lastState, {
+        attack: candidate(controls.attack.element), otherCard: candidate(controls.otherCard.element), endTurn: candidate(controls.endTurn.element),
+      });
+      if (choice.kind === 'complete') return { detail: `battle already settled as ${lastState.phase}; no input sent`, value: lastState };
+      if (choice.kind === 'unavailable') {
+        const error = new Error(`AUTOMATION: no visible playable card or end-turn control in phase ${lastState?.phase ?? 'unknown'}`);
+        error.failureClass = 'AUTOMATION_DEFECT';
+        error.diagnostics = { state: lastState, controls };
+        throw error;
+      }
+      if (choice.kind === 'wait') { await delay(100); continue; }
+      const control = choice.kind === 'attack' ? controls.attack : choice.kind === 'card' ? controls.otherCard : controls.endTurn;
+      const before = lastState;
+      const interaction = await inputClick(session, control.selector, 1, step.popupChoiceSelector ?? null);
+      const transition = await waitForCardBattleActionTransition({
+        before,
+        kind: choice.kind,
+        readState: () => readFacadeState(session, 'queryCardBattle'),
+        delay,
+        timeoutMs: Math.min(2500, Math.max(0, deadline - Date.now())),
+        pollIntervalMs: 100,
+      });
+      lastState = transition.state;
+      if (transition.status === 'advanced') {
+        const recoveryDetail = popupRecoveries ? ` after closing ${popupRecoveries} newly appeared popup(s) through visible UI` : '';
+        return { detail: `real UI ${choice.kind} action advanced battle state (${before.phase}/turn ${before.turn} → ${lastState.phase}/turn ${lastState.turn})${recoveryDetail}`, value: lastState, element: interaction, popupRecoveries };
+      }
+      const popupRecovery = await dismissPopupAfterStalledCardAction({
+        inspectPopup: () => inspectRandomEventPopup(session),
+        clickControl: async (popupControl) => {
+          const located = await scrollModalControlIntoView(session, popupControl.selector);
+          if (!popupChoiceCanBeClicked({ visible: true }, located.target)) return false;
+          await dispatchClick(session, located.target, popupControl.selector);
+          return true;
+        },
+        delay,
+        maxAttempts: 3,
+      });
+      if (popupRecovery.status === 'dismissed') {
+        popupRecoveries += 1;
+        stalledActionAttempts = 0;
+        await delay(350);
+        continue;
+      }
+      if (popupRecovery.status === 'unsupported-control' || popupRecovery.status === 'still-visible') {
+        const error = new Error(`AUTOMATION: a popup appeared during card input and could not be confirmed closed after ${popupRecovery.attempts} attempt(s)`);
+        error.failureClass = 'AUTOMATION_DEFECT';
+        error.diagnostics = { stateBefore: before, stateAfter: lastState, control, interaction, choice, popupRecovery };
+        throw error;
+      }
+      const retryControl = await inspectElement(session, control.selector);
+      const retryAttempt = stalledActionAttempts + 1;
+      if (shouldRetryCardBattleAction({ before, after: lastState, kind: choice.kind, control: retryControl, attempt: retryAttempt, maxAttempts: 2 })) {
+        stalledActionAttempts = retryAttempt;
+        await delay(100);
+        continue;
+      }
+      const error = new Error(`GAME: visible ${choice.kind} control did not advance authoritative card-battle state after ${retryAttempt} identical-state attempt(s)`);
+      error.failureClass = 'GAME_DEFECT';
+      error.diagnostics = { stateBefore: before, stateAfter: lastState, control, interaction, retryControl, retryAttempt, choice, popupRecovery };
+      throw error;
+    }
+    const error = new Error(`NOT_VERIFIED: card battle did not reach a playable or settled phase within ${timeoutMs}ms`);
+    error.failureClass = 'NOT_VERIFIED';
+    error.diagnostics = { state: lastState, timeoutMs };
+    throw error;
+  }
   if (step.action === 'clickUntilState') {
     if (!allowedCalls.test(step.method)) throw new Error(`facade call is not allowlisted: ${step.method}`);
     const attempts = [];
@@ -548,7 +650,7 @@ async function applyStep({ step, context, screenshotDir }) {
         }
         if (!scenarioStateMatchesFrom(current, step.from)) break;
       } while (Date.now() < deadline);
-      if (current !== step.from) break;
+      if (!shouldRetryStatefulClick({ current, from: step.from, attempt, maxAttempts: step.maxAttempts })) break;
     }
     const error = new Error(`stateful UI click did not transition ${step.method}().${step.path} from ${JSON.stringify(step.from)} to ${JSON.stringify(step.expected)} after ${attempts.length} observed attempt(s)`);
     error.diagnostics = { selector: step.selector, path: step.path, from: step.from, expected: step.expected, state: lastState, attempts };
@@ -557,9 +659,48 @@ async function applyStep({ step, context, screenshotDir }) {
   if (step.action === 'waitFor') {
     const deadline = Date.now() + (step.timeoutMs ?? 10000);
     let item;
+    let lastPopupInspection = null;
+    let popupDismissalAttempts = 0;
     const state = step.state ?? 'visible';
     do {
       item = await inspectElement(session, step.selector);
+      if (step.popupChoiceSelector) {
+        const popup = await inspectRandomEventPopup(session);
+        lastPopupInspection = popup;
+        if (popup.visible) {
+          if (popupDismissalAttempts >= 3) {
+            const error = new Error(`GAME: visible popup remained after ${popupDismissalAttempts} real dismissal attempts while waiting for ${step.selector}`);
+            error.failureClass = 'GAME_DEFECT';
+            error.diagnostics = { selector: step.selector, popup, target: item, attempts: popupDismissalAttempts };
+            throw error;
+          }
+          const controlSelector = popup.control?.selector ?? step.popupChoiceSelector;
+          const control = await inspectElement(session, controlSelector);
+          if (!popupChoiceCanBeClicked(popup, control)) {
+            const error = new Error(`AUTOMATION: visible popup has no supported clickable choice while waiting for ${step.selector}`);
+            error.failureClass = 'AUTOMATION_DEFECT';
+            try { error.diagnostics = { selector: step.selector, popup, control, target: item, attempts: popupDismissalAttempts }; }
+            catch (captureError) { error.diagnostics = { selector: step.selector, popup, control, captureError: captureError.message }; }
+            throw error;
+          }
+          await dispatchClick(session, control, controlSelector);
+          popupDismissalAttempts += 1;
+          let popupAfter = await inspectRandomEventPopup(session);
+          const closeDeadline = Math.min(deadline, Date.now() + 1200);
+          while (popupAfter.visible && Date.now() < closeDeadline) {
+            await delay(100);
+            popupAfter = await inspectRandomEventPopup(session);
+          }
+          if (popupAfter.visible) {
+            const error = new Error(`GAME: visible popup did not close after clicking its real UI control: ${controlSelector}`);
+            error.failureClass = 'GAME_DEFECT';
+            error.diagnostics = { selector: step.selector, popupBefore: popup, popupAfter, control, target: await inspectElement(session, step.selector), attempts: popupDismissalAttempts };
+            throw error;
+          }
+          await delay(350);
+          continue;
+        }
+      }
       const satisfied = state === 'exists' ? item.found : state === 'notExists' ? !item.found
         : state === 'hidden' ? !item.visible : state === 'clickable' ? item.found && item.visible && !item.disabled && !item.covered
           : item.found && item.visible;
@@ -567,7 +708,14 @@ async function applyStep({ step, context, screenshotDir }) {
       if (Date.now() >= deadline) break;
       await delay(100);
     } while (Date.now() < deadline);
-    return { passed: false, detail: `waitFor timed out after ${step.timeoutMs ?? 10000}ms: ${step.selector} did not reach ${state}`, element: item };
+    const error = new Error(`waitFor timed out after ${step.timeoutMs ?? 10000}ms: ${step.selector} did not reach ${state}`);
+    error.diagnostics = {
+      selector: step.selector,
+      state,
+      target: item,
+      ...(step.popupChoiceSelector ? { popupChoiceSelector: step.popupChoiceSelector, popup: lastPopupInspection, dismissalAttempts: popupDismissalAttempts } : {}),
+    };
+    throw error;
   }
   if (step.action === 'screenshot') {
     const name = `${String(context.imageCounter++).padStart(3, '0')}-${step.name ?? 'capture'}.png`.replace(/[^a-zA-Z0-9_.-]/g, '-');
@@ -650,15 +798,22 @@ async function applyStep({ step, context, screenshotDir }) {
     const y = target.bounds.y + target.bounds.height / 2;
     const attempts = [];
     const popupRecovery = [];
+    const inputErrors = [];
     let after = before;
-    for (let attempt = 1; attempt <= 3 && !scrollPositionChanged(before, after); attempt++) {
-      await session.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x, y, deltaX: step.deltaX ?? 0, deltaY: step.deltaY ?? 500 });
+    for (let attempt = 1; attempt <= 3 && !scrollPositionChanged(before, after) && inputErrors.length === 0; attempt++) {
+      let inputError = null;
+      try {
+        await dispatchWheelAt(session, { x, y, deltaX: step.deltaX ?? 0, deltaY: step.deltaY ?? 500 });
+      } catch (error) {
+        inputError = error.message;
+        inputErrors.push({ attempt, error: inputError });
+      }
       const deadline = Date.now() + 700;
       do {
         await delay(20);
         after = await inspectScrollableState(session, step.selector);
       } while (!scrollPositionChanged(before, after) && Date.now() < deadline);
-      attempts.push({ attempt, before: attempt === 1 ? before : attempts.at(-1).after, after });
+      attempts.push({ attempt, before: attempt === 1 ? before : attempts.at(-1).after, after, ...(inputError ? { inputError } : {}) });
       if (!scrollPositionChanged(before, after)) {
         let popup = await inspectRandomEventPopup(session);
         if (popup.visible) {
@@ -767,10 +922,26 @@ async function applyStep({ step, context, screenshotDir }) {
       if (step.ensureVisibleSelector) {
         const reachable = await inspectElement(session, step.ensureVisibleSelector);
         if (scrollBoundaryTargetReady(false, reachable)) return { detail: `scroll container is already at a boundary; requested target is visible and uncovered: ${step.ensureVisibleSelector}` };
+        const keyboardRecovery = await tabScrollTargetIntoView({
+          selector: step.ensureVisibleSelector,
+          maxTabSteps: step.keyboardRecoveryMaxTabSteps ?? 24,
+          inspectTarget: inspectElement.bind(null, session),
+          dispatchTab: async () => {
+            await session.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'TAB', windowsVirtualKeyCode: 9 });
+            await session.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'TAB', windowsVirtualKeyCode: 9 });
+          },
+        });
+        if (keyboardRecovery.visible) {
+          return { detail: `wheel did not move ${step.selector}; Tab focus navigation brought ${step.ensureVisibleSelector} into view without activating it`, attempts, keyboardRecovery };
+        }
+        const error = new Error(`AUTOMATION: wheel input did not move ${step.selector}, and bounded Tab recovery could not expose ${step.ensureVisibleSelector}`);
+        error.failureClass = 'AUTOMATION_DEFECT';
+        error.diagnostics = { selector: step.selector, attempts, inputErrors, keyboardRecovery, popupRecovery, timeoutMsPerAttempt: 700 };
+        throw error;
       }
       const error = new Error(`AUTOMATION: wheel input did not change scroll position for ${step.selector}`);
       error.failureClass = 'AUTOMATION_DEFECT';
-      error.diagnostics = { selector: step.selector, attempts, popupRecovery, timeoutMsPerAttempt: 700 };
+      error.diagnostics = { selector: step.selector, attempts, inputErrors, popupRecovery, timeoutMsPerAttempt: 700 };
       throw error;
     }
     return { detail: `scrolled ${step.selector} (${before.scrollTop},${before.scrollLeft}) → (${after.scrollTop},${after.scrollLeft}) in ${attempts.length} CDP wheel attempt(s)`, ...(popupRecovery.length ? { popupRecovery } : {}) };
@@ -984,6 +1155,7 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
     result.defects.push({ id: `${scenario.id}-launch`, severity: failureClass === 'NOT_VERIFIED' ? 'BLOCKER' : 'HIGH', category: failureClass, title: error.message, reproduction: [`Run npm run gameplay-agent:rerun-failed`, `Scenario: ${scenario.id}`, 'EXE was launched with a new isolated user-data directory.'], evidence: error.screenshot ? `./${error.screenshot}` : null, diagnostics: error.diagnostics ?? null, repairAttempts: repairAttempts[`${scenario.id}-launch`] ?? 0, maxRepairAttempts: 3 });
   } finally {
     await gracefulClose(context.session, context.child);
+    result.cdpMetrics = context.session?.snapshotMetrics?.() ?? null;
     result.profileCleanup = await cleanupIsolatedProfile(profile);
     result.finishedAt = new Date().toISOString();
     result.durationMs = Date.parse(result.finishedAt) - Date.parse(result.startedAt);

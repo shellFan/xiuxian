@@ -622,6 +622,8 @@ export interface FateRunState {
   readonly startedAt: number;
   readonly seed: number;
   readonly rngCursor: number;
+  /** Number of normal card-battle victories in this fate life; omitted by legacy saves. */
+  readonly cardBattleWins?: number;
   readonly status: FateRunStatus;
   readonly health: number;
   readonly maxHealth: number;

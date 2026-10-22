@@ -227,6 +227,24 @@ async function runInElectron(): Promise<void> {
     await click(win, '[data-nav="HOME"]');
     const homeRestored = await win.webContents.executeJavaScript(`document.querySelector('.ux-home-col.ux-home-right') !== null`);
     assert.equal(homeRestored, true, 'selecting HOME from a HOME subpage restores the home columns');
+    await win.webContents.executeJavaScript(`(() => {
+      const facade = window.__GAME_FACADE__;
+      facade.context.fateEvents.beginRun(123456);
+      facade.context.fateEvents.recordCardBattleVictory(123456);
+      window.__HOME_ARENA__.update();
+    })()`);
+    await waitFor(win, `document.querySelector('#FateEventChoices [data-fate-choice="HELP"]') !== null`);
+    await click(win, '[data-nav="PROJECT"]');
+    await click(win, '[data-nav="HOME"]');
+    await waitFor(win, `document.querySelector('#FateEventCard[data-event-id="intern_s1"]:not([hidden])') !== null`);
+    await waitFor(win, `document.querySelector('#FateEventChoices [data-fate-choice="HELP"]') !== null`);
+    const fateAfterHomeRebuild = await win.webContents.executeJavaScript(`({
+      eventId: document.querySelector('#FateEventCard')?.dataset.eventId || null,
+      choiceCount: document.querySelectorAll('#FateEventChoices [data-fate-choice]').length,
+      helpVisible: !!document.querySelector('#FateEventChoices [data-fate-choice="HELP"]')
+    })`);
+    assert.deepEqual(fateAfterHomeRebuild, { eventId: 'intern_s1', choiceCount: 3, helpVisible: true },
+      'recreating the HomeArena DOM must rebuild the choices for the still-current Fate event: ' + JSON.stringify(fateAfterHomeRebuild));
     const retained = await win.webContents.executeJavaScript(`(() => {
       window.UiOverlay.refresh();
       const arena = document.querySelector('#HomeArena'), center = arena.parentElement;
