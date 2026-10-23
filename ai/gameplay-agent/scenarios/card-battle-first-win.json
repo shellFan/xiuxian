@@ -43,6 +43,12 @@
       "description": "Resolve a queued weekend-choice modal through its real option before continuing the battle"
     },
     {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 4000,
+      "description": "If a critical conversation opened the Messenger while resolving queued events, return through its visible back control before resuming card combat"
+    },
+    {
       "action": "call",
       "method": "queryCardBattle",
       "as": "opening",
@@ -90,6 +96,18 @@
       "name": "card-battle-opening-hand"
     },
     {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 3000,
+      "description": "Return from any newly opened Messenger route through its visible back button before resuming combat"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "#PopupLayer .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "timeoutMs": 3000,
+      "description": "Acknowledge a workplace event through its real visible button before playing the first card"
+    },
+    {
       "action": "clickUntilState",
       "selector": ".ux-cardbattle-card.ux-cardbattle-attack:not([disabled])",
       "method": "queryCardBattle",
@@ -99,7 +117,23 @@
       "expected": 1,
       "maxAttempts": 3,
       "timeoutMs": 1500,
-      "description": "Play the first real attack card; if the weekly recap covers the battle, close it through 收下，下周继续 and verify the battle target is uncovered"
+      "description": "Play the first real attack card; if the weekly recap covers the battle, close it through 收下，下周继续 and verify the battle target is uncovered",
+      "routeRecoverySelector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "routeRecoveryTargetSelector": ".ux-cardbattle",
+      "routeRecoveryTimeoutMs": 3000,
+      "routeRecoveryResumeSelector": "#ArenaAttack"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 3000,
+      "description": "Return from any newly opened Messenger route through its visible back button before resuming combat"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "#PopupLayer .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "timeoutMs": 3000,
+      "description": "Acknowledge any newly visible workplace event through its real button before the next card"
     },
     {
       "action": "clickUntilState",
@@ -111,7 +145,11 @@
       "expected": 2,
       "maxAttempts": 3,
       "timeoutMs": 1500,
-      "description": "Play the next visible attack card"
+      "description": "Play the next visible attack card",
+      "routeRecoverySelector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "routeRecoveryTargetSelector": ".ux-cardbattle",
+      "routeRecoveryTimeoutMs": 3000,
+      "routeRecoveryResumeSelector": "#ArenaAttack"
     },
     {
       "action": "call",
@@ -126,6 +164,18 @@
       "expected": 31
     },
     {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 3000,
+      "description": "Return from any newly opened Messenger route through its visible back button before resuming combat"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "#PopupLayer .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "timeoutMs": 3000,
+      "description": "Acknowledge any newly visible workplace event before ending the turn"
+    },
+    {
       "action": "clickUntilState",
       "selector": "[data-action=\"cardEndTurn\"]",
       "method": "queryCardBattle",
@@ -135,7 +185,23 @@
       "expected": 2,
       "maxAttempts": 3,
       "timeoutMs": 1500,
-      "description": "End the first turn and allow the enemy intent to resolve"
+      "description": "End the first turn and allow the enemy intent to resolve",
+      "routeRecoverySelector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "routeRecoveryTargetSelector": ".ux-cardbattle",
+      "routeRecoveryTimeoutMs": 3000,
+      "routeRecoveryResumeSelector": "#ArenaAttack"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 3000,
+      "description": "Return from any newly opened Messenger route through its visible back button before resuming combat"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "#PopupLayer .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "timeoutMs": 3000,
+      "description": "Acknowledge any event that appeared during enemy resolution before attacking again"
     },
     {
       "action": "clickUntilState",
@@ -146,7 +212,23 @@
       "from": 2,
       "expected": 3,
       "maxAttempts": 3,
-      "timeoutMs": 1500
+      "timeoutMs": 1500,
+      "routeRecoverySelector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "routeRecoveryTargetSelector": ".ux-cardbattle",
+      "routeRecoveryTimeoutMs": 3000,
+      "routeRecoveryResumeSelector": "#ArenaAttack"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 3000,
+      "description": "Return from any newly opened Messenger route through its visible back button before resuming combat"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "#PopupLayer .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "timeoutMs": 3000,
+      "description": "Acknowledge any newly visible workplace event through its real button before the next attack"
     },
     {
       "action": "clickUntilState",
@@ -157,7 +239,23 @@
       "from": 3,
       "expected": 4,
       "maxAttempts": 3,
-      "timeoutMs": 1500
+      "timeoutMs": 1500,
+      "routeRecoverySelector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "routeRecoveryTargetSelector": ".ux-cardbattle",
+      "routeRecoveryTimeoutMs": 3000,
+      "routeRecoveryResumeSelector": "#ArenaAttack"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 3000,
+      "description": "Return from any newly opened Messenger route through its visible back button before resuming combat"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "#PopupLayer .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "timeoutMs": 3000,
+      "description": "Acknowledge any newly visible workplace event through its real button before the next attack"
     },
     {
       "action": "clickUntilState",
@@ -168,7 +266,23 @@
       "from": 4,
       "expected": 5,
       "maxAttempts": 3,
-      "timeoutMs": 1500
+      "timeoutMs": 1500,
+      "routeRecoverySelector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "routeRecoveryTargetSelector": ".ux-cardbattle",
+      "routeRecoveryTimeoutMs": 3000,
+      "routeRecoveryResumeSelector": "#ArenaAttack"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 3000,
+      "description": "Return from any newly opened Messenger route through its visible back button before resuming combat"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "#PopupLayer .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "timeoutMs": 3000,
+      "description": "Acknowledge any event that appeared before ending the second turn"
     },
     {
       "action": "clickUntilState",
@@ -180,7 +294,23 @@
       "expected": 3,
       "maxAttempts": 3,
       "timeoutMs": 1500,
-      "description": "End the second turn to restore energy before the final attack"
+      "description": "End the second turn to restore energy before the final attack",
+      "routeRecoverySelector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "routeRecoveryTargetSelector": ".ux-cardbattle",
+      "routeRecoveryTimeoutMs": 3000,
+      "routeRecoveryResumeSelector": "#ArenaAttack"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 3000,
+      "description": "Return from any newly opened Messenger route through its visible back button before resuming combat"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "#PopupLayer .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "timeoutMs": 3000,
+      "description": "Acknowledge any newly visible workplace event before continuing combat"
     },
     {
       "action": "clickUntilState",
@@ -192,7 +322,23 @@
       "expected": 6,
       "maxAttempts": 3,
       "timeoutMs": 1500,
-      "description": "Continue the fight through a visible attack, without injecting battle state"
+      "description": "Continue the fight through a visible attack, without injecting battle state",
+      "routeRecoverySelector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "routeRecoveryTargetSelector": ".ux-cardbattle",
+      "routeRecoveryTimeoutMs": 3000,
+      "routeRecoveryResumeSelector": "#ArenaAttack"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 3000,
+      "description": "Return from any newly opened Messenger route through its visible back button before resuming combat"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": "#PopupLayer .ux-modal-layer [data-vevent-choice=\"__auto\"]",
+      "timeoutMs": 3000,
+      "description": "Acknowledge any newly visible workplace event before the finishing attack"
     },
     {
       "action": "clickUntilState",
@@ -204,7 +350,11 @@
       "expected": "VICTORY",
       "maxAttempts": 3,
       "timeoutMs": 1500,
-      "description": "Use another available attack when the enemy's announced guard absorbed part of the previous hit"
+      "description": "Use another available attack when the enemy's announced guard absorbed part of the previous hit",
+      "routeRecoverySelector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "routeRecoveryTargetSelector": ".ux-cardbattle",
+      "routeRecoveryTimeoutMs": 3000,
+      "routeRecoveryResumeSelector": "#ArenaAttack"
     },
     {
       "action": "waitFor",

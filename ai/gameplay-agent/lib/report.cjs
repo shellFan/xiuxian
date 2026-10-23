@@ -31,6 +31,7 @@ function validateScenario(scenario) {
       throw new Error(`scenario ${scenario.id} step ${index + 1}: ${step.action} needs a selector`);
     }
     if (step.action === 'waitFor' && !['visible', 'hidden', 'exists', 'notExists', 'clickable'].includes(step.state ?? 'visible')) throw new Error(`scenario ${scenario.id} step ${index + 1}: invalid waitFor state`);
+    if (step.action === 'clickIfPresent' && step.maxDismissAttempts !== undefined && (!Number.isInteger(step.maxDismissAttempts) || step.maxDismissAttempts < 1 || step.maxDismissAttempts > 5)) throw new Error(`scenario ${scenario.id} step ${index + 1}: maxDismissAttempts must be between 1 and 5`);
     if (['waitFor', 'clickIfPresent'].includes(step.action) && step.timeoutMs !== undefined && (!Number.isFinite(step.timeoutMs) || step.timeoutMs < 1 || step.timeoutMs > 120000)) throw new Error(`scenario ${scenario.id} step ${index + 1}: ${step.action} timeoutMs must be between 1 and 120000`);
     if (step.action === 'clickUntilState') {
       if (typeof step.method !== 'string' || !/^([a-zA-Z_$][\w$]*\.)*[a-zA-Z_$][\w$]*$/.test(step.method)) throw new Error(`scenario ${scenario.id} step ${index + 1}: clickUntilState needs a valid facade method`);
@@ -85,8 +86,17 @@ function summarizeResults(scenarios) {
   const passed = scenarios.filter((result) => result.status === 'passed').length;
   const failed = scenarios.filter((result) => result.status === 'failed').length;
   const blocked = scenarios.filter((result) => result.status === 'blocked').length;
+  const skipped = scenarios.filter((result) => result.status === 'skipped').length;
+  const notRun = scenarios.filter((result) => result.status === 'not_run').length;
   const notVerified = scenarios.filter((result) => result.status === 'not_verified').length;
-  return { status: failed ? 'FAILED' : blocked ? 'BLOCKED' : notVerified ? 'NOT_VERIFIED' : 'PASS', total: scenarios.length, passed, failed, blocked, notVerified };
+  return { status: failed ? 'FAILED' : blocked ? 'BLOCKED' : skipped || notRun ? 'NOT_RUN' : notVerified ? 'NOT_VERIFIED' : 'PASS', total: scenarios.length, passed, failed, blocked, skipped, notRun, notVerified };
+}
+
+function scenarioOutcomeStatus({ blocked = false, failed = false, defects = [] }) {
+  if (blocked) return 'blocked';
+  if (!failed) return 'passed';
+  if (defects.length > 0 && defects.every((defect) => defect.category === 'NOT_VERIFIED')) return 'not_verified';
+  return 'failed';
 }
 
 function classifyFailure({ step, error, isSetup = false, setupFailureClass, launchFailure = false, environmentBlocked = false }) {
@@ -94,6 +104,7 @@ function classifyFailure({ step, error, isSetup = false, setupFailureClass, laun
   if (environmentBlocked || error?.environmentBlocked) return 'ENVIRONMENT_BLOCKED';
   if (error?.message?.startsWith('ENVIRONMENT:')) return 'ENVIRONMENT_BLOCKED';
   if (error?.message?.startsWith('NOT_VERIFIED:')) return 'NOT_VERIFIED';
+  if (/authoritative GameFacade did not become ready/i.test(error?.message ?? '')) return 'NOT_VERIFIED';
   if (/click target not found:/.test(error?.message ?? '')) return 'NOT_VERIFIED';
   if (error?.message?.startsWith('AUTOMATION:') || /CDP command timed out/.test(error?.message ?? '')) return 'AUTOMATION_DEFECT';
   if (launchFailure) return 'NOT_VERIFIED';
@@ -109,4 +120,4 @@ function classifyStepFailure({ step, error, isSetup = false, setupFailureClass, 
   return childExitCode === null || childExitCode === undefined ? classification : 'GAME_DEFECT';
 }
 
-module.exports = { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, classifyFailure, classifyStepFailure };
+module.exports = { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, scenarioOutcomeStatus, classifyFailure, classifyStepFailure };

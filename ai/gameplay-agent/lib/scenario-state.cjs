@@ -49,6 +49,40 @@ function shouldContinuePopupRecovery(target, popup, attempt, maxAttempts = MAX_P
     && target.covered === true && popup?.visible === true;
 }
 
+async function recoverVisibleRoute({ routeSelector, targetSelector, resumeSelector, inspect, click, delay, timeoutMs = 3000 }) {
+  const control = await inspect(routeSelector);
+  if (!control?.found || !control.visible || control.disabled || control.covered) {
+    return { status: 'unavailable', control, target: await inspect(targetSelector) };
+  }
+  try {
+    await click(routeSelector);
+  } catch (error) {
+    return { status: 'click-failed', control, target: await inspect(targetSelector), error: error instanceof Error ? error.message : String(error) };
+  }
+
+  const deadline = Date.now() + Math.max(0, timeoutMs);
+  let target = await inspect(targetSelector);
+  const ready = (candidate) => candidate?.found === true && candidate.visible === true
+    && candidate.disabled !== true && candidate.covered === false;
+  let resumeControl = null;
+  if (!ready(target) && resumeSelector) {
+    resumeControl = await inspect(resumeSelector);
+    if (resumeControl?.found && resumeControl.visible && !resumeControl.disabled && !resumeControl.covered) {
+      try {
+        await click(resumeSelector);
+      } catch (error) {
+        return { status: 'click-failed', control, resumeControl, target: await inspect(targetSelector), error: error instanceof Error ? error.message : String(error) };
+      }
+      target = await inspect(targetSelector);
+    }
+  }
+  while (!ready(target) && Date.now() < deadline) {
+    await delay(100);
+    target = await inspect(targetSelector);
+  }
+  return { status: ready(target) ? 'restored' : 'not-restored', control, resumeControl, target };
+}
+
 function popupControlKind({ presentationKind, hasCriticalChoice, hasClose, hasAcknowledge }) {
   if (hasCriticalChoice) return 'critical-message-choice';
   if (hasClose) return 'close';
@@ -160,4 +194,4 @@ function formatHitTarget(hit) {
   return `${hit.tag ?? 'element'}${className} (${JSON.stringify(hit)})`;
 }
 
-module.exports = { MAX_POPUP_RECOVERY_ACTIONS, createVariableScopes, storeScenarioVariable, readScenarioVariable, readStatePath, formatHitTarget, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupChoiceCanBeClicked, popupControlKind, popupControlSelector, canRecoverObstructedClick, shouldInspectPopupForTarget, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds, scenarioStateMatchesFrom, shouldRetryStatefulClick };
+module.exports = { MAX_POPUP_RECOVERY_ACTIONS, createVariableScopes, storeScenarioVariable, readScenarioVariable, readStatePath, formatHitTarget, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupChoiceCanBeClicked, popupControlKind, popupControlSelector, canRecoverObstructedClick, shouldInspectPopupForTarget, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, recoverVisibleRoute, boundsWithinViewport, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, intersectVisibleBounds, scenarioStateMatchesFrom, shouldRetryStatefulClick };

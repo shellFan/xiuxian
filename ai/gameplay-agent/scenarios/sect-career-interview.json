@@ -108,11 +108,46 @@
       "description": "Acknowledge the resulting event summary through its real continue button"
     },
     {
+      "action": "wait",
+      "ms": 300,
+      "description": "Allow queued critical conversations to appear after the event result closes"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-modal-layer [data-critical-conv]",
+      "timeoutMs": 4000,
+      "maxDismissAttempts": 3,
+      "description": "Choose each visible queued critical conversation rather than treating the remaining real message as a failed dismissal"
+    },
+    {
+      "action": "clickIfPresent",
+      "selector": ".ux-screen:has(.ux-messenger) .ux-header [data-action=\"back\"]",
+      "timeoutMs": 4000,
+      "description": "Return through the visible messenger back control after resolving queued conversations"
+    },
+    {
       "action": "waitFor",
       "selector": ".ux-modal-layer",
       "state": "hidden",
       "timeoutMs": 3000,
       "description": "Wait until the event result modal has actually closed"
+    },
+    {
+      "action": "click",
+      "selector": "[data-nav=\"PROMOTION\"]",
+      "description": "Return to the career tab after resolving a critical conversation"
+    },
+    {
+      "action": "click",
+      "selector": "[data-action=\"goto\"][data-page=\"sect\"]",
+      "description": "Reopen the visible recruitment page through normal navigation"
+    },
+    {
+      "action": "waitFor",
+      "selector": "[data-action=\"sectInterview\"][data-answer=\"RISK\"]",
+      "state": "visible",
+      "timeoutMs": 3000,
+      "description": "Wait for the persisted interview action to return on the recruitment page"
     },
     {
       "action": "assertClickable",

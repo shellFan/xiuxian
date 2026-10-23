@@ -82,3 +82,21 @@
 ## V5.9-N.5 续验状态更新（2026-10-21）
 
 最新完整 Gate `20261021-051131-90aab0` 为 17/25；Smoke `20261021-054658-da3abb` 为 1/1 PASS。一次新鲜 EXE 启动诊断观察到 Cocos `internal` 资源 `loadAny` 用时约 33 秒并超过 30 秒 Electron watchdog，另一次启动正常，属间歇性 readiness 阻断。再就业可见录用流程已确认权威合同，但重启失败；四组 N.5 玩家画像、最新完整 Gate、启动资源延时根因和 Creator 36 根因均未完成。N 继续为 `IN_PROGRESS`，完整证据见 [V59N5-FINAL-PLAYABLE-ACCEPTANCE.md](V59N5-FINAL-PLAYABLE-ACCEPTANCE.md)。
+
+## V5.9-N.7 最新状态（2026-10-22）
+
+本节覆盖较早的 N.5/N.6 Gate 描述；逐项证据见 [V59N7-CARD-DEFENSE-AND-GATE-ACCEPTANCE.md](V59N7-CARD-DEFENSE-AND-GATE-ACCEPTANCE.md)。
+
+- GamePlay Agent 使用有效的 Chromium Tab 键码；最新 EXE 的 `card-battle-defense` 从角色创建、主页、可见防御卡出牌到敌人行动/格挡断言通过。Runner 每场景的 `@run` 变量独立，场景外围异常不会中止后续场景；Runner 单测 79/79 PASS。
+- 最新完整 Gate `20261022-093446-e7f0eb`：26 场景，15 PASS、11 FAIL、0 BLOCKED、0 SKIPPED、0 NOT_RUN，整体 FAILED。分类为 6 NOT_VERIFIED、2 AUTOMATION_DEFECT、2 GAME_DEFECT、1 ASSERTION_DEFECT。N.7/N.5/N 保持 **IN_PROGRESS / BLOCKED**。
+- `release:check`、`pc:build`、`pc:pack`、`pc:check` 均退出码 0；最新 EXE SHA-256 `e10410e805c536b470d4d6938d14d7cf343ac7303da01f97b261ead82aa91cd1`，ASAR SHA-256 `b2a6383381467e61a22129d2e74124e1e262ddb14a9c9518b35a62690440038d`。Creator 子进程退出码 36 的内因仍 NOT_VERIFIED。
+- 最新包 smoke、20 分钟 soak 通过。四组 30/100 游戏日画像、完整连续 UI 旅程和物理鼠标键盘仍 NOT_VERIFIED。`UI_REAL_EXE=NOT_VERIFIED`、`ELECTRON_E2E=FAILED`、`SERVICE_SIM=PASS`。
+- 保留全部历史报告和试玩证据；本轮不提交、不推送、不合并、不重置或清理工作树。
+
+### N.7 续验追加（2026-10-22）
+
+- HEAD 仍为 `d6014ed8eee243dd51953b94bed08d5e633908ff`；工作树保留所有既有修改与证据，未提交、未推送。
+- `node --test tests/gameplay-agent/runner.test.cjs`：86/86 PASS。最近一次完整 `npm run release:check` 退出码 0，但早于最后两个诊断/场景回归修改；不能作为这些最终变更的 release-check 结果。
+- `card-battle-first-win` 最新定向运行两次被 35 秒 ready 门限阻断；较早的本轮运行已验证建角、攻击出牌、结束回合、敌人行动，但关键消息选择会导航至 Messenger，导致后续攻击牌控件缺失。归类为自动化流程恢复问题，现已为每次卡牌/回合动作增加真实 Messenger 返回控件检查；更新后的 UI 行为 `NOT_VERIFIED`。
+- 启动诊断进一步记录 Cocos `internal loadAny` 从约 +1.75 秒到约 +35.45 秒才回调，超过 Electron 30 秒启动 watchdog；没有 Renderer/网络/CDP 失败证据。最新快照有 2 个 downloader、2 个 parser 条目及 1 个 pending asset load，无标准 UUID 样本；底层卡顿原因仍未确认。详见 [N.7 续验报告](./V59N7-CARD-DEFENSE-AND-GATE-ACCEPTANCE.md)。
+- 完整 Gate 仍以 `20261022-093446-e7f0eb` 为最新：15/26 PASS、11 FAIL；N.7/N.5/N 均保持 **IN_PROGRESS / BLOCKED**。物理 UI、四组 30/100 日画像、完整连续旅程均未验证；不提交、不推送、不合并。

@@ -1,5 +1,11 @@
 'use strict';
 
+async function dispatchTabKey(session) {
+  if (!session || typeof session.send !== 'function') throw new TypeError('Tab recovery requires a CDP session');
+  await session.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+  await session.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+}
+
 async function tabScrollTargetIntoView({ selector, maxTabSteps = 24, inspectTarget, dispatchTab, wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) }) {
   if (typeof selector !== 'string' || !selector.trim()) throw new TypeError('scroll recovery requires a target selector');
   if (!Number.isInteger(maxTabSteps) || maxTabSteps < 0 || maxTabSteps > 40) throw new TypeError('maxTabSteps must be an integer from 0 to 40');
@@ -18,4 +24,4 @@ async function tabScrollTargetIntoView({ selector, maxTabSteps = 24, inspectTarg
   return { visible: ready(), tabSteps, target };
 }
 
-module.exports = { tabScrollTargetIntoView };
+module.exports = { dispatchTabKey, tabScrollTargetIntoView };

@@ -352,9 +352,9 @@
     {
       "action": "assert",
       "check": "equals",
-      "path": "@vars.settlementHistoryTwo[2].dayIndex",
+      "path": "@vars.settlementHistoryTwo[3].dayIndex",
       "expected": "@vars.workdayTwo.dayIndex",
-      "description": "The second persisted wage slip matches the authoritative second workday"
+      "description": "The latest persisted wage slip matches the authoritative second workday"
     },
     {
       "action": "screenshot",

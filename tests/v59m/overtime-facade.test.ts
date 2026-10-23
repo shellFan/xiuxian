@@ -141,8 +141,8 @@ test('time-save verifies completed wage slips after the live game day rolls over
     && step.path === '@vars.settledOne.settled' && step.expected === true),
     'the new live day is unsettled by definition and must not be mistaken for the prior day close');
   assert.ok(scenario.steps.some((step) => step.action === 'assert'
-    && step.path === '@vars.settlementHistoryTwo[2].dayIndex' && step.expected === '@vars.workdayTwo.dayIndex'),
-    'later day-close assertions must match the second persisted slip to its authoritative workday, even if the live clock has advanced again');
+    && step.path === '@vars.settlementHistoryTwo[3].dayIndex' && step.expected === '@vars.workdayTwo.dayIndex'),
+    'four durable settlement records exist at this point, so day four must be compared with the authoritative second workday');
   assert.ok(scenario.steps.some((step) => step.action === 'assert'
     && step.path === '@vars.settlementHistoryThree.length' && step.check === 'gte' && step.expected === 3),
     'the three-workday scenario must prove three durable settlements, not infer them from local display time');

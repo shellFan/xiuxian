@@ -4,16 +4,270 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { test } = require('node:test');
-const { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, classifyFailure, classifyStepFailure } = require('../../ai/gameplay-agent/lib/report.cjs');
-const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, readStatePath, storeScenarioVariable, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupControlKind, popupControlSelector, popupChoiceCanBeClicked, canRecoverObstructedClick, shouldInspectPopupForTarget, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, scenarioStateMatchesFrom, shouldRetryStatefulClick } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
+const { safeRunId, validateScenario, collectFailedScenarioIds, summarizeResults, scenarioOutcomeStatus, classifyFailure, classifyStepFailure } = require('../../ai/gameplay-agent/lib/report.cjs');
+const { boundsWithinViewport, createVariableScopes, formatHitTarget, readScenarioVariable, readStatePath, storeScenarioVariable, popupDismissalComplete, canFinishClickAfterFinalPopupDismissal, popupControlKind, popupControlSelector, popupChoiceCanBeClicked, canRecoverObstructedClick, shouldInspectPopupForTarget, shouldWaitForObscuringPopup, shouldContinuePopupRecovery, scrollPositionChanged, intersectVisibleBounds, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldRestoreScrollContextAfterPopup, scenarioStateMatchesFrom, shouldRetryStatefulClick, recoverVisibleRoute } = require('../../ai/gameplay-agent/lib/scenario-state.cjs');
 const { waitForArenaSkillButton, waitForArenaControl } = require('../../ai/gameplay-agent/lib/home-arena-play.cjs');
 const { cleanupIsolatedProfile } = require('../../ai/gameplay-agent/lib/profile-cleanup.cjs');
 const { chooseCardBattleAction, cardBattleActionAdvanced, cardBattleControlCandidate, dismissPopupAfterStalledCardAction, waitForCardBattleActionTransition, shouldRetryCardBattleAction } = require('../../ai/gameplay-agent/lib/card-battle-play.cjs');
-const { tabScrollTargetIntoView } = require('../../ai/gameplay-agent/lib/scroll-recovery.cjs');
+const { dispatchTabKey, tabScrollTargetIntoView } = require('../../ai/gameplay-agent/lib/scroll-recovery.cjs');
+const { runScenariosIsolated } = require('../../ai/gameplay-agent/lib/scenario-isolation.cjs');
+const { dismissOptionalControl } = require('../../ai/gameplay-agent/lib/popup-controls.cjs');
+const { createAssetManagerDiagnosticsExpression, snapshotAssetManager } = require('../../ai/gameplay-agent/lib/asset-manager-diagnostics.cjs');
 
 test('scenario ids cannot escape the reports directory', () => {
   assert.equal(safeRunId('../outside'), null);
   assert.match(safeRunId('20261013-120000'), /^20261013-120000$/);
+});
+
+test('asset-manager diagnostics capture pipeline queue counts without serializing asset payloads', () => {
+  const manager = {
+    _initialized: false,
+    downloader: { _maxConcurrency: 8, _queue: [{ url: 'private-or-large-payload' }], _activeTasks: 2, _downloading: { '0fcbd05f-8f8f-4a84-9f4a-0fcbd05f8f8f': {}, 'https://secret/path': { uuid: '1fcbd05f-8f8f-4a84-9f4a-0fcbd05f8f8f', url: 'private-or-large-payload' } } },
+    parser: { _parsing: { '1fcbd05f-8f8f-4a84-9f4a-0fcbd05f8f8f': {} } },
+    pipeline: { _queue: [{ uuid: 'do-not-copy' }] },
+    bundles: { _map: { internal: {}, resources: {} } },
+  };
+
+  assert.deepEqual(snapshotAssetManager(manager), {
+    initialized: false,
+    components: {
+      downloader: {
+        _maxConcurrency: 8,
+        _queue: { length: 1 },
+        _activeTasks: 2,
+        _downloading: { keyCount: 2, uuidKeySamples: ['0fcbd05f-8f8f-4a84-9f4a-0fcbd05f8f8f', '1fcbd05f-8f8f-4a84-9f4a-0fcbd05f8f8f'] },
+      },
+      parser: { _parsing: { keyCount: 1, uuidKeySamples: ['1fcbd05f-8f8f-4a84-9f4a-0fcbd05f8f8f'] } },
+      pipeline: { _queue: { length: 1 } },
+      bundles: { _map: { keyCount: 2 } },
+    },
+  });
+});
+
+test('asset-manager diagnostics CDP expression is self-contained in the renderer context', () => {
+  const evaluate = new Function('window', `return ${createAssetManagerDiagnosticsExpression()};`);
+  const snapshot = evaluate({
+    cc: {
+      assetManager: {
+        downloader: { _downloading: { '4fcbd05f-8f8f-4a84-9f4a-0fcbd05f8f8f': {} } },
+        parser: { _parsing: {} },
+      },
+    },
+  });
+
+  assert.deepEqual(snapshot.components.downloader._downloading, {
+    keyCount: 1,
+    uuidKeySamples: ['4fcbd05f-8f8f-4a84-9f4a-0fcbd05f8f8f'],
+  });
+});
+
+test('independent scenario runs get fresh run variables and a thrown scenario does not stop later scenarios', async () => {
+  const calls = [];
+  const results = await runScenariosIsolated([
+    { id: 'first' },
+    { id: 'throws' },
+    { id: 'last' },
+  ], async (scenario, runVariables) => {
+    calls.push(scenario.id);
+    if (scenario.id === 'first') runVariables.token = 'private-to-first';
+    if (scenario.id === 'throws') throw new Error('scenario preparation failed');
+    if (scenario.id === 'last') assert.equal(runVariables.token, undefined, 'a previous scenario value must not leak into this scenario');
+    return { id: scenario.id, status: 'passed' };
+  });
+
+  assert.deepEqual(calls, ['first', 'throws', 'last']);
+  assert.deepEqual(results.map(({ id, status }) => [id, status]), [
+    ['first', 'passed'],
+    ['throws', 'failed'],
+    ['last', 'passed'],
+  ]);
+  assert.equal(results[1].defects[0].category, 'AUTOMATION_DEFECT');
+});
+
+test('visible route recovery clicks the real back control and waits for the requested game target', async () => {
+  const routeSelector = '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]';
+  let messengerVisible = true;
+  let targetVisible = false;
+  const clicks = [];
+  const inspect = async (selector) => selector === routeSelector
+    ? { found: messengerVisible, visible: messengerVisible, disabled: false, covered: false }
+    : { found: targetVisible, visible: targetVisible, disabled: false, covered: false };
+
+  const result = await recoverVisibleRoute({
+    routeSelector,
+    targetSelector: '.ux-cardbattle',
+    inspect,
+    click: async (selector) => { clicks.push(selector); messengerVisible = false; targetVisible = true; },
+    delay: async () => {},
+    timeoutMs: 50,
+  });
+
+  assert.equal(result.status, 'restored');
+  assert.deepEqual(clicks, [routeSelector]);
+  assert.equal(result.target.found, true);
+});
+
+test('visible route recovery fails closed if the real back control does not restore the game target', async () => {
+  const routeSelector = '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]';
+  let clicks = 0;
+  const result = await recoverVisibleRoute({
+    routeSelector,
+    targetSelector: '.ux-cardbattle',
+    inspect: async (selector) => selector === routeSelector
+      ? { found: true, visible: true, disabled: false, covered: false }
+      : { found: false, visible: false, disabled: false, covered: false },
+    click: async () => { clicks += 1; },
+    delay: async () => {},
+    timeoutMs: 0,
+  });
+
+  assert.equal(result.status, 'not-restored');
+  assert.equal(clicks, 1);
+  assert.equal(result.target.found, false);
+});
+
+test('visible route recovery can resume a saved battle from the real home battle button', async () => {
+  const routeSelector = '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]';
+  const resumeSelector = '#ArenaAttack';
+  let messengerVisible = true;
+  let resumeVisible = false;
+  let battleVisible = false;
+  const clicks = [];
+  const inspect = async (selector) => selector === routeSelector
+    ? { found: messengerVisible, visible: messengerVisible, disabled: false, covered: false }
+    : selector === resumeSelector
+      ? { found: resumeVisible, visible: resumeVisible, disabled: false, covered: false }
+      : { found: battleVisible, visible: battleVisible, disabled: false, covered: false };
+
+  const result = await recoverVisibleRoute({
+    routeSelector,
+    targetSelector: '.ux-cardbattle',
+    resumeSelector,
+    inspect,
+    click: async (selector) => {
+      clicks.push(selector);
+      if (selector === routeSelector) { messengerVisible = false; resumeVisible = true; }
+      if (selector === resumeSelector) { resumeVisible = false; battleVisible = true; }
+    },
+    delay: async () => {},
+    timeoutMs: 50,
+  });
+
+  assert.equal(result.status, 'restored');
+  assert.deepEqual(clicks, [routeSelector, resumeSelector]);
+  assert.equal(result.resumeControl.found, true);
+  assert.equal(result.target.found, true);
+});
+
+test('optional popup dismissal can select a bounded chain of visible queued controls', async () => {
+  const queued = ['incident', 'manager'];
+  let clicks = 0;
+  const result = await dismissOptionalControl({
+    inspect: async () => ({ found: queued.length > 0, text: queued[0] ?? null }),
+    click: async () => { clicks += 1; queued.shift(); },
+    delay: async () => {},
+    timeoutMs: 50,
+    maxAttempts: 3,
+  });
+
+  assert.equal(result.status, 'dismissed');
+  assert.equal(result.attempts.length, 2);
+  assert.equal(clicks, 2);
+});
+
+test('critical-message scenarios declare bounded visible-choice handling for queued messages', () => {
+  const project = validateScenario(JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/sect-project-contract.json'), 'utf8')));
+  const interview = validateScenario(JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/sect-career-interview.json'), 'utf8')));
+  const projectDismissal = project.steps.find((step) => step.action === 'clickIfPresent' && step.selector === '[data-critical-conv]');
+  const interviewDismissal = interview.steps.find((step) => step.action === 'clickIfPresent' && step.selector === '.ux-modal-layer [data-critical-conv]');
+  assert.equal(projectDismissal?.maxDismissAttempts, 3);
+  assert.equal(interviewDismissal?.maxDismissAttempts, 3);
+  assert.ok(interview.steps.some((step) => step.action === 'clickIfPresent' && step.selector.includes('.ux-messenger') && step.selector.includes('[data-action="back"]')));
+});
+
+test('sect interview scenario restores the recruitment page through visible navigation after resolving an interrupt', () => {
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/sect-career-interview.json'), 'utf8')));
+  const steps = scenario.steps;
+  const messengerBack = steps.findIndex((step) => step.action === 'clickIfPresent'
+    && step.selector === '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]');
+  const promotionTab = steps.findIndex((step, index) => index > messengerBack
+    && step.action === 'click' && step.selector === '[data-nav="PROMOTION"]');
+  const recruitmentPage = steps.findIndex((step, index) => index > promotionTab
+    && step.action === 'click' && step.selector === '[data-action="goto"][data-page="sect"]');
+  const interviewVisible = steps.findIndex((step, index) => index > recruitmentPage
+    && step.action === 'waitFor' && step.selector === '[data-action="sectInterview"][data-answer="RISK"]');
+  const interviewAnswer = steps.findIndex((step, index) => index > interviewVisible
+    && step.action === 'click' && step.selector === '[data-action="sectInterview"][data-answer="RISK"]');
+
+  assert.ok(messengerBack >= 0, 'resolve the actual critical conversation before leaving Messenger');
+  assert.ok(promotionTab > messengerBack, 'return to the career tab through the visible navigation');
+  assert.ok(recruitmentPage > promotionTab, 'reopen the visible recruitment page after the route interrupt');
+  assert.ok(interviewVisible > recruitmentPage, 'wait until the persisted interview control is visible again');
+  assert.ok(interviewAnswer > interviewVisible, 'answer only after confirming the real interview UI has returned');
+});
+
+test('first-win battle scenario returns through the visible messenger back control before querying combat', () => {
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/card-battle-first-win.json'), 'utf8')));
+  const steps = scenario.steps;
+  const resolvedMessage = steps.findIndex((step) => step.action === 'clickIfPresent' && step.selector === '#V2EventOk');
+  const backFromMessenger = steps.findIndex((step) => step.action === 'clickIfPresent'
+    && step.selector === '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]');
+  const openingBattleQuery = steps.findIndex((step) => step.action === 'call' && step.method === 'queryCardBattle');
+  assert.ok(resolvedMessage >= 0, 'the scenario handles visible result dialogs');
+  assert.ok(backFromMessenger > resolvedMessage && backFromMessenger < openingBattleQuery,
+    'critical message choices can route to Messenger and must be exited by its real back control');
+});
+
+test('first-win battle scenario acknowledges a visible Fate popup before each card or turn action', () => {
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/card-battle-first-win.json'), 'utf8')));
+  const steps = scenario.steps;
+  const popupAcknowledgement = '#PopupLayer .ux-modal-layer [data-vevent-choice="__auto"]';
+  const combatActions = steps.filter((step) => step.action === 'clickUntilState'
+    && (step.selector?.includes('.ux-cardbattle-card') || step.selector === '[data-action="cardEndTurn"]'));
+  assert.ok(combatActions.length > 0);
+  for (const action of combatActions) {
+    const index = steps.indexOf(action);
+    const preceding = steps[index - 1];
+    assert.equal(preceding?.action, 'clickIfPresent', `step ${index + 1} should check for a real visible event acknowledgement`);
+    assert.equal(preceding?.selector, popupAcknowledgement, `step ${index + 1} should use the event's actual acknowledgement control`);
+  }
+});
+
+test('first-win battle scenario exits Messenger through its real back control before every card or turn action', () => {
+  const scenario = validateScenario(JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/card-battle-first-win.json'), 'utf8')));
+  const messengerBack = '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]';
+  const combatActions = scenario.steps.filter((step) => step.action === 'clickUntilState'
+    && (step.selector?.includes('.ux-cardbattle-card') || step.selector === '[data-action="cardEndTurn"]'));
+
+  assert.ok(combatActions.length > 0);
+  for (const action of combatActions) {
+    const index = scenario.steps.indexOf(action);
+    const popupAcknowledgement = scenario.steps[index - 1];
+    const messengerRecovery = scenario.steps[index - 2];
+    assert.equal(action.routeRecoverySelector, messengerBack, `step ${index + 1} must declare recovery if popup handling navigates to Messenger`);
+    assert.equal(action.routeRecoveryTargetSelector, '.ux-cardbattle', `step ${index + 1} must verify the battle screen returned before retrying`);
+    assert.equal(action.routeRecoveryResumeSelector, '#ArenaAttack', `step ${index + 1} must resume the saved battle through the visible home UI if back navigation lands on home`);
+    assert.equal(popupAcknowledgement?.action, 'clickIfPresent', `step ${index + 1} should first acknowledge a visible event popup`);
+    assert.equal(popupAcknowledgement?.selector, '#PopupLayer .ux-modal-layer [data-vevent-choice="__auto"]');
+    assert.equal(messengerRecovery?.action, 'clickIfPresent', `step ${index + 1} should check Messenger navigation before combat`);
+    assert.equal(messengerRecovery?.selector, messengerBack, `step ${index + 1} should use Messenger's real back control`);
+  }
+});
+
+test('Fate battle scenarios declare visible Messenger route recovery before continuing card UI actions', () => {
+  const messengerBack = '.ux-screen:has(.ux-messenger) .ux-header [data-action="back"]';
+  for (const id of ['fate-chain-death-rebirth', 'fate-choice-negotiation', 'fate-first-choice', 'fate-secret-trial']) {
+    const scenario = validateScenario(JSON.parse(fs.readFileSync(path.join(__dirname, `../../ai/gameplay-agent/scenarios/${id}.json`), 'utf8')));
+    const combatActions = scenario.steps.filter((step) => step.action === 'cardBattleAdvance'
+      || (step.action === 'clickUntilState' && (step.selector?.includes('.ux-cardbattle-card') || step.selector === '[data-action="cardEndTurn"]')));
+    assert.ok(combatActions.length > 0, `${id} must retain its card battle actions`);
+    assert.ok(combatActions.every((step) => step.routeRecoverySelector === messengerBack
+      && step.routeRecoveryTargetSelector === '.ux-cardbattle'
+      && step.routeRecoveryResumeSelector === '#ArenaAttack'),
+    `${id} must return through the visible Messenger back control and resume saved combat from the visible home entry`);
+    assert.ok(combatActions.every((step) => step.popupChoiceSelector?.includes('.ux-modal-layer .ux-reply-option')),
+      `${id} must resolve a visible Messenger reply through its actual modal choice before continuing combat`);
+  }
 });
 
 test('shared new-player setup waits for authoritative character creation completion', () => {
@@ -722,8 +976,8 @@ test('project contract flow scopes messenger back navigation before returning th
 
 test('time-save compares the persisted second settlement with its workday rather than the possibly advanced current day', () => {
   const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/time-save.json'), 'utf8'));
-  const assertion = scenario.steps.find((step) => step.description === 'The second persisted wage slip matches the authoritative second workday');
-  assert.equal(assertion?.path, '@vars.settlementHistoryTwo[2].dayIndex', 'two earlier persisted calendar-day slips precede the scenario workdays');
+  const assertion = scenario.steps.find((step) => step.description === 'The latest persisted wage slip matches the authoritative second workday');
+  assert.equal(assertion?.path, '@vars.settlementHistoryTwo[3].dayIndex', 'the report has four durable records, so the day-four workday is the latest row rather than index two');
   assert.equal(assertion?.expected, '@vars.workdayTwo.dayIndex', 'the game loop can roll the current day forward while persisting settlement history');
 });
 
@@ -778,20 +1032,23 @@ test('layoff reemployment returns to the career tab after dismissing an incident
   ], 'resolve newly surfaced Fate choice/result pairs immediately before severance settlement');
   const unemployedScreenshotIndex = scenario.steps.findIndex((step) => step.action === 'screenshot' && step.name === 'layoff-unemployed');
   assert.ok(unemployedScreenshotIndex >= 0);
-  assert.equal(scenario.steps[unemployedScreenshotIndex + 1].selector, '[data-vevent-choice="__auto"]');
-  assert.equal(scenario.steps[unemployedScreenshotIndex + 2].selector, '[data-critical-conv]',
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 1].selector, ".ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']");
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 1].action, 'clickIfPresent');
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 1].maxDismissAttempts, 3);
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 2].selector, '[data-vevent-choice="__auto"]');
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 3].selector, '[data-critical-conv]',
     'open a real critical-message conversation through its visible modal control before choosing a reply');
-  assert.equal(scenario.steps[unemployedScreenshotIndex + 3].selector, '.ux-reply-option',
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 4].selector, '.ux-reply-option',
     'if a real critical messenger detail opened, choose its visible reply before leaving the detail');
-  assert.equal(scenario.steps[unemployedScreenshotIndex + 4].selector, '[data-action="back"]');
-  assert.equal(scenario.steps[unemployedScreenshotIndex + 4].action, 'click',
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 5].selector, '[data-action="back"]');
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 5].action, 'click',
     'leaving a page must use normal click recovery because the transition itself can surface a critical-message modal');
-  assert.equal(scenario.steps[unemployedScreenshotIndex + 5].selector, '[data-critical-conv]',
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 6].selector, '[data-critical-conv]',
     'check for the real critical-message choice again after page navigation can dispatch it');
-  assert.equal(scenario.steps[unemployedScreenshotIndex + 6].selector, '.ux-reply-option',
+  assert.equal(scenario.steps[unemployedScreenshotIndex + 7].selector, '.ux-reply-option',
     'resolve any message conversation opened during the navigation transition');
   const recruitmentIndex = scenario.steps.findIndex((step) => step.selector === '[data-action="goto"][data-page="sect"]');
-  assert.ok(recruitmentIndex > unemployedScreenshotIndex + 6);
+  assert.ok(recruitmentIndex > unemployedScreenshotIndex + 7);
   assert.equal(scenario.steps[recruitmentIndex - 1].selector, '[data-nav="PROMOTION"]');
   const recruitmentScroll = scenario.steps.find((step) => step.action === 'scroll' && step.ensureVisibleSelector === '[data-action="sect"][data-id="BIG_TECH"]');
   assert.deepEqual(recruitmentScroll.recoverySelectors, ['[data-nav="PROMOTION"]', '[data-action="goto"][data-page="sect"]']);
@@ -851,6 +1108,19 @@ test('layoff reemployment returns to the career tab after dismissing an incident
     && step.expected === 'INTERNAL'), 'the persisted next-day contract must match the employer selected in the UI');
 });
 
+test('layoff reemployment explicitly closes a visible weekend arrangement before clicking the covered back control', () => {
+  const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ai/gameplay-agent/scenarios/career-layoff-reemployment.json'), 'utf8'));
+  const screenshot = scenario.steps.findIndex((step) => step.action === 'screenshot' && step.name === 'layoff-unemployed');
+  const selector = ".ux-modal-layer .ux-event-option[data-weekend='SECLUDED_CULTIVATE']";
+  const explicitChoice = scenario.steps.findIndex((step, index) => index > screenshot && step.action === 'clickIfPresent' && step.selector === selector);
+  const back = scenario.steps.findIndex((step, index) => index > screenshot && step.action === 'click' && step.selector === '[data-action="back"]');
+
+  assert.ok(screenshot >= 0);
+  assert.ok(explicitChoice > screenshot, 'select the visible weekend choice as its own real UI action');
+  assert.equal(scenario.steps[explicitChoice].maxDismissAttempts, 3, 'bound real popup interactions and require closure');
+  assert.ok(back > explicitChoice, 'only click page navigation after the weekend modal has closed');
+});
+
 test('waitFor rejects unbounded timeouts and state assertions reject unsafe paths', () => {
   assert.throws(() => validateScenario({ id: 'bad-timeout', steps: [{ action: 'waitFor', selector: '#home', timeoutMs: 999999 }] }), /timeoutMs/);
   assert.throws(() => validateScenario({ id: 'bad-modal-timeout', steps: [{ action: 'clickIfPresent', selector: '#SettleOk', timeoutMs: 999999 }] }), /timeoutMs/);
@@ -880,6 +1150,14 @@ test('a process exit does not turn an underlying CDP timeout into a game defect'
 test('a missing GUI click target without captured interface evidence is not verified', () => {
   const error = new Error('click target not found: [data-action="goto"][data-page="sect"]');
   assert.equal(classifyStepFailure({ step: { action: 'click' }, error }), 'NOT_VERIFIED');
+});
+
+test('a packaged EXE that does not reach GameFacade ready is not verified, not a game defect', () => {
+  const error = new Error('EXE opened a GUI window, but the authoritative GameFacade did not become ready within the 35-second boot limit');
+  assert.equal(classifyStepFailure({ step: { action: 'restartGame' }, error }), 'NOT_VERIFIED');
+  assert.equal(scenarioOutcomeStatus({ failed: true, defects: [{ category: 'NOT_VERIFIED' }] }), 'not_verified');
+  assert.equal(scenarioOutcomeStatus({ failed: true, defects: [{ category: 'GAME_DEFECT' }] }), 'failed');
+  assert.equal(summarizeResults([{ id: 'save-reload', status: 'not_verified' }]).status, 'NOT_VERIFIED');
 });
 
 test('failed scenario assertions are classified as assertion defects rather than game defects', () => {
@@ -951,6 +1229,17 @@ test('blocked setup dependencies cannot be summarized as a pass', () => {
   const summary = summarizeResults([{ id: 'economy', status: 'blocked' }]);
   assert.equal(summary.status, 'BLOCKED');
   assert.equal(summary.blocked, 1);
+});
+
+test('skipped and not-run scenarios are counted and cannot produce a passing gate', () => {
+  const summary = summarizeResults([
+    { id: 'completed', status: 'passed' },
+    { id: 'skipped', status: 'skipped' },
+    { id: 'not-run', status: 'not_run' },
+  ]);
+  assert.equal(summary.status, 'NOT_RUN');
+  assert.equal(summary.skipped, 1);
+  assert.equal(summary.notRun, 1);
 });
 
 test('an obscured game choice remains blocked until the event popup is gone and target is uncovered', () => {
@@ -1037,6 +1326,16 @@ test('wheel automation waits until the scroll container reports a changed positi
   assert.equal(scrollPositionChanged(before, { scrollTop: 0, scrollLeft: 0 }), false);
   assert.equal(scrollPositionChanged(before, { scrollTop: 220, scrollLeft: 0 }), true);
   assert.equal(scrollPositionChanged(before, { scrollTop: 0, scrollLeft: 20 }), true);
+});
+
+test('keyboard scroll recovery sends Chromium-valid Tab key codes for pointer-safe focus navigation', async () => {
+  const sent = [];
+  await dispatchTabKey({ send: async (method, params) => { sent.push({ method, params }); } });
+
+  assert.deepEqual(sent, [
+    { method: 'Input.dispatchKeyEvent', params: { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 } },
+    { method: 'Input.dispatchKeyEvent', params: { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 } },
+  ]);
 });
 
 test('keyboard scroll recovery tabs without activating controls and stops only when the requested target is safely visible', async () => {

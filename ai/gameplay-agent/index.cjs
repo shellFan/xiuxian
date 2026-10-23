@@ -10,11 +10,14 @@ const { spawn, spawnSync } = require('node:child_process');
 const { CdpSession, dispatchWheelAt, listenPort } = require('./lib/cdp.cjs');
 const { withLaunchResourceCleanup } = require('./lib/launch-lifecycle.cjs');
 const { runHomeArena } = require('./lib/home-arena-play.cjs');
-const { tabScrollTargetIntoView } = require('./lib/scroll-recovery.cjs');
+const { dispatchTabKey, tabScrollTargetIntoView } = require('./lib/scroll-recovery.cjs');
+const { runScenariosIsolated } = require('./lib/scenario-isolation.cjs');
+const { dismissOptionalControl } = require('./lib/popup-controls.cjs');
+const { createAssetManagerDiagnosticsExpression } = require('./lib/asset-manager-diagnostics.cjs');
 const { cleanupIsolatedProfile } = require('./lib/profile-cleanup.cjs');
 const { chooseCardBattleAction, cardBattleActionAdvanced, cardBattleControlCandidate, dismissPopupAfterStalledCardAction, waitForCardBattleActionTransition, shouldRetryCardBattleAction } = require('./lib/card-battle-play.cjs');
-const { classifyFailure, classifyStepFailure, collectFailedScenarioIds, safeRunId, summarizeResults, validateScenario } = require('./lib/report.cjs');
-const { MAX_POPUP_RECOVERY_ACTIONS, boundsWithinViewport, canFinishClickAfterFinalPopupDismissal, canRecoverObstructedClick, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupChoiceCanBeClicked, popupControlKind, popupControlSelector, popupDismissalComplete, readScenarioVariable, readStatePath, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldContinuePopupRecovery, shouldInspectPopupForTarget, shouldRestoreScrollContextAfterPopup, shouldWaitForObscuringPopup, storeScenarioVariable, scenarioStateMatchesFrom, shouldRetryStatefulClick } = require('./lib/scenario-state.cjs');
+const { classifyFailure, classifyStepFailure, collectFailedScenarioIds, safeRunId, summarizeResults, scenarioOutcomeStatus, validateScenario } = require('./lib/report.cjs');
+const { MAX_POPUP_RECOVERY_ACTIONS, boundsWithinViewport, canFinishClickAfterFinalPopupDismissal, canRecoverObstructedClick, createVariableScopes, formatHitTarget, intersectVisibleBounds, popupChoiceCanBeClicked, popupControlKind, popupControlSelector, popupDismissalComplete, readScenarioVariable, readStatePath, scrollPositionChanged, scrollBoundaryTargetReady, scrollTargetAlreadyVisible, shouldContinuePopupRecovery, shouldInspectPopupForTarget, shouldRestoreScrollContextAfterPopup, shouldWaitForObscuringPopup, storeScenarioVariable, scenarioStateMatchesFrom, shouldRetryStatefulClick, recoverVisibleRoute } = require('./lib/scenario-state.cjs');
 
 const root = path.resolve(__dirname, '..', '..');
 const scenarioDir = path.join(__dirname, 'scenarios');
@@ -509,7 +512,8 @@ async function launchScenario(exe, profile, logPath, screenshotDir) {
           gameKeys:window.cc?.game?Object.keys(window.cc.game).slice(0,80):[],
           directorStarted:window.cc?.director?._scheduler?.isPlaying?.()??null,sceneName:scene?.name??null,
           assetManagerInitialized:window.cc?.assetManager?._initialized??null,
-          bundles:window.cc?.assetManager?.bundles?._map?Object.keys(window.cc.assetManager.bundles._map):[]},
+          bundles:window.cc?.assetManager?.bundles?._map?Object.keys(window.cc.assetManager.bundles._map):[],
+          assetManagerState:${createAssetManagerDiagnosticsExpression()}},
         system:{present:!!system,hasIndex:system?.has?.('./index.js')??null,
           importMap:document.querySelector('script[type="systemjs-importmap"]')?.textContent??null,
           registryCount:system?.registry?._registry?Object.keys(system.registry._registry).length:null,
@@ -542,6 +546,7 @@ async function applyStep({ step, context, screenshotDir }) {
     const deadline = Date.now() + timeoutMs;
     let lastState = null;
     let popupRecoveries = 0;
+    let routeRecoveries = 0;
     let stalledActionAttempts = 0;
     while (Date.now() < deadline) {
       lastState = await readFacadeState(session, 'queryCardBattle');
@@ -558,6 +563,26 @@ async function applyStep({ step, context, screenshotDir }) {
       });
       if (choice.kind === 'complete') return { detail: `battle already settled as ${lastState.phase}; no input sent`, value: lastState };
       if (choice.kind === 'unavailable') {
+        if (step.routeRecoverySelector) {
+          const routeRecovery = await recoverVisibleRoute({
+            routeSelector: step.routeRecoverySelector,
+            targetSelector: step.routeRecoveryTargetSelector ?? '.ux-cardbattle',
+            resumeSelector: step.routeRecoveryResumeSelector ?? null,
+            inspect: (selector) => inspectElement(session, selector),
+            click: (selector) => inputClick(session, selector),
+            delay,
+            timeoutMs: step.routeRecoveryTimeoutMs ?? 3000,
+          });
+          if (routeRecovery.status === 'restored') {
+            routeRecoveries += 1;
+            await delay(100);
+            continue;
+          }
+          const error = new Error(`AUTOMATION: visible route recovery did not restore card battle controls (${routeRecovery.status})`);
+          error.failureClass = 'AUTOMATION_DEFECT';
+          error.diagnostics = { state: lastState, controls, routeRecovery, routeRecoveries };
+          throw error;
+        }
         const error = new Error(`AUTOMATION: no visible playable card or end-turn control in phase ${lastState?.phase ?? 'unknown'}`);
         error.failureClass = 'AUTOMATION_DEFECT';
         error.diagnostics = { state: lastState, controls };
@@ -578,7 +603,8 @@ async function applyStep({ step, context, screenshotDir }) {
       lastState = transition.state;
       if (transition.status === 'advanced') {
         const recoveryDetail = popupRecoveries ? ` after closing ${popupRecoveries} newly appeared popup(s) through visible UI` : '';
-        return { detail: `real UI ${choice.kind} action advanced battle state (${before.phase}/turn ${before.turn} → ${lastState.phase}/turn ${lastState.turn})${recoveryDetail}`, value: lastState, element: interaction, popupRecoveries };
+        const routeDetail = routeRecoveries ? ` after restoring the visible Messenger route ${routeRecoveries} time(s)` : '';
+        return { detail: `real UI ${choice.kind} action advanced battle state (${before.phase}/turn ${before.turn} → ${lastState.phase}/turn ${lastState.turn})${recoveryDetail}${routeDetail}`, value: lastState, element: interaction, popupRecoveries, routeRecoveries };
       }
       const popupRecovery = await dismissPopupAfterStalledCardAction({
         inspectPopup: () => inspectRandomEventPopup(session),
@@ -637,7 +663,35 @@ async function applyStep({ step, context, screenshotDir }) {
         error.diagnostics = { path: step.path, from: step.from, expected: step.expected, state: lastState, attempts };
         throw error;
       }
-      const interaction = await inputClick(session, step.selector, 1, step.popupChoiceSelector ?? null);
+      let interaction;
+      try {
+        interaction = await inputClick(session, step.selector, 1, step.popupChoiceSelector ?? null);
+      } catch (error) {
+        if (!step.routeRecoverySelector || error.failureClass !== 'NOT_VERIFIED') throw error;
+        const routeRecovery = await recoverVisibleRoute({
+          routeSelector: step.routeRecoverySelector,
+          targetSelector: step.routeRecoveryTargetSelector ?? step.selector,
+          resumeSelector: step.routeRecoveryResumeSelector ?? null,
+          inspect: (selector) => inspectElement(session, selector),
+          click: (selector) => inputClick(session, selector),
+          delay,
+          timeoutMs: step.routeRecoveryTimeoutMs ?? 3000,
+        });
+        attempts.push({ attempt, routeRecovery });
+        if (routeRecovery.status !== 'restored') {
+          const wrapped = new Error(`AUTOMATION: ${step.routeRecoverySelector} did not restore a visible target after a popup-driven route change`);
+          wrapped.failureClass = 'AUTOMATION_DEFECT';
+          wrapped.diagnostics = { selector: step.selector, routeRecovery, cause: error.diagnostics ?? error.message, attempts };
+          throw wrapped;
+        }
+        if (attempt >= step.maxAttempts) {
+          const wrapped = new Error(`AUTOMATION: the target was restored after ${step.maxAttempts} route recovery attempt(s), but no card action retry remained`);
+          wrapped.failureClass = 'AUTOMATION_DEFECT';
+          wrapped.diagnostics = { selector: step.selector, routeRecovery, attempts };
+          throw wrapped;
+        }
+        continue;
+      }
       const deadline = Date.now() + timeoutMs;
       do {
         await delay(100);
@@ -755,17 +809,14 @@ async function applyStep({ step, context, screenshotDir }) {
         throw error;
       }
     }
-    const item = await inputClick(session, step.selector);
-    const deadline = Date.now() + (step.timeoutMs ?? 3000);
-    let after = await inspectElement(session, step.selector);
-    while (after.found && Date.now() < deadline) { await delay(100); after = await inspectElement(session, step.selector); }
-    if (after.found) {
-      const error = new Error(`optional modal control did not close its popup: ${step.selector}`);
-      error.failureClass = 'GAME_DEFECT';
-      error.diagnostics = { selector: step.selector, before, after, timeoutMs: step.timeoutMs ?? 3000 };
-      throw error;
-    }
-    return { detail: `clicked actual modal control and verified it closed: ${step.selector}`, element: item, scrollAttempts };
+    const dismissal = await dismissOptionalControl({
+      inspect: () => inspectElement(session, step.selector),
+      click: () => inputClick(session, step.selector),
+      delay,
+      timeoutMs: step.timeoutMs ?? 3000,
+      maxAttempts: step.maxDismissAttempts ?? 1,
+    });
+    return { detail: `clicked actual modal control ${dismissal.attempts.length} time(s) and verified it closed: ${step.selector}`, element: dismissal.attempts.at(-1)?.interaction, scrollAttempts, dismissalAttempts: dismissal.attempts };
   }
   if (step.action === 'click' || step.action === 'doubleClick') {
     const item = await inputClick(session, step.selector, step.action === 'doubleClick' ? 2 : 1, step.popupChoiceSelector ?? null);
@@ -926,10 +977,7 @@ async function applyStep({ step, context, screenshotDir }) {
           selector: step.ensureVisibleSelector,
           maxTabSteps: step.keyboardRecoveryMaxTabSteps ?? 24,
           inspectTarget: inspectElement.bind(null, session),
-          dispatchTab: async () => {
-            await session.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'TAB', windowsVirtualKeyCode: 9 });
-            await session.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'TAB', windowsVirtualKeyCode: 9 });
-          },
+          dispatchTab: async () => dispatchTabKey(session),
         });
         if (keyboardRecovery.visible) {
           return { detail: `wheel did not move ${step.selector}; Tab focus navigation brought ${step.ensureVisibleSelector} into view without activating it`, attempts, keyboardRecovery };
@@ -1159,7 +1207,7 @@ async function testScenario(scenario, exe, runDir, repairAttempts = {}, runVaria
     result.profileCleanup = await cleanupIsolatedProfile(profile);
     result.finishedAt = new Date().toISOString();
     result.durationMs = Date.parse(result.finishedAt) - Date.parse(result.startedAt);
-    result.status = blocked ? 'blocked' : failed ? 'failed' : 'passed';
+    result.status = scenarioOutcomeStatus({ blocked, failed, defects: result.defects });
     fs.writeFileSync(path.join(scenarioDirPath, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
     fs.writeFileSync(path.join(scenarioDirPath, 'replay.json'), `${JSON.stringify({ schemaVersion: 1, scenarioId: scenario.id, sourceScenario: scenario, operations, replay: { command: 'npm run gameplay-agent:test -- --scenario=' + scenario.id, exactStepInputs: true, usesFreshIsolatedProfile: true } }, null, 2)}\n`);
   }
@@ -1184,7 +1232,7 @@ function writeReport(report, runDir) {
   fs.writeFileSync(path.join(runDir, 'defects.json'), `${JSON.stringify({ runId: report.runId, status: report.summary.status, defects }, null, 2)}\n`);
   const sceneLines = report.scenarios.map((scenario) => `| ${scenario.id} | ${scenario.status} | ${(scenario.steps ?? []).filter((step) => step.status === 'failed').length} |`).join('\n');
   const defectLines = defects.length ? defects.map((defect) => `- **${defect.severity} ${defect.category ?? 'UNCLASSIFIED'} ${defect.id}:** ${defect.title}${defect.evidence ? ` ([证据](./${defect.evidence}))` : ''}; 修复尝试 ${defect.repairAttempts}/${defect.maxRepairAttempts}`).join('\n') : '- 没有发现缺陷。';
-    fs.writeFileSync(path.join(runDir, 'summary.md'), `# GamePlay Agent ${report.runId}\n\n状态：**${report.summary.status}**\n\n- EXE：\`${report.exe ?? '不可用'}\`\n- EXE SHA-256：\`${report.exeSha256 ?? '未运行'}\`\n- ASAR SHA-256：\`${report.asarSha256 ?? '未找到'}\`\n- Build SHA：\`${report.buildSha ?? '未找到'}\`\n- UI_REAL_EXE：\`${report.validationModes?.UI_REAL_EXE ?? 'NOT_VERIFIED'}\`；ELECTRON_E2E：\`${report.validationModes?.ELECTRON_E2E ?? 'NOT_VERIFIED'}\`；SERVICE_SIM：\`${report.validationModes?.SERVICE_SIM ?? 'NOT_VERIFIED'}\`\n- 隔离存档：每场景使用独立临时目录；结束后重试清理。仍被系统占用时会记录 deferred 状态，不阻断证据报告。\n- 场景：${report.summary.passed}/${report.summary.total} 通过；${report.summary.failed} 失败；${report.summary.blocked ?? 0} 前置阻塞；${report.summary.notVerified} 未验证。\n- GUI：输入为 CDP 合成事件，截图为 renderer 表面捕获，不计为物理 Windows UI 输入。每个场景另存 replay.json，包含操作、窗口内容尺寸、前后状态与证据路径。\n\n| 场景 | 状态 | 失败步骤 |\n|---|---|---:|\n${sceneLines}\n\n## 缺陷\n\n${defectLines}\n\n## 自动复测\n\n缺陷修复由 Codex Developer 修改代码。将缺陷修复轮次保留在缺陷报告中；单缺陷上限三轮，超过后状态设为 ESCALATED。复跑本次失败场景：\`npm run gameplay-agent:rerun-failed\`。\n`);
+    fs.writeFileSync(path.join(runDir, 'summary.md'), `# GamePlay Agent ${report.runId}\n\n状态：**${report.summary.status}**\n\n- EXE：\`${report.exe ?? '不可用'}\`\n- EXE SHA-256：\`${report.exeSha256 ?? '未运行'}\`\n- ASAR SHA-256：\`${report.asarSha256 ?? '未找到'}\`\n- Build SHA：\`${report.buildSha ?? '未找到'}\`\n- UI_REAL_EXE：\`${report.validationModes?.UI_REAL_EXE ?? 'NOT_VERIFIED'}\`；ELECTRON_E2E：\`${report.validationModes?.ELECTRON_E2E ?? 'NOT_VERIFIED'}\`；SERVICE_SIM：\`${report.validationModes?.SERVICE_SIM ?? 'NOT_VERIFIED'}\`\n- 隔离存档：每场景使用独立临时目录；结束后重试清理。仍被系统占用时会记录 deferred 状态，不阻断证据报告。\n- 场景：${report.summary.passed}/${report.summary.total} 通过；${report.summary.failed} 失败；${report.summary.blocked ?? 0} 前置阻塞；${report.summary.skipped ?? 0} 跳过；${report.summary.notRun ?? 0} 未运行；${report.summary.notVerified} 未验证。\n- GUI：输入为 CDP 合成事件，截图为 renderer 表面捕获，不计为物理 Windows UI 输入。每个场景另存 replay.json，包含操作、窗口内容尺寸、前后状态与证据路径。\n\n| 场景 | 状态 | 失败步骤 |\n|---|---|---:|\n${sceneLines}\n\n## 缺陷\n\n${defectLines}\n\n## 自动复测\n\n缺陷修复由 Codex Developer 修改代码。将缺陷修复轮次保留在缺陷报告中；单缺陷上限三轮，超过后状态设为 ESCALATED。复跑本次失败场景：\`npm run gameplay-agent:rerun-failed\`。\n`);
   return report.summary;
 }
 
@@ -1229,18 +1277,20 @@ async function run(mode, selectedIds, repairAttempts = {}) {
     report.scenarios = chosen.map((scenario) => ({ id: scenario.id, title: scenario.title, status: 'not_verified', steps: [], defects: [], error: 'Windows test EXE not found; set GAMEPLAY_AGENT_EXE or package the game.' }));
   } else {
     report.exeSha256 = fileSha256(exe);
-    const runVariables = Object.create(null);
-    for (const scenario of chosen) {
-      process.stdout.write(`[GamePlay Agent] ${scenario.id}: ${scenario.title}\n`);
-      const result = await testScenario(scenario, exe, runDir, repairAttempts, runVariables);
-      report.scenarios.push(result);
-      process.stdout.write(`[${result.status.toUpperCase()}] ${scenario.id}${result.error ? ` — ${result.error}` : ''}\n`);
+    report.scenarios = await runScenariosIsolated(chosen,
+      (scenario, runVariables) => testScenario(scenario, exe, runDir, repairAttempts, runVariables),
+      (scenario) => process.stdout.write(`[GamePlay Agent] ${scenario.id}: ${scenario.title}\n`));
+    for (const result of report.scenarios) {
+      process.stdout.write(`[${result.status.toUpperCase()}] ${result.id}${result.error ? ` — ${result.error}` : ''}\n`);
     }
   }
-  report.validationModes.ELECTRON_E2E = !exe ? 'NOT_VERIFIED' : report.scenarios.every((scenario) => scenario.status === 'passed') ? 'PASS' : report.scenarios.some((scenario) => scenario.status === 'failed') ? 'FAILED' : 'BLOCKED';
+  report.validationModes.ELECTRON_E2E = !exe ? 'NOT_VERIFIED'
+    : report.scenarios.every((scenario) => scenario.status === 'passed') ? 'PASS'
+      : report.scenarios.some((scenario) => scenario.status === 'failed') ? 'FAILED'
+        : report.scenarios.some((scenario) => scenario.status === 'not_verified') ? 'NOT_VERIFIED' : 'BLOCKED';
   report.validationModes.SERVICE_SIM = mode === 'gate' ? 'PENDING' : 'NOT_RUN';
   const summary = writeReport(report, runDir);
-  process.stdout.write(`\n[GamePlay Agent] ${summary.status}: ${summary.passed}/${summary.total} passed; ${summary.failed} failed; ${summary.notVerified} not verified\nReport: ${path.relative(root, path.join(runDir, 'summary.md'))}\n`);
+  process.stdout.write(`\n[GamePlay Agent] ${summary.status}: ${summary.passed}/${summary.total} passed; ${summary.failed} failed; ${summary.blocked} blocked; ${summary.skipped} skipped; ${summary.notRun} not run; ${summary.notVerified} not verified\nReport: ${path.relative(root, path.join(runDir, 'summary.md'))}\n`);
   return summary;
 }
 

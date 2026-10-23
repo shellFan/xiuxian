@@ -121,6 +121,7 @@
       "action": "clickIfPresent",
       "selector": "[data-critical-conv]",
       "timeoutMs": 4000,
+      "maxDismissAttempts": 3,
       "description": "If a real critical-message popup is queued, open it through its visible conversation choice and verify the modal closes"
     },
     {
