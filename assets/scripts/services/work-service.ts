@@ -108,8 +108,36 @@ export class WorkService {
     const mode = this.mode;
     if (elapsedSeconds === 0) return ZERO_RESULT(mode);
     const standardSeconds = this.standardSeconds(elapsedSeconds);
-    if (standardSeconds === 0) return ZERO_RESULT(mode);
     const baseRules = MODE_RULES[mode];
+    // V5.9-N.10 结构性修复：恢复型模式（摸鱼/社交）的道心恢复全天有效。
+    // 此前 standardSeconds===0（午休+下班，约 5h/日）直接 return，+40/h 的摸鱼
+    // 恢复形同虚设——下午从 0 起步必然长时间贴 0（consecZero 140~260min）。
+    // 恢复全天结算；工资/修为/时长仍仅按标准工时结算（经济不变）。
+    const idleMindRate = baseRules.mindPerHour;
+    if (standardSeconds === 0) {
+      if (idleMindRate > 0) {
+        const mindRemainderKey = baseRules.secondsKey.replace('Seconds', 'MindRemainder') as
+          'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder';
+        const mindBuffMul = mode === 'FISHING' ? this.context.buffs.getMultiplier('FISHING_MIND_BOOST') : 1;
+        const mindResult = accumulate(idleMindRate, elapsedSeconds, 1, this.context.player[mindRemainderKey] ?? 0, 3600);
+        const gain = Math.floor(mindResult.reward * mindBuffMul);
+        if (gain > 0) {
+          const previous = this.context.player.toSaveData();
+          try {
+            this.context.mind.applyDelta(gain);
+            this.context.player[mindRemainderKey] = mindResult.remainder;
+            // 摸鱼消心魔（V2 §26 恢复途径）：每半小时 -1。
+            if (mode === 'FISHING' && elapsedSeconds >= 1800) {
+              this.context.innerDemon.reduce(Math.floor(elapsedSeconds / 1800));
+            }
+          } catch (error) {
+            restorePlayer(this.context.player, previous);
+            throw error;
+          }
+        }
+      }
+      return ZERO_RESULT(mode);
+    }
     const override = this.options.modeMultipliers?.[mode];
     const rules = {
       secondsKey: baseRules.secondsKey,
@@ -167,6 +195,11 @@ export class WorkService {
       this.context.economy.applyIdleSalary(salary);
       this.context.cultivation.applyIdleExperience(cultivationExp);
       const actualMindDelta = this.context.mind.applyDelta(mindDelta);
+      // 摸鱼消心魔（V2 §26 设计列明的恢复途径，此前未实现）：FISHING 每半小时 -1 心魔，
+      // 与摸鱼道心恢复(+40/h)同源结算；工作日午休+带薪摸鱼 ≈ -4/日。
+      if (mode === 'FISHING' && standardSeconds >= 1800) {
+        this.context.innerDemon.reduce(Math.floor(standardSeconds / 1800));
+      }
       this.context.player[secondsKey] = nextSeconds;
       this.context.player.salaryRemainder = salaryResult.remainder;
       this.context.player.cultivationRemainder = cultivationResult.remainder;

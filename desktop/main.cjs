@@ -153,6 +153,28 @@ async function createWindow() {
     autoHideMenuBar: true,
   });
 
+  // ── Diagnostics: console-message ────────────────────────────────────────
+  // V5.9-N.10 修复:监听器必须先于 loadURL 注册 —— 此前注册在 loadURL 之后,
+  // bundle 加载快时 [BOOT]/GAME_READY 日志全部丢失,启动诊断与自动化烟测失去依据。
+  mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+    const levelName = ['VERBOSE', 'INFO', 'WARNING', 'ERROR'][level] || `LEVEL${level}`;
+    // Forward BOOT logs, warnings, and errors to main process console
+    if (level >= 2 || message.startsWith('[BOOT]') || message.startsWith('[COCOS') || message.startsWith('[PC-PATCH]') || message.includes('GAME_READY')) {
+      console.log(`[Renderer:${levelName}] ${message} (${sourceId}:${line})`);
+    }
+  });
+
+  // ── Diagnostics: render-process-gone ────────────────────────────────────
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    console.error('[Electron] Renderer crashed:', details.reason, details.exitCode);
+    showRecoveryDialog('修仙途中遭遇心魔', '游戏运行出现异常，请尝试重新启动。');
+  });
+
+  // ── Diagnostics: did-fail-load ──────────────────────────────────────────
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+    console.error(`[Electron] FAILED TO LOAD: ${errorCode} ${errorDescription} URL=${validatedURL}`);
+  });
+
   // Load via HTTP (NOT file://)
   mainWindow.loadURL(gameUrl);
 
@@ -196,25 +218,7 @@ async function createWindow() {
     }).catch(() => {});
   });
 
-  // ── Diagnostics: did-fail-load ──────────────────────────────────────────
-  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
-    console.error(`[Electron] FAILED TO LOAD: ${errorCode} ${errorDescription} URL=${validatedURL}`);
-  });
-
-  // ── Diagnostics: console-message ────────────────────────────────────────
-  mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
-    const levelName = ['VERBOSE', 'INFO', 'WARNING', 'ERROR'][level] || `LEVEL${level}`;
-    // Forward BOOT logs, warnings, and errors to main process console
-    if (level >= 2 || message.startsWith('[BOOT]') || message.startsWith('[COCOS') || message.startsWith('[PC-PATCH]') || message.includes('GAME_READY')) {
-      console.log(`[Renderer:${levelName}] ${message} (${sourceId}:${line})`);
-    }
-  });
-
-  // ── Diagnostics: render-process-gone ────────────────────────────────────
-  mainWindow.webContents.on('render-process-gone', (_event, details) => {
-    console.error('[Electron] Renderer crashed:', details.reason, details.exitCode);
-    showRecoveryDialog('修仙途中遭遇心魔', '游戏运行出现异常，请尝试重新启动。');
-  });
+  // did-fail-load listener registered before loadURL (see above)
 
   // ── Boot timeout (starts after HTML loads) ────────────────────────────────
   // Note: moved to did-finish-load handler below

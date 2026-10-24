@@ -354,9 +354,14 @@ export class DaySettlementService {
       try {
         const offWork = this.gameDay.isOffWork();
         this.context.fatigue.recover('OFF_WORK');
-        p.mind = Math.min(p.maxMind, p.mind + 35);
-        // V5.8：心魔自然消退（-3/晚，治疗螺旋）+ Burnout 状态机推进 + 月度统计累计
-        p.innerDemon = Math.max(0, p.innerDemon - 3);
+        // V5.7 §83/84 下班道心恢复。V5.9-N.10 校准：+35 覆盖不了工作日消耗
+        // （实测 85% 工作人格工作+局势流 ≈ -43/日），白天必然贴 0（consecZero 100min+）。
+        // 提至 +50 使主流人格净收支回到 V5.8 §7.4 设计目标 +6/day（含事件损耗）。
+        p.mind = Math.min(p.maxMind, p.mind + 50);
+        // V5.8：心魔自然消退（治疗螺旋）。V5.9-N.10 校准：事件心魔注入实测 ≈ +5.7/日，
+        // -3/晚只抵一半，30 日冲到 82/100 触发 7~8 心魔（mindRecoveryDown 0.75 恶性循环）。
+        // -6/晚 使长期心魔回到可管理区间（周末补觉 -15 仍为额外大恢复）。
+        p.innerDemon = Math.max(0, p.innerDemon - 6);
         try { this.context.burnout.onDaySettled(); } catch { /* burnout must not block settle */ }
         try {
           this.context.meta.accumulateMonth({

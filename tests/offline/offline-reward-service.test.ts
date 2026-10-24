@@ -28,7 +28,7 @@ function testOneHour(): void {
   const { offline } = makeContext(clock);
   clock.advance(3_600 * 1000);
   // V2 L1 cultivation 8/h
-  assert.deepEqual(offline.preview('one'), { salary: 10, cultivationExp: 8, spiritStones: 6, elapsedSeconds: 3600, capped: false, duplicate: false });
+  assert.deepEqual(offline.preview('one'), { salary: 6, cultivationExp: 3, spiritStones: 6, elapsedSeconds: 3600, capped: false, duplicate: false });
 }
 
 function testEightHourCap(): void {
@@ -38,7 +38,7 @@ function testEightHourCap(): void {
   const preview = offline.preview('eight');
   assert.equal(preview.elapsedSeconds, 28_800);
   assert.equal(preview.capped, false);
-  assert.equal(preview.salary, 80);
+  assert.equal(preview.salary, 52);
 }
 
 function testTwelveHourCapped(): void {
@@ -48,7 +48,7 @@ function testTwelveHourCapped(): void {
   const preview = offline.preview('twelve');
   assert.equal(preview.elapsedSeconds, 28_800);
   assert.equal(preview.capped, true);
-  assert.equal(preview.salary, 80);
+  assert.equal(preview.salary, 52);
 }
 
 function testNegativeClock(): void {
@@ -64,9 +64,9 @@ function testNormalClaim(): void {
   const { offline, context } = makeContext(clock);
   clock.advance(3_600 * 1000);
   const result = offline.claimNormal('s');
-  assert.equal(result.salary, 10);
-  assert.equal(result.cultivationExp, 8);
-  assert.equal(context.player.salary, 10);
+  assert.equal(result.salary, 6);
+  assert.equal(result.cultivationExp, 3);
+  assert.equal(context.player.salary, 6);
   assert.equal(offline.isSettled('s'), true);
 }
 
@@ -77,8 +77,8 @@ function testDoubleClaim(): void {
   let granted = false;
   offline.claimDouble('s', (success) => { granted = success; });
   assert.equal(granted, true);
-  // 2x total: base 10 salary -> 20.
-  assert.equal(context.player.salary, 20);
+  // 2x total: base 6 salary -> 12 (V5.9-N.10 parity).
+  assert.equal(context.player.salary, 12); // 6 x 2 (V5.9-N.10 parity)
   assert.equal(offline.isSettled('s'), true);
 }
 
@@ -87,11 +87,11 @@ function testNormalThenDoubleRejected(): void {
   const { offline, context } = makeContext(clock);
   clock.advance(3_600 * 1000);
   offline.claimNormal('s');
-  assert.equal(context.player.salary, 10);
+  assert.equal(context.player.salary, 6);
   let granted = true;
   offline.claimDouble('s', (success) => { granted = success; });
   assert.equal(granted, false);
-  assert.equal(context.player.salary, 10);
+  assert.equal(context.player.salary, 6);
 }
 
 function testDoubleThenNormalRejected(): void {
@@ -99,9 +99,9 @@ function testDoubleThenNormalRejected(): void {
   const { offline, context } = makeContext(clock);
   clock.advance(3_600 * 1000);
   offline.claimDouble('s', () => undefined);
-  assert.equal(context.player.salary, 20);
+  assert.equal(context.player.salary, 12); // 6 x 2 (V5.9-N.10 parity)
   assert.throws(() => offline.claimNormal('s'));
-  assert.equal(context.player.salary, 20);
+  assert.equal(context.player.salary, 12); // 6 x 2 (V5.9-N.10 parity)
 }
 
 function testDoubleClickOnlyGrantsOnce(): void {
@@ -114,7 +114,7 @@ function testDoubleClickOnlyGrantsOnce(): void {
   offline.claimDouble('s', (success) => { second = success; });
   assert.equal(first, true);
   assert.equal(second, false);
-  assert.equal(context.player.salary, 20);
+  assert.equal(context.player.salary, 12); // 6 x 2 (V5.9-N.10 parity)
 }
 
 function testDuplicateRewardCallbackIgnored(): void {
@@ -130,7 +130,7 @@ function testDuplicateRewardCallbackIgnored(): void {
   clock.advance(3_600 * 1000);
   offline.claimDouble('s', () => undefined);
   // Only one extra base grant, not two.
-  assert.equal(context.player.salary, 20);
+  assert.equal(context.player.salary, 12); // 6 x 2 (V5.9-N.10 parity)
 }
 
 function testReopenDuplicateRejected(): void {
@@ -139,16 +139,16 @@ function testReopenDuplicateRejected(): void {
   clock.advance(3_600 * 1000);
   offline.claimNormal('s');
   assert.throws(() => offline.claimNormal('s'));
-  assert.equal(context.player.salary, 10);
+  assert.equal(context.player.salary, 6);
 }
 
 function testSameSettlementIdDuplicate(): void {
   const clock = new FakeClock(1_000);
   const { offline, context } = makeContext(clock);
   clock.advance(3_600 * 1000);
-  assert.equal(offline.claimNormal('s').salary, 10);
+  assert.equal(offline.claimNormal('s').salary, 6);
   assert.throws(() => offline.claimNormal('s'));
-  assert.equal(context.player.salary, 10);
+  assert.equal(context.player.salary, 6);
 }
 
 function testSaveFailureRollsBackDouble(): void {
@@ -173,11 +173,11 @@ function testNewSettlementWorks(): void {
   const { offline, context } = makeContext(clock);
   clock.advance(3_600 * 1000);
   offline.claimNormal('s1');
-  assert.equal(context.player.salary, 10);
+  assert.equal(context.player.salary, 6);
   clock.advance(3_600 * 1000);
   const result = offline.claimNormal('s2');
-  assert.equal(result.salary, 10);
-  assert.equal(context.player.salary, 20);
+  assert.equal(result.salary, 6);
+  assert.equal(context.player.salary, 12); // 6 x 2 (V5.9-N.10 parity)
 }
 
 function testDoubleThenNormalNewSettlement(): void {
@@ -187,11 +187,11 @@ function testDoubleThenNormalNewSettlement(): void {
   let granted = false;
   offline.claimDouble('s1', (success) => { granted = success; });
   assert.equal(granted, true);
-  assert.equal(context.player.salary, 20);
+  assert.equal(context.player.salary, 12); // 6 x 2 (V5.9-N.10 parity)
   clock.advance(3_600 * 1000);
   const result = offline.claimNormal('s2');
-  assert.equal(result.salary, 10, 'normal of a different settlement still works after a double');
-  assert.equal(context.player.salary, 30);
+  assert.equal(result.salary, 6, 'normal of a different settlement still works after a double');
+  assert.equal(context.player.salary, 18); // 6 x 3 (V5.9-N.10 parity)
 }
 
 function testDoubleThenDoubleNewSettlement(): void {
@@ -205,7 +205,7 @@ function testDoubleThenDoubleNewSettlement(): void {
   let second = false;
   offline.claimDouble('s2', (success) => { second = success; });
   assert.equal(second, true, 'double of a different settlement is independent');
-  assert.equal(context.player.salary, 40, '2x of s1 + 2x of s2');
+  assert.equal(context.player.salary, 24, '2x of s1 + 2x of s2 (V5.9-N.10 parity)');
 }
 
 function testSaveFailureAllowsRetrySameSettlement(): void {
@@ -226,7 +226,7 @@ function testSaveFailureAllowsRetrySameSettlement(): void {
   let granted = false;
   context.offline.claimDouble('s1', (success) => { granted = success; });
   assert.equal(granted, true, 'same settlement can be retried after a save failure');
-  assert.equal(player.salary, 20);
+  assert.equal(player.salary, 12); // 6 x 2 (V5.9-N.10 parity)
 }
 
 testZeroSeconds();

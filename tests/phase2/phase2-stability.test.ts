@@ -90,8 +90,8 @@ function testIdleBoundariesZeroEightHourCap(): void {
   eight.context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   eight.clock.set(1_000 + 8 * 60 * 60 * 1_000);
   const exact = eight.context.idle.settle('eight');
-  assert.equal(exact.salary, 80);
-  assert.equal(exact.cultivationExp, 64); // V2 L1 8/h × 8h
+  assert.equal(exact.salary, 52); // V5.9-N.10 parity 0.65x
+  assert.equal(exact.cultivationExp, 25); // V2 L1 8/h × 8h × 0.4 parity
   assert.equal(exact.capped, false);
   // re-settling the same id after no time passes is a duplicate (no re-grant)
   assert.deepEqual(eight.context.idle.settle('eight'), { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, duplicate: true });
@@ -101,7 +101,7 @@ function testIdleBoundariesZeroEightHourCap(): void {
   twelve.context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   twelve.clock.set(1_000 + 12 * 60 * 60 * 1_000);
   const over = twelve.context.idle.settle('twelve');
-  assert.equal(over.salary, 80, 'capped at 8h (28800s)');
+  assert.equal(over.salary, 52, 'capped at 8h (28800s)');
   assert.equal(over.capped, true);
   assert.equal(over.elapsedSeconds, 28_800);
 }
@@ -340,10 +340,10 @@ function makeOfflineContext(): { context: GameContext; player: PlayerData; clock
 function testOfflineNormalGrantsOnce(): void {
   const { context, player } = makeOfflineContext();
   const result = context.offline.claimNormal('sid-1');
-  assert.equal(result.salary, 10);
-  assert.equal(player.salary, 10);
+  assert.equal(result.salary, 6);
+  assert.equal(player.salary, 6);
   assert.throws(() => context.offline.claimNormal('sid-1'), /already claimed/);
-  assert.equal(player.salary, 10, 'no double grant on reopen');
+  assert.equal(player.salary, 6, 'no double grant on reopen');
 }
 
 function testOfflineDoubleGrantsTwoXAndBlocksNormal(): void {
@@ -351,8 +351,8 @@ function testOfflineDoubleGrantsTwoXAndBlocksNormal(): void {
   let granted = false;
   context.offline.claimDouble('sid-1', (ok) => { granted = ok; });
   assert.equal(granted, true);
-  assert.equal(player.salary, 20, 'double = 2x base, never re-runs IdleService');
-  assert.equal(player.cultivationExp, 16); // V2: 8/h × 2
+  assert.equal(player.salary, 12, 'double = 2x base, never re-runs IdleService');
+  assert.equal(player.cultivationExp, 6); // V2: 8/h × 0.4 parity × 2
   assert.equal(player.lastIdleSettlementId, 'sid-1');
   assert.throws(() => context.offline.claimNormal('sid-1'), /already claimed/);
 }
@@ -363,7 +363,7 @@ function testOfflineDoubleAndNormalMutuallyExclusive(): void {
   let result = true;
   a.context.offline.claimDouble('sid-1', (ok) => { result = ok; });
   assert.equal(result, false, 'double blocked after normal with same id');
-  assert.equal(a.player.salary, 10, 'still the 1x normal reward only');
+  assert.equal(a.player.salary, 6, 'still the 1x normal reward only');
 
   const b = makeOfflineContext();
   let granted = false;

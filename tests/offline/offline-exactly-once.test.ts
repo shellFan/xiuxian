@@ -48,8 +48,8 @@ function testNormalClaimUsesPreviewedBaseResourcesExactlyOnce(): void {
   const { context } = createContext();
   const preview = context.offline.previewSimulation('normal-once');
   const before = context.player.toSaveData();
-  assert.equal(preview.salary, 10);
-  assert.equal(preview.cultivation, 8);
+  assert.equal(preview.salary, 6); // V5.9-N.10 parity 0.65x
+  assert.equal(preview.cultivation, 3); // V5.9-N.10 parity 0.4x
   assert.equal(preview.spiritStones, 6);
   assert.deepEqual(context.player.toSaveData(), before, 'preview is read-only');
 
@@ -71,7 +71,7 @@ function testNormalAndDoubleAreMutuallyExclusive(): void {
   let normalThenDouble = true;
   normal.offline.claimDouble('normal-first', (success) => { normalThenDouble = success; });
   assert.equal(normalThenDouble, false);
-  assert.equal(normal.player.salary, 10);
+  assert.equal(normal.player.salary, 6);
 
   const doubled = createContext().context;
   let doubleGranted = false;
@@ -97,7 +97,7 @@ function testRestartCannotReplayClaimedSettlement(): void {
   let doubled = true;
   restarted.offline.claimDouble('restart-guard', (success) => { doubled = success; });
   assert.equal(doubled, false);
-  assert.equal(restarted.player.salary, 10);
+  assert.equal(restarted.player.salary, 6);
   const duplicatePreview = restarted.offline.previewSimulation('restart-guard');
   assert.equal(duplicatePreview.duplicate, true);
   assert.equal(duplicatePreview.salary, 0);
@@ -116,7 +116,7 @@ function testNormalCannotSettleWhileDoubleIsInFlight(): void {
 
   provider.resolve({ status: 'granted' });
   assert.equal(doubled, true);
-  assert.equal(context.player.salary, 20);
+  assert.equal(context.player.salary, 12); // 6 x 2 (V5.9-N.10 parity)
 }
 
 function testDoubleCallbackRevalidatesAfterExternalSettlement(): void {
@@ -126,11 +126,11 @@ function testDoubleCallbackRevalidatesAfterExternalSettlement(): void {
   context.offline.claimDouble('externally-settled', (success) => { doubled = success; });
 
   const external = context.idle.settle('externally-settled');
-  assert.equal(external.salary, 10);
+  assert.equal(external.salary, 6);
   provider.resolve({ status: 'granted' });
 
   assert.equal(doubled, false);
-  assert.equal(context.player.salary, 10, 'callback cannot grant after another path settled the id');
+  assert.equal(context.player.salary, 6, 'callback cannot grant after another path settled the id');
   assert.equal(context.player.lastIdleSettlementId, 'externally-settled');
 }
 
@@ -196,7 +196,7 @@ function testSuccessfulDelayedDoubleCannotReplayAfterRestart(): void {
   let duplicateDouble = true;
   restarted.offline.claimDouble('double-restart', (success) => { duplicateDouble = success; });
   assert.equal(duplicateDouble, false);
-  assert.equal(restarted.player.salary, 20);
+  assert.equal(restarted.player.salary, 12); // 6 x 2 (V5.9-N.10 parity)
 }
 
 const tests = [

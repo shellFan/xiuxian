@@ -110,6 +110,27 @@ function runPersona(name, policy, days, seed, mode) {
           try { facade.replyToMessage(msg.id, pick.id); } catch(e) { M.exceptions += 1; }
         }
 
+        // V5.9-N.10 适配：V2 事件弹窗必须处理（此前事件长期 pending 阻塞事件流，属模拟失真）。
+        // preserving（自我保护型玩家）优先选成功率最高的选项（风险厌恶，UI 可见信息，非作弊）；
+        // native 按第一项处理（无脑玩家）。FLAVOR 事件（无选项）直接确认。
+        try {
+          var evt = facade.queryV2CurrentEvent();
+          if (evt) {
+            var choices = facade.queryV2CurrentChoices();
+            if (choices.length > 0) {
+              var pickChoice = choices[0];
+              if (mode === 'preserving') {
+                for (var ei = 1; ei < choices.length; ei++) {
+                  if ((choices[ei].successChance ?? 1) > (pickChoice.successChance ?? 1)) pickChoice = choices[ei];
+                }
+              }
+              facade.resolveV2Event(pickChoice.id);
+            } else {
+              facade.resolveV2Event(null);
+            }
+          }
+        } catch(e) { M.exceptions += 1; }
+
         for (var ti = 0; ti < pl.activeTasks.length; ti++) {
           var t = pl.activeTasks[ti];
           if (t.completed && !t.claimed) { try { facade.context.tasks.claimTask(t.taskId); } catch(e) {} }

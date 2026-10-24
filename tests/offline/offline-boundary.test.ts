@@ -118,9 +118,10 @@ function testIdleServiceConsumesProjectionAggregate(): void {
     spiritStonesPerHour: 6,
   });
 
+  // V5.9-N.10 口径统一:salary 30×0.65=19.5→19,cultivation 24×0.4=9.6→9
   assert.deepEqual(idle.preview('segmented-preview'), {
-    salary: 30,
-    cultivationExp: 24,
+    salary: 19,
+    cultivationExp: 9,
     spiritStones: 18,
     elapsedSeconds: 3 * 3600,
     capped: false,

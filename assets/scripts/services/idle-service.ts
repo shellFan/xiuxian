@@ -2,6 +2,17 @@ import idleConfig from '../../configs/idle.json';
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
 import type { GameContext } from '../core/game-context';
 import { segmentOfflineInterval, type OfflineTimeProjection } from './offline-time-segmenter';
+import { MODE_RULES } from './work-service';
+
+/**
+ * 在线/离线结算统一口径（V5.9-N.10）。
+ * 在线工资每小时实际效率 = rate × 3600 × MODE_RULES.WORK.salaryMul / 7200（accumulate 分母 7200
+ * 为"半天工资"设计）→ 0.65×rate/h；修为 = rate × 3600 × cultivationMul / 7200 → 0.4×rate/h。
+ * 此前离线按 1.0×rate/h 全额结算且不吃职级乘数，同等角色离线时薪 ≈ 在线 1.54 倍（修为 2.5 倍），
+ * AFK 严格占优。统一后离线与在线同效率，宗门 offlineGainMultiplier（国企 +20%）保留为离线增益。
+ */
+const ONLINE_SALARY_PARITY = (MODE_RULES.WORK.salaryMul * 3600) / 7200;
+const ONLINE_CULTIVATION_PARITY = (MODE_RULES.WORK.cultivationMul * 3600) / 7200;
 
 export interface IdleServiceOptions {
   readonly clock?: Clock;
@@ -165,10 +176,18 @@ export class IdleService {
     // Sect offline gain multiplier (Web V1: 国企宗 离线收益+20%)
     const sect = this.context.sect.current();
     const offlineGain = sect?.modifiers.offlineGainMultiplier ?? 1;
-    // 底薪乘数与在线工资同源（Offer 谈薪涨薪同时作用于离线结算）
+    // 底薪乘数与职级乘数与在线工资同源（Offer 谈薪/晋升对离线结算同样生效）
     const wageMul = this.context.player.wageMultiplier || 1;
-    const salary = Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600 * offlineGain * wageMul);
-    const cultivationExp = Math.floor(this.rateForBoard(this.cultivationPerHour) * elapsedSeconds / 3600 * offlineGain);
+    let careerMul: { salaryMultiplier: number; cultivationMultiplier: number } = { salaryMultiplier: 1, cultivationMultiplier: 1 };
+    try {
+      careerMul = this.context.career.current();
+    } catch { /* career 未初始化时按 1 结算 */ }
+    const salary = Math.floor(
+      this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600 * ONLINE_SALARY_PARITY * offlineGain * wageMul * careerMul.salaryMultiplier,
+    );
+    const cultivationExp = Math.floor(
+      this.rateForBoard(this.cultivationPerHour) * elapsedSeconds / 3600 * ONLINE_CULTIVATION_PARITY * offlineGain * careerMul.cultivationMultiplier,
+    );
     const spiritStones = Math.floor(this.spiritStonesPerHour * elapsedSeconds / 3600 * offlineGain);
     return { salary, cultivationExp, spiritStones, elapsedSeconds, rawElapsedSeconds: deltaMilliseconds / 1000, capped, anomaly: false, now, projection };
   }

@@ -21,17 +21,17 @@ function testHourlyAndEightHourCap(): void {
   const idle = new IdleService(context, { clock });
 
   clock.set(1_000 + 60 * 60 * 1_000);
-  // Gameplay V2: cultivationPerHour L1 = 8（§149 工作日节奏）
-  assert.deepEqual(idle.settle('one-hour'), { salary: 10, cultivationExp: 8, spiritStones: 6, elapsedSeconds: 3600, capped: false, duplicate: false });
+  // V5.9-N.10 口径统一:离线=在线同效率(salary 0.65x rate/h,cultivation 0.4x;§149 cultivationPerHour L1=8)
+  assert.deepEqual(idle.settle('one-hour'), { salary: 6, cultivationExp: 3, spiritStones: 6, elapsedSeconds: 3600, capped: false, duplicate: false });
   clock.set(1_000 + 12 * 60 * 60 * 1_000);
-  assert.deepEqual(idle.settle('twelve-hour'), { salary: 80, cultivationExp: 64, spiritStones: 48, elapsedSeconds: 28800, capped: true, duplicate: false });
+  assert.deepEqual(idle.settle('twelve-hour'), { salary: 52, cultivationExp: 25, spiritStones: 48, elapsedSeconds: 28800, capped: true, duplicate: false });
   assert.deepEqual(idle.settle('after-cap'), { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, duplicate: false });
 
   const exact = createContext();
   exact.context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   const exactIdle = new IdleService(exact.context, { clock: exact.clock });
   exact.clock.set(1_000 + 8 * 60 * 60 * 1_000);
-  assert.deepEqual(exactIdle.settle('eight-hour'), { salary: 80, cultivationExp: 64, spiritStones: 48, elapsedSeconds: 28800, capped: false, duplicate: false });
+  assert.deepEqual(exactIdle.settle('eight-hour'), { salary: 52, cultivationExp: 25, spiritStones: 48, elapsedSeconds: 28800, capped: false, duplicate: false });
 }
 
 function testZeroNegativeAndClockRollbackEmitAnomaly(): void {
@@ -52,9 +52,9 @@ function testSettlementIdPreventsDuplicateGrant(): void {
   context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
   const idle = new IdleService(context, { clock });
   clock.advance(3600 * 1000);
-  assert.equal(idle.settle('same').salary, 10);
+  assert.equal(idle.settle('same').salary, 6);
   assert.deepEqual(idle.settle('same'), { salary: 0, cultivationExp: 0, spiritStones: 0, elapsedSeconds: 0, capped: false, duplicate: true });
-  assert.equal(context.player.salary, 10);
+  assert.equal(context.player.salary, 6);
 }
 
 function testFailedSaveRollsBackSettlement(): void {
@@ -96,14 +96,14 @@ function testPreviewDoesNotGrantRewards(): void {
   const idle = new IdleService(context, { clock });
   clock.advance(3600 * 1000);
   const preview = idle.preview('preview-test');
-  assert.equal(preview.salary, 10, 'preview should show salary');
-  assert.equal(preview.cultivationExp, 8, 'preview should show cultivation (V2 L1 rate 8/h)');
+  assert.equal(preview.salary, 6, 'preview should show salary');
+  assert.equal(preview.cultivationExp, 3, 'preview should show cultivation (8 x 0.4 parity, floored)');
   assert.equal(context.player.salary, 0, 'preview should not grant salary');
   assert.equal(context.player.cultivationExp, 0, 'preview should not grant cultivation');
   // After preview, settle should still work
   const result = idle.settle('preview-test');
-  assert.equal(result.salary, 10, 'settle after preview should grant salary');
-  assert.equal(context.player.salary, 10, 'salary should be granted after settle');
+  assert.equal(result.salary, 6, 'settle after preview should grant salary');
+  assert.equal(context.player.salary, 6, 'salary should be granted after settle');
 }
 
 function testMultipleWorkersOnBoard(): void {
@@ -113,11 +113,11 @@ function testMultipleWorkersOnBoard(): void {
   context.board!.place(WorkerEntity.create(3), { row: 1, column: 0 });
   const idle = new IdleService(context, { clock });
   clock.advance(3600 * 1000);
-  // salaryPerHour = [10, 20, 40, 80, 160, 320], so level 1+2+3 = 10+20+40 = 70
+  // salaryPerHour = [10, 20, 40, 80, 160, 320], so level 1+2+3 = 10+20+40 = 70 (parity applies at settlement)
   const result = idle.settle('multi-worker');
-  assert.equal(result.salary, 70, 'salary should sum all worker rates');
+  assert.equal(result.salary, 45, 'salary should sum all worker rates (70 x 0.65 parity, floored)');
   // cultivationPerHour = [8, 20, 50, 110, 240, 520] (V2), so level 1+2+3 = 8+20+50 = 78
-  assert.equal(result.cultivationExp, 78, 'cultivation should sum all worker rates');
+  assert.equal(result.cultivationExp, 31, 'cultivation should sum all worker rates (78 x 0.4 parity, floored)');
 }
 
 testHourlyAndEightHourCap();
