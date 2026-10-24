@@ -22,6 +22,7 @@ export interface PlayerDataOptions {
   readonly promotionFailCount?: number;
   readonly officeLevel?: number;
   readonly lastIdleSettlementId?: string | null;
+  readonly wageMultiplier?: number;
   readonly salaryRemainder?: number;
   readonly cultivationRemainder?: number;
   readonly mindRemainder?: number;
@@ -170,6 +171,8 @@ export class PlayerData {
    */
   public officeLevel: number;
   public lastIdleSettlementId: string | null;
+  /** 底薪乘数（Offer 谈薪涨薪写入；工资/离线结算统一乘算，默认 1）。 */
+  public wageMultiplier: number;
   public salaryRemainder: number;
   public cultivationRemainder: number;
   public mindRemainder: number;
@@ -305,6 +308,7 @@ export class PlayerData {
     this.promotionFailCount = options.promotionFailCount ?? 0;
     this.officeLevel = options.officeLevel ?? 1;
     this.lastIdleSettlementId = options.lastIdleSettlementId ?? null;
+    this.wageMultiplier = sanitizeWageMultiplier(options.wageMultiplier);
     this.salaryRemainder = normalizeRemainder(options.salaryRemainder);
     this.cultivationRemainder = normalizeRemainder(options.cultivationRemainder);
     this.mindRemainder = normalizeRemainder(options.mindRemainder);
@@ -493,7 +497,7 @@ export class PlayerData {
       handledWelcomeItemIds: [...this.handledWelcomeItemIds],
       lifetimeStats: { ...this.lifetimeStats },
       activeBattleRun: cloneUnknown(this.activeBattleRun),
-      conversations: this.conversations.map((c) => ({ ...c, participants: [...c.participants] })),
+      conversations: this.conversations.map((c) => ({ ...c, participants: Array.isArray(c.participants) ? [...c.participants] : [] })),
       messages: this.messages.map((m) => ({ ...m })),
       storyDirector: JSON.parse(JSON.stringify(this.storyDirector)) as StoryDirectorState,
       firstWeekStory: { ...this.firstWeekStory, doneSteps: [...this.firstWeekStory.doneSteps] },
@@ -547,6 +551,7 @@ export class PlayerData {
       teamDailyAssignment: this.teamDailyAssignment ? { ...this.teamDailyAssignment } : null,
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
+    if (this.wageMultiplier !== 1) Object.assign(data, { wageMultiplier: this.wageMultiplier });
     if (this.salaryRemainder !== 0) Object.assign(data, { salaryRemainder: this.salaryRemainder });
     if (this.cultivationRemainder !== 0) Object.assign(data, { cultivationRemainder: this.cultivationRemainder });
     if (this.workMindRemainder !== 0) Object.assign(data, { workMindRemainder: this.workMindRemainder });
@@ -627,6 +632,12 @@ function cloneOfflineDecisionSession(session: OfflineDecisionSession | null): Of
     resolvedEventIds: [...session.resolvedEventIds],
     status: session.status,
   } : null;
+}
+
+/** 底薪乘数兜底：非法/越界值回退 1，防止存档脏数据放大或清空工资。 */
+function sanitizeWageMultiplier(value: number | undefined): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 1;
+  return Math.min(1000, Math.max(0.01, value));
 }
 
 function uniqueIds(values: readonly unknown[]): string[] {

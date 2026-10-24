@@ -220,8 +220,10 @@ export class SceneBindingComponent extends Component {
     const player = this.facade.snapshot();
     if (!player.lastSaveTime || player.lastSaveTime <= 0) return;
 
-    // Generate a settlement ID based on current timestamp
-    const settlementId = `offline-${Date.now()}`;
+    // 结算 ID 必须从 lastSaveTime 派生（与 GameFacade 欢迎摘要同约定）：
+    // 若用 Date.now()，每次 onShow 都会生成新 ID，弹窗按 entityId 去重失效，
+    // 同一离线窗口会被重复入队并可在缓存快照上被重复领取。
+    const settlementId = `offline-${player.lastSaveTime.toString(36)}`;
     const preview = this.facade.queryOfflinePreview(settlementId);
 
     // Only show modal if there's meaningful offline reward

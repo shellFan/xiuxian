@@ -165,7 +165,9 @@ export class IdleService {
     // Sect offline gain multiplier (Web V1: 国企宗 离线收益+20%)
     const sect = this.context.sect.current();
     const offlineGain = sect?.modifiers.offlineGainMultiplier ?? 1;
-    const salary = Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600 * offlineGain);
+    // 底薪乘数与在线工资同源（Offer 谈薪涨薪同时作用于离线结算）
+    const wageMul = this.context.player.wageMultiplier || 1;
+    const salary = Math.floor(this.rateForBoard(this.salaryPerHour) * elapsedSeconds / 3600 * offlineGain * wageMul);
     const cultivationExp = Math.floor(this.rateForBoard(this.cultivationPerHour) * elapsedSeconds / 3600 * offlineGain);
     const spiritStones = Math.floor(this.spiritStonesPerHour * elapsedSeconds / 3600 * offlineGain);
     return { salary, cultivationExp, spiritStones, elapsedSeconds, rawElapsedSeconds: deltaMilliseconds / 1000, capped, anomaly: false, now, projection };

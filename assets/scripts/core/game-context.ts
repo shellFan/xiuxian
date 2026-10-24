@@ -278,6 +278,12 @@ export class GameContext {
       ),
     };
     this.configService = options.configService ?? ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig, kpiConfig, officeConfig, promotionConfig, mergedAchievements, dailyConfig, dailyTasksConfig);
+    // 存档 careerLevel 越界（手改/损坏）会让 CareerService.get 抛 Unknown career level，
+    // 且 work tick / incomeRate 每秒触发 → 启动即崩溃循环。此处按配置表钳回合法等级。
+    if (!this.configService.career.levels.some((item) => item.level === this.player.careerLevel)) {
+      console.warn(`[GameContext] careerLevel ${this.player.careerLevel} 不在配置表中，回退为 1`);
+      this.player.careerLevel = 1;
+    }
     this.economy = new EconomyService(this, {
       mergeRewards: options.economyRewards ?? this.configService.economy.mergeRewards,
     });

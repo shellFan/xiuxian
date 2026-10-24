@@ -92,12 +92,17 @@ export class V2EconomyService {
     this.demons.tick(seconds);
 
     // 4) 发薪日一次性奖金（每次开工只发一次；day 引用可能已被 addDuration 重建，重读）
+    // 已发标记持久化到 eventFlags：仅靠内存字段会在每次重启后对同一天重发奖金。
     const currentDay = this.gameDay.current();
     if (sit.salaryBonusFlat > 0 && currentDay && this.bonusPaidDayIndex !== currentDay.dayIndex) {
+      const flagKey = `paydayBonusDay_${currentDay.dayIndex}`;
+      if (!player.eventFlags[flagKey]) {
+        this.context.player.eventFlags = { ...this.context.player.eventFlags, [flagKey]: true };
+        this.context.economy.applyIdleSalary(Math.floor(sit.salaryBonusFlat));
+        this.gameDay.addIncome('salary', Math.floor(sit.salaryBonusFlat));
+        this.context.events.emit('salaryChanged', { amount: Math.floor(sit.salaryBonusFlat), total: player.salary });
+      }
       this.bonusPaidDayIndex = currentDay.dayIndex;
-      this.context.economy.applyIdleSalary(Math.floor(sit.salaryBonusFlat));
-      this.gameDay.addIncome('salary', Math.floor(sit.salaryBonusFlat));
-      this.context.events.emit('salaryChanged', { amount: Math.floor(sit.salaryBonusFlat), total: player.salary });
     }
   }
 

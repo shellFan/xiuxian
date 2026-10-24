@@ -134,7 +134,12 @@ export class CocosBootstrapComponent extends Component {
   /** F01: Async storage initialization. Returns the load result or null for sync adapters. */
   private async initializeStorage(storage: StorageAdapter): Promise<StorageLoadResult | null> {
     if (storage.initialize) {
-      const result = await storage.initialize();
+      // F02: init 挂死（如 Electron IPC 桥无响应）不能让加载 Promise 永不落定——
+      // 10s 超时后走 fail-closed 错误屏，而不是永远黑屏。
+      const result = await Promise.race([
+        storage.initialize(),
+        new Promise<StorageLoadResult>((resolve) => setTimeout(() => resolve({ status: 'LOAD_FAILED', error: 'Storage initialization timed out (10s)' }), 10_000)),
+      ]);
       console.log('[BOOT] Storage initialization result:', result.status, result.error ?? '');
       return result;
     }
@@ -145,7 +150,18 @@ export class CocosBootstrapComponent extends Component {
     // F01: Await storage initialization before creating GameFacade
     var loadResult: StorageLoadResult | null = null;
     if (this._initPromise) {
-      loadResult = await this._initPromise;
+      try {
+        loadResult = await this._initPromise;
+      } catch (initError) {
+        // F01: initialize() 拒绝时 Cocos 会丢弃 start() 返回的 Promise——
+        // 不捕获就既无 fail-closed 也无错误屏，游戏静默死亡。
+        const msg = initError instanceof Error ? initError.message : String(initError);
+        console.error('[BOOT] F01 storage initialization rejected:', msg);
+        this._loadFailed = true;
+        this._storage?.markFailClosed?.();
+        this.showLoadError(msg);
+        return;
+      }
     }
 
     if (loadResult && loadResult.status === 'LOAD_FAILED') {

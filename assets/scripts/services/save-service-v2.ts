@@ -215,7 +215,10 @@ export function validateSaveData(data: GameSaveData): SaveValidationResult {
   if (!Array.isArray(data.workers)) {
     errors.push('workers is not an array');
   }
-  if (data.workMode !== 'WORK' && data.workMode !== 'FISHING') {
+  // F2 四模式扩展（WORK/FISHING/CULTIVATING/SOCIAL）——仅认两模式会让
+  // CULTIVATING/SOCIAL 玩家的每次存档都校验失败。
+  const VALID_WORK_MODES: readonly string[] = ['WORK', 'FISHING', 'CULTIVATING', 'SOCIAL'];
+  if (!VALID_WORK_MODES.includes(data.workMode)) {
     errors.push(`Invalid workMode: ${data.workMode}`);
   }
 

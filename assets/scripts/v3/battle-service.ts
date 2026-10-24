@@ -114,6 +114,8 @@ export interface BattleRunState {
   rewardsClaimed: boolean;
   /** 复盘重刷（历史 Boss 回忆，不掉历史结局）。 */
   replayOf?: string | null;
+  /** 复盘目标 Boss defId（终盘 Boss 波次强制出场；随存档持久化）。 */
+  replayBossId?: string | null;
   /** 最近若干条战斗日志（伤害数字/事件），UI 展示用。 */
   log: string[];
 }
@@ -239,6 +241,7 @@ export class BattleService {
       usedRevive: false,
       rewardsClaimed: false,
       replayOf: options.replayOf ?? null,
+      replayBossId: options.replayBossId ?? null,
       log: [night ? '夜间加班：怪物更强，掉落更多。' : '你进入了项目。'],
     };
     // 职业等级 perk：被动/技能免费领悟
@@ -259,6 +262,7 @@ export class BattleService {
       }
     }
     this.context.player.activeBattleRun = run;
+    this.lastCastSecondsByRun.clear();
     this.spawnWave(run, options.replayBossId);
     this.evaluateSynergies(run);
     this.context.events.emit('playerChanged', { reason: 'battleStarted', mode: this.context.player.workMode });
@@ -271,7 +275,14 @@ export class BattleService {
     if (!run) throw new Error('没有进行中的战斗');
     if (!run.skills.includes(skillId)) throw new Error('尚未领悟该技能');
     if (run.lockedSkill === skillId) throw new Error('该技能被 Boss 禁用了！');
+    if (run.skillOffers) throw new Error('请先完成技能选择');
     const player = this.playerSkillStats(run);
+    // 主动施放下限 = 玩家攻击间隔：防止连点在同一个攻击间隔内叠加多次攻击步（UI 未拦截时兜底）。
+    const lastCast = this.lastCastSecondsByRun.get(run.runId);
+    if (lastCast !== undefined && (run.runSeconds ?? 0) - lastCast < player.intervalSec) {
+      throw new Error('技能还在冷却中');
+    }
+    this.lastCastSecondsByRun.set(run.runId, run.runSeconds ?? 0);
     this.stepOnce(run, player, player.intervalSec);
     run.log.push('你主动发动【' + (SKILL_MAP.get(skillId)?.name ?? skillId) + '】');
     this.persist(run);
@@ -292,6 +303,13 @@ export class BattleService {
       }
     }
     if (run.blindSeconds && run.blindSeconds > 0) run.blindSeconds = Math.max(0, run.blindSeconds - seconds);
+    // DODGE 闪避窗口按秒衰减（否则窗口永不过期，Boss 会在任意时刻闪避下一次攻击）。
+    for (const enemy of run.enemies) {
+      const dodgeTimer = enemy.timers?.['__dodgeActive'] ?? 0;
+      if (dodgeTimer > 0 && enemy.timers) {
+        enemy.timers['__dodgeActive'] = Math.max(0, dodgeTimer - seconds);
+      }
+    }
     if (run.slowedSeconds && run.slowedSeconds > 0) {
       run.slowedSeconds = Math.max(0, run.slowedSeconds - seconds);
       if (run.slowedSeconds === 0) run.slowedMul = 1;
@@ -301,10 +319,10 @@ export class BattleService {
     let remaining = seconds;
     // 以玩家攻击间隔为步长推进，保证帧率无关且确定性可测。
     while (remaining > 0 && run.status === 'FIGHTING') {
+      if (run.skillOffers) break; // 升级三选一挂起，等待玩家选择（暂停战斗，避免弹窗期间角色被击杀）
       const step = Math.min(remaining, Math.max(0.2, player.intervalSec));
       remaining -= step;
       this.stepOnce(run, player, step);
-      if (run.skillOffers) break; // 升级三选一挂起，等待玩家选择
     }
     this.persist(run);
   }
@@ -576,15 +594,7 @@ export class BattleService {
   }
 
   private onEnemyKilled(run: BattleRunState, enemy: BattleEnemyState, player: PlayerStats): void {
-    run.kills += 1;
-    const def = MONSTER_MAP.get(enemy.defId);
-    const exp = def?.exp ?? 10;
-    run.exp += exp;
-    run.loot.expGained += exp;
-    if (player.healPerKill > 0) {
-      run.playerHp = Math.min(run.playerMaxHp, run.playerHp + player.healPerKill);
-    }
-    // 死锁双尊 / 回归复活兽：LINKED & REVIVE
+    // 复活/互锁判定必须先于击杀结算：伪死不记击杀、不给经验、不触发回复。
     if (enemy.tier === 'BOSS') {
       const mechDef = bossMechanicsFor(enemy.defId);
       const revive = mechDef?.mechanics.find((m) => m.kind === 'REVIVE' || m.kind === 'LINKED');
@@ -596,15 +606,25 @@ export class BattleService {
           run.log.push(`${enemy.name} 重新连接上了！它又活了！`);
           return; // 不算击杀
         }
-        // 死锁双尊：若另一尊还活着，恢复它
+        // 死锁双尊：若另一尊还活着，恢复它（每尊至多互锁复活一次，否则双方无限互活、战斗永无胜局）
         const twins = run.enemies.filter((e) => e.hp > 0 && e.linkGroup === enemy.linkGroup && e.uid !== enemy.uid);
-        if (twins.length > 0 && (enemy.revived ?? 0) >= 1) {
+        if (twins.length > 0 && (enemy.revived ?? 0) >= 1 && (enemy.revived ?? 0) < 2) {
           enemy.revived = 2;
           enemy.hp = Math.max(1, Math.floor(enemy.maxHp * revivePct));
           run.log.push(`${twins[0].name} 死死锁住资源：${enemy.name} 被复活了！`);
           return;
         }
       }
+    }
+    run.kills += 1;
+    const def = MONSTER_MAP.get(enemy.defId);
+    const exp = def?.exp ?? 10;
+    run.exp += exp;
+    run.loot.expGained += exp;
+    if (player.healPerKill > 0) {
+      run.playerHp = Math.min(run.playerMaxHp, run.playerHp + player.healPerKill);
+    }
+    if (enemy.tier === 'BOSS') {
       // Boss 专属掉落（Pity）
       this.rollBossExclusiveDrop(run, enemy.defId);
     }
@@ -642,7 +662,10 @@ export class BattleService {
   /** 升级三选一候选准备：优先进化（Lv2→Lv3 二选一），其次新技能/升级。 */
   private prepareSkillOffers(run: BattleRunState): void {
     // 1) 已达 Lv2 且有进化定义 → 二选一（行为分叉）
-    for (const id of run.skills) {
+    // 升级（up:）会把 base 从 run.skills 换成 v2 id，但 skillLevels[base] 仍保留等级，
+    // 因此进化扫描必须覆盖 skillLevels 的全部键，否则 base 换出后 Lv3 进化永不可达。
+    const skillIds = new Set([...run.skills, ...Object.keys(run.skillLevels ?? {})]);
+    for (const id of skillIds) {
       const level = run.skillLevels?.[id] ?? 1;
       const evo = evolutionForBase(id);
       if (level >= 2 && evo && !(run.evolvedSkills ?? []).some((evoId) => evo.options.some((o) => o.id === evoId))) {
@@ -830,6 +853,8 @@ export class BattleService {
   }
 
   private tagMulCache: { key: string; value: number } | null = null;
+  /** 主动技能施放冷却（runId → 施放时的 runSeconds）。跨 persist 存活，重开局自动清理。 */
+  private lastCastSecondsByRun = new Map<string, number>();
 
   /** V5.7 职业怪物池 + 历史回归 Boss（复盘）。 */
   private spawnWave(run: BattleRunState, replayBossId?: string): void {
@@ -929,7 +954,9 @@ export class BattleService {
     run.playerHp = Math.min(run.playerMaxHp, run.playerHp + Math.floor(run.playerMaxHp * 0.25));
     const player = this.playerSkillStats(run);
     if (player.shieldPerWave > 0) run.shield += player.shieldPerWave;
-    this.spawnWave(run);
+    // 复盘重刷：目标 Boss 随 run 持久化，终盘波次（waveTotal-1）强制出场。
+    const replayBossId = typeof run.replayBossId === 'string' && run.replayBossId ? run.replayBossId : undefined;
+    this.spawnWave(run, replayBossId);
     this.evaluateSynergies(run);
   }
 

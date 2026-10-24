@@ -160,6 +160,13 @@ function migrate(raw: unknown, now: number): GameSaveData {
   if (isNonNegativeSafeInteger(raw.cultivationRemainder) && raw.cultivationRemainder !== 0) dataWithRemainder(data, 'cultivationRemainder', raw.cultivationRemainder);
   if (isNonNegativeSafeInteger(raw.workMindRemainder) && raw.workMindRemainder !== 0) dataWithRemainder(data, 'workMindRemainder', raw.workMindRemainder);
   if (isNonNegativeSafeInteger(raw.fishingMindRemainder) && raw.fishingMindRemainder !== 0) dataWithRemainder(data, 'fishingMindRemainder', raw.fishingMindRemainder);
+  if (isNonNegativeSafeInteger(raw.performanceRemainder) && raw.performanceRemainder !== 0) dataWithRemainder(data, 'performanceRemainder', raw.performanceRemainder);
+  if (isNonNegativeSafeInteger(raw.cultivatingMindRemainder) && raw.cultivatingMindRemainder !== 0) dataWithRemainder(data, 'cultivatingMindRemainder', raw.cultivatingMindRemainder);
+  if (isNonNegativeSafeInteger(raw.socialMindRemainder) && raw.socialMindRemainder !== 0) dataWithRemainder(data, 'socialMindRemainder', raw.socialMindRemainder);
+  // 底薪乘数（Offer 谈薪写入）；非法/越界值回退 1。
+  if (typeof raw.wageMultiplier === 'number' && Number.isFinite(raw.wageMultiplier) && raw.wageMultiplier >= 0.01 && raw.wageMultiplier <= 1000) {
+    (data as { wageMultiplier?: number }).wageMultiplier = raw.wageMultiplier;
+  }
   const legacyMindRemainder = raw.mindRemainder;
   const modeMindRemainderKey = raw.workMode === 'WORK' ? 'workMindRemainder' : 'fishingMindRemainder';
   if (isNonNegativeSafeInteger(legacyMindRemainder)) {
@@ -477,6 +484,8 @@ function normalizeConversations(value: unknown): MessengerConversationState[] {
   }
   return (value as unknown[]).filter((item): item is MessengerConversationState => {
     if (!isRecord(item) || typeof item.id !== 'string' || typeof item.title !== 'string') return false;
+    // participants 缺失会导致 toSaveData 展开崩溃 → 存档永久失败，必须在加载期拦截。
+    if (!Array.isArray(item.participants)) return false;
     return typeof item.unreadCount === 'number' && item.unreadCount >= 0 && typeof item.lastMessageAt === 'number';
   }).slice(0, 64);
 }
@@ -890,7 +899,7 @@ function isAssignedTask(value: unknown): value is import('../model/save-data').A
     && typeof value.isFakeP0 === 'boolean';
 }
 
-function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultivationRemainder' | 'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder' | 'mindRemainder', value: number): void {
+function dataWithRemainder(data: GameSaveData, key: 'salaryRemainder' | 'cultivationRemainder' | 'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder' | 'mindRemainder' | 'performanceRemainder', value: number): void {
   Object.assign(data, { [key]: value });
 }
 function cloneSaveData(data: GameSaveData): GameSaveData {

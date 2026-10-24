@@ -18,9 +18,9 @@ function seededRng(seed: number): () => number {
   };
 }
 
-function make(hour = 10): { clock: FakeClock; context: GameContext } {
+function make(hour = 10, seed = 0x5eed): { clock: FakeClock; context: GameContext } {
   const clock = new FakeClock(at(21, hour));
-  const context = new GameContext({ storage: new MemoryStorageAdapter(), player: new PlayerData({ lastSaveTime: clock.now() }), clock, board: null, battleRng: seededRng(0x5eed) });
+  const context = new GameContext({ storage: new MemoryStorageAdapter(), player: new PlayerData({ lastSaveTime: clock.now() }), clock, board: null, battleRng: seededRng(seed) });
   context.gameDay.ensureStarted();
   return { clock, context };
 }
@@ -112,7 +112,9 @@ function testLevelUpThreeChoiceAppliesSkillOnce(): void {
 }
 
 function testVictoryRewardsExactlyOnce(): void {
-  const { context } = make();
+  // REVIVE Boss 伪死不再计入经验/回复（bug 修复后成长变慢），0x5eed 种子下该 Build 战败，
+  // 改用扫描出的胜利种子——测试意图是奖励 exactly-once，非特定平衡。
+  const { context } = make(10, 0x5eee);
   context.battle.start('PROJECT', 'build_redis');
   const finished = driveToFinish(context);
   assert.equal(finished.status, 'VICTORY');
@@ -183,7 +185,7 @@ function testAbandonEndsWithDefeatAndClaim(): void {
 }
 
 function testIncidentDungeonVictoryRecoversIncident(): void {
-  const { context } = make();
+  const { context } = make(10, 0x5eee); // 同 testVictoryRewardsExactlyOnce：REVIVE 伪死修复后的种子调整
   const incident = context.incidents.raise({ type: 'PAYMENT_FAILURE', severity: 'S4', forcedRelease: false });
   context.battle.start('INCIDENT', 'build_redis', null, incident.id);
   const finished = driveToFinish(context);

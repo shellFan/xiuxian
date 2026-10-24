@@ -42,7 +42,9 @@ let closeFlushInProgress = false;
 const isDev = process.argv.includes('--dev') || process.argv.includes('--debug');
 
 // ── Storage Init ───────────────────────────────────────────────────────────
-initStorage(app.getPath('userData'));
+// XIUXIAN_USER_DATA 允许自动化烟测把存档重定向到临时目录（未设置时行为不变，
+// 永不触碰真实玩家存档）。Electron 的 appData 取自系统 API，无法用 APPDATA 环境变量隔离。
+initStorage(process.env.XIUXIAN_USER_DATA || app.getPath('userData'));
 
 // ── IPC Handlers ───────────────────────────────────────────────────────────
 ipcMain.handle('storage:save', async (_event, data) => {

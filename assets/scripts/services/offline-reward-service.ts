@@ -157,7 +157,10 @@ export class OfflineRewardService {
       this.snapshots.delete(settlementId);
     } else {
       const cached = this.snapshots.get(settlementId);
-      if (cached) return cached;
+      // 缓存投影早于最近一次存档时间 = 该离线窗口已被其他结算支付，快照已过期，
+      // 必须丢弃重算（否则同一窗口可经不同 settlementId 重复领取）。
+      if (cached && cached.idle.projectedAtMs > this.context.player.lastSaveTime) return cached;
+      if (cached) this.snapshots.delete(settlementId);
     }
     const idle = this.idle.project(settlementId);
     const simulation = Object.freeze(this.context.autoPolicy.projectOffline(idle));

@@ -145,8 +145,13 @@ export class OfferService {
     if (decision === 'ACCEPTED') {
       const switched = this.context.company.switchCompany(offer.companyId, '接受 Offer');
       if (!switched.ok) return { ok: false, reason: switched.reason };
-      // 谈成的涨薪直接进底薪
-      if (offer.salaryDeltaPct > 0) p.salary = Math.round(p.salary * (1 + offer.salaryDeltaPct / 100));
+      // 谈成的涨薪直接进底薪：写入持久化底薪乘数（WorkService/离线结算统一乘算）。
+      // 此前误乘 coin 钱包——存 10 万金币接 +35% offer 会瞬间白得 3.5 万。
+      if (offer.salaryDeltaPct !== 0) {
+        const next = (p.wageMultiplier || 1) * (1 + offer.salaryDeltaPct / 100);
+        p.wageMultiplier = Math.round(Math.min(1000, Math.max(0.01, next)) * 100) / 100;
+        this.context.events.emit('playerChanged', { reason: 'offerWageChanged' });
+      }
     } else if (decision === 'NEGOTIATED') {
       // 谈薪：+8% 一次性补偿，留在原公司
       p.salary = Math.round(p.salary * 1.08);

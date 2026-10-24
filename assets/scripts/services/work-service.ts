@@ -79,7 +79,8 @@ export class WorkService {
     const hourly = this.rateForBoard(this.salaryPerHour)
       * (override?.salaryMul ?? rules.salaryMul)
       * this.context.buffs.getMultiplier('WORK_SALARY_BOOST')
-      * this.context.career.current().salaryMultiplier;
+      * this.context.career.current().salaryMultiplier
+      * (this.context.player.wageMultiplier || 1);
     return Object.freeze({ perSecond: hourly / 3600, perMinute: hourly / 60, perHour: hourly });
   }
 
@@ -135,7 +136,9 @@ export class WorkService {
     const mindRemainderKey = MODE_RULES[mode].secondsKey.replace('Seconds', 'MindRemainder') as
       'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder';
     const mindResult = accumulate(Math.abs(mindRate), standardSeconds, 1, this.context.player[mindRemainderKey] ?? 0, 3600);
-    const baseSalary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier);
+    // 底薪乘数（Offer 谈薪涨薪写入；兼容旧档缺省 1）
+    const wageMul = this.context.player.wageMultiplier || 1;
+    const baseSalary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier * wageMul);
     const salary = mode === 'WORK' ? applyCharacterEffectToInteger(
       baseSalary,
       this.context.player,
@@ -298,6 +301,10 @@ function restorePlayer(player: GameContext['player'], data: ReturnType<GameConte
   player.mindRemainder = data.mindRemainder ?? 0;
   player.workMindRemainder = data.workMindRemainder ?? 0;
   player.fishingMindRemainder = data.fishingMindRemainder ?? 0;
+  player.cultivatingMindRemainder = data.cultivatingMindRemainder ?? 0;
+  player.socialMindRemainder = data.socialMindRemainder ?? 0;
+  player.performanceRemainder = data.performanceRemainder ?? 0;
+  player.wageMultiplier = typeof data.wageMultiplier === 'number' && Number.isFinite(data.wageMultiplier) ? data.wageMultiplier : 1;
   player.dailyTasks = (data.dailyTasks ?? []).map((t) => ({ ...t }));
   player.dailyTaskDay = data.dailyTaskDay ?? -1;
   player.tutorialStep = data.tutorialStep as string;
