@@ -357,7 +357,8 @@ export class DaySettlementService {
         // V5.7 §83/84 下班道心恢复。V5.9-N.10 校准：+35 覆盖不了工作日消耗
         // （实测 85% 工作人格工作+局势流 ≈ -43/日），白天必然贴 0（consecZero 100min+）。
         // 提至 +50 使主流人格净收支回到 V5.8 §7.4 设计目标 +6/day（含事件损耗）。
-        p.mind = Math.min(p.maxMind, p.mind + 50);
+        // V5.9-N.11：宗门氛围影响夜间休整（外企 1.15× / 大厂 0.8×，mindMultiplier 接通）
+        p.mind = Math.min(p.maxMind, p.mind + Math.floor(50 * (this.context.sect.current()?.modifiers.mindMultiplier ?? 1)));
         // V5.8：心魔自然消退（治疗螺旋）。V5.9-N.10 校准：事件心魔注入实测 ≈ +5.7/日，
         // -3/晚只抵一半，30 日冲到 82/100 触发 7~8 心魔（mindRecoveryDown 0.75 恶性循环）。
         // -6/晚 使长期心魔回到可管理区间（周末补觉 -15 仍为额外大恢复）。

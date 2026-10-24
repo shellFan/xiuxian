@@ -111,6 +111,8 @@ export interface EventChoiceRequirements {
   maxMind?: number;
   /** V4：需要持有某类证据（§20 证据解锁选项）。 */
   evidence?: string;
+  /** V5.9-N.11：需要当前宗门（宗门专属事件链的门控）。 */
+  sectId?: string;
 }
 
 export interface EventChoice {
@@ -221,6 +223,7 @@ export function checkRequirements(req: EventChoiceRequirements | undefined, worl
   }
   if (req.eventFlag && !world.eventFlags[req.eventFlag]) return false;
   if (req.evidence && !(world.evidenceTypes ?? []).includes(req.evidence)) return false;
+  if (req.sectId && world.sectId !== req.sectId) return false;
   if (req.minMind !== undefined && world.mind < req.minMind) return false;
   if (req.maxMind !== undefined && world.mind > req.maxMind) return false;
   return true;

@@ -2415,3 +2415,16 @@ button.ux-journey--sec { cursor: pointer; }
 .ux59f-guide-step b { color: #f4e7ca; }
 .ux59f-guide-step i { color: #9fb6c0; font-style: normal; flex: 1; }
 .ux59f-guide-ok { width: 100%; margin-top: 8px; }
+
+/* V5.9-N.11 敌人意图徽章(telegraph 上屏) */
+.ux-bt-intent { display: block; margin-top: 3px; font-size: 10px; color: #ffd27a; background: rgba(122, 63, 22, 0.45); border: 1px solid #a06a2c; border-radius: 4px; padding: 1px 5px; animation: ux-bt-intent-pulse 1s ease-in-out infinite alternate; }
+@keyframes ux-bt-intent-pulse { from { opacity: 0.65; } to { opacity: 1; } }
+
+/* V5.9-N.11 职业专属行动卡片 */
+.ux-pa-desc { color: #c8d6de; font-size: 11.5px; line-height: 1.6; margin: 4px 0 6px; }
+.ux-pa-meta { display: flex; gap: 12px; align-items: center; color: #9fb6c0; font-size: 11px; margin-bottom: 8px; }
+.ux-pa-dots { display: inline-flex; gap: 4px; }
+.ux-pa-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid #6a8aa0; display: inline-block; }
+.ux-pa-dot.done { background: #63c78a; border-color: #63c78a; }
+.ux-pa-btn { width: 100%; }
+.ux-pa-exhausted { color: #8fa4ae; font-size: 11.5px; text-align: center; padding: 6px 0; font-style: italic; }

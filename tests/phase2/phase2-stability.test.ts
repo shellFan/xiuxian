@@ -136,9 +136,10 @@ function testSectHasFourDistinctModifiers(): void {
     for (const v of [m.salaryMultiplier, m.cultivationMultiplier, m.mindMultiplier, m.performanceMultiplier]) {
       assert.ok(v > 0, `${s.id} multipliers must be positive`);
     }
-    const active = [m.salaryMultiplier, m.cultivationMultiplier, m.mindMultiplier, m.performanceMultiplier]
+    const active = [m.salaryMultiplier, m.cultivationMultiplier, m.mindMultiplier, m.performanceMultiplier, m.overtimePayMultiplier, m.incidentRiskMultiplier]
       .filter((v) => v !== 1).length + (m.offlineGainMultiplier && m.offlineGainMultiplier !== 1 ? 1 : 0);
-    assert.ok(active >= 1 && active <= 2, `${s.id} must have 1-2 distinct modifiers`);
+    // V5.9-N.11 设计演进:宗门差异从 1-2 项扩展到 3 项以上(cultivation/mind/performance 接通并差异化)
+    assert.ok(active >= 3, `${s.id} must have at least 3 distinct modifiers (N.11), got ${active}`);
   }
   // 国企宗独有离线收益加成。
   const state = sects.find((s) => s.id === 'STATE');

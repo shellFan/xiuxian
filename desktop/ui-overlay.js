@@ -1547,14 +1547,22 @@
       '</div>';
 
     // 中栏：敌人卡 + 飘字容器
+    var MECH_CN = { SUMMON: '召唤', RAGE: '蓄怒', ENRAGE: '狂暴', LOCK_SKILL: '封技', ATTACK_SPEED_DEBUFF: '减速', HP_DRAIN: '吞噬', PROMOTE_MINION: '强化爪牙', DODGE: '闪避', BLIND: '致盲', RANDOM: '诡变', LINKED: '互锁', REVIVE: '复生' };
     var enemies = (run.enemies || []).filter(function (e) { return e.hp > 0; }).map(function (e) {
       var pct = Math.max(0, Math.min(100, Math.round(e.hp / e.maxHp * 100)));
       var bossCls = e.tier === 'BOSS' ? ' is-boss' : e.tier === 'ELITE' ? ' is-elite' : '';
       var mech = e.mechanic === 'SLOW' ? ' · 减速' : e.mechanic === 'SUMMON' ? ' · 召唤' : e.mechanic === 'SUMMON_SMALL' ? ' · 召唤' : '';
+      // V5.9-N.11 敌人意图上屏:telegraphed 置位的机制即将释放(预警窗口约 2 秒),玩家可提前防御/打断
+      var incoming = [];
+      if (e.telegraphed) {
+        for (var mk in e.telegraphed) { if (e.telegraphed[mk] && MECH_CN[mk]) incoming.push(MECH_CN[mk]); }
+      }
+      var intentHtml = incoming.length ? '<span class="ux-bt-intent">⚠ 即将 ' + escHtml(incoming.join('/')) + '</span>' : '';
       return '<div class="ux-bt-enemy' + bossCls + (e.phase2Active ? ' is-phase2' : '') + '" data-enemy-uid="' + escHtml(e.uid) + '">' +
         '<span class="ux-bt-enemy-face">' + (e.tier === 'BOSS' ? '👹' : e.tier === 'ELITE' ? '👺' : '🐛') + '</span>' +
         '<span class="ux-bt-enemy-name">' + escHtml(e.name) + (e.phase2Active ? '<b class="ux-bt-p2">P2 危</b>' : '') + (bossCls ? ' ⚠' : '') + escHtml(mech) + '</span>' +
         '<span class="ux-bt-enemy-hp"><i style="width:' + pct + '%"></i><em>' + Math.round(e.hp) + '/' + e.maxHp + '</em></span>' +
+        intentHtml +
         '<span class="ux-float-layer"></span>' +
       '</div>';
     }).join('') || '<div class="ux-bt-clearing">这一波清空了，下一波马上来……</div>';
@@ -2373,6 +2381,15 @@
       var ov = Math.round((mods.offlineGainMultiplier - 1) * 100);
       line('离线收益 +' + ov + '%', ov > 0);
     }
+    // V5.9-N.11:加班费与事故风险上屏(此前仅内部消费,玩家不可感知)
+    if (mods.overtimePayMultiplier && mods.overtimePayMultiplier !== 1) {
+      var otv = Math.round(Math.abs(mods.overtimePayMultiplier - 1) * 100);
+      line('加班费 ' + (mods.overtimePayMultiplier > 1 ? '+' : '-') + otv + '%', mods.overtimePayMultiplier > 1);
+    }
+    if (mods.incidentRiskMultiplier && mods.incidentRiskMultiplier !== 1) {
+      var irv = Math.round(Math.abs(mods.incidentRiskMultiplier - 1) * 100);
+      line('事故风险 ' + (mods.incidentRiskMultiplier > 1 ? '+' : '-') + irv + '%', mods.incidentRiskMultiplier <= 1);
+    }
     return lines.join('');
   }
 
@@ -2684,6 +2701,23 @@
         '<div class="ux-prof-expbar"><div class="fill" style="width:' + expPct + '%"></div></div>' +
         '<div class="ux-prof-exp-text">职业经验 ' + d.exp + (d.expToNext > 0 ? '（距下一级还差 ' + d.expToNext + '）' : '（已圆满）') + '</div>' +
       '</div>';
+    // V5.9-N.11 职业专属每日行动（真实消耗时间/道心，写权威状态，每日限次）
+    var pa = null;
+    try { pa = f.queryProfessionAction ? f.queryProfessionAction() : null; } catch (e) { pa = null; }
+    if (pa && pa.actionId) {
+      var doneDots = '';
+      for (var pdi = 0; pdi < (pa.dailyLimit || 0); pdi++) {
+        doneDots += '<i class="ux-pa-dot' + (pdi < pa.doneToday ? ' done' : '') + '"></i>';
+      }
+      html += '<div class="ux-card ux-pa-card">' +
+        '<div class="ux-card-title">今日专属行动 · ' + escHtml(pa.name || '') + '</div>' +
+        '<div class="ux-pa-desc">' + escHtml(pa.description || '') + '</div>' +
+        '<div class="ux-pa-meta"><span>耗时 ' + pa.minutes + ' 游戏分钟</span><span>道心 -' + pa.mindCost + '</span><span class="ux-pa-dots">' + doneDots + '</span></div>' +
+        (pa.available
+          ? '<button class="ux-bt ux-pa-btn" data-action="professionAction">立即执行</button>'
+          : '<div class="ux-pa-exhausted">今日已竭——明日在战。</div>') +
+      '</div>';
+    }
     var character = null;
     try { character = f.queryCharacterProfile ? f.queryCharacterProfile() : null; } catch (e) { character = null; }
     if (character && character.destinyId && character.effective) {
@@ -3745,6 +3779,16 @@
             fSkill.castBattleSkill(el.dataset.skill);
             refresh();
           } catch (eSkill) { toast(errMsg(eSkill), 'error'); }
+          break;
+        }
+        case 'professionAction': {
+          var fPA = facade();
+          if (!fPA) break;
+          try {
+            var resPA = fPA.performProfessionAction();
+            toast(resPA && resPA.summary ? resPA.summary : '行动完成。', 'success');
+          } catch (ePA) { toast(errMsg(ePA), 'error'); }
+          refresh();
           break;
         }
         case 'abandonBattle': {

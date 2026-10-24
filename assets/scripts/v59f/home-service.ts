@@ -412,6 +412,14 @@ export class HomeService {
         btn: '查看详情', page: 'TASKS', command: null, commandArg: null,
       };
     }
+    // 5.5) V5.9-N.11：职业专属行动还有余次 → 建议执行（每日 2 次的差异化收益源；
+    //      排在任务推进之后——有活在手先干活，闲下来做职业行动）。
+    try {
+      const pa = c.professionAction.query();
+      if (pa.available && pa.name) {
+        return { id: 'PROF_ACTION', icon: '🎯', text: `职业行动：${pa.name}`, sub: `${pa.description ?? ''}（今日余 ${pa.dailyLimit - pa.doneToday} 次）`, btn: '去职业页', page: 'PROFESSION', command: null, commandArg: null };
+      }
+    } catch { /* profession action not ready */ }
     // 6) 待处理事件 → 处理。
     try {
       const pending = c.v2Events.poll();

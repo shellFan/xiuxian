@@ -270,12 +270,16 @@ export class BattleService {
   }
 
   /** V5.5 §20：主动释放技能——立即结算一次攻击步，并触发技能（若有定义行为）。 */
+  /** V5.5 §20：主动释放技能。V5.9-N.11 策略化：按技能类型产生特异即时行为 ——
+   *  防御技=获得护盾但不攻击、控制技=静止敌人攻势、攻击技=立即额外攻击步；
+   *  时间照常流逝（敌人仍会行动），攻击/防御/控制形成真实取舍。 */
   public castSkill(skillId: string): void {
     const run = this.current();
     if (!run) throw new Error('没有进行中的战斗');
     if (!run.skills.includes(skillId)) throw new Error('尚未领悟该技能');
     if (run.lockedSkill === skillId) throw new Error('该技能被 Boss 禁用了！');
     if (run.skillOffers) throw new Error('请先完成技能选择');
+    const def = SKILL_MAP.get(skillId);
     const player = this.playerSkillStats(run);
     // 主动施放下限 = 玩家攻击间隔：防止连点在同一个攻击间隔内叠加多次攻击步（UI 未拦截时兜底）。
     const lastCast = this.lastCastSecondsByRun.get(run.runId);
@@ -283,8 +287,25 @@ export class BattleService {
       throw new Error('技能还在冷却中');
     }
     this.lastCastSecondsByRun.set(run.runId, run.runSeconds ?? 0);
-    this.stepOnce(run, player, player.intervalSec);
-    run.log.push('你主动发动【' + (SKILL_MAP.get(skillId)?.name ?? skillId) + '】');
+    const name = def?.name ?? skillId;
+    if (def && (def.shieldBonus ?? 0) > 0) {
+      // 防御技：本回合不出手，换取护盾
+      run.shield += def.shieldBonus!;
+      this.stepOnce(run, player, player.intervalSec, { playerAttacks: false });
+      run.log.push(`你运起【${name}】结成护罩（护盾 +${def.shieldBonus}），放弃了出手。`);
+    } else if (def && (def.enemySlow ?? 0) > 0) {
+      // 控制技:本回合敌人攻势静止(不攻击、不积累),并清空已积累的攻势
+      this.stepOnce(run, player, player.intervalSec, { playerAttacks: false, enemyActs: false });
+      let interrupted = 0;
+      for (const enemy of run.enemies) {
+        if (enemy.hp > 0 && enemy.attackTimer > 0) { enemy.attackTimer = 0; interrupted += 1; }
+      }
+      run.log.push(interrupted > 0 ? `【${name}】震散了 ${interrupted} 个敌人的攻势！` : `【${name}】荡开周身气场。`);
+    } else {
+      // 攻击技：立即结算一次额外攻击步（不等攻击间隔；damageMul 已在 playerSkillStats 聚合，不双乘）
+      this.stepOnce(run, player, player.intervalSec);
+      run.log.push('你主动发动【' + name + '】！');
+    }
     this.persist(run);
   }
 
@@ -327,10 +348,12 @@ export class BattleService {
     this.persist(run);
   }
 
-  private stepOnce(run: BattleRunState, player: PlayerStats, dt: number): void {
+  /** V5.9-N.11:opts 支持 playerAttacks=false(防御/控制技放弃出手)与 attackMul(攻击技强化)。 */
+  private stepOnce(run: BattleRunState, player: PlayerStats, dt: number, opts?: { playerAttacks?: boolean; attackMul?: number; enemyActs?: boolean }): void {
     // 玩家攻击（累计步长按间隔触发一次）
     const enemies = run.enemies.filter((e) => e.hp > 0);
-    if (enemies.length > 0) {
+    const playerAttacks = opts?.playerAttacks !== false;
+    if (enemies.length > 0 && playerAttacks) {
       const blind = (run.blindSeconds ?? 0) > 0 && this.rng() < 0.5;
       if (blind) {
         run.log.push('眼前一片白，这一击落空了……');
@@ -342,7 +365,7 @@ export class BattleService {
           // V5.8 词条联动：装备流派词条（如"JVM技能+8%"）按当前出手技能 tag 增伤。
           // 出手技能 = 攻击技能池中首个有 tag 的主动技；无词条时乘数 1。
           const tagMul = this.equippedTagMulForRun(run);
-          let damage = Math.max(1, Math.floor(player.attack * specialtyMul * tagMul * (crit ? 1.8 : 1)));
+          let damage = Math.max(1, Math.floor(player.attack * specialtyMul * tagMul * (crit ? 1.8 : 1) * (opts?.attackMul ?? 1)));
           // 执行加成（覆盖索引/极限审判）：Boss 残血伤害翻倍
           if (player.executePct > 0 && target.maxHp > 0 && target.hp / target.maxHp <= player.executePct) {
             damage = Math.floor(damage * 2);
@@ -368,12 +391,17 @@ export class BattleService {
       // ULTRA-DEEP M1：玩家侧持续减速（enemySlow 来自技能/进化）作用于每一跳
       const effectiveInterval = Math.max(0.4, enemy.intervalSec * (1 + Math.min(0.6, player.enemySlow)));
       enemy.attackTimer += dt;
+      if (opts?.enemyActs === false) continue; // 控制技:本回合敌人静止
       if (enemy.attackTimer >= effectiveInterval) {
         enemy.attackTimer = 0;
         const raw = enemy.attack;
-        // 免疫窗口（缓存结界/永不宕机）：周期性免疫 Boss 重击
         const immuneEvery = player.immuneEverySec;
-        if (enemy.tier === 'BOSS' && immuneEvery > 0 && (run.runSeconds ?? 0) >= (run.immuneReadyAt ?? 0)) {
+        // 玩家闪避（V5.9-N.11：接通 dodgeBonus——身法/装备提供的闪避率，上限 50%）
+        if (player.dodgeBonus > 0 && this.rng() < Math.min(0.5, player.dodgeBonus)) {
+          run.log.push(`你身形一晃，闪开了 ${enemy.name} 的攻击！`);
+        }
+        // 免疫窗口（缓存结界/永不宕机）：周期性免疫 Boss 重击
+        else if (enemy.tier === 'BOSS' && immuneEvery > 0 && (run.runSeconds ?? 0) >= (run.immuneReadyAt ?? 0)) {
           run.immuneReadyAt = (run.runSeconds ?? 0) + immuneEvery;
           run.log.push('【道法共鸣】结界挡下了这一击！');
         } else {

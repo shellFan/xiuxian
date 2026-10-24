@@ -119,8 +119,9 @@ export class WorkService {
         const mindRemainderKey = baseRules.secondsKey.replace('Seconds', 'MindRemainder') as
           'workMindRemainder' | 'fishingMindRemainder' | 'cultivatingMindRemainder' | 'socialMindRemainder';
         const mindBuffMul = mode === 'FISHING' ? this.context.buffs.getMultiplier('FISHING_MIND_BOOST') : 1;
+        const sectMindMulIdle = this.context.sect.current()?.modifiers.mindMultiplier ?? 1;
         const mindResult = accumulate(idleMindRate, elapsedSeconds, 1, this.context.player[mindRemainderKey] ?? 0, 3600);
-        const gain = Math.floor(mindResult.reward * mindBuffMul);
+        const gain = Math.floor(mindResult.reward * mindBuffMul * sectMindMulIdle);
         if (gain > 0) {
           const previous = this.context.player.toSaveData();
           try {
@@ -172,8 +173,11 @@ export class WorkService {
       this.context.player,
       'REGULAR_WORK_OUTPUT',
     ) : baseSalary;
+    // V5.9-N.11：宗门修炼加成接通（此前 cultivationMultiplier 为纯展示死配置）——
+    // 大厂宗 1.2× 修为 vs 国企宗 1.0×，宗门选择真实影响成长速度。
+    const sectCultivationMul = this.context.sect.current()?.modifiers.cultivationMultiplier ?? 1;
     const attributeCultivationExp = applyCharacterEffectToInteger(
-      Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier),
+      Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier * sectCultivationMul),
       this.context.player,
       'CULTIVATION_REWARD',
     );
@@ -183,7 +187,11 @@ export class WorkService {
       'REGULAR_WORK_OUTPUT',
     ) : attributeCultivationExp;
     const mindBuffMul = mode === 'FISHING' ? this.context.buffs.getMultiplier('FISHING_MIND_BOOST') : 1;
-    const baseMindDelta = mindRate >= 0 ? Math.floor(mindResult.reward * mindBuffMul) : -mindResult.reward;
+    // V5.9-N.11：宗门氛围影响道心休整效果（外企 1.15× 恢复 vs 大厂 0.8×，此前 mindMultiplier 死配置）。
+    const sectMindMul = this.context.sect.current()?.modifiers.mindMultiplier ?? 1;
+    const baseMindDelta = mindRate >= 0
+      ? Math.floor(mindResult.reward * mindBuffMul * sectMindMul)
+      : -mindResult.reward;
     const mindDelta = baseMindDelta < 0 && (mode === 'WORK' || mode === 'CULTIVATING')
       ? applyCharacterEffectToInteger(
         baseMindDelta,
