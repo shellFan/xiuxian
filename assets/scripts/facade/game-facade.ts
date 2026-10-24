@@ -976,6 +976,12 @@ export class GameFacade {
   /** 执行生活消费（真实扣款+效果，余额不足/次数用尽如实拒绝）。 */
   public consumeHomeLife(kind: string) { return this.context.home.consumeLife(kind); }
 
+  // ── Profession Action API（V5.9-N.11 职业专属每日行动） ─────────────────
+  /** 查询当前职业的专属每日行动（次数/成本/描述）。 */
+  public queryProfessionAction() { return this.context.professionAction.query(); }
+  /** 执行当前职业的专属每日行动（消耗游戏时间与道心，写权威状态，每日限次）。 */
+  public performProfessionAction() { return this.context.professionAction.perform(); }
+
   // ── Idle Efficiency API ──────────────────────────────────────────────────
 
   /** Get the current idle efficiency breakdown. */
@@ -1170,8 +1176,12 @@ export class GameFacade {
 
   // ── Commands ──────────────────────────────────────────────────────────────
 
-  /** Change work mode (WORK / FISHING). Returns result with cooldown info. */
+  /** Change work mode (WORK / FISHING / CULTIVATING / SOCIAL). Returns result with cooldown info. */
   public changeWorkMode(mode: WorkMode): { success: boolean; reason?: string } {
+    const VALID_WORK_MODES: readonly string[] = ['WORK', 'FISHING', 'CULTIVATING', 'SOCIAL'];
+    if (!VALID_WORK_MODES.includes(mode)) {
+      return { success: false, reason: `无效的工作模式: ${mode}（合法值: WORK/FISHING/CULTIVATING/SOCIAL）` };
+    }
     if (this.context.player.workMode === mode) {
       return { success: false, reason: '已经是该模式' };
     }

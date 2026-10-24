@@ -73,7 +73,8 @@ export class IdleEfficiencyService {
     const workMode = player.workMode;
     const mindRatio = player.maxMind > 0 ? player.mind / player.maxMind : 0;
     const mindEfficiency = getMindEfficiency(mindRatio);
-    const workModeModifier = WORK_MODE_MODIFIERS[workMode];
+    // Defensive: fallback to WORK if save data contains an invalid mode (prevents snapshot crash)
+    const workModeModifier = WORK_MODE_MODIFIERS[workMode] ?? WORK_MODE_MODIFIERS.WORK;
 
     // Sect modifier: use salary multiplier as base
     const sect = this.context.sect.current();
