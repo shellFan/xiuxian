@@ -68,7 +68,7 @@ if (manifestResult.stale) {
   fail(`build manifest STALE: ${manifestResult.reason} — run npm run pc:build to refresh`);
 }
 // Direct overlay SHA comparison (source vs build copy)
-var overlayFiles = ['ui-overlay.js', 'ui-overlay-v2.js', 'ui-v59f-home.js', 'ui-overlay.css'];
+var overlayFiles = ['ui-overlay.js', 'ui-overlay-v2.js', 'ui-v59f-home.js', 'ui-merge-home.js', 'ui-overlay.css'];
 for (var of of overlayFiles) {
   var srcPath = path.join(root, 'desktop', of);
   var buildFilePath = path.join(buildPath, of);

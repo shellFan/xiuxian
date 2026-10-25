@@ -19,6 +19,7 @@ const INPUT_PATTERNS = [
   'desktop/ui-overlay.js',
   'desktop/ui-overlay-v2.js',
   'desktop/ui-v59f-home.js',
+  'desktop/ui-merge-home.js',
   'desktop/ui-overlay.css',
   'desktop/patch-html.cjs',
   'desktop/main.cjs',
@@ -58,7 +59,7 @@ function computeInputsHash() {
   collectFiles(path.join(root, 'assets', 'scenes'), '.scene', allFiles);
   // Desktop files — F08: must cover ALL desktop runtime inputs (storage.cjs and
   // game-server.cjs ship inside the packaged EXE and change game behavior)
-  var desktopFiles = ['ui-overlay.js', 'ui-overlay-v2.js', 'ui-v59f-home.js', 'ui-overlay.css', 'patch-html.cjs', 'main.cjs', 'preload.cjs', 'storage.cjs', 'game-server.cjs'];
+  var desktopFiles = ['ui-overlay.js', 'ui-overlay-v2.js', 'ui-v59f-home.js', 'ui-merge-home.js', 'ui-overlay.css', 'patch-html.cjs', 'main.cjs', 'preload.cjs', 'storage.cjs', 'game-server.cjs'];
   for (var f of desktopFiles) {
     var fp = path.join(root, 'desktop', f);
     if (fs.existsSync(fp)) allFiles.push(fp);

@@ -508,9 +508,28 @@
     var day = fQuery('queryGameDay');
     if (!day || day.dayIndex === _settlementShownDay) return;
     var f = H.facade();
+    /* P0：没有实际游玩的这一天不弹结算成绩单（新玩家/回归玩家不再被 +0 弹窗糊脸）。
+       判定来自真实当日状态：任一行为累计 ≥60 秒、处理过事件、或有当日收入，才算"玩过"。 */
+    var d = day.durations || {};
+    var playedSeconds = (d.work || 0) + (d.fishing || 0) + (d.cultivating || 0) + (d.social || 0) + (d.overtime || 0);
+    var inc = day.income || {};
+    var played = playedSeconds >= 60 || (day.eventsHandled || 0) > 0 ||
+      ((inc.salary || 0) + (inc.cultivation || 0) + (inc.performance || 0)) > 0;
+    _settlementShownDay = day.dayIndex;
+    if (!played) {
+      try { f.settleDay(); } catch (e) { return; }
+      H.toast('新的一天开始了，搬砖修仙两不误。', 'info');
+      H.refresh();
+      return;
+    }
     var view;
     try { view = f.settleDay(); } catch (e) { return; }
-    _settlementShownDay = day.dayIndex;
+    /* 玩过但结算全为 0（异常边界）也降级为一行提示：弹出来的数字必须是真的成绩。 */
+    if (!((view.income.salary + view.income.cultivation + view.income.performance) > 0)) {
+      H.toast('今日已结算，明天会更好。', 'info');
+      H.refresh();
+      return;
+    }
     var layer = H.popupLayer();
     function dur(sec) { return Math.floor(sec / 3600) + '时' + Math.floor((sec % 3600) / 60) + '分'; }
     layer.innerHTML =

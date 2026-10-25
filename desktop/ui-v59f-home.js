@@ -68,6 +68,27 @@
     '</section>';
   }
 
+  /* ── A-lite. 今日工作（紧凑版：一行任务 + 关键数字） ── */
+
+  function todayWorkLiteHtml(work) {
+    if (!work) return '';
+    var t = work.currentTask;
+    var taskLine = t
+      ? '<div class="ux59f-lite-task"><b>' + H.escHtml(t.name) + '</b>' +
+        '<span>' + (t.completed ? '✅ 可领取' : '进行中 ' + t.progressPct + '%') + '</span>' +
+        (t.completed
+          ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="claim" data-id="' + H.escHtml(t.taskId) + '">领取</button>'
+          : '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="gotoTasks">推进</button>') +
+        '</div>'
+      : '<div class="ux59f-lite-task"><b>手头没有任务</b><span>牛马不接活，仙途就要断</span>' +
+        '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="gotoTasks">去领任务</button></div>';
+    return '<section class="ux-card ux59f-work ux59f-work--lite">' +
+      '<div class="ux-card-title">今日工作' +
+        '<span class="ux59f-work-meta">已赚 ¥' + work.todayEarned + ' · 修为 +' + work.todayCultivation + '</span></div>' +
+      taskLine +
+    '</section>';
+  }
+
   /* ── B. 今日修仙目标 ── */
 
   var GOAL_LABEL = { WORK: '工作', GROWTH: '成长', LIFE: '生活·社交' };
@@ -152,6 +173,10 @@
   var GUIDE_KEY = 'v59f_home_guide_done';
 
   function guideHtml() {
+    /* P0：合成盘引导进行中时避让（一次只上一个教程），完成后再回到这份完整指南。 */
+    try {
+      if (window.__MERGE__ && window.__MERGE__.isTutorialActive && window.__MERGE__.isTutorialActive()) return '';
+    } catch (e) { /* merge 模块异常时按原逻辑展示 */ }
     var f = H.facade();
     var done = false;
     try { done = !!(f && f.queryPlayerFlag && f.queryPlayerFlag(GUIDE_KEY)); } catch (e) { done = false; }
@@ -175,9 +200,17 @@
 
   /* ── 聚合（ui-overlay.js 的 renderHome 调用） ── */
 
-  function homePanelHtml() {
+  function homePanelHtml(compact) {
     var snap = readSnapshot();
     if (!snap || !snap.work) return '';
+    /* 紧凑模式（竖屏首页）：建议行动 + 三目标 + 今日工作摘要；玩法入口/生活行为留在完整面板。 */
+    if (compact) {
+      return '<div class="ux59f-home-panel ux59f-home-panel--compact">' +
+        nextActionHtml(snap.nextAction) +
+        goalsHtml(snap.goals) +
+        todayWorkLiteHtml(snap.work) +
+      '</div>';
+    }
     return '<div class="ux59f-home-panel">' +
       nextActionHtml(snap.nextAction) +
       todayWorkHtml(snap.work) +
