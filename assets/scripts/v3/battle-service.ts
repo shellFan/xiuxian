@@ -300,6 +300,10 @@ export class BattleService {
       for (const enemy of run.enemies) {
         if (enemy.hp > 0 && enemy.attackTimer > 0) { enemy.attackTimer = 0; interrupted += 1; }
       }
+      if (interrupted > 0) {
+        const istats = this.context.player.lifetimeStats;
+        this.context.player.lifetimeStats = { ...istats, battleInterrupts: (istats.battleInterrupts ?? 0) + interrupted };
+      }
       run.log.push(interrupted > 0 ? `【${name}】震散了 ${interrupted} 个敌人的攻势！` : `【${name}】荡开周身气场。`);
     } else {
       // 攻击技：立即结算一次额外攻击步（不等攻击间隔；damageMul 已在 playerSkillStats 聚合，不双乘）
@@ -390,8 +394,8 @@ export class BattleService {
       if (run.status !== 'FIGHTING') return;
       // ULTRA-DEEP M1：玩家侧持续减速（enemySlow 来自技能/进化）作用于每一跳
       const effectiveInterval = Math.max(0.4, enemy.intervalSec * (1 + Math.min(0.6, player.enemySlow)));
+      if (opts?.enemyActs === false) continue; // 控制技:本回合敌人完全静止(不积累、不行动)
       enemy.attackTimer += dt;
-      if (opts?.enemyActs === false) continue; // 控制技:本回合敌人静止
       if (enemy.attackTimer >= effectiveInterval) {
         enemy.attackTimer = 0;
         const raw = enemy.attack;
@@ -399,6 +403,8 @@ export class BattleService {
         // 玩家闪避（V5.9-N.11：接通 dodgeBonus——身法/装备提供的闪避率，上限 50%）
         if (player.dodgeBonus > 0 && this.rng() < Math.min(0.5, player.dodgeBonus)) {
           run.log.push(`你身形一晃，闪开了 ${enemy.name} 的攻击！`);
+          const bstats = this.context.player.lifetimeStats;
+          this.context.player.lifetimeStats = { ...bstats, battleDodges: (bstats.battleDodges ?? 0) + 1 };
         }
         // 免疫窗口（缓存结界/永不宕机）：周期性免疫 Boss 重击
         else if (enemy.tier === 'BOSS' && immuneEvery > 0 && (run.runSeconds ?? 0) >= (run.immuneReadyAt ?? 0)) {

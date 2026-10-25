@@ -102,6 +102,20 @@ const tests: Array<[string, () => void]> = [
     assert.equal(context.professionAction.query().doneToday, done0, 'count not consumed on failure');
   }],
 
+  ['跨日重置:dayIndex 翻转后当日次数归零(N.11 端到端固化)', () => {
+    const { clock, context } = make('QA');
+    context.professionAction.perform();
+    context.professionAction.perform();
+    assert.equal(context.professionAction.query().doneToday, 2);
+    // 翻日(与日结算一致的重置路径:新 dayIndex → 新 flag 键)
+    if (context.player.gameDay) context.player.gameDay.settled = true;
+    clock.advance(24 * 3600_000);
+    context.gameDay.ensureStarted();
+    const view = context.professionAction.query();
+    assert.equal(view.doneToday, 0, 'counts reset on new day');
+    assert.equal(view.available, true, 'available again on new day');
+  }],
+
   ['四职业行动互异:每种职业有自己的行动 id 与收益类型', () => {
     const ids: Record<string, string | undefined> = {};
     for (const prof of ['JAVA_BACKEND', 'FRONTEND', 'QA', 'DEVOPS']) {

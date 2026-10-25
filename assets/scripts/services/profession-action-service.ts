@@ -162,6 +162,8 @@ export class ProfessionActionService {
     if (cultivationExp > 0) {
       this.context.cultivation.applyIdleExperience(cultivationExp);
     }
+    const stats = { ...player.lifetimeStats, professionActions: (player.lifetimeStats.professionActions ?? 0) + 1 };
+    player.lifetimeStats = stats;
     this.context.events.emit('playerChanged', { reason: 'professionAction' });
     return { success: true, summary, salary, cultivationExp, mindDelta: -action.mindCost };
   }

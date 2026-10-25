@@ -1315,6 +1315,76 @@
       "reward": {
         "cultivation": 80
       }
+    },
+    {
+      "id": "PROF_ACTION_30",
+      "name": "一专之长",
+      "description": "累计执行 30 次职业专属行动",
+      "category": "CAREER",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "professionActions",
+        "target": 30
+      },
+      "reward": {
+        "salary": 120
+      }
+    },
+    {
+      "id": "PROF_ACTION_100",
+      "name": "百炼成钢",
+      "description": "累计执行 100 次职业专属行动",
+      "category": "CAREER",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "professionActions",
+        "target": 100
+      },
+      "reward": {
+        "salary": 400
+      }
+    },
+    {
+      "id": "BATTLE_DODGE_20",
+      "name": "灵巧身法",
+      "description": "战斗中累计闪避 20 次攻击",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "battleDodges",
+        "target": 20
+      },
+      "reward": {
+        "salary": 150
+      }
+    },
+    {
+      "id": "BATTLE_INTERRUPT_30",
+      "name": "时间管理大师",
+      "description": "战斗中累计打断 30 次敌人攻势",
+      "category": "WORK",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "battleInterrupts",
+        "target": 30
+      },
+      "reward": {
+        "salary": 200
+      }
+    },
+    {
+      "id": "SECT_CHAIN_1",
+      "name": "宗门风云",
+      "description": "走完一条宗门事件链的抉择",
+      "category": "SECT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "sectChainResolved",
+        "target": 1
+      },
+      "reward": {
+        "salary": 180
+      }
     }
   ]
 }

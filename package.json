@@ -36,7 +36,8 @@
     "pc:copy": "cd desktop && npm run build:copy",
     "pc:pack": "cd desktop && npm run pack",
     "pc:pack:portable": "cd desktop && npm run pack:portable",
-    "pc:serve": "node scripts/serve-web-desktop.cjs"
+    "pc:serve": "node scripts/serve-web-desktop.cjs",
+    "pretest": "node scripts/ensure-desktop-deps.cjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",

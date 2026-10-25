@@ -3058,7 +3058,7 @@
       "category": "NPC",
       "rarity": "COMMON",
       "priority": "IMPORTANT",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "PRIVATE"
       },
@@ -3104,7 +3104,7 @@
       "category": "WORK",
       "rarity": "RARE",
       "priority": "IMPORTANT",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "PRIVATE"
       },
@@ -3143,7 +3143,7 @@
       "category": "MEETING",
       "rarity": "COMMON",
       "priority": "NORMAL",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "FOREIGN"
       },
@@ -3184,7 +3184,7 @@
       "category": "NPC",
       "rarity": "RARE",
       "priority": "IMPORTANT",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "FOREIGN"
       },
@@ -3227,7 +3227,7 @@
       "category": "WORK",
       "rarity": "COMMON",
       "priority": "NORMAL",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "STATE"
       },
@@ -3272,7 +3272,7 @@
       "category": "NPC",
       "rarity": "RARE",
       "priority": "IMPORTANT",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "STATE"
       },
@@ -3317,7 +3317,7 @@
       "category": "BOSS",
       "rarity": "COMMON",
       "priority": "IMPORTANT",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "BIG_TECH"
       },
@@ -3354,7 +3354,7 @@
       "category": "CHAIN",
       "rarity": "EPIC",
       "priority": "CRITICAL",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "BIG_TECH"
       },
@@ -3396,7 +3396,7 @@
       "category": "BOSS",
       "rarity": "RARE",
       "priority": "IMPORTANT",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "PRIVATE"
       },
@@ -3416,7 +3416,10 @@
             "performance": 6,
             "setFlags": [
               "sect_private_invested"
-            ]
+            ],
+            "lifetime": {
+              "sectChainResolved": 1
+            }
           }
         },
         {
@@ -3425,7 +3428,10 @@
           "resultText": "你礼貌地保持了距离。工资照发，名单没你。",
           "successChance": 1,
           "effects": {
-            "salary": 40
+            "salary": 40,
+            "lifetime": {
+              "sectChainResolved": 1
+            }
           }
         }
       ]
@@ -3437,7 +3443,7 @@
       "category": "NPC",
       "rarity": "EPIC",
       "priority": "IMPORTANT",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "FOREIGN"
       },
@@ -3457,6 +3463,9 @@
             "evidence": {
               "type": "EMAIL",
               "label": "总部攻关邀请函"
+            },
+            "lifetime": {
+              "sectChainResolved": 1
             }
           }
         },
@@ -3467,7 +3476,10 @@
           "successChance": 1,
           "effects": {
             "cultivation": 30,
-            "mind": 3
+            "mind": 3,
+            "lifetime": {
+              "sectChainResolved": 1
+            }
           }
         }
       ]
@@ -3479,7 +3491,7 @@
       "category": "NPC",
       "rarity": "RARE",
       "priority": "IMPORTANT",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "STATE"
       },
@@ -3502,6 +3514,9 @@
             "evidence": {
               "type": "RISK_CONFIRMATION",
               "label": "借调考核意见"
+            },
+            "lifetime": {
+              "sectChainResolved": 1
             }
           }
         },
@@ -3511,7 +3526,10 @@
           "resultText": "你说家里有事。处长说：好，安心工作。",
           "successChance": 1,
           "effects": {
-            "mind": 3
+            "mind": 3,
+            "lifetime": {
+              "sectChainResolved": 1
+            }
           }
         }
       ]
@@ -3523,7 +3541,7 @@
       "category": "CHAIN",
       "rarity": "EPIC",
       "priority": "CRITICAL",
-      "baseWeight": 3,
+      "baseWeight": 12,
       "conditions": {
         "sectId": "BIG_TECH"
       },
@@ -3542,7 +3560,10 @@
             "cultivation": 40,
             "setFlags": [
               "sect_bigtech_promoted"
-            ]
+            ],
+            "lifetime": {
+              "sectChainResolved": 2
+            }
           },
           "failureEffects": {
             "mind": -10,
@@ -3556,7 +3577,10 @@
           "successChance": 1,
           "effects": {
             "mind": 4,
-            "performance": 2
+            "performance": 2,
+            "lifetime": {
+              "sectChainResolved": 1
+            }
           }
         }
       ]

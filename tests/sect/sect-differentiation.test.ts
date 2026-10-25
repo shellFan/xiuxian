@@ -92,6 +92,38 @@ const tests: Array<[string, () => void]> = [
     assert.equal(state.context.player.performance, 9, `STATE perf 10×0.95=9, got ${state.context.player.performance}`);
   }],
 
+  ['宗门事件端到端(注入式,确定性):事件到达 → 玩家选择 → 效果/flag/链状态落账 → 存档恢复', () => {
+    // 到达概率(scheduler/weight)由数值配置与 baseWeight 断言覆盖;本用例锁定
+    // "事件到达后玩家能选择、结算、持久化" 的真实路径 —— 与 EXE 内玩家体验同构。
+    const clock = new FakeClock(at(21, 9));
+    const storage = new MemoryStorageAdapter();
+    const context = new GameContext({ storage, player: new PlayerData({ lastSaveTime: clock.now(), sectId: 'PRIVATE' }), clock, board: null });
+    const def = require('../../assets/configs/v2/events.json').events.find((e: { id: string }) => e.id === 'sect_private_s0');
+    assert.ok(def, 'sect_private_s0 exists');
+    // 事件到达:按引擎同构写入 pending 队列(玩家侧 currentEvent 会回显并弹出)
+    context.player.pendingEvents = [
+      { eventId: def.id, dayIndex: 1, createdAt: clock.now() } as never,
+    ];
+    const cur = context.v2Events.currentEvent();
+    assert.ok(cur && cur.id === 'sect_private_s0', 'event surfaces to player');
+    const choices = context.v2Events.currentChoices();
+    assert.equal(choices.length, 2, 'both choices visible for PRIVATE player');
+    // 选「陪老板聊到凌晨」:mind -8 / 绩效 +8(×宗门绩效 1.05 → 8) / BOSS 关系 +5 / flag
+    const mind0 = context.player.mind;
+    const rel0 = context.player.relationships['BOSS'] ?? 0;
+    context.v2Events.choose('NIGHT_CHAT');
+    assert.equal(context.player.mind, mind0 - 8, 'mind cost applied');
+    assert.equal(context.player.relationships['BOSS'], rel0 + 5, 'BOSS relationship +5');
+    assert.equal(context.player.eventFlags['sect_private_loyal'], true, 'chain flag set');
+    assert.equal(context.player.eventChainState['sect_private']?.stage, 0, 'chain stage recorded');
+    assert.equal(context.v2Events.currentEvent(), null, 'event consumed');
+    // 存档 → 重启:链进度与 flag 不丢
+    context.saveService.save(context.player);
+    const reloaded = new GameContext({ storage, clock: new FakeClock(at(21, 10)), board: null });
+    assert.equal(reloaded.player.eventFlags['sect_private_loyal'], true, 'flag survives restart');
+    assert.ok(reloaded.player.eventChainState['sect_private'], 'chain state survives restart');
+  }],
+
   ['宗门配置:performanceMultiplier 已差异化且校验合法', () => {
     const sects = require('../../assets/configs/sect.json').sects;
     const pm: Record<string, number> = {};
