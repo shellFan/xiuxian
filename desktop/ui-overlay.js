@@ -15,12 +15,11 @@
 
   var ASSET = 'ui-slice/';
 
-  /* 底部导航（§52）：固定六项；合成收纳进「更多」（§54） */
+  /* 底部导航（§52）：五项；修炼并入首页一键栏，功法/法宝在「更多」（§54） */
   var NAV_TABS = [
     { id: 'HOME',        label: '首页', emoji: '🏠' },
     { id: 'TASKS',       label: '任务', emoji: '📜' },
     { id: 'PROJECT',     label: '项目', emoji: '⚔️' },
-    { id: 'CULTIVATION', label: '修仙', emoji: '🧘' },
     { id: 'PROMOTION',   label: '晋升', emoji: '🏯' },
     { id: 'MORE',        label: '更多', emoji: '▦' },
   ];
@@ -1070,16 +1069,28 @@
     if (!professionSelected() && !(creationState && creationState.status === 'BACKFILL_REQUIRED')) return renderProfessionSelect();
     var backfillBanner = creationState && creationState.status === 'BACKFILL_REQUIRED'
       ? '<button class="v59-backfill-banner" data-creation-action="open-backfill"><span>✦ 老友归来：为角色补录天命</span><small>补录只增加新成长字段，不影响既有进度。</small><b>现在补录 ›</b></button>' : '';
-    /* V5.9-F-Z：主页面可玩性面板（今日工作/三目标/建议行动/玩法入口/生活行为），数据来自 queryHomeSnapshot。 */
+    /* P0 首屏重做（竖屏优先）：大数字 → 角色+一键行为 → 合成盘主玩法 → 今日场景 → 详情/目标。 */
+    var mergeBoard = '';
+    try { mergeBoard = window.__MERGE__ ? window.__MERGE__.boardHtml() : ''; } catch (e) { mergeBoard = ''; }
+    /* V5.9-F-Z：主页面可玩性面板（紧凑模式：建议行动/三目标/今日工作摘要）。 */
     var v59fPanel = '';
-    try { v59fPanel = window.__V59F__ ? window.__V59F__.homePanelHtml() : ''; } catch (e) { v59fPanel = ''; }
+    try { v59fPanel = window.__V59F__ ? window.__V59F__.homePanelHtml(true) : ''; } catch (e) { v59fPanel = ''; }
     return '' +
       '<div class="ux-home">' +
         backfillBanner +
         homeTopbarHtml(hud) +
-        '<aside class="ux-home-col ux-home-left">' + homeLeftHtml(hud) + '</aside>' +
-        '<main class="ux-home-col ux-home-center">' + homeCenterHtml(hud) + '</main>' +
-        '<aside class="ux-home-col ux-home-right">' + v59fPanel + homeRightHtml(hud) + '</aside>' +
+        '<div class="ux-home-main">' +
+          homeStatsHtml(hud) +
+          homeHeroHtml(hud) +
+          mergeBoard +
+          workSceneHtml(hud) +
+          '<div class="ux-home-status" aria-label="今日状态">' +
+            v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() +
+          '</div>' +
+          todayCapacityHtml() + journeyGuideHtml() + actionDetailHtml(hud) +
+          v59fPanel +
+          homeRightHtml(hud) +
+        '</div>' +
       '</div>';
   }
 
@@ -1120,55 +1131,62 @@
     '</div>';
   }
 
-  /* 左栏（§8~§11）：一张角色卡 + 紧凑资源列表，不再用四个大方块 */
-  function homeLeftHtml(hud) {
-    var f = facade();
-    var evidence = f && typeof f.queryEvidence === 'function' ? (function () { try { return f.queryEvidence(); } catch (e) { return []; } })() : [];
+  /* P0：首页大数字实时成长条（主刷新循环每秒驱动，数字实时跳动） */
+  function homeStatsHtml(hud) {
     var rates = readRates();
     var expReq = hud.requiredExp > 0 ? hud.requiredExp : 0;
     var expPct = expReq > 0 ? pct(hud.cultivationExp, expReq) : 100;
-    var expNum = expReq > 0 ? fmtNum(hud.cultivationExp) + ' / ' + fmtNum(expReq) : fmtNum(hud.cultivationExp) + ' 修为';
-    var sectName = hud.sectName || '散修';
-    return '<div class="ux-card ux-charpanel">' +
-      '<div class="ux-char-head">' +
-        img('home-avatar', 'ux-char-avatar') +
-        '<div class="ux-char-id">' +
-          '<div class="ux-char-name">' + PLAYER_NAME + '</div>' +
-          '<div class="ux-char-sub">' + escHtml(hud.careerName) + ' <b>Lv.' + hud.careerLevel + '</b></div>' +
-          '<div class="ux-char-realm">' + escHtml(hud.realm) + '</div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="ux-char-exp">' +
+    return '<section class="ux-stats">' +
+      '<div class="ux-stat ux-stat--main">' +
+        '<span class="ux-stat-label">修为</span>' +
+        '<b class="ux-stat-value" id="StatCultivation">' + fmtNum(hud.cultivationExp) + '</b>' +
+        '<span class="ux-stat-rate">+' + rates.cultivationPerMin.toFixed(1) + '/分 · ' + escHtml(hud.realm) + '</span>' +
         '<div class="ux-progress"><div class="ux-progress-fill ux-progress-fill--blue" style="width:' + expPct + '%"></div></div>' +
-        '<span class="ux-char-expnum">' + expNum + '</span>' +
       '</div>' +
-      '<button class="ux-char-sect" data-action="goto" data-page="sect">宗门：' + escHtml(sectName) + '<span class="arr">›</span></button>' +
-      '<div class="ux-char-quote">“' + escHtml(playerQuote(hud)) + '”</div>' +
-      '<div class="ux-reslist">' +
-        resRow('cultivation', '修为', fmtNum(hud.cultivationExp), '+' + rates.cultivationPerMin.toFixed(1) + '/分') +
-        resRow('salary', '工资', '¥' + fmtNum(hud.salary), '+' + rates.salaryPerMin.toFixed(2) + '/分') +
-        resRow('performance', '绩效', fmtNum(hud.performance), '') +
-        resRow('mind', '道心', fmtNum(hud.mind) + '<small> / ' + fmtNum(hud.maxMind) + '</small>', '') +
-      '</div>' +
-      '<button class="ux-char-evidence" data-action="openModal" data-modal="evidence">🧾 证据袋 <b>' + evidence.length + '</b> 件<span class="arr">›</span></button>' +
-    '</div>';
+      '<div class="ux-stat"><span class="ux-stat-label">工资</span><b>¥' + fmtNum(hud.salary) + '</b><span class="ux-stat-rate">+' + rates.salaryPerMin.toFixed(2) + '/分</span></div>' +
+      '<div class="ux-stat"><span class="ux-stat-label">道心</span><b>' + fmtNum(hud.mind) + '<i>/' + fmtNum(hud.maxMind) + '</i></b><span class="ux-stat-rate">心神状态</span></div>' +
+      '<div class="ux-stat"><span class="ux-stat-label">绩效</span><b>' + fmtNum(hud.performance) + '</b><span class="ux-stat-rate">KPI ' + hud.kpiCompleted + '/' + hud.kpiTotal + '</span></div>' +
+    '</section>';
   }
 
-  function resRow(stat, label, value, rate) {
-    return '<div class="ux-res-row">' + icon(stat) +
-      '<span class="rn">' + label + '</span>' +
-      '<span class="rv">' + value + '</span>' +
-      (rate ? '<span class="rr">' + rate + '</span>' : '<span class="rr"></span>') +
-    '</div>';
+  /* P0：角色形象 + 一键行为栏（修炼/摸鱼同屏一键；§21~§30 四张动作卡压缩为一键条） */
+  function homeHeroHtml(hud) {
+    var running = hud.workMode || 'WORK';
+    var cd = cooldownOf('cultivate');
+    var pose = heroPoseText(running);
+    return '<section class="ux-hero">' +
+      '<div class="ux-hero-char">' +
+        '<div class="ux-hero-avatar is-mode-' + running.toLowerCase() + '">' +
+          img('home-avatar', 'ux-hero-avatar-img') +
+          (pose ? '<span class="ux-hero-pose">' + pose + '</span>' : '') +
+        '</div>' +
+        '<div class="ux-hero-id">' +
+          '<div class="ux-hero-name">' + PLAYER_NAME + '</div>' +
+          '<div class="ux-hero-sub">' + escHtml(hud.careerName) + ' Lv.' + hud.careerLevel + ' · ' + escHtml(hud.realm) + '</div>' +
+          '<div class="ux-hero-links">' +
+            '<button class="ux-hero-link" data-action="goto" data-page="sect">宗门 · ' + escHtml(hud.sectName || '散修') + '</button>' +
+            '<button class="ux-hero-link" data-action="openModal" data-modal="evidence">🧾 证据袋</button>' +
+            '<button class="ux-hero-link" data-action="goto" data-page="techniques">📖 功法</button>' +
+          '</div>' +
+        '</div>' +
+        '<button class="ux-hero-cultivate" data-action="cultivate"' + (cd > 0 ? ' disabled' : '') + '>' +
+          (cd > 0 ? '冷却 ' + Math.ceil(cd) + 's' : '⚡ 修炼一次') +
+        '</button>' +
+      '</div>' +
+      '<div class="ux-hero-bar" id="HeroModeBar">' + HOME_ACTIONS.map(function (a) {
+        var isRunning = a.id === running;
+        return '<button type="button" class="ux-hero-action ux-hero-action--' + a.cls + (isRunning ? ' is-running' : '') +
+          '" data-action="mode" data-mode="' + a.id + '"' + (isRunning ? ' disabled' : '') + '>' +
+          '<span class="ic">' + (a.img ? img(a.img) : a.emoji) + '</span>' +
+          '<span class="tx"><b>' + a.label + '</b><i>' + a.sub + '</i></span>' +
+          (isRunning ? '<span class="run">✓</span>' : '') +
+        '</button>';
+      }).join('') + '</div>' +
+    '</section>';
   }
 
-  /* 中栏（§12~§41）：时间场景 / 动作选择器 / 动作详情 */
-  function homeCenterHtml(hud) {
-    return workSceneHtml(hud) +
-      '<div class="ux-home-status" aria-label="今日状态">' +
-        v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() +
-      '</div>' +
-      todayCapacityHtml() + journeyGuideHtml() + actionSelectorHtml(hud) + actionDetailHtml(hud);
+  function heroPoseText(mode) {
+    return { WORK: '搬砖中', FISHING: '摸鱼中', CULTIVATING: '打坐中', SOCIAL: '划水中' }[mode] || '';
   }
 
   /* 中栏顶部：办公室场景 + 下班倒计时 + 今日已赚浮层（§12~§20） */
@@ -1303,29 +1321,12 @@
     '</section>';
   }
 
-  /* 中栏第二层：四个动作卡 = 选择器（§21~§30） */
+  /* 当前详情面板对应的动作：跟随一键行为栏最后点选/运行中的模式 */
   function selectedActionKey(hud) {
     if (_selectedAction) return _selectedAction;
     var mode = hud.workMode || 'WORK';
     for (var i = 0; i < HOME_ACTIONS.length; i++) if (HOME_ACTIONS[i].id === mode) return mode;
     return 'WORK';
-  }
-
-  function actionSelectorHtml(hud) {
-    var sel = selectedActionKey(hud);
-    var running = hud.workMode || 'WORK';
-    return '<div class="ux-actions">' + HOME_ACTIONS.map(function (a) {
-      var isRunning = a.id === running;
-      return '<button type="button" class="ux-action ux-action--' + a.cls +
-        (a.id === sel ? ' is-selected' : '') + (isRunning ? ' is-running' : '') +
-        '" data-select-action="' + a.id + '">' +
-        '<span class="ux-action-art">' + (a.img ? img(a.img) : a.emoji) + '</span>' +
-        '<span class="ux-action-title">' + a.label + '</span>' +
-        '<span class="ux-action-sub">' + a.sub + '</span>' +
-        '<span class="ux-action-desc">' + a.desc.replace('\n', '，') + '</span>' +
-        (isRunning ? '<span class="ux-action-running">' + (a.id === 'WORK' ? '搬砖中' : '进行中') + '</span>' : '') +
-      '</button>';
-    }).join('') + '</div>';
   }
 
   /* 中栏第三层：动态详情面板（§30~§42），统一 ViewModel 渲染（§127~§129） */
@@ -3628,6 +3629,11 @@
         return;
       }
 
+      /* P0 合成盘主玩法命令（招募/点选合成/引导跳过），由 ui-merge-home.js 消费。 */
+      try {
+        if (window.__MERGE__ && window.__MERGE__.handleClick(el, act)) return;
+      } catch (e) { console.warn('[overlay] merge handler:', e); }
+
       /* V5.9-F-Z：主页面可玩性面板命令（claimGoal/lifeConsume/gotoTasks/guideSkip）。 */
       try {
         if (window.__V59F__ && window.__V59F__.handleClick(el, act)) return;
@@ -3684,13 +3690,25 @@
               at: Date.now(),
             };
             toast('修炼成功，修为 +' + (_cultivateFx.exp || 0), 'success');
+            try { if (window.__MERGE__ && window.__MERGE__.noteAction) window.__MERGE__.noteAction('cultivate'); } catch (eMerge) { /* 引导推进失败不影响主流程 */ }
           } catch (e) { toast(errMsg(e), 'error'); }
           refresh();
           break;
         }
-        case 'mode':
-          cmdResult('changeWorkMode', '切换成功', el.dataset.mode);
+        case 'mode': {
+          var fMode = facade();
+          try {
+            var rMode = fMode.changeWorkMode(el.dataset.mode);
+            if (rMode && rMode.success === false) toast(rMode.reason || '切换失败', 'error');
+            else {
+              /* 一键行为：切换成功后详情面板跟随该动作 */
+              _selectedAction = el.dataset.mode;
+              try { if (window.__MERGE__ && window.__MERGE__.noteAction) window.__MERGE__.noteAction('mode'); } catch (eMerge) { /* 引导推进失败不影响主流程 */ }
+            }
+          } catch (e) { toast(errMsg(e), 'error'); }
+          refresh();
           break;
+        }
         case 'life': {
           var fLife = facade();
           try {
@@ -4119,6 +4137,20 @@
     if (!initV59fBridge()) {
       var v59fPoll = setInterval(function () {
         if (initV59fBridge()) clearInterval(v59fPoll);
+      }, 500);
+    }
+
+    /* P0 合成盘主玩法桥接（与 V2UI/V59F 同款注入模式）。 */
+    function initMergeBridge() {
+      if (!window.__MERGE__) return false;
+      window.__MERGE__.init({
+        facade: facade, escHtml: escHtml, toast: toast, errMsg: errMsg, refresh: refresh,
+      });
+      return true;
+    }
+    if (!initMergeBridge()) {
+      var mergePoll = setInterval(function () {
+        if (initMergeBridge()) clearInterval(mergePoll);
       }, 500);
     }
 

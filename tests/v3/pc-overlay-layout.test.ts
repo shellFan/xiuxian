@@ -22,6 +22,9 @@ assert.match(overlay, /class="ux-task-list"/, 'task renderer must provide a layo
 assert.match(overlay, /data-select-action=/, 'home must render the four action selector cards (§28)');
 assert.match(overlay, /data-detail-type=/, 'detail panel must expose its action type for regression tests (§87)');
 assert.match(overlay, /ux-topbar-shortcuts/, 'header must expose compact quick entries (§6)');
-assert.match(overlay, /NAV_TABS = \[[^\]]*PROJECT[^\]]*CULTIVATION/s, 'bottom navigation must pin 任务/项目/修仙/晋升 (§52)');
+// V5.9-N.11+ 导航重做:五项(首页/任务/项目/晋升/更多),修仙并入首页一键行动卡;
+// 底部导航断言随之收窄为"四项主功能必须钉住",修仙入口由首页行动卡断言兜底。
+assert.match(overlay, /NAV_TABS = \[[^\]]*TASKS[^\]]*PROJECT[^\]]*PROMOTION/s, 'bottom navigation must pin 任务/项目/晋升 (§52 重做)');
+assert.match(overlay, /data-action="mode" data-mode="CULTIVATION"|修炼一次/, 'cultivation entry must live on the home action cards (§52 重做)');
 
 console.log('pc overlay layout tests passed');

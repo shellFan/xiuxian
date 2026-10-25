@@ -15,6 +15,7 @@
 
 import { _decorator, Component, sys, game } from 'cc';
 import { GameFacade } from '../facade/game-facade';
+import { MergeBoard } from '../game/merge/merge-board';
 import { ElectronStorageAdapter } from '../services/electron-storage-adapter';
 import { LocalStorageAdapter, MemoryStorageAdapter, type StorageAdapter, type StorageLoadResult } from '../services/storage-adapter';
 import { AudioService } from '../services/audio-service';
@@ -203,7 +204,9 @@ export class CocosBootstrapComponent extends Component {
 
   private createFacade(): void {
     if (!this._storage) return;
-    this._facade = new GameFacade({ storage: this._storage, playTimeScale: 16 });
+    // 主玩法合成盘：显式注入 MergeBoard（GameContext 会自动把存档中的牛马
+    // 恢复到棋盘上）。GameFacade 的 board:null 默认值保持不变（legacy gate）。
+    this._facade = new GameFacade({ storage: this._storage, playTimeScale: 16, board: new MergeBoard() });
     console.log('[BOOT] GameFacade initialized');
 
     // Expose facade on window for DOM overlay UI access

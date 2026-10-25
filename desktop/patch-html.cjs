@@ -131,7 +131,7 @@ if (fs.existsSync(htmlPath)) {
   // Inject <link> and <script> into index.html
   // Position overlay relative to GameDiv for correct scaling
   const overlayLink = '<link rel="stylesheet" href="ui-overlay.css">';
-  const overlayScript = '<script src="ui-v59f-home.js"></script>\n  <script src="ui-overlay-v2.js"></script>\n  <script src="ui-overlay.js"></script>';
+  const overlayScript = '<script src="ui-v59f-home.js"></script>\n  <script src="ui-merge-home.js"></script>\n  <script src="ui-overlay-v2.js"></script>\n  <script src="ui-overlay.js"></script>';
 
   if (!html.includes('ui-overlay.css')) {
     html = html.replace('</head>', `  ${overlayLink}\n</head>`);
