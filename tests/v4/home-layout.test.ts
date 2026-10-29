@@ -10,8 +10,8 @@ function step(msg: string): void {
 
 /**
  * 方案 B 首页回归（§109~§120 / §169~§176）：
- *  - 1280×720 / 1600×900 / 1920×1080 单屏无纵向滚动
- *  - 动作选择器：点击哪个卡，详情立即切换（不滚动、不跳页、不弹 Modal）
+ *  - 1280×720 / 1600×900 / 1920×1080 单列纵向滚动、无横向溢出，导航可达
+ *  - 模式卡：点击立即调用模式切换，运行态与详情同步
  *  - 四套详情契约（work / fishing / cultivating / social）
  *  - 默认选中跟随当前工作状态；刷新后不回跳 WORK（§175/§176）
  *  - 加班询问只出现在 17:55 前后，18:00 出现结算（§103~§107）
@@ -110,7 +110,7 @@ async function runInElectron(): Promise<void> {
     } catch (error) { return { ok: false, message: error && error.stack ? error.stack : String(error) }; } })()`);
     await win.webContents.executeJavaScript(`(function () { try { (0, eval)(${JSON.stringify(overlay)}); return { ok: true }; } catch (error) { return { ok: false, message: error && error.stack ? error.stack : String(error) }; } })()`);
     step('overlay eval done');
-    await waitFor(win, `document.querySelector('[data-select-action="WORK"]') !== null`);
+    await waitFor(win, `document.querySelector('.ux-hero-action[data-action="mode"][data-mode="WORK"]') !== null`);
     step('home rendered');
 
     /* 教程 V2 软引导在桌面端可见且不拦截输入（V4.1 Task 1/2） */
@@ -133,45 +133,52 @@ async function runInElectron(): Promise<void> {
     );
     await win.webContents.executeJavaScript(`window.__home.tutorialCompleted = false;`);
 
-    /* 1. 三个分辨率单屏无滚动（§169/§170） */
+    /* 1. 三个分辨率均为单列可滚动布局，无横向溢出，底部导航可达。 */
     const viewports: Array<[string, number, number]> = [['1280', 1280, 720], ['1600', 1600, 900], ['1920', 1920, 1080]];
     for (const [name, width, height] of viewports) {
       step('size ' + name);
       await win.setContentSize(width, height);
       await delay(320);
       const state = await win.webContents.executeJavaScript(`({
-        fits: document.querySelector('#UiBody').scrollHeight <= document.querySelector('#UiBody').clientHeight,
+        bodyScrollHeight: document.querySelector('#UiBody').scrollHeight,
+        bodyClientHeight: document.querySelector('#UiBody').clientHeight,
         metrics: [document.querySelector('#UiBody').scrollHeight, document.querySelector('#UiBody').clientHeight],
-        columns: getComputedStyle(document.querySelector('.ux-home')).gridTemplateColumns.split(' ').length,
+        layout: getComputedStyle(document.querySelector('.ux-home')).display,
+        horizontalOverflow: document.querySelector('#UiBody').scrollWidth > document.querySelector('#UiBody').clientWidth,
         bottomNav: document.querySelector('.ux-nav').getBoundingClientRect().bottom <= innerHeight + 1,
-        detailVisible: document.querySelector('.ux-detail[data-detail-type]') !== null
+        modeCards: document.querySelectorAll('.ux-hero-action[data-action="mode"]').length
       })`);
-      assert.equal(state.fits, true, `${name}×${height} home must not scroll vertically (${state.metrics.join(' > ')})`);
-      assert.equal(state.columns, 3, `${name}×${width} keeps left/center/right columns`);
+      assert.ok(state.bodyScrollHeight > state.bodyClientHeight, `${name}×${height} home supports vertical scrolling (${state.metrics.join(' > ')})`);
+      assert.equal(state.horizontalOverflow, false, `${name}×${width} home has no horizontal overflow`);
+      assert.equal(state.layout, 'flex', `${name}×${width} home uses a flex single column`);
       assert.equal(state.bottomNav, true, `${name} bottom navigation stays inside the viewport`);
-      assert.equal(state.detailVisible, true, `${name} action detail panel is rendered`);
+      assert.equal(state.modeCards, 4, `${name} mode cards are rendered`);
     }
     await win.setContentSize(1280, 720);
     await delay(320);
 
-    /* 2. 动作选择器：点击切换详情（§169 一百七十一~一百七十四） */
+    /* 2. 模式卡点击会直接切换实际工作模式，并同步运行卡与详情。 */
     step('sizes done');
     for (const action of ['FISHING', 'CULTIVATION', 'SOCIAL', 'WORK'].map(fix)) {
       try {
-        await win.webContents.executeJavaScript(`document.querySelector('[data-select-action="${action}"]').click()`);
+        await win.webContents.executeJavaScript(`document.querySelector('.ux-hero-action[data-action="mode"][data-mode="${action}"]').click()`);
         step('clicked ' + action);
       } catch (e) { step('CLICK FAILED ' + action + ': ' + String(e)); throw e; }
       const detail = await win.webContents.executeJavaScript(`({
         type: document.querySelector('.ux-detail').getAttribute('data-detail-type'),
-        selected: document.querySelector('.ux-action.is-selected').getAttribute('data-select-action')
+        mode: window.__home.workMode,
+        selected: document.querySelector('.ux-hero-action.is-running').getAttribute('data-mode'),
+        calls: window.__home.modeCalls.slice()
       })`);
       step('detail ' + action + ' -> ' + JSON.stringify(detail));
       assert.equal(detail.type, action, `clicking ${action} switches the detail panel`);
-      assert.equal(detail.selected, action, `clicking ${action} highlights its card`);
+      assert.equal(detail.mode, action, `clicking ${action} calls the facade to change the mode`);
+      assert.equal(detail.selected, action, `clicking ${action} marks the active mode card`);
+      assert.equal(detail.calls[detail.calls.length - 1], action, `clicking ${action} records one mode change`);
     }
 
     /* 3. WORK 详情契约（§34~§35） */
-    await win.webContents.executeJavaScript(`document.querySelector('[data-select-action="WORK"]').click()`);
+    await win.webContents.executeJavaScript(`document.querySelector('.ux-hero-action[data-action="mode"][data-mode="WORK"]').click()`);
     step('re-clicked WORK');
     const workDetail = await win.webContents.executeJavaScript(`({
       title: document.querySelector('.ux-detail-title').textContent,
@@ -201,18 +208,18 @@ async function runInElectron(): Promise<void> {
     `);
 
     /* 5. FISHING 详情契约（§36~§38） */
-    await win.webContents.executeJavaScript(`document.querySelector('[data-select-action="FISHING"]').click()`);
+    await win.webContents.executeJavaScript(`document.querySelector('.ux-hero-action[data-action="mode"][data-mode="FISHING"]').click()`);
     const fishingDetail = await win.webContents.executeJavaScript(`({
       desc: (document.querySelector('.ux-detail-desc') || {}).textContent || '',
       primary: document.querySelector('.ux-detail-side .ux-btn').textContent
     })`);
     assert.match(await textOf(win, '.ux-detail-title'), /带薪摸鱼/);
     assert.match(fishingDetail.desc, /公司将为本次修仙支付工资/, 'fishing detail carries the paid line (§37)');
-    assert.match(fishingDetail.primary, /开始摸鱼/, 'fishing primary starts the mode');
+    assert.match(fishingDetail.primary, /收心工作/, 'running fishing detail offers the mode switch back to work');
 
     /* 6. CULTIVATION 详情 + 真实修炼调用 + 反馈（§31~§33） */
     step('sec6 begin');
-    await win.webContents.executeJavaScript(`document.querySelector('[data-select-action="CULTIVATING"]').click()`);
+    await win.webContents.executeJavaScript(`document.querySelector('.ux-hero-action[data-action="mode"][data-mode="CULTIVATING"]').click()`);
     assert.match(await textOf(win, '.ux-detail-title'), /修炼一次/);
     await win.webContents.executeJavaScript(`document.querySelector('.ux-detail-side [data-action="cultivate"]').click()`);
     step('cultivate clicked');
@@ -226,7 +233,7 @@ async function runInElectron(): Promise<void> {
     assert.match(cultivateState.fxText, /修为 \+4/);
 
     /* 7. SOCIAL 详情契约（§39~§41） */
-    await win.webContents.executeJavaScript(`document.querySelector('[data-select-action="SOCIAL"]').click()`);
+    await win.webContents.executeJavaScript(`document.querySelector('.ux-hero-action[data-action="mode"][data-mode="SOCIAL"]').click()`);
     assert.match(await textOf(win, '.ux-detail-title'), /社交划水/);
     assert.match(await textOf(win, '.ux-detail-body'), /小师妹/, 'social detail recommends NPCs (§39)');
 
@@ -235,7 +242,7 @@ async function runInElectron(): Promise<void> {
       window.__home.cultivateCooldown = 30;
       window.UiOverlay.refresh();
     `);
-    await win.webContents.executeJavaScript(`document.querySelector('[data-select-action="CULTIVATING"]').click()`);
+    await win.webContents.executeJavaScript(`document.querySelector('.ux-hero-action[data-action="mode"][data-mode="CULTIVATING"]').click()`);
     const cdBtn = await win.webContents.executeJavaScript(`({
       label: document.querySelector('.ux-detail-side [data-action="cultivate"], .ux-detail-side .ux-btn[disabled]').textContent,
       why: (document.querySelector('.ux-detail-why') || {}).textContent || ''
@@ -301,7 +308,7 @@ async function runInElectron(): Promise<void> {
     );
     assert.match(await textOf(win2, '.ux-detail-body'), /本次摸鱼已入账/, 'running fishing detail shows session earnings (§38)');
     assert.equal(
-      await win2.webContents.executeJavaScript(`document.querySelector('.ux-action.is-running').getAttribute('data-select-action')`),
+      await win2.webContents.executeJavaScript(`document.querySelector('.ux-hero-action.is-running').getAttribute('data-mode')`),
       'FISHING',
       'running card is flagged (§83)',
     );

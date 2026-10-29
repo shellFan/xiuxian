@@ -2623,3 +2623,25 @@ button.ux-journey--sec { cursor: pointer; }
 .ux59f-lite-task b { flex: 1; min-width: 0; font-size: 13px; color: #f4e7ca; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ux59f-lite-task span { flex: none; font-size: 11.5px; color: #9fb6c0; }
 .ux59f-work--lite .ux59f-work-stats { display: none; }
+.ux-life-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ux-life-option { display: flex; flex-direction: column; gap: 3px; flex: 1 1 150px; }
+.ux-life-option > span { font-size: 11px; color: #9fb6c0; }
+.ux-life-option > .ux59f-life-reason { color: #f0b76a; }
+
+@media (max-width: 899px) {
+  .ux-topbar { flex-wrap: wrap; }
+  .ux-topbar .ux-brand { flex: 0 1 160px; width: auto; min-width: 0; padding: 0; }
+  .ux-topbar .ux-brand-title { width: 100%; height: auto; }
+  .ux-topbar-date { flex: 1; min-width: 0; }
+  .ux-topbar-npc { flex: 1 1 100%; }
+  .ux-topbar-shortcuts { flex: 1 1 100%; flex-wrap: wrap; justify-content: space-between; min-width: 0; }
+  .ux-hero-char { flex-wrap: wrap; }
+  .ux-hero-links { flex-wrap: wrap; }
+  .ux-hero-cultivate { margin-left: auto; }
+  .ux-detail { flex-wrap: wrap; align-items: flex-start; }
+  .ux-detail-main { flex-basis: 160px; }
+  .ux-detail-head { flex-wrap: wrap; }
+  .ux-detail-side { flex: 1 1 100%; min-width: 0; }
+  .ux59f-goal-head { flex-wrap: wrap; }
+  .ux-nav-slogan { display: none; }
+}

@@ -24,7 +24,6 @@ interface HomeLifeDef {
   readonly label: string;
   readonly icon: string;
   readonly price: number;
-  readonly itemId: string | null;
   readonly fatigueDelta: number;
   readonly mindDelta: number;
   readonly dailyLimit: number;
@@ -33,11 +32,11 @@ interface HomeLifeDef {
 
 /** 每日生活行为表（价格/次数 = 产品口径；效果即时生效并如实展示）。 */
 const HOME_LIFE_DEFS: readonly HomeLifeDef[] = [
-  { kind: 'COFFEE', label: '喝咖啡', icon: '☕', price: 18, itemId: 'cons_coffee', fatigueDelta: -12, mindDelta: 0, dailyLimit: 3, effectText: '疲劳 -12' },
-  { kind: 'MILK_TEA', label: '喝奶茶', icon: '🧋', price: 16, itemId: null, fatigueDelta: 0, mindDelta: 8, dailyLimit: 2, effectText: '道心 +8' },
-  { kind: 'LUNCH', label: '吃午餐', icon: '🍜', price: 25, itemId: null, fatigueDelta: -8, mindDelta: 5, dailyLimit: 1, effectText: '疲劳 -8，道心 +5' },
-  { kind: 'SNACK', label: '吃零食', icon: '🍪', price: 8, itemId: null, fatigueDelta: 0, mindDelta: 3, dailyLimit: 3, effectText: '道心 +3' },
-  { kind: 'DINNER', label: '下班聚餐', icon: '🍲', price: 68, itemId: null, fatigueDelta: 0, mindDelta: 15, dailyLimit: 1, effectText: '道心 +15' },
+  { kind: 'COFFEE', label: '喝咖啡', icon: '☕', price: 18, fatigueDelta: -12, mindDelta: 0, dailyLimit: 3, effectText: '疲劳 -12' },
+  { kind: 'MILK_TEA', label: '喝奶茶', icon: '🧋', price: 16, fatigueDelta: 0, mindDelta: 8, dailyLimit: 2, effectText: '道心 +8' },
+  { kind: 'LUNCH', label: '吃午餐', icon: '🍜', price: 25, fatigueDelta: -8, mindDelta: 5, dailyLimit: 1, effectText: '疲劳 -8，道心 +5' },
+  { kind: 'SNACK', label: '吃零食', icon: '🍪', price: 8, fatigueDelta: 0, mindDelta: 3, dailyLimit: 3, effectText: '道心 +3' },
+  { kind: 'DINNER', label: '下班聚餐', icon: '🍲', price: 68, fatigueDelta: 0, mindDelta: 15, dailyLimit: 1, effectText: '道心 +15' },
 ];
 
 export interface HomeLifeOptionView {
@@ -288,22 +287,24 @@ export class HomeService {
     const isWeekend = c.clockV2.isWeekend();
     const hour = clock.hour + clock.minute / 60;
     let workState: HomeTodayWorkView['workState'] = 'NOT_STARTED';
-    if (isWeekend) workState = 'AFTER_WORK';
-    else if (workToday.overtimeSeconds > 60) workState = 'OVERTIME';
+    if (c.overtime.current()?.status === 'ACTIVE') workState = 'OVERTIME';
+    else if (isWeekend) workState = 'AFTER_WORK';
     else if (hour >= 18) workState = 'AFTER_WORK';
-    else if (hour >= 12 && hour < 14) workState = 'LUNCH_BREAK';
+    else if (hour < 9) workState = 'NOT_STARTED';
+    else if (c.clockV2.isLunchBreak()) workState = 'LUNCH_BREAK';
     else workState = 'WORKING';
     const stateText: Record<HomeTodayWorkView['workState'], string> = {
       NOT_STARTED: '未开工', WORKING: '上班中', LUNCH_BREAK: '午休', AFTER_WORK: '已下班', OVERTIME: '加班中',
     };
 
     // 当前任务：进行中/已完成未领取的第一个真实任务（TaskService 权威）。
-    const activeTask = c.player.activeTasks.find((t) => !t.claimed) ?? null;
-    const now = c.clockV2.now();
+    const activeTask = c.player.activeTasks.find((t) => !t.claimed && t.completed)
+      ?? c.player.activeTasks.find((t) => !t.claimed) ?? null;
     let currentTask: HomeTodayWorkView['currentTask'] = null;
     if (activeTask) {
-      const elapsed = (now - activeTask.startedAt) / 1000;
-      const pctNum = Math.max(0, Math.min(100, Math.round((elapsed / activeTask.durationSeconds) * 100)));
+      const remaining = c.tasks.getRemainingSeconds(activeTask.taskId);
+      const pctNum = activeTask.durationSeconds > 0
+        ? Math.max(0, Math.min(99, Math.floor((1 - remaining / activeTask.durationSeconds) * 100))) : 0;
       const rewardParts: string[] = [];
       if (activeTask.rewardSalary > 0) rewardParts.push(`¥${activeTask.rewardSalary}`);
       if (activeTask.rewardCultivation > 0) rewardParts.push(`修为+${activeTask.rewardCultivation}`);
@@ -380,14 +381,18 @@ export class HomeService {
         }
       }
     } catch { /* settlement check must not break home */ }
-    // 2.5) 疲劳过高 → 恢复优先于接新活/肝任务：不该劝一个快垮的人再干活。
-    //      （已完成未领取的奖励照领不误 —— 领奖不消耗体力，优先级 4 不受影响。）
+    const openTasks = c.player.activeTasks.filter((t) => !t.claimed);
+    const doneTask = openTasks.find((t) => t.completed);
+    if (doneTask) {
+      return { id: 'CLAIM_TASK', icon: '🎁', text: `「${doneTask.name}」已完成`, sub: '奖励躺在任务页等你领', btn: '去领取', page: 'TASKS', command: null, commandArg: null };
+    }
+    // 2.5) 奖励领完后，高疲劳优先切换到恢复模式。
     const fatigueEarly = c.fatigue.value();
     if (fatigueEarly >= 70) {
-      return { id: 'REST', icon: '🛌', text: `疲劳 ${fatigueEarly}，该歇歇了`, sub: '喝杯咖啡/吃顿饭，或切摸鱼回血', btn: '去恢复', page: 'HOME', command: null, commandArg: null };
+      const resting = c.player.workMode === 'FISHING';
+      return { id: 'REST', icon: '🛌', text: `疲劳 ${fatigueEarly}，${resting ? '摸鱼恢复中' : '该歇歇了'}`, sub: '摸鱼可逐步恢复疲劳，也可在今日生活消费恢复', btn: resting ? '恢复中' : '切换摸鱼', page: null, command: resting ? null : 'setMode', commandArg: resting ? null : 'FISHING' };
     }
     // 3) 无任务 → 领任务。
-    const openTasks = c.player.activeTasks.filter((t) => !t.claimed);
     if (openTasks.length === 0) {
       const total = c.tasks.getConfigs().length;
       const capped = c.player.activeTasks.filter((t) => !t.claimed).length >= 3;
@@ -395,11 +400,6 @@ export class HomeService {
         id: 'GET_TASK', icon: '📋', text: '领取一个任务', sub: capped ? '任务栏已满，先完成手头的' : `任务库 ${total} 份差事等你挑`,
         btn: '去任务页', page: 'TASKS', command: null, commandArg: null,
       };
-    }
-    // 4) 有已完成未领取 → 领奖励。
-    const doneTask = openTasks.find((t) => t.completed);
-    if (doneTask) {
-      return { id: 'CLAIM_TASK', icon: '🎁', text: `「${doneTask.name}」已完成`, sub: '奖励躺在任务页等你领', btn: '去领取', page: 'TASKS', command: null, commandArg: null };
     }
     // 5) 当前任务可推进 → 继续工作（§五 优先级：任务推进高于随机事件）。
     // TaskService.tick 按真实时间推进所有未完成任务，与工作模式无关 —— 有活在手就是"可推进"。
@@ -463,6 +463,7 @@ export class HomeService {
   /** 生活行为菜单：价格/剩余次数/余额可用性全部来自真实状态。 */
   public lifeOptions(): HomeLifeOptionView[] {
     const c = this.context;
+    c.gameDay.ensureStarted();
     const balance = c.player.salary;
     return HOME_LIFE_DEFS.map((def) => {
       const used = this.lifeUsed(def.kind);
@@ -486,19 +487,18 @@ export class HomeService {
     const c = this.context;
     const def = HOME_LIFE_DEFS.find((d) => d.kind === kind);
     if (!def) return { ok: false, reason: '未知生活行为' };
+    c.gameDay.ensureStarted();
     const used = this.lifeUsed(def.kind);
     if (used >= def.dailyLimit) return { ok: false, reason: `今日次数已用完（${used}/${def.dailyLimit}）` };
     if (def.kind === 'DINNER' && !c.gameDay.isOffWork()) return { ok: false, reason: '下班后才能聚餐' };
     const spend = c.v2Items.spendSalary(def.price);
     if (!spend.success) return { ok: false, reason: `工资余额不足（需 ¥${def.price}，现有 ¥${c.player.salary}）` };
 
-    // 真实效果：疲劳与道心（效果值来自定义表，非 UI 编造）。
+    // 现金购买即时应用效果，不额外消耗背包道具；反馈取实际变化（含上下限）。
+    const fatigueBefore = c.player.fatigue;
+    const mindBefore = c.player.mind;
     if (def.fatigueDelta !== 0) c.fatigue.addDelta(def.fatigueDelta);
     if (def.mindDelta !== 0) c.mind.applyDelta(def.mindDelta);
-    // 挂接到正式消耗品的行为保持：有对应道具定义时同步消耗库存（咖啡走真实道具）。
-    if (def.itemId && c.v2Items.materialCount(def.itemId) > 0) {
-      c.v2Items.useConsumable(def.itemId);
-    }
 
     // 履历 + 当日生活计数（目标系统进度）+ 持久化。
     c.gameDay.ensureStarted();
@@ -512,8 +512,8 @@ export class HomeService {
       ok: true,
       label: def.label,
       cost: def.price,
-      fatigueDelta: def.fatigueDelta,
-      mindDelta: def.mindDelta,
+      fatigueDelta: c.player.fatigue - fatigueBefore,
+      mindDelta: c.player.mind - mindBefore,
       balanceAfter: c.player.salary,
     };
   }

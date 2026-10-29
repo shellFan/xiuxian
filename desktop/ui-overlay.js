@@ -1058,7 +1058,7 @@
     { id: 'WORK',        label: '努力工作', sub: '工资 +30%',   desc: '推进任务\n获得工资与绩效', emoji: '💼', img: 'task-report',      cls: 'blue' },
     { id: 'FISHING',     label: '带薪摸鱼', sub: '道心恢复',    desc: '公司也为你的\n修仙买单',   emoji: '🐟', img: 'task-fish',        cls: 'green' },
     { id: 'CULTIVATING', label: '修炼一次', sub: '修为 ×2.0',   desc: '引气入体\n提升修为境界',   emoji: '🧘', img: 'promo-cur',        cls: 'gold' },
-    { id: 'SOCIAL',      label: '社交划水', sub: '人际关系 +2', desc: '喝杯咖啡\n和同事聊聊人生', emoji: '🍵', img: 'face-xiaoshimei',  cls: 'purple' },
+    { id: 'SOCIAL',      label: '社交划水', sub: '道心逐步恢复', desc: '喝杯咖啡\n和同事聊聊人生', emoji: '🍵', img: 'face-xiaoshimei',  cls: 'purple' },
   ];
 
   function renderHome() {
@@ -1389,8 +1389,8 @@
       },
       CULTIVATING: {
         cls: 'gold', emoji: '🧘', img: 'promo-cur', title: '修炼一次', tags: ['修仙', '内卷自救'],
-        desc: '引气入体，感受仙气流转，在工位上也能突破。（消耗少量时间，获得修为与道心）',
-        rewards: [['cultivation', '预计修为', '+2~6'], ['mind', '预计道心', '+1']],
+        desc: '引气入体，感受仙气流转，在工位上也能突破。道心与天命影响修为收益，冷却结束后可再次修炼。',
+        rewards: [['cultivation', '修为收益', '随道心与天命变化']],
       },
       SOCIAL: {
         cls: 'purple', emoji: '🍵', img: 'face-xiaoshimei', title: '社交划水', tags: ['人际', '茶水间'],
@@ -1471,7 +1471,7 @@
   /* 修炼点击反馈（§140~§143）：详情区轻量 +N 动画，数字由 facade 返回 */
   function cultivateFxHtml() {
     if (!_cultivateFx || Date.now() - _cultivateFx.at >= 4000) return '';
-    return '<div class="ux-detail-fx"><span class="fx-chip">💧 修为 +' + _cultivateFx.exp + '</span><span class="fx-chip">☯ 道心 +1</span></div>';
+    return '<div class="ux-detail-fx"><span class="fx-chip">💧 修为 +' + _cultivateFx.exp + '</span></div>';
   }
 
   /* 教程 V2 软引导（桌面桥接）：只读展示当前步骤，文案随服务状态更新，绝不拦截输入 */
@@ -1959,10 +1959,17 @@
     var power = life.map(function (it) {
       return '<div class="ux-power-item"><span>' + it.icon + ' ' + escHtml(it.label) + '</span><b>×' + it.count + '</b></div>';
     }).join('') || '<div class="ux-agenda-empty">今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。</div>';
+    var options = tryQuery('queryHomeLifeOptions') || [];
+    var actions = options.map(function (it) {
+      return '<div class="ux-life-option"><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="life" data-life="' + escHtml(it.kind) + '"' +
+        (it.available ? '' : ' disabled') + '>' + escHtml(it.label) + ' ¥' + it.price + '</button>' +
+        '<span>剩 ' + it.remaining + ' 次 · ' + escHtml(it.effectText) + '</span>' +
+        (it.reason ? '<span class="ux59f-life-reason">' + escHtml(it.reason) + '</span>' : '') + '</div>';
+    }).join('');
     return '<div class="ux-card ux-life">' +
       '<div class="ux-card-title">今日生活</div>' +
       '<div class="ux-life-power">' + power + '</div>' +
-      '<div class="ux-life-actions"><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="life" data-life="COFFEE">喝咖啡</button><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="life" data-life="LUNCH">吃午饭</button><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="life" data-life="MILK_TEA">喝奶茶</button></div>' +
+      '<div class="ux-life-actions">' + (actions || '<span>生活服务暂不可用</span>') + '</div>' +
     '</div>';
   }
 
@@ -1989,11 +1996,11 @@
     var body = '';
     if (kind === 'timeline') {
       title = '今日时间线';
-      var view = f && typeof f.queryWorkToday === 'function' ? (function () { try { return f.queryWorkToday(); } catch (e) { return null; } })() : null;
-      var tl = view && view.timeline ? view.timeline : [];
+      var activityRuntime = readRuntimeData();
+      var tl = activityRuntime && activityRuntime.activity ? activityRuntime.activity.slice().reverse() : [];
       body = tl.length ? '<div class="ux-modal-list">' + tl.map(function (entry) {
-        var time = new Date(entry.occurredAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-        return '<div class="ux-recent-item"><span>' + time + '</span>' + escHtml(TIMELINE_NAMES[entry.eventId] || entry.eventId || entry.kind) + '</div>';
+        var time = new Date(entry.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        return '<div class="ux-recent-item"><span>' + time + '</span>' + escHtml(entry.text || entry.kind) + '</div>';
       }).join('') + '</div>' : '<div class="ux-agenda-empty">今天还风平浪静。</div>';
     } else if (kind === 'power') {
       title = '今日生活';
@@ -3423,7 +3430,7 @@
     var body = $('#UiBody');
     var scrollTop = body.scrollTop;
     var columnScroll = $$('.ux-home-col', body).map(function (column) { return column.scrollTop; });
-    /* 首页禁纵向滚动（§134）：加 home 修饰类，其余页面保持可滚动。 */
+    /* 首页单列滚动；刷新保留当前位置，确保下方卡牌仍可操作。 */
     body.classList.toggle('ux-body--home', currentPage() === 'HOME');
     /* 只重绘 body + header 内容，保持弹窗/toast 层不被打断 */
     body.innerHTML = renderCurrent();
@@ -3613,8 +3620,9 @@
       }
       if (el.dataset.nav) {
         var tab = el.dataset.nav;
+        var hadSubPage = !!_subPage;
         _subPage = null;
-        if (_screen !== tab) { _screen = tab; fullRefresh(); }
+        if (_screen !== tab || hadSubPage) { _screen = tab; fullRefresh(); }
         return;
       }
       var act = el.dataset.action;
@@ -3686,7 +3694,6 @@
             var rCult = fCult.cultivate();
             _cultivateFx = {
               exp: rCult && rCult.cultivationExp !== undefined ? rCult.cultivationExp : 0,
-              mind: rCult && rCult.mindEfficiency ? Math.max(1, Math.round(rCult.mindEfficiency)) : 1,
               at: Date.now(),
             };
             toast('修炼成功，修为 +' + (_cultivateFx.exp || 0), 'success');
@@ -3712,10 +3719,13 @@
         case 'life': {
           var fLife = facade();
           try {
-            if (!fLife || typeof fLife.recordTodayLife !== 'function') throw new Error('今日生活服务尚未就绪');
-            var lifeResult = fLife.recordTodayLife(el.dataset.life);
-            if (!lifeResult || lifeResult.ok === false) throw new Error((lifeResult && lifeResult.reason) || '记录失败');
-            toast('已记录今日生活行为。', 'success');
+            if (!fLife || typeof fLife.consumeHomeLife !== 'function') throw new Error('今日生活服务尚未就绪');
+            var lifeResult = fLife.consumeHomeLife(el.dataset.life);
+            if (!lifeResult || !lifeResult.ok) throw new Error((lifeResult && lifeResult.reason) || '消费失败');
+            toast(lifeResult.label + '：-¥' + lifeResult.cost +
+              (lifeResult.fatigueDelta ? ' 疲劳 ' + lifeResult.fatigueDelta : '') +
+              (lifeResult.mindDelta ? ' 道心 +' + lifeResult.mindDelta : '') +
+              ' · 余额 ¥' + lifeResult.balanceAfter, 'success');
             refresh();
           } catch (e) { toast(errMsg(e), 'error'); }
           break;

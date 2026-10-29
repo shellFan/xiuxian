@@ -199,11 +199,78 @@ function testNextActionStates(): void {
 function testFatigueAdvice(): void {
   const { facade } = readyFacade();
   try {
+    facade.context.player.workMode = 'WORK';
     facade.context.player.fatigue = 75;
     const action = facade.queryHomeNextAction();
     assert.equal(action.id, 'REST', 'high fatigue → rest advice');
     assert.match(action.sub, /咖啡|摸鱼|恢复/);
+    assert.equal(action.command, 'setMode', 'rest recommendation executes a real command');
+    assert.equal(action.commandArg, 'FISHING');
+    facade.changeWorkMode('FISHING');
+    assert.equal(facade.queryHomeNextAction().command, null, 'already resting does not repeatedly switch mode');
     console.log('10. fatigue advice passed');
+  } finally { facade.destroy(); }
+}
+
+function testLifeInventoryAndActualEffects(): void {
+  const { facade } = readyFacade();
+  try {
+    facade.context.player.salary = 500;
+    facade.context.player.fatigue = 5;
+    facade.context.player.mind = 99;
+    facade.context.v2Items.addMaterial('cons_coffee', 2);
+    const inventoryBefore = facade.context.v2Items.materialCount('cons_coffee');
+    const coffee = facade.consumeHomeLife('COFFEE');
+    assert.equal(coffee.ok, true);
+    assert.equal(coffee.fatigueDelta, -5, 'feedback reflects fatigue floor');
+    assert.equal(coffee.mindDelta, 0, 'cash coffee has no hidden inventory effect');
+    assert.equal(facade.context.player.mind, 99);
+    assert.equal(facade.context.v2Items.materialCount('cons_coffee'), inventoryBefore, 'cash purchase preserves inventory');
+    const tea = facade.consumeHomeLife('MILK_TEA');
+    assert.equal(tea.mindDelta, 1, 'feedback reflects mind ceiling');
+    assert.equal(facade.context.player.salary, 466, 'each purchase deducts only its listed cash price');
+    assert.equal(facade.queryRuntimeData().life.find((it) => it.kind === 'COFFEE')?.count, 1);
+    assert.equal(facade.queryHomeGoals().find((it) => it.kind === 'LIFE')?.completed, true);
+  } finally { facade.destroy(); }
+}
+
+function testTaskClockAndRewardPriority(): void {
+  const { facade, clock } = readyFacade();
+  try {
+    const configs = facade.queryTaskConfigsByType('DAILY');
+    const short = configs.slice().sort((a, b) => a.durationSeconds - b.durationSeconds)[0];
+    const long = configs.find((it) => it.durationSeconds > short.durationSeconds)!;
+    assert.ok(long);
+    assert.equal(facade.startTask(long.id).success, true);
+    assert.equal(facade.startTask(short.id).success, true);
+    facade.devAdvanceTime(10 * 60_000);
+    assert.equal(facade.queryHomeTodayWork().currentTask?.progressPct, 0, 'game offset cannot complete real-time tasks visually');
+    clock.advance((short.durationSeconds + 1) * 1000);
+    facade.tickTasks();
+    facade.context.player.fatigue = 75;
+    const task = facade.queryHomeTodayWork().currentTask!;
+    assert.equal(task.taskId, short.id, 'finished reward takes priority over a running task');
+    assert.equal(task.completed, true);
+    assert.equal(task.progressPct, 100);
+    assert.equal(facade.queryHomeNextAction().id, 'CLAIM_TASK', 'fatigue cannot hide completed rewards');
+    assert.equal(facade.claimTask(short.id).success, true);
+    assert.equal(facade.queryHomeNextAction().id, 'REST');
+  } finally { facade.destroy(); }
+}
+
+function testWorkStateBeforeWork(): void {
+  const { facade } = readyFacade();
+  try {
+    facade.devAdvanceTime(-60 * 60_000);
+    assert.equal(facade.queryHomeTodayWork().workState, 'NOT_STARTED', '08:00 is not working');
+    facade.devAdvanceTime(60 * 60_000);
+    assert.equal(facade.queryHomeTodayWork().workState, 'WORKING');
+    facade.context.player.gameDay!.durations.overtime = 120;
+    assert.equal(facade.queryHomeTodayWork().workState, 'WORKING', 'historical overtime duration is not an active session');
+    facade.devAdvanceTime(3 * 60 * 60_000);
+    assert.equal(facade.queryHomeTodayWork().workState, 'LUNCH_BREAK');
+    facade.devAdvanceTime(60 * 60_000);
+    assert.equal(facade.queryHomeTodayWork().workState, 'WORKING', 'lunch ends at the authoritative 13:00 boundary');
   } finally { facade.destroy(); }
 }
 
@@ -258,6 +325,7 @@ function testLifeConsumption(): void {
     // Other actions use their specified effects and the dinner action requires clock-out.
     facade.context.player.salary = 500;
     facade.context.player.fatigue = 60;
+    facade.context.player.mind = 20;
     const tea = facade.consumeHomeLife('MILK_TEA');
     assert.ok(tea.ok);
     assert.equal(tea.cost, 16);
@@ -441,6 +509,9 @@ testHomeGoalsProgress();
 testGoalClaimOnce();
 testNextActionStates();
 testFatigueAdvice();
+testLifeInventoryAndActualEffects();
+testTaskClockAndRewardPriority();
+testWorkStateBeforeWork();
 testLifeConsumption();
 testProfessionAdaptation();
 testBattleAndSkillEntries();

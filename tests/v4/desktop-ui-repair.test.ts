@@ -79,9 +79,9 @@ async function runInElectron(): Promise<void> {
       var rect = function (s) { var e = document.querySelector(s); var r = e && e.getBoundingClientRect(); return r ? { w: r.width, h: r.height, top: r.top, bottom: r.bottom } : null; };
       return {
         statusCount: document.querySelectorAll('.ux-home-status > *').length,
-        scene: rect('.ux-scene'), sceneStrip: rect('.ux-scene-strip'), actions: rect('.ux-actions'), detail: rect('.ux-detail'),
-        actionButtons: Array.prototype.every.call(document.querySelectorAll('.ux-action'), function (e) { var r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; }),
-        primary: (function () { var e = document.querySelector('.ux-detail-side .ux-btn'); return !!e && e.getBoundingClientRect().height > 0; })(),
+        home: rect('.ux-home-main'), scene: rect('.ux-scene'), sceneStrip: rect('.ux-scene-strip'), actions: rect('.ux-hero-bar'),
+        actionButtons: Array.prototype.every.call(document.querySelectorAll('.ux-hero-action[data-action="mode"]'), function (e) { var r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; }),
+        primary: (function () { var e = document.querySelector('.ux-hero-cultivate'); return !!e && e.getBoundingClientRect().height > 0; })(),
         bodyOverflow: document.querySelector('#UiBody').scrollWidth > document.querySelector('#UiBody').clientWidth,
         journeyTag: document.querySelector('.ux-journey--static') !== null,
         hook: document.body.innerText.indexOf('明天有评审') >= 0
@@ -90,28 +90,46 @@ async function runInElectron(): Promise<void> {
     assert.equal(firstView.statusCount, 4, 'metadata is consolidated into one status row');
     assert.ok(firstView.scene && firstView.scene.h >= 140, `countdown scene remains readable (${JSON.stringify(firstView.scene)})`);
     assert.ok(firstView.scene && firstView.sceneStrip && firstView.sceneStrip.bottom <= firstView.scene.bottom + 1, `scene controls stay inside the scene (${JSON.stringify(firstView)})`);
-    assert.ok(firstView.actions && firstView.actions.h >= 90, `action selectors remain intact (${JSON.stringify(firstView.actions)})`);
-    assert.ok(firstView.detail && firstView.detail.h >= 120, `action detail remains usable (${JSON.stringify(firstView.detail)})`);
-    assert.equal(firstView.actionButtons, true, 'all four action selectors remain clickable');
-    assert.equal(firstView.primary, true, 'primary detail button remains visible');
+    assert.ok(firstView.home && firstView.home.w <= 642, `home is a centered single column (${JSON.stringify(firstView.home)})`);
+    assert.ok(firstView.actions && firstView.actions.h > 0, `mode action cards remain rendered (${JSON.stringify(firstView.actions)})`);
+    assert.equal(firstView.actionButtons, true, 'all four mode cards remain visible and have a hit area');
+    assert.equal(firstView.primary, true, 'one-tap cultivation action remains visible');
     assert.equal(firstView.bodyOverflow, false, 'home has no horizontal overflow');
     assert.equal(firstView.journeyTag, true, 'non-action goal is rendered as a status');
     assert.equal(firstView.hook, true, 'tomorrow hook remains visible beside static goal');
 
     const scrollCheck = await win.webContents.executeJavaScript(`(function () {
-      var host = document.querySelector('.ux-home-center');
+      var host = document.querySelector('#UiBody');
+      var firstCard = document.querySelector('.ux-hero-action[data-action="mode"]');
+      host.scrollTop = Math.max(0, firstCard.getBoundingClientRect().top - host.getBoundingClientRect().top + host.scrollTop - 16);
+      var hostRect = host.getBoundingClientRect();
+      var cardsReachable = Array.prototype.every.call(document.querySelectorAll('.ux-hero-action[data-action="mode"]'), function (e) {
+        var r = e.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && r.bottom > hostRect.top && r.top < hostRect.bottom;
+      });
+      document.querySelector('.ux-detail').scrollIntoView({ block: 'center' });
+      var detailHost = host.getBoundingClientRect();
+      var detailButtons = Array.prototype.map.call(document.querySelectorAll('.ux-detail-side .ux-btn'), function (e) {
+        var r = e.getBoundingClientRect();
+        return { w: r.width, h: r.height, top: r.top, bottom: r.bottom, disabled: e.disabled, hit: e.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)) };
+      });
       host.scrollTop = host.scrollHeight;
       var before = host.scrollTop;
+      var max = host.scrollHeight - host.clientHeight;
       window.UiOverlay.refresh();
-      host = document.querySelector('.ux-home-center');
+      host = document.querySelector('#UiBody');
       var after = host.scrollTop;
-      var buttons = Array.prototype.map.call(document.querySelectorAll('.ux-detail-side .ux-btn'), function (e) { var r = e.getBoundingClientRect(); return { h: r.height, bottom: r.bottom }; });
-      var hr = host.getBoundingClientRect();
-      return { before: before, after: after, scrollHeight: host.scrollHeight, clientHeight: host.clientHeight, buttons: buttons, hostBottom: hr.bottom };
+      var modeCards = Array.prototype.map.call(document.querySelectorAll('.ux-hero-action[data-action="mode"]'), function (e) { var r = e.getBoundingClientRect(); return { h: r.height, top: r.top, bottom: r.bottom }; });
+      var nav = document.querySelector('.ux-nav').getBoundingClientRect();
+      return { before: before, after: after, max: max, bodyScrollHeight: host.scrollHeight, bodyClientHeight: host.clientHeight, modeCards: modeCards, cardsReachable: cardsReachable, detailButtons: detailButtons, detailHostTop: detailHost.top, detailHostBottom: detailHost.bottom, navTop: nav.top, navBottom: nav.bottom, viewportHeight: innerHeight };
     })()`);
-    assert.ok(scrollCheck.before > 0, 'center column owns overflow for long home content');
-    assert.ok(scrollCheck.after > 0, `center scroll position survives refresh (${JSON.stringify(scrollCheck)})`);
-    assert.ok(scrollCheck.buttons.length >= 2 && scrollCheck.buttons.every((button: { h: number; bottom: number }) => button.h > 0 && button.bottom <= scrollCheck.hostBottom + 1), 'both detail actions are reachable after scrolling the center');
+    assert.ok(scrollCheck.max > 0 && scrollCheck.before > 0, 'single-column home owns vertical overflow');
+    assert.ok(Math.abs(scrollCheck.after - scrollCheck.before) <= 1, `home scroll position survives refresh (${JSON.stringify(scrollCheck)})`);
+    assert.equal(scrollCheck.modeCards.length, 4, 'all four mode cards remain available after refresh');
+    assert.ok(scrollCheck.modeCards.every((button: { h: number }) => button.h > 0), 'mode card hit areas survive refresh');
+    assert.equal(scrollCheck.cardsReachable, true, 'all four mode cards can be brought into the visible scroll viewport');
+    assert.ok(scrollCheck.detailButtons.length >= 2 && scrollCheck.detailButtons.every((button: { w: number; h: number; top: number; bottom: number; disabled: boolean; hit: boolean }) => button.w > 0 && button.h > 0 && button.top >= scrollCheck.detailHostTop && button.bottom <= scrollCheck.detailHostBottom && (button.disabled || button.hit)), 'both detail actions are visible and enabled actions are unobscured after scrolling: ' + JSON.stringify(scrollCheck));
+    assert.ok(scrollCheck.navTop >= 0 && scrollCheck.navBottom <= scrollCheck.viewportHeight + 1, 'bottom navigation remains reachable while home is scrolled');
 
     await win.webContents.executeJavaScript(`document.querySelector('.ux-topbar-pending').click()`);
     await waitFor(win, `document.querySelector('.ux-dialog-actions .ux-btn') !== null`);

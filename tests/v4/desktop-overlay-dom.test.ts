@@ -140,13 +140,16 @@ async function runInElectron(): Promise<void> {
       accept: clickable('[data-action="acceptFreeOvertime"]'),
       decline: clickable('[data-action="declineOvertime"]'),
       homeText: document.querySelector('#UiBody').innerText,
-      fits: document.querySelector('#UiBody').scrollHeight <= document.querySelector('#UiBody').clientHeight,
-      metrics: [document.querySelector('#UiBody').scrollHeight, document.querySelector('#UiBody').clientHeight]
+      bodyScrollHeight: document.querySelector('#UiBody').scrollHeight,
+      bodyClientHeight: document.querySelector('#UiBody').clientHeight,
+      navBottom: document.querySelector('.ux-nav').getBoundingClientRect().bottom,
+      viewportHeight: innerHeight
     })`, true);
     assert.equal(offered.accept, true, '17:55 OFFERED exposes a visible, clickable accept control');
     assert.equal(offered.decline, true, '17:55 OFFERED exposes a visible, clickable decline control');
     assert.match(offered.homeText, /今日待办/, 'home content remains rendered around the offer');
-    assert.equal(offered.fits, true, `17:55 home must not overflow (${offered.metrics.join(' > ')})`);
+    assert.equal(offered.bodyScrollHeight > offered.bodyClientHeight, true, 'home content uses vertical scrolling for the single-column layout');
+    assert.ok(offered.navBottom <= offered.viewportHeight + 1, 'bottom navigation remains reachable in the viewport');
 
     await win.webContents.executeJavaScript(`document.querySelector('[data-action="declineOvertime"]').click()`);
     const declined = await win.webContents.executeJavaScript(`({
@@ -166,12 +169,12 @@ async function runInElectron(): Promise<void> {
       window.UiOverlay.refresh();
       ({
         control: clickable('[data-action="doSettle"]'),
-        fits: document.querySelector('#UiBody').scrollHeight <= document.querySelector('#UiBody').clientHeight,
-        metrics: [document.querySelector('#UiBody').scrollHeight, document.querySelector('#UiBody').clientHeight]
+        navBottom: document.querySelector('.ux-nav').getBoundingClientRect().bottom,
+        viewportHeight: innerHeight
       });
     `, true);
     assert.equal(settled.control, true, '18:00 exposes a visible, clickable settlement control');
-    assert.equal(settled.fits, true, `18:00 home must not overflow (${settled.metrics.join(' > ')})`);
+    assert.ok(settled.navBottom <= settled.viewportHeight + 1, 'bottom navigation remains reachable after settlement content renders');
     await win.webContents.executeJavaScript(`document.querySelector('[data-action="doSettle"]').click()`);
     assert.equal(await win.webContents.executeJavaScript(`window.__overlayContract.settleCalls`), 1);
 
