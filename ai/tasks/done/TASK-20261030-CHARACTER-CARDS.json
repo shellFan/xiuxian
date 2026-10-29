@@ -88,8 +88,8 @@
     "developer": "PASS",
     "review": "Sol findings resolved; root accepted after desktop/mobile and interaction verification",
     "branch": "gameplay-v2",
-    "commit": "pending",
-    "pushed": "pending",
+    "commit": "ea02659f539c34114961ef898c203c9d4c274a57",
+    "pushed": "true",
     "scope": "task deliverables only",
     "gitAuthorization": "用户直接指令“代码提交和推送”已授权本Task新增交付文件正常提交并推送；不改写历史。"
   }
