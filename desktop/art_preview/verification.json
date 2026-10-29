@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "taskId": "TASK-20261030-CHARACTER-CARDS",
+  "date": "2026-10-30",
+  "scope": "新增角色原图与独立卡牌预览；无生产入口接入",
+  "checks": [
+    {
+      "name": "PNG真实尺寸与alpha",
+      "status": "PASS",
+      "evidence": "四图1254x1254 RGBA，alpha最小0最大255，主要可见内容完整，SHA/尺寸与manifest/meta匹配。"
+    },
+    {
+      "name": "桌面布局",
+      "status": "PASS",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "clientWidth": 1265,
+      "scrollWidth": 1265,
+      "cardWidth": 273.25,
+      "cardGaps": 20,
+      "evidence": "四卡face与grid cell同宽，无重叠，无横向溢出。"
+    },
+    {
+      "name": "375px窄屏",
+      "status": "PASS",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "gridColumns": 1,
+      "cardSize": {
+        "width": 332,
+        "height": 560
+      },
+      "evidence": "四张单列；顶栏与区块标题在内容宽度内；四个背面均scrollHeight<=clientHeight。"
+    },
+    {
+      "name": "原生按钮键盘翻牌",
+      "status": "PASS",
+      "evidence": "逐一用Enter翻开四位、Space返回：aria-hidden/inert/aria-expanded正确，焦点移到对应背面返回按钮，再返回正面按钮。"
+    },
+    {
+      "name": "卡牌筛选",
+      "status": "PASS",
+      "evidence": "紫金筛选只展示绩效掌门，计数01；全部恢复四位，计数04；aria-pressed与状态文案同步。"
+    },
+    {
+      "name": "动态开关",
+      "status": "PASS",
+      "evidence": "关闭时low-motion=true、扫光animationName=none、transitionDuration=0s；翻牌直接切换display，无3D transform；重新开启正常。"
+    },
+    {
+      "name": "系统减少动态偏好",
+      "status": "STATIC_REVIEW_PASS",
+      "evidence": "JS与CSS均尊重系统偏好并禁用开关。未改变本机系统设置，未声称动态模拟该系统偏好场景。"
+    },
+    {
+      "name": "浏览器控制台",
+      "status": "PASS",
+      "evidence": "检查时warn/error日志为空。"
+    },
+    {
+      "name": "Node语法",
+      "status": "PASS",
+      "commands": [
+        "node --check desktop/art_preview/cards.js",
+        "node --check desktop/art_preview/serve.cjs"
+      ]
+    },
+    {
+      "name": "本机HTTP服务",
+      "status": "PASS",
+      "evidence": "Reviewer独立验证HTML/JS/PNG GET200、PNG HEAD200零body、根路由302、POST405、缺失404；非交付路径/穿越/.git/cookies/ADS/NUL403、错误编码400。只监听127.0.0.1。"
+    },
+    {
+      "name": "Cocos/微信真机",
+      "status": "NOT_RUN",
+      "evidence": "DRAFT原图及预导入meta，尚未Editor验证，不修改场景，不承诺正式游戏已显示。"
+    }
+  ],
+  "screenshots": [
+    "preview_desktop.jpg",
+    "preview_mobile.jpg",
+    "preview_back.jpg"
+  ],
+  "resourceTotals": {
+    "sourceBytes": 6606105,
+    "decodedBytesRGBA8": 25160256
+  },
+  "outOfScopeFindings": [
+    "其他聊天/用户在本任务期间修改5个原有生产/测试文件，本任务未改动或纳入提交。",
+    "原图存在alpha=1的离散低透明度边缘像素；主体没有裁边，生产导入前由Editor校正trimThreshold和512px运行时导出。"
+  ],
+  "gitAuthorization": "用户于本轮明确要求代码提交和推送；仅限本次新增交付文件。"
+}

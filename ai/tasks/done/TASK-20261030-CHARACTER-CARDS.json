@@ -1,0 +1,96 @@
+{
+  "id": "TASK-20261030-CHARACTER-CARDS",
+  "title": "原创牛马卡通人物与卡牌效果素材包",
+  "version": 1,
+  "status": "PASS",
+  "priority": "MEDIUM",
+  "createdBy": "chatgpt",
+  "assignedTo": "luna-developer",
+  "reviewer": "sol-reviewer",
+  "goal": "仅新增四位原创Q版牛马透明人物、可交互卡牌效果预览、美术清单与接入说明。",
+  "background": "用户要求设计卡通人物和好看的卡牌效果并放入Git项目。用户明确允许保留现有未跟踪文件，仅新增本次人物、卡牌素材和预览文件。AI_AUTO_COMMIT=false。",
+  "requirements": [
+    "四位同系牛马角色：实习牛马、键盘剑修、咖啡丹师、绩效掌门；统一Q版比例、墨线、左上光源；透明背景。",
+    "新增独立预览，支持卡框、亮面扫光、悬停倾斜、翻牌，触摸和键盘可操作，尊重减少动态偏好。",
+    "源码资源仅新增，现有生产入口及业务逻辑不改；不宣称已接入游戏或通过微信真机验收。",
+    "记录图像工具、完整提示词、实际尺寸、alpha、锚点建议、候选状态、资源预算。",
+    "运行预览验证与独立Review；仅提交本Task明确允许的新增交付文件，不包含其他路径。"
+  ],
+  "acceptanceCriteria": [
+    "四个透明PNG真实存在且可加载。",
+    "预览可直接打开或通过仅本机静态服务打开，四张卡牌可操作。",
+    "桌面和窄屏截图中无裁切、溢出或图片加载失败。",
+    "本次变更均在allowedPaths内，未改用户原有文件。",
+    "Reviewer无未处理BLOCKER/HIGH；交付实际路径及未完成的生产导入限制。"
+  ],
+  "allowedPaths": [
+    "assets/textures/ui/character_cards.meta",
+    "assets/textures/ui/character_cards/**",
+    "desktop/art_preview/**",
+    "docs/CHARACTER-CARDS-ART.md",
+    "ai/tasks/done/TASK-20261030-CHARACTER-CARDS.json"
+  ],
+  "forbiddenPaths": [
+    ".git/**",
+    "settings/**",
+    "assets/scripts/**",
+    "assets/scenes/**",
+    "assets/prefabs/**",
+    "desktop/ui-overlay*",
+    "desktop/patch-html.cjs",
+    "tests/**",
+    "ai/work/**"
+  ],
+  "commands": {
+    "install": "",
+    "build": "node --check desktop/art_preview/cards.js",
+    "test": "本机浏览器：图片加载、按钮、翻牌、过滤、窄屏、减少动态及静态资源检查",
+    "lint": "git diff --check"
+  },
+  "constraints": [
+    "仅新增本次文件；保留所有用户已有未提交/未跟踪文件。",
+    "没有用户直接指令前，不自动提交或推送；本次用户明确授权commit/push仅限本Task新增交付文件。",
+    "只用内置imagegen生成原创人物；卡牌UI由HTML/CSS/SVG实现。",
+    "不把装扮/卡面稀有度等同Worker.level或实际境界；不增加玩法数据。"
+  ],
+  "references": [
+    "AGENTS.md",
+    "docs/CHARACTER-VISUAL-GUIDE.md",
+    "docs/ART-GENERATION-PROMPTS.md",
+    "docs/ASSET-STRUCTURE.md"
+  ],
+  "maxReviewRounds": 3,
+  "gitPolicy": {
+    "autoCommit": false,
+    "autoPush": false,
+    "requireCleanTree": false
+  },
+  "executionBaseline": {
+    "head": "4699fc5f3ecf1dff59c6e7733f00377d4b81c1ce",
+    "branch": "gameplay-v2",
+    "initialTrackedDiff": "empty",
+    "initialStagedDiff": "empty",
+    "existingUntrackedFiles": 52,
+    "userException": "2026-10-30 用户允许仅新增本次文件；其他文件不触碰。",
+    "concurrentTrackedChangesObserved": [
+      "assets/scripts/v59f/home-service.ts",
+      "desktop/patch-html.cjs",
+      "desktop/ui-overlay.css",
+      "desktop/ui-overlay.js",
+      "tests/v4/desktop-overlay-dom.test.ts",
+      "tests/v4/desktop-ui-repair.test.ts",
+      "tests/v4/home-layout.test.ts",
+      "tests/v59f/home-playability.test.ts"
+    ]
+  },
+  "roleNote": "仓库要求Developer=Luna、Reviewer=Sol；本会话可用的对应模型为gpt-6-luna与gpt-6.1-sol。",
+  "completion": {
+    "developer": "PASS",
+    "review": "Sol findings resolved; root accepted after desktop/mobile and interaction verification",
+    "branch": "gameplay-v2",
+    "commit": "pending",
+    "pushed": "pending",
+    "scope": "task deliverables only",
+    "gitAuthorization": "用户直接指令“代码提交和推送”已授权本Task新增交付文件正常提交并推送；不改写历史。"
+  }
+}

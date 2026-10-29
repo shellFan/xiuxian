@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "title": "牛马修仙传 · 职场修仙角色卡牌美术候选",
+  "status": "DRAFT",
+  "runtimeIntegrated": false,
+  "editorImportVerified": false,
+  "wechatDeviceVerified": false,
+  "createdAt": "2026-10-30",
+  "toolMode": "built-in image_gen.imagegen",
+  "licenseNote": "根据项目主题原创生成；未使用第三方角色参考或品牌素材。商用前仍需项目方美术和授权审查。",
+  "metadataNote": "新增唯一UUID与本仓库Cocos 3.8元数据结构匹配；为预导入元数据，未由Editor确认或绑定生产场景。",
+  "memoryNote": "decodedBytesRGBA8为源图width*height*4，不含图集空白/对齐/引擎开销。目标运行时512x512应由Editor资源工作流另行导出与验证；本包保留原图。",
+  "totalSourceBytes": 6606105,
+  "totalDecodedBytesRGBA8": 25160256,
+  "assets": [
+    {
+      "assetKey": "ui/character_cards/character_intern",
+      "name": "实习牛马",
+      "file": "assets/textures/ui/character_cards/character_intern.png",
+      "previewFile": "../../assets/textures/ui/character_cards/character_intern.png",
+      "source": "built-in image_gen.imagegen",
+      "promptVersion": 1,
+      "promptFile": "desktop/art_preview/generation_prompts.json",
+      "width": 1254,
+      "height": 1254,
+      "colorMode": "RGBA8",
+      "hasAlpha": true,
+      "sourceBytes": 1403271,
+      "decodedBytesRGBA8": 6290064,
+      "sha256": "648658f9f63619faaf435d98e61b596d4c8909c30e627c0ee1194aa61541b05a",
+      "frame": "jade",
+      "decorativeRarity": "R",
+      "status": "DRAFT",
+      "spriteFrameUuid": "27177d65-72f9-4173-95e6-869605362b0e@f9941",
+      "spritePivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "suggestedDisplayAnchor": {
+        "x": 0.5,
+        "y": 0.04
+      },
+      "nineSlice": null
+    },
+    {
+      "assetKey": "ui/character_cards/character_keyboard_sword",
+      "name": "键盘剑修",
+      "file": "assets/textures/ui/character_cards/character_keyboard_sword.png",
+      "previewFile": "../../assets/textures/ui/character_cards/character_keyboard_sword.png",
+      "source": "built-in image_gen.imagegen",
+      "promptVersion": 1,
+      "promptFile": "desktop/art_preview/generation_prompts.json",
+      "width": 1254,
+      "height": 1254,
+      "colorMode": "RGBA8",
+      "hasAlpha": true,
+      "sourceBytes": 1777255,
+      "decodedBytesRGBA8": 6290064,
+      "sha256": "56dd55dab0ca809ac68d0724b8c21bba3503349167a0bac1fbee3ae4846b734b",
+      "frame": "jade",
+      "decorativeRarity": "SR",
+      "status": "DRAFT",
+      "spriteFrameUuid": "c176c260-7ab1-4a09-86e5-c328586e84ed@f9941",
+      "spritePivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "suggestedDisplayAnchor": {
+        "x": 0.5,
+        "y": 0.04
+      },
+      "nineSlice": null
+    },
+    {
+      "assetKey": "ui/character_cards/character_coffee_alchemist",
+      "name": "咖啡丹师",
+      "file": "assets/textures/ui/character_cards/character_coffee_alchemist.png",
+      "previewFile": "../../assets/textures/ui/character_cards/character_coffee_alchemist.png",
+      "source": "built-in image_gen.imagegen",
+      "promptVersion": 1,
+      "promptFile": "desktop/art_preview/generation_prompts.json",
+      "width": 1254,
+      "height": 1254,
+      "colorMode": "RGBA8",
+      "hasAlpha": true,
+      "sourceBytes": 1678141,
+      "decodedBytesRGBA8": 6290064,
+      "sha256": "2cc4bd8dad0970969a76ec7193a8b3fcc85ae407fcad06b4c2a5b0444d469c1f",
+      "frame": "gold",
+      "decorativeRarity": "SR",
+      "status": "DRAFT",
+      "spriteFrameUuid": "026071fc-4897-45da-be5b-2975f1fd6b39@f9941",
+      "spritePivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "suggestedDisplayAnchor": {
+        "x": 0.5,
+        "y": 0.04
+      },
+      "nineSlice": null
+    },
+    {
+      "assetKey": "ui/character_cards/character_kpi_master",
+      "name": "绩效掌门",
+      "file": "assets/textures/ui/character_cards/character_kpi_master.png",
+      "previewFile": "../../assets/textures/ui/character_cards/character_kpi_master.png",
+      "source": "built-in image_gen.imagegen",
+      "promptVersion": 1,
+      "promptFile": "desktop/art_preview/generation_prompts.json",
+      "width": 1254,
+      "height": 1254,
+      "colorMode": "RGBA8",
+      "hasAlpha": true,
+      "sourceBytes": 1747438,
+      "decodedBytesRGBA8": 6290064,
+      "sha256": "00dcdba04846913c6fc2cf4f5b2e8436855fdffb8ac8fa9a44fe15327149c412",
+      "frame": "purple",
+      "decorativeRarity": "SSR",
+      "status": "DRAFT",
+      "spriteFrameUuid": "52839b69-4259-426d-be3f-7788e39b3ae5@f9941",
+      "spritePivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "suggestedDisplayAnchor": {
+        "x": 0.5,
+        "y": 0.04
+      },
+      "nineSlice": null
+    }
+  ]
+}
