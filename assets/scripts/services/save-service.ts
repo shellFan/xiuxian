@@ -287,6 +287,8 @@ function migrate(raw: unknown, now: number): GameSaveData {
     secretEventsDone: isStringArray(raw.secretEventsDone) ? raw.secretEventsDone.slice(0, 64) : [],
     weekSettlementReady: raw.weekSettlementReady === true,
     fatigueForcedRest: raw.fatigueForcedRest === true,
+    promotionRetryRequired: raw.promotionRetryRequired === true,
+    promotionRetryAvailable: raw.promotionRetryAvailable === true,
     professionPerksGranted: isStringArray(raw.professionPerksGranted) ? raw.professionPerksGranted.slice(0, 128) : [],
     // ── V5.8（saveVersion 13）：爽感打磨与元成长字段，旧档安全默认 ──
     burnoutState: normalizeBurnoutState(raw.burnoutState),

@@ -510,6 +510,8 @@ function dealDamageToEnemy(state: CardBattleState, env: CardEngineEnv, enemy: Ca
   }
   const strength = state.player.statuses.STRENGTH ?? 0;
   let damage = (state.player.attack + strength) * mul + flat;
+  // 职业专克（+20% vs 本职业怪，旧语义移植）。
+  if (env.specialtyMultiplier) damage *= env.specialtyMultiplier(enemy.defId);
   const crit = rng.chance(state.player.critChance);
   if (crit) damage *= 1.8;
   if ((state.player.statuses.WEAK ?? 0) > 0) damage *= 0.66;

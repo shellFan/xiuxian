@@ -164,6 +164,16 @@ export class BattleService {
         run.exp -= run.expNext;
         run.level += 1;
         run.expNext = Math.floor(run.expNext * 1.5);
+        // 等级成长（镜像旧 tick 的 run.attack += 2 与攻速轴）：卡牌侧 +3 攻；
+        // Lv4/7/10 额外 +1 最大能量（对位旧模式攻击间隔缩短的成长轴，封顶 6）。
+        run.attack += 3;
+        if (run.card && isCardBattleState(run.card)) {
+          run.card.player.attack += 3;
+          if (run.level === 4 || run.level === 7 || run.level === 10) {
+            run.card.baseEnergy = Math.min(6, run.card.baseEnergy + 1);
+            run.card.log.push(`✦ 修为精进：最大能量 +1（${run.card.baseEnergy}）`);
+          }
+        }
         if (!run.skillOffers) this.prepareSkillOffers(run);
         if (run.card) run.card.log.push(`升级！Lv${run.level}（选择新技能）`);
       }

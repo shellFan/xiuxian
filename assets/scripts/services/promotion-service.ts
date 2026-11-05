@@ -47,6 +47,7 @@ export function clampProbability(value: number): number {
 export class PromotionService {
   private readonly random: RandomProvider;
   private readonly rewardProvider: RewardProvider;
+  /** V5.9-O.2 §34：重试门禁持久化（修复 O.1：旧实现仅存内存，重启可绕过广告重试）。 */
   private retryRequired = false;
   private retryAvailable = false;
   private retryRequested = false;
@@ -57,6 +58,16 @@ export class PromotionService {
   ) {
     this.random = options.randomProvider ?? DEFAULT_RANDOM_PROVIDER;
     this.rewardProvider = options.rewardProvider ?? new MockRewardProvider();
+    // 从存档恢复门禁状态（旧档缺省 = 无未完成门禁，安全默认）。
+    this.retryRequired = context.player.promotionRetryRequired === true;
+    this.retryAvailable = context.player.promotionRetryAvailable === true;
+  }
+
+  /** 门禁状态落盘（随玩家数据持久化；retryRequested 是在飞标记，不持久化）。 */
+  private persistRetryGate(): void {
+    const player = this.context.player;
+    player.promotionRetryRequired = this.retryRequired;
+    player.promotionRetryAvailable = this.retryAvailable;
   }
 
   public getOptions(): readonly { readonly id: string; readonly name: string; readonly description: string }[] {
@@ -133,6 +144,7 @@ export class PromotionService {
         this.context.player.promotionFailCount = 0;
         // A successful breakthrough clears the retry requirement entirely.
         this.retryRequired = false;
+        this.persistRetryGate();
         beforeCommit?.();
         this.context.dailyTasks.addProgress('PROMOTION_1', 1);
         // The ONLY persistence write for the whole promotion transaction.
@@ -142,13 +154,15 @@ export class PromotionService {
         this.context.player.promotionFailCount += 1;
         // A failure re-arms the retry requirement; a new token is needed for another attempt.
         this.retryRequired = true;
+        this.persistRetryGate();
         this.context.saveService.save(this.context.player);
       }
     } catch (error) {
       restorePlayer(this.context.player, before);
       // Roll back session retry state alongside the player data so the transaction is atomic.
-      this.retryRequired = retryBefore.retryRequired;
-      this.retryAvailable = retryBefore.retryAvailable;
+      // V5.9-O.2 §34：以回滚后的玩家快照重同步持久化门禁。
+      this.retryRequired = this.context.player.promotionRetryRequired === true;
+      this.retryAvailable = this.context.player.promotionRetryAvailable === true;
       this.retryRequested = retryBefore.retryRequested;
       throw error;
     }
@@ -189,7 +203,12 @@ export class PromotionService {
       settled = true;
       this.retryRequested = false;
       const granted = isRewardGranted(result);
-      if (granted) this.retryAvailable = true;
+      if (granted) {
+        this.retryAvailable = true;
+        // V5.9-O.2 §34：授予的 token 持久化（重启后仍可重试，且仅一次）。
+        this.persistRetryGate();
+        try { this.context.saveService.save(this.context.player); } catch { /* 存档失败不重复回调 */ }
+      }
       onResult(granted);
     });
   }
@@ -250,4 +269,7 @@ function restorePlayer(player: GameContext['player'], data: GameSaveData): void 
   player.dailyTasks = (data.dailyTasks ?? []).map((task) => ({ ...task }));
   player.dailyTaskDay = data.dailyTaskDay ?? -1;
   player.activeTasks = (data.activeTasks ?? []).map((t) => ({ ...t }));
+  // V5.9-O.2 §34：晋升重试门禁随快照回滚（save 失败不得吞掉已观看的广告 token）。
+  player.promotionRetryRequired = data.promotionRetryRequired === true;
+  player.promotionRetryAvailable = data.promotionRetryAvailable === true;
 }

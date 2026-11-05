@@ -137,8 +137,11 @@ export class DailyService {
   }
 
   private dayBoundaries(timestamp: number): { dayStart: number; graceEnd: number } {
-    const msPerDay = 86_400_000;
-    const dayStart = Math.floor(timestamp / msPerDay) * msPerDay;
+    // V5.9-O.2 §35 时区修复：签到日界必须用本地零点（与 v2-clock 的工作日窗口一致）。
+    // 旧实现按 UTC 日切分，在 UTC+8 下本地 08:00 才翻日，签到/补签窗口整体偏移 8 小时。
+    const d = new Date(timestamp);
+    d.setHours(0, 0, 0, 0);
+    const dayStart = d.getTime();
     const graceEnd = dayStart + this.config.graceHours * 3_600_000;
     return { dayStart, graceEnd };
   }

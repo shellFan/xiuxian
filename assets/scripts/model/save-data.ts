@@ -274,6 +274,8 @@ export interface GameSaveData {
   readonly fishingSeconds: number;
   readonly kpiProgress: Readonly<Record<string, number>>;
   readonly promotionFailCount: number;
+  readonly promotionRetryRequired?: boolean;
+  readonly promotionRetryAvailable?: boolean;
   readonly officeLevel: number;
   readonly lastIdleSettlementId: string | null;
   readonly wageMultiplier?: number;

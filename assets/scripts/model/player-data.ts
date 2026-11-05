@@ -20,6 +20,8 @@ export interface PlayerDataOptions {
   readonly fishingSeconds?: number;
   readonly kpiProgress?: Readonly<Record<string, number>>;
   readonly promotionFailCount?: number;
+  readonly promotionRetryRequired?: boolean;
+  readonly promotionRetryAvailable?: boolean;
   readonly officeLevel?: number;
   readonly lastIdleSettlementId?: string | null;
   readonly wageMultiplier?: number;
@@ -166,6 +168,9 @@ export class PlayerData {
   public fishingSeconds: number;
   public kpiProgress: Record<string, number>;
   public promotionFailCount: number;
+  // V5.9-O.2 §34：晋升重试门禁（持久化，防重启绕过）
+  public promotionRetryRequired: boolean;
+  public promotionRetryAvailable: boolean;
   /**
    * @deprecated Persisted compatibility mirror only. The office level is a pure function of
    * `careerLevel` (see OfficeService); no business logic must read this field. It is kept in
@@ -312,6 +317,8 @@ export class PlayerData {
     this.fishingSeconds = options.fishingSeconds ?? 0;
     this.kpiProgress = { ...(options.kpiProgress ?? {}) };
     this.promotionFailCount = options.promotionFailCount ?? 0;
+    this.promotionRetryRequired = options.promotionRetryRequired === true;
+    this.promotionRetryAvailable = options.promotionRetryAvailable === true;
     this.officeLevel = options.officeLevel ?? 1;
     this.lastIdleSettlementId = options.lastIdleSettlementId ?? null;
     this.wageMultiplier = sanitizeWageMultiplier(options.wageMultiplier);
@@ -455,7 +462,7 @@ export class PlayerData {
       cultivationExp: this.cultivationExp, careerLevel: this.careerLevel, mind: this.mind, maxMind: this.maxMind,
       performance: this.performance, sectId: this.sectId, lastSectSwitchTime: this.lastSectSwitchTime, talentId: this.talentId, workMode: this.workMode,
       workSeconds: this.workSeconds, fishingSeconds: this.fishingSeconds, kpiProgress: { ...this.kpiProgress },
-      promotionFailCount: this.promotionFailCount, officeLevel: this.officeLevel, lastIdleSettlementId: this.lastIdleSettlementId,
+      promotionFailCount: this.promotionFailCount, promotionRetryRequired: this.promotionRetryRequired, promotionRetryAvailable: this.promotionRetryAvailable, officeLevel: this.officeLevel, lastIdleSettlementId: this.lastIdleSettlementId,
       unlockedAchievementIds: [...this.unlockedAchievementIds],
       claimedAchievementIds: [...this.claimedAchievementIds],
       dailySignIn: this.dailySignIn ? { ...this.dailySignIn } : null,

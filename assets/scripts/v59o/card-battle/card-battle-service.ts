@@ -269,6 +269,9 @@ export class CardBattleService {
           self.context.player.lifetimeStats = { ...stats, battleInterrupts: (stats.battleInterrupts ?? 0) + 1 };
         } catch { /* 统计失败不阻塞战斗 */ }
       },
+      specialtyMultiplier: (defId: string) => {
+        try { return self.context.profession?.specialtyMultiplier(defId) ?? 1; } catch { return 1; }
+      },
     };
     return env;
   }
@@ -375,8 +378,8 @@ export class CardBattleService {
           state.log.push(`⚠️ ${mechDef.telegraph}`);
         }
       }
-      // 蓄力重击节奏：每 3 回合一次 1.6 倍重击，其余普攻。
-      if (turn % 3 === 0) return { kind: 'ATTACK', damage: Math.floor(enemy.attack * 1.6), hits: 1 };
+      // 蓄力重击节奏：每 4 回合一次 1.6 倍重击，其余普攻（回合化压力校准）。
+      if (turn % 4 === 0) return { kind: 'ATTACK', damage: Math.floor(enemy.attack * 1.6), hits: 1 };
       return { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
     }
     if (enemy.tier === 'ELITE') {

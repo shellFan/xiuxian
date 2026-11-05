@@ -71,7 +71,9 @@ const tests: Array<[string, () => void]> = [
     context.battle.playBattleCard(uid, view.enemies[0]!.uid, 'atk1');
     const live = context.battle.battleCardView()!;
     const dealt = enemyHpBefore - live.enemies[0]!.hp;
-    assert.equal(dealt, Math.floor(attack * 1.0), `expected ${Math.floor(attack * 1.0)}, got ${dealt}`);
+    // 专克乘数（旧语义移植）：本职业怪物 +20%。
+    const spec = context.profession ? context.profession.specialtyMultiplier(view.enemies[0]!.defId) : 1;
+    assert.equal(dealt, Math.floor(attack * 1.0 * (spec ?? 1)), `expected ${Math.floor(attack * 1.0 * (spec ?? 1))}, got ${dealt}`);
     assert.ok(live.log.some((l) => l.includes('打出【打磨提交】')), 'play feedback logged');
     context.battle.abandon();
   }],

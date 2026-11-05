@@ -269,6 +269,8 @@ export interface CardEngineEnv {
   readonly onPlayerDodge?: (state: CardBattleState) => void;
   /** 玩家打断钩子（INTANGIBLE 无效化敌人攻击时；lifetimeStats.battleInterrupts 计数）。 */
   readonly onPlayerInterrupt?: (state: CardBattleState) => void;
+  /** 职业专克乘数（+20% vs 本职业怪物；旧 battle-service.specialtyMultiplier 的卡牌化）。 */
+  readonly specialtyMultiplier?: (defId: string) => number;
 }
 
 // ── 错误 ─────────────────────────────────────────────────────────────────────
