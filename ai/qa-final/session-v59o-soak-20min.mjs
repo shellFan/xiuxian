@@ -115,7 +115,9 @@ async function main() {
   const started = Date.now();
   const deadline = started + DURATION_MS;
 
-  const { child, cdp } = await launchExe({ logFile: path.join(EV, 'v59o-soak-boot.log') });
+  const boot = await launchExe({ logFile: path.join(EV, 'v59o-soak-boot.log') });
+  const { child } = boot;
+  const cdp = await Cdp.connect();
   let cdpAlive = true;
   cdp.ws.onclose = () => { cdpAlive = false; };
   cdp._onmsgOriginal = null;

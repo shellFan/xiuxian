@@ -205,13 +205,31 @@ async function main() {
 
     // ── 循环打到战斗结束（DOM 驱动，胜利/失败都算到达终局）──
     let outcome = null;
+    for (let attempt = 0; attempt < 3 && (!outcome || outcome.status === "DEFEAT"); attempt += 1) {
+      if (attempt > 0) {
+        await domEval(cdp, `(function(){ try { var f = window.__GAME_FACADE__; f.clearFinishedBattle(); var opts = f.queryBattleBuildOptions(); f.startBattleRun('PROJECT', opts[0].id); return true; } catch(e){ return String(e); } })()`);
+        await sleep(1200);
+        log('battle attempt', attempt + 1);
+      }
     for (let i = 0; i < 600; i += 1) {
       const state = await domEval(cdp, `(function(){ try {
         var f = window.__GAME_FACADE__;
         var finished = f.queryFinishedBattle();
         if (finished) return { done: true, status: finished.status };
         var run = f.queryBattle();
-        if (run && run.skillOffers) { f.chooseBattleSkill(run.skillOffers[0]); return { step: 'skill' }; }
+        if (run && run.skillOffers) {
+          var pickOffer = run.skillOffers[0];
+          var defs = f.queryBattleSkillDefs ? f.queryBattleSkillDefs() : [];
+          var defMap = {};
+          for (var d = 0; d < defs.length; d++) defMap[defs[d].id] = defs[d];
+          for (var o = 0; o < run.skillOffers.length; o++) {
+            var sid = run.skillOffers[o];
+            var sd = defMap[sid];
+            if (sd && (sd.damageMul || 0) > 0) { pickOffer = sid; break; }
+          }
+          f.chooseBattleSkill(pickOffer);
+          return { step: 'skill', pick: pickOffer };
+        }
         var offerBtn = document.querySelector("[data-battle-skill]");
         if (offerBtn) { offerBtn.click(); return { step: "offer-dom" }; }
         var c = f.queryBattleCard();
@@ -220,12 +238,25 @@ async function main() {
         if (c.phase !== 'PLAYER_TURN') return { step: 'wait', phase: c.phase };
         var usable = document.querySelectorAll(".ux-bc-card.is-usable");
         var picked = null;
-        for (var k = 0; k < usable.length; k++) { if (usable[k].className.indexOf("is-attack") >= 0) { picked = usable[k]; break; } }
+        var lowHp = c.player.hp / Math.max(1, c.player.maxHp) < 0.55;
+        var incoming = 0;
+        var intents = document.querySelectorAll(".ux-bc-intent.is-hostile");
+        for (var q = 0; q < intents.length; q++) {
+          var m = intents[q].textContent.match(/(\d+)/);
+          if (m) incoming += parseInt(m[1], 10);
+        }
+        if (incoming >= 12 && c.player.block < incoming) lowHp = true;
+        if (lowHp) {
+          for (var k = 0; k < usable.length; k++) { if (usable[k].className.indexOf("is-defense") >= 0) { picked = usable[k]; break; } }
+        }
+        if (!picked) { for (var k2 = 0; k2 < usable.length; k2++) { if (usable[k2].className.indexOf("is-attack") >= 0) { picked = usable[k2]; break; } } }
         if (!picked) picked = usable[0];
         if (picked) {
           picked.click();
           if (window.__BATTLE_CARD__.isSelecting()) {
-            var en = document.querySelector(".ux-bt-enemy[data-enemy-uid]");
+            var alive = c.enemies.filter(function (e) { return e.hp > 0; }).sort(function (a, b) { return a.hp - b.hp; });
+            var targetUid = alive.length ? alive[0].uid : null;
+            var en = targetUid ? document.querySelector('.ux-bt-enemy[data-enemy-uid="' + targetUid + '"]') : document.querySelector(".ux-bt-enemy[data-enemy-uid]");
             if (en) en.click();
           }
           return { step: 'play' };
@@ -238,12 +269,21 @@ async function main() {
       if (state.done) { outcome = state; break; }
       await sleep(300);
     }
+    }
     log('battle outcome:', JSON.stringify(outcome));
     ok('battle reaches terminal state', outcome && (outcome.status === 'VICTORY' || outcome.status === 'DEFEAT'));
 
     if (outcome && outcome.status === 'VICTORY') {
       await shoot(cdp, 'v59o-reward.png');
       // ── 奖励选择（真实 DOM 点击）──
+      let rewardPickSeen = false;
+      for (let w = 0; w < 24; w += 1) {
+        rewardPickSeen = await domEval(cdp, `!!document.querySelector("[data-action=\"battleRewardPick\"]")`);
+        if (rewardPickSeen) break;
+        await sleep(500);
+      }
+      log("reward modal seen:", rewardPickSeen);
+      ok("reward modal rendered by overlay", rewardPickSeen);
       const reward = await domEval(cdp, `(function(){ try {
         var picks = document.querySelectorAll('[data-action="battleRewardPick"]');
         if (!picks.length) return { ok:false, error:'no reward options' };

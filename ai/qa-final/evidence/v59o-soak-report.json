@@ -1,0 +1,218 @@
+{
+  "actions": 2346,
+  "consoleErrors": 0,
+  "pageErrors": 0,
+  "crashed": false,
+  "samples": [
+    {
+      "t": 69,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 129,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 190,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 250,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 310,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 371,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 431,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 492,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 552,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 613,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 673,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 733,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 794,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 854,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 915,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 975,
+      "mem": {},
+      "state": {
+        "day": 0,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 1035,
+      "mem": {},
+      "state": {
+        "day": 1,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 1096,
+      "mem": {},
+      "state": {
+        "day": 1,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    },
+    {
+      "t": 1156,
+      "mem": {},
+      "state": {
+        "day": 1,
+        "level": 1,
+        "battle": null,
+        "stones": 0
+      }
+    }
+  ],
+  "restartChecks": {
+    "pre": {
+      "day": 1,
+      "level": 1,
+      "stones": 0,
+      "collection": {}
+    },
+    "saveBytes": 0,
+    "gracefulClose": true,
+    "post": {
+      "day": 1,
+      "level": 1,
+      "stones": 0,
+      "collection": {}
+    },
+    "consistent": true
+  },
+  "wallClockSeconds": 1212,
+  "realSaveUntouched": true,
+  "physicalInput": "NOT_VERIFIED"
+}
