@@ -26,8 +26,8 @@ import { fishBuildId } from '../v57/profession-content-service';
 import { characterEffectMultiplier } from '../v59/character-attributes';
 import { CardBattleService } from '../v59o/card-battle/card-battle-service';
 import { isCardBattleState } from '../v59o/card-battle/card-engine';
+import { CardRng } from '../v59o/card-battle/card-rng';
 import type { CardBattleState, CardEnemy as CardEnemyRuntime, CardRngState } from '../v59o/card-battle/card-types';
-import type { CardRng } from '../v59o/card-battle/card-rng';
 
 // ── 运行时状态 ───────────────────────────────────────────────────────────────
 
@@ -413,6 +413,26 @@ export class BattleService {
     const run = this.storedRun();
     if (!run || run.mode !== 'CARD' || !isCardBattleState(run.card)) return null;
     return run.card;
+  }
+
+  /** 内容表诊断（EXE 环境自检：合并层是否完整加载）。 */
+  public contentStats(): { monsters: number; waves: number; skills: number; builds: number; spawnDebug: unknown } {
+    const spawnDebug: unknown = (() => {
+      try {
+        const wave = WAVES[0];
+        const candidates = Array.from(MONSTER_MAP.values()).filter((m) => m.tier === (wave ? wave.tiers[0] : '?'));
+        const fakeRun = { night: false, runId: 'debug', dayIndex: 1 } as unknown as BattleRunState;
+        const rng = new CardRng(7);
+        const spawned = this.cards.debugSpawnWave(fakeRun, 0, rng);
+        const sample = Array.from(MONSTER_MAP.values())[0];
+        const mapProbe = { getWorks: !!MONSTER_MAP.get("mon_null_pointer"), firstIsPair: Array.isArray(sample), globalMapOk: (function(){ try { var m = new Map([["k", "v"]]); return m.get("k") === "v" && m.size === 1; } catch (e) { return "ERR"; } })(), sizeProp: MONSTER_MAP.size };
+        const tierValues = Array.from(new Set(Array.from(MONSTER_MAP.values()).map((m) => String(m.tier))));
+        return { wave0: wave, candidates: candidates.length, spawned: spawned.length, names: spawned.map((e) => e.defId).slice(0, 3), sampleMonster: JSON.stringify(sample).slice(0, 260), tierValues, mapProbe };
+      } catch (e) {
+        return { error: String((e as Error).message ?? e) };
+      }
+    })();
+    return { monsters: MONSTER_MAP.size, waves: WAVES.length, skills: SKILL_MAP.size, builds: BUILD_MAP.size, spawnDebug };
   }
 
   /** V5.9-O.2 §27：升级卡牌（消耗灵石，幂等由等级校验保证）。返回新等级。 */

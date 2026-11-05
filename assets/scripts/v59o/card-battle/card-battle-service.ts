@@ -34,6 +34,7 @@ import { CardRng } from './card-rng';
 import {
   allCardDefs,
   battleRules,
+  databaseDebug,
   buildDeckManifest,
   cardDefById,
   emptyCollection,
@@ -300,6 +301,11 @@ export class CardBattleService {
   }
 
   /** 波次生成（镜像 v3/battle-service.spawnWave：职业怪池门控 + 夜间加成 + 双尊 + 复盘 Boss）。 */
+  /** 诊断入口：直接跑一次波次生成（EXE 环境自检）。 */
+  public debugSpawnWave(run: BattleRunState, waveIndex: number, rng: CardRng): CardEnemy[] {
+    return this.spawnWave(run, waveIndex, rng);
+  }
+
   private spawnWave(run: BattleRunState, waveIndex: number, rng: CardRng): CardEnemy[] {
     const wave = WAVES[waveIndex];
     if (!wave) return [];
@@ -316,7 +322,7 @@ export class CardBattleService {
     const enemies: CardEnemy[] = [];
     for (let i = 0; i < wave.count; i += 1) {
       const tier = wave.tiers[Math.min(i, wave.tiers.length - 1)];
-      let candidates = [...MONSTER_MAP.values()].filter((m) => m.tier === tier);
+      let candidates = Array.from(MONSTER_MAP.values()).filter((m) => m.tier === tier);
       if (tier === 'BOSS') {
         const profBosses = candidates.filter((m) => professionPool.includes(m.id));
         const nonProfBosses = candidates.filter((m) => !professionPool.includes(m.id));
@@ -592,7 +598,12 @@ export class CardBattleService {
 
   /** 全卡牌图鉴（卡组页展示）。 */
   public catalog(): readonly CardDef[] {
-    return allCardDefs().filter((d) => !d.id.startsWith('card_fate_') || d.type === 'FATE');
+    return allCardDefs().filter((d) => !!d && typeof d.id === 'string' && (!d.id.startsWith('card_fate_') || d.type === 'FATE'));
+  }
+
+  /** 数据库诊断透出（EXE 环境自检）。 */
+  public databaseDebug(): ReturnType<typeof import('./card-database').databaseDebug> {
+    return databaseDebug();
   }
 
   /**

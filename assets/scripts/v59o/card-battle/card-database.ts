@@ -175,8 +175,32 @@ export function cardDefById(defId: string): CardDef | undefined {
   return CARD_MAP.get(defId);
 }
 
+/** 数据库诊断（EXE 环境自检：加载条目数与异常键）。 */
+export function databaseDebug(): {
+  size: number; sampleKeys: unknown[]; badIdKeys: string[]; rules: ReturnType<typeof battleRules>;
+  firstKeyString: string; firstKeyCtor: string; firstDef: string; cardsIsArray: boolean; cardsLen: number;
+} {
+  const badIdKeys: string[] = [];
+  for (const [key, def] of CARD_MAP) {
+    if (!def || typeof def.id !== 'string') badIdKeys.push(String(key));
+  }
+  const firstKey = CARD_MAP.keys().next().value;
+  const firstDef = firstKey !== undefined ? CARD_MAP.get(firstKey) : undefined;
+  return {
+    size: CARD_MAP.size,
+    sampleKeys: Array.from(CARD_MAP.keys()).slice(0, 5),
+    badIdKeys: badIdKeys.slice(0, 5),
+    rules: battleRules(),
+    firstKeyString: String(firstKey).slice(0, 40),
+    firstKeyCtor: firstKey !== null && firstKey !== undefined ? ((firstKey as unknown as { constructor?: { name?: string } }).constructor?.name ?? 'null-proto') : 'none',
+    firstDef: JSON.stringify(firstDef ?? null).slice(0, 100),
+    cardsIsArray: Array.isArray((cardConfig as unknown as { cards?: unknown }).cards),
+    cardsLen: Array.isArray((cardConfig as unknown as { cards?: unknown[] }).cards) ? (cardConfig as unknown as { cards: unknown[] }).cards.length : -1,
+  };
+}
+
 export function allCardDefs(): readonly CardDef[] {
-  return [...CARD_MAP.values()];
+  return Array.from(CARD_MAP.values());
 }
 
 /** 实例 → 当前等级定义（升级实例解析到对应 _upN 定义）。 */
@@ -247,7 +271,7 @@ export function emptyCollection(): Record<string, number> {
 
 /** 可作为奖励的卡池（职业过滤 + 可奖励标记）。 */
 export function rewardPool(professionId: string, sectId: string | null): CardDef[] {
-  return [...CARD_MAP.values()].filter((def) => {
+  return Array.from(CARD_MAP.values()).filter((def) => {
     if (!def.rewardable) return false;
     if (def.profession && def.profession !== professionId) return false;
     if (def.sect && def.sect !== sectId) return false;

@@ -611,6 +611,12 @@ export class GameFacade {
 
   /** 卡牌战斗完整视图（手牌/牌堆/能量/敌人意图/状态/奖励）。 */
   public queryBattleCard() { return this.context.battle.battleCardView(); }
+  /** 内容表诊断（EXE 环境自检）。 */
+  public queryContentStats() { return this.context.battle.contentStats(); }
+  /** 卡牌数据库诊断。 */
+  public queryDatabaseDebug() {
+    return (this.context.battle as unknown as { cards: { databaseDebug(): unknown } }).cards.databaseDebug();
+  }
   /** 打出一张手牌（targetUid 仅 ENEMY 目标需要；actionId 用于幂等去重）。 */
   public playBattleCard(cardUid: string, targetUid: string | null, actionId?: string) {
     return this.context.battle.playBattleCard(cardUid, targetUid ?? null, actionId);

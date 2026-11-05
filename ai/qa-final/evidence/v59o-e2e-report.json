@@ -1,0 +1,93 @@
+{
+  "checks": [
+    {
+      "name": "save path isolated under XIUXIAN_USER_DATA",
+      "pass": true
+    },
+    {
+      "name": "character creation finalized",
+      "pass": true
+    },
+    {
+      "name": "card battle started (mode CARD)",
+      "pass": true
+    },
+    {
+      "name": "five hand cards rendered",
+      "pass": true
+    },
+    {
+      "name": "three energy orbs on",
+      "pass": true
+    },
+    {
+      "name": "end turn button present",
+      "pass": true
+    },
+    {
+      "name": "enemy intents visible",
+      "pass": true
+    },
+    {
+      "name": "card click accepted",
+      "pass": true
+    },
+    {
+      "name": "target selection plays the card",
+      "pass": true
+    },
+    {
+      "name": "energy deducted by play",
+      "pass": true
+    },
+    {
+      "name": "turn advanced after end turn",
+      "pass": true
+    },
+    {
+      "name": "enemy acted (log evidence)",
+      "pass": true
+    },
+    {
+      "name": "battle reaches terminal state",
+      "pass": true
+    },
+    {
+      "name": "save file written in isolated dir",
+      "pass": true
+    },
+    {
+      "name": "collection restored after restart",
+      "pass": true
+    },
+    {
+      "name": "career level restored",
+      "pass": true
+    },
+    {
+      "name": "deck view includes collection",
+      "pass": true
+    },
+    {
+      "name": "real player save untouched",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "artifact": {
+    "exeSha": "e10410e805c536b470d4d6938d14d7cf343ac7303da01f97b261ead82aa91cd1",
+    "asarSha": "a7867fcc3bf88ed49b7769284bc33eee60533ca40f0f2ffa102898c1540cc659"
+  },
+  "storagePath": "unknown",
+  "v59o-battle-start.png": "D:\\git\\fan\\xiuxian-gv2\\ai\\qa-final\\shots\\v59o-battle-start.png",
+  "savedPaths": [
+    "C:\\Users\\fan\\AppData\\Local\\Temp\\v59o-e2e-userdata-yaKZVD\\xiuxian-save\\save.json"
+  ],
+  "preRestart": {
+    "collection": {},
+    "careerLevel": 1,
+    "upgrades": {}
+  },
+  "v59o-before-restart.png": "D:\\git\\fan\\xiuxian-gv2\\ai\\qa-final\\shots\\v59o-before-restart.png",
+  "v59o-after-restart.png": "D:\\git\\fan\\xiuxian-gv2\\ai\\qa-final\\shots\\v59o-after-restart.png"
+}
