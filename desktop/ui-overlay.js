@@ -1516,6 +1516,10 @@
     var f = facade();
     var run = f && typeof f.queryBattle === 'function' ? (function () { try { return f.queryBattle(); } catch (e) { return null; } })() : null;
     if (!run) return '';
+    // V5.9-O.2：卡牌战斗权威状态（手牌/能量/意图/状态）
+    var BC = window.__BATTLE_CARD__ || null;
+    var card = BC && f && typeof f.queryBattleCard === 'function'
+      ? (function () { try { return f.queryBattleCard(); } catch (e) { return null; } })() : null;
     var profDef = f && typeof f.queryProfessionDef === 'function' ? (function () { try { return f.queryProfessionDef(); } catch (e) { return null; } })() : null;
     var profName = profDef ? profDef.name + ' · ' + profDef.title : '未觉醒';
     // V5.7：Build / 道法共鸣 / 进化标识（§114）
@@ -1544,7 +1548,8 @@
         '<div class="ux-bt-player-level">Lv.' + run.level + '<small>' + run.exp + '/' + run.expNext + ' exp</small></div>' +
         '<div class="ux-bt-hpbar"><i style="width:' + hpPct + '%"></i><span>' + Math.round(run.playerHp) + '/' + run.playerMaxHp + '</span></div>' +
         (run.shield > 0 ? '<div class="ux-bt-shield">🛡 护盾 ' + run.shield + '</div>' : '') +
-        '<div class="ux-bt-stats">攻 ' + run.attack + ' · 攻速 ' + Number(run.intervalSec).toFixed(1) + 's · 暴击 ' + Math.round(run.critChance * 100) + '%</div>' +
+        '<div class="ux-bt-stats">攻 ' + run.attack + ' · 暴击 ' + Math.round((card ? card.player.critChance : run.critChance) * 100) + '%</div>' +
+        (BC ? BC.playerStatusHtml(card) : '') +
       '</div>';
 
     // 中栏：敌人卡 + 飘字容器
@@ -1559,11 +1564,15 @@
         for (var mk in e.telegraphed) { if (e.telegraphed[mk] && MECH_CN[mk]) incoming.push(MECH_CN[mk]); }
       }
       var intentHtml = incoming.length ? '<span class="ux-bt-intent">⚠ 即将 ' + escHtml(incoming.join('/')) + '</span>' : '';
-      return '<div class="ux-bt-enemy' + bossCls + (e.phase2Active ? ' is-phase2' : '') + '" data-enemy-uid="' + escHtml(e.uid) + '">' +
+      // V5.9-O.2：卡牌敌人意图（攻击数值/防御/召唤/机制），玩家回合前可见
+      var cardIntent = BC && card ? BC.intentHtml(card, e.uid) : '';
+      var targetable = BC && BC.isSelecting && BC.isSelecting() ? ' is-targetable' : '';
+      return '<div class="ux-bt-enemy' + bossCls + (e.phase2Active ? ' is-phase2' : '') + targetable + '" data-enemy-uid="' + escHtml(e.uid) + '">' +
         '<span class="ux-bt-enemy-face">' + (e.tier === 'BOSS' ? '👹' : e.tier === 'ELITE' ? '👺' : '🐛') + '</span>' +
         '<span class="ux-bt-enemy-name">' + escHtml(e.name) + (e.phase2Active ? '<b class="ux-bt-p2">P2 危</b>' : '') + (bossCls ? ' ⚠' : '') + escHtml(mech) + '</span>' +
         '<span class="ux-bt-enemy-hp"><i style="width:' + pct + '%"></i><em>' + Math.round(e.hp) + '/' + e.maxHp + '</em></span>' +
         intentHtml +
+        cardIntent +
         '<span class="ux-float-layer"></span>' +
       '</div>';
     }).join('') || '<div class="ux-bt-clearing">这一波清空了，下一波马上来……</div>';
@@ -1586,11 +1595,16 @@
         '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="abandonBattle">放弃项目</button>' +
       '</div>';
 
-    // 底部：日志 + 技能快捷（CD 由 UI 层每秒刷新）
+    // 底部：日志 + 卡牌手牌区（V5.9-O.2）/ 旧技能快捷兜底
     var logLines = (run.log || []).slice(-30).map(function (l) { return '<div class="ux-bt-logline">' + escHtml(l) + '</div>'; }).join('');
+    var cardPanel = BC ? BC.battlePanelHtml(card) : '';
     var skillBtns = (run.skills || []).slice(0, 4).map(function (id) {
       return '<button class="ux-bt-skill" data-action="battleSkill" data-skill="' + escHtml(id) + '">' + escHtml(battleSkillCn(id)) + '</button>';
     }).join('');
+    var skillRow = cardPanel
+      ? cardPanel
+      : '<div class="ux-bt-skills">' + (skillBtns || '<span class="ux-bt-skill-hint">战斗技能在升级三选一中解锁</span>') + '</div>';
+    var tutorial = BC && card ? BC.tutorialHtml() : '';
 
     return '<section class="ux-battle2">' +
       '<div class="ux-battle2-grid">' +
@@ -1600,8 +1614,9 @@
       '</div>' +
       '<div class="ux-battle2-bottom">' +
         '<div class="ux-bt-buildrow"><span class="ux-bt-build">Build·' + escHtml(buildName) + '</span>' + synChips + evoChips + '</div>' +
-        '<div class="ux-bt-skills">' + (skillBtns || '<span class="ux-bt-skill-hint">战斗技能在升级三选一中解锁</span>') + '</div>' +
+        skillRow +
         '<div class="ux-bt-log" id="BattleLog">' + logLines + '</div>' +
+        tutorial +
       '</div>' +
     '</section>';
   }
@@ -1647,6 +1662,27 @@
     // 结算弹窗（胜利/败北）
     var done = null;
     try { done = f.queryFinishedBattle(); } catch (e) { done = null; }
+    // V5.9-O.2：胜利卡牌奖励选择优先于结算弹窗
+    var BC = window.__BATTLE_CARD__ || null;
+    if (BC && done && !popupOpen()) {
+      var rewardCard = (function () { try { return f.queryBattleCard(); } catch (e) { return null; } })();
+      var rewardHtml = BC.rewardModalHtml(rewardCard);
+      if (rewardHtml) {
+        var rewardLayer = popupLayer();
+        if (rewardLayer) {
+          rewardLayer.innerHTML = '<div class="ux-modal-layer">' + rewardHtml + '</div>';
+          $$('.ux-bc-card[data-action="battleRewardPick"]', rewardLayer).forEach(function (b) {
+            b.addEventListener('click', function () {
+              BC.handleRewardPick(b.getAttribute('data-card'));
+              closePopup();
+            });
+          });
+          var skipBtn = $('.ux-bc-reward [data-action="battleRewardSkip"]', rewardLayer);
+          if (skipBtn) skipBtn.addEventListener('click', function () { BC.handleRewardSkip(); closePopup(); });
+        }
+        return;
+      }
+    }
     if (done && !popupOpen() && _battleResultShown !== done.runId) {
       _battleResultShown = done.runId;
       renderProjectOutcome(done);
@@ -2245,10 +2281,15 @@
     if (!run) {
       html += '<div class="ux-card ux-project-intro">' +
         '<div class="ux-task-name">⚔️ 项目攻坚</div>' +
-        '<div class="ux-recipe-desc">以 Build 迎战五波推进：普通 → 精英 → Boss。Boss 胜利自动完成当前待办，掉落材料与法宝。</div>' +
-        '<div class="ux-recipe-desc">夜班（22:00 后）掉落加成，代价是第二天更难起床。</div>' +
+        '<div class="ux-recipe-desc">回合制卡牌战斗：每回合 3 点能量，从 5 张手牌中出牌进攻或防御，看清敌人意图再结束回合。五波推进：普通 → 精英 → Boss。</div>' +
+        '<div class="ux-recipe-desc">Boss 胜利自动完成当前待办，掉落材料与法宝；胜利后可选择一张新卡加入卡组。</div>' +
         '<div class="ux-dialog-actions"><button class="ux-btn ux-btn--gold ux-btn--md" data-action="projectEntry">选择 Build 进入项目</button></div>' +
       '</div>';
+      // V5.9-O.2 §28：卡组页（卡牌总数/类型/升级/构筑）
+      var BC = window.__BATTLE_CARD__ || null;
+      if (BC && typeof BC.deckPageHtml === 'function') {
+        try { html += BC.deckPageHtml(); } catch (eDeck) { /* 卡组渲染失败不阻塞页面 */ }
+      }
     }
     html += '</div>';
     /* V5.7：项目历史 + 战绩（§58/§62） */
@@ -3509,8 +3550,14 @@
     if (!overlay) return;
 
     overlay.onclick = function (e) {
-      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab],[data-codex-tab],[data-creation-action],[data-creation-choice]') : null;
+      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab],[data-codex-tab],[data-creation-action],[data-creation-choice],[data-enemy-uid]') : null;
       if (!el) return;
+
+      // V5.9-O.2：卡牌目标选择 —— 已选牌时点击敌人 = 施放
+      if (el.dataset.enemyUid && window.__BATTLE_CARD__ && window.__BATTLE_CARD__.isSelecting()) {
+        if (window.__BATTLE_CARD__.handleEnemyClick(el.dataset.enemyUid)) refresh();
+        return;
+      }
 
       if (el.dataset.creationChoice) {
         var choiceParts = el.dataset.creationChoice.split(':');
@@ -3807,6 +3854,33 @@
             fSkill.castBattleSkill(el.dataset.skill);
             refresh();
           } catch (eSkill) { toast(errMsg(eSkill), 'error'); }
+          break;
+        }
+        // ── V5.9-O.2 卡牌战斗动作 ──
+        case 'battlePlayCard': {
+          var fPlay = window.__BATTLE_CARD__;
+          if (fPlay) { fPlay.handlePlayCard(el.dataset.card); }
+          break;
+        }
+        case 'battleEndTurn': {
+          var fEnd = window.__BATTLE_CARD__;
+          if (fEnd) { fEnd.handleEndTurn(); }
+          break;
+        }
+        case 'battleUpgradeCard': {
+          var fUp = window.__BATTLE_CARD__;
+          if (fUp) {
+            fUp.handleUpgrade(el.dataset.card);
+            fullRefresh();
+          }
+          break;
+        }
+        case 'battleTutorialNext': {
+          if (window.__BATTLE_CARD__) window.__BATTLE_CARD__.handleTutorialNext();
+          break;
+        }
+        case 'battleTutorialSkip': {
+          if (window.__BATTLE_CARD__) window.__BATTLE_CARD__.handleTutorialSkip();
           break;
         }
         case 'professionAction': {
