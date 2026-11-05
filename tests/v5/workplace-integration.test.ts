@@ -85,12 +85,27 @@ function testIncidentMessageOpensDungeon(): void {
     assert.equal(run.source, 'INCIDENT', 'dungeon opens as an INCIDENT battle run');
     assert.equal(facade.queryPendingIncidentDungeon(), null, 'pending dungeon cleared after entering');
     assert.ok(run.enemies.length > 0, 'dungeon battle spawns enemies (regression for the transpile blocker)');
-    // 推进到战斗结束，奖励 exactly-once
-    for (let tick = 0; tick < 2_400 && !facade.queryFinishedBattle(); tick += 1) {
-      const active = facade.queryBattle();
-      if (active?.skillOffers) facade.chooseBattleSkill(active.skillOffers[0]);
-      facade.gameLoop.tick(1);
+    // V5.9-O.2：卡牌命令驱动到战斗结束，奖励 exactly-once
+    for (let step = 0; step < 800 && !facade.queryFinishedBattle(); step += 1) {
+      const run = facade.queryBattle();
+      if (run?.skillOffers) { facade.chooseBattleSkill(run.skillOffers[0]); continue; }
+      const card = facade.queryBattleCard();
+      if (!card || card.phase !== 'PLAYER_TURN') break;
+      const enemies = card.enemies.filter((e) => e.hp > 0).sort((a, b) => a.hp - b.hp);
+      const db = require('../../assets/scripts/v59o/card-battle/card-database') as typeof import('../../assets/scripts/v59o/card-battle/card-database');
+      const playable = card.hand.find((c) => {
+        const def = db.cardDefById(c.defId);
+        if (!def || def.unplayable) return false;
+        const cost = Math.max(0, def.cost - (card.player.statuses.COST_DOWN ?? 0) + c.turnCostDelta);
+        return cost <= card.player.energy && (def.target !== 'ENEMY' || enemies.length > 0);
+      });
       clock.advance(1_000);
+      if (playable) {
+        const def = db.cardDefById(playable.defId)!;
+        facade.playBattleCard(playable.uid, def.target === 'ENEMY' ? enemies[0]!.uid : null, 'inc_' + step);
+      } else {
+        facade.endBattleTurn('inc_end_' + step);
+      }
     }
     const finished = facade.queryFinishedBattle();
     assert.ok(finished, 'incident dungeon battle reaches a terminal state');

@@ -24,6 +24,10 @@ import {
 } from '../v57/battle-merge';
 import { fishBuildId } from '../v57/profession-content-service';
 import { characterEffectMultiplier } from '../v59/character-attributes';
+import { CardBattleService } from '../v59o/card-battle/card-battle-service';
+import { isCardBattleState } from '../v59o/card-battle/card-engine';
+import type { CardBattleState, CardEnemy as CardEnemyRuntime, CardRngState } from '../v59o/card-battle/card-types';
+import type { CardRng } from '../v59o/card-battle/card-rng';
 
 // ── 运行时状态 ───────────────────────────────────────────────────────────────
 
@@ -116,6 +120,10 @@ export interface BattleRunState {
   replayOf?: string | null;
   /** 复盘目标 Boss defId（终盘 Boss 波次强制出场；随存档持久化）。 */
   replayBossId?: string | null;
+  /** V5.9-O.2 战斗模式：CARD=回合制卡牌（唯一默认）；TICK=旧自动攻击（仅旧存档迁移判定用）。 */
+  mode?: 'CARD' | 'TICK';
+  /** V5.9-O.2 卡牌战斗权威状态（mode=CARD 时存在）。 */
+  card?: CardBattleState;
   /** 最近若干条战斗日志（伤害数字/事件），UI 展示用。 */
   log: string[];
 }
@@ -134,10 +142,32 @@ const SPIRIT_MAX = 9_999_999;
  */
 export class BattleService {
   private readonly rng: () => number;
+  /** V5.9-O.2 卡牌战斗桥接层。 */
+  private readonly cards: CardBattleService;
 
   public constructor(private readonly context: GameContext, rng?: () => number) {
     // 可注入种子化 rng（测试确定性）；运行时默认 Math.random。
     this.rng = rng ?? Math.random;
+    this.cards = new CardBattleService(context);
+    this.cards.seedSource = this.rng;
+    // 击杀钩子：经验/掉落/图鉴/升级三选一（卡牌战斗的成长回路）。
+    this.cards.handleEnemyKilled = (run, enemy, _state, _rng) => {
+      const def = MONSTER_MAP.get(enemy.defId);
+      const exp = def?.exp ?? 10;
+      run.exp += exp;
+      run.loot.expGained += exp;
+      run.kills += 1;
+      if (enemy.tier === 'BOSS') this.rollBossExclusiveDrop(run, enemy.defId);
+      this.rollLoot(run, enemy.tier);
+      this.context.codex.discoverMonster(enemy.defId);
+      while (run.exp >= run.expNext) {
+        run.exp -= run.expNext;
+        run.level += 1;
+        run.expNext = Math.floor(run.expNext * 1.5);
+        if (!run.skillOffers) this.prepareSkillOffers(run);
+        if (run.card) run.card.log.push(`升级！Lv${run.level}（选择新技能）`);
+      }
+    };
   }
 
   public current(): BattleRunState | null {
@@ -263,10 +293,133 @@ export class BattleService {
     }
     this.context.player.activeBattleRun = run;
     this.lastCastSecondsByRun.clear();
-    this.spawnWave(run, options.replayBossId);
+    // 共鸣先结算（攻击/暴击聚合读 run.synergies）。
     this.evaluateSynergies(run);
+    // V5.9-O.2：唯一默认战斗 = 回合制卡牌战斗（旧 tick 自动攻击已隔离）。
+    run.mode = 'CARD';
+    this.cards.ensureCollectionInitialized();
+    run.card = this.cards.beginRun(run);
+    this.mirrorCardToRun(run, run.card);
     this.context.events.emit('playerChanged', { reason: 'battleStarted', mode: this.context.player.workMode });
     return run;
+  }
+
+  /** 卡牌状态 → 旧 run 字段镜像（goal-director/home-service/UI 兼容只读消费）。 */
+  private mirrorCardToRun(run: BattleRunState, card: CardBattleState): void {
+    run.playerHp = Math.max(0, Math.round(card.player.hp));
+    run.playerMaxHp = Math.max(1, Math.round(card.player.maxHp));
+    run.shield = Math.max(0, Math.round(card.player.block));
+    run.wave = card.wave;
+    run.enemies = card.enemies.map((e) => ({
+      uid: e.uid,
+      defId: e.defId,
+      name: e.name,
+      tier: e.tier,
+      hp: Math.max(0, Math.round(e.hp)),
+      maxHp: Math.max(1, Math.round(e.maxHp)),
+      attack: Math.max(1, Math.round(e.attack)),
+      intervalSec: 1,
+      attackTimer: 0,
+      mechanic: undefined,
+      timers: {},
+      telegraphed: {},
+      revived: e.revived ?? 0,
+      enraged: e.enraged,
+      phase2Active: e.phase2Active,
+      linkGroup: e.linkGroup,
+    }));
+    run.log = card.log.slice(-MAX_LOG);
+  }
+
+  /** 卡牌命令后的统一收尾：镜像 → 终局结算 → 持久化 → 存档。 */
+  private afterCardCommand(run: BattleRunState): void {
+    const card = run.card;
+    if (!card) return;
+    this.mirrorCardToRun(run, card);
+    if (card.phase === 'REWARD_SELECTION' && run.status === 'FIGHTING') {
+      run.status = 'VICTORY';
+      card.log.push('战利品结算完成，请选择卡牌奖励。');
+      run.log = card.log.slice(-MAX_LOG);
+      this.claimRewards(run, false); // 内部 persist + save（先于 UI 确认，exactly once）
+      return;
+    }
+    if (card.phase === 'FINISHED' && card.player.hp <= 0 && run.status === 'FIGHTING') {
+      run.status = 'DEFEAT';
+      run.log = card.log.slice(-MAX_LOG);
+      this.claimRewards(run, true);
+      return;
+    }
+    this.persist(run);
+    this.context.saveService.save(this.context.player);
+  }
+
+  private requireCardRun(): BattleRunState {
+    const run = this.storedRun();
+    if (!run) throw new Error('没有进行中的战斗');
+    if (run.mode !== 'CARD' || !isCardBattleState(run.card)) throw new Error('当前不是卡牌战斗');
+    if (run.status !== 'FIGHTING') throw new Error('战斗已结束');
+    return run;
+  }
+
+  /** 卡牌命令自增序号（未显式传 actionId 的调用方兜底；UI 必须按用户点击生成 actionId 以获得幂等）。 */
+  private cardActionSeq = 0;
+
+  /** V5.9-O.2 §18：玩家打出一张手牌（校验/扣能/结算全部在引擎内，失败整体拒绝）。 */
+  public playBattleCard(cardUid: string, targetUid: string | null, actionId?: string): BattleRunState {
+    const run = this.requireCardRun();
+    if (run.skillOffers) throw new Error('请先完成技能选择');
+    const card = run.card!;
+    this.cardActionSeq += 1;
+    this.cards.playCard(card, this.cards.envFor(run), cardUid, targetUid ?? null, actionId ?? `auto_play_${this.cardActionSeq}`);
+    this.afterCardCommand(run);
+    return run;
+  }
+
+  /** V5.9-O.2 §10：结束玩家回合 → 敌人回合同步结算（原子，可存档）。 */
+  public endBattleTurn(actionId?: string): BattleRunState {
+    const run = this.requireCardRun();
+    if (run.skillOffers) throw new Error('请先完成技能选择');
+    const card = run.card!;
+    this.cardActionSeq += 1;
+    this.cards.endTurn(card, this.cards.envFor(run), actionId ?? `auto_end_${this.cardActionSeq}`);
+    this.afterCardCommand(run);
+    return run;
+  }
+
+  /** V5.9-O.2 §26：战斗胜利后选择卡牌奖励（null=放弃；幂等，重复领取抛错）。 */
+  public claimBattleCardReward(cardId: string | null): BattleRunState {
+    const run = this.storedRun();
+    if (!run || run.mode !== 'CARD' || !isCardBattleState(run.card)) throw new Error('没有待领取的卡牌奖励');
+    if (run.status !== 'VICTORY') throw new Error('战斗尚未胜利');
+    this.cards.claimReward(run.card, cardId);
+    run.log = run.card.log.slice(-MAX_LOG);
+    this.persist(run);
+    this.context.saveService.save(this.context.player);
+    return run;
+  }
+
+  /** 卡牌战斗完整视图（UI 数据源：手牌/牌堆/能量/意图/状态/奖励）。 */
+  public battleCardView(): CardBattleState | null {
+    const run = this.storedRun();
+    if (!run || run.mode !== 'CARD' || !isCardBattleState(run.card)) return null;
+    return run.card;
+  }
+
+  /** V5.9-O.2 §27：升级卡牌（消耗灵石，幂等由等级校验保证）。返回新等级。 */
+  public upgradeCollectionCard(defId: string): number {
+    const level = this.cards.upgradeCard(defId);
+    this.context.saveService.save(this.context.player);
+    return level;
+  }
+
+  /** V5.9-O.2 §28：卡组视图（战斗外）。 */
+  public cardDeckView(): { manifest: Record<string, number>; total: number; upgrades: Record<string, number> } {
+    return this.cards.deckView();
+  }
+
+  /** V5.9-O.2 §28：卡牌图鉴（全部定义，卡组页展示）。 */
+  public cardCatalog(): readonly import('../v59o/card-battle/card-types').CardDef[] {
+    return this.cards.catalog();
   }
 
   /** V5.5 §20：主动释放技能——立即结算一次攻击步，并触发技能（若有定义行为）。 */
@@ -276,6 +429,8 @@ export class BattleService {
   public castSkill(skillId: string): void {
     const run = this.current();
     if (!run) throw new Error('没有进行中的战斗');
+    // V5.9-O.2：卡牌战斗中主动行动走 playBattleCard（旧 tick 主动技隔离）。
+    if (run.mode === 'CARD') throw new Error('卡牌战斗中请直接打出卡牌');
     if (!run.skills.includes(skillId)) throw new Error('尚未领悟该技能');
     if (run.lockedSkill === skillId) throw new Error('该技能被 Boss 禁用了！');
     if (run.skillOffers) throw new Error('请先完成技能选择');
@@ -317,6 +472,9 @@ export class BattleService {
   public tick(seconds: number): void {
     const run = this.current();
     if (!run || run.status !== 'FIGHTING') return;
+    // V5.9-O.2 旧自动攻击隔离：卡牌战斗的一切伤害/行动只发生在
+    // playBattleCard/endBattleTurn 中；tick 不再是默认伤害来源。
+    if (run.mode === 'CARD') return;
     if (!Number.isFinite(seconds) || seconds <= 0) return;
 
     run.runSeconds = (run.runSeconds ?? 0) + seconds;
@@ -776,6 +934,7 @@ export class BattleService {
       this.evaluateSynergies(run);
       run.skillOffers = null;
       run.skillOfferKind = null;
+      if (run.mode === 'CARD' && isCardBattleState(run.card)) this.cards.refreshRunStats(run);
       this.persist(run);
       this.context.saveService.save(this.context.player);
       return run;
@@ -783,6 +942,8 @@ export class BattleService {
 
     if (skillId === 'skill_plus_attack' || skillId === null) {
       run.attack += 3;
+      // V5.9-O.2：卡牌模式下攻击快照同步 +3（refreshRunStats 以差量方式保留手动调整）。
+      if (run.mode === 'CARD' && isCardBattleState(run.card)) run.card.player.attack += 3;
       run.log.push('你选择强化攻击（+3）。');
     } else if (skillId.startsWith('up:')) {
       // 升级：base → v2（若此前已选定进化，则自动生效至 Lv3）
@@ -810,12 +971,16 @@ export class BattleService {
       // ULTRA-DEEP RED TEAM（UD-3 V2 绕过修复）：同一技能的 enemySlow 已进入
       // playerSkillStats 聚合并由逐跳 effectiveInterval 消费（含 0.6 封顶），
       // 习得期再乘一次会造成双重减速（实测 2.55x > 设计 1.6x 上限）。
-      if (def.shieldBonus) run.shield += def.shieldBonus;
+      if (def.shieldBonus) {
+        run.shield += def.shieldBonus;
+        if (run.mode === 'CARD' && isCardBattleState(run.card)) run.card.player.block += def.shieldBonus;
+      }
       run.log.push(`习得【${def.name}】`);
       this.evaluateSynergies(run);
     }
     run.skillOffers = null;
     run.skillOfferKind = null;
+    if (run.mode === 'CARD' && isCardBattleState(run.card)) this.cards.refreshRunStats(run);
     this.persist(run);
     return run;
   }
@@ -840,7 +1005,14 @@ export class BattleService {
     const run = this.current();
     if (!run) return;
     run.status = 'DEFEAT';
-    run.log.push('你退出了项目。');
+    if (run.card && isCardBattleState(run.card)) {
+      run.card.phase = 'FINISHED';
+      run.card.reward = null;
+      run.log.push('你退出了项目。');
+      run.log = run.card.log.slice(-MAX_LOG);
+    } else {
+      run.log.push('你退出了项目。');
+    }
     this.claimRewards(run, true);
     this.persist(run);
   }
@@ -1290,9 +1462,34 @@ export class BattleService {
   /** Old or corrupted saves must never become a fake active battle. */
   private storedRun(): BattleRunState | null {
     const candidate = this.context.player.activeBattleRun;
-    if (isBattleRunState(candidate)) return candidate;
+    if (isBattleRunState(candidate)) {
+      if (candidate.status === 'FIGHTING') {
+        // V5.9-O.2 §40 旧存档迁移：无 card 状态的旧 tick FIGHTING 无法恢复
+        // 玩家主动出牌上下文 → 按放弃安全结算（掉落 30%，绝不伪造进行中战斗）。
+        if (candidate.mode !== 'CARD' || !isCardBattleState(candidate.card)) {
+          this.concludeLegacyTickRun(candidate);
+          return null;
+        }
+      }
+      return candidate;
+    }
     if (candidate !== null && candidate !== undefined) this.context.player.activeBattleRun = null;
     return null;
+  }
+
+  /** 旧 tick 战斗安全结束策略：30% 掉落折算 + 存档，绝不制造假战斗。 */
+  private concludeLegacyTickRun(run: BattleRunState): void {
+    run.status = 'DEFEAT';
+    run.mode = 'TICK';
+    run.log = [...run.log, '战斗系统已升级为回合制卡牌战斗，旧的进行中战斗按放弃结算（掉落 30%）。'];
+    try {
+      this.claimRewards(run, true);
+    } catch {
+      // 脏掉落（未知材料等）不得阻塞迁移：丢弃掉落也必须完成安全结算。
+      run.rewardsClaimed = true;
+      this.persist(run);
+      try { this.context.saveService.save(this.context.player); } catch { /* 存档失败不阻塞 */ }
+    }
   }
 }
 

@@ -151,16 +151,20 @@ function testTagAffixBoostsDamage(): void {
         assert.ok(ok, 'equipped affix item');
       }
       facade.startBattleRun('PROJECT', 'build_jvm');
-      // 技能池注入 skill_gc（JVM tag），保证词条可命中
-      const run = facade.context.battle.current() as { skills: string[]; enemies: { hp: number }[]; skillOffers: string[] | null } | null;
+      // 技能池注入 skill_gc（JVM tag），保证词条可命中（卡牌伤害乘数随 refresh 重算）
+      const run = facade.context.battle.current() as { skills: string[]; skillOffers: string[] | null } | null;
       assert.ok(run, 'battle running');
       run!.skills.push('skill_gc');
       if (run!.skillOffers) facade.chooseBattleSkill(null); // 取 +3 攻击兜底
-      // 第一波第一击的伤害（固定 seed → 同怪同序）
-      const enemyBefore = run!.enemies[0].hp;
-      clock.advance(1500);
-      facade.context.battle.tick(1);
-      const enemyAfter = run!.enemies[0].hp;
+      (facade.context.battle as unknown as { cards: { refreshRunStats: (r: unknown) => void } }).cards.refreshRunStats(run);
+      // V5.9-O.2：打出一张攻击卡（固定 seed → 同怪同序）
+      const card = facade.queryBattleCard();
+      assert.ok(card, 'card battle present');
+      const enemyBefore = card.enemies[0].hp;
+      const strike = card.hand.find((c) => c.defId === 'card_strike');
+      assert.ok(strike, 'strike in hand');
+      facade.playBattleCard(strike!.uid, card.enemies[0].uid, 'affix1');
+      const enemyAfter = card.enemies[0].hp;
       return enemyBefore - enemyAfter;
     } finally {
       facade.destroy();

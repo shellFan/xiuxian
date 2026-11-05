@@ -116,6 +116,9 @@ export interface PlayerDataOptions {
   readonly projectHistory?: readonly ProjectHistoryRecordState[];
   readonly codex?: CodexState;
   readonly bossPity?: Record<string, number>;
+  // ── V5.9-O.2 卡牌战斗 ──
+  readonly cardCollection?: Record<string, number>;
+  readonly cardUpgrades?: Record<string, number>;
   readonly dailySituation?: string;
   readonly companyProfile?: string;
   readonly secretEventsDone?: readonly string[];
@@ -268,6 +271,9 @@ export class PlayerData {
   public projectHistory: ProjectHistoryRecordState[];
   public codex: CodexState;
   public bossPity: Record<string, number>;
+  // V5.9-O.2 卡牌战斗：跨战斗收藏（defId → 数量）与升级等级（defId → 等级）。
+  public cardCollection: Record<string, number>;
+  public cardUpgrades: Record<string, number>;
   public dailySituation: string;
   public companyProfile: string;
   public secretEventsDone: string[];
@@ -405,6 +411,8 @@ export class PlayerData {
     this.projectHistory = [...(options.projectHistory ?? [])];
     this.codex = { monsters: [...(options.codex?.monsters ?? [])], bosses: [...(options.codex?.bosses ?? [])], equipment: [...(options.codex?.equipment ?? [])], events: [...(options.codex?.events ?? [])] };
     this.bossPity = { ...(options.bossPity ?? {}) };
+    this.cardCollection = sanitizeCardRecord(options.cardCollection);
+    this.cardUpgrades = sanitizeCardRecord(options.cardUpgrades);
     this.dailySituation = options.dailySituation ?? 'sit_normal';
     this.companyProfile = options.companyProfile ?? 'COMP_MIN_PRIVATE';
     this.secretEventsDone = [...(options.secretEventsDone ?? [])];
@@ -531,6 +539,8 @@ export class PlayerData {
       projectHistory: this.projectHistory.map((h) => ({ ...h })),
       codex: { monsters: [...this.codex.monsters], bosses: [...this.codex.bosses], equipment: [...this.codex.equipment], events: [...this.codex.events] },
       bossPity: { ...this.bossPity },
+      cardCollection: { ...this.cardCollection },
+      cardUpgrades: { ...this.cardUpgrades },
       dailySituation: this.dailySituation,
       companyProfile: this.companyProfile,
       secretEventsDone: [...this.secretEventsDone],
@@ -571,6 +581,17 @@ export class PlayerData {
     }
     return out;
   }
+}
+
+/** V5.9-O.2 卡牌收藏/升级记录规范化：仅保留正整数计数。 */
+function sanitizeCardRecord(raw: Record<string, number> | undefined): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [id, count] of Object.entries(raw ?? {})) {
+    if (typeof id === 'string' && id.length > 0 && typeof count === 'number' && Number.isSafeInteger(count) && count > 0) {
+      out[id] = count;
+    }
+  }
+  return out;
 }
 
 /** Copies JSON-shaped extension state so save snapshots cannot mutate live state. */

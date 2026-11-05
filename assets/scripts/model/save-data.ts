@@ -417,6 +417,10 @@ export interface GameSaveData {
   readonly codex?: CodexState;
   /** Boss 专属掉落保底计数。 */
   readonly bossPity?: Readonly<Record<string, number>>;
+  /** V5.9-O.2 卡牌战斗：跨战斗收藏（defId → 数量）。 */
+  readonly cardCollection?: Readonly<Record<string, number>>;
+  /** V5.9-O.2 卡牌战斗：卡牌升级等级（defId → 等级）。 */
+  readonly cardUpgrades?: Readonly<Record<string, number>>;
   /** 今日情境（DailySituation）。 */
   readonly dailySituation?: string;
   /** 公司宗门（CompanyProfile）。 */

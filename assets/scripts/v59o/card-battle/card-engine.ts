@@ -261,12 +261,12 @@ function executeEnemyIntent(state: CardBattleState, env: CardEngineEnv, enemy: C
     case 'ATTACK': {
       for (let hit = 0; hit < Math.max(1, intent.hits); hit += 1) {
         if (state.player.hp <= 0) return;
-        dealDamageToPlayer(state, enemy, intent.damage, enemy.name);
+        dealDamageToPlayer(state, env, enemy, intent.damage, enemy.name);
       }
       return;
     }
     case 'ATTACK_DEBUFF': {
-      dealDamageToPlayer(state, enemy, intent.damage, enemy.name);
+      dealDamageToPlayer(state, env, enemy, intent.damage, enemy.name);
       if (state.player.hp > 0) {
         addStatus(state.player.statuses, intent.status, intent.stacks);
         state.log.push(`${enemy.name} 使你陷入【${statusName(intent.status)}×${intent.stacks}】。`);
@@ -327,7 +327,10 @@ function turnSettlement(state: CardBattleState, env: CardEngineEnv): void {
       enemy.statuses.POISON = poison - 1;
       if ((enemy.statuses.POISON ?? 0) <= 0) delete enemy.statuses.POISON;
       state.log.push(`${enemy.name} 中毒：-${poison}`);
-      if (enemy.hp <= 0) onEnemyDefeated(state, env, enemy, rng);
+      if (enemy.hp <= 0) {
+        if (env.tryEnemyRevive?.(enemy, state, rng, (line) => state.log.push(line))) continue;
+        onEnemyDefeated(state, env, enemy, rng);
+      }
       if (currentPhase(state) === 'REWARD_SELECTION') break;
     }
     decayStatus(enemy.statuses, ['WEAK', 'VULNERABLE', 'BLIND']);
@@ -521,19 +524,25 @@ function dealDamageToEnemy(state: CardBattleState, env: CardEngineEnv, enemy: Ca
   if (damage <= 0) return;
   enemy.hp = Math.max(0, enemy.hp - damage);
   state.log.push(`${crit ? '暴击！' : ''}对${enemy.name}造成 ${damage} 伤害`);
-  if (enemy.hp <= 0) onEnemyDefeated(state, env, enemy, rng);
+  if (enemy.hp <= 0) {
+    // 复活/互锁先于击杀结算：伪死不记击杀、不给经验、不推进波次。
+    if (env.tryEnemyRevive?.(enemy, state, rng, (line) => state.log.push(line))) return;
+    onEnemyDefeated(state, env, enemy, rng);
+  }
 }
 
 /** 敌人对玩家结算一次攻击：闪避/虚境/格挡/易伤/虚弱。 */
-function dealDamageToPlayer(state: CardBattleState, enemy: CardEnemy, raw: number, sourceLabel: string): void {
+function dealDamageToPlayer(state: CardBattleState, env: CardEngineEnv, enemy: CardEnemy, raw: number, sourceLabel: string): void {
   if ((state.player.statuses.DODGE ?? 0) > 0) {
     state.player.statuses.DODGE = (state.player.statuses.DODGE ?? 1) - 1;
     if ((state.player.statuses.DODGE ?? 0) <= 0) delete state.player.statuses.DODGE;
     state.log.push('你身形一晃，闪开了攻击！');
+    env.onPlayerDodge?.(state);
     return;
   }
   if ((state.player.statuses.INTANGIBLE ?? 0) > 0) {
     state.log.push('【虚境】让这一击穿身而过！');
+    env.onPlayerInterrupt?.(state);
     return;
   }
   let damage = raw;
@@ -599,9 +608,10 @@ export function drawCards(state: CardBattleState, count: number): void {
 
 // ── 胜负与奖励 ───────────────────────────────────────────────────────────────
 
-/** 敌人被击败：波次推进（波间喘息）或胜利（生成奖励候选）。 */
+/** 敌人被击败：击杀钩子 → 波次推进（波间喘息）或胜利（生成奖励候选）。 */
 function onEnemyDefeated(state: CardBattleState, env: CardEngineEnv, enemy: CardEnemy, rng: CardRng): void {
   state.log.push(`击杀 ${enemy.name}！`);
+  env.onEnemyKilled?.(enemy, state, rng);
   if (state.enemies.some((e) => e.hp > 0)) return;
   if (state.wave < env.waveTotal - 1) {
     state.wave += 1;

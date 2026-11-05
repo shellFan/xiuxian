@@ -65,30 +65,24 @@ const tests: Array<[string, () => void]> = [
     assert.equal(context.player.lifetimeStats.professionActions, before + 1);
   }],
 
-  ['闪避计数器:闪避时 lifetimeStats.battleDodges +1', () => {
+  ['闪避计数器:DODGE 状态吸收敌人攻击 → lifetimeStats.battleDodges +1', () => {
     const { context } = make();
-    const enemy: BattleEnemyState = {
-      uid: 'e1', defId: 'mon_null_pointer', name: '空指针小鬼', tier: 'NORMAL',
-      hp: 999_999, maxHp: 999_999, attack: 999, intervalSec: 3, attackTimer: 0,
-      mechanic: undefined, timers: {}, telegraphed: {}, revived: 0,
-    };
-    const run = runWith(['pass_responsive'], [enemy]); // dodge 0.08
-    context.player.activeBattleRun = run;
-    context.battle.tick(4); // rng 0.01 < 0.08 → 闪避
+    context.battle.start('PROJECT', 'build_db');
+    const card = context.battle.battleCardView()!;
+    card.player.statuses.DODGE = 1; // 样式奇技/背锅侠等提供的闪避
+    context.battle.endBattleTurn('dodge-turn'); // 敌人意图为攻击 → 被闪避吸收
     assert.ok((context.player.lifetimeStats.battleDodges ?? 0) >= 1, 'dodge counter incremented');
+    context.battle.abandon();
   }],
 
-  ['打断计数器:控制技打断 N 个敌人 → battleInterrupts +N', () => {
+  ['打断计数器:虚境无效化敌人攻击 → battleInterrupts +1', () => {
     const { context } = make();
-    const mk = (uid: string, timer: number): BattleEnemyState => ({
-      uid, defId: 'mon_null_pointer', name: '空指针小鬼', tier: 'NORMAL',
-      hp: 999_999, maxHp: 999_999, attack: 5, intervalSec: 9, attackTimer: timer,
-      mechanic: undefined, timers: {}, telegraphed: {}, revived: 0,
-    });
-    const run = runWith(['skill_requirement_freeze'], [mk('e1', 2.5), mk('e2', 1.0), mk('e3', 0)]);
-    context.player.activeBattleRun = run;
-    context.battle.castSkill('skill_requirement_freeze');
-    assert.equal(context.player.lifetimeStats.battleInterrupts, 2, 'two enemies with accumulated timers interrupted');
+    context.battle.start('PROJECT', 'build_db');
+    const card = context.battle.battleCardView()!;
+    card.player.statuses.INTANGIBLE = 1; // 禅定护体
+    context.battle.endBattleTurn('zen-turn'); // 敌人攻击被虚境无效化 = 打断
+    assert.ok((context.player.lifetimeStats.battleInterrupts ?? 0) >= 1, 'interrupt counter incremented');
+    context.battle.abandon();
   }],
 
   ['宗门链计数器:结算 sect s2 事件 → sectChainResolved +1', () => {

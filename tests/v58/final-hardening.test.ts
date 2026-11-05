@@ -108,15 +108,15 @@ function testBattleDefeatTerminalState(): void {
   const { facade, clock } = makeFacade();
   try {
     facade.startBattleRun('PROJECT', 'build_jvm');
-    const run = facade.context.player.activeBattleRun as { playerHp: number; status: string; rewardsClaimed?: boolean } | null;
+    const run = facade.context.player.activeBattleRun as { status: string; rewardsClaimed?: boolean } | null;
     assert.ok(run, 'battle started');
-    run!.playerHp = 1;
-    for (let i = 0; i < 30; i++) {
-      clock.advance(1000);
-      facade.context.battle.tick(1);
-      const live = facade.context.player.activeBattleRun as { status: string } | null;
-      if (live && live.status === 'DEFEAT') break;
-    }
+    // V5.9-O.2 卡牌语义：血量置 1 → 结束回合由敌人攻击击杀。
+    const card = facade.queryBattleCard();
+    assert.ok(card, 'card battle present');
+    card.player.hp = 1;
+    clock.advance(1000);
+    facade.endBattleTurn('hardening_die');
+
     const finished = facade.context.player.activeBattleRun as { status: string; rewardsClaimed?: boolean } | null;
     assert.equal(finished!.status, 'DEFEAT', 'battle reaches DEFEAT');
     assert.equal(finished!.rewardsClaimed, true, 'defeat rewards claimed (30%)');

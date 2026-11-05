@@ -280,6 +280,8 @@ function migrate(raw: unknown, now: number): GameSaveData {
     projectHistory: normalizeProjectHistory(raw.projectHistory),
     codex: normalizeCodex(raw.codex),
     bossPity: sanitizeNumberRecord(raw.bossPity),
+    cardCollection: sanitizeNumberRecord(raw.cardCollection),
+    cardUpgrades: sanitizeNumberRecord(raw.cardUpgrades),
     dailySituation: isString(raw.dailySituation) && raw.dailySituation.length <= 48 ? raw.dailySituation : 'sit_normal',
     companyProfile: isString(raw.companyProfile) && raw.companyProfile.length <= 48 ? raw.companyProfile : 'COMP_MIN_PRIVATE',
     secretEventsDone: isStringArray(raw.secretEventsDone) ? raw.secretEventsDone.slice(0, 64) : [],

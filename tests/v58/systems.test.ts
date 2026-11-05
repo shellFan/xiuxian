@@ -242,20 +242,28 @@ function testMilestonesAndMonthly(): void {
 function testBossPhase2(): void {
   const { facade, clock } = makeFacade();
   try {
-    const battle = facade.context.battle;
-    const battlePriv = battle as unknown as { addEnemy: (run: never, id: string) => void };
     const run = facade.startBattleRun('PROJECT', 'build_jvm');
-    const stored = facade.context.player.activeBattleRun as typeof run;
-    battlePriv.addEnemy(stored as never, 'boss_oom_lord');
-    stored.enemies = stored.enemies.filter((e) => e.tier === 'BOSS');
-    stored.enemies[0].hp = Math.floor(stored.enemies[0].maxHp * 0.45);
-    let phase2Seen = false;
-    for (let i = 0; i < 3 && !phase2Seen; i++) {
+    void run;
+    // V5.9-O.2 卡牌语义：放置 OOM 魔尊并把 hp 压到 45% → 任意 Boss 特殊意图结算触发 Phase 2。
+    const card = facade.queryBattleCard();
+    assert.ok(card, 'card battle present');
+    card.enemies = [{
+      uid: 'boss_oom_1', defId: 'boss_oom_lord', name: 'OOM 魔尊', tier: 'BOSS',
+      hp: 420, maxHp: 1000, attack: 16, block: 0, statuses: {}, intent: null,
+      timers: {}, telegraphed: {}, revived: 0,
+    }];
+    card.player.maxHp = 100_000;
+    card.player.hp = 100_000;
+    const cards = (facade.context.battle as unknown as { cards: { envFor: (r: unknown) => import('../../assets/scripts/v59o/card-battle/card-types').CardEngineEnv } }).cards;
+    const env = cards.envFor(facade.context.battle.current());
+    const rng = new (require('../../assets/scripts/v59o/card-battle/card-rng') as typeof import('../../assets/scripts/v59o/card-battle/card-rng')).CardRng(5);
+    const boss = card.enemies[0];
+    env.runBossSpecial(boss, { kind: 'SPECIAL', mechanic: 'ATTACK' }, card, rng, (l: string) => card.log.push(l));
+    let phase2Seen = card.log.some((l) => l.includes('Phase 2'));
+    for (let i = 0; i < 4 && !phase2Seen && !facade.queryFinishedBattle(); i++) {
       clock.advance(1000);
-      battle.tick(1);
-      const live = facade.context.player.activeBattleRun as typeof run;
-      if (live.log.some((l) => l.includes('Phase 2'))) phase2Seen = true;
-      if (stored.status !== 'FIGHTING') break;
+      facade.endBattleTurn('p2_' + i);
+      phase2Seen = (facade.queryBattleCard()?.log ?? []).some((l) => l.includes('Phase 2'));
     }
     assert.ok(phase2Seen, 'boss phase 2 triggers at HP threshold');
     assert.ok((facade.context.player.lifetimeStats ?? {}).bossPhase2Seen >= 1, 'phase2 counter');

@@ -1,114 +1,117 @@
+/**
+ * V5.9-O.2 迁移：v3 战斗策略测试从 tick 主动技语义迁到卡牌语义。
+ * 防御取舍/控制削弱/精确伤害/闪避反馈/Boss 机制预警 全部走回合制卡牌路径。
+ */
 import assert from 'node:assert/strict';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
-import type { BattleEnemyState, BattleRunState } from '../../assets/scripts/v3/battle-service';
+import { CardRng } from '../../assets/scripts/v59o/card-battle/card-rng';
+import type { CardEngineEnv } from '../../assets/scripts/v59o/card-battle/card-types';
+import type { BattleRunState } from '../../assets/scripts/v3/battle-service';
 
 function at(day: number, hour: number, minute = 0): number {
   return new Date(2026, 8, day, hour, minute, 0, 0).getTime();
 }
 
-/** 可控 rng:固定序列(测试确定性)。 */
-function scriptedRng(values: number[]): () => number {
-  let i = 0;
-  return () => {
-    const v = values[i % values.length];
-    i += 1;
-    return v;
-  };
-}
-
-function make(rng: () => number): { clock: FakeClock; context: GameContext } {
+function make(rng?: () => number): { clock: FakeClock; context: GameContext } {
   const clock = new FakeClock(at(21, 10));
   const context = new GameContext({ storage: new MemoryStorageAdapter(), player: new PlayerData({ lastSaveTime: clock.now() }), clock, board: null, battleRng: rng });
   context.gameDay.ensureStarted();
   return { clock, context };
 }
 
-function tankyEnemy(uid: string, over: Partial<BattleEnemyState> = {}): BattleEnemyState {
-  return {
-    uid, defId: 'mon_null_pointer', name: '空指针小鬼', tier: 'NORMAL',
-    hp: 999_999, maxHp: 999_999, attack: 5, intervalSec: 3, attackTimer: 0,
-    mechanic: undefined, timers: {}, telegraphed: {}, revived: 0, ...over,
-  };
+/** 注入一张测试手牌（直改手牌区；引擎校验照常生效）。 */
+function giveCard(context: GameContext, defId: string): string {
+  const card = context.battle.battleCardView()!;
+  const instance = { uid: `test_${defId}_${Math.floor(Math.random() * 1e9).toString(36)}`, defId, upgraded: 0, turnCostDelta: 0 };
+  card.hand.push(instance);
+  return instance.uid;
 }
 
-function runWith(skills: string[], enemies: BattleEnemyState[], overrides: Partial<BattleRunState> = {}): BattleRunState {
-  return {
-    runId: 'run_n11_' + Math.floor(Math.random() * 1e9).toString(36),
-    source: 'PROJECT', linkedTaskId: null, linkedIncidentId: null,
-    buildId: 'build_db', night: false, dayIndex: 1, status: 'FIGHTING',
-    wave: 0, waveTotal: 5, playerHp: 100_000, playerMaxHp: 100_000, shield: 0,
-    attack: 50, intervalSec: 1.4, critChance: 0, level: 1, exp: 0, expNext: 9999,
-    skills, skillLevels: Object.fromEntries(skills.map((s) => [s, 1])), evolvedSkills: [],
-    synergies: [], skillOffers: null, skillOfferKind: null, enemies, kills: 0,
-    loot: { materials: {}, equipment: [], spiritStones: 0, expGained: 0 },
-    runSeconds: 0, immuneReadyAt: 0, usedRevive: false, rewardsClaimed: false,
-    replayOf: null, replayBossId: null, log: [], ...overrides,
-  };
+function envOf(context: GameContext): CardEngineEnv {
+  const cards = (context.battle as unknown as { cards: { envFor: (r: BattleRunState) => CardEngineEnv } }).cards;
+  return cards.envFor(context.battle.current()!);
 }
 
 const tests: Array<[string, () => void]> = [
-  ['防御技施放:获得护盾且本回合不出手(攻击/防御取舍)', () => {
-    const { context } = make(scriptedRng([0.9]));
-    const enemy = tankyEnemy('e1');
-    const run = runWith(['skill_cache_shield'], [enemy]);
-    context.player.activeBattleRun = run;
-    const hpBefore = enemy.hp;
-    context.battle.castSkill('skill_cache_shield');
-    const live = context.battle.current()!;
-    assert.equal(live.shield, 30, 'shield granted by defensive cast');
-    assert.equal(live.enemies[0].hp, hpBefore, 'defensive cast does not attack');
-    assert.ok(live.log.some((l) => l.includes('护盾')), 'feedback logged');
+  ['防御卡打出:获得格挡且不造成伤害(攻击/防御取舍)', () => {
+    const { context } = make();
+    context.battle.start('PROJECT', 'build_db');
+    const view = context.battle.battleCardView()!;
+    const uid = giveCard(context, 'card_iron_wall');
+    const enemyHpBefore = view.enemies[0]!.hp;
+    context.battle.playBattleCard(uid, null, 'def1');
+    const live = context.battle.battleCardView()!;
+    assert.ok(live.player.block >= 15, `block granted (got ${live.player.block})`);
+    assert.equal(live.enemies[0]!.hp, enemyHpBefore, 'defensive card does not attack');
+    assert.ok(live.log.some((l) => l.includes('格挡')), 'feedback logged');
+    context.battle.abandon();
   }],
 
-  ['控制技施放:打断已积累的敌人攻势', () => {
-    const { context } = make(scriptedRng([0.9]));
-    const enemy = tankyEnemy('e1', { attackTimer: 2.5 }); // 即将出手
-    const run = runWith(['skill_requirement_freeze'], [enemy]);
-    context.player.activeBattleRun = run;
-    context.battle.castSkill('skill_requirement_freeze');
-    const live = context.battle.current()!;
-    assert.equal(live.enemies[0].attackTimer, 0, 'enemy attack timer reset by control cast');
+  ['控制卡打出:敌人陷入虚弱(下一回合伤害降低)', () => {
+    const { context } = make();
+    context.battle.start('PROJECT', 'build_db');
+    const uid = giveCard(context, 'card_weaken');
+    context.battle.playBattleCard(uid, context.battle.battleCardView()!.enemies[0]!.uid, 'ctl1');
+    const live = context.battle.battleCardView()!;
+    assert.ok((live.enemies[0]!.statuses.WEAK ?? 0) >= 2, 'enemy weakened by control card');
+    assert.ok(live.log.some((l) => l.includes('虚弱')), 'control feedback logged');
+    context.battle.abandon();
   }],
 
-  ['攻击技施放:立即额外攻击步(specialty 1.2 × damageMul 1.35 聚合)', () => {
-    const { context } = make(scriptedRng([0.99, 0.99, 0.99])); // 无暴击
-    const enemy = tankyEnemy('e1');
-    const run = runWith(['skill_null_sword'], [enemy]); // damageMul 0.35 已聚合
-    context.player.activeBattleRun = run;
-    const hpBefore = enemy.hp;
-    context.battle.castSkill('skill_null_sword');
-    const live = context.battle.current()!;
-    const dealt = hpBefore - live.enemies[0].hp;
-    // attack 50 × specialty 1.2(mon_null_pointer ∈ JAVA 池)× damageMul 1.35 = 81
-    assert.equal(dealt, Math.floor(50 * 1.2 * 1.35), `expected 81, got ${dealt}`);
-    assert.ok(live.log.some((l) => l.includes('主动发动')), 'cast feedback logged');
+  ['攻击卡打出:精确伤害 = 攻击 × 倍率(暴击关闭)', () => {
+    const { context } = make(() => 0.99); // 无暴击
+    context.battle.start('PROJECT', 'build_db');
+    const view = context.battle.battleCardView()!;
+    const uid = giveCard(context, 'card_strike');
+    const enemyHpBefore = view.enemies[0]!.hp;
+    const attack = view.player.attack;
+    context.battle.playBattleCard(uid, view.enemies[0]!.uid, 'atk1');
+    const live = context.battle.battleCardView()!;
+    const dealt = enemyHpBefore - live.enemies[0]!.hp;
+    assert.equal(dealt, Math.floor(attack * 1.0), `expected ${Math.floor(attack * 1.0)}, got ${dealt}`);
+    assert.ok(live.log.some((l) => l.includes('打出【打磨提交】')), 'play feedback logged');
+    context.battle.abandon();
   }],
 
-  ['玩家闪避:dodgeBonus 生效并有反馈日志(死属性接通)', () => {
-    // pass_responsive dodge=0.08;rng=0.01 → 闪避命中判定
-    const { context } = make(scriptedRng([0.01])); // 所有判定都 < dodge 0.08 → 敌人攻击必被闪避
-    const enemy = tankyEnemy('e1', { attack: 999 });
-    const run = runWith(['pass_responsive'], [enemy]);
-    context.player.activeBattleRun = run;
-    context.battle.tick(4); // 敌人 3s 攻击间隔走满 → 攻击判定吃 rng=0.01 < 0.08 → 闪避
-    const live = context.battle.current()!;
+  ['玩家闪避:DODGE 状态吸收攻击并有反馈日志(死属性接通)', () => {
+    const { context } = make();
+    context.battle.start('PROJECT', 'build_db');
+    const card = context.battle.battleCardView()!;
+    // 单敌人 + 固定攻击意图（真实波次有 3 敌，DODGE 1 只吸收一次攻击）。
+    card.enemies = [{
+      ...card.enemies[0]!,
+      intent: { kind: 'ATTACK', damage: card.enemies[0]!.attack, hits: 1 } as never,
+    }];
+    card.player.statuses.DODGE = 1;
+    const hpBefore = card.player.hp;
+    context.battle.endBattleTurn('dodge1'); // 敌人攻击被 DODGE 吸收
+    const live = context.battle.battleCardView()!;
     assert.ok(live.log.some((l) => l.includes('闪开了')), 'dodge feedback logged');
-    assert.equal(live.playerHp, live.playerMaxHp, 'no damage taken on dodge');
+    assert.equal(live.player.hp, hpBefore, 'no damage taken on dodge');
+    context.battle.abandon();
   }],
 
-  ['敌人意图:telegraphed 置位后进入预警窗口(供 UI 渲染)', () => {
-    const { context } = make(scriptedRng([0.9]));
-    // Boss 带 SUMMON everySec 5:attackTimer 累积到 every-2 → telegraphed.SUMMON = true
-    const boss = tankyEnemy('b1', { defId: 'boss_oom_lord', name: 'OOM 领主', tier: 'BOSS' });
-    const run = runWith(['skill_null_sword'], [boss]);
-    context.player.activeBattleRun = run;
-    context.battle.tick(8);
-    const live = context.battle.current()!;
-    const tele = live.enemies[0]?.telegraphed ?? {};
-    assert.ok(tele['SUMMON'] === true || live.enemies.length > 1, 'SUMMON telegraph set or already fired');
+  ['Boss 机制预警:回合计时接近时写入战斗日志(供 UI 渲染)', () => {
+    const { context } = make();
+    context.battle.start('PROJECT', 'build_db');
+    const run = context.battle.current()!;
+    const view = context.battle.battleCardView()!;
+    const env = envOf(context);
+    // 换成真实 Boss（带 SUMMON 机制），连续规划意图直到逼近触发窗口。
+    const boss = { ...view.enemies[0]!, defId: 'boss_oom_lord', name: 'OOM 领主', tier: 'BOSS' as const };
+    view.enemies[0] = boss;
+    const rng = new CardRng(11);
+    let telegraphed = false;
+    for (let i = 0; i < 8; i += 1) {
+      env.planIntent(boss, view, rng);
+      if (view.log.some((l) => l.includes('⚠️'))) { telegraphed = true; break; }
+    }
+    assert.ok(telegraphed, 'SUMMON telegraph logged before firing');
+    void run;
+    context.battle.abandon();
   }],
 ];
 

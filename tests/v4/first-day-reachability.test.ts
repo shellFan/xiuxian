@@ -58,10 +58,27 @@ function finishProjectRoute(facade: GameFacade): void {
   assert.equal(started.source, 'PROJECT');
   assert.equal(started.status, 'FIGHTING');
 
-  for (let tick = 0; tick < 1_200 && !facade.queryFinishedBattle(); tick += 1) {
-    const active = facade.queryBattle();
-    if (active?.skillOffers) facade.chooseBattleSkill(active.skillOffers[0]);
-    facade.gameLoop.tick(1);
+  // V5.9-O.2：卡牌战斗经命令驱动（gameLoop.tick 已与战斗隔离）。
+  for (let step = 0; step < 800 && !facade.queryFinishedBattle(); step += 1) {
+    const run = facade.queryBattle();
+    if (run?.skillOffers) { facade.chooseBattleSkill(run.skillOffers[0]); continue; }
+    const card = facade.queryBattleCard();
+    if (!card) break;
+    if (card.phase !== 'PLAYER_TURN') break;
+    const enemies = card.enemies.filter((e) => e.hp > 0).sort((a, b) => a.hp - b.hp);
+    const db = require('../../assets/scripts/v59o/card-battle/card-database') as typeof import('../../assets/scripts/v59o/card-battle/card-database');
+    const playable = card.hand.find((c) => {
+      const def = db.cardDefById(c.defId);
+      if (!def || def.unplayable) return false;
+      const cost = Math.max(0, def.cost - (card.player.statuses.COST_DOWN ?? 0) + c.turnCostDelta);
+      return cost <= card.player.energy && (def.target !== 'ENEMY' || enemies.length > 0);
+    });
+    if (playable) {
+      const def = db.cardDefById(playable.defId)!;
+      facade.playBattleCard(playable.uid, def.target === 'ENEMY' ? enemies[0]!.uid : null, 'route_' + step);
+    } else {
+      facade.endBattleTurn('route_end_' + step);
+    }
   }
   const finished = facade.queryFinishedBattle();
   assert.ok(finished, 'the project combat route reaches its existing terminal result');

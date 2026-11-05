@@ -230,6 +230,8 @@ export interface CardBattleState {
     /** 开局附加状态。 */
     openingStatuses: CardStatuses;
   };
+  /** 聚合基线攻击（refreshRunStats 差量刷新用，排除手动加成的部分）。 */
+  baselineAttack?: number;
 }
 
 // ── 世界注入（引擎保持纯净，世界数据由服务层提供） ──────────────────────────
@@ -256,6 +258,17 @@ export interface CardEngineEnv {
     rng: CardRng,
     log: (line: string) => void,
   ) => void;
+  /** 敌人死亡钩子（经验/击杀统计；在波次推进判定前调用）。 */
+  readonly onEnemyKilled?: (enemy: CardEnemy, state: CardBattleState, rng: CardRng) => void;
+  /**
+   * 敌人复活钩子（REVIVE/LINKED）：hp 归零时调用；返回 true 表示伪死存活
+   * （钩子负责回血与计数），本次不记击杀、不推进波次。
+   */
+  readonly tryEnemyRevive?: (enemy: CardEnemy, state: CardBattleState, rng: CardRng, log: (line: string) => void) => boolean;
+  /** 玩家闪避钩子（DODGE 状态吸收攻击时；lifetimeStats.battleDodges 计数）。 */
+  readonly onPlayerDodge?: (state: CardBattleState) => void;
+  /** 玩家打断钩子（INTANGIBLE 无效化敌人攻击时；lifetimeStats.battleInterrupts 计数）。 */
+  readonly onPlayerInterrupt?: (state: CardBattleState) => void;
 }
 
 // ── 错误 ─────────────────────────────────────────────────────────────────────

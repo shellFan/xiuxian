@@ -606,6 +606,29 @@ export class GameFacade {
     this.context.battle.castSkill(skillId);
     this.save();
   }
+
+  // ── V5.9-O.2 回合制卡牌战斗命令（权威校验在引擎内；持久化在服务内） ──────
+
+  /** 卡牌战斗完整视图（手牌/牌堆/能量/敌人意图/状态/奖励）。 */
+  public queryBattleCard() { return this.context.battle.battleCardView(); }
+  /** 打出一张手牌（targetUid 仅 ENEMY 目标需要；actionId 用于幂等去重）。 */
+  public playBattleCard(cardUid: string, targetUid: string | null, actionId?: string) {
+    return this.context.battle.playBattleCard(cardUid, targetUid ?? null, actionId);
+  }
+  /** 结束玩家回合（同步结算敌人回合；actionId 用于幂等去重）。 */
+  public endBattleTurn(actionId?: string) {
+    return this.context.battle.endBattleTurn(actionId);
+  }
+  /** 领取胜利卡牌奖励（null=放弃；幂等）。 */
+  public claimBattleCardReward(cardId: string | null) {
+    return this.context.battle.claimBattleCardReward(cardId);
+  }
+  /** 卡组视图（战斗外）。 */
+  public queryCardDeck() { return this.context.battle.cardDeckView(); }
+  /** 卡牌图鉴（全部定义）。 */
+  public queryCardCatalog() { return this.context.battle.cardCatalog(); }
+  /** 升级卡牌（消耗灵石）。返回新等级。 */
+  public upgradeBattleCard(defId: string) { return this.context.battle.upgradeCollectionCard(defId); }
   public queryAllMaterials() { return ({ ...this.context.player.materials }); }
   public queryOwnedTechniques() { return [...this.context.player.ownedTechniques]; }
   public queryTechniqueLevels() { return ({ ...this.context.player.techniqueLevels }); }
