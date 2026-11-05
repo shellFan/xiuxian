@@ -1,0 +1,802 @@
+{
+  "version": 1,
+  "rules": {
+    "baseEnergy": 3,
+    "drawPerTurn": 5,
+    "handLimit": 10,
+    "openingHandSize": 5
+  },
+  "deckTemplate": {
+    "basicAttack": "card_strike",
+    "basicAttackCount": 5,
+    "basicDefense": "card_block",
+    "basicDefenseCount": 4,
+    "professionBasic": {
+      "JAVA_BACKEND": "card_java_basic",
+      "FRONTEND": "card_fe_basic",
+      "QA": "card_qa_basic",
+      "DEVOPS": "card_devops_basic"
+    },
+    "fateCard": {
+      "LABOR_SAINT": "card_fate_labor",
+      "KING_OF_GRIND": "card_fate_grind",
+      "FISHING_IMMORTAL": "card_fate_fishing",
+      "SCAPEGOAT": "card_fate_scape",
+      "CODE_SPIRIT": "card_fate_code",
+      "SOCIAL_FATE": "card_fate_social"
+    }
+  },
+  "rewardWeights": {
+    "COMMON": 62,
+    "RARE": 28,
+    "EPIC": 10,
+    "professionCardChance": 0.7,
+    "candidates": 3
+  },
+  "upgradeCosts": {
+    "BASIC": 20,
+    "COMMON": 30,
+    "RARE": 60,
+    "EPIC": 100
+  },
+  "cards": [
+    {
+      "id": "card_strike",
+      "name": "打磨提交",
+      "desc": "对目标造成 100% 攻击的伤害。",
+      "type": "ATTACK",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "ENEMY",
+      "effects": [{ "kind": "DAMAGE", "mul": 1.0 }],
+      "upgrades": [
+        { "name": "打磨提交+1", "desc": "对目标造成 140% 攻击的伤害。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.4 }] },
+        { "name": "打磨提交+2", "desc": "对目标造成 180% 攻击的伤害。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.8 }] }
+      ]
+    },
+    {
+      "id": "card_block",
+      "name": "摸鱼防御",
+      "desc": "获得 5 点格挡。",
+      "type": "DEFENSE",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "SELF",
+      "effects": [{ "kind": "BLOCK", "flat": 5 }],
+      "upgrades": [
+        { "name": "摸鱼防御+1", "desc": "获得 8 点格挡。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 8 }] },
+        { "name": "摸鱼防御+2", "desc": "获得 11 点格挡。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 11 }] }
+      ]
+    },
+    {
+      "id": "card_java_basic",
+      "name": "单元测试",
+      "desc": "造成 80% 攻击伤害，获得 3 点格挡。",
+      "type": "PROFESSION",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "ENEMY",
+      "profession": "JAVA_BACKEND",
+      "effects": [{ "kind": "DAMAGE", "mul": 0.8 }, { "kind": "BLOCK", "flat": 3 }],
+      "upgrades": [
+        { "name": "单元测试+1", "desc": "造成 110% 攻击伤害，获得 5 点格挡。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.1 }, { "kind": "BLOCK", "flat": 5 }] }
+      ]
+    },
+    {
+      "id": "card_fe_basic",
+      "name": "热修复",
+      "desc": "造成 55% 攻击伤害，抽 1 张牌。",
+      "type": "PROFESSION",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "ENEMY",
+      "profession": "FRONTEND",
+      "effects": [{ "kind": "DAMAGE", "mul": 0.55 }, { "kind": "DRAW", "count": 1 }],
+      "upgrades": [
+        { "name": "热修复+1", "desc": "造成 80% 攻击伤害，抽 1 张牌。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 0.8 }, { "kind": "DRAW", "count": 1 }] }
+      ]
+    },
+    {
+      "id": "card_qa_basic",
+      "name": "回归脚本",
+      "desc": "造成 40% 攻击伤害，施加虚弱 1。",
+      "type": "PROFESSION",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "ENEMY",
+      "profession": "QA",
+      "effects": [{ "kind": "DAMAGE", "mul": 0.4 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 1 }],
+      "upgrades": [
+        { "name": "回归脚本+1", "desc": "造成 60% 攻击伤害，施加虚弱 2。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 0.6 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 2 }] }
+      ]
+    },
+    {
+      "id": "card_devops_basic",
+      "name": "服务巡检",
+      "desc": "获得 8 点格挡。",
+      "type": "PROFESSION",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "SELF",
+      "profession": "DEVOPS",
+      "effects": [{ "kind": "BLOCK", "flat": 8 }],
+      "upgrades": [
+        { "name": "服务巡检+1", "desc": "获得 12 点格挡。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 12 }] }
+      ]
+    },
+    {
+      "id": "card_fate_labor",
+      "name": "劳模本色",
+      "desc": "造成 80% 攻击伤害，回复 4 点生命。",
+      "type": "FATE",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "ENEMY",
+      "fate": "LABOR_SAINT",
+      "effects": [{ "kind": "DAMAGE", "mul": 0.8 }, { "kind": "HEAL", "flat": 4 }],
+      "upgrades": [
+        { "name": "劳模本色+1", "desc": "造成 110% 攻击伤害，回复 6 点生命。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.1 }, { "kind": "HEAL", "flat": 6 }] }
+      ]
+    },
+    {
+      "id": "card_fate_grind",
+      "name": "卷王之魂",
+      "desc": "获得 4 点格挡与 1 点力量。",
+      "type": "FATE",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "SELF",
+      "fate": "KING_OF_GRIND",
+      "effects": [{ "kind": "BLOCK", "flat": 4 }, { "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 1 }],
+      "upgrades": [
+        { "name": "卷王之魂+1", "desc": "获得 6 点格挡与 1 点力量。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 6 }, { "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 1 }] }
+      ]
+    },
+    {
+      "id": "card_fate_fishing",
+      "name": "垂钓仙缘",
+      "desc": "抽 1 张牌。消耗。",
+      "type": "FATE",
+      "rarity": "BASIC",
+      "cost": 0,
+      "target": "SELF",
+      "fate": "FISHING_IMMORTAL",
+      "exhaust": true,
+      "effects": [{ "kind": "DRAW", "count": 1 }],
+      "upgrades": [
+        { "name": "垂钓仙缘+1", "desc": "抽 2 张牌。消耗。", "cost": 0, "effects": [{ "kind": "DRAW", "count": 2 }] }
+      ]
+    },
+    {
+      "id": "card_fate_scape",
+      "name": "背锅侠",
+      "desc": "获得 8 点格挡，清除虚弱。",
+      "type": "FATE",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "SELF",
+      "fate": "SCAPEGOAT",
+      "effects": [{ "kind": "BLOCK", "flat": 8 }, { "kind": "REMOVE_STATUS", "target": "SELF", "status": "WEAK" }],
+      "upgrades": [
+        { "name": "背锅侠+1", "desc": "获得 12 点格挡，清除虚弱。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 12 }, { "kind": "REMOVE_STATUS", "target": "SELF", "status": "WEAK" }] }
+      ]
+    },
+    {
+      "id": "card_fate_code",
+      "name": "代码之魂",
+      "desc": "造成 90% 攻击伤害，抽 1 张牌。",
+      "type": "FATE",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "ENEMY",
+      "fate": "CODE_SPIRIT",
+      "effects": [{ "kind": "DAMAGE", "mul": 0.9 }, { "kind": "DRAW", "count": 1 }],
+      "upgrades": [
+        { "name": "代码之魂+1", "desc": "造成 120% 攻击伤害，抽 1 张牌。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.2 }, { "kind": "DRAW", "count": 1 }] }
+      ]
+    },
+    {
+      "id": "card_fate_social",
+      "name": "社牛附体",
+      "desc": "目标陷入虚弱 1，你获得 1 点力量。",
+      "type": "FATE",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "ENEMY",
+      "fate": "SOCIAL_FATE",
+      "effects": [
+        { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 1 },
+        { "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 1 }
+      ],
+      "upgrades": [
+        { "name": "社牛附体+1", "desc": "目标陷入虚弱 2，你获得 1 点力量。", "cost": 1, "effects": [
+          { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 2 },
+          { "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 1 }
+        ] }
+      ]
+    },
+    {
+      "id": "card_heavy",
+      "name": "重构重击",
+      "desc": "造成 220% 攻击的伤害。",
+      "type": "ATTACK",
+      "rarity": "COMMON",
+      "cost": 2,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 2.2 }],
+      "upgrades": [
+        { "name": "重构重击+1", "desc": "造成 280% 攻击的伤害。", "cost": 2, "effects": [{ "kind": "DAMAGE", "mul": 2.8 }] }
+      ]
+    },
+    {
+      "id": "card_combo",
+      "name": "快捷连击",
+      "desc": "造成两次 60% 攻击的伤害。",
+      "type": "ATTACK",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 0.6 }, { "kind": "DAMAGE", "mul": 0.6 }],
+      "upgrades": [
+        { "name": "快捷连击+1", "desc": "造成两次 80% 攻击的伤害。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 0.8 }, { "kind": "DAMAGE", "mul": 0.8 }] }
+      ]
+    },
+    {
+      "id": "card_pierce",
+      "name": "穿透一击",
+      "desc": "造成 100% 攻击的伤害，无视格挡。",
+      "type": "ATTACK",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 1.0, "pierce": true }],
+      "upgrades": [
+        { "name": "穿透一击+1", "desc": "造成 130% 攻击的伤害，无视格挡。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.3, "pierce": true }] }
+      ]
+    },
+    {
+      "id": "card_cleave",
+      "name": "横扫批量",
+      "desc": "对所有敌人造成 70% 攻击的伤害。",
+      "type": "ATTACK",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ALL_ENEMIES",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 0.7, "aoe": true }],
+      "upgrades": [
+        { "name": "横扫批量+1", "desc": "对所有敌人造成 100% 攻击的伤害。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.0, "aoe": true }] }
+      ]
+    },
+    {
+      "id": "card_execute",
+      "name": "终结审判",
+      "desc": "目标生命低于 30% 时造成 300% 伤害，否则造成 120% 伤害。",
+      "type": "ATTACK",
+      "rarity": "COMMON",
+      "cost": 2,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [{ "kind": "CONDITIONAL", "if": { "kind": "ENEMY_HP_BELOW_PCT", "pct": 0.3 }, "then": [{ "kind": "DAMAGE", "mul": 3.0 }], "otherwise": [{ "kind": "DAMAGE", "mul": 1.2 }] }],
+      "upgrades": [
+        { "name": "终结审判+1", "desc": "目标生命低于 30% 时造成 360% 伤害，否则造成 150% 伤害。", "cost": 2, "effects": [{ "kind": "CONDITIONAL", "if": { "kind": "ENEMY_HP_BELOW_PCT", "pct": 0.3 }, "then": [{ "kind": "DAMAGE", "mul": 3.6 }], "otherwise": [{ "kind": "DAMAGE", "mul": 1.5 }] }] }
+      ]
+    },
+    {
+      "id": "card_poison_dart",
+      "name": "毒镖投掷",
+      "desc": "造成 40% 攻击伤害，施加中毒 3。",
+      "type": "ATTACK",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 0.4 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "POISON", "stacks": 3 }],
+      "upgrades": [
+        { "name": "毒镖投掷+1", "desc": "造成 40% 攻击伤害，施加中毒 5。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 0.4 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "POISON", "stacks": 5 }] }
+      ]
+    },
+    {
+      "id": "card_shield",
+      "name": "护盾术",
+      "desc": "获得 8 点格挡。",
+      "type": "DEFENSE",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "SELF",
+      "rewardable": true,
+      "effects": [{ "kind": "BLOCK", "flat": 8 }],
+      "upgrades": [
+        { "name": "护盾术+1", "desc": "获得 11 点格挡。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 11 }] }
+      ]
+    },
+    {
+      "id": "card_iron_wall",
+      "name": "铁壁",
+      "desc": "获得 15 点格挡。",
+      "type": "DEFENSE",
+      "rarity": "COMMON",
+      "cost": 2,
+      "target": "SELF",
+      "rewardable": true,
+      "effects": [{ "kind": "BLOCK", "flat": 15 }],
+      "upgrades": [
+        { "name": "铁壁+1", "desc": "获得 20 点格挡。", "cost": 2, "effects": [{ "kind": "BLOCK", "flat": 20 }] }
+      ]
+    },
+    {
+      "id": "card_counter",
+      "name": "反击姿态",
+      "desc": "获得 5 点格挡，目标陷入虚弱 1。",
+      "type": "DEFENSE",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [{ "kind": "BLOCK", "flat": 5 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 1 }],
+      "upgrades": [
+        { "name": "反击姿态+1", "desc": "获得 8 点格挡，目标陷入虚弱 2。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 8 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 2 }] }
+      ]
+    },
+    {
+      "id": "card_breath",
+      "name": "吐纳调息",
+      "desc": "获得 4 点格挡。",
+      "type": "DEFENSE",
+      "rarity": "COMMON",
+      "cost": 0,
+      "target": "SELF",
+      "rewardable": true,
+      "effects": [{ "kind": "BLOCK", "flat": 4 }],
+      "upgrades": [
+        { "name": "吐纳调息+1", "desc": "获得 6 点格挡。", "cost": 0, "effects": [{ "kind": "BLOCK", "flat": 6 }] }
+      ]
+    },
+    {
+      "id": "card_docs",
+      "name": "技术文档",
+      "desc": "抽 2 张牌。",
+      "type": "SKILL",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "SELF",
+      "rewardable": true,
+      "effects": [{ "kind": "DRAW", "count": 2 }],
+      "upgrades": [
+        { "name": "技术文档+1", "desc": "抽 3 张牌。", "cost": 1, "effects": [{ "kind": "DRAW", "count": 3 }] }
+      ]
+    },
+    {
+      "id": "card_battery",
+      "name": "能量饮料",
+      "desc": "获得 2 点能量。消耗。",
+      "type": "SKILL",
+      "rarity": "RARE",
+      "cost": 0,
+      "target": "SELF",
+      "rewardable": true,
+      "exhaust": true,
+      "effects": [{ "kind": "ENERGY", "delta": 2 }],
+      "upgrades": [
+        { "name": "能量饮料+1", "desc": "获得 3 点能量。消耗。", "cost": 0, "effects": [{ "kind": "ENERGY", "delta": 3 }] }
+      ]
+    },
+    {
+      "id": "card_inspire",
+      "name": "战意鼓舞",
+      "desc": "获得 2 点力量。",
+      "type": "SKILL",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "SELF",
+      "rewardable": true,
+      "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 2 }],
+      "upgrades": [
+        { "name": "战意鼓舞+1", "desc": "获得 3 点力量。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 3 }] }
+      ]
+    },
+    {
+      "id": "card_weaken",
+      "name": "需求拆解",
+      "desc": "目标陷入虚弱 2。",
+      "type": "SKILL",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 2 }],
+      "upgrades": [
+        { "name": "需求拆解+1", "desc": "目标陷入虚弱 3。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 3 }] }
+      ]
+    },
+    {
+      "id": "card_review",
+      "name": "代码评审",
+      "desc": "目标陷入易伤 2。",
+      "type": "SKILL",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "VULNERABLE", "stacks": 2 }],
+      "upgrades": [
+        { "name": "代码评审+1", "desc": "目标陷入易伤 3。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "VULNERABLE", "stacks": 3 }] }
+      ]
+    },
+    {
+      "id": "card_potion",
+      "name": "修仙丹药",
+      "desc": "回复 8 点生命。消耗。",
+      "type": "SKILL",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "SELF",
+      "rewardable": true,
+      "exhaust": true,
+      "effects": [{ "kind": "HEAL", "flat": 8 }],
+      "upgrades": [
+        { "name": "修仙丹药+1", "desc": "回复 12 点生命。消耗。", "cost": 1, "effects": [{ "kind": "HEAL", "flat": 12 }] }
+      ]
+    },
+    {
+      "id": "card_detox",
+      "name": "排毒清心",
+      "desc": "清除中毒。消耗。",
+      "type": "SKILL",
+      "rarity": "COMMON",
+      "cost": 0,
+      "target": "SELF",
+      "rewardable": true,
+      "exhaust": true,
+      "effects": [{ "kind": "REMOVE_STATUS", "target": "SELF", "status": "POISON" }],
+      "upgrades": [
+        { "name": "排毒清心+1", "desc": "清除中毒，抽 1 张牌。消耗。", "cost": 0, "effects": [{ "kind": "REMOVE_STATUS", "target": "SELF", "status": "POISON" }, { "kind": "DRAW", "count": 1 }] }
+      ]
+    },
+    {
+      "id": "card_zen",
+      "name": "禅定护体",
+      "desc": "本回合免疫所有伤害。消耗。",
+      "type": "SKILL",
+      "rarity": "RARE",
+      "cost": 1,
+      "target": "SELF",
+      "rewardable": true,
+      "exhaust": true,
+      "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "INTANGIBLE", "stacks": 1 }],
+      "upgrades": [
+        { "name": "禅定护体+1", "desc": "本回合免疫所有伤害，获得 5 点格挡。消耗。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "INTANGIBLE", "stacks": 1 }, { "kind": "BLOCK", "flat": 5 }] }
+      ]
+    },
+    {
+      "id": "card_overclock",
+      "name": "超频运转",
+      "desc": "本回合手牌费用 -1。消耗。",
+      "type": "SKILL",
+      "rarity": "RARE",
+      "cost": 0,
+      "target": "SELF",
+      "rewardable": true,
+      "exhaust": true,
+      "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "COST_DOWN", "stacks": 1 }],
+      "upgrades": [
+        { "name": "超频运转+1", "desc": "本回合手牌费用 -1，抽 1 张牌。消耗。", "cost": 0, "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "COST_DOWN", "stacks": 1 }, { "kind": "DRAW", "count": 1 }] }
+      ]
+    },
+    {
+      "id": "card_insight",
+      "name": "灵光一闪",
+      "desc": "抽 1 张牌，生成 1 张临时【肾上腺素】。",
+      "type": "SKILL",
+      "rarity": "RARE",
+      "cost": 1,
+      "target": "SELF",
+      "rewardable": true,
+      "effects": [{ "kind": "DRAW", "count": 1 }, { "kind": "ADD_CARD_TO_HAND", "cardId": "card_adrenaline", "copies": 1 }],
+      "upgrades": [
+        { "name": "灵光一闪+1", "desc": "抽 1 张牌，生成 2 张临时【肾上腺素】。", "cost": 1, "effects": [{ "kind": "DRAW", "count": 1 }, { "kind": "ADD_CARD_TO_HAND", "cardId": "card_adrenaline", "copies": 2 }] }
+      ]
+    },
+    {
+      "id": "card_adrenaline",
+      "name": "肾上腺素",
+      "desc": "造成 100% 攻击的伤害。消耗。",
+      "type": "SPECIAL",
+      "rarity": "BASIC",
+      "cost": 0,
+      "target": "ENEMY",
+      "exhaust": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 1.0 }]
+    },
+    {
+      "id": "card_p0slash",
+      "name": "P0 一刀",
+      "desc": "造成 400% 攻击的伤害。",
+      "type": "ATTACK",
+      "rarity": "EPIC",
+      "cost": 3,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 4.0 }],
+      "upgrades": [
+        { "name": "P0 一刀+1", "desc": "造成 500% 攻击的伤害。", "cost": 3, "effects": [{ "kind": "DAMAGE", "mul": 5.0 }] }
+      ]
+    },
+    {
+      "id": "card_aftermath",
+      "name": "责任追溯",
+      "desc": "所有敌人陷入易伤 2，并对全体造成 100% 攻击伤害。",
+      "type": "ATTACK",
+      "rarity": "EPIC",
+      "cost": 2,
+      "target": "ALL_ENEMIES",
+      "rewardable": true,
+      "effects": [
+        { "kind": "APPLY_STATUS", "target": "ALL_ENEMIES", "status": "VULNERABLE", "stacks": 2 },
+        { "kind": "DAMAGE", "mul": 1.0, "aoe": true }
+      ],
+      "upgrades": [
+        { "name": "责任追溯+1", "desc": "所有敌人陷入易伤 3，并对全体造成 130% 攻击伤害。", "cost": 2, "effects": [
+          { "kind": "APPLY_STATUS", "target": "ALL_ENEMIES", "status": "VULNERABLE", "stacks": 3 },
+          { "kind": "DAMAGE", "mul": 1.3, "aoe": true }
+        ] }
+      ]
+    },
+    {
+      "id": "card_limitbreak",
+      "name": "极限突破",
+      "desc": "造成 250% 攻击伤害，你陷入虚弱 1。",
+      "type": "ATTACK",
+      "rarity": "EPIC",
+      "cost": 2,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 2.5 }, { "kind": "APPLY_STATUS", "target": "SELF", "status": "WEAK", "stacks": 1 }],
+      "upgrades": [
+        { "name": "极限突破+1", "desc": "造成 320% 攻击伤害，你陷入虚弱 1。", "cost": 2, "effects": [{ "kind": "DAMAGE", "mul": 3.2 }, { "kind": "APPLY_STATUS", "target": "SELF", "status": "WEAK", "stacks": 1 }] }
+      ]
+    },
+    {
+      "id": "card_timemgr",
+      "name": "时间管理大师",
+      "desc": "获得 1 点能量，抽 1 张牌。消耗。",
+      "type": "SKILL",
+      "rarity": "EPIC",
+      "cost": 1,
+      "target": "SELF",
+      "rewardable": true,
+      "exhaust": true,
+      "effects": [{ "kind": "ENERGY", "delta": 1 }, { "kind": "DRAW", "count": 1 }],
+      "upgrades": [
+        { "name": "时间管理大师+1", "desc": "获得 1 点能量，抽 2 张牌。消耗。", "cost": 1, "effects": [{ "kind": "ENERGY", "delta": 1 }, { "kind": "DRAW", "count": 2 }] }
+      ]
+    },
+    {
+      "id": "card_jvm",
+      "name": "JVM 调优",
+      "desc": "造成 120% 攻击伤害。",
+      "type": "PROFESSION",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ENEMY",
+      "profession": "JAVA_BACKEND",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 1.2 }],
+      "upgrades": [
+        { "name": "JVM 调优+1", "desc": "造成 160% 攻击伤害。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.6 }] }
+      ]
+    },
+    {
+      "id": "card_aop",
+      "name": "切面拦截",
+      "desc": "获得 10 点格挡，目标陷入虚弱 2。",
+      "type": "PROFESSION",
+      "rarity": "COMMON",
+      "cost": 2,
+      "target": "ENEMY",
+      "profession": "JAVA_BACKEND",
+      "rewardable": true,
+      "effects": [{ "kind": "BLOCK", "flat": 10 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 2 }],
+      "upgrades": [
+        { "name": "切面拦截+1", "desc": "获得 13 点格挡，目标陷入虚弱 3。", "cost": 2, "effects": [{ "kind": "BLOCK", "flat": 13 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 3 }] }
+      ]
+    },
+    {
+      "id": "card_cache",
+      "name": "缓存命中",
+      "desc": "抽 1 张牌，获得 3 点格挡。",
+      "type": "PROFESSION",
+      "rarity": "RARE",
+      "cost": 0,
+      "target": "SELF",
+      "profession": "JAVA_BACKEND",
+      "rewardable": true,
+      "effects": [{ "kind": "DRAW", "count": 1 }, { "kind": "BLOCK", "flat": 3 }],
+      "upgrades": [
+        { "name": "缓存命中+1", "desc": "抽 2 张牌，获得 3 点格挡。", "cost": 0, "effects": [{ "kind": "DRAW", "count": 2 }, { "kind": "BLOCK", "flat": 3 }] }
+      ]
+    },
+    {
+      "id": "card_vdom",
+      "name": "虚拟 DOM",
+      "desc": "造成 70% 攻击伤害，抽 1 张牌。",
+      "type": "PROFESSION",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ENEMY",
+      "profession": "FRONTEND",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 0.7 }, { "kind": "DRAW", "count": 1 }],
+      "upgrades": [
+        { "name": "虚拟 DOM+1", "desc": "造成 100% 攻击伤害，抽 1 张牌。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.0 }, { "kind": "DRAW", "count": 1 }] }
+      ]
+    },
+    {
+      "id": "card_rerender",
+      "name": "重渲染风暴",
+      "desc": "对所有敌人造成 100% 攻击伤害。",
+      "type": "PROFESSION",
+      "rarity": "COMMON",
+      "cost": 2,
+      "target": "ALL_ENEMIES",
+      "profession": "FRONTEND",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 1.0, "aoe": true }],
+      "upgrades": [
+        { "name": "重渲染风暴+1", "desc": "对所有敌人造成 140% 攻击伤害。", "cost": 2, "effects": [{ "kind": "DAMAGE", "mul": 1.4, "aoe": true }] }
+      ]
+    },
+    {
+      "id": "card_css",
+      "name": "样式奇技",
+      "desc": "获得 1 次闪避与 5 点格挡。",
+      "type": "PROFESSION",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "SELF",
+      "profession": "FRONTEND",
+      "rewardable": true,
+      "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "DODGE", "stacks": 1 }, { "kind": "BLOCK", "flat": 5 }],
+      "upgrades": [
+        { "name": "样式奇技+1", "desc": "获得 1 次闪避与 8 点格挡。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "DODGE", "stacks": 1 }, { "kind": "BLOCK", "flat": 8 }] }
+      ]
+    },
+    {
+      "id": "card_buglist",
+      "name": "缺陷清单",
+      "desc": "目标陷入易伤 1，造成 60% 攻击伤害。",
+      "type": "PROFESSION",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ENEMY",
+      "profession": "QA",
+      "rewardable": true,
+      "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "VULNERABLE", "stacks": 1 }, { "kind": "DAMAGE", "mul": 0.6 }],
+      "upgrades": [
+        { "name": "缺陷清单+1", "desc": "目标陷入易伤 2，造成 90% 攻击伤害。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "VULNERABLE", "stacks": 2 }, { "kind": "DAMAGE", "mul": 0.9 }] }
+      ]
+    },
+    {
+      "id": "card_testenv",
+      "name": "测试环境",
+      "desc": "获得 10 点格挡，回复 6 点生命。",
+      "type": "PROFESSION",
+      "rarity": "COMMON",
+      "cost": 2,
+      "target": "SELF",
+      "profession": "QA",
+      "rewardable": true,
+      "effects": [{ "kind": "BLOCK", "flat": 10 }, { "kind": "HEAL", "flat": 6 }],
+      "upgrades": [
+        { "name": "测试环境+1", "desc": "获得 14 点格挡，回复 9 点生命。", "cost": 2, "effects": [{ "kind": "BLOCK", "flat": 14 }, { "kind": "HEAL", "flat": 9 }] }
+      ]
+    },
+    {
+      "id": "card_repro",
+      "name": "复现步骤",
+      "desc": "造成 80% 攻击伤害，抽 1 张牌。",
+      "type": "PROFESSION",
+      "rarity": "RARE",
+      "cost": 1,
+      "target": "ENEMY",
+      "profession": "QA",
+      "rewardable": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 0.8 }, { "kind": "DRAW", "count": 1 }],
+      "upgrades": [
+        { "name": "复现步骤+1", "desc": "造成 110% 攻击伤害，抽 1 张牌。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.1 }, { "kind": "DRAW", "count": 1 }] }
+      ]
+    },
+    {
+      "id": "card_restart",
+      "name": "重启大法",
+      "desc": "造成 150% 攻击伤害。消耗。",
+      "type": "PROFESSION",
+      "rarity": "COMMON",
+      "cost": 2,
+      "target": "ENEMY",
+      "profession": "DEVOPS",
+      "rewardable": true,
+      "exhaust": true,
+      "effects": [{ "kind": "DAMAGE", "mul": 1.5 }],
+      "upgrades": [
+        { "name": "重启大法+1", "desc": "造成 200% 攻击伤害。消耗。", "cost": 2, "effects": [{ "kind": "DAMAGE", "mul": 2.0 }] }
+      ]
+    },
+    {
+      "id": "card_rollback",
+      "name": "回滚方案",
+      "desc": "清除中毒与虚弱，获得 6 点格挡。",
+      "type": "PROFESSION",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "SELF",
+      "profession": "DEVOPS",
+      "rewardable": true,
+      "effects": [
+        { "kind": "REMOVE_STATUS", "target": "SELF", "status": "POISON" },
+        { "kind": "REMOVE_STATUS", "target": "SELF", "status": "WEAK" },
+        { "kind": "BLOCK", "flat": 6 }
+      ],
+      "upgrades": [
+        { "name": "回滚方案+1", "desc": "清除中毒与虚弱，获得 10 点格挡。", "cost": 1, "effects": [
+          { "kind": "REMOVE_STATUS", "target": "SELF", "status": "POISON" },
+          { "kind": "REMOVE_STATUS", "target": "SELF", "status": "WEAK" },
+          { "kind": "BLOCK", "flat": 10 }
+        ] }
+      ]
+    },
+    {
+      "id": "card_monitor",
+      "name": "监控告警",
+      "desc": "获得 5 点格挡，抽 1 张牌。",
+      "type": "PROFESSION",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "SELF",
+      "profession": "DEVOPS",
+      "rewardable": true,
+      "effects": [{ "kind": "BLOCK", "flat": 5 }, { "kind": "DRAW", "count": 1 }],
+      "upgrades": [
+        { "name": "监控告警+1", "desc": "获得 7 点格挡，抽 1 张牌。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 7 }, { "kind": "DRAW", "count": 1 }] }
+      ]
+    },
+    {
+      "id": "card_fatigue",
+      "name": "精神内耗",
+      "desc": "不可打出。回合结束消散。",
+      "type": "SPECIAL",
+      "rarity": "BASIC",
+      "cost": 0,
+      "target": "SELF",
+      "unplayable": true,
+      "exhaust": true
+    },
+    {
+      "id": "card_deadlock",
+      "name": "诅咒·死锁",
+      "desc": "不可打出的诅咒，滞留手牌。",
+      "type": "SPECIAL",
+      "rarity": "BASIC",
+      "cost": 0,
+      "target": "SELF",
+      "unplayable": true
+    },
+    {
+      "id": "card_overtime",
+      "name": "加班凝聚",
+      "desc": "获得 6 点格挡。保留（回合结束不弃置）。",
+      "type": "SPECIAL",
+      "rarity": "BASIC",
+      "cost": 1,
+      "target": "SELF",
+      "retain": true,
+      "effects": [{ "kind": "BLOCK", "flat": 6 }],
+      "upgrades": [
+        { "name": "加班凝聚+1", "desc": "获得 9 点格挡。保留（回合结束不弃置）。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 9 }] }
+      ]
+    }
+  ]
+}
