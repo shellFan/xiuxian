@@ -257,6 +257,59 @@
     if (overlay && typeof overlay.toast === 'function') overlay.toast(msg);
   }
 
+  // ── V6.1 Game Feel 辅助 ──────────────────────────────────────────────────────
+
+  function gf() { return (typeof window !== 'undefined' && window.__GAME_FEEL__) || null; }
+
+  /** 快照战斗状态（用于动作前后对比，检测伤害/治疗/胜负） */
+  function snapshotBattle(f) {
+    var c = tryGet(function () { return f.queryBattleCard(); }, null);
+    if (!c) return null;
+    var enemies = {};
+    (c.enemies || []).forEach(function (e) { enemies[e.uid] = { hp: e.hp, maxHp: e.maxHp }; });
+    return { phase: c.phase, playerHp: c.player ? c.player.hp : 0, enemies: enemies };
+  }
+
+  /** 对比前后快照，触发对应的 Game Feel 特效 */
+  function diffAndFeel(before, after, opts) {
+    var G = gf();
+    if (!G || !before || !after) return;
+    opts = opts || {};
+    try {
+      // 胜负检测
+      if (after.phase === 'FINISHED' || after.phase === 'REWARD_SELECTION') {
+        var allDead = true;
+        Object.keys(after.enemies).forEach(function (uid) { if (after.enemies[uid].hp > 0) allDead = false; });
+        if (allDead && (before.phase === 'PLAYER_TURN' || before.phase === 'ENEMY_TURN')) {
+          G.battle('victory', {});
+          return;
+        }
+      }
+      if (after.playerHp <= 0 && before.playerHp > 0) {
+        G.battle('defeat', {});
+        return;
+      }
+      // 敌人受击检测
+      var totalDamage = 0;
+      Object.keys(before.enemies).forEach(function (uid) {
+        var b = before.enemies[uid], a = after.enemies[uid];
+        if (a && b && b.hp > a.hp) totalDamage += (b.hp - a.hp);
+      });
+      if (totalDamage > 0) {
+        var enemyEl = opts.enemyEl || null;
+        G.battle('enemyHit', { value: totalDamage, targetEl: enemyEl });
+      }
+      // 玩家受击检测
+      if (before.playerHp > after.playerHp) {
+        G.battle('damageToPlayer', { value: before.playerHp - after.playerHp });
+      }
+      // 玩家治疗检测
+      if (after.playerHp > before.playerHp) {
+        G.battle('heal', { value: after.playerHp - before.playerHp });
+      }
+    } catch (eGF) { /* 特效失败不影响游戏 */ }
+  }
+
   function handlePlayCard(cardUid) {
     var f = facade();
     if (!f) return;
@@ -282,8 +335,20 @@
       return;
     }
     selectedCardUid = null;
+    var before = snapshotBattle(f);
     try {
       f.playBattleCard(cardUid, null);
+      // V6.1 Game Feel：出牌特效
+      try {
+        var G = gf();
+        if (G) {
+          var cardEl = document.querySelector('[data-card="' + cardUid + '"]');
+          G.battle('playCard', { cardEl: cardEl });
+          if (upgradedDef.type === 'DEFENSE') G.battle('block', { value: 0 });
+          var after = snapshotBattle(f);
+          diffAndFeel(before, after, {});
+        }
+      } catch (eGF) { /* 特效失败不影响游戏 */ }
     } catch (e) {
       toast(e && e.message ? e.message : '出牌失败');
     }
@@ -295,8 +360,20 @@
     if (!f) return false;
     var uid = selectedCardUid;
     selectedCardUid = null;
+    var before = snapshotBattle(f);
     try {
       f.playBattleCard(uid, enemyUid);
+      // V6.1 Game Feel：对敌出牌特效
+      try {
+        var G = gf();
+        if (G) {
+          var cardEl = document.querySelector('[data-card="' + uid + '"]');
+          var enemyEl = document.querySelector('[data-enemy-uid="' + enemyUid + '"]');
+          G.battle('playCard', { cardEl: cardEl });
+          var after = snapshotBattle(f);
+          diffAndFeel(before, after, { enemyEl: enemyEl });
+        }
+      } catch (eGF) { /* 特效失败不影响游戏 */ }
     } catch (e) {
       toast(e && e.message ? e.message : '出牌失败');
     }
@@ -306,8 +383,17 @@
   function handleEndTurn() {
     var f = facade();
     if (!f) return;
+    var before = snapshotBattle(f);
     try {
       f.endBattleTurn();
+      // V6.1 Game Feel：结束回合 → 敌人行动特效
+      try {
+        var G = gf();
+        if (G) {
+          var after = snapshotBattle(f);
+          diffAndFeel(before, after, {});
+        }
+      } catch (eGF) { /* 特效失败不影响游戏 */ }
     } catch (e) {
       toast(e && e.message ? e.message : '无法结束回合');
     }
@@ -318,6 +404,8 @@
     if (!f) return;
     try {
       f.claimBattleCardReward(cardId);
+      // V6.1 Game Feel：奖励领取特效
+      try { if (gf()) gf().battle('reward', {}); } catch (eGF) { /* 特效失败不影响游戏 */ }
       toast('已收入卡组：' + cardId);
     } catch (e) {
       toast(e && e.message ? e.message : '领取失败');

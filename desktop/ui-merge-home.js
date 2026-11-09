@@ -205,6 +205,20 @@
       '</div>';
     root.appendChild(fx);
     setTimeout(function () { fx.remove(); }, isNewMax ? 2400 : 1700);
+    // V6.1 Game Feel：合成庆祝增强（粒子爆发 + 震屏 + 音效 + 飘字）
+    try {
+      if (window.__GAME_FEEL__) {
+        window.__GAME_FEEL__.mergeCelebrate({
+          level: level,
+          salaryReward: salaryReward,
+          cultivationReward: cultivationReward,
+          isNewMax: isNewMax,
+          tierName: t.name,
+          tierEmoji: t.emoji,
+          skipDom: true // celebrate() 已创建 DOM，Game Feel 仅负责粒子/震屏/音效
+        });
+      }
+    } catch (eGF) { /* 特效失败不影响游戏 */ }
   }
 
   function recruitFx(row, col) {
@@ -241,6 +255,8 @@
         if (r && r.success) {
           _sel = null;
           recruitFx(r.position.row, r.position.column);
+          // V6.1 Game Feel：招募反馈
+          try { if (window.__GAME_FEEL__) window.__GAME_FEEL__.floatAt(el, '+1 ' + tier(r.worker.level).name, { kind: 'gain' }); } catch (eGF) { /* 特效失败不影响游戏 */ }
           H.toast('招到一只 ' + tier(r.worker.level).name + '，安排上工位。', 'success');
         } else {
           H.toast((r && r.message) || '工位满了', 'error');

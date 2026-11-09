@@ -653,6 +653,28 @@
   font-weight: 900;
   box-shadow: 0 4px 14px rgba(240, 177, 60, 0.45);
 }
+/* V6.1：暴击/连击 fx-chip 变体 */
+.fx-chip--crit {
+  background: rgba(255, 107, 53, 0.95);
+  border-color: #ffd4b8;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(180, 40, 0, 0.6);
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.55);
+  animation: uxgf-chip-pop 0.3s ease-out;
+}
+.fx-chip--combo {
+  background: rgba(251, 146, 60, 0.95);
+  border-color: #ffe0c0;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(180, 80, 0, 0.6);
+  box-shadow: 0 4px 14px rgba(251, 146, 60, 0.5);
+  animation: uxgf-chip-pop 0.3s ease-out 0.1s both;
+}
+@keyframes uxgf-chip-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
 @keyframes ux-fx-float {
   0% { opacity: 0; transform: translateY(10px); }
   18% { opacity: 1; transform: translateY(0); }
@@ -2723,3 +2745,238 @@ button.ux-journey--sec { cursor: pointer; }
 .ux-bc-card.is-playing { animation: uxbc-play .3s ease forwards; }
 @keyframes uxbc-flash { 0% { box-shadow: 0 0 0 rgba(255,120,120,0); } 50% { box-shadow: 0 0 18px rgba(255,120,120,.9); } 100% { box-shadow: 0 0 0 rgba(255,120,120,0); } }
 .ux-bt-enemy.is-hit { animation: uxbc-flash .35s ease; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * V6.1 Game Feel 爽感系统样式（ui-game-feel.js）
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* —— 点击涟漪 —— */
+.ux-gf-ripple {
+  position: absolute; pointer-events: none; z-index: 200;
+  width: var(--gf-ripple-size, 60px); height: var(--gf-ripple-size, 60px);
+  margin-left: calc(var(--gf-ripple-size, 60px) / -2);
+  margin-top: calc(var(--gf-ripple-size, 60px) / -2);
+  border-radius: 50%; border: 2px solid rgba(255,215,0,.6);
+  background: radial-gradient(circle, rgba(255,215,0,.15) 0%, transparent 70%);
+  animation: uxgf-ripple .55s ease-out forwards;
+}
+@keyframes uxgf-ripple {
+  0% { transform: scale(.2); opacity: .8; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* —— 按钮按下缩放 —— */
+.ux-gf-press { animation: uxgf-press .22s ease; }
+@keyframes uxgf-press {
+  0% { transform: scale(1); }
+  40% { transform: scale(.92); }
+  100% { transform: scale(1); }
+}
+
+/* —— 飘字 —— */
+.ux-gf-float {
+  position: absolute; pointer-events: none; z-index: 210;
+  font-weight: 700; font-size: 15px; white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0,0,0,.5);
+  --gf-scale: 1;
+  animation: uxgf-float 1.1s ease-out forwards;
+}
+.ux-gf-float.is-gain { color: #7fe08f; }
+.ux-gf-float.is-crit {
+  color: #ff6b35; font-size: 20px; font-weight: 900;
+  text-shadow: 0 0 8px rgba(255,107,53,.6), 0 1px 3px rgba(0,0,0,.5);
+}
+.ux-gf-float.is-combo { color: #ffd700; }
+.ux-gf-float.is-info { color: #9aa3b8; font-size: 13px; font-weight: 500; }
+.ux-gf-float.is-damage { color: #ff5252; font-size: 18px; font-weight: 900; }
+.ux-gf-float.is-heal { color: #7fe08f; font-size: 16px; }
+@keyframes uxgf-float {
+  0% { transform: translate(-50%, 0) scale(calc(var(--gf-scale) * .5)); opacity: 0; }
+  15% { transform: translate(-50%, calc(var(--gf-dy, -70px) * .2)) scale(var(--gf-scale)); opacity: 1; }
+  75% { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--gf-dx, 0px)), var(--gf-dy, -70px)) scale(calc(var(--gf-scale) * .9)); opacity: 0; }
+}
+
+/* —— 粒子 —— */
+.ux-gf-particle {
+  position: absolute; pointer-events: none; z-index: 205;
+  border-radius: 50%; opacity: .9;
+  animation: uxgf-particle .8s ease-out forwards;
+}
+@keyframes uxgf-particle {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: .9; }
+  60% { opacity: .7; }
+  100% { transform: translate(calc(-50% + var(--gf-pdx, 0px)), calc(-50% + var(--gf-pdy, 0px))) scale(.2) rotate(var(--gf-prot, 180deg)); opacity: 0; }
+}
+
+/* —— 震屏（施加在 GameDiv 上） —— */
+.ux-gf-shake-light { animation: uxgf-shake-light .22s ease; }
+@keyframes uxgf-shake-light {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+.ux-gf-shake-medium { animation: uxgf-shake-medium .35s ease; }
+@keyframes uxgf-shake-medium {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-7px, 3px); }
+  30% { transform: translate(7px, -3px); }
+  45% { transform: translate(-5px, 2px); }
+  60% { transform: translate(5px, -2px); }
+  75% { transform: translate(-3px, 1px); }
+  90% { transform: translate(3px, -1px); }
+}
+.ux-gf-shake-heavy { animation: uxgf-shake-heavy .5s ease; }
+@keyframes uxgf-shake-heavy {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-10px, 5px) rotate(-.5deg); }
+  20% { transform: translate(10px, -5px) rotate(.5deg); }
+  30% { transform: translate(-8px, 4px) rotate(-.3deg); }
+  40% { transform: translate(8px, -4px) rotate(.3deg); }
+  50% { transform: translate(-6px, 3px); }
+  60% { transform: translate(6px, -3px); }
+  70% { transform: translate(-4px, 2px); }
+  80% { transform: translate(4px, -2px); }
+  90% { transform: translate(-2px, 1px); }
+}
+
+/* —— 连击计数器 HUD —— */
+.ux-gf-combo {
+  position: absolute; top: 18%; right: 8%; z-index: 215;
+  padding: 6px 16px; border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255,215,0,.2), rgba(255,107,53,.15));
+  border: 1.5px solid rgba(255,215,0,.5);
+  color: #ffd700; font-size: 16px; font-weight: 800;
+  text-shadow: 0 0 6px rgba(255,215,0,.5);
+  pointer-events: none; opacity: 0;
+  transition: opacity .3s ease;
+}
+.ux-gf-combo.is-pop { opacity: 1; animation: uxgf-combo-pop .25s ease; }
+.ux-gf-combo.is-fade { opacity: 0; }
+.ux-gf-combo.is-warm {
+  border-color: #ff8c42; color: #ff8c42;
+  text-shadow: 0 0 8px rgba(255,140,66,.6);
+  background: linear-gradient(135deg, rgba(255,140,66,.25), rgba(255,71,87,.15));
+}
+.ux-gf-combo.is-hot {
+  border-color: #ff4757; color: #ff4757; font-size: 18px;
+  text-shadow: 0 0 10px rgba(255,71,87,.7);
+  background: linear-gradient(135deg, rgba(255,71,87,.3), rgba(255,215,0,.15));
+  animation: uxgf-combo-hot .4s ease infinite alternate;
+}
+@keyframes uxgf-combo-pop {
+  0% { transform: scale(.7); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes uxgf-combo-hot {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+
+/* —— 合成升阶全屏庆祝（Game Feel 增强版） —— */
+.ux-gf-celebrate {
+  position: absolute; inset: 0; z-index: 230; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  animation: uxgf-celebrate-fade 1.8s ease forwards;
+}
+.ux-gf-celebrate.is-max { animation-duration: 2.6s; }
+.ux-gf-celebrate-rays {
+  position: absolute; width: 340px; height: 340px;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(255,215,0,.12) 15deg, transparent 30deg, rgba(255,215,0,.12) 45deg, transparent 60deg, rgba(255,215,0,.12) 75deg, transparent 90deg, rgba(255,215,0,.12) 105deg, transparent 120deg, rgba(255,215,0,.12) 135deg, transparent 150deg, rgba(255,215,0,.12) 165deg, transparent 180deg, rgba(255,215,0,.12) 195deg, transparent 210deg, rgba(255,215,0,.12) 225deg, transparent 240deg, rgba(255,215,0,.12) 255deg, transparent 270deg, rgba(255,215,0,.12) 285deg, transparent 300deg, rgba(255,215,0,.12) 315deg, transparent 330deg, rgba(255,215,0,.12) 345deg, transparent 360deg);
+  border-radius: 50%;
+  animation: uxgf-celebrate-rays-spin 3s linear infinite;
+}
+.ux-gf-celebrate-core {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 28px 40px; border-radius: 20px;
+  background: rgba(24,28,42,.92); border: 2px solid rgba(255,215,0,.4);
+  box-shadow: 0 0 40px rgba(255,215,0,.2);
+  animation: uxgf-celebrate-core-pop .4s cubic-bezier(.34,1.56,.64,1);
+}
+.ux-gf-celebrate.is-max .ux-gf-celebrate-core {
+  border-color: #ff6b35;
+  box-shadow: 0 0 60px rgba(255,107,53,.35);
+}
+.ux-gf-celebrate-emoji { font-size: 52px; animation: uxgf-celebrate-emoji-bounce .6s ease; }
+.ux-gf-celebrate-title { color: #ffe9bd; font-size: 18px; font-weight: 800; text-align: center; }
+.ux-gf-celebrate-title b { color: #ffd700; font-size: 22px; }
+.ux-gf-celebrate-rewards { display: flex; gap: 14px; font-size: 14px; }
+.ux-gf-celebrate-rewards i { font-style: normal; padding: 4px 12px; border-radius: 12px; }
+.ux-gf-celebrate-rewards .is-salary { color: #7fe08f; background: rgba(127,224,143,.12); border: 1px solid rgba(127,224,143,.3); }
+.ux-gf-celebrate-rewards .is-cultivation { color: #a29bfe; background: rgba(162,155,254,.12); border: 1px solid rgba(162,155,254,.3); }
+.ux-gf-celebrate-chain {
+  color: #ff8c42; font-size: 15px; font-weight: 800;
+  text-shadow: 0 0 8px rgba(255,140,66,.5);
+  animation: uxgf-combo-pop .3s ease;
+}
+.ux-gf-celebrate-max {
+  color: #ff6b35; font-size: 13px; font-weight: 700;
+  text-shadow: 0 0 10px rgba(255,107,53,.6);
+  animation: uxgf-celebrate-max-glow .8s ease infinite alternate;
+}
+@keyframes uxgf-celebrate-fade {
+  0% { opacity: 0; } 8% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; }
+}
+@keyframes uxgf-celebrate-rays-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes uxgf-celebrate-core-pop {
+  0% { transform: scale(.3); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes uxgf-celebrate-emoji-bounce {
+  0% { transform: scale(0) rotate(-30deg); }
+  60% { transform: scale(1.3) rotate(10deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes uxgf-celebrate-max-glow {
+  from { opacity: .7; }
+  to { opacity: 1; text-shadow: 0 0 16px rgba(255,107,53,.9); }
+}
+
+/* —— 战斗闪白/闪红 —— */
+.ux-gf-flash { animation: uxgf-flash .3s ease; }
+@keyframes uxgf-flash {
+  0% { filter: brightness(1); }
+  40% { filter: brightness(1.8) saturate(1.5); }
+  100% { filter: brightness(1); }
+}
+.ux-gf-flash-red { animation: uxgf-flash-red .35s ease; }
+@keyframes uxgf-flash-red {
+  0% { filter: brightness(1); box-shadow: 0 0 0 rgba(255,82,82,0); }
+  30% { filter: brightness(1.5); box-shadow: 0 0 20px rgba(255,82,82,.8); }
+  100% { filter: brightness(1); box-shadow: 0 0 0 rgba(255,82,82,0); }
+}
+
+/* —— 晋升横幅 —— */
+.ux-gf-promo-banner {
+  position: absolute; top: 30%; left: 50%; transform: translateX(-50%); z-index: 240;
+  padding: 16px 48px; border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255,215,0,.25), rgba(255,107,53,.2));
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 50px rgba(255,215,0,.4);
+  color: #ffe9bd; font-size: 24px; font-weight: 900;
+  text-shadow: 0 0 12px rgba(255,215,0,.7);
+  pointer-events: none; white-space: nowrap;
+  animation: uxgf-promo-in .5s cubic-bezier(.34,1.56,.64,1), uxgf-promo-out .4s ease 2.1s forwards;
+}
+@keyframes uxgf-promo-in {
+  0% { transform: translateX(-50%) scale(.2) rotate(-5deg); opacity: 0; }
+  100% { transform: translateX(-50%) scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes uxgf-promo-out {
+  0% { opacity: 1; transform: translateX(-50%) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) scale(1.1) translateY(-20px); }
+}
+
+/* —— Game Feel 设置开关（音效） —— */
+.ux-gf-sfx-toggle {
+  position: absolute; bottom: 6px; right: 8px; z-index: 120;
+  font-size: 11px; color: #9aa3b8; cursor: pointer;
+  padding: 3px 8px; border-radius: 8px;
+  background: rgba(24,28,42,.7); border: 1px solid rgba(74,81,102,.5);
+  user-select: none; transition: color .2s, border-color .2s;
+}
+.ux-gf-sfx-toggle:hover { color: #ffe9bd; border-color: #c9a54a; }
+.ux-gf-sfx-toggle.is-off { opacity: .5; }

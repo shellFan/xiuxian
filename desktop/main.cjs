@@ -20,6 +20,7 @@ const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
 const path = require('path');
 const { initStorage, saveGame, loadGame, backupSave, recoverSave } = require('./storage.cjs');
 const { GameServer } = require('./game-server.cjs');
+const aiBridge = require('./ai-bridge.cjs');
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const GAME_TITLE = '牛马修仙传 - 上班也是渡劫';
@@ -97,6 +98,28 @@ ipcMain.handle('window:maximize', () => {
 });
 ipcMain.handle('window:close', () => {
   if (mainWindow && !mainWindow.isDestroyed()) mainWindow.close();
+});
+
+// ── V6.1 AI NPC IPC ──────────────────────────────────────────────────────────
+ipcMain.handle('ai:status', async () => {
+  try { return await aiBridge.getStatus(); }
+  catch (e) { return { available: false, mode: 'rule', error: e.message }; }
+});
+ipcMain.handle('ai:chat', async (_e, personaId, message, context) => {
+  try { return { success: true, ...await aiBridge.chat(personaId, message, context) }; }
+  catch (e) { return { success: false, reply: '……(信号不通)', mode: 'error', error: e.message }; }
+});
+ipcMain.handle('ai:npc-list', () => {
+  try { return { success: true, npcs: aiBridge.getNpcList() }; }
+  catch (e) { return { success: false, npcs: [] }; }
+});
+ipcMain.handle('ai:greeting', (_e, personaId) => {
+  try { return { success: true, greeting: aiBridge.getGreeting(personaId) }; }
+  catch (e) { return { success: false, greeting: '……' }; }
+});
+ipcMain.handle('ai:clear-history', (_e, personaId) => {
+  try { return aiBridge.clearHistory(personaId); }
+  catch (e) { return { success: false }; }
 });
 
 // ── Game Ready Signal ──────────────────────────────────────────────────────

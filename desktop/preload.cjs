@@ -45,6 +45,15 @@ const electronAPI = {
   minimize: () => ipcRenderer.invoke('window:minimize'),
   maximize: () => ipcRenderer.invoke('window:maximize'),
   close: () => ipcRenderer.invoke('window:close'),
+
+  // ── V6.1 AI NPC ──────────────────────────────────────────────────────────
+  ai: {
+    status: () => ipcRenderer.invoke('ai:status'),
+    chat: (personaId, message, context) => ipcRenderer.invoke('ai:chat', personaId, message, context),
+    npcList: () => ipcRenderer.invoke('ai:npc-list'),
+    greeting: (personaId) => ipcRenderer.invoke('ai:greeting', personaId),
+    clearHistory: (personaId) => ipcRenderer.invoke('ai:clear-history', personaId),
+  },
 };
 
 // Expose to renderer as window.electronAPI

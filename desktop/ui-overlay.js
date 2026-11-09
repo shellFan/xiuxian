@@ -1028,6 +1028,63 @@
   };
   function incidentTypeLabel(type) { return INCIDENT_LABELS[type] || String(type || '线上事故').replace(/[_-]+/g, ' '); }
 
+  /* V6.1：首页晋升进度指引卡片（经营→战斗→晋升闭环） */
+  function promotionGoalHtml(hud) {
+    var f = facade();
+    if (!f) return '';
+    var promo = null;
+    var kpi = null;
+    try { promo = readPromotion(); } catch (e) { promo = null; }
+    try { kpi = readKpi(); } catch (e) { kpi = { items: [] }; }
+    if (!promo) return '';
+    var next = null;
+    try { next = readCareerAt(hud.careerLevel + 1); } catch (e) { next = null; }
+    var nextName = next ? next.name : '下一阶段';
+
+    // 计算条件满足数
+    var totalConds = 0, metConds = 0;
+    var reqExp = Math.max(hud.requiredExp || 0, 0);
+    if (reqExp > 0) { totalConds++; if (hud.cultivationExp >= reqExp) metConds++; }
+    (kpi.items || []).forEach(function (item) { totalConds++; if (item.completed) metConds++; });
+    if (totalConds === 0) totalConds = 1; // 防除零
+    var pct = Math.floor((metConds / totalConds) * 100);
+
+    // 闭环提示：根据进度推荐下一步
+    var loopHint = '';
+    if (promo.allowed) {
+      loopHint = '🎊 条件已满足，渡劫晋升！';
+    } else if (reqExp > 0 && hud.cultivationExp < reqExp) {
+      var expGap = reqExp - hud.cultivationExp;
+      loopHint = '🧘 还差 ' + fmtNum(expGap) + ' 修为 —— 修炼/合成升级获取';
+    } else {
+      var unmet = (kpi.items || []).filter(function (item) { return !item.completed; })[0];
+      if (unmet) loopHint = '📋 ' + kpiShortLabel(unmet.type) + ' ' + fmtNum(unmet.progress) + '/' + fmtNum(unmet.target);
+      else loopHint = '💪 继续搬砖积累实力';
+    }
+
+    var barColor = promo.allowed ? '#ffd700' : pct >= 60 ? '#7ec08a' : '#60a5fa';
+    var cls = 'ux-promo-goal' + (promo.allowed ? ' is-ready' : '');
+    var cta = promo.allowed
+      ? '<button class="ux-promo-goal-cta" data-action="promote">渡劫晋升 ›</button>'
+      : '<button class="ux-promo-goal-cta ux-promo-goal-cta--locked" data-nav="PROMOTION">查看条件 ›</button>';
+
+    return '<div class="' + cls + '">' +
+      '<div class="ux-promo-goal-head">' +
+        '<span class="ux-promo-goal-title">🏯 晋升目标：' + escHtml(nextName) + '</span>' +
+        '<span class="ux-promo-goal-pct">' + pct + '%</span>' +
+      '</div>' +
+      '<div class="ux-promo-goal-bar"><div class="ux-promo-goal-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>' +
+      '<div class="ux-promo-goal-hint">' + escHtml(loopHint) + '</div>' +
+      '<div class="ux-promo-goal-loop">' +
+        '<span class="loop-step">💼 经营</span><span class="loop-arrow">→</span>' +
+        '<span class="loop-step">🧘 修炼</span><span class="loop-arrow">→</span>' +
+        '<span class="loop-step">⚔️ 战斗</span><span class="loop-arrow">→</span>' +
+        '<span class="loop-step is-promo">🏯 晋升</span>' +
+      '</div>' +
+      cta +
+    '</div>';
+  }
+
   /* V5.6 §5.3：Today Capacity Widget */
   function todayCapacityHtml() {
     var f = facade();
@@ -1087,7 +1144,7 @@
           '<div class="ux-home-status" aria-label="今日状态">' +
             v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() +
           '</div>' +
-          todayCapacityHtml() + journeyGuideHtml() + actionDetailHtml(hud) +
+          todayCapacityHtml() + journeyGuideHtml() + promotionGoalHtml(hud) + actionDetailHtml(hud) +
           v59fPanel +
           homeRightHtml(hud) +
         '</div>' +
@@ -1471,7 +1528,11 @@
   /* 修炼点击反馈（§140~§143）：详情区轻量 +N 动画，数字由 facade 返回 */
   function cultivateFxHtml() {
     if (!_cultivateFx || Date.now() - _cultivateFx.at >= 4000) return '';
-    return '<div class="ux-detail-fx"><span class="fx-chip">💧 修为 +' + _cultivateFx.exp + '</span></div>';
+    var chips = '<span class="fx-chip">💧 修为 +' + _cultivateFx.exp + '</span>';
+    // V6.1：暴击/连击标记
+    if (_cultivateFx.crit) chips += '<span class="fx-chip fx-chip--crit">⚡ 暴击 x' + (_cultivateFx.critMultiplier || 1.5).toFixed(1) + '</span>';
+    if (_cultivateFx.combo && _cultivateFx.combo >= 2) chips += '<span class="fx-chip fx-chip--combo">🔥 连击 x' + _cultivateFx.combo + '</span>';
+    return '<div class="ux-detail-fx">' + chips + '</div>';
   }
 
   /* 教程 V2 软引导（桌面桥接）：只读展示当前步骤，文案随服务状态更新，绝不拦截输入 */
@@ -2218,14 +2279,119 @@
   var _messengerActiveConversation = null;
   var _messengerReplyMessageId = null;
 
-  function renderMessenger() {
+  /* ── V6.1 AI NPC 聊天 ── */
+  var _aiActiveNpc = null; // 当前选中的AI NPC id
+  var _aiMessages = {};    // { npcId: [{role:'user'|'assistant', content, ts}] }
+  var _aiSending = false;
+  var _aiMode = 'rule';    // 'mnn' | 'rule' (最后一次响应模式)
+
+  var AI_NPCS = [
+    { id: 'master', name: '清虚掌门', avatar: '🧙', desc: '高冷导师' },
+    { id: 'senior', name: '灵犀师姐', avatar: '👩\u200d🦰', desc: '温柔师姐' },
+    { id: 'boss', name: '钱老板', avatar: '👨\u200d💼', desc: '黑心老板' },
+    { id: 'assistant', name: '小牛助手', avatar: '🤖', desc: '游戏助手' },
+  ];
+
+  function aiNpcById(id) {
+    for (var i = 0; i < AI_NPCS.length; i++) if (AI_NPCS[i].id === id) return AI_NPCS[i];
+    return null;
+  }
+
+  function aiGetMessages(npcId) {
+    if (!_aiMessages[npcId]) {
+      _aiMessages[npcId] = [];
+      // 初始问候
+      try {
+        if (window.electronAPI && window.electronAPI.ai) {
+          window.electronAPI.ai.greeting(npcId).then(function (r) {
+            if (r && r.success && r.greeting) {
+              _aiMessages[npcId] = [{ role: 'assistant', content: r.greeting, ts: Date.now() }];
+            }
+          }).catch(function () {});
+        }
+      } catch (e) {}
+    }
+    return _aiMessages[npcId];
+  }
+
+  function aiBuildContext() {
     var f = facade();
-    if (!f || typeof f.queryConversations !== 'function') return emptyState('📨', '飞剑传书未就绪', '灵网正在接入……');
-    var conversations = (function () { try { return f.queryConversations(); } catch (e) { return []; } })();
-    if (!_messengerActiveConversation && conversations.length) _messengerActiveConversation = conversations[0].id;
+    var ctx = {};
+    try {
+      if (f) {
+        var hud = readHUD();
+        if (hud) {
+          ctx.fatigue = hud.fatigue || 0;
+          ctx.combo = (window.__GAME_FEEL__ && window.__GAME_FEEL__.combo) ? window.__GAME_FEEL__.combo.count : 0;
+        }
+        var promo = readPromotion();
+        if (promo) ctx.promoAllowed = promo.allowed;
+      }
+    } catch (e) {}
+    return ctx;
+  }
+
+  async function aiSendMessage(npcId, text) {
+    if (_aiSending) return;
+    var msg = String(text || '').trim();
+    if (!msg) return;
+    _aiSending = true;
+    var msgs = aiGetMessages(npcId);
+    msgs.push({ role: 'user', content: msg, ts: Date.now() });
+    refresh();
+    try {
+      var r = null;
+      if (window.electronAPI && window.electronAPI.ai && window.electronAPI.ai.chat) {
+        r = await window.electronAPI.ai.chat(npcId, msg, aiBuildContext());
+      }
+      if (r && r.success && r.reply) {
+        _aiMode = r.mode || 'rule';
+        msgs.push({ role: 'assistant', content: r.reply, ts: Date.now() });
+      } else {
+        msgs.push({ role: 'assistant', content: '……(灵网信号不佳)', ts: Date.now() });
+      }
+    } catch (e) {
+      msgs.push({ role: 'assistant', content: '……(灵网信号不佳)', ts: Date.now() });
+    }
+    _aiSending = false;
+    refresh();
+  }
+
+  function renderAiChat() {
+    var npc = aiNpcById(_aiActiveNpc);
+    if (!npc) return '';
+    var msgs = aiGetMessages(npc.id);
+    var chatHtml = msgs.map(function (m) {
+      var t = new Date(m.ts).toTimeString().slice(0, 5);
+      if (m.role === 'user') {
+        return '<div class="ux-chat-row mine"><span class="ux-chat-sender">我 · ' + t + '</span><span class="ux-chat-bubble">' + escHtml(m.content) + '</span></div>';
+      }
+      return '<div class="ux-chat-row"><span class="ux-chat-sender">' + escHtml(npc.name) + ' · ' + t + '</span><span class="ux-chat-bubble ux-chat-bubble--ai">' + escHtml(m.content) + '</span></div>';
+    }).join('') || '<div class="ux-chat-empty">正在连接灵网……</div>';
+
+    var modeBadge = _aiMode === 'mnn' ? '<span class="ux-ai-mode ux-ai-mode--mnn">MNN-0.3B</span>' : '<span class="ux-ai-mode">本地规则</span>';
+    var sendingHtml = _aiSending ? '<div class="ux-chat-typing">' + escHtml(npc.name) + '正在输入……</div>' : '';
+
+    return '<div class="ux-messenger">' +
+      '<aside class="ux-messenger-list">' + aiNpcListHtml() + '</aside>' +
+      '<section class="ux-messenger-chat">' +
+        '<div class="ux-chat-title">' + npc.avatar + ' ' + escHtml(npc.name) + ' <span class="ux-chat-title-sub">' + escHtml(npc.desc) + '</span> ' + modeBadge + '</div>' +
+        '<div class="ux-chat-scroll" id="MessengerChatScroll">' + chatHtml + sendingHtml + '</div>' +
+        '<div class="ux-chat-footer ux-ai-input-bar">' +
+          '<input class="ux-ai-input" id="AiChatInput" type="text" maxlength="200" placeholder="输入消息，回车发送…" autocomplete="off" />' +
+          '<button class="ux-ai-send" data-ai-send="' + escHtml(npc.id) + '"' + (_aiSending ? ' disabled' : '') + '>发送</button>' +
+        '</div>' +
+      '</section>' +
+    '</div>';
+  }
+
+  function aiNpcListHtml() {
+    var f = facade();
+    var conversations = [];
+    if (f && typeof f.queryConversations === 'function') { try { conversations = f.queryConversations(); } catch (e) {} }
     var activeId = _messengerActiveConversation;
     var listHtml = conversations.map(function (c) {
-      return '<button class="ux-conv' + (c.id === activeId ? ' is-active' : '') +
+      return '<button class="ux-conv' + (c.id === activeId && !_aiActiveNpc ? ' is-active' : '') +
         (c.unreadCount > 0 ? ' has-unread' : '') + '" data-open-conversation="' + escHtml(c.id) + '">' +
         '<span class="ux-conv-avatar">' + escHtml(c.avatar === 'group' ? '👥' : c.avatar === 'system' ? '📡' : '🧑') + '</span>' +
         '<span class="ux-conv-main"><span class="ux-conv-title">' + escHtml(c.title) + '</span>' +
@@ -2234,6 +2400,29 @@
         '<i>' + (c.lastMessageAt ? new Date(c.lastMessageAt).toTimeString().slice(0, 5) : '') + '</i></span>' +
         '</button>';
     }).join('');
+
+    var aiHtml = AI_NPCS.map(function (n) {
+      return '<button class="ux-conv ux-conv--ai' + (n.id === _aiActiveNpc ? ' is-active' : '') + '" data-ai-npc="' + escHtml(n.id) + '">' +
+        '<span class="ux-conv-avatar">' + n.avatar + '</span>' +
+        '<span class="ux-conv-main"><span class="ux-conv-title">' + escHtml(n.name) + '</span>' +
+        '<span class="ux-conv-last">' + escHtml(n.desc) + '</span></span>' +
+        '<span class="ux-conv-side"><i class="ux-ai-badge">AI</i></span>' +
+        '</button>';
+    }).join('');
+
+    return listHtml + '<div class="ux-conv-sep">— AI NPC —</div>' + aiHtml;
+  }
+
+  function renderMessenger() {
+    // V6.1: AI NPC 模式
+    if (_aiActiveNpc) return renderAiChat();
+    var f = facade();
+    if (!f || typeof f.queryConversations !== 'function') return emptyState('📨', '飞剑传书未就绪', '灵网正在接入……');
+    var conversations = (function () { try { return f.queryConversations(); } catch (e) { return []; } })();
+    if (!_messengerActiveConversation && conversations.length) _messengerActiveConversation = conversations[0].id;
+    var activeId = _messengerActiveConversation;
+    // V6.1: 列表含 AI NPC 入口
+    var listHtml = aiNpcListHtml();
 
     var messages = activeId ? (function () { try { return f.queryMessages(activeId); } catch (e) { return []; } })() : [];
     var convTitle = (conversations.filter(function (c) { return c.id === activeId; })[0] || {}).title || '';
@@ -3550,8 +3739,11 @@
     if (!overlay) return;
 
     overlay.onclick = function (e) {
-      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab],[data-codex-tab],[data-creation-action],[data-creation-choice],[data-enemy-uid]') : null;
+      var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab],[data-codex-tab],[data-creation-action],[data-creation-choice],[data-enemy-uid],[data-ai-npc],[data-ai-send]') : null;
       if (!el) return;
+
+      // V6.1 Game Feel：全局点击涟漪反馈
+      try { if (window.__GAME_FEEL__) window.__GAME_FEEL__.click(el); } catch (eGF) { /* 特效失败不影响游戏 */ }
 
       // V5.9-O.2：卡牌目标选择 —— 已选牌时点击敌人 = 施放
       if (el.dataset.enemyUid && window.__BATTLE_CARD__ && window.__BATTLE_CARD__.isSelecting()) {
@@ -3649,7 +3841,26 @@
         refresh();
         return;
       }
+      /* V6.1 AI NPC：选中NPC */
+      if (el.dataset.aiNpc) {
+        _aiActiveNpc = el.dataset.aiNpc;
+        _messengerReplyMessageId = null;
+        aiGetMessages(_aiActiveNpc); // 触发问候
+        refresh();
+        // 聚焦输入框
+        setTimeout(function () { var inp = document.getElementById('AiChatInput'); if (inp) inp.focus(); }, 50);
+        return;
+      }
+      /* V6.1 AI NPC：发送消息 */
+      if (el.dataset.aiSend) {
+        var aiInp = document.getElementById('AiChatInput');
+        if (aiInp && aiInp.value.trim()) {
+          aiSendMessage(el.dataset.aiSend, aiInp.value);
+        }
+        return;
+      }
       if (el.dataset.openConversation) {
+        _aiActiveNpc = null; // V6.1: 切回普通会话时取消AI选中
         _messengerActiveConversation = el.dataset.openConversation;
         _messengerReplyMessageId = null;
         var fOpen = facade();
@@ -3739,11 +3950,22 @@
           if (!fCult || typeof fCult.cultivate !== 'function') { console.warn('[overlay] cultivate unavailable'); break; }
           try {
             var rCult = fCult.cultivate();
+            // V6.1 Game Feel：修炼点击反馈（暴击/连击/飘字/粒子/震屏/音效）
+            try { if (window.__GAME_FEEL__) window.__GAME_FEEL__.cultivate(el, rCult); } catch (eGF) { /* 特效失败不影响游戏 */ }
             _cultivateFx = {
               exp: rCult && rCult.cultivationExp !== undefined ? rCult.cultivationExp : 0,
+              crit: !!(rCult && rCult.crit),
+              critMultiplier: rCult && rCult.critMultiplier || 0,
+              combo: rCult && rCult.combo || 0,
               at: Date.now(),
             };
-            toast('修炼成功，修为 +' + (_cultivateFx.exp || 0), 'success');
+            if (rCult && rCult.cooldownRemaining && rCult.cooldownRemaining > 0) {
+              toast('冷却中，还需 ' + Math.ceil(rCult.cooldownRemaining / 1000) + ' 秒', 'info');
+            } else if (_cultivateFx.crit) {
+              toast('暴击! 修为 +' + (_cultivateFx.exp || 0) + (rCult && rCult.critMultiplier ? ' (x' + rCult.critMultiplier.toFixed(1) + ')' : ''), 'success');
+            } else {
+              toast('修炼成功，修为 +' + (_cultivateFx.exp || 0), 'success');
+            }
             try { if (window.__MERGE__ && window.__MERGE__.noteAction) window.__MERGE__.noteAction('cultivate'); } catch (eMerge) { /* 引导推进失败不影响主流程 */ }
           } catch (e) { toast(errMsg(e), 'error'); }
           refresh();
@@ -3757,6 +3979,12 @@
             else {
               /* 一键行为：切换成功后详情面板跟随该动作 */
               _selectedAction = el.dataset.mode;
+              // V6.1 Game Feel：模式切换反馈
+              try { if (window.__GAME_FEEL__) {
+                var modeLabel = el.dataset.mode === 'work' ? '搬砖模式' : el.dataset.mode === 'slack' ? '摸鱼模式' : el.dataset.mode === 'overtime' ? '加班模式' : el.dataset.mode;
+                window.__GAME_FEEL__.floatAt(el, modeLabel, { kind: 'info' });
+                window.__GAME_FEEL__.burstAt(el, { count: 8, color: el.dataset.mode === 'slack' ? '#4ade80' : el.dataset.mode === 'overtime' ? '#f87171' : '#60a5fa' });
+              } } catch (eGF) { /* 特效失败不影响游戏 */ }
               try { if (window.__MERGE__ && window.__MERGE__.noteAction) window.__MERGE__.noteAction('mode'); } catch (eMerge) { /* 引导推进失败不影响主流程 */ }
             }
           } catch (e) { toast(errMsg(e), 'error'); }
@@ -3769,6 +3997,8 @@
             if (!fLife || typeof fLife.consumeHomeLife !== 'function') throw new Error('今日生活服务尚未就绪');
             var lifeResult = fLife.consumeHomeLife(el.dataset.life);
             if (!lifeResult || !lifeResult.ok) throw new Error((lifeResult && lifeResult.reason) || '消费失败');
+            // V6.1 Game Feel：生活消费反馈
+            try { if (window.__GAME_FEEL__) window.__GAME_FEEL__.gain(el, '-¥' + lifeResult.cost, { kind: 'info' }); } catch (eGF) { /* 特效失败不影响游戏 */ }
             toast(lifeResult.label + '：-¥' + lifeResult.cost +
               (lifeResult.fatigueDelta ? ' 疲劳 ' + lifeResult.fatigueDelta : '') +
               (lifeResult.mindDelta ? ' 道心 +' + lifeResult.mindDelta : '') +
@@ -3782,6 +4012,7 @@
           try {
             if (!fOvertime) throw new Error('游戏尚未就绪');
             fOvertime.startVoluntaryOvertime(2 * 3600, false);
+            try { if (window.__GAME_FEEL__) { window.__GAME_FEEL__.shake('light'); window.__GAME_FEEL__.floatAt(el, '自愿奋斗 2h', { kind: 'damage' }); } } catch (eGF) { /* 特效失败不影响游戏 */ }
             toast('已开启 2 小时自愿奋斗：本次没有工资补偿。', 'info');
             refresh();
           } catch (e) { toast(errMsg(e), 'error'); }
@@ -3852,6 +4083,7 @@
           if (!fSkill || typeof fSkill.castBattleSkill !== 'function') break;
           try {
             fSkill.castBattleSkill(el.dataset.skill);
+            try { if (window.__GAME_FEEL__) window.__GAME_FEEL__.battle('skill', { skillId: el.dataset.skill, el: el }); } catch (eGF) { /* 特效失败不影响游戏 */ }
             refresh();
           } catch (eSkill) { toast(errMsg(eSkill), 'error'); }
           break;
@@ -3859,12 +4091,12 @@
         // ── V5.9-O.2 卡牌战斗动作 ──
         case 'battlePlayCard': {
           var fPlay = window.__BATTLE_CARD__;
-          if (fPlay) { fPlay.handlePlayCard(el.dataset.card); }
+          if (fPlay) { fPlay.handlePlayCard(el.dataset.card); } // V6.1 Game Feel 由 __BATTLE_CARD__ 内部触发（含状态对比）
           break;
         }
         case 'battleEndTurn': {
           var fEnd = window.__BATTLE_CARD__;
-          if (fEnd) { fEnd.handleEndTurn(); }
+          if (fEnd) { fEnd.handleEndTurn(); } // V6.1 Game Feel 由 __BATTLE_CARD__ 内部触发（含胜负检测）
           break;
         }
         case 'battleUpgradeCard': {
@@ -3888,6 +4120,8 @@
           if (!fPA) break;
           try {
             var resPA = fPA.performProfessionAction();
+            // V6.1 Game Feel：职业行动反馈
+            try { if (window.__GAME_FEEL__) { window.__GAME_FEEL__.burstAt(el, { count: 10, color: '#a78bfa' }); window.__GAME_FEEL__.floatAt(el, resPA && resPA.summary ? resPA.summary : '行动完成', { kind: 'gain' }); } } catch (eGF) { /* 特效失败不影响游戏 */ }
             toast(resPA && resPA.summary ? resPA.summary : '行动完成。', 'success');
           } catch (ePA) { toast(errMsg(ePA), 'error'); }
           refresh();
@@ -4029,8 +4263,15 @@
           if (!f) { console.warn('[overlay] promote unavailable'); break; }
           try {
             var r = f.promote(promo.optionId);
-            if (r.success) toast('渡劫成功！晋升 ' + (r.newLevel ? 'Lv.' + r.newLevel : ''), 'success');
-            else toast(r.reason || '渡劫失败', 'error');
+            if (r.success) {
+              // V6.1 Game Feel：晋升成功大演出（粒子+震屏+音效+横幅）
+              try { if (window.__GAME_FEEL__) window.__GAME_FEEL__.promotion(); } catch (eGF) { /* 特效失败不影响游戏 */ }
+              toast('渡劫成功！晋升 ' + (r.newLevel ? 'Lv.' + r.newLevel : ''), 'success');
+            } else {
+              // V6.1 Game Feel：渡劫失败反馈
+              try { if (window.__GAME_FEEL__) { window.__GAME_FEEL__.shake('heavy'); window.__GAME_FEEL__.floatAt(el, '渡劫失败', { kind: 'damage' }); } } catch (eGF) { /* 特效失败不影响游戏 */ }
+              toast(r.reason || '渡劫失败', 'error');
+            }
           } catch (e) { toast(errMsg(e), 'error'); }
           refresh();
           break;
@@ -4095,6 +4336,16 @@
           break;
       }
     };
+
+    /* V6.1 AI NPC：回车发送 */
+    overlay.onkeydown = function (e) {
+      if (e.key !== 'Enter') return;
+      var inp = e.target;
+      if (inp && inp.id === 'AiChatInput' && inp.value.trim()) {
+        e.preventDefault();
+        if (!_aiSending) aiSendMessage(_aiActiveNpc, inp.value);
+      }
+    };
   }
 
   function guessSlot(f, equipmentId) {
@@ -4138,7 +4389,14 @@
     goto: function (page) { _subPage = String(page || '').toUpperCase(); fullRefresh(); },
     openMessenger: function (conversationId) {
       _screen = 'HOME'; _subPage = 'MESSENGER';
-      _messengerActiveConversation = conversationId || null;
+      // V6.1: 'ai:xxx' 格式直接打开AI NPC对话
+      if (conversationId && conversationId.indexOf('ai:') === 0) {
+        _aiActiveNpc = conversationId.slice(3);
+        aiGetMessages(_aiActiveNpc);
+      } else {
+        _aiActiveNpc = null;
+        _messengerActiveConversation = conversationId || null;
+      }
       _messengerReplyMessageId = null;
       fullRefresh();
     },

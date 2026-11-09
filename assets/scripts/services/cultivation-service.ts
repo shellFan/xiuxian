@@ -1,6 +1,6 @@
 import type { GameContext } from '../core/game-context';
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
-import { applyCharacterEffectToInteger } from '../v59/character-attributes';
+import { applyCharacterEffectToInteger, characterEffectMultiplier } from '../v59/character-attributes';
 
 export interface CultivationServiceOptions {
   /** @deprecated Merge rewards are no longer used in PC V1. */
@@ -16,6 +16,12 @@ export interface CultivationClickResult {
   readonly cooldownSeconds: number;
   readonly mindEfficiency: number;
   readonly cooldownRemaining: number;
+  /** V6.1: whether this click scored a critical hit (bonus exp). */
+  readonly crit?: boolean;
+  /** V6.1: crit multiplier applied (1.5~3.0); 1 when not a crit. */
+  readonly critMultiplier?: number;
+  /** V6.1: consecutive successful clicks within the combo window. */
+  readonly combo?: number;
 }
 
 export interface CultivationRewardGrantOptions {
@@ -26,6 +32,18 @@ export interface CultivationRewardGrantOptions {
 const DEFAULT_CLICK_REWARD = 5;
 /** Default cooldown: 3 seconds between clicks. */
 const DEFAULT_COOLDOWN_SECONDS = 3;
+/** V6.1: combo window — consecutive clicks within 10s keep the combo alive. */
+const COMBO_WINDOW_MS = 10_000;
+/** V6.1: base crit chance (15%). */
+const BASE_CRIT_CHANCE = 0.15;
+/** V6.1: crit chance bonus per combo step (+2%), capped at combo 10. */
+const COMBO_CRIT_BONUS_PER_STEP = 0.02;
+/** V6.1: max crit chance cap (35%). */
+const MAX_CRIT_CHANCE = 0.35;
+/** V6.1: min crit multiplier. */
+const MIN_CRIT_MULTIPLIER = 1.5;
+/** V6.1: max crit multiplier. */
+const MAX_CRIT_MULTIPLIER = 3.0;
 
 export class CultivationService {
   /** @deprecated Merge rewards are no longer used in PC V1. Kept for backward compat. */
@@ -34,6 +52,10 @@ export class CultivationService {
   private readonly cultivationClickReward: number;
   private readonly cultivationCooldownSeconds: number;
   private readonly clock: Clock;
+  /** V6.1: combo tracking — timestamp of last successful click. */
+  private _lastComboTime = 0;
+  /** V6.1: combo tracking — current consecutive click count. */
+  private _comboCount = 0;
 
   public constructor(private readonly context: GameContext, options: CultivationServiceOptions = {}) {
     this.mergeRewards = Object.freeze([...(options.mergeRewards ?? context.configService.economy.cultivationRewards ?? [5, 10, 20, 40, 80])]);
@@ -67,17 +89,44 @@ export class CultivationService {
         cooldownSeconds: this.cultivationCooldownSeconds,
         mindEfficiency: this.getMindEfficiency(),
         cooldownRemaining,
+        crit: false,
+        critMultiplier: 1,
+        combo: this._comboCount,
       };
     }
+
+    // V6.1: combo tracking — consecutive clicks within the combo window
+    const prevComboCount = this._comboCount;
+    const prevComboTime = this._lastComboTime;
+    if (now - this._lastComboTime <= COMBO_WINDOW_MS) {
+      this._comboCount += 1;
+    } else {
+      this._comboCount = 1;
+    }
+    this._lastComboTime = now;
+    const combo = this._comboCount;
 
     const mindEfficiency = this.getMindEfficiency();
     const baseReward = this.cultivationClickReward;
     const mindAdjustedReward = Math.max(1, Math.floor(baseReward * mindEfficiency));
-    const actualReward = Math.max(1, applyCharacterEffectToInteger(
+    let actualReward = Math.max(1, applyCharacterEffectToInteger(
       mindAdjustedReward,
       this.context.player,
       'CULTIVATION_REWARD',
     ));
+
+    // V6.1: crit roll — base 15% + combo bonus (+2%/step, max +20% at combo 10),
+    // scaled by the fortune-derived BATTLE_CRIT_CHANCE multiplier (0.9~1.2).
+    const comboBonus = Math.min(combo - 1, 10) * COMBO_CRIT_BONUS_PER_STEP;
+    const fortuneMul = characterEffectMultiplier(this.context.player, 'BATTLE_CRIT_CHANCE');
+    const critChance = Math.max(0.05, Math.min((BASE_CRIT_CHANCE + comboBonus) * fortuneMul, 0.6));
+    const isCrit = Math.random() < critChance;
+    let critMultiplier = 1;
+    if (isCrit) {
+      critMultiplier = MIN_CRIT_MULTIPLIER + Math.random() * (MAX_CRIT_MULTIPLIER - MIN_CRIT_MULTIPLIER);
+      actualReward = Math.max(1, Math.floor(actualReward * critMultiplier));
+    }
+
     const previousExp = this.context.player.cultivationExp;
     const total = previousExp + actualReward;
 
@@ -93,11 +142,16 @@ export class CultivationService {
         totalExp: total,
         cooldownSeconds: this.cultivationCooldownSeconds,
         mindEfficiency,
+        crit: isCrit,
+        critMultiplier,
+        combo,
       });
       this.context.events.emit('gameSaved', { reason: 'economy' });
     } catch (error) {
       this.context.player.cultivationExp = previousExp;
       this.context.player.lastCultivateTime = lastTime;
+      this._comboCount = prevComboCount;
+      this._lastComboTime = prevComboTime;
       throw error;
     }
 
@@ -107,6 +161,9 @@ export class CultivationService {
       cooldownSeconds: this.cultivationCooldownSeconds,
       mindEfficiency,
       cooldownRemaining: 0,
+      crit: isCrit,
+      critMultiplier,
+      combo,
     };
   }
 
@@ -126,6 +183,19 @@ export class CultivationService {
     const now = this.clock.now();
     const elapsed = (now - this.context.player.lastCultivateTime) / 1000;
     return Math.max(0, this.cultivationCooldownSeconds - elapsed);
+  }
+
+  /** V6.1: current combo count (0 if window expired). */
+  public getCombo(): number {
+    const now = this.clock.now();
+    if (now - this._lastComboTime > COMBO_WINDOW_MS) return 0;
+    return this._comboCount;
+  }
+
+  /** V6.1: reset combo (e.g. when switching work mode). */
+  public resetCombo(): void {
+    this._comboCount = 0;
+    this._lastComboTime = 0;
   }
 
   public applyIdleExperience(amount: number): void {
