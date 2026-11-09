@@ -70,10 +70,11 @@ const BOSS_EMOJIS = ['😈', '👿', '🐲', '🦖'];
 
 // ── 成长曲线 ─────────────────────────────────────────────────────────────────
 
-/** 敌人HP成长：50 × 1.18^(stage-1)，Boss×5，卡牌Boss×8 */
+/** 敌人HP成长：50 × 1.13^(stage-1)，Boss×3，卡牌Boss×3
+ *  V6.3平衡：1.13指数 + ×3倍率 — DPS多项式增长可追赶，cardBoss是卡牌入口不磨血 */
 export function enemyHpFor(stage: number, kind: 'normal' | 'miniBoss' | 'cardBoss'): number {
-  const base = 50 * Math.pow(1.18, stage - 1);
-  const mult = kind === 'cardBoss' ? 8 : kind === 'miniBoss' ? 5 : 1;
+  const base = 50 * Math.pow(1.13, stage - 1);
+  const mult = kind === 'cardBoss' ? 3 : kind === 'miniBoss' ? 3 : 1;
   return Math.round(base * mult);
 }
 
@@ -93,7 +94,7 @@ export function enemyIntervalFor(kind: 'normal' | 'miniBoss' | 'cardBoss'): numb
 export function enemyRewardsFor(stage: number, kind: 'normal' | 'miniBoss' | 'cardBoss'): { salary: number; cultivation: number; spiritStones: number } {
   const salary = Math.round(10 * Math.pow(1.1, stage - 1) * (kind === 'normal' ? 1 : kind === 'miniBoss' ? 3 : 6));
   const cultivation = Math.round(5 * Math.pow(1.1, stage - 1) * (kind === 'normal' ? 1 : kind === 'miniBoss' ? 3 : 6));
-  const spiritStones = kind === 'cardBoss' ? 5 + Math.floor(stage / 10) : kind === 'miniBoss' ? 1 : 0;
+  const spiritStones = kind === 'cardBoss' ? 10 + Math.floor(stage / 5) : kind === 'miniBoss' ? 2 : 0;
   return { salary, cultivation, spiritStones };
 }
 

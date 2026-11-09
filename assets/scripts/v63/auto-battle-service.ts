@@ -58,7 +58,8 @@ function clickDamageOf(clickLevel: number): number {
 }
 
 function memberExpToNext(level: number): number {
-  return Math.round(50 * Math.pow(1.15, level - 1));
+  // V6.3平衡：40×1.13^(level-1) — 小队升级加速，DPS成长追上HP指数
+  return Math.round(40 * Math.pow(1.13, level - 1));
 }
 
 function makeEnemyState(def: EnemyDef): V63EnemyState {
