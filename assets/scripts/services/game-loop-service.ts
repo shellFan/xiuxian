@@ -106,9 +106,10 @@ export class GameLoopService {
       // Battle failure must not crash the game loop
     }
 
-    // 5.58 V6.3 咸鱼式自动推关：首页常驻战斗（每秒tick）。
+    // 5.58 V6.3 咸鱼式自动推关：首页常驻战斗（每秒tick）+ AI点评。
     try {
       this.context.autoBattle.tick(seconds);
+      this.context.aiCommentator.tick();
     } catch {
       // Auto-battle failure must not crash the game loop
     }

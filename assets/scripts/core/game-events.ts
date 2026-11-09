@@ -183,6 +183,7 @@ export interface GameEvents extends Record<string, unknown> {
   readonly v63TowerEntered: { readonly floor: number };
   readonly v63TowerAdvanced: { readonly floor: number };
   readonly v63TowerCleared: { readonly floor: number };
+  readonly v63AiComment: { readonly text: string; readonly mood: 'praise' | 'sarcasm' | 'warn' | 'cheer'; readonly emoji: string };
 }
 
 /** Domain events that should refresh Phase 2 HUD. UI must not poll every frame. */

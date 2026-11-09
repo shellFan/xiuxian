@@ -4514,6 +4514,7 @@
       window.__V63__.init({
         facade: facade, escHtml: escHtml, toast: toast, errMsg: errMsg, refresh: refresh,
         goto: function(page) { _screen = page; _subPage = null; fullRefresh(); },
+        onUiEvent: function(cat, cb) { return onUiEvent(cat, cb); },
       });
       return true;
     }

@@ -87,6 +87,7 @@ import { CharacterCreationService } from '../v59/character-creation-service';
 import { HomeService } from '../v59f/home-service';
 import { ProfessionActionService } from '../services/profession-action-service';
 import { AutoBattleService } from '../v63/auto-battle-service';
+import { AiCommentatorService } from '../v63/ai-commentator';
 import { OVERTIME_ACHIEVEMENTS, mergeUniqueById } from '../v3/overtime-content';
 import { WORKPLACE_ACHIEVEMENTS } from '../v3/workplace-content';
 import craftConfig from '../../configs/craft.json';
@@ -243,6 +244,8 @@ export class GameContext {
   public readonly professionAction: ProfessionActionService;
   /** V6.3 咸鱼式自动推关引擎。 */
   public readonly autoBattle: AutoBattleService;
+  /** V6.3 AI点评系统 — 战斗解说员。 */
+  public readonly aiCommentator: AiCommentatorService;
   public readonly config = GameConfig;
 
   public constructor(options: GameContextOptions = {}) {
@@ -368,6 +371,7 @@ export class GameContext {
     // ── V5.9-F-Z 主页面可玩性（依赖齐全，最后构建） ──
     this.home = new HomeService(this);
     this.autoBattle = new AutoBattleService(this);
+    this.aiCommentator = new AiCommentatorService(this);
     this.professionAction = new ProfessionActionService(this);
   }
 

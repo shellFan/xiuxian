@@ -3106,3 +3106,50 @@ button.ux-journey--sec { cursor: pointer; }
 .ux63-hire-text small { color: #8fa5b8; font-size: 10px; }
 .ux63-hire-close { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid rgba(74,81,102,.5); background: transparent; color: #8fa5b8; cursor: pointer; font-size: 12px; }
 .ux63-hire-close:hover { color: #ffe9bd; border-color: #c9a54a; }
+
+/* V6.3 AI点评气泡 */
+.ux63-ai-bubble {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; margin-bottom: 8px;
+  border-radius: 10px; font-size: 12px;
+  border: 1px solid rgba(74,81,102,.4);
+  background: rgba(20,32,50,.85);
+  animation: ux63-ai-pop .3s ease-out;
+}
+.ux63-ai-bubble--praise { border-color: rgba(100,220,120,.4); background: rgba(20,50,30,.85); }
+.ux63-ai-bubble--sarcasm { border-color: rgba(255,180,80,.4); background: rgba(50,40,20,.85); }
+.ux63-ai-bubble--warn { border-color: rgba(255,120,120,.4); background: rgba(50,25,25,.85); }
+.ux63-ai-bubble--cheer { border-color: rgba(120,180,255,.4); background: rgba(25,35,55,.85); }
+.ux63-ai-emoji { font-size: 18px; flex-shrink: 0; }
+.ux63-ai-text { color: #d4c9a8; line-height: 1.4; }
+@keyframes ux63-ai-pop {
+  0% { opacity: 0; transform: translateY(-8px) scale(.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* V6.3 宝箱开箱弹窗 */
+.ux63-chest-overlay {
+  position: fixed; inset: 0; z-index: 9100; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.7); backdrop-filter: blur(3px);
+}
+.ux63-chest-modal {
+  background: rgba(12,25,40,.97); border: 1px solid rgba(224,189,123,.4); border-radius: 16px;
+  padding: 28px 32px; text-align: center; min-width: 240px;
+  animation: ux63-chest-open .4s ease-out;
+}
+.ux63-chest-glow { font-size: 48px; margin-bottom: 12px; animation: ux63-chest-bounce 1s ease-in-out infinite; }
+.ux63-chest-title { color: #f4e7ca; font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+.ux63-chest-reward { color: #ffd700; font-size: 18px; font-weight: bold; margin-bottom: 18px; }
+.ux63-chest-close {
+  padding: 8px 28px; border-radius: 8px; cursor: pointer; font-size: 13px;
+  border: 1px solid rgba(224,189,123,.4); background: rgba(30,42,65,.8); color: #ffe9bd;
+}
+.ux63-chest-close:hover { background: rgba(40,55,80,.9); border-color: #c9a54a; }
+@keyframes ux63-chest-open {
+  0% { opacity: 0; transform: scale(.7); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes ux63-chest-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}

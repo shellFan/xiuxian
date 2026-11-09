@@ -1361,8 +1361,9 @@ export class GameFacade {
   /** Start the game loop. */
   public start(): void {
     this.gameLoop.start();
-    // V6.3：启动自动推关（生成首个敌人）
+    // V6.3：启动自动推关（生成首个敌人）+ AI点评系统
     try { this.context.autoBattle.ensureStarted(); } catch { /* auto-battle start must not block game */ }
+    try { this.context.aiCommentator.attach(); } catch { /* commentator attach must not block game */ }
   }
 
   /** Tick the game loop (call from Cocos update or test harness). */
@@ -1407,6 +1408,8 @@ export class GameFacade {
       'offerReceived', 'offerDecided', 'teamFormed', 'teamTaskAssigned', 'mentored',
       'managerVerdict', 'buildPresetSaved', 'buildPresetApplied', 'milestoneReached', 'governanceTaskOffered',
       'synergyActivated', 'bossExclusiveDrop', 'fatigueCritical', 'projectArchived', 'equipmentAcquired',
+      // V6.3
+      'v63BossPending', 'v63AiComment',
     ];
 
     for (const eventName of allEvents) {

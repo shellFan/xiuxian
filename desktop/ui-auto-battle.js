@@ -37,6 +37,7 @@
     var v = readView();
     if (!v) return '';
     return '<section class="ux63-battle" id="Ux63BattleArea">' +
+      '<div class="ux63-ai-bubble" id="Ux63AiBubble" style="display:none"></div>' +
       stageHeaderHtml(v) +
       enemyZoneHtml(v) +
       squadZoneHtml(v) +
@@ -228,7 +229,7 @@
     var r = fQuery('openAutoBattleChest');
     if (!r) return true;
     if (r.ok && r.reward) {
-      H.toast('🎁 获得：' + r.reward.label + ' ×' + r.reward.amount);
+      showChestModal(r.reward);
     } else {
       H.toast('没有待领取的宝箱');
     }
@@ -312,10 +313,61 @@
     setTimeout(function () { if (float.parentNode) float.parentNode.removeChild(float); }, 800);
   }
 
+  /* ── AI点评气泡 ── */
+
+  var aiBubbleTimer = null;
+
+  function showAiBubble(comment) {
+    if (!comment || !comment.text) return;
+    var bubble = document.getElementById('Ux63AiBubble');
+    if (!bubble) return;
+    var moodClass = { praise: 'ux63-ai-bubble--praise', sarcasm: 'ux63-ai-bubble--sarcasm', warn: 'ux63-ai-bubble--warn', cheer: 'ux63-ai-bubble--cheer' }[comment.mood] || '';
+    bubble.className = 'ux63-ai-bubble ' + moodClass;
+    bubble.innerHTML = '<span class="ux63-ai-emoji">' + H.escHtml(comment.emoji || '🤖') + '</span>' +
+      '<span class="ux63-ai-text">' + H.escHtml(comment.text) + '</span>';
+    bubble.style.display = 'flex';
+    if (aiBubbleTimer) clearTimeout(aiBubbleTimer);
+    aiBubbleTimer = setTimeout(function () {
+      bubble.style.display = 'none';
+    }, 4000);
+  }
+
+  /* ── 宝箱开箱弹窗 ── */
+
+  function showChestModal(reward) {
+    if (!reward) return;
+    var overlay = document.createElement('div');
+    overlay.className = 'ux63-chest-overlay';
+    overlay.innerHTML =
+      '<div class="ux63-chest-modal">' +
+        '<div class="ux63-chest-glow">🎁</div>' +
+        '<div class="ux63-chest-title">宝箱开启！</div>' +
+        '<div class="ux63-chest-reward">' + H.escHtml(reward.label) + ' ×' + fmtNum(reward.amount) + '</div>' +
+        '<button class="ux63-chest-close">收下</button>' +
+      '</div>';
+    overlay.querySelector('.ux63-chest-close').addEventListener('click', function () {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    });
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    });
+    document.body.appendChild(overlay);
+  }
+
   /* ── 导出 ── */
 
   function init(host) {
     H = host;
+    /* 订阅AI点评事件（经宿主onUiEvent桥接，v63AiComment以STATE_CHANGED转发） */
+    if (typeof H.onUiEvent === 'function') {
+      try {
+        H.onUiEvent('STATE_CHANGED', function (ev) {
+          if (ev && ev.source === 'v63AiComment' && ev.detail) {
+            showAiBubble(ev.detail);
+          }
+        });
+      } catch (e) { /* 事件订阅失败不影响战斗 */ }
+    }
   }
 
   window.__V63__ = {
