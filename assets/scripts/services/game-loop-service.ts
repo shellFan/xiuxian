@@ -106,6 +106,13 @@ export class GameLoopService {
       // Battle failure must not crash the game loop
     }
 
+    // 5.58 V6.3 咸鱼式自动推关：首页常驻战斗（每秒tick）。
+    try {
+      this.context.autoBattle.tick(seconds);
+    } catch {
+      // Auto-battle failure must not crash the game loop
+    }
+
     // 5.6 V2 daily/weekly settlement: once per started workday after 18:00.
     try {
       if (this.context.overtime.canSettleDay() && this.context.daySettlement.canSettle()) this.context.daySettlement.settle();

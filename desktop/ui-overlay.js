@@ -1132,12 +1132,18 @@
     /* V5.9-F-Z：主页面可玩性面板（紧凑模式：建议行动/三目标/今日工作摘要）。 */
     var v59fPanel = '';
     try { v59fPanel = window.__V59F__ ? window.__V59F__.homePanelHtml(true) : ''; } catch (e) { v59fPanel = ''; }
+    /* V6.3：咸鱼式自动战斗区域（敌人血条+小队+点击攻击+关卡进度）。 */
+    var v63Battle = '';
+    try { v63Battle = window.__V63__ ? window.__V63__.battleAreaHtml() : ''; } catch (e) { v63Battle = ''; }
+    var v63HireMenu = '';
+    try { v63HireMenu = window.__V63__ ? window.__V63__.hireMenuHtml() : ''; } catch (e) { v63HireMenu = ''; }
     return '' +
       '<div class="ux-home">' +
         backfillBanner +
         homeTopbarHtml(hud) +
         '<div class="ux-home-main">' +
           homeStatsHtml(hud) +
+          v63Battle +
           homeHeroHtml(hud) +
           mergeBoard +
           workSceneHtml(hud) +
@@ -1148,6 +1154,7 @@
           v59fPanel +
           homeRightHtml(hud) +
         '</div>' +
+        v63HireMenu +
       '</div>';
   }
 
@@ -3905,6 +3912,11 @@
         if (window.__V59F__ && window.__V59F__.handleClick(el, act)) return;
       } catch (e) { console.warn('[overlay] v59f handler:', e); }
 
+      /* V6.3：自动战斗区域命令（tapAttack/toggleAuto/upgradeClick/openChest/enterTower/hire等）。 */
+      try {
+        if (window.__V63__ && window.__V63__.handleClick(el, act)) return;
+      } catch (e) { console.warn('[overlay] v63 handler:', e); }
+
       switch (act) {
         case 'back':
           _subPage = null;
@@ -4493,6 +4505,20 @@
     if (!initMergeBridge()) {
       var mergePoll = setInterval(function () {
         if (initMergeBridge()) clearInterval(mergePoll);
+      }, 500);
+    }
+
+    /* V6.3：自动战斗区域桥接（与 V2UI/V59F/MERGE 同款注入模式）。 */
+    function initV63Bridge() {
+      if (!window.__V63__) return false;
+      window.__V63__.init({
+        facade: facade, escHtml: escHtml, toast: toast, errMsg: errMsg, refresh: refresh,
+      });
+      return true;
+    }
+    if (!initV63Bridge()) {
+      var v63Poll = setInterval(function () {
+        if (initV63Bridge()) clearInterval(v63Poll);
       }, 500);
     }
 

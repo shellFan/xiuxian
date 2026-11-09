@@ -303,8 +303,68 @@ function migrate(raw: unknown, now: number): GameSaveData {
     careerChoices: normalizeRecords(raw.careerChoices, isCareerChoice),
     pendingOffer: normalizePendingOffer(raw.pendingOffer),
     teamDailyAssignment: normalizeTeamDailyAssignment(raw.teamDailyAssignment),
+    // ── V6.3：自动推关/项目小队（旧档无此字段，服务层惰性初始化默认值） ──
+    v63AutoBattle: normalizeV63AutoBattle(raw.v63AutoBattle),
+    v63Squad: normalizeV63Squad(raw.v63Squad),
   });
   return merged;
+}
+
+// ── V6.3 normalization ──
+
+function normalizeV63AutoBattle(value: unknown): import('../v63/auto-battle-types').V63AutoBattleState | undefined {
+  if (!isRecord(value) || !isFiniteNumber(value.stage)) return undefined;
+  const enemy = isRecord(value.enemy) && isFiniteNumber(value.enemy.hp) ? {
+    defId: isString(value.enemy.defId) ? value.enemy.defId : '',
+    name: isString(value.enemy.name) ? value.enemy.name : '',
+    emoji: isString(value.enemy.emoji) ? value.enemy.emoji : '👾',
+    hp: value.enemy.hp,
+    maxHp: isFiniteNumber(value.enemy.maxHp) ? value.enemy.maxHp : value.enemy.hp,
+    attack: isFiniteNumber(value.enemy.attack) ? value.enemy.attack : 0,
+    intervalSec: isFiniteNumber(value.enemy.intervalSec) ? value.enemy.intervalSec : 2,
+    attackTimer: isFiniteNumber(value.enemy.attackTimer) ? value.enemy.attackTimer : 0,
+    isBoss: value.enemy.isBoss === true,
+    isCardBoss: value.enemy.isCardBoss === true,
+  } : null;
+  return {
+    stage: Math.max(1, Math.floor(value.stage)),
+    maxStage: isFiniteNumber(value.maxStage) ? Math.max(0, Math.floor(value.maxStage)) : 0,
+    status: isString(value.status) && ['IDLE', 'FIGHTING', 'VICTORY', 'DEFEAT', 'BOSS_PENDING'].includes(value.status) ? value.status as 'IDLE' : 'IDLE',
+    enemy,
+    autoEnabled: value.autoEnabled !== false,
+    totalKills: isFiniteNumber(value.totalKills) ? Math.max(0, Math.floor(value.totalKills)) : 0,
+    victoryTimer: isFiniteNumber(value.victoryTimer) ? Math.max(0, value.victoryTimer) : 0,
+    defeatTimer: isFiniteNumber(value.defeatTimer) ? Math.max(0, value.defeatTimer) : 0,
+    pendingOfflineSeconds: isFiniteNumber(value.pendingOfflineSeconds) ? Math.max(0, value.pendingOfflineSeconds) : 0,
+    lastTickAt: isFiniteNumber(value.lastTickAt) ? value.lastTickAt : Date.now(),
+    towerFloor: isFiniteNumber(value.towerFloor) ? Math.max(0, Math.floor(value.towerFloor)) : 0,
+    towerBestFloor: isFiniteNumber(value.towerBestFloor) ? Math.max(0, Math.floor(value.towerBestFloor)) : 0,
+    chestKillCounter: isFiniteNumber(value.chestKillCounter) ? Math.max(0, Math.floor(value.chestKillCounter)) : 0,
+    pendingChests: isFiniteNumber(value.pendingChests) ? Math.max(0, Math.floor(value.pendingChests)) : 0,
+    idleSalaryAccrued: isFiniteNumber(value.idleSalaryAccrued) ? Math.max(0, value.idleSalaryAccrued) : 0,
+    idleCultivationAccrued: isFiniteNumber(value.idleCultivationAccrued) ? Math.max(0, value.idleCultivationAccrued) : 0,
+  };
+}
+
+function normalizeV63Squad(value: unknown): import('../v63/auto-battle-types').V63SquadState | undefined {
+  if (!isRecord(value) || !Array.isArray(value.members)) return undefined;
+  const members = (value.members as unknown[]).filter((m): m is Record<string, unknown> => isRecord(m) && isString(m.id) && isString(m.name)).map(m => ({
+    id: String(m.id).slice(0, 64),
+    name: String(m.name).slice(0, 32),
+    profession: isString(m.profession) && ['JAVA_BACKEND', 'FRONTEND', 'QA', 'DEVOPS'].includes(m.profession) ? m.profession as 'JAVA_BACKEND' : 'JAVA_BACKEND',
+    level: isFiniteNumber(m.level) ? Math.max(1, Math.floor(m.level)) : 1,
+    exp: isFiniteNumber(m.exp) ? Math.max(0, Math.floor(m.exp)) : 0,
+    slot: isFiniteNumber(m.slot) ? Math.floor(m.slot) : -1,
+    attackTimer: isFiniteNumber(m.attackTimer) ? m.attackTimer : 0,
+    skillTimer: isFiniteNumber(m.skillTimer) ? m.skillTimer : 0,
+    hiredAtDay: isFiniteNumber(m.hiredAtDay) ? Math.max(0, Math.floor(m.hiredAtDay)) : 0,
+  }));
+  return {
+    members,
+    clickLevel: isFiniteNumber(value.clickLevel) ? Math.max(1, Math.floor(value.clickLevel)) : 1,
+    shield: isFiniteNumber(value.shield) ? Math.max(0, value.shield) : 0,
+    weakSpotTimer: isFiniteNumber(value.weakSpotTimer) ? Math.max(0, value.weakSpotTimer) : 0,
+  };
 }
 
 // ── V5.8 F02/F03 normalization ──

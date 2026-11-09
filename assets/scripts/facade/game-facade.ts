@@ -1011,6 +1011,46 @@ export class GameFacade {
   /** 执行当前职业的专属每日行动（消耗游戏时间与道心，写权威状态，每日限次）。 */
   public performProfessionAction() { return this.context.professionAction.perform(); }
 
+  // ── V6.3 Auto Battle API（咸鱼式自动推关） ────────────────────────────────
+
+  /** 查询自动推关视图（敌人/小队/关卡/通天塔/宝箱）。 */
+  public queryAutoBattle() { return this.context.autoBattle.view(); }
+
+  /** 点击攻击（玩家手动点击，可暴击）。 */
+  public tapAttack() { return this.context.autoBattle.tapAttack(); }
+
+  /** 切换自动战斗开关。 */
+  public toggleAutoBattle() { return this.context.autoBattle.toggleAuto(); }
+
+  /** 招募小队成员（消耗灵石）。 */
+  public hireSquadMember(profession: 'JAVA_BACKEND' | 'FRONTEND' | 'QA' | 'DEVOPS') {
+    return this.context.autoBattle.hireMember(profession);
+  }
+
+  /** 升级点击伤害（消耗灵石）。 */
+  public upgradeClickDamage() { return this.context.autoBattle.upgradeClick(); }
+
+  /** 跳过已通关关卡。 */
+  public skipAutoBattleStage() { return this.context.autoBattle.skipStage(); }
+
+  /** 开宝箱。 */
+  public openAutoBattleChest() { return this.context.autoBattle.openChest(); }
+
+  /** 进入996通天塔。 */
+  public enterTower() { return this.context.autoBattle.enterTower(); }
+
+  /** 退出996通天塔。 */
+  public exitTower() { return this.context.autoBattle.exitTower(); }
+
+  /** 卡牌Boss战斗胜利（v59o衔接回调用）。 */
+  public autoBattleBossDefeated() { return this.context.autoBattle.bossDefeated(); }
+
+  /** 卡牌Boss战斗失败（v59o衔接回调用）。 */
+  public autoBattleBossFailed() { return this.context.autoBattle.bossFailed(); }
+
+  /** 离线自动推关结算。 */
+  public settleAutoBattleOffline(elapsedSeconds: number) { return this.context.autoBattle.settleOffline(elapsedSeconds); }
+
   // ── Idle Efficiency API ──────────────────────────────────────────────────
 
   /** Get the current idle efficiency breakdown. */
@@ -1317,6 +1357,8 @@ export class GameFacade {
   /** Start the game loop. */
   public start(): void {
     this.gameLoop.start();
+    // V6.3：启动自动推关（生成首个敌人）
+    try { this.context.autoBattle.ensureStarted(); } catch { /* auto-battle start must not block game */ }
   }
 
   /** Tick the game loop (call from Cocos update or test harness). */

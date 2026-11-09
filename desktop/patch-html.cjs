@@ -96,6 +96,7 @@ if (fs.existsSync(htmlPath)) {
   const overlayMergeJs = path.join(__dirname, 'ui-merge-home.js');
   const overlayBattleCardJs = path.join(__dirname, 'ui-battle-card.js');
   const overlayGameFeelJs = path.join(__dirname, 'ui-game-feel.js');
+  const overlayAutoBattleJs = path.join(__dirname, 'ui-auto-battle.js');
   const destCss    = path.join(buildDir, 'ui-overlay.css');
   const destJs     = path.join(buildDir, 'ui-overlay.js');
   const destV2Js   = path.join(buildDir, 'ui-overlay-v2.js');
@@ -128,6 +129,10 @@ if (fs.existsSync(htmlPath)) {
     fs.copyFileSync(overlayGameFeelJs, path.join(buildDir, 'ui-game-feel.js'));
     console.log('[patch-html] Copied ui-game-feel.js');
   }
+  if (fs.existsSync(overlayAutoBattleJs)) {
+    fs.copyFileSync(overlayAutoBattleJs, path.join(buildDir, 'ui-auto-battle.js'));
+    console.log('[patch-html] Copied ui-auto-battle.js');
+  }
 
   // Copy sliced design assets (docs/img/image5.png → desktop/assets/ui-slice)
   const sliceSrc = path.join(__dirname, 'assets', 'ui-slice');
@@ -146,7 +151,7 @@ if (fs.existsSync(htmlPath)) {
   // Inject <link> and <script> into index.html
   // Position overlay relative to GameDiv for correct scaling
   const overlayLink = '<link rel="stylesheet" href="ui-overlay.css">';
-  const overlayScript = '<script src="ui-game-feel.js"></script>\n  <script src="ui-v59f-home.js"></script>\n  <script src="ui-merge-home.js"></script>\n  <script src="ui-battle-card.js"></script>\n  <script src="ui-overlay-v2.js"></script>\n  <script src="ui-overlay.js"></script>';
+  const overlayScript = '<script src="ui-game-feel.js"></script>\n  <script src="ui-auto-battle.js"></script>\n  <script src="ui-v59f-home.js"></script>\n  <script src="ui-merge-home.js"></script>\n  <script src="ui-battle-card.js"></script>\n  <script src="ui-overlay-v2.js"></script>\n  <script src="ui-overlay.js"></script>';
   // Older builds already include the host overlay; add the merge module before it.
   if (html.includes('ui-overlay.js') && !html.includes('ui-merge-home.js')) {
     html = html.replace('<script src="ui-overlay.js"></script>', '<script src="ui-merge-home.js"></script>\n  <script src="ui-overlay.js"></script>');
@@ -178,6 +183,14 @@ if (fs.existsSync(htmlPath)) {
       html = html.replace('<script src="ui-merge-home.js"></script>', '<script src="ui-merge-home.js"></script>\n  <script src="ui-battle-card.js"></script>');
     } else {
       html = html.replace('<script src="ui-overlay.js"></script>', '<script src="ui-battle-card.js"></script>\n  <script src="ui-overlay.js"></script>');
+    }
+  }
+  // V6.3: ensure ui-auto-battle.js is present (loads before ui-overlay.js)
+  if (html.includes('ui-overlay.js') && !html.includes('ui-auto-battle.js')) {
+    if (html.includes('<script src="ui-v59f-home.js"></script>')) {
+      html = html.replace('<script src="ui-v59f-home.js"></script>', '<script src="ui-auto-battle.js"></script>\n  <script src="ui-v59f-home.js"></script>');
+    } else {
+      html = html.replace('<script src="ui-overlay.js"></script>', '<script src="ui-auto-battle.js"></script>\n  <script src="ui-overlay.js"></script>');
     }
   }
 

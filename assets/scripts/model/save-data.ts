@@ -1,6 +1,7 @@
 import type { CharacterBackground, CharacterStats, DestinyId } from '../v59/character-rules';
+import type { V63AutoBattleState, V63SquadState } from '../v63/auto-battle-types';
 
-export const CURRENT_SAVE_VERSION = 14;
+export const CURRENT_SAVE_VERSION = 15;
 
 /** V2 四种核心工作行为（§18）。 */
 export type WorkMode = 'WORK' | 'FISHING' | 'CULTIVATING' | 'SOCIAL';
@@ -461,6 +462,12 @@ export interface GameSaveData {
   readonly pendingOffer?: PendingOfferState | null;
   /** F03: 团队每日分派计数（数值状态，非 eventFlags）。 */
   readonly teamDailyAssignment?: { readonly day: number; readonly count: number } | null;
+
+  // ── V6.3 咸鱼式自动推关（saveVersion 15） ──
+  /** 自动推关状态（关卡/敌人/通天塔/宝箱）。 */
+  readonly v63AutoBattle?: V63AutoBattleState;
+  /** 项目小队状态（成员/点击等级/护盾）。 */
+  readonly v63Squad?: V63SquadState;
 }
 
 /** F02: Pending offer persistence schema. */

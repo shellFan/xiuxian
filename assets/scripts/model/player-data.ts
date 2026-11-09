@@ -1,4 +1,5 @@
 import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData, type WorkMode, type DailySignInState, type DailyTaskState, type ActiveTaskState, type ActivityDurationsState, type GameDayState, type PendingEventState, type DaySummaryState, type WeeklySummaryState, type EventChainState, type OvertimeStats, type OvertimeFatigueState, type OvertimeSessionState, type EvidenceItemState, type ResponsibilityCaseState, type IncidentState, type AssignedTaskState, type AutoPolicy, type OfflineDecisionSession, type MessengerConversationState, type MessengerMessageState, type StoryDirectorState, type FirstWeekStoryState, type DailyRealityEntryState, type ProjectState, type NpcMemoryState, type WeekStoryState, type WeeklyGoalsState, type ProjectHistoryRecordState, type CodexState, type BuildPresetState, type CompanyStayRecord, type OfferRecord, type TeamState, type MonthlyStatsRecord, type PendingOfferState } from './save-data';
+import type { V63AutoBattleState, V63SquadState } from '../v63/auto-battle-types';
 
 export interface PlayerDataOptions {
   readonly salary?: number;
@@ -140,6 +141,9 @@ export interface PlayerDataOptions {
   readonly careerChoices?: readonly { readonly dayIndex: number; readonly kind: string; readonly label: string }[];
   readonly pendingOffer?: PendingOfferState | null;
   readonly teamDailyAssignment?: { readonly day: number; readonly count: number } | null;
+  // ── V6.3 ──
+  readonly v63AutoBattle?: V63AutoBattleState;
+  readonly v63Squad?: V63SquadState;
 }
 
 export class PlayerData {
@@ -298,6 +302,9 @@ export class PlayerData {
   public careerChoices: { dayIndex: number; kind: string; label: string }[];
   public pendingOffer: PendingOfferState | null;
   public teamDailyAssignment: { day: number; count: number } | null;
+  // ── V6.3 ──
+  public v63AutoBattle: V63AutoBattleState | null;
+  public v63Squad: V63SquadState | null;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -446,6 +453,15 @@ export class PlayerData {
     this.careerChoices = [...(options.careerChoices ?? [])];
     this.pendingOffer = options.pendingOffer ? { ...options.pendingOffer } : null;
     this.teamDailyAssignment = options.teamDailyAssignment ? { ...options.teamDailyAssignment } : null;
+    // ── V6.3：深拷贝战斗/小队状态（内含可变嵌套对象） ──
+    this.v63AutoBattle = options.v63AutoBattle ? {
+      ...options.v63AutoBattle,
+      enemy: options.v63AutoBattle.enemy ? { ...options.v63AutoBattle.enemy } : null,
+    } : null;
+    this.v63Squad = options.v63Squad ? {
+      ...options.v63Squad,
+      members: options.v63Squad.members.map(m => ({ ...m })),
+    } : null;
   }
 
   public static createDefault(): PlayerData {
@@ -566,6 +582,8 @@ export class PlayerData {
       careerChoices: this.careerChoices.map((c) => ({ ...c })),
       pendingOffer: this.pendingOffer ? { ...this.pendingOffer } : null,
       teamDailyAssignment: this.teamDailyAssignment ? { ...this.teamDailyAssignment } : null,
+      v63AutoBattle: this.v63AutoBattle ? { ...this.v63AutoBattle, enemy: this.v63AutoBattle.enemy ? { ...this.v63AutoBattle.enemy } : null } : undefined,
+      v63Squad: this.v63Squad ? { ...this.v63Squad, members: this.v63Squad.members.map(m => ({ ...m })) } : undefined,
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.wageMultiplier !== 1) Object.assign(data, { wageMultiplier: this.wageMultiplier });
