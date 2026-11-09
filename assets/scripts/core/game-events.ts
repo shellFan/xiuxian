@@ -47,7 +47,7 @@ export interface DailyTaskProgressEvent { readonly taskId: string; readonly prog
 export interface DailyTaskCompletedEvent { readonly taskId: string; }
 export interface DailyTaskClaimedEvent { readonly taskId: string; }
 export interface TutorialStepChangedEvent { readonly step: string; readonly completed: boolean; }
-export interface CultivationClickedEvent { readonly cultivationExp: number; readonly totalExp: number; readonly cooldownSeconds: number; readonly mindEfficiency: number; }
+export interface CultivationClickedEvent { readonly cultivationExp: number; readonly totalExp: number; readonly cooldownSeconds: number; readonly mindEfficiency: number; /** V6.1: 本次点击是否暴击 */ readonly crit: boolean; /** V6.1: 暴击倍率（非暴击时为1） */ readonly critMultiplier: number; /** V6.1: 当前连击数 */ readonly combo: number; }
 export interface TaskStartedEvent { readonly taskId: string; readonly taskType: TaskType; readonly durationSeconds: number; }
 export interface TaskCompletedEvent { readonly taskId: string; readonly taskType: TaskType; }
 export interface TaskClaimedEvent { readonly taskId: string; readonly taskType: TaskType; readonly salary: number; readonly cultivationExp: number; readonly spiritStones: number; }

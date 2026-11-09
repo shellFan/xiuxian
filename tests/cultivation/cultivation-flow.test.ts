@@ -17,6 +17,10 @@ import { CultivationService } from '../../assets/scripts/services/cultivation-se
 import { SaveService } from '../../assets/scripts/services/save-service';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 
+// V6.1 连击暴击系统引入 Math.random 随机性；这些流程测试验证非暴击基线行为，
+// 因此 stub Math.random → 1.0 确保 critChance(≤0.6) < 1.0 永不触发暴击。
+Math.random = () => 1.0;
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function makeContext(clock?: FakeClock, playerOverrides?: Partial<ConstructorParameters<typeof PlayerData>[0]>) {

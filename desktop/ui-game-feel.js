@@ -384,8 +384,10 @@
     _render: function (action) {
       var root = rootEl();
       if (!root) return;
-      if (!this._el) {
-        this._el = makeDiv('ux-gf-combo');
+      // V6.2 修复：fullRefresh/renderShell 会 overlay.innerHTML 重建，
+      // _el 可能已脱离 DOM（parentNode===null）。此时必须重新 append，否则连击计数器永久消失。
+      if (!this._el || !this._el.parentNode) {
+        if (!this._el) this._el = makeDiv('ux-gf-combo');
         root.appendChild(this._el);
       }
       var label = action === 'cultivate' ? '修炼连击' : action === 'merge' ? '合成连锁' : '连击';

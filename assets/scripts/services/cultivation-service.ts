@@ -38,8 +38,10 @@ const COMBO_WINDOW_MS = 10_000;
 const BASE_CRIT_CHANCE = 0.15;
 /** V6.1: crit chance bonus per combo step (+2%), capped at combo 10. */
 const COMBO_CRIT_BONUS_PER_STEP = 0.02;
-/** V6.1: max crit chance cap (35%). */
-const MAX_CRIT_CHANCE = 0.35;
+/** 暴击率下限（5%）：气运极低时保底暴击率 */
+const MIN_CRIT_CHANCE = 0.05;
+/** 暴击率上限（V6.2: 对齐实际代码行为，0.6 配合连击爽感，满连击+气运时暴击频繁） */
+const MAX_CRIT_CHANCE = 0.6;
 /** V6.1: min crit multiplier. */
 const MIN_CRIT_MULTIPLIER = 1.5;
 /** V6.1: max crit multiplier. */
@@ -119,7 +121,7 @@ export class CultivationService {
     // scaled by the fortune-derived BATTLE_CRIT_CHANCE multiplier (0.9~1.2).
     const comboBonus = Math.min(combo - 1, 10) * COMBO_CRIT_BONUS_PER_STEP;
     const fortuneMul = characterEffectMultiplier(this.context.player, 'BATTLE_CRIT_CHANCE');
-    const critChance = Math.max(0.05, Math.min((BASE_CRIT_CHANCE + comboBonus) * fortuneMul, 0.6));
+    const critChance = Math.max(MIN_CRIT_CHANCE, Math.min((BASE_CRIT_CHANCE + comboBonus) * fortuneMul, MAX_CRIT_CHANCE));
     const isCrit = Math.random() < critChance;
     let critMultiplier = 1;
     if (isCrit) {

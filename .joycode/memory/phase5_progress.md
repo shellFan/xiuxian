@@ -1,18 +1,22 @@
 ---
 name: phase5-progress
-description: PC V1 Desktop完成 - Electron+pc-patch.js运行时UI接线+EXE打包验证通过
+description: V6.1完成 - Game Feel七子系统+AI NPC聊天+晋升指引+合成/战斗特效，已推送origin/gameplay-v2
 type: project
 ---
 
-PC V1 Desktop Build完成。pc-patch.js通过System.import('cc')获取Cocos运行时，cc.js.getClassByName('CocosBootstrapComponent').instance.facade获取Facade。3按钮+5Tab+5事件全部绑定。EXE打包到dist/牛马修仙传-win32-x64/。存档/读档正常。
-**Why:** 标记PC桌面版验收完成状态
-**How to apply:** 后续PC相关修改参考此方案，注意ccclass名是'CocosBootstrapComponent'非'CocosBootstrap'，不要修改System.import链
+# 修仙项目进度
 
-## 2026-10-12 项目启动验证（gameplay-v2分支）
+## V6.1 已完成 (2026-11-09, commit 43a287d)
+- **Game Feel系统**: ui-game-feel.js七子系统(EffectPool/SfxSynth/ClickFeedback/FloatingNumber/ScreenShake/ParticleBurst/ComboTracker)，window.__GAME_FEEL__暴露
+- **连击暴击**: CultivationService — critChance = clamp(15% + min(combo-1,10)×2%, 5%, 60%)，暴击倍率1.5~3.0
+- **战斗特效**: __BATTLE_CARD__内部统一触发，snapshotBattle/diffAndFeel对比系统
+- **合成演出**: mergeCelebrate增强+skipDom去重
+- **晋升指引**: promotionGoalHtml() — 条件满足率+闭环提示+CTA
+- **AI NPC**: ai-bridge.cjs双模式(MNN HTTP优先/规则引擎降级)，4NPC人设，12条记忆/NPC；Electron三层IPC；MESSENGER页面AI/普通会话双模
+- **修复**: patch-html.cjs ui-battle-card.js注入缺失；aiBuildContext() readHud→readHUD大小写
 
-- 分支：gameplay-v2（HEAD: f7507c6）
-- Cocos Creator 3.8.4 安装路径：`C:\ProgramData\cocos\editors\Creator\3.8.4\CocosCreator.exe`
-- Electron 28.3.3 二进制通过华为云镜像手动下载（`desktop/download-electron.cjs`）
-- 完整启动流程：`npm run pc:build`（~55秒）→ `npm run pc:copy` → `npm run pc:dev`
-- 游戏成功运行：GAME_READY、720x1280画布、存档系统正常
-- **Cocos CDN 403问题**：download.cocos.com 需签名认证，签名API为 `https://www.cocos.com/server/productionVersion/download?url=<encoded_url>`，返回带auth_key+exptime的有效链接
+**Why:** V6.1目标是爽感重构+AI NPC+玩法闭环
+**How to apply:** 后续版本基于此构建，Game Feel API见window.__GAME_FEEL__，AI API见electronAPI.ai
+
+## PC V1 Desktop 已完成 (此前)
+- Electron+pc-patch.js运行时UI接线+EXE打包验证通过
