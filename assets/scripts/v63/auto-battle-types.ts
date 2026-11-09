@@ -173,6 +173,8 @@ export interface V63AutoBattleState {
   /** 挂机收益累积（离线结算用） */
   idleSalaryAccrued: number;
   idleCultivationAccrued: number;
+  /** 上次离线结算ID（防重复结算） */
+  lastOfflineSettlementId: string;
 }
 
 // ── 运行时视图（UI只读快照） ─────────────────────────────────────────────────

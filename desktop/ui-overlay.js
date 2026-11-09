@@ -4513,6 +4513,7 @@
       if (!window.__V63__) return false;
       window.__V63__.init({
         facade: facade, escHtml: escHtml, toast: toast, errMsg: errMsg, refresh: refresh,
+        goto: function(page) { _screen = page; _subPage = null; fullRefresh(); },
       });
       return true;
     }

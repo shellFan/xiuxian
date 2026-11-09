@@ -351,16 +351,32 @@ export class BattleService {
       card.log.push('战利品结算完成，请选择卡牌奖励。');
       run.log = card.log.slice(-MAX_LOG);
       this.claimRewards(run, false); // 内部 persist + save（先于 UI 确认，exactly once）
+      this.notifyAutoBattleBoss(run.status);
       return;
     }
     if (card.phase === 'FINISHED' && card.player.hp <= 0 && run.status === 'FIGHTING') {
       run.status = 'DEFEAT';
       run.log = card.log.slice(-MAX_LOG);
       this.claimRewards(run, true);
+      this.notifyAutoBattleBoss(run.status);
       return;
     }
     this.persist(run);
     this.context.saveService.save(this.context.player);
+  }
+
+  /** V6.3：卡牌Boss衔接 — 战斗终局时回调自动推关（BOSS_PENDING → 推进/停留）。 */
+  private notifyAutoBattleBoss(result: 'VICTORY' | 'DEFEAT'): void {
+    try {
+      const ab = this.context.autoBattle;
+      if (!ab) return;
+      const v = ab.view();
+      if (v.status !== 'BOSS_PENDING') return;
+      if (result === 'VICTORY') ab.bossDefeated();
+      else ab.bossFailed();
+    } catch (e) {
+      // V6.3 衔接失败不影响卡牌战斗主流程
+    }
   }
 
   private requireCardRun(): BattleRunState {

@@ -103,6 +103,7 @@ export class AutoBattleService {
         pendingChests: 0,
         idleSalaryAccrued: 0,
         idleCultivationAccrued: 0,
+        lastOfflineSettlementId: '',
       };
     }
     return p.v63AutoBattle;
@@ -147,9 +148,12 @@ export class AutoBattleService {
     }
   }
 
-  /** 离线结算：根据离开时长估算推关收益。 */
-  public settleOffline(elapsedSeconds: number): { stagesCleared: number; salary: number; cultivation: number } {
+  /** 离线结算：根据离开时长估算推关收益。settlementId 防重复结算。 */
+  public settleOffline(elapsedSeconds: number, settlementId?: string): { stagesCleared: number; salary: number; cultivation: number } {
     const b = this.battle();
+    if (settlementId && b.lastOfflineSettlementId === settlementId) {
+      return { stagesCleared: 0, salary: 0, cultivation: 0 };
+    }
     const capped = Math.min(Math.max(0, elapsedSeconds), OFFLINE_MAX_SECONDS);
     if (capped < 5) return { stagesCleared: 0, salary: 0, cultivation: 0 };
     const dps = this.totalDps();
@@ -180,6 +184,7 @@ export class AutoBattleService {
       this.spawnEnemy();
       b.status = 'FIGHTING';
     }
+    if (settlementId) b.lastOfflineSettlementId = settlementId;
     return { stagesCleared, salary, cultivation };
   }
 

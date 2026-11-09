@@ -758,6 +758,10 @@ export class GameFacade {
       simulation,
       autoCompletedTaskIds: [...welcome.autoCompletedTaskIds],
       decisions,
+      autoBattleOffline: this.context.autoBattle.settleOffline(
+        Math.max(0, Math.floor((Date.now() - offlineCheckpoint) / 1000)),
+        settlementId,
+      ),
     };
   }
   /** Creates or resumes the ID-only canonical pending-event decision session. */
@@ -1049,7 +1053,7 @@ export class GameFacade {
   public autoBattleBossFailed() { return this.context.autoBattle.bossFailed(); }
 
   /** 离线自动推关结算。 */
-  public settleAutoBattleOffline(elapsedSeconds: number) { return this.context.autoBattle.settleOffline(elapsedSeconds); }
+  public settleAutoBattleOffline(elapsedSeconds: number, settlementId?: string) { return this.context.autoBattle.settleOffline(elapsedSeconds, settlementId); }
 
   // ── Idle Efficiency API ──────────────────────────────────────────────────
 

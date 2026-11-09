@@ -343,6 +343,7 @@ function normalizeV63AutoBattle(value: unknown): import('../v63/auto-battle-type
     pendingChests: isFiniteNumber(value.pendingChests) ? Math.max(0, Math.floor(value.pendingChests)) : 0,
     idleSalaryAccrued: isFiniteNumber(value.idleSalaryAccrued) ? Math.max(0, value.idleSalaryAccrued) : 0,
     idleCultivationAccrued: isFiniteNumber(value.idleCultivationAccrued) ? Math.max(0, value.idleCultivationAccrued) : 0,
+    lastOfflineSettlementId: isString(value.lastOfflineSettlementId) ? value.lastOfflineSettlementId : '',
   };
 }
 
