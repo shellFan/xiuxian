@@ -36,14 +36,42 @@
   function battleAreaHtml() {
     var v = readView();
     if (!v) return '';
-    return '<section class="ux63-battle" id="Ux63BattleArea">' +
-      '<div class="ux63-ai-bubble" id="Ux63AiBubble" style="display:none"></div>' +
+    var theme = sceneThemeClass(v);
+    return '<section class="ux65-stage ' + theme + '" id="Ux63BattleArea">' +
+      '<div class="ux65-scene">' +
+        '<div class="ux65-scene-sky"></div>' +
+        '<div class="ux65-scene-stars"></div>' +
+        '<div class="ux65-scene-moon"></div>' +
+        '<div class="ux65-scene-mtn ux65-scene-mtn--far"></div>' +
+        '<div class="ux65-scene-mtn ux65-scene-mtn--near"></div>' +
+        '<div class="ux65-scene-ground"></div>' +
+        '<div class="ux65-scene-particles">' +
+          '<span class="ux65-particle"></span><span class="ux65-particle"></span>' +
+          '<span class="ux65-particle"></span><span class="ux65-particle"></span>' +
+          '<span class="ux65-particle"></span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ux65-ai-bubble" id="Ux63AiBubble" style="display:none"></div>' +
       stageHeaderHtml(v) +
-      enemyZoneHtml(v) +
+      '<div class="ux65-arena" data-action="v63-tapAttack">' +
+        enemyZoneHtml(v) +
+        '<div class="ux65-dmg-layer" id="Ux65DmgLayer"></div>' +
+        '<div class="ux65-fx-layer" id="Ux65FxLayer"></div>' +
+      '</div>' +
       squadZoneHtml(v) +
       skillBarHtml(v) +
       actionBarHtml(v) +
     '</section>';
+  }
+
+  /* 根据关卡/塔层选择场景主题 */
+  function sceneThemeClass(v) {
+    if (v.towerFloor > 0) return 'ux65-theme--tower';
+    var st = v.stage || 1;
+    if (st <= 10) return 'ux65-theme--office';
+    if (st <= 25) return 'ux65-theme--mountain';
+    if (st <= 50) return 'ux65-theme--heaven';
+    return 'ux65-theme--void';
   }
 
   /* ── V6.4 主动技能栏 ── */
@@ -52,7 +80,7 @@
     var skills = v.activeSkills || [];
     if (!skills.length) return '';
     var speed = v.speedMultiplier || 1;
-    var html = '<div class="ux64-skillbar">';
+    var html = '<div class="ux65-skillbar">';
     for (var i = 0; i < skills.length; i++) {
       var s = skills[i];
       var locked = !s.unlocked;
@@ -96,34 +124,52 @@
     }
     var traitTag = v.bossTraitLabel ? '<span class="ux63-tag ux64-tag--trait">' + H.escHtml(v.bossTraitLabel) + '</span>' : '';
     var typeTag = v.enemyTypeLabel ? '<span class="ux63-tag ux64-tag--etype">' + H.escHtml(v.enemyTypeLabel) + '</span>' : '';
-    return '<div class="ux63-stage-header">' +
-      '<div class="ux63-stage-info">' +
-        '<span class="ux63-chapter">' + H.escHtml(v.chapterEmoji) + ' ' + H.escHtml(v.chapterTitle) + '</span>' +
-        '<b class="ux63-stage-num">第' + v.stage + '关</b>' +
-        '<span class="ux63-stage-progress">' + H.escHtml(v.stageProgress) + '</span>' +
+    return '<div class="ux65-stage-header">' +
+      '<div class="ux65-stage-info">' +
+        '<span class="ux65-chapter">' + H.escHtml(v.chapterEmoji) + ' ' + H.escHtml(v.chapterTitle) + '</span>' +
+        '<b class="ux65-stage-num">第' + v.stage + '关</b>' +
+        '<span class="ux65-stage-progress">' + H.escHtml(v.stageProgress) + '</span>' +
       '</div>' +
-      '<div class="ux63-stage-tags">' + traitTag + typeTag + powerTag + towerTag + chestTag + bossTag + '</div>' +
+      '<div class="ux65-stage-tags">' + traitTag + typeTag + powerTag + towerTag + chestTag + bossTag + '</div>' +
     '</div>';
   }
 
   function enemyZoneHtml(v) {
     if (!v.enemy) {
-      return '<div class="ux63-enemy ux63-enemy--empty"><span>⚔️ 敌人即将出现...</span></div>';
+      return '<div class="ux65-enemy ux65-enemy--empty"><span>⚔️ 敌人即将出现...</span></div>';
     }
     var e = v.enemy;
-    var hpColor = e.isCardBoss ? 'ux63-hp--cardboss' : e.isBoss ? 'ux63-hp--boss' : 'ux63-hp--normal';
-    var bossLabel = e.isCardBoss ? ' <span class="ux63-boss-label ux63-boss-label--card">卡牌Boss</span>'
-      : e.isBoss ? ' <span class="ux63-boss-label">Boss</span>' : '';
+    var hpColor = e.isCardBoss ? 'ux65-hp--cardboss' : e.isBoss ? 'ux65-hp--boss' : 'ux65-hp--normal';
+    var bossLabel = e.isCardBoss ? ' <span class="ux65-boss-label ux65-boss-label--card">卡牌Boss</span>'
+      : e.isBoss ? ' <span class="ux65-boss-label">Boss</span>' : '';
+    var charCls = e.isCardBoss ? 'ux65-char--cardboss' : e.isBoss ? 'ux65-char--boss' : 'ux65-char--normal';
     var statusOverlay = '';
-    if (v.status === 'VICTORY') statusOverlay = '<div class="ux63-enemy-status ux63-enemy-status--victory">✅ 击败！</div>';
-    else if (v.status === 'DEFEAT') statusOverlay = '<div class="ux63-enemy-status ux63-enemy-status--defeat">💀 重生中...</div>';
-    else if (v.status === 'BOSS_PENDING') statusOverlay = '<div class="ux63-enemy-status ux63-enemy-status--boss">⚔️ 进入卡牌战斗</div>';
-    return '<div class="ux63-enemy' + (e.isBoss ? ' ux63-enemy--boss' : '') + '" data-action="v63-tapAttack">' +
-      '<div class="ux63-enemy-avatar">' + H.escHtml(e.emoji) + '</div>' +
-      '<div class="ux63-enemy-body">' +
-        '<div class="ux63-enemy-name">' + H.escHtml(e.name) + bossLabel + '</div>' +
-        '<div class="ux63-hp-bar"><div class="ux63-hp-fill ' + hpColor + '" id="Ux63HpFill" style="width:' + e.hpPct + '%"></div></div>' +
-        '<div class="ux63-hp-text"><span id="Ux63HpNow">' + fmtNum(e.hp) + '</span> / ' + fmtNum(e.maxHp) + '</div>' +
+    if (v.status === 'VICTORY') statusOverlay = '<div class="ux65-enemy-status ux65-enemy-status--victory">✅ 击败！</div>';
+    else if (v.status === 'DEFEAT') statusOverlay = '<div class="ux65-enemy-status ux65-enemy-status--defeat">💀 重生中...</div>';
+    else if (v.status === 'BOSS_PENDING') statusOverlay = '<div class="ux65-enemy-status ux65-enemy-status--boss">⚔️ 进入卡牌战斗</div>';
+    /* V6.5: 敌人舞台化 — CSS角色 + 光环 + 名牌 + 血条 */
+    return '<div class="ux65-enemy' + (e.isBoss ? ' ux65-enemy--boss' : '') + '" id="Ux65EnemyZone">' +
+      '<div class="ux65-enemy-stage">' +
+        '<div class="ux65-char ' + charCls + '" id="Ux65EnemyChar">' +
+          '<div class="ux65-char-aura"></div>' +
+          '<div class="ux65-char-body">' +
+            '<div class="ux65-char-head">' +
+              '<div class="ux65-char-eyes"></div>' +
+              '<div class="ux65-char-brow"></div>' +
+              '<div class="ux65-char-mouth"></div>' +
+            '</div>' +
+            '<div class="ux65-char-torso"></div>' +
+            '<div class="ux65-char-arm-l"></div>' +
+            '<div class="ux65-char-arm-r"></div>' +
+          '</div>' +
+          '<div class="ux65-char-shadow"></div>' +
+          '<span class="ux65-char-emoji">' + H.escHtml(e.emoji) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ux65-enemy-info">' +
+        '<div class="ux65-enemy-name">' + H.escHtml(e.name) + bossLabel + '</div>' +
+        '<div class="ux65-hp-bar"><div class="ux65-hp-fill ' + hpColor + '" id="Ux63HpFill" style="width:' + e.hpPct + '%"></div></div>' +
+        '<div class="ux65-hp-text"><span id="Ux63HpNow">' + fmtNum(e.hp) + '</span> / ' + fmtNum(e.maxHp) + '</div>' +
       '</div>' +
       statusOverlay +
     '</div>';
@@ -134,7 +180,7 @@
     var detailMap = {};
     var details = v.squadDetail || [];
     for (var d = 0; d < details.length; d++) detailMap[details[d].id] = details[d];
-    var html = '<div class="ux63-squad">';
+    var html = '<div class="ux65-squad">';
     for (var i = 0; i < members.length; i++) {
       var m = members[i];
       var det = detailMap[m.id] || {};
@@ -143,31 +189,37 @@
       var stars = det.stars || 1;
       var starStr = '';
       for (var st = 0; st < stars; st++) starStr += '⭐';
-      var skillCls = m.skillReady ? 'ux63-skill--ready' : 'ux63-skill--cd';
+      var skillCls = m.skillReady ? 'ux65-skill--ready' : 'ux65-skill--cd';
+      var profCls = 'ux65-member--' + (m.professionId || '').toLowerCase().replace(/[^a-z]/g, '');
       var tipTitle = H.escHtml(m.name) + ' · ' + H.escHtml(det.rarityLabel || m.professionLabel) + ' ' + starStr + '&#10;' +
         H.escHtml(m.professionLabel) + ' Lv.' + m.level + '&#10;攻击: ' + m.attack +
         (det.starUpCost ? '&#10;升星需: 碎片×' + det.starUpCost.fragments + ' 灵石×' + det.starUpCost.spiritStones : '') +
         '&#10;技能: ' + H.escHtml(m.skillName);
-      html += '<div class="ux63-member ' + rarityCls + '" title="' + tipTitle + '">' +
-        '<div class="ux63-member-avatar">' + H.escHtml(m.professionEmoji) + '</div>' +
-        '<div class="ux63-member-info">' +
-          '<span class="ux63-member-name">' + H.escHtml(m.name.length > 4 ? m.name.slice(0, 4) : m.name) + '</span>' +
-          '<span class="ux63-member-lv">Lv.' + m.level + (stars > 1 ? ' ' + starStr : '') + '</span>' +
+      /* V6.5: 阵型卡片 — 大头像圆框 + 品质光边 + 技能指示 */
+      html += '<div class="ux65-member ' + rarityCls + ' ' + profCls + '" title="' + tipTitle + '">' +
+        '<div class="ux65-member-avatar">' +
+          '<span class="ux65-member-emoji">' + H.escHtml(m.professionEmoji) + '</span>' +
+          '<span class="ux65-member-skill ' + skillCls + '" style="--cd:' + m.skillCooldownPct + '%">' + (m.skillReady ? '✨' : '⏳') + '</span>' +
         '</div>' +
-        '<div class="ux63-skill ' + skillCls + '" style="--cd:' + m.skillCooldownPct + '%">' + (m.skillReady ? '✨' : '⏳') + '</div>' +
+        '<div class="ux65-member-info">' +
+          '<span class="ux65-member-name">' + H.escHtml(m.name.length > 4 ? m.name.slice(0, 4) : m.name) + '</span>' +
+          '<span class="ux65-member-lv">Lv.' + m.level + '</span>' +
+          (stars > 1 ? '<span class="ux65-member-stars">' + starStr + '</span>' : '') +
+        '</div>' +
       '</div>';
     }
     // 空位招募按钮
     if (members.length < 5) {
-      html += '<button class="ux63-member ux63-member--empty" data-action="v63-hireMenu" title="招募队员">＋</button>';
+      html += '<button class="ux65-member ux65-member--empty" data-action="v63-hireMenu" title="招募队员">' +
+        '<span class="ux65-member-plus">＋</span><span class="ux65-member-hire">招募</span></button>';
     }
     html += '</div>';
     // V6.4 羁绊徽章
     var syns = v.synergies || [];
     if (syns.length) {
-      html += '<div class="ux64-synergy-row">';
+      html += '<div class="ux65-synergy-row">';
       for (var si = 0; si < syns.length; si++) {
-        html += '<span class="ux64-synergy-badge" title="' + H.escHtml(syns[si].desc) + '">' +
+        html += '<span class="ux65-synergy-badge" title="' + H.escHtml(syns[si].desc) + '">' +
           syns[si].emoji + ' ' + H.escHtml(syns[si].name) + '</span>';
       }
       html += '</div>';
@@ -178,16 +230,16 @@
   function actionBarHtml(v) {
     var autoOn = v.autoEnabled;
     var equipDrops = (v.pendingEquipDrops && v.pendingEquipDrops.length) ? v.pendingEquipDrops.length : 0;
-    return '<div class="ux63-actions">' +
-      '<button class="ux63-btn ux63-btn--tap" data-action="v63-tapAttack">👊 点击攻击 <small>' + fmtNum(v.clickDamage) + '</small></button>' +
-      '<button class="ux63-btn ux63-btn--auto' + (autoOn ? ' is-on' : '') + '" data-action="v63-toggleAuto">' + (autoOn ? '🤖 自动中' : '💤 已暂停') + '</button>' +
-      '<button class="ux63-btn ux63-btn--upgrade" data-action="v63-upgradeClick">⬆️ 升级点击</button>' +
+    return '<div class="ux65-actions">' +
+      '<button class="ux65-btn ux65-btn--tap" data-action="v63-tapAttack"><span class="ux65-btn-ico">👊</span>点击攻击 <small>' + fmtNum(v.clickDamage) + '</small></button>' +
+      '<button class="ux65-btn ux65-btn--auto' + (autoOn ? ' is-on' : '') + '" data-action="v63-toggleAuto">' + (autoOn ? '🤖 自动中' : '💤 已暂停') + '</button>' +
+      '<button class="ux65-btn ux65-btn--upgrade" data-action="v63-upgradeClick">⬆️ 升级点击</button>' +
       (v.towerFloor > 0
-        ? '<button class="ux63-btn ux63-btn--tower-exit" data-action="v63-exitTower">↩️ 退出塔</button>'
-        : '<button class="ux63-btn ux63-btn--tower" data-action="v63-enterTower">🗼 996塔</button>') +
-      '<button class="ux63-btn ux64-btn--equip" data-action="v64-openEquip">⚔️ 装备' + (equipDrops > 0 ? '<span class="ux64-badge">' + equipDrops + '</span>' : '') + '</button>' +
-      '<button class="ux63-btn ux64-btn--goals" data-action="v64-openGoals">📋 目标</button>' +
-      '<span class="ux63-dps">DPS ' + fmtNum(v.dps) + ' · 击杀' + v.totalKills + (v.towerBestFloor > 0 ? ' · 塔最高' + v.towerBestFloor + '层' : '') + '</span>' +
+        ? '<button class="ux65-btn ux65-btn--tower-exit" data-action="v63-exitTower">↩️ 退出塔</button>'
+        : '<button class="ux65-btn ux65-btn--tower" data-action="v63-enterTower">🗼 996塔</button>') +
+      '<button class="ux65-btn ux65-btn--equip" data-action="v64-openEquip">⚔️ 装备' + (equipDrops > 0 ? '<span class="ux65-badge">' + equipDrops + '</span>' : '') + '</button>' +
+      '<button class="ux65-btn ux65-btn--goals" data-action="v64-openGoals">📋 目标</button>' +
+      '<span class="ux65-dps">DPS ' + fmtNum(v.dps) + ' · 击杀' + v.totalKills + (v.towerBestFloor > 0 ? ' · 塔最高' + v.towerBestFloor + '层' : '') + '</span>' +
     '</div>';
   }
 
@@ -408,6 +460,8 @@
     }
     // 飘字动画
     showFloatDmg(el, r.damage, r.isCrit);
+    // V6.5 打击特效
+    showHitEffect(r.isCrit);
     // 局部更新血条（不整页刷新，保持流畅）
     updateHpBar(r.enemyHpAfter);
     if (r.enemyDefeated) {
@@ -534,6 +588,7 @@
       if (r.shieldGained) msg = '🛡️ 护盾 +' + fmtNum(r.shieldGained);
       if (r.enemyDefeated) msg += ' ✅ 击杀！';
       H.toast(msg);
+      showSkillBurst(skillId); /* V6.5 技能特效 */
       if (r.enemyDefeated) H.refresh();
     } else {
       H.toast(r.reason || '技能不可用');
@@ -648,15 +703,65 @@
   /* ── 飘字伤害 ── */
 
   function showFloatDmg(el, dmg, isCrit) {
-    if (!el) return;
-    var rect = el.getBoundingClientRect();
+    var layer = document.getElementById('Ux65DmgLayer');
     var float = document.createElement('div');
-    float.className = 'ux63-float-dmg' + (isCrit ? ' ux63-float-dmg--crit' : '');
+    float.className = 'ux65-dmg' + (isCrit ? ' ux65-dmg--crit' : '');
     float.textContent = isCrit ? '💥 ' + fmtNum(dmg) : fmtNum(dmg);
-    float.style.left = (rect.left + rect.width * (0.3 + Math.random() * 0.4)) + 'px';
-    float.style.top = (rect.top + rect.height * 0.2) + 'px';
-    document.body.appendChild(float);
-    setTimeout(function () { if (float.parentNode) float.parentNode.removeChild(float); }, 800);
+    /* 在飘字层内随机偏移 */
+    var rx = 20 + Math.random() * 60; /* % */
+    var ry = 10 + Math.random() * 30; /* % */
+    float.style.left = rx + '%';
+    float.style.top = ry + '%';
+    if (layer) {
+      layer.appendChild(float);
+    } else {
+      /* 降级：固定定位到屏幕 */
+      if (!el) return;
+      var rect = el.getBoundingClientRect();
+      float.className = float.className.replace('ux65-dmg', 'ux63-float-dmg');
+      float.style.left = (rect.left + rect.width * (0.3 + Math.random() * 0.4)) + 'px';
+      float.style.top = (rect.top + rect.height * 0.2) + 'px';
+      document.body.appendChild(float);
+    }
+    setTimeout(function () { if (float.parentNode) float.parentNode.removeChild(float); }, 900);
+  }
+
+  /* ── V6.5 打击特效：敌人受击闪烁+抖动 ── */
+
+  function showHitEffect(isCrit) {
+    var charEl = document.getElementById('Ux65EnemyChar');
+    if (!charEl) return;
+    charEl.classList.remove('ux65-hit');
+    void charEl.offsetWidth; /* 强制reflow重置动画 */
+    charEl.classList.add('ux65-hit');
+    if (isCrit) {
+      charEl.classList.remove('ux65-hit--crit');
+      void charEl.offsetWidth;
+      charEl.classList.add('ux65-hit--crit');
+    }
+    /* 火花粒子 */
+    var fxLayer = document.getElementById('Ux65FxLayer');
+    if (fxLayer) {
+      var spark = document.createElement('div');
+      spark.className = 'ux65-spark' + (isCrit ? ' ux65-spark--crit' : '');
+      spark.style.left = (30 + Math.random() * 40) + '%';
+      spark.style.top = (20 + Math.random() * 30) + '%';
+      fxLayer.appendChild(spark);
+      setTimeout(function () { if (spark.parentNode) spark.parentNode.removeChild(spark); }, 500);
+    }
+  }
+
+  /* ── V6.5 技能释放特效 ── */
+
+  function showSkillBurst(skillId) {
+    var fxLayer = document.getElementById('Ux65FxLayer');
+    if (!fxLayer) return;
+    var burst = document.createElement('div');
+    burst.className = 'ux65-skill-burst ux65-skill-burst--' + (skillId || 'default');
+    fxLayer.appendChild(burst);
+    setTimeout(function () { if (burst.parentNode) burst.parentNode.removeChild(burst); }, 700);
+    /* 敌人受击 */
+    showHitEffect(true);
   }
 
   /* ── AI点评气泡 ── */
@@ -667,10 +772,10 @@
     if (!comment || !comment.text) return;
     var bubble = document.getElementById('Ux63AiBubble');
     if (!bubble) return;
-    var moodClass = { praise: 'ux63-ai-bubble--praise', sarcasm: 'ux63-ai-bubble--sarcasm', warn: 'ux63-ai-bubble--warn', cheer: 'ux63-ai-bubble--cheer' }[comment.mood] || '';
-    bubble.className = 'ux63-ai-bubble ' + moodClass;
-    bubble.innerHTML = '<span class="ux63-ai-emoji">' + H.escHtml(comment.emoji || '🤖') + '</span>' +
-      '<span class="ux63-ai-text">' + H.escHtml(comment.text) + '</span>';
+    var moodClass = { praise: 'ux65-ai-bubble--praise', sarcasm: 'ux65-ai-bubble--sarcasm', warn: 'ux65-ai-bubble--warn', cheer: 'ux65-ai-bubble--cheer' }[comment.mood] || '';
+    bubble.className = 'ux65-ai-bubble ' + moodClass;
+    bubble.innerHTML = '<span class="ux65-ai-emoji">' + H.escHtml(comment.emoji || '🤖') + '</span>' +
+      '<span class="ux65-ai-text">' + H.escHtml(comment.text) + '</span>';
     bubble.style.display = 'flex';
     if (aiBubbleTimer) clearTimeout(aiBubbleTimer);
     aiBubbleTimer = setTimeout(function () {
