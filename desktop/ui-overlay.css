@@ -3153,3 +3153,194 @@ button.ux-journey--sec { cursor: pointer; }
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
+
+/* ═════════════════════════════════════════════════════════
+   §V6.4 主动技能栏 + 倍速 + 羁绊 + 品质 + 装备 + 目标
+   ═════════════════════════════════════════════════════════ */
+
+/* 技能栏 */
+.ux64-skillbar {
+  display: flex; gap: 6px; margin-top: 6px; align-items: stretch;
+  overflow-x: auto; padding-bottom: 2px;
+}
+.ux64-skill-btn {
+  position: relative; flex: 1; min-width: 58px; max-width: 80px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 4px 5px; border-radius: 10px; cursor: pointer;
+  border: 1px solid rgba(224,189,123,.3); background: rgba(20,32,50,.75);
+  color: #c8d8e5; overflow: hidden; transition: transform .1s;
+}
+.ux64-skill-btn--ready { border-color: rgba(255,215,0,.5); background: rgba(40,50,25,.75); }
+.ux64-skill-btn--ready:hover { transform: scale(1.05); border-color: #ffd700; }
+.ux64-skill-btn--cd { opacity: .55; cursor: default; }
+.ux64-skill-btn--locked { opacity: .35; cursor: default; border-style: dashed; }
+.ux64-skill-emoji { font-size: 18px; line-height: 1; }
+.ux64-skill-name { font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; }
+.ux64-skill-cd { font-size: 10px; color: #ff9b6b; font-weight: bold; }
+.ux64-skill-cd--ok { color: #ffd700; animation: ux64-skill-glow 1.5s infinite; }
+.ux64-skill-lock { font-size: 9px; color: #7a8fa3; }
+.ux64-skill-cdmask {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.45); pointer-events: none; transition: height .3s;
+}
+@keyframes ux64-skill-glow {
+  0%, 100% { text-shadow: 0 0 2px rgba(255,215,0,.5); }
+  50% { text-shadow: 0 0 8px rgba(255,215,0,.9); }
+}
+
+/* 倍速按钮 */
+.ux64-speed-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 42px; padding: 6px 6px; border-radius: 10px; cursor: pointer;
+  border: 1px solid rgba(100,180,255,.3); background: rgba(20,32,50,.75); color: #8ab8d8;
+  transition: all .15s;
+}
+.ux64-speed-btn.is-on {
+  border-color: rgba(100,200,255,.8); background: rgba(20,45,70,.85);
+  color: #6cd8ff; box-shadow: 0 0 8px rgba(100,200,255,.3);
+}
+.ux64-speed-btn:hover { border-color: #6cd8ff; }
+.ux64-speed-icon { font-size: 14px; }
+.ux64-speed-val { font-size: 11px; font-weight: bold; }
+
+/* 品质边框 */
+.ux64-r0 { border-color: rgba(156,163,175,.25) !important; }
+.ux64-r1 { border-color: rgba(74,222,128,.45) !important; }
+.ux64-r2 { border-color: rgba(96,165,250,.5) !important; }
+.ux64-r3 { border-color: rgba(192,132,252,.6) !important; }
+.ux64-r4 {
+  border-color: rgba(251,191,36,.7) !important;
+  box-shadow: 0 0 6px rgba(251,191,36,.25);
+  animation: ux64-legendary-pulse 2s infinite;
+}
+@keyframes ux64-legendary-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(251,191,36,.2); }
+  50% { box-shadow: 0 0 10px rgba(251,191,36,.45); }
+}
+
+/* 羁绊徽章 */
+.ux64-synergy-row {
+  display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap;
+}
+.ux64-synergy-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: 20px; font-size: 10px;
+  background: linear-gradient(135deg, rgba(114,81,142,.5), rgba(90,63,115,.4));
+  border: 1px solid rgba(163,119,201,.4); color: #d4b8e8;
+}
+
+/* 敌人类型/Boss特性标签 */
+.ux64-tag--trait {
+  background: rgba(216,75,58,.2); border-color: rgba(216,75,58,.5); color: #f0a09a;
+}
+.ux64-tag--etype {
+  background: rgba(74,156,216,.15); border-color: rgba(74,156,216,.4); color: #8ac8e8;
+}
+.ux63-tag--power { background: rgba(255,215,0,.1); border-color: rgba(255,215,0,.35); color: #ffd700; }
+.ux63-power-warn { color: #ff9b6b; font-size: 9px; margin-left: 2px; }
+
+/* 装备/目标按钮+红点 */
+.ux64-btn--equip, .ux64-btn--goals {
+  position: relative;
+  border: 1px solid rgba(163,119,201,.35); color: #c8a8e0;
+}
+.ux64-btn--equip:hover, .ux64-btn--goals:hover { border-color: #a377c9; }
+.ux64-badge {
+  position: absolute; top: -4px; right: -4px;
+  min-width: 16px; height: 16px; border-radius: 8px;
+  background: #d84b3a; color: #fff; font-size: 10px; font-weight: bold;
+  display: flex; align-items: center; justify-content: center; padding: 0 4px;
+  animation: ux64-badge-bounce 1s infinite;
+}
+@keyframes ux64-badge-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* 装备面板 */
+.ux64-equip-panel { max-height: 75vh; overflow-y: auto; }
+.ux64-equip-slots {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;
+}
+.ux64-equip-slot {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 6px; border-radius: 10px; border: 1px solid rgba(224,189,123,.25);
+  background: rgba(20,32,50,.6); position: relative;
+}
+.ux64-equip-slot.is-filled { background: rgba(30,42,30,.6); }
+.ux64-equip-slot.is-empty { opacity: .5; border-style: dashed; }
+.ux64-equip-slot-emoji { font-size: 20px; }
+.ux64-equip-slot-name { font-size: 11px; font-weight: bold; }
+.ux64-equip-slot-stat { font-size: 9px; color: #7a8fa3; }
+.ux64-equip-slot-lv {
+  position: absolute; top: 2px; right: 4px; font-size: 10px;
+  color: #ffd700; font-weight: bold;
+}
+.ux64-equip-bag-title { color: #c8d8e5; font-size: 12px; margin-bottom: 6px; }
+.ux64-equip-bag {
+  display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto;
+}
+.ux64-equip-item {
+  display: flex; align-items: center; gap: 6px; padding: 6px 8px;
+  border-radius: 8px; border: 1px solid rgba(224,189,123,.25);
+  background: rgba(20,32,50,.5);
+}
+.ux64-equip-item-name { font-size: 11px; font-weight: bold; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ux64-equip-item-stat { font-size: 10px; color: #7a8fa3; white-space: nowrap; }
+.ux64-equip-item-btns { display: flex; gap: 4px; }
+.ux64-equip-mini-btn {
+  padding: 3px 8px; border-radius: 6px; font-size: 10px; cursor: pointer;
+  border: 1px solid rgba(224,189,123,.3); background: rgba(30,42,65,.7); color: #ffe9bd;
+}
+.ux64-equip-mini-btn:hover { border-color: #c9a54a; background: rgba(40,55,80,.9); }
+.ux64-equip-mini-btn--enh { border-color: rgba(108,195,165,.3); color: #6cc3a5; }
+.ux64-equip-mini-btn--enh:hover { border-color: #4aae8e; }
+.ux64-equip-bag-empty { color: #7a8fa3; font-size: 11px; text-align: center; padding: 16px; }
+.ux64-equip-frag { color: #c8a870; font-size: 11px; margin-top: 8px; text-align: center; }
+
+/* 目标面板 */
+.ux64-goals-panel { max-height: 75vh; overflow-y: auto; }
+.ux64-goals-subtitle { margin-top: 14px; }
+.ux64-goals-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+.ux64-goal-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+  border-radius: 8px; border: 1px solid rgba(224,189,123,.2);
+  background: rgba(20,32,50,.5);
+}
+.ux64-goal-item.is-done { border-color: rgba(108,195,165,.4); background: rgba(20,45,35,.5); }
+.ux64-goal-item.is-claimed { opacity: .5; }
+.ux64-goal-emoji { font-size: 18px; }
+.ux64-goal-body { flex: 1; min-width: 0; }
+.ux64-goal-name { font-size: 11px; color: #c8d8e5; display: block; }
+.ux64-goal-bar {
+  height: 4px; border-radius: 2px; background: rgba(230,217,186,.15);
+  margin: 3px 0; overflow: hidden;
+}
+.ux64-goal-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, #4aae8e, #6cc3a5);
+  transition: width .3s;
+}
+.ux64-goal-prog { font-size: 9px; color: #7a8fa3; }
+.ux64-goal-claim {
+  padding: 4px 12px; border-radius: 6px; font-size: 10px; cursor: pointer;
+  border: 1px solid rgba(255,215,0,.5); background: rgba(255,215,0,.15); color: #ffd700;
+  animation: ux64-claim-glow 1.5s infinite;
+}
+.ux64-goal-claim:hover { background: rgba(255,215,0,.3); }
+@keyframes ux64-claim-glow {
+  0%, 100% { box-shadow: 0 0 3px rgba(255,215,0,.3); }
+  50% { box-shadow: 0 0 8px rgba(255,215,0,.6); }
+}
+.ux64-goal-claimed { font-size: 14px; }
+.ux64-ach-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+}
+.ux64-ach-item {
+  padding: 5px 6px; border-radius: 6px; font-size: 10px;
+  border: 1px solid rgba(224,189,123,.15); background: rgba(20,32,50,.4);
+  color: #7a8fa3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ux64-ach-item.is-claimed {
+  border-color: rgba(255,215,0,.35); color: #ffd700; background: rgba(40,35,15,.5);
+}

@@ -1,22 +1,23 @@
 ---
 name: phase5-progress
-description: V6.1完成 - Game Feel七子系统+AI NPC聊天+晋升指引+合成/战斗特效，已推送origin/gameplay-v2
+description: V6.3完成 - 自动推关+数值平衡9/9+AI点评+Boss衔接+离线结算，分支v61/gameplay-v2
 type: project
 ---
 
 # 修仙项目进度
 
-## V6.1 已完成 (2026-11-09, commit 43a287d)
-- **Game Feel系统**: ui-game-feel.js七子系统(EffectPool/SfxSynth/ClickFeedback/FloatingNumber/ScreenShake/ParticleBurst/ComboTracker)，window.__GAME_FEEL__暴露
-- **连击暴击**: CultivationService — critChance = clamp(15% + min(combo-1,10)×2%, 5%, 60%)，暴击倍率1.5~3.0
-- **战斗特效**: __BATTLE_CARD__内部统一触发，snapshotBattle/diffAndFeel对比系统
-- **合成演出**: mergeCelebrate增强+skipDom去重
-- **晋升指引**: promotionGoalHtml() — 条件满足率+闭环提示+CTA
-- **AI NPC**: ai-bridge.cjs双模式(MNN HTTP优先/规则引擎降级)，4NPC人设，12条记忆/NPC；Electron三层IPC；MESSENGER页面AI/普通会话双模
-- **修复**: patch-html.cjs ui-battle-card.js注入缺失；aiBuildContext() readHud→readHUD大小写
+## V6.3 已完成 (2026-11-09, 分支v61/gameplay-v2)
+4批提交: cf3ce0d(核心引擎+UI) / df4ab9b(Boss衔接+离线结算) / eeba894(数值平衡9/9通过) / 24cb175(AI点评+宝箱弹窗)
 
-**Why:** V6.1目标是爽感重构+AI NPC+玩法闭环
-**How to apply:** 后续版本基于此构建，Game Feel API见window.__GAME_FEEL__，AI API见electronAPI.ai
+关键设计: cardBoss关卡12/25/40/55/70/85/95/100击杀后BOSS_PENDING等玩家打卡牌；HP成长1.13^stage×3倍率；升级经验40×1.13^lvl；离线结算settlementId幂等；AI点评15s冷却+60s卡关检测。
+
+构建: build:game→pc:build→patch-html→pc:copy。验证: electron.cmd desktop/v63-verify.cjs --dev(13项)。模拟: node tools/v63-balance-sim.cjs(9门控)。
+
+**Why:** V6.3目标咸鱼之王式挂机推关+点击爽感+项目小队+职场Boss+996通天塔
+**How to apply:** 后续版本基于此构建，CSS选择器.ux63-enemy/.ux63-squad/.ux63-actions
+
+## V6.1 已完成 (此前, commit 43a287d)
+Game Feel七子系统+AI NPC(ai-bridge.cjs MNN/规则双模式)
 
 ## PC V1 Desktop 已完成 (此前)
-- Electron+pc-patch.js运行时UI接线+EXE打包验证通过
+Electron+运行时UI接线+EXE打包验证通过

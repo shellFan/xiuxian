@@ -1137,6 +1137,10 @@
     try { v63Battle = window.__V63__ ? window.__V63__.battleAreaHtml() : ''; } catch (e) { v63Battle = ''; }
     var v63HireMenu = '';
     try { v63HireMenu = window.__V63__ ? window.__V63__.hireMenuHtml() : ''; } catch (e) { v63HireMenu = ''; }
+    var v64EquipPanel = '';
+    try { v64EquipPanel = window.__V63__ ? window.__V63__.equipPanelHtml() : ''; } catch (e) { v64EquipPanel = ''; }
+    var v64GoalsPanel = '';
+    try { v64GoalsPanel = window.__V63__ ? window.__V63__.goalsPanelHtml() : ''; } catch (e) { v64GoalsPanel = ''; }
     return '' +
       '<div class="ux-home">' +
         backfillBanner +
@@ -1155,6 +1159,8 @@
           homeRightHtml(hud) +
         '</div>' +
         v63HireMenu +
+        v64EquipPanel +
+        v64GoalsPanel +
       '</div>';
   }
 

@@ -179,11 +179,15 @@ export interface GameEvents extends Record<string, unknown> {
   readonly v63BossPending: { readonly stage: number; readonly bossName: string };
   readonly v63Victory: { readonly stage: number; readonly rewards: { readonly salary: number; readonly cultivation: number } };
   readonly v63StageAdvanced: { readonly stage: number };
-  readonly v63MemberHired: { readonly name: string; readonly profession: string };
+  readonly v63MemberHired: { readonly name: string; readonly profession: string; readonly rarity?: number };
   readonly v63TowerEntered: { readonly floor: number };
   readonly v63TowerAdvanced: { readonly floor: number };
   readonly v63TowerCleared: { readonly floor: number };
   readonly v63AiComment: { readonly text: string; readonly mood: 'praise' | 'sarcasm' | 'warn' | 'cheer'; readonly emoji: string };
+  // ── V6.4 ──
+  readonly v64SkillUsed: { readonly skillId: string; readonly totalDamage: number; readonly shieldGained: number };
+  readonly v64MemberStarUp: { readonly memberId: string; readonly newStars: number };
+  readonly v64AchievementUnlocked: { readonly id: string; readonly name: string; readonly emoji: string };
 }
 
 /** Domain events that should refresh Phase 2 HUD. UI must not poll every frame. */

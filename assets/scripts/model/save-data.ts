@@ -468,6 +468,11 @@ export interface GameSaveData {
   readonly v63AutoBattle?: V63AutoBattleState;
   /** 项目小队状态（成员/点击等级/护盾）。 */
   readonly v63Squad?: V63SquadState;
+  // ── V6.4 长期养成（saveVersion 16） ──
+  /** V6.4 战斗装备状态（背包/已装备/碎片）。 */
+  readonly v64Equipment?: import('../v64/equipment').V64EquipmentState;
+  /** V6.4 留存状态（每日目标/七日/成就/统计）。 */
+  readonly v64Retention?: import('../v64/retention').V64RetentionState;
 }
 
 /** F02: Pending offer persistence schema. */

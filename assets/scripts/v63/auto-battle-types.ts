@@ -113,6 +113,16 @@ export interface V63EnemyState {
   attackTimer: number;
   readonly isBoss: boolean;
   readonly isCardBoss: boolean;
+  /** V6.4 敌人护盾（SHIELD型Boss/SHIELDED型敌人） */
+  enemyShield?: number;
+  /** V6.4 Boss特性 */
+  bossTrait?: string;
+  /** V6.4 敌人类型 */
+  enemyType?: string;
+  /** V6.4 控制型Boss眩晕计时器 */
+  stunTimer?: number;
+  /** V6.4 DOT型Boss持续伤害计时器 */
+  dotTimer?: number;
 }
 
 export interface V63SquadMemberState {
@@ -128,6 +138,12 @@ export interface V63SquadMemberState {
   /** 技能冷却计时器（秒） */
   skillTimer: number;
   hiredAtDay: number;
+  /** V6.4 品质等级 0~4（普通/优秀/精英/史诗/传说），默认0 */
+  rarity?: number;
+  /** V6.4 星级 1~5，默认1 */
+  stars?: number;
+  /** V6.4 升星碎片（同角色碎片） */
+  fragments?: number;
 }
 
 export interface V63SquadState {
@@ -138,6 +154,8 @@ export interface V63SquadState {
   shield: number;
   /** 弱点Debuff剩余秒数（QA技能） */
   weakSpotTimer: number;
+  /** V6.4 主动技能冷却（skillId → 剩余秒数） */
+  activeSkillCooldowns?: Record<string, number>;
 }
 
 export type AutoBattleStatus = 'IDLE' | 'FIGHTING' | 'VICTORY' | 'DEFEAT' | 'BOSS_PENDING';
@@ -175,6 +193,18 @@ export interface V63AutoBattleState {
   idleCultivationAccrued: number;
   /** 上次离线结算ID（防重复结算） */
   lastOfflineSettlementId: string;
+  /** V6.4 战斗倍速（1或2） */
+  speedMultiplier?: number;
+  /** V6.4 全队眩晕剩余秒数（CONTROL型Boss） */
+  squadStunTimer?: number;
+  /** V6.4 装备掉落计数器 */
+  equipDropCounter?: number;
+  /** V6.4 今日击杀数（每日目标用） */
+  todayKills?: number;
+  /** V6.4 今日推进关卡数（每日目标用） */
+  todayStagesAdvanced?: number;
+  /** V6.4 今日日期索引（每日目标重置用） */
+  todayIndex?: number;
 }
 
 // ── 运行时视图（UI只读快照） ─────────────────────────────────────────────────
@@ -217,6 +247,47 @@ export interface AutoBattleView {
   towerBestFloor: number;
   pendingChests: number;
   dps: number;
+  /** V6.4 战斗倍速 */
+  speedMultiplier: number;
+  /** V6.4 主动技能列表 */
+  activeSkills: {
+    id: string;
+    name: string;
+    emoji: string;
+    desc: string;
+    cooldownSec: number;
+    cooldownRemaining: number;
+    ready: boolean;
+    unlocked: boolean;
+    unlockStage: number;
+  }[];
+  /** V6.4 激活的羁绊 */
+  synergies: {
+    id: string;
+    name: string;
+    emoji: string;
+    desc: string;
+  }[];
+  /** V6.4 战力分 */
+  powerScore: number;
+  /** V6.4 敌人类型标签 */
+  enemyTypeLabel: string;
+  /** V6.4 Boss特性标签 */
+  bossTraitLabel: string;
+  /** V6.4 推荐战力 */
+  recommendedPower: number;
+  /** V6.4 队员品质/星级信息 */
+  squadDetail: {
+    id: string;
+    rarity: number;
+    rarityLabel: string;
+    rarityEmoji: string;
+    stars: number;
+    fragments: number;
+    starUpCost: { fragments: number; spiritStones: number } | null;
+  }[];
+  /** V6.4 待领取装备数 */
+  pendingEquipDrops: number;
 }
 
 export interface TapAttackResult {

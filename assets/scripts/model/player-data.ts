@@ -144,6 +144,9 @@ export interface PlayerDataOptions {
   // ── V6.3 ──
   readonly v63AutoBattle?: V63AutoBattleState;
   readonly v63Squad?: V63SquadState;
+  // ── V6.4 ──
+  readonly v64Equipment?: import('../v64/equipment').V64EquipmentState;
+  readonly v64Retention?: import('../v64/retention').V64RetentionState;
 }
 
 export class PlayerData {
@@ -305,6 +308,9 @@ export class PlayerData {
   // ── V6.3 ──
   public v63AutoBattle: V63AutoBattleState | null;
   public v63Squad: V63SquadState | null;
+  // ── V6.4 ──
+  public v64Equipment: import('../v64/equipment').V64EquipmentState | null;
+  public v64Retention: import('../v64/retention').V64RetentionState | null;
 
   public constructor(options: PlayerDataOptions = {}) {
     this.salary = options.salary ?? 0;
@@ -462,6 +468,22 @@ export class PlayerData {
       ...options.v63Squad,
       members: options.v63Squad.members.map(m => ({ ...m })),
     } : null;
+    // ── V6.4：深拷贝装备/留存状态 ──
+    this.v64Equipment = options.v64Equipment ? {
+      bag: options.v64Equipment.bag.map(b => ({ ...b })),
+      equipped: { ...options.v64Equipment.equipped },
+      fragments: options.v64Equipment.fragments,
+    } : null;
+    this.v64Retention = options.v64Retention ? {
+      dailyGoalDay: options.v64Retention.dailyGoalDay,
+      dailyGoals: options.v64Retention.dailyGoals.map(g => ({ ...g })),
+      sevenDayClaimed: [...options.v64Retention.sevenDayClaimed],
+      v64AchievementsClaimed: [...options.v64Retention.v64AchievementsClaimed],
+      totalSkillUses: options.v64Retention.totalSkillUses,
+      totalTapCount: options.v64Retention.totalTapCount,
+      totalStarUps: options.v64Retention.totalStarUps,
+      totalChestsOpened: options.v64Retention.totalChestsOpened,
+    } : null;
   }
 
   public static createDefault(): PlayerData {
@@ -584,6 +606,8 @@ export class PlayerData {
       teamDailyAssignment: this.teamDailyAssignment ? { ...this.teamDailyAssignment } : null,
       v63AutoBattle: this.v63AutoBattle ? { ...this.v63AutoBattle, enemy: this.v63AutoBattle.enemy ? { ...this.v63AutoBattle.enemy } : null } : undefined,
       v63Squad: this.v63Squad ? { ...this.v63Squad, members: this.v63Squad.members.map(m => ({ ...m })) } : undefined,
+      v64Equipment: this.v64Equipment ? { bag: this.v64Equipment.bag.map(b => ({ ...b })), equipped: { ...this.v64Equipment.equipped }, fragments: this.v64Equipment.fragments } : undefined,
+      v64Retention: this.v64Retention ? { dailyGoalDay: this.v64Retention.dailyGoalDay, dailyGoals: this.v64Retention.dailyGoals.map(g => ({ ...g })), sevenDayClaimed: [...this.v64Retention.sevenDayClaimed], v64AchievementsClaimed: [...this.v64Retention.v64AchievementsClaimed], totalSkillUses: this.v64Retention.totalSkillUses, totalTapCount: this.v64Retention.totalTapCount, totalStarUps: this.v64Retention.totalStarUps, totalChestsOpened: this.v64Retention.totalChestsOpened } : undefined,
     };
     if (this.performanceRemainder !== 0) Object.assign(data, { performanceRemainder: this.performanceRemainder });
     if (this.wageMultiplier !== 1) Object.assign(data, { wageMultiplier: this.wageMultiplier });

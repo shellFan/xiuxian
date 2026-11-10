@@ -1052,6 +1052,57 @@ export class GameFacade {
   /** 卡牌Boss战斗失败（v59o衔接回调用）。 */
   public autoBattleBossFailed() { return this.context.autoBattle.bossFailed(); }
 
+  // ── V6.4 长期养成接口 ──
+
+  /** V6.4 释放主动技能。 */
+  public useActiveSkill(skillId: 'code_sword' | 'bug_bomb' | 'req_crusher' | 'emergency_rollback') {
+    return this.context.autoBattle.useActiveSkill(skillId);
+  }
+
+  /** V6.4 切换战斗倍速（1↔2）。 */
+  public toggleBattleSpeed() { return this.context.autoBattle.toggleSpeed(); }
+
+  /** V6.4 员工升星。 */
+  public starUpMember(memberId: string) { return this.context.autoBattle.starUp(memberId); }
+
+  /** V6.4 装备视图。 */
+  public queryEquipView() { return this.context.autoBattle.equipView(); }
+
+  /** V6.4 装备穿戴。 */
+  public equipItem(instanceId: string) { return this.context.autoBattle.equipItem(instanceId); }
+
+  /** V6.4 装备卸下。 */
+  public unequipItem(slot: 'WEAPON' | 'ARMOR' | 'ACCESSORY' | 'RELIC') { return this.context.autoBattle.unequipItem(slot); }
+
+  /** V6.4 装备强化。 */
+  public enhanceEquip(instanceId: string) { return this.context.autoBattle.enhanceEquip(instanceId); }
+
+  /** V6.4 每日目标视图。 */
+  public queryDailyGoals(dayIndex?: number) {
+    return this.context.autoBattle.dailyGoalsView(dayIndex ?? this.context.player.gameDay?.dayIndex ?? 1);
+  }
+
+  /** V6.4 领取每日目标奖励。 */
+  public claimDailyGoal(goalId: string) { return this.context.autoBattle.claimDailyGoal(goalId); }
+
+  /** V6.4 七日目标视图。 */
+  public querySevenDayGoals() { return this.context.autoBattle.sevenDayView(); }
+
+  /** V6.4 领取七日目标奖励。 */
+  public claimSevenDayGoal(day: number) { return this.context.autoBattle.claimSevenDay(day); }
+
+  /** V6.4 成就视图。 */
+  public queryV64Achievements() { return this.context.autoBattle.achievementsView(); }
+
+  /** V6.4 检查并领取成就。 */
+  public checkV64Achievements() { return this.context.autoBattle.checkV64Achievements(); }
+
+  /** V6.4 失败建议。 */
+  public queryDefeatAdvice() { return this.context.autoBattle.defeatAdvice(); }
+
+  /** V6.4 战力分。 */
+  public queryPowerScore() { return this.context.autoBattle.computePowerScore(); }
+
   /** 离线自动推关结算。 */
   public settleAutoBattleOffline(elapsedSeconds: number, settlementId?: string) { return this.context.autoBattle.settleOffline(elapsedSeconds, settlementId); }
 
@@ -1410,6 +1461,7 @@ export class GameFacade {
       'synergyActivated', 'bossExclusiveDrop', 'fatigueCritical', 'projectArchived', 'equipmentAcquired',
       // V6.3
       'v63BossPending', 'v63AiComment',
+      'v64SkillUsed', 'v64MemberStarUp', 'v64AchievementUnlocked',
     ];
 
     for (const eventName of allEvents) {
