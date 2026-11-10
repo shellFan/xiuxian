@@ -36,20 +36,12 @@
   function battleAreaHtml() {
     var v = readView();
     if (!v) return '';
+    spriteMounted = false; /* V6.6: 每次重渲染后需重新挂载sprite */
     var theme = sceneThemeClass(v);
+    var sceneBg = (window.__V66_SPRITE__ ? window.__V66_SPRITE__.sceneBgUrl(v) : '');
     return '<section class="ux65-stage ' + theme + '" id="Ux63BattleArea">' +
-      '<div class="ux65-scene">' +
-        '<div class="ux65-scene-sky"></div>' +
-        '<div class="ux65-scene-stars"></div>' +
-        '<div class="ux65-scene-moon"></div>' +
-        '<div class="ux65-scene-mtn ux65-scene-mtn--far"></div>' +
-        '<div class="ux65-scene-mtn ux65-scene-mtn--near"></div>' +
-        '<div class="ux65-scene-ground"></div>' +
-        '<div class="ux65-scene-particles">' +
-          '<span class="ux65-particle"></span><span class="ux65-particle"></span>' +
-          '<span class="ux65-particle"></span><span class="ux65-particle"></span>' +
-          '<span class="ux65-particle"></span>' +
-        '</div>' +
+      '<div class="ux65-scene ux66-scene-bg" style="' + (sceneBg ? 'background-image:url(' + sceneBg + ')' : '') + '">' +
+        '<div class="ux65-scene-overlay"></div>' +
       '</div>' +
       '<div class="ux65-ai-bubble" id="Ux63AiBubble" style="display:none"></div>' +
       stageHeaderHtml(v) +
@@ -147,23 +139,15 @@
     if (v.status === 'VICTORY') statusOverlay = '<div class="ux65-enemy-status ux65-enemy-status--victory">✅ 击败！</div>';
     else if (v.status === 'DEFEAT') statusOverlay = '<div class="ux65-enemy-status ux65-enemy-status--defeat">💀 重生中...</div>';
     else if (v.status === 'BOSS_PENDING') statusOverlay = '<div class="ux65-enemy-status ux65-enemy-status--boss">⚔️ 进入卡牌战斗</div>';
-    /* V6.5: 敌人舞台化 — CSS角色 + 光环 + 名牌 + 血条 */
+    /* V6.6: 敌人Sprite化 — 真实2D角色动画替代CSS拼装 */
+    var spriteName = (window.__V66_SPRITE__ && v) ? window.__V66_SPRITE__.enemySpriteName(v) : 'requirement';
+    var spriteScale = (e.isBoss || e.isCardBoss) ? 1.5 : 1.2;
     return '<div class="ux65-enemy' + (e.isBoss ? ' ux65-enemy--boss' : '') + '" id="Ux65EnemyZone">' +
       '<div class="ux65-enemy-stage">' +
-        '<div class="ux65-char ' + charCls + '" id="Ux65EnemyChar">' +
-          '<div class="ux65-char-aura"></div>' +
-          '<div class="ux65-char-body">' +
-            '<div class="ux65-char-head">' +
-              '<div class="ux65-char-eyes"></div>' +
-              '<div class="ux65-char-brow"></div>' +
-              '<div class="ux65-char-mouth"></div>' +
-            '</div>' +
-            '<div class="ux65-char-torso"></div>' +
-            '<div class="ux65-char-arm-l"></div>' +
-            '<div class="ux65-char-arm-r"></div>' +
-          '</div>' +
-          '<div class="ux65-char-shadow"></div>' +
-          '<span class="ux65-char-emoji">' + H.escHtml(e.emoji) + '</span>' +
+        '<div class="ux66-sprite-container" id="Ux66EnemySprite"' +
+          ' data-sprite="' + spriteName + '"' +
+          ' data-scale="' + spriteScale + '"' +
+          ' style="width:' + (128 * spriteScale) + 'px;height:' + (128 * spriteScale) + 'px">' +
         '</div>' +
       '</div>' +
       '<div class="ux65-enemy-info">' +
@@ -195,10 +179,11 @@
         H.escHtml(m.professionLabel) + ' Lv.' + m.level + '&#10;攻击: ' + m.attack +
         (det.starUpCost ? '&#10;升星需: 碎片×' + det.starUpCost.fragments + ' 灵石×' + det.starUpCost.spiritStones : '') +
         '&#10;技能: ' + H.escHtml(m.skillName);
-      /* V6.5: 阵型卡片 — 大头像圆框 + 品质光边 + 技能指示 */
+      /* V6.6: 阵型卡片 — sprite角色头像 + 品质光边 + 技能指示 */
+      var profSprite = (window.__V66_SPRITE__ ? window.__V66_SPRITE__.profSpriteName(m.professionId) : 'javabackend');
       html += '<div class="ux65-member ' + rarityCls + ' ' + profCls + '" title="' + tipTitle + '">' +
         '<div class="ux65-member-avatar">' +
-          '<span class="ux65-member-emoji">' + H.escHtml(m.professionEmoji) + '</span>' +
+          '<div class="ux66-squad-sprite" data-prof="' + (m.professionId || '') + '" data-sprite="' + profSprite + '"></div>' +
           '<span class="ux65-member-skill ' + skillCls + '" style="--cd:' + m.skillCooldownPct + '%">' + (m.skillReady ? '✨' : '⏳') + '</span>' +
         '</div>' +
         '<div class="ux65-member-info">' +
@@ -465,6 +450,8 @@
     // 局部更新血条（不整页刷新，保持流畅）
     updateHpBar(r.enemyHpAfter);
     if (r.enemyDefeated) {
+      /* V6.6: sprite死亡动画 */
+      if (window.__V66_SPRITE__) window.__V66_SPRITE__.onEnemyDeath();
       if (r.stageCleared && r.rewards) {
         H.toast('✅ 第' + (lastView ? lastView.stage : '') + '关通关！+' + r.rewards.salary + '工资 +' + r.rewards.cultivation + '修为');
       }
@@ -589,7 +576,11 @@
       if (r.enemyDefeated) msg += ' ✅ 击杀！';
       H.toast(msg);
       showSkillBurst(skillId); /* V6.5 技能特效 */
-      if (r.enemyDefeated) H.refresh();
+      if (r.enemyDefeated) {
+        /* V6.6: sprite死亡动画 */
+        if (window.__V66_SPRITE__) window.__V66_SPRITE__.onEnemyDeath();
+        H.refresh();
+      }
     } else {
       H.toast(r.reason || '技能不可用');
     }
@@ -669,10 +660,43 @@
     now.textContent = fmtNum(hpAfter);
   }
 
+  /* ── V6.6 Sprite挂载（渲染后初始化sprite动画） ── */
+
+  var spriteMounted = false;
+  var lastEnemyHp = -1;
+
+  function mountSprites() {
+    var v = lastView || readView();
+    if (!v) return;
+    /* 挂载敌人sprite */
+    var enemyEl = document.getElementById('Ux66EnemySprite');
+    if (enemyEl && window.__V66_SPRITE__) {
+      window.__V66_SPRITE__.mountEnemy(enemyEl, v);
+    }
+    /* 挂载小队sprite */
+    var squadEls = document.querySelectorAll('.ux66-squad-sprite');
+    if (squadEls.length && window.__V66_SPRITE__) {
+      for (var i = 0; i < squadEls.length; i++) {
+        var el = squadEls[i];
+        var prof = el.getAttribute('data-prof') || '';
+        window.__V66_SPRITE__.mountSquadMember(el, prof);
+      }
+    }
+    spriteMounted = true;
+  }
+
   /** 每秒由宿主调用：仅更新血条/技能冷却等动态元素，避免整页闪烁。 */
   function tick() {
     var v = readView();
     if (!v || !v.enemy) return;
+    /* V6.6: 首次tick挂载sprite */
+    if (!spriteMounted) mountSprites();
+    /* V6.6: 检测敌人攻击（HP下降时敌人做攻击动作由我方受击表现，此处检测敌人主动攻击） */
+    if (lastEnemyHp >= 0 && v.enemy.hp > lastEnemyHp + 1) {
+      /* 敌人HP增加 = 新敌人出现，重置sprite */
+      spriteMounted = false;
+    }
+    lastEnemyHp = v.enemy.hp;
     var fill = document.getElementById('Ux63HpFill');
     var now = document.getElementById('Ux63HpNow');
     if (fill && now) {
@@ -729,7 +753,7 @@
   /* ── V6.5 打击特效：敌人受击闪烁+抖动 ── */
 
   function showHitEffect(isCrit) {
-    var charEl = document.getElementById('Ux65EnemyChar');
+    var charEl = document.getElementById('Ux66EnemySprite');
     if (!charEl) return;
     charEl.classList.remove('ux65-hit');
     void charEl.offsetWidth; /* 强制reflow重置动画 */
@@ -739,6 +763,8 @@
       void charEl.offsetWidth;
       charEl.classList.add('ux65-hit--crit');
     }
+    /* V6.6: sprite受击动画 */
+    if (window.__V66_SPRITE__) window.__V66_SPRITE__.onEnemyHit();
     /* 火花粒子 */
     var fxLayer = document.getElementById('Ux65FxLayer');
     if (fxLayer) {
@@ -829,6 +855,8 @@
     goalsPanelHtml: function () { return goalsPanelOpen ? goalsPanelHtml() : ''; },
     handleClick: handleClick,
     tick: tick,
+    mountSprites: mountSprites,
+    resetSprites: function () { spriteMounted = false; },
     isHireMenuOpen: function () { return hireMenuOpen; },
     isEquipPanelOpen: function () { return equipPanelOpen; },
     isGoalsPanelOpen: function () { return goalsPanelOpen; },

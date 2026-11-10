@@ -1,0 +1,898 @@
+{
+  "version": "V6.6",
+  "frameSize": {
+    "w": 128,
+    "h": 128
+  },
+  "characters": {
+    "hero": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/hero_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/hero_idle_0.png",
+          "frames/hero_idle_1.png",
+          "frames/hero_idle_2.png",
+          "frames/hero_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/hero_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/hero_attack_0.png",
+          "frames/hero_attack_1.png",
+          "frames/hero_attack_2.png",
+          "frames/hero_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/hero_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/hero_hit_0.png",
+          "frames/hero_hit_1.png",
+          "frames/hero_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/hero_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/hero_death_0.png",
+          "frames/hero_death_1.png",
+          "frames/hero_death_2.png",
+          "frames/hero_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/hero_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/hero_victory_0.png",
+          "frames/hero_victory_1.png",
+          "frames/hero_victory_2.png",
+          "frames/hero_victory_3.png"
+        ]
+      }
+    },
+    "javabackend": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/javabackend_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/javabackend_idle_0.png",
+          "frames/javabackend_idle_1.png",
+          "frames/javabackend_idle_2.png",
+          "frames/javabackend_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/javabackend_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/javabackend_attack_0.png",
+          "frames/javabackend_attack_1.png",
+          "frames/javabackend_attack_2.png",
+          "frames/javabackend_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/javabackend_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/javabackend_hit_0.png",
+          "frames/javabackend_hit_1.png",
+          "frames/javabackend_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/javabackend_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/javabackend_death_0.png",
+          "frames/javabackend_death_1.png",
+          "frames/javabackend_death_2.png",
+          "frames/javabackend_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/javabackend_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/javabackend_victory_0.png",
+          "frames/javabackend_victory_1.png",
+          "frames/javabackend_victory_2.png",
+          "frames/javabackend_victory_3.png"
+        ]
+      }
+    },
+    "frontend": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/frontend_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/frontend_idle_0.png",
+          "frames/frontend_idle_1.png",
+          "frames/frontend_idle_2.png",
+          "frames/frontend_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/frontend_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/frontend_attack_0.png",
+          "frames/frontend_attack_1.png",
+          "frames/frontend_attack_2.png",
+          "frames/frontend_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/frontend_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/frontend_hit_0.png",
+          "frames/frontend_hit_1.png",
+          "frames/frontend_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/frontend_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/frontend_death_0.png",
+          "frames/frontend_death_1.png",
+          "frames/frontend_death_2.png",
+          "frames/frontend_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/frontend_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/frontend_victory_0.png",
+          "frames/frontend_victory_1.png",
+          "frames/frontend_victory_2.png",
+          "frames/frontend_victory_3.png"
+        ]
+      }
+    },
+    "qa": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/qa_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/qa_idle_0.png",
+          "frames/qa_idle_1.png",
+          "frames/qa_idle_2.png",
+          "frames/qa_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/qa_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/qa_attack_0.png",
+          "frames/qa_attack_1.png",
+          "frames/qa_attack_2.png",
+          "frames/qa_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/qa_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/qa_hit_0.png",
+          "frames/qa_hit_1.png",
+          "frames/qa_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/qa_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/qa_death_0.png",
+          "frames/qa_death_1.png",
+          "frames/qa_death_2.png",
+          "frames/qa_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/qa_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/qa_victory_0.png",
+          "frames/qa_victory_1.png",
+          "frames/qa_victory_2.png",
+          "frames/qa_victory_3.png"
+        ]
+      }
+    },
+    "devops": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/devops_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/devops_idle_0.png",
+          "frames/devops_idle_1.png",
+          "frames/devops_idle_2.png",
+          "frames/devops_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/devops_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/devops_attack_0.png",
+          "frames/devops_attack_1.png",
+          "frames/devops_attack_2.png",
+          "frames/devops_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/devops_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/devops_hit_0.png",
+          "frames/devops_hit_1.png",
+          "frames/devops_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/devops_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/devops_death_0.png",
+          "frames/devops_death_1.png",
+          "frames/devops_death_2.png",
+          "frames/devops_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/devops_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/devops_victory_0.png",
+          "frames/devops_victory_1.png",
+          "frames/devops_victory_2.png",
+          "frames/devops_victory_3.png"
+        ]
+      }
+    }
+  },
+  "enemies": {
+    "requirement": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/requirement_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/requirement_idle_0.png",
+          "frames/requirement_idle_1.png",
+          "frames/requirement_idle_2.png",
+          "frames/requirement_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/requirement_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/requirement_attack_0.png",
+          "frames/requirement_attack_1.png",
+          "frames/requirement_attack_2.png",
+          "frames/requirement_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/requirement_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/requirement_hit_0.png",
+          "frames/requirement_hit_1.png",
+          "frames/requirement_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/requirement_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/requirement_death_0.png",
+          "frames/requirement_death_1.png",
+          "frames/requirement_death_2.png",
+          "frames/requirement_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/requirement_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/requirement_victory_0.png",
+          "frames/requirement_victory_1.png",
+          "frames/requirement_victory_2.png",
+          "frames/requirement_victory_3.png"
+        ]
+      }
+    },
+    "bug": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/bug_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/bug_idle_0.png",
+          "frames/bug_idle_1.png",
+          "frames/bug_idle_2.png",
+          "frames/bug_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/bug_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/bug_attack_0.png",
+          "frames/bug_attack_1.png",
+          "frames/bug_attack_2.png",
+          "frames/bug_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/bug_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/bug_hit_0.png",
+          "frames/bug_hit_1.png",
+          "frames/bug_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/bug_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/bug_death_0.png",
+          "frames/bug_death_1.png",
+          "frames/bug_death_2.png",
+          "frames/bug_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/bug_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/bug_victory_0.png",
+          "frames/bug_victory_1.png",
+          "frames/bug_victory_2.png",
+          "frames/bug_victory_3.png"
+        ]
+      }
+    },
+    "debt": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/debt_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/debt_idle_0.png",
+          "frames/debt_idle_1.png",
+          "frames/debt_idle_2.png",
+          "frames/debt_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/debt_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/debt_attack_0.png",
+          "frames/debt_attack_1.png",
+          "frames/debt_attack_2.png",
+          "frames/debt_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/debt_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/debt_hit_0.png",
+          "frames/debt_hit_1.png",
+          "frames/debt_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/debt_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/debt_death_0.png",
+          "frames/debt_death_1.png",
+          "frames/debt_death_2.png",
+          "frames/debt_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/debt_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/debt_victory_0.png",
+          "frames/debt_victory_1.png",
+          "frames/debt_victory_2.png",
+          "frames/debt_victory_3.png"
+        ]
+      }
+    },
+    "overtime": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/overtime_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/overtime_idle_0.png",
+          "frames/overtime_idle_1.png",
+          "frames/overtime_idle_2.png",
+          "frames/overtime_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/overtime_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/overtime_attack_0.png",
+          "frames/overtime_attack_1.png",
+          "frames/overtime_attack_2.png",
+          "frames/overtime_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/overtime_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/overtime_hit_0.png",
+          "frames/overtime_hit_1.png",
+          "frames/overtime_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/overtime_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/overtime_death_0.png",
+          "frames/overtime_death_1.png",
+          "frames/overtime_death_2.png",
+          "frames/overtime_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/overtime_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/overtime_victory_0.png",
+          "frames/overtime_victory_1.png",
+          "frames/overtime_victory_2.png",
+          "frames/overtime_victory_3.png"
+        ]
+      }
+    },
+    "kpi": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/kpi_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/kpi_idle_0.png",
+          "frames/kpi_idle_1.png",
+          "frames/kpi_idle_2.png",
+          "frames/kpi_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/kpi_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/kpi_attack_0.png",
+          "frames/kpi_attack_1.png",
+          "frames/kpi_attack_2.png",
+          "frames/kpi_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/kpi_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/kpi_hit_0.png",
+          "frames/kpi_hit_1.png",
+          "frames/kpi_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/kpi_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/kpi_death_0.png",
+          "frames/kpi_death_1.png",
+          "frames/kpi_death_2.png",
+          "frames/kpi_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/kpi_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/kpi_victory_0.png",
+          "frames/kpi_victory_1.png",
+          "frames/kpi_victory_2.png",
+          "frames/kpi_victory_3.png"
+        ]
+      }
+    }
+  },
+  "bosses": {
+    "client": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/client_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/client_idle_0.png",
+          "frames/client_idle_1.png",
+          "frames/client_idle_2.png",
+          "frames/client_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/client_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/client_attack_0.png",
+          "frames/client_attack_1.png",
+          "frames/client_attack_2.png",
+          "frames/client_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/client_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/client_hit_0.png",
+          "frames/client_hit_1.png",
+          "frames/client_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/client_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/client_death_0.png",
+          "frames/client_death_1.png",
+          "frames/client_death_2.png",
+          "frames/client_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/client_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/client_victory_0.png",
+          "frames/client_victory_1.png",
+          "frames/client_victory_2.png",
+          "frames/client_victory_3.png"
+        ]
+      }
+    },
+    "incident": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/incident_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/incident_idle_0.png",
+          "frames/incident_idle_1.png",
+          "frames/incident_idle_2.png",
+          "frames/incident_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/incident_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/incident_attack_0.png",
+          "frames/incident_attack_1.png",
+          "frames/incident_attack_2.png",
+          "frames/incident_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/incident_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/incident_hit_0.png",
+          "frames/incident_hit_1.png",
+          "frames/incident_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/incident_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/incident_death_0.png",
+          "frames/incident_death_1.png",
+          "frames/incident_death_2.png",
+          "frames/incident_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/incident_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/incident_victory_0.png",
+          "frames/incident_victory_1.png",
+          "frames/incident_victory_2.png",
+          "frames/incident_victory_3.png"
+        ]
+      }
+    },
+    "kpiLord": {
+      "idle": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/kpiLord_idle.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/kpiLord_idle_0.png",
+          "frames/kpiLord_idle_1.png",
+          "frames/kpiLord_idle_2.png",
+          "frames/kpiLord_idle_3.png"
+        ]
+      },
+      "attack": {
+        "frames": 4,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/kpiLord_attack.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/kpiLord_attack_0.png",
+          "frames/kpiLord_attack_1.png",
+          "frames/kpiLord_attack_2.png",
+          "frames/kpiLord_attack_3.png"
+        ]
+      },
+      "hit": {
+        "frames": 3,
+        "fps": 8,
+        "loop": false,
+        "sheet": "sheets/kpiLord_hit.png",
+        "sheetWidth": 384,
+        "frameFiles": [
+          "frames/kpiLord_hit_0.png",
+          "frames/kpiLord_hit_1.png",
+          "frames/kpiLord_hit_2.png"
+        ]
+      },
+      "death": {
+        "frames": 4,
+        "fps": 6,
+        "loop": false,
+        "sheet": "sheets/kpiLord_death.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/kpiLord_death_0.png",
+          "frames/kpiLord_death_1.png",
+          "frames/kpiLord_death_2.png",
+          "frames/kpiLord_death_3.png"
+        ]
+      },
+      "victory": {
+        "frames": 4,
+        "fps": 4,
+        "loop": true,
+        "sheet": "sheets/kpiLord_victory.png",
+        "sheetWidth": 512,
+        "frameFiles": [
+          "frames/kpiLord_victory_0.png",
+          "frames/kpiLord_victory_1.png",
+          "frames/kpiLord_victory_2.png",
+          "frames/kpiLord_victory_3.png"
+        ]
+      }
+    }
+  },
+  "scenes": {
+    "office": {
+      "w": 640,
+      "h": 320,
+      "file": "sheets/scene_office.png"
+    },
+    "mountain": {
+      "w": 640,
+      "h": 320,
+      "file": "sheets/scene_mountain.png"
+    },
+    "heaven": {
+      "w": 640,
+      "h": 320,
+      "file": "sheets/scene_heaven.png"
+    },
+    "void": {
+      "w": 640,
+      "h": 320,
+      "file": "sheets/scene_void.png"
+    },
+    "tower": {
+      "w": 640,
+      "h": 320,
+      "file": "sheets/scene_tower.png"
+    }
+  }
+}

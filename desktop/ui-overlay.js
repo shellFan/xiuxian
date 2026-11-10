@@ -4537,6 +4537,8 @@
         refresh();
         dispatchNextModal();
       }
+      /* V6.3: 战斗局部刷新（血条/技能冷却实时更新） */
+      try { if (window.__V63__ && window.__V63__.tick) window.__V63__.tick(); } catch (e) { /* tick失败不影响主循环 */ }
     }, 1000);
   }
 
