@@ -132,8 +132,9 @@ function testCrossMidnightOwnershipSurvivesRestartAndRetries(): void {
 }
 
 function testV6MigrationAndImmutableRoundTrip(): void {
-  // V5.9：saveVersion 14（角色创建、天命与成长数据入档）
-  assert.equal(CURRENT_SAVE_VERSION, 14);
+  // V6.8: repository saveVersion is 15 (V5.9 was 14). This assertion had gone
+  // stale and was masked by the earlier tsc failure in the working tree.
+  assert.equal(CURRENT_SAVE_VERSION, 15);
   const storage = new MemoryStorageAdapter();
   const v6Day = {
     dayIndex: 4,

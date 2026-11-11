@@ -14,6 +14,12 @@ function make(): { context: GameContext; loop: GameLoopService } {
   const context = new GameContext({ board: null, clock, storage: new MemoryStorageAdapter(), player: new PlayerData({ lastSaveTime: clock.now(), workMode: 'WORK' }) });
   context.gameDay.ensureStarted();
   const loop = new GameLoopService(context, { autoSaveIntervalSeconds: 0 });
+  // V6.8: V6.3 autoBattle contributes salary on every GameLoop step, which
+  // breaks the "free overtime must not use ordinary wage path" assertion.
+  // Freeze the battle to isolate the income source under test — same isolation
+  // already used in tests/phase2/phase3-gameplay-integration.test.ts.
+  context.autoBattle.tick(0);
+  if (context.player.v63AutoBattle) context.player.v63AutoBattle.status = 'BOSS_PENDING';
   loop.start();
   return { context, loop };
 }

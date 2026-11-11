@@ -105,13 +105,22 @@ function testPureHooksAreBoundedAndRequireACompleteRecord(): void {
 }
 
 function testInsightIncreasesCultivationSettlementWithoutDestinySubstitution(): void {
-  const baseContext = makeContext({ mind: 100, lastCultivateTime: 0 });
-  const baseService = new CultivationService(baseContext, { cultivationClickReward: 100, clock: new FakeClock(10_000) });
-  assert.equal(baseService.cultivate().cultivationExp, 100, 'legacy cultivation reward remains unchanged');
+  // V6.8: CultivationService rolls a random crit via Math.random(), which made
+  // these two "legacy baseline" assertions flaky (100 occasionally became 165).
+  // Pin the RNG to a no-crit value so the test measures the intended baseline.
+  const originalRandom = Math.random;
+  Math.random = () => 0.99;
+  try {
+    const baseContext = makeContext({ mind: 100, lastCultivateTime: 0 });
+    const baseService = new CultivationService(baseContext, { cultivationClickReward: 100, clock: new FakeClock(10_000) });
+    assert.equal(baseService.cultivate().cultivationExp, 100, 'legacy cultivation reward remains unchanged');
 
-  const boostedContext = makeContext({ ...v59Options('LABOR_SAINT', 'insight'), mind: 100, lastCultivateTime: 0 });
-  const boostedService = new CultivationService(boostedContext, { cultivationClickReward: 100, clock: new FakeClock(10_000) });
-  assert.equal(boostedService.cultivate().cultivationExp, 110, 'insight owns cultivation growth');
+    const boostedContext = makeContext({ ...v59Options('LABOR_SAINT', 'insight'), mind: 100, lastCultivateTime: 0 });
+    const boostedService = new CultivationService(boostedContext, { cultivationClickReward: 100, clock: new FakeClock(10_000) });
+    assert.equal(boostedService.cultivate().cultivationExp, 110, 'insight owns cultivation growth');
+  } finally {
+    Math.random = originalRandom;
+  }
 }
 
 function testConstitutionAndLaborSaintReduceFatigueGain(): void {
