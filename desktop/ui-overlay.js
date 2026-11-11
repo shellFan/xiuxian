@@ -3526,12 +3526,15 @@
     }).join('') + '</div>';
     var profile = '<aside class="v59-profile"><div class="v59-avatar v59-avatar--' + escHtml(draft.avatarId) + '">🧑‍💻</div><span class="v59-kicker">牛马宗 · 入职档案</span><h2>' + escHtml(draft.nickname || '待命名修士') + '</h2><p>' + escHtml(draft.professionId || '尚未选择职业') + '</p><div class="v59-profile-note">工位即洞府<br>日报即经文</div></aside>';
     var content = backfill ? renderBackfillStep(draft) : renderCreationStep(draft);
+    /* V6.8 P0: block the dead-end click until the profession is actually confirmed
+       by the service, and say so on the button itself instead of a transient toast. */
+    var needsProfession = draft.step === 'PROFESSION' && !draft.professionConfirmed;
     var nav = backfill
       ? '<footer class="v59-actions"><button class="v59-btn v59-btn--quiet" data-creation-action="close-backfill">稍后补录</button><button class="v59-btn v59-btn--primary" data-creation-action="complete-backfill"' + (!draft.selectedCandidateId ? ' disabled' : '') + '>确认补录天命</button></footer>'
       : '<footer class="v59-actions">' + (stepIndex > 0 ? '<button class="v59-btn v59-btn--quiet" data-creation-action="back">上一步</button>' : '<span></span>') +
         (draft.step === 'CONFIRM'
           ? '<button class="v59-btn v59-btn--primary" data-creation-action="finalize">确认入职</button>'
-          : '<button class="v59-btn v59-btn--primary" data-creation-action="advance">下一步</button>') + '</footer>';
+          : '<button class="v59-btn v59-btn--primary" data-creation-action="advance"' + (needsProfession ? ' disabled aria-disabled="true"' : '') + '>' + (needsProfession ? '请先选择职业' : '下一步') + '</button>') + '</footer>';
     return '<main class="v59-creation"><header class="v59-head"><div><span class="v59-kicker">V5.9-A · 牛马降世</span><h1>' + (backfill ? '老友归来，补录天命' : '选择你的修仙职场命途') + '</h1></div><div class="v59-step-title">' + escHtml(stepTitle) + '</div></header>' + progress + '<div class="v59-layout">' + profile + '<section class="v59-step"><div class="v59-step-content">' + content + '</div>' + nav + '</section></div></main>';
   }
 
@@ -3550,8 +3553,14 @@
     if (draft.step === 'PROFESSION') {
       var views = [];
       try { views = f && f.queryProfessions ? f.queryProfessions() : []; } catch (e) { views = []; }
-      return '<h2>选择具体职业</h2><p>职业决定任务池、职业技能与专精路线。</p><div class="v59-choice-grid">' + views.filter(function (item) { return ['JAVA_BACKEND', 'FRONTEND', 'QA', 'DEVOPS'].indexOf(item.id) >= 0; }).map(function (item) {
-        return creationCard('profession', item.id, item.name, item.title + ' · ' + item.description, creationSelected(draft, 'professionId', item.id), item.locked);
+      /* V6.8 P0: the service requires professionConfirmed, not the default professionId.
+         Previously the default card rendered as "selected" while advance() kept failing,
+         so a new player saw a highlighted card and a dead "下一步" button. */
+      var hint = draft.professionConfirmed ? ''
+        : '<p class="v59-hint v59-hint--warn">⚠ 请点击上方任意一张职业卡片完成确认，才能继续。</p>';
+      return '<h2>选择具体职业</h2><p>职业决定任务池、职业技能与专精路线。</p>' + hint + '<div class="v59-choice-grid">' + views.filter(function (item) { return ['JAVA_BACKEND', 'FRONTEND', 'QA', 'DEVOPS'].indexOf(item.id) >= 0; }).map(function (item) {
+        var selected = draft.professionConfirmed ? creationSelected(draft, 'professionId', item.id) : '';
+        return creationCard('profession', item.id, item.name, item.title + ' · ' + item.description, selected, item.locked);
       }).join('') + '</div>';
     }
     if (draft.step === 'IDENTITY') return '<h2>创建牛马身份</h2><p>昵称限 12 个可见字符，形象使用本地基础头像。</p><label class="v59-label">角色昵称<input id="v59-nickname" maxlength="24" value="' + escHtml(draft.nickname) + '" autocomplete="nickname"></label><div class="v59-avatar-row">' + [1,2,3,4].map(function (n) {
@@ -3750,6 +3759,23 @@
   function bindEvents() {
     var overlay = $('#UiOverlay');
     if (!overlay) return;
+
+    /* V6.8 P1: every refresh() rebuilds #UiBody, so an unsaved nickname typed
+       in "创建身份" was reset to the draft default as soon as the player clicked
+       a background/avatar card. Persist it on blur (change) before the click.
+       Assigned as a property (like the existing onclick delegate) so repeated
+       bindEvents() calls cannot accumulate listeners. */
+    overlay.onchange = function (e) {
+      var t = e.target;
+      if (!t || t.id !== 'v59-nickname') return;
+      try {
+        var f = facade();
+        var q = f && f.queryCharacterCreation ? f.queryCharacterCreation() : null;
+        if (q && q.draft && q.draft.step === 'IDENTITY' && t.value !== q.draft.nickname) {
+          f.characterCreationSetIdentity(t.value, q.draft.avatarId);
+        }
+      } catch (err) { /* a failed draft write must not block character creation */ }
+    };
 
     overlay.onclick = function (e) {
       var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab],[data-codex-tab],[data-creation-action],[data-creation-choice],[data-enemy-uid],[data-ai-npc],[data-ai-send]') : null;

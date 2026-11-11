@@ -245,8 +245,16 @@
 
   var _v2EventShowing = false;
 
+  /* V6.8 P0: a fresh save used to open with a RARE "加班幻觉" event modal that
+     completely covered the 7-step character wizard. Never show optional event /
+     message / settlement modals while the player is still creating a character.
+     The pending event is left untouched and can appear after onboarding. */
+  function creationInProgress() {
+    try { return !!document.querySelector('.v59-creation'); } catch (e) { return false; }
+  }
+
   function maybeShowV2EventModal() {
-    if (H.popupOpen() || _v2EventShowing) return;
+    if (H.popupOpen() || _v2EventShowing || creationInProgress()) return;
     var f = H.facade();
     var def = fQuery('queryV2CurrentEvent');
     if (!def) { _v2EventShowing = false; return; }
@@ -334,7 +342,7 @@
   /* ── 周末活动弹窗（§12） ── */
 
   function maybeShowWeekendModal() {
-    if (H.popupOpen()) return;
+    if (H.popupOpen() || creationInProgress()) return;
     var clock = fQuery('queryGameClock');
     if (!clock || !clock.isWeekend) return;
     if (fQuery('queryWeekendChosen')) return;
@@ -502,7 +510,7 @@
   var _settlementShownDay = -1;
 
   function maybeShowSettlementModal() {
-    if (H.popupOpen()) return;
+    if (H.popupOpen() || creationInProgress()) return;
     var canSettle = fQuery('queryCanSettleDay');
     if (!canSettle) return;
     var day = fQuery('queryGameDay');
@@ -588,6 +596,7 @@
   var _criticalMessageShownKey = '';
 
   function maybeShowCriticalMessage() {
+    if (creationInProgress()) return;
     var badge = fQuery('queryMessengerBadge');
     if (!badge || !badge.hasCritical) return;
     var key = 'crit:' + badge.criticalUnread;
