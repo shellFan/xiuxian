@@ -4377,3 +4377,78 @@ button.ux-journey--sec { cursor: pointer; }
 .ux65-theme--heaven .ux65-scene-overlay { background: linear-gradient(to bottom, rgba(26,20,48,0) 0%, rgba(26,20,48,0.25) 100%); }
 .ux65-theme--void .ux65-scene-overlay { background: linear-gradient(to bottom, rgba(24,10,20,0) 0%, rgba(24,10,20,0.35) 100%); }
 .ux65-theme--tower .ux65-scene-overlay { background: linear-gradient(to bottom, rgba(26,10,10,0) 0%, rgba(26,10,10,0.4) 100%); }
+
+/* ═══════════════════════════════════════════════════════════════
+   §V6.8 首屏可玩性 / 创建流程反馈
+   实测基线（1280x720, 内容区 1267x621）：技能栏 y=662、操作条 y=731，
+   全部落在首屏之外，玩家必须滚动 1 屏以上才能点第一次攻击。
+   这里只做紧凑化覆盖，复用 V6.5/V6.6 既有令牌，不新增第二套设计系统。
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. 创建流程：持久提示 + 明确禁用态（替代一闪而过的 toast） */
+.v59-hint {
+  margin: 6px 0 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.v59-hint--warn {
+  color: #ffe2a8;
+  background: rgba(214, 152, 48, .16);
+  border: 1px solid rgba(230, 189, 100, .5);
+}
+.v59-btn:disabled,
+.v59-btn[aria-disabled="true"] {
+  opacity: .5;
+  cursor: not-allowed;
+  filter: grayscale(.35);
+}
+.v59-btn:disabled:hover,
+.v59-btn[aria-disabled="true"]:hover { transform: none; }
+
+/* 2. 顶部资源卡：两行四卡 → 一行四卡，省出约 130px 给战斗舞台 */
+.ux-home-main .ux-stats { flex-wrap: nowrap; gap: 6px; }
+.ux-home-main .ux-stat {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 6px 10px;
+  gap: 0;
+}
+.ux-home-main .ux-stat--main { flex: 1.35 1 0; }
+.ux-home-main .ux-stat-label { font-size: 10px; letter-spacing: 1px; }
+.ux-home-main .ux-stat-value { font-size: 20px; line-height: 1.1; }
+.ux-home-main .ux-stat--main .ux-stat-value { font-size: 24px; }
+.ux-home-main .ux-stat > b { font-size: 20px; line-height: 1.1; font-weight: 800; }
+.ux-home-main .ux-stat-rate {
+  font-size: 9.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ux-home-main .ux-stat .ux-progress { height: 5px; margin-top: 3px; }
+
+/* 3. 战斗舞台纵向留白压缩：四技能 / 点击攻击 / 倍速进入首屏 */
+.ux-home-main .ux65-stage { margin: 2px 0 0; min-height: 420px; }
+.ux-home-main .ux65-stage-header { padding: 6px 12px 3px; }
+.ux-home-main .ux65-arena { min-height: 172px; }
+.ux-home-main .ux65-squad { padding: 4px 12px; }
+.ux-home-main .ux65-member { padding: 4px 6px; min-width: 56px; }
+.ux-home-main .ux65-skillbar { padding: 3px 12px; }
+.ux-home-main .ux65-actions { padding: 4px 12px 6px; gap: 5px; }
+
+/* 4. 不可用状态的明确反馈（锁定技能 / 禁用按钮） */
+.ux65-skillbar .ux64-skill-btn--locked { opacity: .5; cursor: not-allowed; }
+.ux65-skillbar .ux64-skill-btn--locked:hover {
+  transform: none;
+  border-color: rgba(74,81,102,.4);
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+.ux65-btn:disabled,
+.ux64-skill-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* 5. 键盘焦点可见 */
+.ux65-btn:focus-visible,
+.ux64-skill-btn:focus-visible,
+.v59-btn:focus-visible,
+.v59-choice:focus-visible { outline: 2px solid #ffe9bd; outline-offset: 2px; }
