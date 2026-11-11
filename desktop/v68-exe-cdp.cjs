@@ -28,6 +28,11 @@ const report = {
   exceptions: [],
   consoleErrors: [],
   screenshots: [],
+  httpErrors: {},
+  httpErrorTotal: 0,
+  spriteResponses: {},
+  spriteResponseTotal: 0,
+  rendererCrashed: false,
 };
 
 async function findPage() {
@@ -48,26 +53,28 @@ function connect(page) {
     const ws = new WebSocket(page.webSocketDebuggerUrl);
     const pending = new Map();
     let nextId = 0;
-    ws.onopen = () => resolve(api);
-    ws.onerror = (e) => reject(new Error('WebSocket error: ' + (e.message || 'unknown')));
-    ws.onmessage = (ev) => {
-      let msg;
-      try { msg = JSON.parse(ev.data); } catch (_) { return; }
-      if (msg.id && pending.has(msg.id)) { pending.get(msg.id)(msg); pending.delete(msg.id); return; }
-      if (msg.method === 'Runtime.exceptionThrown') {
-        const d = msg.params.exceptionDetails || {};
-        report.exceptions.push({ at: new Date().toISOString(), text: d.text, description: (d.exception && d.exception.description || '').slice(0, 300) });
-      }
-      if (msg.method === 'Runtime.consoleAPICalled' && msg.params.type === 'error') {
-        report.consoleErrors.push({ at: new Date().toISOString(), text: (msg.params.args || []).map((a) => a.value || a.description || '').join(' ').slice(0, 250) });
-      }
+    let closed = false;
+
+    // V6.8: a crashed renderer silently stops answering CDP commands. Without
+    // timeouts the soak hangs forever and produces NO report at all. Fail loud.
+    const failAll = (err) => {
+      closed = true;
+      for (const p of pending.values()) { clearTimeout(p.timer); p.reject(err); }
+      pending.clear();
     };
+
     const api = {
       cmd(method, params = {}) {
-        return new Promise((res) => {
+        return new Promise((res, rej) => {
+          if (closed) return rej(new Error('CDP websocket already closed'));
           const id = ++nextId;
-          pending.set(id, res);
-          ws.send(JSON.stringify({ id, method, params }));
+          const timer = setTimeout(() => {
+            pending.delete(id);
+            rej(new Error('CDP timeout after 15s: ' + method));
+          }, 15000);
+          pending.set(id, { resolve: res, reject: rej, timer });
+          try { ws.send(JSON.stringify({ id, method, params })); }
+          catch (e) { clearTimeout(timer); pending.delete(id); rej(e); }
         });
       },
       async evaluate(expression) {
@@ -84,6 +91,47 @@ function connect(page) {
         return true;
       },
       close() { try { ws.close(); } catch (_) {} },
+    };
+
+    ws.onopen = () => resolve(api);
+    ws.onerror = (e) => {
+      const err = new Error('WebSocket error: ' + (e.message || 'unknown'));
+      failAll(err); reject(err);
+    };
+    ws.onclose = () => failAll(new Error('CDP websocket closed by target (renderer crash?)'));
+    ws.onmessage = (ev) => {
+      let msg;
+      try { msg = JSON.parse(ev.data); } catch (_) { return; }
+      if (msg.id && pending.has(msg.id)) {
+        const p = pending.get(msg.id);
+        pending.delete(msg.id);
+        clearTimeout(p.timer);
+        p.resolve(msg);
+        return;
+      }
+      if (msg.method === 'Runtime.exceptionThrown') {
+        const d = msg.params.exceptionDetails || {};
+        report.exceptions.push({ at: new Date().toISOString(), text: d.text, description: (d.exception && d.exception.description || '').slice(0, 300) });
+      }
+      if (msg.method === 'Runtime.consoleAPICalled' && msg.params.type === 'error') {
+        report.consoleErrors.push({ at: new Date().toISOString(), text: (msg.params.args || []).map((a) => a.value || a.description || '').join(' ').slice(0, 250) });
+      }
+      if (msg.method === 'Inspector.targetCrashed') {
+        report.rendererCrashed = true;
+        report.crashedAt = new Date().toISOString();
+      }
+      if (msg.method === 'Network.responseReceived') {
+        const r = msg.params.response || {};
+        const u = r.url || '';
+        if (r.status >= 400) {
+          report.httpErrorTotal++;
+          report.httpErrors[u] = (report.httpErrors[u] || 0) + 1;
+        } else if (u.includes('/assets/sprites/sheets/')) {
+          report.spriteResponseTotal++;
+          const name = u.split('/').pop();
+          report.spriteResponses[name] = (report.spriteResponses[name] || 0) + 1;
+        }
+      }
     };
   });
 }
@@ -152,6 +200,8 @@ function processMemory() {
   await api.cmd('Runtime.enable');
   await api.cmd('Page.enable');
   await api.cmd('Log.enable');
+  await api.cmd('Network.enable');
+  await api.cmd('Inspector.enable');
   await api.cmd('Performance.enable');
   console.log('[EXE-CDP] attached to packaged renderer: ' + page.url);
 
@@ -203,6 +253,23 @@ function processMemory() {
   })()`);
   console.log('[EXE-CDP] reachability=' + JSON.stringify(report.exeReachability));
 
+  // V6.8 P0 acceptance: prove the V6.6 sprite sheets are really shipped in the
+  // packaged app. Before fix, all four URLs returned 404 and the server log was
+  // flooded with repeated sprite 404s during every overlay refresh.
+  report.spriteCheck = await api.evaluate(`(async function(){
+    var names=['scene_office.png','javabackend_idle.png','bug_idle.png','kpiLord_idle.png'];
+    var out={};
+    for (var i=0;i<names.length;i++){
+      try { var r=await fetch('assets/sprites/sheets/'+names[i], {cache:'no-store'}); out[names[i]]=r.status; }
+      catch(e){ out[names[i]]='ERR '+(e && e.message); }
+    }
+    var el=document.querySelector('.ux66-sprite');
+    out.__spriteDomCount=document.querySelectorAll('.ux66-sprite').length;
+    out.__spriteBg=el?getComputedStyle(el).backgroundImage.slice(0,160):null;
+    return out;
+  })()`);
+  console.log('[EXE-CDP] spriteCheck=' + JSON.stringify(report.spriteCheck));
+
   const deadline = Date.now() + DURATION_MS;
   let idx = 0;
   let lastScreenshotAt = Date.now();
@@ -226,7 +293,8 @@ function processMemory() {
       alive: true,
     };
     report.samples.push(sample);
-    console.log(`[soak] #${idx} ${sample.elapsedSeconds}s stage=${state && state.stage} nodes=${state && state.domNodes} heap=${mm.JSHeapUsedSize} exceptions=${report.exceptions.length}`);
+    console.log(`[soak] #${idx} ${sample.elapsedSeconds}s stage=${state && state.stage} nodes=${state && state.domNodes} heap=${mm.JSHeapUsedSize} exceptions=${report.exceptions.length} http4xx=${report.httpErrorTotal} sprite2xx=${report.spriteResponseTotal}`);
+    if (report.rendererCrashed) throw new Error('Inspector.targetCrashed: packaged renderer crashed');
     if (Date.now() - lastScreenshotAt >= 5 * 60 * 1000) {
       await api.screenshot('exe-soak-' + String(idx).padStart(3, '0'));
       lastScreenshotAt = Date.now();
@@ -237,19 +305,31 @@ function processMemory() {
   await api.screenshot('exe-03-final');
   report.endedAt = new Date().toISOString();
   report.actualMinutes = (Date.now() - (deadline - DURATION_MS)) / 60000;
-  report.sampleCount = report.samples.length;
-  report.exceptionCount = report.exceptions.length;
-  report.consoleErrorCount = report.consoleErrors.length;
   report.completed = true;
-  fs.writeFileSync(path.join(OUT, 'v68-exe-soak.json'), JSON.stringify(report, null, 2));
-  console.log('[EXE-CDP] SOAK_DONE minutes=' + report.actualMinutes.toFixed(2) + ' samples=' + report.sampleCount + ' exceptions=' + report.exceptionCount);
+  finalizeReport();
+  console.log('[EXE-CDP] SOAK_DONE minutes=' + report.actualMinutes.toFixed(2) + ' samples=' + report.sampleCount + ' exceptions=' + report.exceptionCount + ' rendererCrashed=' + report.rendererCrashed);
   api.close();
   process.exit(0);
 })().catch((e) => {
   report.completed = false;
   report.fatal = String(e && e.stack || e);
   report.endedAt = new Date().toISOString();
-  try { fs.writeFileSync(path.join(OUT, 'v68-exe-soak.json'), JSON.stringify(report, null, 2)); } catch (_) {}
+  finalizeReport();
   console.error('[EXE-CDP] FATAL ' + report.fatal);
   process.exit(1);
 });
+
+function finalizeReport() {
+  report.sampleCount = report.samples.length;
+  report.exceptionCount = report.exceptions.length;
+  report.consoleErrorCount = report.consoleErrors.length;
+  report.spriteHttpErrors = Object.entries(report.httpErrors)
+    .filter(([u]) => u.includes('/assets/sprites/sheets/'))
+    .map(([u, n]) => ({ url: u, count: n }));
+  report.spriteHttpErrorTotal = report.spriteHttpErrors.reduce((s, x) => s + x.count, 0);
+  try {
+    fs.writeFileSync(path.join(OUT, 'v68-exe-soak.json'), JSON.stringify(report, null, 2));
+  } catch (e) {
+    console.error('[EXE-CDP] could not write soak report: ' + e.message);
+  }
+}

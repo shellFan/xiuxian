@@ -139,6 +139,29 @@ if (fs.existsSync(htmlPath)) {
     console.log('[patch-html] Copied ui-v66-sprite.js');
   }
 
+  // V6.8 P0: ship the V6.6 sprite sheets into the actual playable build.
+  // ui-v66-sprite.js resolves every character/animation/scene image as
+  // "assets/sprites/sheets/<name>.png" relative to index.html. The sheets live
+  // in desktop/assets/sprites/sheets, but the Cocos web-desktop build only
+  // contains assets/internal + assets/main, so without this copy EVERY sprite
+  // request 404s in both dev and the packaged EXE. The overlay then re-issues
+  // those requests on each refresh, flooding the local GameServer.
+  const spriteSheetSrc = path.join(__dirname, 'assets', 'sprites', 'sheets');
+  const spriteSheetDest = path.join(buildDir, 'assets', 'sprites', 'sheets');
+  if (fs.existsSync(spriteSheetSrc)) {
+    fs.mkdirSync(spriteSheetDest, { recursive: true });
+    const sheets = fs.readdirSync(spriteSheetSrc).filter((f) => f.endsWith('.png'));
+    for (const f of sheets) {
+      fs.copyFileSync(path.join(spriteSheetSrc, f), path.join(spriteSheetDest, f));
+    }
+    console.log(`[patch-html] Copied sprite sheets (${sheets.length} files)`);
+    if (sheets.length === 0) {
+      console.warn('[patch-html] WARNING: sprite sheets source is empty; V6.6 sprites will be blank');
+    }
+  } else {
+    console.warn('[patch-html] WARNING: desktop/assets/sprites/sheets missing; V6.6 sprites will be blank');
+  }
+
   // Copy sliced design assets (docs/img/image5.png → desktop/assets/ui-slice)
   const sliceSrc = path.join(__dirname, 'assets', 'ui-slice');
   const sliceDest = path.join(buildDir, 'ui-slice');
