@@ -662,6 +662,7 @@
     maybeShowCriticalMessage: maybeShowCriticalMessage,
     messengerIncidentBannerHtml: messengerIncidentBannerHtml,
     promotionPageHtml: promotionPageHtml,
+    notifyPopupClosed: function () { _v2EventShowing = false; },
     showDefenseModal: showDefenseModal,
   };
 })();

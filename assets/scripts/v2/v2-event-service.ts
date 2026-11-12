@@ -53,7 +53,7 @@ export interface EventResolutionResult {
   readonly effectsApplied: EventEffects;
 }
 
-export type PresentationKind = 'S1' | 'PENDING' | 'PROMOTION' | 'TUTORIAL_CRITICAL' | 'CRITICAL_MESSAGE' | 'WORKPLACE' | 'DAILY' | 'NORMAL_MESSAGE' | 'INFO';
+export type PresentationKind = 'S1' | 'PENDING' | 'BATTLE_SKILL' | 'PROMOTION' | 'TUTORIAL_CRITICAL' | 'CRITICAL_MESSAGE' | 'WORKPLACE' | 'DAILY' | 'NORMAL_MESSAGE' | 'INFO';
 export interface PresentationCandidate {
   readonly id: string;
   readonly kind: PresentationKind;
@@ -62,6 +62,9 @@ export interface PresentationCandidate {
 const PRESENTATION_PRIORITY: Readonly<Record<PresentationKind, number>> = {
   S1: 9,
   PENDING: 8,
+  /** V7.0：卡牌战斗内的升级三选一 — 引擎会阻塞所有出牌等待该选择，
+   *  不得被职场事件（4）等低优先级弹窗饿死，否则战斗永久卡死。 */
+  BATTLE_SKILL: 8,
   PROMOTION: 7,
   TUTORIAL_CRITICAL: 6,
   CRITICAL_MESSAGE: 5,

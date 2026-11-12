@@ -411,6 +411,11 @@
     var layer = popupLayer();
     if (layer) layer.innerHTML = '';
     _adTimer && clearInterval(_adTimer); _adTimer = null;
+    // V7.0 修复：弹窗层被清空时通知 V2 模块复位 _v2EventShowing。
+    // 此前标志卡死会导致职场事件弹窗永远无法重现（maybeShowV2EventModal
+    // 直接 return），并以更高优先级饿死战斗内的技能三选一弹窗，
+    // 卡牌引擎在等待技能选择时阻塞所有出牌 → 战斗永久卡死。
+    try { if (window.V2UI && typeof window.V2UI.notifyPopupClosed === 'function') window.V2UI.notifyPopupClosed(); } catch (e) { /* 复位失败不阻塞关闭 */ }
     scheduleModalRedispatch();
   }
 
@@ -598,6 +603,14 @@
       candidates.push({
         id: info ? 'info:' + info.id : 'info:battle', kind: 'INFO', projection: info || finishedBattle || battle,
         open: function () { if (info) maybeShowEventPopup(); else maybeShowBattleModals(); },
+      });
+    }
+    /* V7.0：战斗内升级三选一单独以 BATTLE_SKILL(8) 级别参选 — 引擎阻塞所有
+       出牌等待选择，此前挂 INFO(1) 会被职场事件(4)永久饿死导致战斗卡死。 */
+    if (battle && battle.skillOffers && battle.skillOffers.length) {
+      candidates.push({
+        id: 'battle-skill:' + battle.runId, kind: 'BATTLE_SKILL', projection: battle,
+        open: function () { maybeShowBattleModals(); },
       });
     }
     if (requestedAttempt && requestedAttempt.id !== 'pending:manual' && requestedAttempt.kind !== 'PROMOTION' && requestedAttempt.kind !== 'TUTORIAL_CRITICAL') candidates.push(requestedAttempt);

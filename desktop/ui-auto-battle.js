@@ -436,7 +436,7 @@
       case 'hire':
         return doHire(el);
       case 'gotoCardBattle':
-        if (typeof H.goto === 'function') { H.goto('project'); H.toast('⚔️ 选择Build开始卡牌战斗，击败Boss推进章节'); }
+        if (typeof H.goto === 'function') { H.goto('PROJECT'); H.toast('⚔️ 选择Build开始卡牌战斗，击败Boss推进章节'); }
         else H.toast('⚔️ 请通过「项目」页进入卡牌战斗击败Boss');
         return true;
       default:
