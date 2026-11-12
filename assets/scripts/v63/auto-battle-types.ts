@@ -241,6 +241,8 @@ export interface AutoBattleView {
   }[];
   clickDamage: number;
   totalKills: number;
+  /** V7.0：当前灵石余额（招募菜单价格显示用） */
+  spiritStones: number;
   victoryTimer: number;
   defeatTimer: number;
   towerFloor: number;

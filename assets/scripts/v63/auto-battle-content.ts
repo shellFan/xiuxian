@@ -181,6 +181,18 @@ export interface ChestReward {
 }
 
 /** 宝箱奖励（基于当前关卡缩放） */
+/**
+ * V7.0 TASK-054 推荐战力曲线校准（数据来源 ai/work/v70-power-calibration.cjs 模拟）：
+ * 旧公式 500×1.13^(s-1) 恒定高于自然成长 40%~60%，玩家从第 1 关起永远显示
+ * 「推荐」红色警告。实测平衡曲线（自然招募 4 队员节奏）：前期战力 ×1.13/关、
+ * 第 11 关后（队员满编）×1.041/关。分段拟合：第 1 关推荐 300（新号 241 不告警）、
+ * 第 11 关 ≈1014、第 100 关 ≈3.1万（与 8h 模拟 3.8 万吻合）。
+ */
+export function recommendedPowerFor(stage: number): number {
+  const s = Math.max(1, Math.floor(stage));
+  return s <= 11 ? Math.round(300 * Math.pow(1.13, s - 1)) : Math.round(1014 * Math.pow(1.041, s - 11));
+}
+
 export function chestRewardFor(stage: number): ChestReward {
   const roll = (stage * 7 + 3) % 4;
   const scale = Math.pow(1.1, stage - 1);

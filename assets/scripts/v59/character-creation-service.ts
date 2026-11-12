@@ -458,6 +458,9 @@ export class CharacterCreationService {
       const starterKit = this.context.profession.grantStarterKit(draft.professionId);
       if (!starterKit.success) throw new Error(starterKit.reason ?? '入职物品发放失败');
       this.context.saveService.save(player);
+      // V7.0：新玩家入职后的安静期 — 90 游戏分钟内不触发职场随机事件，
+      // 让玩家先熟悉战斗舞台（与 overlay 侧弹窗仲裁安静期配合）。
+      try { this.context.careerEvents.deferNextEvent(90 * 60 * 1000); } catch { /* 安静期失败不阻塞入职 */ }
       this.removeDraftSafely();
       return { success: true };
     } catch (error) {

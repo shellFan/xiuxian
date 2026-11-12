@@ -376,4 +376,38 @@ ok('存档恢复：v63状态通过PlayerData深拷贝保留', () => {
   assert.notEqual(p.v63AutoBattle!.stage, 999);
 });
 
+
+// ── V7.0 P0-1：创建期冻结自动战斗 ─────────────────────────────────────────
+ok('创建门控：CREATION_REQUIRED 时 ensureStarted 不启动战斗', () => {
+  const { context } = make();
+  (context.player as any).characterSetupStatus = 'CREATION_REQUIRED';
+  context.autoBattle.ensureStarted();
+  assert.equal(context.autoBattle.view().status, 'IDLE', '创建期不应进入 FIGHTING');
+});
+
+ok('创建门控：CREATION_REQUIRED 时 tick 不推进战斗', () => {
+  const { clock, context } = make();
+  (context.player as any).characterSetupStatus = 'CREATION_REQUIRED';
+  context.autoBattle.ensureStarted(); // 仍被门控
+  context.autoBattle.tick(600); // 模拟创建向导期间 10 分钟
+  const v = context.autoBattle.view();
+  assert.equal(v.status, 'IDLE', '创建期 tick 不推进');
+  assert.ok(clock.now() > 0);
+});
+
+ok('创建门控：CREATION_REQUIRED 时离线结算返回零且不推关', () => {
+  const { context } = make();
+  (context.player as any).characterSetupStatus = 'CREATION_REQUIRED';
+  const r = context.autoBattle.settleOffline(3600, 'v70-creation');
+  assert.deepEqual(r, { stagesCleared: 0, salary: 0, cultivation: 0 });
+  assert.equal(context.autoBattle.view().stage, 1);
+});
+
+ok('创建门控：COMPLETE 后正常启动（老玩家不受影响）', () => {
+  const { context } = make();
+  (context.player as any).characterSetupStatus = 'COMPLETE';
+  context.autoBattle.ensureStarted();
+  assert.equal(context.autoBattle.view().status, 'FIGHTING');
+  assert.equal(context.autoBattle.view().stage, 1);
+});
 console.log(`auto-battle-service tests passed (${passed})`);

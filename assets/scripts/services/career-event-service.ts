@@ -27,6 +27,9 @@ export class CareerEventService {
 
   public destroy(): void { this.scheduler.destroy(); }
 
+  /** V7.0：推迟下一次事件（新玩家完成创建后的安静期），详见 CareerEventScheduler.deferNextEvent。 */
+  public deferNextEvent(minIntervalMs: number): void { this.scheduler.deferNextEvent(minIntervalMs); }
+
   public poll(): CareerEventConfig | undefined {
     if (this.pending) return this.pending;
     if (!this.scheduler.isDue()) return undefined;

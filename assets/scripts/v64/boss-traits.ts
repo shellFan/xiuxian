@@ -11,6 +11,8 @@
  *   NORMAL / ARMORED(高防) / SWARM(群攻) / SHIELDED(护盾)
  */
 
+import { recommendedPowerFor } from '../v63/auto-battle-content';
+
 // ── Boss特性 ─────────────────────────────────────────────────────────────────
 
 export type BossTrait = 'SHIELD' | 'BURST' | 'CONTROL' | 'DOT' | 'NONE';
@@ -106,7 +108,8 @@ export interface DefeatAdvice {
 
 /** 根据关卡和战力生成失败建议 */
 export function defeatAdviceFor(stage: number, currentPower: number, enemyTrait: BossTrait): DefeatAdvice {
-  const recommendedPower = Math.round(50 * Math.pow(1.13, stage - 1) * 10);
+  // V7.0：统一使用模拟校准后的推荐战力曲线（原 500×1.13^(s-1) 恒定偏高 40-60%）
+  const recommendedPower = recommendedPowerFor(stage);
   const suggestions: string[] = [];
   if (currentPower < recommendedPower * 0.5) {
   suggestions.push('战力差距过大，建议先回低关卡刷经验升级小队');

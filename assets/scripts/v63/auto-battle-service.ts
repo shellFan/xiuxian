@@ -30,6 +30,7 @@ import {
   chapterOfStage,
   chestRewardFor,
   enemyDefForStage,
+  recommendedPowerFor,
   stageKind,
   towerEnemyDefFor,
 } from './auto-battle-content';
@@ -277,8 +278,25 @@ export class AutoBattleService {
 
   // ── 生命周期 ───────────────────────────────────────────────────────────────
 
+  /**
+   * V7.0 P0-1：角色尚未创建完成时冻结自动战斗。
+   * 根因：场景加载即 facade.start() → ensureStarted()，创建向导仍在进行时
+   * 战斗已在后台推进，新玩家完成创建后直接面对远超自身战力的 Boss 关。
+   * 仅门控 CREATION_REQUIRED（全新角色）；BACKFILL_REQUIRED 的老玩家拥有
+   * 既有进度，不冻结。lastTickAt 在 tick() 中照常更新，避免把创建时长
+   * 结算成离线收益。
+   */
+  private isCreationGated(): boolean {
+    try {
+      return (this.context.player as { characterSetupStatus?: string }).characterSetupStatus === 'CREATION_REQUIRED';
+    } catch {
+      return false;
+    }
+  }
+
   /** 启动/恢复战斗（facade 初始化后调用）。 */
   public ensureStarted(): void {
+    if (this.isCreationGated()) return;
     const b = this.battle();
     if (b.status === 'IDLE' || (b.status === 'FIGHTING' && !b.enemy)) {
       this.spawnEnemy();
@@ -288,6 +306,9 @@ export class AutoBattleService {
 
   /** 离线结算：根据离开时长估算推关收益。settlementId 防重复结算。 */
   public settleOffline(elapsedSeconds: number, settlementId?: string): { stagesCleared: number; salary: number; cultivation: number } {
+    if (this.isCreationGated()) {
+      return { stagesCleared: 0, salary: 0, cultivation: 0 };
+    }
     const b = this.battle();
     if (settlementId && b.lastOfflineSettlementId === settlementId) {
       return { stagesCleared: 0, salary: 0, cultivation: 0 };
@@ -333,6 +354,10 @@ export class AutoBattleService {
     const b = this.battle();
     const s = this.squad();
     b.lastTickAt = this.context.clockV2.realNow();
+
+    // V7.0 P0-1：角色未创建完成时不推进任何战斗逻辑（lastTickAt 照常更新，
+    // 创建时长不会被结算成离线收益）。
+    if (this.isCreationGated()) return;
 
     // V6.4 倍速：战斗逻辑时间 = 真实时间 × 倍速
     const speed = b.speedMultiplier ?? 1;
@@ -1267,7 +1292,7 @@ export class AutoBattleService {
     const enemyTypeLabel = enemy?.enemyType ? enemyTypeDef(enemy.enemyType as EnemyType).label : '';
     const bossTraitLabel = enemy?.bossTrait && enemy.bossTrait !== 'NONE' ? bossTraitDef(enemy.bossTrait as BossTrait).label : '';
     // V6.4 推荐战力
-    const recommendedPower = Math.round(50 * Math.pow(1.13, b.stage - 1) * 10);
+    const recommendedPower = recommendedPowerFor(b.stage);
     // V6.4 队员详情
     const squadDetail = s.members.filter(m => m.slot >= 0).map(m => {
       const stars = m.stars ?? 1;
@@ -1317,6 +1342,7 @@ export class AutoBattleService {
       }),
       clickDamage: clickDamageOf(s.clickLevel) + eqStats.atk,
       totalKills: b.totalKills,
+      spiritStones: this.context.player.spiritStones,
       victoryTimer: Math.max(0, b.victoryTimer),
       defeatTimer: Math.max(0, b.defeatTimer),
       towerFloor: b.towerFloor,

@@ -50,6 +50,15 @@ export class CareerEventScheduler {
 
   public markTriggered(): void { this.nextEventAt = undefined; }
 
+  /**
+   * V7.0：推迟下一次事件至少 minIntervalMs（新玩家完成创建后的安静期）。
+   * 取 max(指定下限, 常规随机间隔)，避免常规间隔反而更短。
+   */
+  public deferNextEvent(minIntervalMs: number): void {
+    if (this.destroyed) return;
+    this.nextEventAt = this.clock.now() + Math.max(minIntervalMs, this.intervalMilliseconds());
+  }
+
   private intervalMilliseconds(): number {
     const span = this.maxIntervalMs - this.minIntervalMs;
     return this.minIntervalMs + Math.floor(this.random.next() * (span + 1));
