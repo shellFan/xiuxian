@@ -290,6 +290,32 @@ function processMemory() {
     if (Math.random()<0.15){ out.tower=click('[data-action="v63-enterTower"]'); if(out.tower) click('[data-action="v63-exitTower"]'); }
     var modal=document.querySelector('[data-vevent-choice="__auto"]')||document.querySelector('#EventOkBtn');
     if(modal){ modal.click(); out.dismissed=true; }
+    /* V7.0：卡牌 Boss 等待玩家时自动进入卡牌战斗并推进（否则 soak 在 BOSS_PENDING 卡 55 分钟） */
+    var f=window.__GAME_FACADE__;
+    var ab=null; try{ ab=f&&f.queryAutoBattle?f.queryAutoBattle():null; }catch(e1){}
+    if(ab&&ab.status==='BOSS_PENDING'){ out.cardBattle='enter'; try { if(f&&f.startBattleRun) { f.startBattleRun('PROJECT','build_jvm'); out.cardBattle='started'; } } catch(eC) { out.cardBattle='enter-err:'+String(eC.message).slice(0,50); click('[data-action="v63-gotoCardBattle"]'); } return out; }
+    var entry=document.querySelector('[data-action="projectEntry"]');
+    if(entry && !document.getElementById('BattleHand') && !document.querySelector('.ux-modal-layer')){ entry.click(); out.cardBattle='entry'; return out; }
+    var bb=document.querySelector('[data-battle-build]');
+    if(bb){ bb.click(); out.cardBattle='build'; return out; }
+    try{
+      var v=f&&f.queryBattleCard?f.queryBattleCard():null;
+      if(v){
+        out.cardBattle=v.phase;
+        var rw=document.querySelector('[data-action="battleRewardPick"]'); if(rw){rw.click(); out.cardBattle='reward'; return out;}
+        var sb=document.querySelector('[data-battle-skill]'); if(sb){sb.click(); out.cardBattle='skill'; return out;}
+        var evb=document.querySelector('[data-vevent-choice]'); if(evb){evb.click(); out.cardBattle='event'; return out;}
+        if(v.phase==='FINISHED'||v.phase==='VICTORY_SETTLED'||v.phase==='DEFEAT_SETTLED'){ click('[data-action="abandonBattle"]'); out.cardBattle='settle'; return out; }
+        var selc=document.querySelector('.ux-bc-card.is-selected');
+        if(selc){ var alive=null; (v.enemies||[]).forEach(function(e){ if(!alive&&e.hp>0) alive=e; });
+          var el=alive?document.querySelector('[data-enemy-uid="'+alive.uid+'"]'):null;
+          if(el){ el.click(); out.cardBattle='target:'+alive.uid; return out; } }
+        var usable=document.querySelector('.ux-bc-card.is-usable[data-action="battlePlayCard"]');
+        if(usable){ usable.click(); out.cardBattle='play'; return out; }
+        var end=document.querySelector('[data-action="battleEndTurn"]');
+        if(end){ end.click(); out.cardBattle='endturn'; return out; }
+      }
+    }catch(e2){ out.cardBattleErr=String(e2.message).slice(0,60); }
     return out;
   })()`;
 
