@@ -1,0 +1,20 @@
+{
+  "startedAt": "2026-11-12T20:55:05.442Z",
+  "recovered": true,
+  "bootReady": true,
+  "state": {
+    "stage": "第12关",
+    "enemy": "产品VP·需求灭世者 卡牌Boss",
+    "battle": {
+      "stage": 12,
+      "maxStage": 12,
+      "kills": 13,
+      "speed": 1,
+      "status": "BOSS_PENDING"
+    },
+    "home": true,
+    "creation": false,
+    "domNodes": 448
+  },
+  "endedAt": "2026-11-12T20:55:12.316Z"
+}

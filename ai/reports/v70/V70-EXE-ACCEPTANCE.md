@@ -47,31 +47,39 @@ sprite sheets 与 ui-slice 资源均在包内（desktop/assets 与 build/web-des
 | 异常 | exceptions=0 全程（见 §4） |
 | 交互统计 | tapAttack/技能/倍速/面板/塔/弹窗应答计数见 JSON |
 
-## 4. 60 分钟稳定性采样（30 秒间隔 × 120）
+## 4. 60 分钟稳定性采样（实测，30 秒间隔 × 117 采样，60.00 分钟）
 
-| 指标 | 区间 | 结论 |
+`v70-exe-soak.json` 实测数据：
+
+| 指标 | 实测值 | 结论 |
 |---|---|---|
-| JSHeapUsedSize | 25~36 MB 波动 | 无单调增长，无泄漏证据 |
-| DOM 节点 | 首页 ~455 / 战斗 ~173，稳定 | 无节点膨胀 |
-| exceptions | 0 | 零未捕获异常 |
-| http4xx | 0 | 资源全命中 |
-| rendererCrashed | false | 全程存活 |
-| 交互 | 每样本真实点击（攻击×3 + 技能 + 随机倍速/面板/塔 + 弹窗应答 + 卡牌回合） | 穿插战斗/技能/页面切换 ✓ |
+| 时长 / 采样 | 60.00 分钟 / 117 采样 | 完成（EXIT=0） |
+| JSHeapUsedSize | min 26.1 / avg 31.8 / max 37.1 MB | 无单调增长，无泄漏证据 |
+| DOM 节点 | 首页 ~455 / 卡牌战斗 ~160-183 | 按页面稳定，无膨胀 |
+| exceptions | **0** | 零未捕获异常 |
+| consoleErrors | **0** | 零渲染层错误 |
+| http4xx | **0** | 资源全命中 |
+| rendererCrashed | **false** | 全程存活 |
+| 关卡时间线 | 第1关(0s) → 第5关(31s) → 第7关(62s) → 第11关(93s) → 第12关卡牌 Boss（自驱动卡牌战斗至结束） | 挂机推关 + Boss 减速点符合设计 |
+| 交互统计 | tapAttack 15 / 技能 5 / 面板 2 / 倍速 2 / 弹窗应答 2 + 每样本卡牌回合动作 | 战斗/技能/页面切换/弹窗全程穿插 ✓ |
 
-## 5. 重启恢复（TASK-075）
+## 5. 重启恢复（TASK-075）— 实测通过
 
-流程：soak 结束 → taskkill（WM_CLOSE 走 F05 存档 flush）→ 重新启动
-（同一隔离存档）→ CDP 复检 → `v70-exe-restart.json`。
+流程：60 分钟 soak 结束 → taskkill（WM_CLOSE → F05 存档 flush，CLOSED_GRACEFULLY）
+→ 重新启动（同一隔离存档，CDP 9225）→ `v70-exe-restart.cjs` 复检。
+
+重启前存档（save.json 实测解析）：
+`name=V70EXE, setup=COMPLETE, v63{stage=12, maxStage=12, kills=13, status=BOSS_PENDING}, salary=603, cultivation=336, stones=29, squad=1人, totalSkillUses=1`
+
+重启后（`v70-exe-restart.json`）：
 
 | 检查 | 结果 |
 |---|---|
-| 存档存在 | save.json + save.backup.json |
-| 角色恢复 | 昵称/职级/境界恢复 |
-| 战斗进度 | stage/maxStage/kills 恢复 |
-| 首页可玩 | 首屏控件可交互 |
-| 证据 | `screenshots/exe/exe-04-restart.png` |
-
-（最终数值以 `v70-exe-restart.json` 实际内容为准，见下方「实测记录」补记。）
+| recovered | **true**（bootReady=true） |
+| 首页 | home=true，无创建向导，DOM 448 节点 |
+| 战斗进度 | **stage=第12关「产品VP·需求灭世者 卡牌Boss」、kills=13、status=BOSS_PENDING** —— 与关机前逐项一致 |
+| 视觉证据 | `screenshots/exe/exe-04-restart.png` |
+| 结论 | **PASS：角色/关卡/Boss 待战状态/击杀数完整恢复，重启后可继续游玩** |
 
 ## 6. 宿主环境限制（如实区分）
 
