@@ -181,7 +181,7 @@
     if (!containerEl) return;
     var spriteName = enemySpriteName(v);
     var isBoss = v && v.enemy && (v.enemy.isBoss || v.enemy.isCardBoss);
-    var scale = isBoss ? 1.5 : 1.2;
+    var scale = isBoss ? 1.8 : 1.45;
     var status = v ? v.status : '';
 
     // 如果sprite名称变了、player不存在、或元素引用变了（DOM重建），重建

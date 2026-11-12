@@ -3494,10 +3494,10 @@ button.ux-journey--sec { cursor: pointer; }
 }
 .ux65-enemy--empty { justify-content: center; color: #7a8fa3; font-size: 13px; padding: 40px; }
 .ux65-enemy-stage {
-  position: relative; width: 140px; height: 140px;
+  position: relative; width: 158px; height: 150px;
   display: flex; align-items: center; justify-content: center;
 }
-.ux65-enemy--boss .ux65-enemy-stage { width: 170px; height: 170px; }
+.ux65-enemy--boss .ux65-enemy-stage { width: 210px; height: 200px; }
 
 /* CSS角色主体 */
 .ux65-char {

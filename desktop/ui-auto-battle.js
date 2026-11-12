@@ -141,7 +141,7 @@
     else if (v.status === 'BOSS_PENDING') statusOverlay = '<div class="ux65-enemy-status ux65-enemy-status--boss">⚔️ 进入卡牌战斗</div>';
     /* V6.6: 敌人Sprite化 — 真实2D角色动画替代CSS拼装 */
     var spriteName = (window.__V66_SPRITE__ && v) ? window.__V66_SPRITE__.enemySpriteName(v) : 'requirement';
-    var spriteScale = (e.isBoss || e.isCardBoss) ? 1.5 : 1.2;
+    var spriteScale = (e.isBoss || e.isCardBoss) ? 1.8 : 1.45;
     return '<div class="ux65-enemy' + (e.isBoss ? ' ux65-enemy--boss' : '') + '" id="Ux65EnemyZone">' +
       '<div class="ux65-enemy-stage">' +
         '<div class="ux66-sprite-container" id="Ux66EnemySprite"' +
