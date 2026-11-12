@@ -293,7 +293,10 @@ function processMemory() {
     /* V7.0：卡牌 Boss 等待玩家时自动进入卡牌战斗并推进（否则 soak 在 BOSS_PENDING 卡 55 分钟） */
     var f=window.__GAME_FACADE__;
     var ab=null; try{ ab=f&&f.queryAutoBattle?f.queryAutoBattle():null; }catch(e1){}
-    if(ab&&ab.status==='BOSS_PENDING'){ out.cardBattle='enter'; try { if(f&&f.startBattleRun) { f.startBattleRun('PROJECT','build_jvm'); out.cardBattle='started'; } } catch(eC) { out.cardBattle='enter-err:'+String(eC.message).slice(0,50); click('[data-action="v63-gotoCardBattle"]'); } return out; }
+    if(ab&&ab.status==='BOSS_PENDING'){
+      var activeRun=null; try{ activeRun=f&&f.queryBattle?f.queryBattle():null; }catch(eR){}
+      if(!activeRun){ out.cardBattle='enter'; try { if(window.UiOverlay&&window.UiOverlay.goto) { window.UiOverlay.goto('PROJECT'); window.UiOverlay.refresh(); } if(f&&f.startBattleRun) { f.startBattleRun('PROJECT','build_jvm'); out.cardBattle='started'; } } catch(eC) { out.cardBattle='enter-err:'+String(eC.message).slice(0,50); click('[data-action="v63-gotoCardBattle"]'); } return out; }
+      /* 有活跃战斗：落入下方 battleCard 分支继续出牌 */ }
     var entry=document.querySelector('[data-action="projectEntry"]');
     if(entry && !document.getElementById('BattleHand') && !document.querySelector('.ux-modal-layer')){ entry.click(); out.cardBattle='entry'; return out; }
     var bb=document.querySelector('[data-battle-build]');
