@@ -871,27 +871,27 @@
   "scenes": {
     "office": {
       "w": 640,
-      "h": 320,
+      "h": 480,
       "file": "sheets/scene_office.png"
     },
     "mountain": {
       "w": 640,
-      "h": 320,
+      "h": 480,
       "file": "sheets/scene_mountain.png"
     },
     "heaven": {
       "w": 640,
-      "h": 320,
+      "h": 480,
       "file": "sheets/scene_heaven.png"
     },
     "void": {
       "w": 640,
-      "h": 320,
+      "h": 480,
       "file": "sheets/scene_void.png"
     },
     "tower": {
       "w": 640,
-      "h": 320,
+      "h": 480,
       "file": "sheets/scene_tower.png"
     }
   }

@@ -1151,7 +1151,9 @@
 
 .ux-toast-container {
   position: absolute;
-  top: 120px;
+  /* V7.0：Toast 移至舞台下沿/操作条上方 — 原位置(top:120px)压住资源卡行 */
+  bottom: 92px;
+  top: auto;
   left: 0;
   right: 0;
   z-index: 200;
@@ -1802,7 +1804,7 @@
   .ux-event-options { margin-top: 9px; gap: 7px; }
   .ux-event-option { gap: 8px; padding: 9px 11px; border-radius: 9px; }
   .ux-event-option .opt-effects { font-size: 15px; }
-  .ux-toast-container { top: 76px; gap: 6px; }
+  .ux-toast-container { top: auto; bottom: 76px; gap: 6px; }
   .ux-toast { padding: 8px 16px; font-size: 17px; }
 }
 
@@ -4062,6 +4064,10 @@ button.ux-journey--sec { cursor: pointer; }
   text-shadow: 0 1px 6px rgba(230,199,127,.3);
   letter-spacing: 1px;
 }
+/* V7.0：招募价格/余额显示（不足置灰） */
+.ux63-hire-cost { display: inline-block; margin-left: 8px; font-size: 13px; font-weight: 600; color: #8fd3ff; vertical-align: middle; }
+.ux63-hire-cost--poor { color: #ff8f7a; }
+.ux63-hire-option--poor { opacity: .55; filter: grayscale(.4); }
 .ux63-hire-option {
   display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px;
   border-radius: 12px; border: 1px solid rgba(74,81,102,.4);

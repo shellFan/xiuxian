@@ -47,7 +47,12 @@ const ANIMATIONS = {
 };
 
 const SCENES = {
-  office:   { w: 640, h: 320 },
+  office:   { w: 640, h: 480 },
+  mountain: { w: 640, h: 480 },
+  heaven:   { w: 640, h: 480 },
+  void:     { w: 640, h: 480 },
+  tower:    { w: 640, h: 480 },
+},
   mountain: { w: 640, h: 320 },
   heaven:   { w: 640, h: 320 },
   void:     { w: 640, h: 320 },

@@ -224,7 +224,7 @@
         : '<button class="ux65-btn ux65-btn--tower" data-action="v63-enterTower">🗼 996塔</button>') +
       '<button class="ux65-btn ux65-btn--equip" data-action="v64-openEquip">⚔️ 装备' + (equipDrops > 0 ? '<span class="ux65-badge">' + equipDrops + '</span>' : '') + '</button>' +
       '<button class="ux65-btn ux65-btn--goals" data-action="v64-openGoals">📋 目标</button>' +
-      '<span class="ux65-dps">DPS ' + fmtNum(v.dps) + ' · 击杀' + v.totalKills + (v.towerBestFloor > 0 ? ' · 塔最高' + v.towerBestFloor + '层' : '') + '</span>' +
+      '<span class="ux65-dps" id="Ux63DpsText">DPS ' + fmtNum(v.dps) + ' · 击杀' + v.totalKills + (v.towerBestFloor > 0 ? ' · 塔最高' + v.towerBestFloor + '层' : '') + '</span>' +
     '</div>';
   }
 
@@ -238,12 +238,20 @@
       { id: 'QA', label: '测试', emoji: '🐛', desc: '弱点识别·全队+50%' },
       { id: 'DEVOPS', label: '运维', emoji: '🔧', desc: '防御恢复·一键回滚' },
     ];
+    /* V7.0：显示招募价格（服务层 50×slot²）与灵石余额，不足时置灰 */
+    var v = lastView || readView();
+    var members = (v && v.squad ? v.squad.length : 1);
+    var cost = 50 * members * members;
+    var stones = (v && v.spiritStones !== undefined && v.spiritStones !== null) ? v.spiritStones : null;
+    var canAfford = stones === null ? true : stones >= cost;
+    var costHtml = '<span class="ux63-hire-cost' + (canAfford ? '' : ' ux63-hire-cost--poor') + '">💎 ' + cost +
+      (stones !== null ? ' / ' + fmtNum(stones) : '') + '</span>';
     var html = '<div class="ux63-hire-overlay" data-action="v63-closeHireMenu">' +
       '<div class="ux63-hire-panel" onclick="event.stopPropagation()">' +
-        '<div class="ux63-hire-title">招募项目小队</div>';
+        '<div class="ux63-hire-title">招募项目小队 ' + costHtml + '</div>';
     for (var i = 0; i < profs.length; i++) {
       var p = profs[i];
-      html += '<button class="ux63-hire-option" data-action="v63-hire" data-prof="' + p.id + '">' +
+      html += '<button class="ux63-hire-option' + (canAfford ? '' : ' ux63-hire-option--poor') + '" data-action="v63-hire" data-prof="' + p.id + '">' +
         '<span class="ux63-hire-emoji">' + p.emoji + '</span>' +
         '<span class="ux63-hire-text"><b>' + p.label + '</b><small>' + p.desc + '</small></span>' +
       '</button>';
@@ -685,6 +693,24 @@
     spriteMounted = true;
   }
 
+  /**
+   * V7.0：战斗舞台结构签名 — 仅包含影响整段 DOM 的字段。
+   * hp/dps/击杀/冷却等高频字段不进签名（由 tick() 局部更新），
+   * 让 refresh() 在签名不变时保留战斗舞台节点，sprite 动画不再每秒归零。
+   */
+  function battleSignature(v) {
+    if (!v) return '';
+    var parts = [
+      v.stage, v.towerFloor, v.status, v.speedMultiplier,
+      v.theme || sceneThemeClass(v),
+      v.pendingChests, v.equipDrops,
+      v.enemy ? [v.enemy.name, v.enemy.isBoss ? 1 : 0, v.enemy.isCardBoss ? 1 : 0].join(':') : '-',
+      (v.squad || []).map(function (m) { return [m.id, m.profession, m.level, m.stars].join(':'); }).join(','),
+      (v.activeSkills || []).map(function (s) { return [s.id, s.unlocked ? 1 : 0].join(':'); }).join(','),
+    ];
+    return parts.join('|');
+  }
+
   /** 每秒由宿主调用：仅更新血条/技能冷却等动态元素，避免整页闪烁。 */
   function tick() {
     var v = readView();
@@ -697,6 +723,12 @@
       spriteMounted = false;
     }
     lastEnemyHp = v.enemy.hp;
+    /* V7.0：DPS/击杀计数局部更新（战斗舞台常驻后整页不再每秒重建） */
+    var dpsEl = document.getElementById('Ux63DpsText');
+    if (dpsEl && lastView) {
+      var newText = 'DPS ' + fmtNum(v.dps) + ' · 击杀' + v.totalKills + (v.towerBestFloor > 0 ? ' · 塔最高' + v.towerBestFloor + '层' : '');
+      if (dpsEl.textContent !== newText) dpsEl.textContent = newText;
+    }
     var fill = document.getElementById('Ux63HpFill');
     var now = document.getElementById('Ux63HpNow');
     if (fill && now) {

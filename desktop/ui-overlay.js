@@ -485,8 +485,25 @@
    * Candidates are rebuilt on every pass and are never retained or consumed here;
    * their owning services remain the sole source of truth.
    */
+  /* V7.0 P0-2：关键消息 Toast 去重水位（不再自动弹 modal） */
+  var _criticalToastLastCount = 0;
+  /* V7.0 新玩家安静期：创建完成后的短窗口内不弹职场事件/INFO/DAILY，
+     让玩家先看清战斗舞台。S1 事故与离线决策不受影响。 */
+  var _prevCreating = false;
+  var _homeGraceUntil = 0;
+  function creationStillActive() {
+    try {
+      var f = facade();
+      var q = f && f.queryCharacterCreation ? f.queryCharacterCreation() : null;
+      return !!(q && q.draft);
+    } catch (e) { return false; }
+  }
   function dispatchNextModal(requestedAttempt) {
     if (popupOpen()) return null;
+    var creating = creationStillActive();
+    if (_prevCreating && !creating) _homeGraceUntil = Date.now() + 25000;
+    _prevCreating = creating;
+    var inHomeGrace = Date.now() < _homeGraceUntil;
     var f = facade();
     if (!f || typeof f.queryNextPresentation !== 'function') return null;
     var candidates = [];
@@ -506,10 +523,15 @@
     try {
       var msgBadge = f.queryMessengerBadge ? f.queryMessengerBadge() : null;
       if (msgBadge && msgBadge.hasCritical) {
-        candidates.push({
-          id: 'criticalmsg:' + msgBadge.criticalUnread, kind: 'CRITICAL_MESSAGE', projection: msgBadge,
-          open: function () { if (V2 && typeof V2.maybeShowCriticalMessage === 'function') V2.maybeShowCriticalMessage(); else showDialog('📨 飞剑传书 · 关键消息', '事故群/老板有 <b>' + msgBadge.criticalUnread + '</b> 条未读，请进入飞剑传书处理。', [{ label: '知道了', cls: 'gold' }]); },
-        });
+        // V7.0 P0-2 弹窗治理：关键消息不再强打断（此前每条新事故都重新弹出
+        // modal，盖住整个战斗舞台）。降级为一次性 Toast + 📨 图标角标，
+        // 玩家点飞剑图标进入 messenger 处理；S1 事故仍保留强打断。
+        if (msgBadge.criticalUnread > _criticalToastLastCount) {
+          _criticalToastLastCount = msgBadge.criticalUnread;
+          toast('📨 事故群/老板私聊有 ' + msgBadge.criticalUnread + ' 条待处理消息，点击右上「飞剑」查看', 'warn');
+        }
+      } else {
+        _criticalToastLastCount = 0;
       }
     } catch (e) { /* messenger badge failure must not block arbitration */ }
     try {
@@ -565,14 +587,14 @@
     /* Promotion/tutorial participate only as an actual current UI attempt. */
     if (requestedAttempt && requestedAttempt.kind === 'PROMOTION') candidates.push(requestedAttempt);
     if (requestedAttempt && requestedAttempt.kind === 'TUTORIAL_CRITICAL') candidates.push(requestedAttempt);
-    if (workplace) candidates.push({ id: 'workplace:' + workplace.id, kind: 'WORKPLACE', projection: workplace, open: function () { if (V2) V2.maybeShowV2EventModal(); } });
-    if (canSettle || weekend) {
+    if (workplace && !inHomeGrace) candidates.push({ id: 'workplace:' + workplace.id, kind: 'WORKPLACE', projection: workplace, open: function () { if (V2) V2.maybeShowV2EventModal(); } });
+    if ((canSettle || weekend) && !inHomeGrace) {
       candidates.push({
         id: canSettle ? 'daily:settlement' : 'daily:weekend', kind: 'DAILY', projection: canSettle ? f.queryGameDay() : weekend,
         open: function () { if (V2) { if (canSettle) V2.maybeShowSettlementModal(); else V2.maybeShowWeekendModal(); } },
       });
     }
-    if (info || (battle && battle.skillOffers && battle.skillOffers.length) || finishedBattle) {
+    if ((info || (battle && battle.skillOffers && battle.skillOffers.length) || finishedBattle) && !inHomeGrace) {
       candidates.push({
         id: info ? 'info:' + info.id : 'info:battle', kind: 'INFO', projection: info || finishedBattle || battle,
         open: function () { if (info) maybeShowEventPopup(); else maybeShowBattleModals(); },
@@ -3676,6 +3698,9 @@
     } catch (e) { return false; }
   }
 
+  /* V7.0：战斗舞台结构签名缓存（签名不变时保留节点，sprite 动画不再每秒归零） */
+  var _lastBattleSig = '';
+
   function refresh() {
     var overlay = $('#UiOverlay');
     if (!overlay || !$('#UiBody')) { renderShell(); return; }
@@ -3684,8 +3709,35 @@
     var columnScroll = $$('.ux-home-col', body).map(function (column) { return column.scrollTop; });
     /* 首页单列滚动；刷新保留当前位置，确保下方卡牌仍可操作。 */
     body.classList.toggle('ux-body--home', currentPage() === 'HOME');
+    /* V7.0 P1：战斗舞台常驻 — 签名未变时保留 #Ux63BattleArea 节点跨重绘，
+       hp/冷却/DPS 由 tick() 局部更新；签名变化（换关/换敌/阵容变化）才重建。 */
+    var preservedBattle = null;
+    try {
+      var v63ab = window.__V63__;
+      if (currentPage() === 'HOME' && v63ab && typeof v63ab.battleSignature === 'function') {
+        var curBattle = document.getElementById('Ux63BattleArea');
+        var fNow = facade();
+        var vNow = (fNow && typeof fNow.queryAutoBattle === 'function') ? fNow.queryAutoBattle() : null;
+        if (curBattle && vNow && vNow.enemy) {
+          var sig = v63ab.battleSignature(vNow);
+          if (_lastBattleSig !== '' && sig === _lastBattleSig) preservedBattle = curBattle;
+          _lastBattleSig = sig;
+        } else {
+          _lastBattleSig = '';
+        }
+      } else {
+        _lastBattleSig = '';
+      }
+    } catch (e) { preservedBattle = null; _lastBattleSig = ''; }
     /* 只重绘 body + header 内容，保持弹窗/toast 层不被打断 */
     body.innerHTML = renderCurrent();
+    if (preservedBattle && preservedBattle.parentNode) {
+      var freshBattle = document.getElementById('Ux63BattleArea');
+      if (freshBattle && freshBattle !== preservedBattle) {
+        freshBattle.parentNode.replaceChild(preservedBattle, freshBattle);
+      }
+    }
+    try { if (window.__V63__ && window.__V63__.mountSprites) window.__V63__.mountSprites(); } catch (e) { /* sprite 挂载失败不影响渲染 */ }
     body.scrollTop = scrollTop;
     $$('.ux-home-col', body).forEach(function (column, index) {
       if (columnScroll[index] != null) {
