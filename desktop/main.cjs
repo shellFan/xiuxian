@@ -172,6 +172,9 @@ async function createWindow() {
       contextIsolation: true,
       webSecurity: true,
       sandbox: false,
+      // V7.0: 挂机游戏 — 窗口被遮挡/最小化时战斗循环不得冻结（rAF 节流禁用）。
+      // 此前 EXE soak 中窗口被遮挡导致 GameLoop 停摆、战斗卡在第 5 关。
+      backgroundThrottling: false,
     },
     autoHideMenuBar: true,
   });

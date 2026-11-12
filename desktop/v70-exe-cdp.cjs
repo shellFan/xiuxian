@@ -328,8 +328,9 @@ function processMemory() {
     console.log(`[soak] #${idx} ${sample.elapsedSeconds}s stage=${state && state.stage} nodes=${state && state.domNodes} heap=${mm.JSHeapUsedSize} exceptions=${report.exceptions.length} http4xx=${report.httpErrorTotal} sprite2xx=${report.spriteResponseTotal}`);
     if (report.rendererCrashed) throw new Error('Inspector.targetCrashed: packaged renderer crashed');
     if (Date.now() - lastScreenshotAt >= 5 * 60 * 1000) {
-      await api.screenshot('exe-soak-' + String(idx).padStart(3, '0'));
-      lastScreenshotAt = Date.now();
+      // V7.0：截图失败（遮挡/超时）不终止 soak — 跳过本次，下个周期再试
+      try { await api.screenshot('exe-soak-' + String(idx).padStart(3, '0')); lastScreenshotAt = Date.now(); }
+      catch (e) { console.log('[soak] screenshot skipped: ' + String(e.message).slice(0, 80)); lastScreenshotAt = Date.now() - 4 * 60 * 1000; }
     }
     await sleep(Math.min(SAMPLE_MS, Math.max(1000, deadline - Date.now())));
   }
