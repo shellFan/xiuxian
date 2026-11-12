@@ -179,7 +179,7 @@ export class AutoBattleService {
         victoryTimer: 0,
         defeatTimer: 0,
         pendingOfflineSeconds: 0,
-        lastTickAt: Date.now(),
+        lastTickAt: this.context.clockV2.realNow(),
         towerFloor: 0,
         towerBestFloor: 0,
         chestKillCounter: 0,
@@ -332,7 +332,7 @@ export class AutoBattleService {
   public tick(seconds: number): void {
     const b = this.battle();
     const s = this.squad();
-    b.lastTickAt = Date.now();
+    b.lastTickAt = this.context.clockV2.realNow();
 
     // V6.4 倍速：战斗逻辑时间 = 真实时间 × 倍速
     const speed = b.speedMultiplier ?? 1;

@@ -31,6 +31,12 @@ function testPhase2RefreshEventListIsExplicit(): void {
     'taskClaimed',
     'spiritStonesChanged',
     'itemCrafted',
+    'v63Victory',
+    'v63StageAdvanced',
+    'v63MemberHired',
+    'v63TowerEntered',
+    'v63TowerAdvanced',
+    'v63TowerCleared',
   ];
   assert.deepEqual([...PHASE2_REFRESH_EVENTS].sort(), [...expected].sort());
 }

@@ -306,6 +306,9 @@ function migrate(raw: unknown, now: number): GameSaveData {
     // ── V6.3：自动推关/项目小队（旧档无此字段，服务层惰性初始化默认值） ──
     v63AutoBattle: normalizeV63AutoBattle(raw.v63AutoBattle),
     v63Squad: normalizeV63Squad(raw.v63Squad),
+    // ── V6.4：装备/留存（旧档无此字段，服务层惰性初始化默认值） ──
+    v64Equipment: normalizeV64Equipment(raw.v64Equipment),
+    v64Retention: normalizeV64Retention(raw.v64Retention),
   });
   return merged;
 }
@@ -365,6 +368,52 @@ function normalizeV63Squad(value: unknown): import('../v63/auto-battle-types').V
     clickLevel: isFiniteNumber(value.clickLevel) ? Math.max(1, Math.floor(value.clickLevel)) : 1,
     shield: isFiniteNumber(value.shield) ? Math.max(0, value.shield) : 0,
     weakSpotTimer: isFiniteNumber(value.weakSpotTimer) ? Math.max(0, value.weakSpotTimer) : 0,
+  };
+}
+
+// ── V6.4 normalization ──
+// NOTE (V6.8): these two helpers were missing from the uncommitted V6.4 migration
+// edit in this working tree, which broke `tsc` / `npm test`. They only ADD the
+// definitions; no existing line was changed. Old saves without these fields keep
+// returning undefined so the service layer initializes defaults lazily.
+
+function normalizeV64Equipment(value: unknown): import('../v64/equipment').V64EquipmentState | undefined {
+  if (!isRecord(value) || !Array.isArray(value.bag)) return undefined;
+  const equipped = isRecord(value.equipped) ? value.equipped : {};
+  const slot = (key: string): string | null => isString(equipped[key]) ? String(equipped[key]).slice(0, 64) : null;
+  return {
+    bag: (value.bag as unknown[])
+      .filter((i): i is Record<string, unknown> => isRecord(i) && isString(i.id) && isString(i.defId) && isFiniteNumber(i.level))
+      .map((i) => ({
+        id: String(i.id).slice(0, 64),
+        defId: String(i.defId).slice(0, 64),
+        level: Math.max(1, Math.floor(i.level as number)),
+      })),
+    equipped: { WEAPON: slot('WEAPON'), ARMOR: slot('ARMOR'), ACCESSORY: slot('ACCESSORY'), RELIC: slot('RELIC') },
+    fragments: isFiniteNumber(value.fragments) ? Math.max(0, Math.floor(value.fragments)) : 0,
+  };
+}
+
+function normalizeV64Retention(value: unknown): import('../v64/retention').V64RetentionState | undefined {
+  if (!isRecord(value)) return undefined;
+  const nonNegative = (key: string): number => isFiniteNumber(value[key]) ? Math.max(0, Math.floor(value[key])) : 0;
+  return {
+    dailyGoalDay: isFiniteNumber(value.dailyGoalDay) ? Math.floor(value.dailyGoalDay) : -1,
+    dailyGoals: Array.isArray(value.dailyGoals)
+      ? (value.dailyGoals as unknown[]).filter((g): g is Record<string, unknown> => isRecord(g) && isString(g.goalId)).map((g) => ({
+          goalId: String(g.goalId).slice(0, 64),
+          progress: isFiniteNumber(g.progress) ? Math.max(0, Math.floor(g.progress)) : 0,
+          claimed: g.claimed === true,
+        }))
+      : [],
+    sevenDayClaimed: Array.isArray(value.sevenDayClaimed)
+      ? (value.sevenDayClaimed as unknown[]).filter((n): n is number => isFiniteNumber(n)).map((n) => Math.max(0, Math.floor(n)))
+      : [],
+    v64AchievementsClaimed: isStringArray(value.v64AchievementsClaimed) ? value.v64AchievementsClaimed.slice(0, 128) : [],
+    totalSkillUses: nonNegative('totalSkillUses'),
+    totalTapCount: nonNegative('totalTapCount'),
+    totalStarUps: nonNegative('totalStarUps'),
+    totalChestsOpened: nonNegative('totalChestsOpened'),
   };
 }
 

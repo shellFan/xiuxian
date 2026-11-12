@@ -1,0 +1,10 @@
+V6.6: 原创2D Sprite+角色动画+战斗演出+场景升级+EXE构建
+
+- 程序化Canvas Sprite生成管线: v66-sprite-draw.js(绘制库)+v66-sprite-gen.cjs(Electron离屏渲染)
+- 13角色Sprite: 5职业(hero/javabackend/frontend/qa/devops)+5普通怪+3Boss, 各5动画(idle/attack/hit/death/victory)
+- 5场景背景: office/mountain/heaven/void/tower (640x320)
+- SpriteAnimPlayer: CSS background-position帧动画+敌人状态机+Boss登场演出
+- ui-auto-battle.js集成: CSS角色→sprite/7层CSS场景→背景图/emoji队员→sprite头像
+- 验证PASS: enemyHasImg+sceneHasImg+squadWithImg+animating=true+cssCharRemains=false
+- EXE打包: dist/牛马修仙传-win32-x64 (electron-packager asar)
+- V66=COMPLETE

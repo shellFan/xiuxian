@@ -117,6 +117,11 @@ function testBuffInCoreCalculationChain(): void {
   const { context, loop } = makeContext({ player: makePlayer({ workMode: 'WORK', mind: 100, maxMind: 200 }) });
   context.board!.place(WorkerEntity.create(1), { row: 0, column: 0 });
 
+  // V6.3 autoBattle 在 GameLoop 每步贡献工资，干扰 buff 对 WorkService 的效果验证。
+  // 冻结战斗（BOSS_PENDING 不自动推进），隔离无关收入源。
+  context.autoBattle.tick(0);
+  if (context.player.v63AutoBattle) context.player.v63AutoBattle.status = 'BOSS_PENDING';
+
   loop.start();
   loop.tick(3600); // 1 hour baseline — level-1 worker: 10/hour × 3600s × 2 / 7200 = 10
   const baselineSalary = context.player.salary;
