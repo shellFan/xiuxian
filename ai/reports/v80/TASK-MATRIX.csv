@@ -1,0 +1,15 @@
+phase,task,status,evidence
+v71,TASK-001 before audit,PASS,ai/reports/v80/screenshots/before
+v71,TASK-002/003 home restructure,PASS,ai/reports/v80/screenshots/after + v80-after-play.json
+v71,TASK-004/005 icon system,PASS,desktop/assets/ui-icons (10 pieces)
+v71,TASK-006 resolutions,PASS,ai/reports/v80/resolution-audit.json (4/4)
+v72,TASK-007~012 animations,PASS,ai/reports/v80/v80-anim-probe.json + screenshots
+v73,TASK-013~017 combat feel,PASS,v80-anim-probe.json (dmg25/floats/hitfx/victory)
+v74,TASK-018~022 boss+card,PASS,ai/reports/v80/v80-card-verify.json (2/2 stage 12->13)
+v75,TASK-023~029 growth/economy,PASS,169->170 unit files + balance sim
+v76,TASK-030 npc model bridge,PASS(mock-endpoint),ai/reports/v80/v80-npc-probe.json mnnHits=1
+v76,TASK-032~034 audio,IMPLEMENTED+NOT_VERIFIED(听感),code audit
+v77,TASK-035~039 ads adapter,PASS,tests/platform/rewarded-video-adapter.test.ts 10/10
+v78,TASK-040~045 platforms,wechat PASS / douyin PARTIAL / real-device BLOCKED,platform-build-results.json
+v79,TASK-046~059 full tests,PASS(in progress),full-regression2.log + EXE soak 120min
+v80,TASK-060~064 release,PENDING,final pack + checklist

@@ -90,7 +90,8 @@ async function runInElectron(): Promise<void> {
     assert.equal(firstView.statusCount, 4, 'metadata is consolidated into one status row');
     assert.ok(firstView.scene && firstView.scene.h >= 140, `countdown scene remains readable (${JSON.stringify(firstView.scene)})`);
     assert.ok(firstView.scene && firstView.sceneStrip && firstView.sceneStrip.bottom <= firstView.scene.bottom + 1, `scene controls stay inside the scene (${JSON.stringify(firstView)})`);
-    assert.ok(firstView.home && firstView.home.w <= 642, `home is a centered single column (${JSON.stringify(firstView.home)})`);
+    /* V8.0 V7.1：主列 640 → 920（战斗舞台成为视觉中心），契约同步更新 */
+    assert.ok(firstView.home && firstView.home.w <= 922, `home is a centered single column (${JSON.stringify(firstView.home)})`);
     assert.ok(firstView.actions && firstView.actions.h > 0, `mode action cards remain rendered (${JSON.stringify(firstView.actions)})`);
     assert.equal(firstView.actionButtons, true, 'all four mode cards remain visible and have a hit area');
     assert.equal(firstView.primary, true, 'one-tap cultivation action remains visible');
