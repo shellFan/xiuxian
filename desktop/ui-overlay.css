@@ -1995,6 +1995,10 @@
 .ux-bt-arena { padding: 10px; }
 .ux-bt-enemies { display: flex; flex-direction: column; gap: 10px; flex: 1; justify-content: center; }
 .ux-bt-enemy { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 10px; background: rgba(20, 39, 58, 0.6); border: 1px solid #3c5a76; overflow: visible; }
+/* V8.0 V7.4：出牌目标点击稳定性 — 子元素不拦截事件，点击必达 [data-enemy-uid] 根节点 */
+.ux-bt-enemy > * { pointer-events: none; }
+.ux-bt-enemy { cursor: pointer; }
+.ux-bt-enemy.is-targetable { border-color: rgba(255, 233, 189, .85); box-shadow: 0 0 10px rgba(255, 233, 189, .25); }
 .ux-bt-enemy.is-elite { border-color: rgba(240, 177, 60, 0.5); }
 .ux-bt-enemy.is-boss { border-color: rgba(216, 75, 58, 0.7); box-shadow: 0 0 14px rgba(216, 75, 58, 0.3); }
 .ux-bt-enemy-face { font-size: 22px; }
@@ -3372,7 +3376,7 @@ button.ux-journey--sec { cursor: pointer; }
 /* —— §V6.5.2 战斗舞台容器 —— */
 .ux65-stage {
   position: relative; border-radius: 16px; overflow: hidden;
-  margin: 8px 0; min-height: 500px;
+  margin: 8px 0; min-height: 456px;
   border: 1px solid rgba(224,189,123,.2);
   display: flex; flex-direction: column;
 }
@@ -3502,7 +3506,7 @@ button.ux-journey--sec { cursor: pointer; }
   position: relative; width: 158px; height: 150px;
   display: flex; align-items: center; justify-content: center;
 }
-.ux65-enemy--boss .ux65-enemy-stage { width: 210px; height: 200px; }
+.ux65-enemy--boss .ux65-enemy-stage { width: 175px; height: 165px; }
 
 /* CSS角色主体 */
 .ux65-char {
@@ -3745,12 +3749,12 @@ button.ux-journey--sec { cursor: pointer; }
 
 /* —— §V6.5.7 小队阵型 —— */
 .ux65-squad {
-  display: flex; gap: 8px; padding: 8px 14px;
+  display: flex; gap: 8px; padding: 4px 14px;
   justify-content: center; flex-wrap: wrap;
 }
 .ux65-member {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 8px 6px 6px; border-radius: 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 5px 6px 4px; border-radius: 12px;
   background: rgba(12,25,40,.65); border: 1.5px solid rgba(74,81,102,.35);
   min-width: 64px; transition: border-color .2s, transform .15s, box-shadow .2s;
   backdrop-filter: blur(4px);
@@ -4425,7 +4429,7 @@ button.ux-journey--sec { cursor: pointer; }
 .ux-home-main .ux-stat {
   flex: 1 1 0;
   min-width: 0;
-  padding: 6px 10px;
+  padding: 4px 10px;
   gap: 0;
 }
 .ux-home-main .ux-stat--main { flex: 1.35 1 0; }
