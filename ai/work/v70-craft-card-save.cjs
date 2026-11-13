@@ -40,6 +40,20 @@ b.status = 'IDLE';
 ctx.autoBattle.ensureStarted(); // spawns the stage-12 cardBoss enemy
 if (!b.enemy || !b.enemy.isCardBoss) throw new Error('stage-12 enemy did not spawn as cardBoss: ' + JSON.stringify(b.enemy || {}));
 b.enemy.hp = 1;
+// V8.0：强化测试小队使第 12 关 Boss 战可胜（推荐 1056）
+try {
+  ctx.autoBattle.hireMember('FRONTEND');
+  ctx.autoBattle.hireMember('QA');
+  ctx.autoBattle.hireMember('DEVOPS');
+} catch (e) { console.log('[craft] hire warn: ' + e.message); }
+try { ctx.autoBattle.upgradeClick(); ctx.autoBattle.upgradeClick(); ctx.autoBattle.upgradeClick(); } catch (e) {}
+
+b.squad = b.squad || [];
+(b.squad.members || []).forEach(function (m) { m.level = 8; m.exp = 0; });
+const squadState = p.v63Squad;
+if (squadState && squadState.members) {
+  squadState.members.forEach(function (m) { m.level = 8; m.exp = 0; });
+}
 console.log('[craft] enemy=' + b.enemy.name + ' isCardBoss=' + b.enemy.isCardBoss + ' hp=' + b.enemy.hp);
 
 const data = p.toSaveData();

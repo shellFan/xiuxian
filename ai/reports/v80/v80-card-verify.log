@@ -1,0 +1,43 @@
+16:16:28 [boot] {"windows":1}
+16:16:28 [diag] {"facade":true,"setup":"COMPLETE","stage":12,"status":"BOSS_PENDING","creating":null,"storageProbe":"n/a"}
+16:16:28 [storage-load] {"hasReceipt":false}
+16:16:28 [boss-pending] {"status":"BOSS_PENDING","stage":12,"enemy":"产品VP·需求灭世者"}
+16:16:29 [shot] 01-boss-pending
+16:16:29 [goto-project] {"found":true}
+16:16:30 [shot] 02-project-page
+16:16:31 [build-select] {"found":true,"build":"build_jvm","text":"JVM调优流GC与堆内存掌控，持续输出与自我恢复。 · HP 165 · 攻 1"}
+16:16:34 [shot] 03-card-battle-start
+16:16:34 [card:event-choice] {"step":0}
+16:16:35 [card:dismiss-modal] {"step":1}
+16:16:38 [card:play] {"step":2,"card":"card_strike_1","beforeHand":5,"waited":{"done":false,"timeout":true,"stillSelected":null},"selectedNow":true}
+16:16:38 TIMEOUT-BRANCH step=2 counted=0
+16:16:38 DIAG-FIRING step=2
+16:16:38 [card:stuck-diag] {"engineHandUids":["card_strike_1","card_strike_2","card_strike_5","card_block_8","card_fate_code_11"],"domHandUids":["card_strike_1","card_strike_2","card_strike_5","card_block_8","card_fate_code_11"],"domUid":"card_strike_1","hit":{"topIsCardSelf":false,"topIsInside":false,"topDesc":"DIV cls=ux-modal-layer"},"testClick":{"uid":"card_strike_1","uidInEngineHand":true,"before":5,"after":5,"selectedNow":false,"selectedAfterDirect":true,"handAfterDirect":5},"refreshErr":null,"engineHandAfterRefresh":["card_strike_1","card_strike_2","card_strike_5","card_block_8","card_fate_code_11"]}
+16:16:38 [card:target-click] {"step":3,"enemy":"mon_slow_sql_4129","beforeHand":5,"waited":{"done":true,"n":4,"phase":"PLAYER_TURN"}}
+16:16:41 [card:play] {"step":4,"card":"card_strike_2","beforeHand":4,"waited":{"done":false,"timeout":true,"stillSelected":null},"selectedNow":true}
+16:16:41 TIMEOUT-BRANCH step=4 counted=1
+16:16:41 [card:target-click] {"step":5,"enemy":"mon_slow_sql_4129","beforeHand":4,"waited":{"done":true,"n":3,"phase":"PLAYER_TURN"}}
+16:16:43 [card:play] {"step":6,"card":"card_strike_5","beforeHand":3,"waited":{"done":false,"timeout":true,"stillSelected":null},"selectedNow":true}
+16:16:43 TIMEOUT-BRANCH step=6 counted=2
+16:16:43 [card:target-click] {"step":7,"enemy":"mon_slow_sql_4129","beforeHand":3,"waited":{"done":true,"n":2,"phase":"PLAYER_TURN"}}
+16:16:47 [card:end-turn] {"step":8,"waited":{"done":false,"timeout":true}}
+16:16:50 [card:end-turn] {"step":9,"waited":{"done":false,"timeout":true}}
+16:16:53 [card:end-turn] {"step":10,"waited":{"done":false,"timeout":true}}
+16:16:57 [card:end-turn] {"step":11,"waited":{"done":false,"timeout":true}}
+16:17:00 [card:end-turn] {"step":12,"waited":{"done":false,"timeout":true}}
+16:17:03 [card:end-turn] {"step":13,"waited":{"done":false,"timeout":true}}
+16:17:07 [card:end-turn] {"step":14,"waited":{"done":false,"timeout":true}}
+16:17:10 [card:end-turn] {"step":15,"waited":{"done":false,"timeout":true}}
+16:17:13 [card:end-turn] {"step":16,"waited":{"done":false,"timeout":true}}
+16:17:16 [card:end-turn] {"step":17,"waited":{"done":false,"timeout":true}}
+16:17:20 [card:end-turn] {"step":18,"waited":{"done":false,"timeout":true}}
+16:17:23 [card:end-turn] {"step":19,"waited":{"done":false,"timeout":true}}
+16:17:23 [card:end-turn] {"step":20,"waited":{"done":true,"phase":"FINISHED"}}
+16:17:23 [card:over] {"done":true,"phase":"FINISHED","turnN":13,"energy":3,"handN":0,"handUids":[],"enemies":[{"uid":"mon_slow_sql_4129","hp":3},{"uid":"mon_api_timeout_4r8q","hp":34},{"uid":"mon_lock_table_camn","hp":42}],"reward":false,"modalSkill":false,"modalEvent":false,"modalOk":false,"rewardDom":false,"rewardSkipDom":false,"selected":false,"usableAtk":null,"usableAny":null,"endTurnDom":true,"buildEntry":false}
+16:17:23 [card:battle-summary] {"turns":21,"victorySeen":false,"defeatSeen":false,"rewardClaimed":false,"targetClicks":3,"playedCards":3,"endTurns":13,"staleResets":0}
+16:17:23 [shot] 05-after-battle
+16:17:25 [refresh-probe] {"probeSurvived":false,"bodyLenBefore":7094,"bodyLenAfter":5005}
+16:17:25 [settle-back] {"status":"FIGHTING","stage":13,"maxStage":12}
+16:17:27 [shot] 06-back-home
+16:17:27 [final-state] {"status":"VICTORY","stage":13}
+16:17:27 PASS=true victory=false reward=false stage=13

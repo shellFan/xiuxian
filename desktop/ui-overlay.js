@@ -4491,7 +4491,12 @@
      §9. Public API
      ═════════════════════════════════════════════════════════ */
 
-  window.UiOverlay = {
+  /* V8.0 V7.4：子模块（ui-battle-card 等）通过 window.__UI_OVERLAY__.refresh
+     触发界面更新——该引用此前从未被创建，5 处调用全部静默失效：
+     出牌选中态不渲染、目标高亮缺失。指向同一公共 API。 */
+  window.__UI_OVERLAY__ = { refresh: refresh, toast: toast, closePopup: closePopup };
+
+    window.UiOverlay = {
     cmd: cmd,
     toast: toast,
     refresh: refresh,

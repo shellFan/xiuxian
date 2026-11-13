@@ -315,9 +315,15 @@
     if (!f) return;
     var card = tryGet(function () { return f.queryBattleCard(); }, null);
     if (!card) return;
+    // V8.0 V7.4：陈旧选择清理 — 若已选卡不在当前手牌中（换波/回合刷新），
+    // 先复位，避免"选中态存在但出牌必失败"的死状态。
+    if (selectedCardUid) {
+      var stillHeld = (card.hand || []).some(function (c) { return c.uid === selectedCardUid; });
+      if (!stillHeld) selectedCardUid = null;
+    }
     if (selectedCardUid === cardUid) {
       selectedCardUid = null; // 再点取消选择
-      if (window.__UI_OVERLAY__ && window.__UI_OVERLAY__.refresh) window.__UI_OVERLAY__.refresh();
+        if (window.__UI_OVERLAY__ && window.__UI_OVERLAY__.refresh) window.__UI_OVERLAY__.refresh();
       return;
     }
     var def = null;
@@ -327,7 +333,9 @@
     catalog.forEach(function (d) { defMap[d.id] = d; });
     var instance = def;
     var defData = instance ? defMap[instance.defId] : null;
-    if (!instance || !defData) return;
+    if (!instance || !defData) {
+        return;
+    }
     var upgradedDef = instance.upgraded > 0 ? (defMap[instance.defId + '_up' + instance.upgraded] || defData) : defData;
     if (upgradedDef.target === 'ENEMY') {
       selectedCardUid = cardUid; // 进入目标选择

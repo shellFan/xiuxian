@@ -1,0 +1,326 @@
+{
+  "phases": [
+    {
+      "name": "boot",
+      "windows": 1
+    },
+    {
+      "name": "diag",
+      "facade": true,
+      "setup": "COMPLETE",
+      "stage": 12,
+      "status": "BOSS_PENDING",
+      "creating": null,
+      "storageProbe": "n/a"
+    },
+    {
+      "name": "storage-load",
+      "hasReceipt": false
+    },
+    {
+      "name": "boss-pending",
+      "status": "BOSS_PENDING",
+      "stage": 12,
+      "enemy": "产品VP·需求灭世者"
+    },
+    {
+      "name": "goto-project",
+      "found": true
+    },
+    {
+      "name": "build-select",
+      "found": true,
+      "build": "build_jvm",
+      "text": "JVM调优流GC与堆内存掌控，持续输出与自我恢复。 · HP 165 · 攻 1"
+    },
+    {
+      "name": "card:event-choice",
+      "step": 0
+    },
+    {
+      "name": "card:dismiss-modal",
+      "step": 1
+    },
+    {
+      "name": "card:play",
+      "step": 2,
+      "card": "card_strike_1",
+      "beforeHand": 5,
+      "waited": {
+        "done": false,
+        "timeout": true,
+        "stillSelected": null
+      },
+      "selectedNow": true
+    },
+    {
+      "name": "card:stuck-diag",
+      "engineHandUids": [
+        "card_strike_1",
+        "card_strike_2",
+        "card_strike_5",
+        "card_block_8",
+        "card_fate_code_11"
+      ],
+      "domHandUids": [
+        "card_strike_1",
+        "card_strike_2",
+        "card_strike_5",
+        "card_block_8",
+        "card_fate_code_11"
+      ],
+      "domUid": "card_strike_1",
+      "hit": {
+        "topIsCardSelf": false,
+        "topIsInside": false,
+        "topDesc": "DIV cls=ux-modal-layer"
+      },
+      "testClick": {
+        "uid": "card_strike_1",
+        "uidInEngineHand": true,
+        "before": 5,
+        "after": 5,
+        "selectedNow": false,
+        "selectedAfterDirect": true,
+        "handAfterDirect": 5
+      },
+      "refreshErr": null,
+      "engineHandAfterRefresh": [
+        "card_strike_1",
+        "card_strike_2",
+        "card_strike_5",
+        "card_block_8",
+        "card_fate_code_11"
+      ]
+    },
+    {
+      "name": "card:target-click",
+      "step": 3,
+      "enemy": "mon_slow_sql_4129",
+      "beforeHand": 5,
+      "waited": {
+        "done": true,
+        "n": 4,
+        "phase": "PLAYER_TURN"
+      }
+    },
+    {
+      "name": "card:play",
+      "step": 4,
+      "card": "card_strike_2",
+      "beforeHand": 4,
+      "waited": {
+        "done": false,
+        "timeout": true,
+        "stillSelected": null
+      },
+      "selectedNow": true
+    },
+    {
+      "name": "card:target-click",
+      "step": 5,
+      "enemy": "mon_slow_sql_4129",
+      "beforeHand": 4,
+      "waited": {
+        "done": true,
+        "n": 3,
+        "phase": "PLAYER_TURN"
+      }
+    },
+    {
+      "name": "card:play",
+      "step": 6,
+      "card": "card_strike_5",
+      "beforeHand": 3,
+      "waited": {
+        "done": false,
+        "timeout": true,
+        "stillSelected": null
+      },
+      "selectedNow": true
+    },
+    {
+      "name": "card:target-click",
+      "step": 7,
+      "enemy": "mon_slow_sql_4129",
+      "beforeHand": 3,
+      "waited": {
+        "done": true,
+        "n": 2,
+        "phase": "PLAYER_TURN"
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 8,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 9,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 10,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 11,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 12,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 13,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 14,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 15,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 16,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 17,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 18,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 19,
+      "waited": {
+        "done": false,
+        "timeout": true
+      }
+    },
+    {
+      "name": "card:end-turn",
+      "step": 20,
+      "waited": {
+        "done": true,
+        "phase": "FINISHED"
+      }
+    },
+    {
+      "name": "card:over",
+      "done": true,
+      "phase": "FINISHED",
+      "turnN": 13,
+      "energy": 3,
+      "handN": 0,
+      "handUids": [],
+      "enemies": [
+        {
+          "uid": "mon_slow_sql_4129",
+          "hp": 3
+        },
+        {
+          "uid": "mon_api_timeout_4r8q",
+          "hp": 34
+        },
+        {
+          "uid": "mon_lock_table_camn",
+          "hp": 42
+        }
+      ],
+      "reward": false,
+      "modalSkill": false,
+      "modalEvent": false,
+      "modalOk": false,
+      "rewardDom": false,
+      "rewardSkipDom": false,
+      "selected": false,
+      "usableAtk": null,
+      "usableAny": null,
+      "endTurnDom": true,
+      "buildEntry": false
+    },
+    {
+      "name": "card:battle-summary",
+      "turns": 21,
+      "victorySeen": false,
+      "defeatSeen": false,
+      "rewardClaimed": false,
+      "targetClicks": 3,
+      "playedCards": 3,
+      "endTurns": 13,
+      "staleResets": 0
+    },
+    {
+      "name": "refresh-probe",
+      "probeSurvived": false,
+      "bodyLenBefore": 7094,
+      "bodyLenAfter": 5005
+    },
+    {
+      "name": "settle-back",
+      "status": "FIGHTING",
+      "stage": 13,
+      "maxStage": 12
+    },
+    {
+      "name": "final-state",
+      "status": "VICTORY",
+      "stage": 13
+    }
+  ],
+  "exceptions": [],
+  "pass": true,
+  "errors": {
+    "exceptions": [],
+    "exceptionCount": 0
+  }
+}
