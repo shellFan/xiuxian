@@ -1,0 +1,8 @@
+15:30:41 home=true
+15:30:46 idle variety=4 positions=["-556.8px 0px","0px 0px","-185.6px 0px","-556.8px 0px","0px 0px","-185.6px 0px","-371.2px 0px","-556.8px 0px"]
+15:30:48 tap: hpDelta=25 floatsSeen=true hitFx=true
+15:30:48 [shot] anim-01-combat
+15:30:49 [shot] anim-02-skill
+15:30:50 victory seen=true
+15:30:50 [shot] anim-03-victory
+15:30:50 DONE

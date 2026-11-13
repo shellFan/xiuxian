@@ -1,0 +1,61 @@
+{
+  "home": true,
+  "idleFrames": [
+    {
+      "bg": "url(\"http://127.0.0.1:51177/assets/sprites/sheets/requirement_death.png\")",
+      "pos": "-556.8px 0px",
+      "size": "742.4px 185.6px"
+    },
+    {
+      "bg": "url(\"http://127.0.0.1:51177/assets/sprites/sheets/bug_idle.png\")",
+      "pos": "0px 0px",
+      "size": "742.4px 185.6px"
+    },
+    {
+      "bg": "url(\"http://127.0.0.1:51177/assets/sprites/sheets/bug_idle.png\")",
+      "pos": "-185.6px 0px",
+      "size": "742.4px 185.6px"
+    },
+    {
+      "bg": "url(\"http://127.0.0.1:51177/assets/sprites/sheets/bug_idle.png\")",
+      "pos": "-556.8px 0px",
+      "size": "742.4px 185.6px"
+    },
+    {
+      "bg": "url(\"http://127.0.0.1:51177/assets/sprites/sheets/bug_idle.png\")",
+      "pos": "0px 0px",
+      "size": "742.4px 185.6px"
+    },
+    {
+      "bg": "url(\"http://127.0.0.1:51177/assets/sprites/sheets/bug_idle.png\")",
+      "pos": "-185.6px 0px",
+      "size": "742.4px 185.6px"
+    },
+    {
+      "bg": "url(\"http://127.0.0.1:51177/assets/sprites/sheets/bug_idle.png\")",
+      "pos": "-371.2px 0px",
+      "size": "742.4px 185.6px"
+    },
+    {
+      "bg": "url(\"http://127.0.0.1:51177/assets/sprites/sheets/bug_idle.png\")",
+      "pos": "-556.8px 0px",
+      "size": "742.4px 185.6px"
+    }
+  ],
+  "observations": {
+    "idleFrameVariety": 4,
+    "tapAttackHpDelta": 25,
+    "tapFramesSampled": 10,
+    "floatDmgSeen": true,
+    "hitFxSeen": true,
+    "skillIcons": [
+      "ui-icons/skill-sword.png",
+      "ui-icons/skill-bomb.png",
+      "ui-icons/skill-crush.png",
+      "ui-icons/skill-rollback.png"
+    ],
+    "skillCast": "code_sword",
+    "victoryOverlay": "✅ 击败！",
+    "victorySeen": true
+  }
+}

@@ -1,32 +1,36 @@
 {
   "project": "牛马修仙传",
   "targetVersion": "V8.0",
-  "updatedAt": "2026-11-13T06:00:00+08:00",
-  "phase": "BASELINE",
+  "updatedAt": "2026-11-14T07:10:00+08:00",
+  "phase": "RELEASE_CANDIDATE",
   "git": {
     "branch": "v61/gameplay-v2",
-    "headAtStart": "3827a6d8765dc1fc0294c4140c4958275a60ef6b",
-    "syncedWithOrigin": true
+    "headAtStart": "3827a6d",
+    "milestones": ["a32b7c0 V7.1", "ccd6e98 V7.4", "75d91dd V7.6", "0bf0fc5 V7.7/V7.8", "97a4b87 V7.9", "f8f34f0 V7.9-fix"]
   },
   "completed": [
-    "baseline verified (HEAD=3827a6d, clean tree, origin synced)",
-    "v80 report directories created"
+    "V7.1 home restructure + unified icon set (10 pcs) + 4/4 resolutions",
+    "V7.2/V7.3 animation probe: idle 4-frame cycle, tap dmg 25, floats, hit-fx, victory overlay",
+    "V7.4 card targeting P0 root-cause fixed (__UI_OVERLAY__ bridge) + state-wait E2E 2/2 stage 12->13",
+    "V7.5 growth/economy regression green (170 files)",
+    "V7.6 AI NPC model bridge verified (mock MNN endpoint, mnnHits=1) + audio audit",
+    "V7.7 rewarded-video adapter + policy + 10 unit tests",
+    "V7.8 douyin platform service + REAL wechat build (83s/12 files); douyin build PARTIAL",
+    "V7.9 full regression 170 files EXIT=0; EXE 120min soak 230 samples 0 exceptions 0 crashes; restart recovery PASS; boss-stage fold regression fixed (7/7 in-exe)"
   ],
   "pending": [
-    "V7.1 home UI audit + restructure",
-    "V7.2 sprites/animation/scenes polish",
-    "V7.3 combat feel",
-    "V7.4 boss/card target-click stability fix",
-    "V7.5 growth/economy verification",
-    "V7.6 AI NPC real-model verification + audio",
-    "V7.7 rewarded ads abstraction + adapters",
-    "V7.8 wechat/douyin compat",
-    "V7.9 full test suite + 120min soak + screenshots/videos",
-    "V8.0 release candidate"
+    "wechat subpackaging (main package 6.9MB > 4MB limit) before store release",
+    "wechat/douyin real-device acceptance (BLOCKED: no devtools/device in env)",
+    "reward-pick capture in card E2E (handoff verified; driver timing)",
+    "subjective audio listening test",
+    "home two-column deep restructure (V8.1 candidate)"
   ],
   "testResults": {
-    "note": "V7.0 final: 169 test files EXIT=0; EXE soak 60min 0 exceptions; restart recovery PASS"
+    "fullRegression": "170 files EXIT=0",
+    "soak120min": "120.01min / 230 samples / 0 exceptions / 0 crashes / heap 24.1-32.6MB / interactions: tap690 skill230 speed58 tower33 panels33",
+    "restartRecovery": "PASS (stage12/bossPending/kills52 restored)",
+    "cardE2E": "2/2 PASS stage 12->13"
   },
-  "blockers": [],
-  "nextAction": "V7.1 TASK-001: run latest game, capture before screenshots, audit home layout"
+  "blockers": ["wechat/douyin real-device (env)", "douyin build timeout (420s window)"],
+  "nextAction": "release: push branch; store submission requires wechat subpackaging"
 }

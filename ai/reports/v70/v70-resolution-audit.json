@@ -13,8 +13,8 @@
         "overflowY": false,
         "clipped": 0,
         "stage": {
-          "w": 640,
-          "h": 463
+          "w": 920,
+          "h": 459
         }
       }
     },
@@ -30,8 +30,8 @@
         "overflowY": false,
         "clipped": 0,
         "stage": {
-          "w": 640,
-          "h": 463
+          "w": 920,
+          "h": 459
         }
       }
     },
@@ -47,8 +47,8 @@
         "overflowY": false,
         "clipped": 0,
         "stage": {
-          "w": 640,
-          "h": 463
+          "w": 920,
+          "h": 459
         }
       }
     },
@@ -64,8 +64,8 @@
         "overflowY": false,
         "clipped": 0,
         "stage": {
-          "w": 640,
-          "h": 463
+          "w": 920,
+          "h": 459
         }
       }
     }
