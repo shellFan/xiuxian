@@ -272,7 +272,7 @@
     var player = squadPlayers[key];
     if (!player || player.spriteName !== spriteName || player.el !== containerEl) {
       if (player) player.destroy();
-      player = new SpriteAnimPlayer(containerEl, spriteName, 0.45);
+      player = new SpriteAnimPlayer(containerEl, spriteName, 0.5) /* V8.0: 0.45->0.5 */;
       squadPlayers[key] = player;
     }
     return player;

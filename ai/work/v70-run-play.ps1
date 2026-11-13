@@ -17,7 +17,9 @@ $env:ELECTRON_RUN_AS_NODE = $null
 $env:NODE_OPTIONS = $null
 $env:V70_SCRIPT = $Script
 $env:V70_PHASE = $Phase
+$env:V80_PHASE = $Phase
 $env:V70_HEAD = $Head
+$env:V80_HEAD = $Head
 $env:XIUXIAN_USER_DATA = $UserData
 New-Item -ItemType Directory -Force -Path $UserData | Out-Null
 $p = Start-Process -FilePath (Join-Path $root 'desktop\node_modules\electron\dist\electron.exe') `

@@ -1,0 +1,32 @@
+{
+  "project": "牛马修仙传",
+  "targetVersion": "V8.0",
+  "updatedAt": "2026-11-13T06:00:00+08:00",
+  "phase": "BASELINE",
+  "git": {
+    "branch": "v61/gameplay-v2",
+    "headAtStart": "3827a6d8765dc1fc0294c4140c4958275a60ef6b",
+    "syncedWithOrigin": true
+  },
+  "completed": [
+    "baseline verified (HEAD=3827a6d, clean tree, origin synced)",
+    "v80 report directories created"
+  ],
+  "pending": [
+    "V7.1 home UI audit + restructure",
+    "V7.2 sprites/animation/scenes polish",
+    "V7.3 combat feel",
+    "V7.4 boss/card target-click stability fix",
+    "V7.5 growth/economy verification",
+    "V7.6 AI NPC real-model verification + audio",
+    "V7.7 rewarded ads abstraction + adapters",
+    "V7.8 wechat/douyin compat",
+    "V7.9 full test suite + 120min soak + screenshots/videos",
+    "V8.0 release candidate"
+  ],
+  "testResults": {
+    "note": "V7.0 final: 169 test files EXIT=0; EXE soak 60min 0 exceptions; restart recovery PASS"
+  },
+  "blockers": [],
+  "nextAction": "V7.1 TASK-001: run latest game, capture before screenshots, audit home layout"
+}

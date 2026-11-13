@@ -1225,13 +1225,14 @@
         '<span class="ux-topbar-npc-line">' + escHtml(npcDynamicLine(hud)) + '</span></div>' +
       (pending > 0 ? '<button class="ux-topbar-pending" data-action="openPending" title="点击处理">🚨 ' + pending + ' 件破事待处理</button>' : '') +
       '<nav class="ux-topbar-shortcuts">' +
-        '<button class="ux-shortcut" data-action="openMessenger"><span class="sc-ico">📨</span><span>飞剑</span>' +
+        /* V8.0 V7.1：统一图标集替换 Emoji 主视觉（墨玉描金 ui-icons） */
+        '<button class="ux-shortcut" data-action="openMessenger"><img class="sc-ico-img" src="ui-icons/shortcut-sword.png" alt=""><span>飞剑</span>' +
         (messengerBadgeCount() > 0 ? '<span class="ux-shortcut-badge">' + messengerBadgeCount() + '</span>' : '') + '</button>' +
-        '<button class="ux-shortcut" data-nav="TASKS"><span class="sc-ico">📜</span><span>任务</span></button>' +
-        '<button class="ux-shortcut" data-nav="PROJECT"><span class="sc-ico">⚔️</span><span>项目</span></button>' +
-        '<button class="ux-shortcut" data-action="goto" data-page="npc"><span class="sc-ico">🧑‍🤝‍🧑</span><span>人际</span></button>' +
-        '<button class="ux-shortcut" data-nav="CRAFT"><span class="sc-ico">🎒</span><span>背包</span></button>' +
-        '<button class="ux-shortcut" data-action="settings"><span class="sc-ico">⚙️</span><span>设置</span></button>' +
+        '<button class="ux-shortcut" data-nav="TASKS"><img class="sc-ico-img" src="ui-icons/shortcut-task.png" alt=""><span>任务</span></button>' +
+        '<button class="ux-shortcut" data-nav="PROJECT"><img class="sc-ico-img" src="ui-icons/shortcut-project.png" alt=""><span>项目</span></button>' +
+        '<button class="ux-shortcut" data-action="goto" data-page="npc"><img class="sc-ico-img" src="ui-icons/shortcut-social.png" alt=""><span>人际</span></button>' +
+        '<button class="ux-shortcut" data-nav="CRAFT"><img class="sc-ico-img" src="ui-icons/shortcut-bag.png" alt=""><span>背包</span></button>' +
+        '<button class="ux-shortcut" data-action="settings"><img class="sc-ico-img" src="ui-icons/shortcut-settings.png" alt=""><span>设置</span></button>' +
       '</nav>' +
     '</div>';
   }

@@ -79,10 +79,16 @@
       var cdCls = s.cooldownRemaining > 0 ? ' ux64-skill-btn--cd' : '';
       var lockCls = locked ? ' ux64-skill-btn--locked' : ' ux64-skill-btn--ready';
       var cdPct = s.cooldownMax > 0 ? Math.round((s.cooldownRemaining / s.cooldownMax) * 100) : 0;
+      /* V8.0 V7.1：统一技能图标替换 Emoji 主视觉 */
+      var SKILL_ICONS = { code_sword: 'skill-sword', bug_bomb: 'skill-bomb', req_crusher: 'skill-crush', emergency_rollback: 'skill-rollback' };
+      var iconFile = SKILL_ICONS[s.id];
+      var iconHtml = iconFile
+        ? '<img class="ux64-skill-icon" src="ui-icons/' + iconFile + '.png" alt="">'
+        : '<span class="ux64-skill-emoji">' + H.escHtml(s.emoji) + '</span>';
       html += '<button class="ux64-skill-btn' + lockCls + cdCls + '"' +
         (locked ? '' : ' data-action="v64-useSkill" data-skill="' + s.id + '"') +
         ' title="' + H.escHtml(s.name) + '：' + H.escHtml(s.desc || '') + '&#10;冷却' + s.cooldownMax + 's">' +
-        '<span class="ux64-skill-emoji">' + H.escHtml(s.emoji) + '</span>' +
+        iconHtml +
         '<span class="ux64-skill-name">' + H.escHtml(s.name) + '</span>' +
         (locked ? '<span class="ux64-skill-lock">🔒' + s.unlockStage + '关</span>'
           : s.cooldownRemaining > 0 ? '<span class="ux64-skill-cd" id="Ux64SkillCd_' + s.id + '">' + Math.ceil(s.cooldownRemaining) + 's</span>'

@@ -489,6 +489,8 @@
 }
 .ux-shortcut:hover { background: rgba(240, 177, 60, 0.18); }
 .ux-shortcut .sc-ico { font-size: 20px; line-height: 1.1; }
+/* V8.0 V7.1：统一图标位（墨玉描金 PNG，替换 Emoji 主视觉） */
+.ux-shortcut .sc-ico-img { width: 26px; height: 26px; border-radius: 7px; display: block; }
 .ux-shortcut span:last-child { font-size: 12px; font-weight: 700; color: var(--text-ink); }
 
 /* 左栏角色卡（§8~§11） */
@@ -2465,7 +2467,8 @@ button.ux-journey--sec { cursor: pointer; }
 @media (min-width: 900px) {
   .ux-body--home { overflow-y: auto; }
   .ux-home { display: flex; }
-  .ux-home-main { max-width: 640px; width: 100%; margin: 0 auto; }
+  /* V8.0 V7.1：主列 640 → 920，战斗舞台成为视觉中心 */
+  .ux-home-main { max-width: 920px; width: 100%; margin: 0 auto; }
   /* 场景渐变从旧三栏中栏选择器迁移到新主列 */
   .ux-home-main .ux-scene--day   { background: linear-gradient(180deg, #3d729c 0%, #24557c 52%, var(--scene-base) 100%); }
   .ux-home-main .ux-scene--dusk  { background: linear-gradient(180deg, #b06a3a 0%, #7a4258 42%, #2c2a4e 78%, var(--scene-deep) 100%); }
@@ -3177,6 +3180,8 @@ button.ux-journey--sec { cursor: pointer; }
 .ux64-skill-btn--cd { opacity: .55; cursor: default; }
 .ux64-skill-btn--locked { opacity: .35; cursor: default; border-style: dashed; }
 .ux64-skill-emoji { font-size: 18px; line-height: 1; }
+/* V8.0 V7.1：技能图标（统一墨玉描金集） */
+.ux64-skill-icon { width: 30px; height: 30px; border-radius: 8px; display: block; margin: 0 auto; }
 .ux64-skill-name { font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; }
 .ux64-skill-cd { font-size: 10px; color: #ff9b6b; font-weight: bold; }
 .ux64-skill-cd--ok { color: #ffd700; animation: ux64-skill-glow 1.5s infinite; }
@@ -3367,7 +3372,7 @@ button.ux-journey--sec { cursor: pointer; }
 /* —— §V6.5.2 战斗舞台容器 —— */
 .ux65-stage {
   position: relative; border-radius: 16px; overflow: hidden;
-  margin: 8px 0; min-height: 460px;
+  margin: 8px 0; min-height: 500px;
   border: 1px solid rgba(224,189,123,.2);
   display: flex; flex-direction: column;
 }
@@ -3984,9 +3989,11 @@ button.ux-journey--sec { cursor: pointer; }
 .ux65-skillbar {
   display: flex; gap: 6px; padding: 4px 14px;
   align-items: center;
+  /* V8.0：宽舞台下技能栏居中分散排布 */
+  justify-content: center;
 }
 .ux65-skillbar .ux64-skill-btn {
-  flex: 1; max-width: 100px; min-height: 52px;
+  flex: 1; max-width: 118px; min-height: 56px;
   border-radius: 10px;
   background: linear-gradient(180deg, rgba(30,38,55,.9), rgba(20,28,42,.9));
   border: 1px solid rgba(74,81,102,.4);
@@ -4245,15 +4252,15 @@ button.ux-journey--sec { cursor: pointer; }
   100% { transform: scale(1) brightness(1); }
 }
 
-/* 小队Sprite */
+/* 小队Sprite（V8.0：48→56 提升小队存在感） */
 .ux66-squad-sprite {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   display: block;
   margin: 0 auto;
   border-radius: 50%;
   overflow: hidden;
-  background-size: 192px 48px;
+  background-size: 224px 56px;
   background-repeat: no-repeat;
   background-position: 0 0;
   image-rendering: auto;

@@ -176,6 +176,20 @@ if (fs.existsSync(htmlPath)) {
     console.log(`[patch-html] Copied ui-slice assets (${copied} files)`);
   }
 
+  // V8.0: copy unified icon set (desktop/assets/ui-icons → build/ui-icons)
+  const iconsSrc = path.join(__dirname, 'assets', 'ui-icons');
+  const iconsDest = path.join(buildDir, 'ui-icons');
+  if (fs.existsSync(iconsSrc)) {
+    fs.mkdirSync(iconsDest, { recursive: true });
+    let copiedIcons = 0;
+    for (const f of fs.readdirSync(iconsSrc)) {
+      if (!f.endsWith('.png')) continue;
+      fs.copyFileSync(path.join(iconsSrc, f), path.join(iconsDest, f));
+      copiedIcons++;
+    }
+    console.log(`[patch-html] Copied ui-icons assets (${copiedIcons} files)`);
+  }
+
   // Inject <link> and <script> into index.html
   // Position overlay relative to GameDiv for correct scaling
   const overlayLink = '<link rel="stylesheet" href="ui-overlay.css">';
