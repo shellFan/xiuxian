@@ -1,0 +1,26 @@
+{
+  "mnnHits": 1,
+  "replies": [
+    "MNN-MOCK回复：模型桥已验证。"
+  ],
+  "pass": true,
+  "aiStatus": null,
+  "npcUi": {
+    "send": false,
+    "npcBtn": true,
+    "npcId": "master",
+    "modeBadge": null
+  },
+  "domDump": {
+    "messenger": true,
+    "chatInput": true,
+    "aiActive": "master",
+    "modeBadge": "本地规则"
+  },
+  "inputInfo": {
+    "found": true,
+    "tag": "INPUT",
+    "id": "AiChatInput"
+  },
+  "mnnLastBody": "{\"model\":\"mnn-pocket-0.3b\",\"messages\":[{\"role\":\"system\",\"content\":\"你是修仙门派掌门清虚道人，说话高冷简短，偶尔关心弟子但嘴硬。用修仙术语，不超过50字。\"},{\"role\":\"user\",\"content\":\"今天战斗打得怎么样？\"},{\"role\":\"user\",\"content\":\"今天战斗打得怎么样？\"}],\"max_tok"
+}

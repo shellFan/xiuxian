@@ -1,0 +1,33 @@
+16:19:33 mock MNN server on :7860
+16:20:00 home=true
+16:20:00 aiStatus=null
+16:20:01 npcUi={"send":false,"npcBtn":false,"npcId":null,"modeBadge":null}
+16:20:01 PASS=false
+16:20:48 mock MNN server on :7860
+16:21:15 home=true
+16:21:15 aiStatus=null
+16:21:17 npcUi={"send":false,"npcBtn":true,"npcId":"master","modeBadge":null}
+16:21:18 input={"found":false,"tag":null,"id":""}
+16:21:18 PASS=false
+16:21:37 mock MNN server on :7860
+16:22:05 home=true
+16:22:05 aiStatus=null
+16:22:06 npcUi={"send":false,"npcBtn":true,"npcId":"master","modeBadge":null}
+16:22:08 input={"found":false,"tag":null,"id":""}
+16:22:08 PASS=false
+16:23:17 mock MNN server on :7860
+16:23:44 home=true
+16:23:44 aiStatus=null
+16:23:45 npcUi={"send":false,"npcBtn":true,"npcId":"master","modeBadge":null}
+16:23:47 domDump={"messenger":true,"chatInput":true,"aiActive":"master","modeBadge":"本地规则"}
+16:23:47 input={"found":true,"tag":"INPUT","id":"AiChatInput"}
+16:24:01 reply=null mnnHits=1
+16:24:01 PASS=false
+16:24:26 mock MNN server on :7860
+16:24:53 home=true
+16:24:53 aiStatus=null
+16:24:54 npcUi={"send":false,"npcBtn":true,"npcId":"master","modeBadge":null}
+16:24:56 domDump={"messenger":true,"chatInput":true,"aiActive":"master","modeBadge":"本地规则"}
+16:24:56 input={"found":true,"tag":"INPUT","id":"AiChatInput"}
+16:24:57 reply=MNN-MOCK回复：模型桥已验证。 mnnHits=1
+16:24:57 PASS=true
