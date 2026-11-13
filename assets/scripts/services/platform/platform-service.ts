@@ -1,4 +1,4 @@
-export type PlatformKind = 'mock' | 'web' | 'desktop' | 'wechat';
+export type PlatformKind = 'mock' | 'web' | 'desktop' | 'wechat' | 'douyin';
 
 /** Safe area insets for UI layout (CSS pixels). */
 export interface SafeAreaInsets {
@@ -216,11 +216,60 @@ export class WechatPlatformService extends BasePlatform {
   }
 }
 
+export class DouyinPlatformService extends BasePlatform {
+  public getPlatform(): PlatformKind { return 'douyin'; }
+
+  public override getSystemInfo(): PlatformSystemInfo {
+    try {
+      const tt = getTt();
+      if (tt && typeof tt.getSystemInfoSync === 'function') {
+        const info = tt.getSystemInfoSync();
+        const sa = (info as Record<string, unknown>).safeArea as Record<string, number> | undefined;
+        const safeArea: SafeAreaInsets = {
+          top: sa?.top ?? 0,
+          bottom: sa?.bottom ?? 0,
+          left: sa?.left ?? 0,
+          right: sa?.right ?? 0,
+        };
+        return {
+          platform: 'douyin',
+          language: ((info as Record<string, unknown>).language as string) ?? 'zh-CN',
+          screenWidth: ((info as Record<string, unknown>).screenWidth as number) ?? 720,
+          screenHeight: ((info as Record<string, unknown>).screenHeight as number) ?? 1280,
+          safeArea,
+        };
+      }
+    } catch { /* tt.getSystemInfoSync must not throw */ }
+    return super.getSystemInfo();
+  }
+
+  public override vibrate(): void {
+    try { getTt()?.vibrateShort?.({ type: 'light' }); } catch { /* missing tt must not throw */ }
+  }
+
+  public override share(payload: SharePayload): void {
+    try { getTt()?.shareAppMessage?.({ title: payload.title }); } catch { /* missing tt must not throw */ }
+  }
+
+  public override onShow(callback: ShowHideListener): () => void {
+    const unsub = super.onShow(callback);
+    try { getTt()?.onShow?.(callback); } catch { /* missing tt must not throw */ }
+    return unsub;
+  }
+
+  public override onHide(callback: ShowHideListener): () => void {
+    const unsub = super.onHide(callback);
+    try { getTt()?.onHide?.(callback); } catch { /* missing tt must not throw */ }
+    return unsub;
+  }
+}
+
 export function createPlatformService(kind: PlatformKind = 'mock'): PlatformService {
   switch (kind) {
     case 'web': return new WebPlatformService();
     case 'desktop': return new DesktopPlatformService();
     case 'wechat': return new WechatPlatformService();
+    case 'douyin': return new DouyinPlatformService();
     default: return new MockPlatformService();
   }
 }
@@ -238,6 +287,23 @@ interface WxMiniGame {
 function getWx(): WxMiniGame | undefined {
   const globalRef = globalThis as { wx?: WxMiniGame };
   return globalRef.wx;
+}
+
+interface TtMiniGame {
+  vibrateShort?(options?: { type?: string }): void;
+  shareAppMessage?(options?: { title?: string }): void;
+  onShow?(callback: () => void): void;
+  onHide?(callback: () => void): void;
+  getSystemInfoSync?(): WxSystemInfo;
+}
+
+function getTt(): TtMiniGame | undefined {
+  const globalRef = globalThis as { tt?: TtMiniGame };
+  return globalRef.tt;
+}
+
+function hasTt(): boolean {
+  return typeof getTt() === 'object' && getTt() !== null;
 }
 
 function hasWx(): boolean {

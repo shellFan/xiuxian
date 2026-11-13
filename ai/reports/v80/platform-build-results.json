@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-13T16:40:01.216Z",
+  "results": [
+    {
+      "platform": "wechatgame",
+      "exit": 36,
+      "exists": true,
+      "files": 12,
+      "ms": 82962
+    },
+    {
+      "platform": "bytedance-mini-game",
+      "exit": null,
+      "exists": true,
+      "files": 2,
+      "ms": 420090
+    }
+  ]
+}
