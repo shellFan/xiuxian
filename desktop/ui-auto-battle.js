@@ -237,7 +237,7 @@
   /* ── 招募弹窗 ── */
 
   var hireMenuOpen = false;
-  function hireMenuHtml() {
+  function hireMenuHtml(inline) {
     var profs = [
       { id: 'JAVA_BACKEND', label: 'Java后端', emoji: '☕', desc: '稳定输出·代码暴击' },
       { id: 'FRONTEND', label: '前端', emoji: '🎨', desc: '快速攻击·渲染护盾' },
@@ -252,6 +252,19 @@
     var canAfford = stones === null ? true : stones >= cost;
     var costHtml = '<span class="ux63-hire-cost' + (canAfford ? '' : ' ux63-hire-cost--poor') + '">💎 ' + cost +
       (stones !== null ? ' / ' + fmtNum(stones) : '') + '</span>';
+    /* V9.0：养页内联模式 —— 无遮罩/无关闭行为，作为区块直接嵌入 */
+    if (inline) {
+      var inlineHtml = '<div class="ux63-hire-panel ux63-hire-panel--inline">' +
+        '<div class="ux63-hire-title">招募项目小队 ' + costHtml + '</div>';
+      for (var li = 0; li < profs.length; li++) {
+        var lp = profs[li];
+        inlineHtml += '<button class="ux63-hire-option' + (canAfford ? '' : ' ux63-hire-option--poor') + '" data-action="v63-hire" data-prof="' + lp.id + '">' +
+          '<span class="ux63-hire-emoji">' + lp.emoji + '</span>' +
+          '<span class="ux63-hire-text"><b>' + lp.label + '</b><small>' + lp.desc + '</small></span>' +
+        '</button>';
+      }
+      return inlineHtml + '</div>';
+    }
     var html = '<div class="ux63-hire-overlay" data-action="v63-closeHireMenu">' +
       '<div class="ux63-hire-panel" onclick="event.stopPropagation()">' +
         '<div class="ux63-hire-title">招募项目小队 ' + costHtml + '</div>';
@@ -277,12 +290,20 @@
   var SLOT_NAMES = { WEAPON: '武器', ARMOR: '护甲', ACCESSORY: '饰品', RELIC: '法宝' };
   var SLOT_EMOJIS = { WEAPON: '⌨️', ARMOR: '🛡️', ACCESSORY: '💍', RELIC: '📿' };
 
-  function equipPanelHtml() {
+  function equipPanelHtml(inline) {
     var ev = fQuery('queryEquipView');
     if (!ev) return '';
-    var html = '<div class="ux63-hire-overlay" data-action="v64-closeEquip">' +
-      '<div class="ux63-hire-panel ux64-equip-panel" onclick="event.stopPropagation()">' +
+    /* V9.0：养页内联模式 */
+    var open;
+    if (inline) {
+      open = '<div class="ux63-hire-panel ux64-equip-panel ux63-hire-panel--inline">' +
         '<div class="ux63-hire-title">⚔️ 战斗装备</div>';
+    } else {
+      open = '<div class="ux63-hire-overlay" data-action="v64-closeEquip">' +
+        '<div class="ux63-hire-panel ux64-equip-panel" onclick="event.stopPropagation()">' +
+          '<div class="ux63-hire-title">⚔️ 战斗装备</div>';
+    }
+    var html = open;
     // 已装备槽位
     html += '<div class="ux64-equip-slots">';
     var slots = ['WEAPON', 'ARMOR', 'ACCESSORY', 'RELIC'];
@@ -333,6 +354,10 @@
     }
     if (ev.fragments) {
       html += '<div class="ux64-equip-frag">🔩 装备碎片: ' + fmtNum(ev.fragments) + '</div>';
+    }
+    if (inline) {
+      html += '</div>';
+      return html;
     }
     html += '<button class="ux63-hire-close" data-action="v64-closeEquip">关闭</button>' +
       '</div></div>';
@@ -891,6 +916,9 @@
     hireMenuHtml: function () { return hireMenuOpen ? hireMenuHtml() : ''; },
     equipPanelHtml: function () { return equipPanelOpen ? equipPanelHtml() : ''; },
     goalsPanelHtml: function () { return goalsPanelOpen ? goalsPanelHtml() : ''; },
+    /* V9.0：养页内联内容（不受弹窗开关状态控制） */
+    hirePanelContent: function () { return hireMenuHtml(true); },
+    equipPanelContent: function () { return equipPanelHtml(true); },
     handleClick: handleClick,
     tick: tick,
     mountSprites: mountSprites,

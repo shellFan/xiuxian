@@ -1,0 +1,67 @@
+18:02:20 h5 static server inline on :8630 root=D:\git\fan\xiuxian\desktop\build\web-desktop
+18:02:29 boot={"title":"牛马修仙传","overlay":true,"textLen":53,"electronApiPresent":false,"storageMode":"detect-at-save","viewport":{"w":392,"h":846}}
+18:02:29 [shot] h5-01-boot
+18:02:45 cave=true
+18:02:47 [shot] h5-02-cave
+18:02:47 layout={"overflowX":false,"navBottom":846,"navInsideViewport":true,"caveCard":true,"width":392}
+18:02:49 touch={"found":true,"cx":196,"cy":262,"touchEventSupported":true,"hpBefore":50,"hpAfter":50,"damage":0}
+18:02:49 [shot] h5-03-battle
+18:02:50 localStorage={"hasSave":true,"len":7250,"name":"V90H5"}
+18:02:50 H5 PASS=true
+18:04:06 h5 static server inline on :8630 root=D:\git\fan\xiuxian\desktop\build\web-desktop
+18:04:16 boot={"title":"牛马修仙传","overlay":true,"textLen":53,"electronApiPresent":false,"storageMode":"detect-at-save","viewport":{"w":392,"h":846}}
+18:04:16 [shot] h5-01-boot
+18:04:18 cave=true
+18:04:20 [shot] h5-02-cave
+18:04:20 layout={"overflowX":false,"navBottom":846,"navInsideViewport":true,"caveCard":true,"width":392}
+18:04:22 touch={"found":true,"cx":196,"cy":288,"touchEventSupported":true,"hpBefore":451,"hpAfter":451,"damage":0}
+18:04:22 [shot] h5-03-battle
+18:04:23 localStorage={"hasSave":true,"len":7250,"name":"V90H5"}
+18:04:23 H5 PASS=true
+18:05:53 h5 static server inline on :8630 root=D:\git\fan\xiuxian\desktop\build\web-desktop
+18:06:03 boot={"title":"牛马修仙传","overlay":true,"textLen":53,"electronApiPresent":false,"storageMode":"detect-at-save","viewport":{"w":392,"h":846}}
+18:06:03 [shot] h5-01-boot
+18:06:05 cave=true
+18:06:07 [shot] h5-02-cave
+18:06:07 layout={"overflowX":false,"navBottom":846,"navInsideViewport":true,"caveCard":true,"width":392}
+18:06:12 touch={"found":true,"cx":196,"cy":288,"touchEventSupported":true,"before":{"hp":575,"kills":12},"after":{"hp":575,"kills":12},"progressed":false}
+18:06:12 [shot] h5-03-battle
+18:06:13 localStorage={"hasSave":true,"len":7250,"name":"V90H5"}
+18:06:13 H5 PASS=false
+18:06:48 h5 static server inline on :8630 root=D:\git\fan\xiuxian\desktop\build\web-desktop
+18:06:57 boot={"title":"牛马修仙传","overlay":true,"textLen":1018,"electronApiPresent":false,"storageMode":"detect-at-save","viewport":{"w":392,"h":846}}
+18:06:57 [shot] h5-01-boot
+18:06:58 cave=true
+18:07:00 [shot] h5-02-cave
+18:07:00 layout={"overflowX":false,"navBottom":846,"navInsideViewport":true,"caveCard":true,"width":392}
+18:07:04 touch={"found":true,"cx":196,"cy":288,"touchEventSupported":true,"before":{"hp":575,"kills":12},"after":{"hp":575,"kills":12},"progressed":false}
+18:07:04 [shot] h5-03-battle
+18:07:05 localStorage={"hasSave":true,"len":7250,"name":"V90H5"}
+18:07:05 H5 PASS=false
+18:07:31 h5 static server inline on :8630 root=D:\git\fan\xiuxian\desktop\build\web-desktop
+18:17:13 h5 static server inline on :8630 root=D:\git\fan\xiuxian\desktop\build\web-desktop
+18:25:48 h5 static server inline on :8630 root=D:\git\fan\xiuxian\desktop\build\web-desktop
+18:34:50 h5 static server inline on :8630 root=D:\git\fan\xiuxian\desktop\build\web-desktop
+18:35:07 boot={"title":"牛马修仙传","overlay":true,"textLen":199,"electronApiPresent":false,"storageMode":"detect-at-save","viewport":{"w":392,"h":846}}
+18:35:07 [shot] h5-01-boot
+18:35:20 cave=true
+18:35:23 [shot] h5-02-cave
+18:35:23 layout={"overflowX":false,"navBottom":846,"navInsideViewport":true,"caveCard":true,"width":392}
+18:35:25 tick={"ticking":false} consoleErrs=0
+18:35:28 touch={"found":true,"cx":196,"cy":262,"touchEventSupported":true,"before":{"hp":41,"kills":1},"after":{"hp":19,"kills":2},"progressed":true}
+18:35:28 [shot] h5-03-battle
+18:35:29 localStorage={"hasSave":true,"len":7246,"name":"V90H5"}
+18:35:29 H5 PASS=true
+19:10:03 h5 static server inline on :8630 root=D:\git\fan\xiuxian\desktop\build\web-desktop
+19:10:20 boot={"title":"牛马修仙传","overlay":true,"textLen":199,"electronApiPresent":false,"storageMode":"detect-at-save","viewport":{"w":392,"h":846}}
+19:10:20 [shot] h5-01-boot
+19:10:34 cave=true
+19:10:36 [shot] h5-02-cave
+19:10:36 layout={"overflowX":false,"navBottom":846,"navInsideViewport":true,"caveCard":true,"width":392}
+19:10:39 tick={"ticking":false} consoleErrs=0
+19:10:42 touch={"found":true,"cx":196,"cy":262,"touchEventSupported":true,"before":{"hp":41,"kills":1},"after":{"hp":64,"kills":2},"progressed":true}
+19:10:42 [shot] h5-03-battle
+19:10:43 localStorage={"hasSave":true,"len":7245,"name":"V90H5"}
+19:10:55 recovery={"caveCard":true,"creation":false,"name":null}
+19:10:55 [shot] h5-04-restart
+19:10:55 H5 PASS=true

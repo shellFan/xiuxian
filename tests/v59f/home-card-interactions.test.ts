@@ -153,7 +153,7 @@ async function run(): Promise<void> {
       await click(selector);
       assert.equal(await evaluate(`!!document.querySelector('.ux-home')`), false, `navigated: ${selector}`);
       assert.ok((await text('#UiBody')).length > 0);
-      await click('[data-nav="HOME"]');
+      await click('[data-nav="CAVE"]');
       assert.equal(await evaluate(`!!document.querySelector('.ux-home')`), true);
     }
 

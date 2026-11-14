@@ -1,0 +1,61 @@
+{
+  "home": false,
+  "sizes": [
+    {
+      "size": "1280x720",
+      "audit": {
+        "viewport": {
+          "w": 1267,
+          "h": 685
+        },
+        "firstScreen": "0/7",
+        "overflowX": false,
+        "overflowY": false,
+        "clipped": 0,
+        "stage": null
+      }
+    },
+    {
+      "size": "1366x768",
+      "audit": {
+        "viewport": {
+          "w": 1353,
+          "h": 733
+        },
+        "firstScreen": "0/7",
+        "overflowX": false,
+        "overflowY": false,
+        "clipped": 0,
+        "stage": null
+      }
+    },
+    {
+      "size": "1600x900",
+      "audit": {
+        "viewport": {
+          "w": 1587,
+          "h": 865
+        },
+        "firstScreen": "0/7",
+        "overflowX": false,
+        "overflowY": false,
+        "clipped": 0,
+        "stage": null
+      }
+    },
+    {
+      "size": "1920x1080",
+      "audit": {
+        "viewport": {
+          "w": 1907,
+          "h": 1045
+        },
+        "firstScreen": "0/7",
+        "overflowX": false,
+        "overflowY": false,
+        "clipped": 0,
+        "stage": null
+      }
+    }
+  ]
+}

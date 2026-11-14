@@ -1,0 +1,41 @@
+{
+  "home": true,
+  "results": [
+    {
+      "w": 360,
+      "h": 640,
+      "width": 361,
+      "height": 641,
+      "overflowX": false,
+      "navTop": 577,
+      "smallTapTargets": 4
+    },
+    {
+      "w": 375,
+      "h": 812,
+      "width": 376,
+      "height": 813,
+      "overflowX": false,
+      "navTop": 749,
+      "smallTapTargets": 4
+    },
+    {
+      "w": 414,
+      "h": 896,
+      "width": 415,
+      "height": 897,
+      "overflowX": false,
+      "navTop": 833,
+      "smallTapTargets": 4
+    },
+    {
+      "w": 430,
+      "h": 932,
+      "width": 431,
+      "height": 933,
+      "overflowX": false,
+      "navTop": 869,
+      "smallTapTargets": 4
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "checks": {
+    "boot": {
+      "title": "牛马修仙传",
+      "overlay": true,
+      "textLen": 199,
+      "electronApiPresent": false,
+      "storageMode": "detect-at-save",
+      "viewport": {
+        "w": 392,
+        "h": 846
+      }
+    },
+    "caveReached": true,
+    "mobileLayout": {
+      "overflowX": false,
+      "navBottom": 846,
+      "navInsideViewport": true,
+      "caveCard": true,
+      "width": 392
+    },
+    "tick": {
+      "ticking": false
+    },
+    "consoleErrors": [],
+    "touch": {
+      "found": true,
+      "cx": 196,
+      "cy": 262,
+      "touchEventSupported": true,
+      "before": {
+        "hp": 41,
+        "kills": 1
+      },
+      "after": {
+        "hp": 64,
+        "kills": 2
+      },
+      "progressed": true
+    },
+    "localStorageSave": {
+      "hasSave": true,
+      "len": 7245,
+      "name": "V90H5"
+    },
+    "restartRecovery": {
+      "caveCard": true,
+      "creation": false,
+      "name": null
+    }
+  },
+  "pass": true
+}

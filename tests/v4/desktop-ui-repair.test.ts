@@ -7,7 +7,7 @@ const ELECTRON_CHILD_FLAG = '--desktop-ui-repair-child';
 
 if (!process.versions.electron) {
   const electron = require(join(process.cwd(), 'desktop', 'node_modules', 'electron')) as string;
-  const result = spawnSync(electron, [__filename, ELECTRON_CHILD_FLAG], {
+  const result = spawnSync(electron, [__filename, ELECTRON_CHILD_FLAG, '--enable-logging'], {
     cwd: process.cwd(),
     env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: 'true' },
     encoding: 'utf8',
@@ -41,6 +41,9 @@ async function runInElectron(): Promise<void> {
     )}`);
     const setup = await win.webContents.executeJavaScript(`(function () { try {
       var state = { battle: null, started: null, incident: { id: 'inc-s2', type: 'DISK_FULL', severity: 'S2', status: 'DETECTED' } };
+      window.__PAGE_ERRORS__ = [];
+      window.addEventListener('error', function (ev) { window.__PAGE_ERRORS__.push(String((ev.error && ev.error.stack) || ev.message || 'unknown').slice(0, 400)); });
+      window.addEventListener('unhandledrejection', function (ev) { window.__PAGE_ERRORS__.push('REJECTION: ' + String((ev.reason && ev.reason.stack) || ev.reason || 'unknown').slice(0, 400)); });
       var realSelector = require(${JSON.stringify(facadeModule)}).GameFacade.prototype.queryNextPresentation;
       window.__UI_REPAIR__ = state;
       window.V2UI = {
@@ -71,11 +74,16 @@ async function runInElectron(): Promise<void> {
       };
       return { ok: true };
     } catch (error) { return { ok: false, message: error && error.stack ? error.stack : String(error) }; } })()`);
+    console.log('[REPAIR-MARK] setup ok=' + setup.ok);
     assert.equal(setup.ok, true, setup.message);
+    console.log('[REPAIR-MARK] setup ok=true (page error hook installed)');
     const loaded = await win.webContents.executeJavaScript(`(function () { try { (0, eval)(${JSON.stringify(source)}); return { ok: true }; } catch (error) { return { ok: false, message: error && error.stack ? error.stack : String(error) }; } })()`);
+    console.log('[REPAIR-MARK] loaded ok=' + loaded.ok);
     assert.equal(loaded.ok, true, loaded.message);
-    await waitFor(win, `document.querySelector('.ux-topbar-pending') !== null`);
-    const firstView = await win.webContents.executeJavaScript(`(function () {
+    /* V9.0 诊断：加载失败时打印页面错误栈 */
+    if (!loaded.ok) console.log('[REPAIR-DBG] load message=' + loaded.message);
+    const runLogged = async (label: string, js: string) => { try { const r = await win.webContents.executeJavaScript(js); console.log('[REPAIR-OK] ' + label); return r; } catch (e: unknown) { const em = e instanceof Error ? e.message : String(e); console.log('[REPAIR-FAIL] ' + label + ' -> ' + em.slice(0, 200)); throw e; } };
+    const firstView = await win.webContents.executeJavaScript(`(function () { try {
       var rect = function (s) { var e = document.querySelector(s); var r = e && e.getBoundingClientRect(); return r ? { w: r.width, h: r.height, top: r.top, bottom: r.bottom } : null; };
       return {
         statusCount: document.querySelectorAll('.ux-home-status > *').length,
@@ -84,9 +92,10 @@ async function runInElectron(): Promise<void> {
         primary: (function () { var e = document.querySelector('.ux-hero-cultivate'); return !!e && e.getBoundingClientRect().height > 0; })(),
         bodyOverflow: document.querySelector('#UiBody').scrollWidth > document.querySelector('#UiBody').clientWidth,
         journeyTag: document.querySelector('.ux-journey--static') !== null,
-        hook: document.body.innerText.indexOf('明天有评审') >= 0
+        hook: document.body.innerText.indexOf('明天有评审') >= 0,
+        uiBodyPresent: !!document.querySelector('#UiBody')
       };
-    })()`);
+    } catch (pageError) { return { pageErrorStack: pageError && pageError.stack ? String(pageError.stack).slice(0, 500) : String(pageError) }; } })()`);
     assert.equal(firstView.statusCount, 4, 'metadata is consolidated into one status row');
     assert.ok(firstView.scene && firstView.scene.h >= 140, `countdown scene remains readable (${JSON.stringify(firstView.scene)})`);
     assert.ok(firstView.scene && firstView.sceneStrip && firstView.sceneStrip.bottom <= firstView.scene.bottom + 1, `scene controls stay inside the scene (${JSON.stringify(firstView)})`);
@@ -143,7 +152,7 @@ async function runInElectron(): Promise<void> {
     assert.deepEqual(started, { source: 'INCIDENT', buildId: 'build_java', linkedTaskId: null, linkedIncidentId: 'inc-s2' }, 'S2 action enters a linked incident battle');
 
     await win.webContents.executeJavaScript(`window.UiOverlay.goto('HOME')`);
-    await waitFor(win, `document.querySelector('.ux-topbar-pending') !== null`);
+    console.log('[REPAIR-MARK] wait SKIPPED (bisect)');
     await win.webContents.executeJavaScript(`document.querySelector('.ux-topbar-pending').click()`);
     await waitFor(win, `document.querySelector('.ux-header-title') && document.querySelector('.ux-header-title').innerText === '项目攻坚'`);
     const resumedFromBadge = await win.webContents.executeJavaScript(`({ page: document.querySelector('.ux-header-title') && document.querySelector('.ux-header-title').innerText, toast: document.querySelector('#ToastBox') && document.querySelector('#ToastBox').innerText })`);

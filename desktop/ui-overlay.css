@@ -174,6 +174,11 @@
   background: linear-gradient(180deg, #253c52 0%, var(--ink-nav) 90%);
   border-top: 2px solid rgba(240, 210, 140, 0.25);
 }
+/* V9.0：移动端底部导航适配（5 页 + 安全区 + 紧凑高度） */
+@media (max-width: 560px) {
+  .ux-nav { height: calc(64px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .ux-nav-item { gap: 2px; }
+}
 .ux-nav-item {
   flex: 1;
   display: flex;
@@ -4469,3 +4474,86 @@ button.ux-journey--sec { cursor: pointer; }
 .ux64-skill-btn:focus-visible,
 .v59-btn:focus-visible,
 .v59-choice:focus-visible { outline: 2px solid #ffe9bd; outline-offset: 2px; }
+
+/* ═══════════ V9.0 五页架构样式 ═══════════ */
+/* 洞府：当前挑战卡 + 入口宫格 */
+.ux-cave-battle-card {
+  background: linear-gradient(160deg, rgba(18,38,60,.95), rgba(10,26,44,.96));
+  border: 1.5px solid rgba(224,189,123,.45); border-radius: 16px;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+}
+.ux-cave-battle-head { display: flex; align-items: center; gap: 10px; }
+.ux-cave-chapter { color: var(--v65-gold,#e6c77f); font-size: 14px; font-weight: bold; }
+.ux-cave-stage { color: #f4e7ca; font-size: 17px; font-weight: 800; }
+.ux-cave-tag { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(74,110,150,.4); color: #cfe3ef; }
+.ux-cave-tag--boss { background: rgba(216,75,58,.25); color: #ffb3a3; border: 1px solid rgba(216,75,58,.5); }
+.ux-cave-tag--good { background: rgba(110,200,140,.2); color: #a6f0c4; }
+.ux-cave-battle-sub { font-size: 12px; color: #9fb6c8; }
+.ux-cave-cta {
+  width: 100%; padding: 12px; border-radius: 12px; cursor: pointer;
+  background: linear-gradient(180deg, #f0d089, #d8b25e); color: #2a1c05;
+  font-size: 16px; font-weight: 800; letter-spacing: 2px;
+  border: none; box-shadow: 0 3px 10px rgba(230,199,127,.35);
+}
+.ux-cave-cta:active { transform: translateY(1px); }
+.ux-cave-entries { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ux-cave-entry {
+  display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
+  padding: 10px 12px; border-radius: 12px; cursor: pointer;
+  background: linear-gradient(160deg, rgba(16,42,66,.92), rgba(10,28,46,.96));
+  border: 1.5px solid rgba(94,130,160,.35); color: inherit;
+}
+.ux-cave-entry b { font-size: 14px; color: #f4e7ca; }
+.ux-cave-entry small { font-size: 10.5px; color: #8fa9ba; }
+.ux-cave-entry:active { border-color: rgba(230,199,127,.6); }
+.ux-cave-entry--battle { border-color: rgba(230,199,127,.65); background: linear-gradient(160deg, rgba(60,48,20,.5), rgba(30,24,10,.5)); }
+
+/* 养成页卡片 + 内联面板 */
+.ux-grow-page { display: flex; }
+.ux-grow-card {
+  background: linear-gradient(160deg, rgba(16,42,66,.92), rgba(10,28,46,.96));
+  border: 1.5px solid rgba(94,130,160,.35); border-radius: 14px;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+}
+.ux-grow-title { color: #f4e7ca; font-size: 15px; font-weight: 800; }
+.ux-grow-rec { margin-left: 8px; font-size: 11px; color: #9fb6c8; font-weight: normal; }
+.ux-grow-squad { display: flex; flex-wrap: wrap; gap: 8px; }
+.ux-grow-member { flex: 1 1 120px; background: rgba(12,25,40,.65); border: 1.5px solid rgba(74,81,102,.35); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.ux-grow-member b { font-size: 13px; color: #e8f2fa; }
+.ux-grow-member small { font-size: 11px; color: #9fb6c8; }
+.ux-grow-syns { display: flex; flex-direction: column; gap: 6px; }
+.ux-grow-syn { background: rgba(12,25,40,.6); border: 1px solid rgba(74,81,102,.35); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.ux-grow-syn b { font-size: 13px; color: #b9c8d4; }
+.ux-grow-syn.is-on { border-color: rgba(230,199,127,.55); }
+.ux-grow-syn.is-on b { color: #ffe9bd; }
+.ux-grow-syn small { font-size: 11px; color: #8fa9ba; }
+/* 内联面板：去除遮罩/固定定位 */
+.ux-grow-page .ux63-hire-panel--inline { position: static; width: 100%; max-width: none; max-height: none; transform: none; box-shadow: none; animation: none; }
+/* 战斗页容器 */
+.ux-battle-page { display: flex; flex-direction: column; }
+
+/* ═══════════ V9.0 移动端竖屏（≤560px） ═══════════ */
+@media (max-width: 560px) {
+  .ux-home-main, .ux-grow-page .ux-home-main, .ux-battle-page { max-width: 100%; width: 100%; }
+  .ux65-stage { min-height: 420px; border-radius: 12px; }
+  .ux65-stage-header { padding: 6px 10px 3px; }
+  .ux65-skillbar .ux64-skill-btn { max-width: none; min-height: 62px; }
+  .ux65-skillbar { padding: 4px 8px; }
+  .ux-cave-entries { grid-template-columns: repeat(2, 1fr); }
+  .ux-cave-cta { font-size: 18px; padding: 14px; }
+  .ux65-squad { padding: 4px 8px; }
+  .ux65-actions { padding: 6px 8px; }
+  .ux65-actions .ux65-btn { padding: 8px 8px; font-size: 12px; }
+  .ux63-hire-panel--inline .ux63-hire-option { min-height: 48px; }
+  .ux-topbar-shortcuts { gap: 2px; }
+  .ux-shortcut { min-width: 40px; padding: 3px 4px 2px; }
+  .ux-shortcut .sc-ico-img { width: 22px; height: 22px; }
+  .ux-shortcut span:last-child { font-size: 10px; }
+}
+
+/* V9.0：移动端触摸目标下限（≥32px 高的次级小按钮） */
+@media (max-width: 560px) {
+  .ux-shortcut { min-width: 44px; padding: 4px 6px 3px; }
+  .ux64-equip-mini-btn { min-height: 32px; min-width: 44px; }
+  .ux63-hire-close, .ux63-hire-option { min-height: 48px; }
+}

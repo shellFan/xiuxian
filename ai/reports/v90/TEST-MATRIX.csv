@@ -1,0 +1,18 @@
+phase,task,status,evidence
+v90,阶段1 基线审计,PASS,ai/reports/v90/screenshots/before (17张)
+v90,阶段2 五页架构,PASS,ai/reports/v90/v90-router-probe.json (5/5 页渲染+战斗跨页持续)
+v90,阶段3 移动端H5,PASS,ai/reports/v90/v90-h5-probe.json (纯浏览器全项)
+v90,阶段3 移动宽度扫宽,PASS,v90-mobile-sweep.json (360/375/414/430)
+v90,阶段3 H5重启恢复,PASS,checks.restartRecovery (洞府直达无向导)
+v90,阶段3 触摸操作,PASS,checks.touch.progressed (hp41->19+kills)
+v90,阶段4 玩法深度,PASS,五页聚焦+卡牌修复保持+战力/敌人挑战卡
+v90,阶段4 Boss预警/阶段变化,IMPLEMENTED(保持),boss-traits.ts + 演出实测
+v90,阶段5 桌面四档分辨率,PASS,v90-desktop-resolution.json
+v90,阶段6 平台架构整理,IMPLEMENTED,overlay 零 Electron 强依赖实测
+v90,阶段7 全量回归,PASS,170 文件 EXIT=0 (logs/full-regression.log)
+v90,阶段7 EXE 60分钟稳定性,PASS,logs/exe/soak-60min.log + v90-exe-soak.json
+v90,阶段7 EXE 重启恢复,PASS,v90-exe-restart.json (kills70 还原)
+v90,阶段7 H5 60分钟稳定性,NOT_VERIFIED,留待 V9.1
+v90,阶段7 录像,NOT_VERIFIED,连续帧截图+探针 JSON 替代
+v90,阶段8 最终EXE打包,PASS,pack EXIT=0 + asar 4c305db7
+v90,阶段9 最终报告,PASS,FINAL.md (RELEASE_CANDIDATE)

@@ -17,11 +17,12 @@
 
   /* 底部导航（§52）：五项；修炼并入首页一键栏，功法/法宝在「更多」（§54） */
   var NAV_TABS = [
-    { id: 'HOME',        label: '首页', emoji: '🏠' },
-    { id: 'TASKS',       label: '任务', emoji: '📜' },
-    { id: 'PROJECT',     label: '项目', emoji: '⚔️' },
-    { id: 'PROMOTION',   label: '晋升', emoji: '🏯' },
-    { id: 'MORE',        label: '更多', emoji: '▦' },
+    /* V9.0：五页架构 —— 洞府(角色成长) / 战斗(独立页) / 养成 / 挑战 / 任务 */
+    { id: 'CAVE',     label: '洞府', emoji: '🏠' },
+    { id: 'BATTLE',   label: '战斗', emoji: '⚔️' },
+    { id: 'GROWTH',   label: '养成', emoji: '🧑‍🤝‍🧑' },
+    { id: 'PROJECT',  label: '挑战', emoji: '🏯' },
+    { id: 'TASKS',    label: '任务', emoji: '📜' },
   ];
 
   var PLAYER_NAME = '范大牛';
@@ -3492,6 +3493,133 @@
     });
   }
 
+/* ═══ V9.0 五页架构：洞府 / 战斗页 / 养成页 ═══ */
+
+/* 洞府 —— 角色与成长中心（战斗舞台移至独立战斗页） */
+function renderCave() {
+  var hud = readHUD();
+  if (!hud) return emptyState('⏳', '加载中...', '正在唤醒游戏数据');
+  var creationState = null;
+  try { creationState = facade() && facade().queryCharacterCreation ? facade().queryCharacterCreation() : null; } catch (e) { creationState = null; }
+  var backfillBanner = creationState && creationState.status === 'BACKFILL_REQUIRED'
+    ? '<button class="v59-backfill-banner" data-creation-action="open-backfill"><span>✦ 老友归来：为角色补录天命</span><small>补录只增加新成长字段，不影响既有进度。</small><b>现在补录 ›</b></button>' : '';
+  var v59fPanel = '';
+  try { v59fPanel = window.__V59F__ ? window.__V59F__.homePanelHtml(true) : ''; } catch (e) { v59fPanel = ''; }
+  var mergeBoard = '';
+  try { mergeBoard = window.__MERGE__ ? window.__MERGE__.boardHtml() : ''; } catch (e) { mergeBoard = ''; }
+
+  /* 当前挑战卡（关卡/敌人/状态 + 进入战斗 CTA） */
+  var ab = null;
+  try { ab = facade() && facade().queryAutoBattle ? facade().queryAutoBattle() : null; } catch (e) { ab = null; }
+  var battleCta = '';
+  if (ab) {
+    var statusTag = ab.status === 'BOSS_PENDING' ? '<span class="ux-cave-tag ux-cave-tag--boss">⚔️ Boss待战</span>'
+      : ab.status === 'FIGHTING' ? '<span class="ux-cave-tag">战斗中</span>'
+      : ab.status === 'VICTORY' ? '<span class="ux-cave-tag ux-cave-tag--good">胜利结算</span>' : '';
+    battleCta = '<section class="ux-cave-battle-card">' +
+      '<div class="ux-cave-battle-head"><span class="ux-cave-chapter">' + escHtml(ab.chapterEmoji + ' ' + ab.chapterTitle) + '</span>' +
+      '<span class="ux-cave-stage">第' + ab.stage + '关</span>' + statusTag + '</div>' +
+      '<div class="ux-cave-battle-sub">' + (ab.enemy ? escHtml(ab.enemy.name) + ' · ' + fmtNum(ab.enemy.hp) + '/' + fmtNum(ab.enemy.maxHp) : '静待敌人') +
+      ' · 击杀 ' + fmtNum(ab.totalKills) + (ab.powerScore !== undefined ? ' · ⚡战力 ' + fmtNum(ab.powerScore) : '') + '</div>' +
+      '<button class="ux-cave-cta" data-nav="BATTLE">⚔️ 进入战斗</button>' +
+      '</section>';
+  }
+
+  /* 成长入口宫格 */
+  var entries = '<section class="ux-cave-entries">' +
+    '<button class="ux-cave-entry ux-cave-entry--battle" data-nav="BATTLE"><b>战斗</b><small>关卡 · 技能 · Boss</small></button>' +
+    '<button class="ux-cave-entry" data-nav="GROWTH"><b>养成</b><small>员工 · 装备 · 羁绊</small></button>' +
+    '<button class="ux-cave-entry" data-nav="PROJECT"><b>挑战</b><small>卡牌 · 通天塔</small></button>' +
+    '<button class="ux-cave-entry" data-nav="PROMOTION"><b>晋升</b><small>KPI · 答辩</small></button>' +
+    '<button class="ux-cave-entry" data-nav="TASKS"><b>任务</b><small>每日 · 七日</small></button>' +
+    '<button class="ux-cave-entry" data-action="openMessenger"><b>飞剑</b><small>NPC · 事故</small></button>' +
+  '</section>';
+
+  return '<div class="ux-home">' +
+    backfillBanner +
+    homeTopbarHtml(hud) +
+    '<div class="ux-home-main">' +
+      homeStatsHtml(hud) +
+      battleCta +
+      homeHeroHtml(hud) +
+      workSceneHtml(hud) +
+      todayCapacityHtml() + journeyGuideHtml() + actionDetailHtml(hud) +
+      entries +
+      '<div class="ux-home-status" aria-label="今日状态">' +
+        v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() +
+      '</div>' +
+      v59fPanel +
+      promotionGoalHtml(hud) + journeyGuideHtml() + homeRightHtml(hud) +
+      mergeBoard +
+    '</div>' +
+  '</div>';
+}
+
+/* 战斗页 —— 舞台即页面（独立一级页） */
+function renderBattlePage() {
+  var v63Battle = '';
+  try { v63Battle = window.__V63__ ? window.__V63__.battleAreaHtml() : ''; } catch (e) { v63Battle = ''; }
+  var v63HireMenu = '';
+  try { v63HireMenu = window.__V63__ ? window.__V63__.hireMenuHtml() : ''; } catch (e) { v63HireMenu = ''; }
+  var v64EquipPanel = '';
+  try { v64EquipPanel = window.__V63__ ? window.__V63__.equipPanelHtml() : ''; } catch (e) { v64EquipPanel = ''; }
+  var v64GoalsPanel = '';
+  try { v64GoalsPanel = window.__V63__ ? window.__V63__.goalsPanelHtml() : ''; } catch (e) { v64GoalsPanel = ''; }
+  return '<div class="ux-battle-page">' + v63Battle + v63HireMenu + v64EquipPanel + v64GoalsPanel + '</div>';
+}
+
+/* 养成页 —— 员工/招募/装备/羁绊/合成盘 */
+function renderGrowthPage() {
+  var hud = readHUD();
+  var ab = null;
+  try { ab = facade() && facade().queryAutoBattle ? facade().queryAutoBattle() : null; } catch (e) { ab = null; }
+  var mergeBoard = '';
+  try { mergeBoard = window.__MERGE__ ? window.__MERGE__.boardHtml() : ''; } catch (e) { mergeBoard = ''; }
+  var hireInline = '';
+  try { hireInline = window.__V63__ ? window.__V63__.hirePanelContent() : ''; } catch (e) { hireInline = ''; }
+  var equipInline = '';
+  try { equipInline = window.__V63__ ? window.__V63__.equipPanelContent() : ''; } catch (e) { equipInline = ''; }
+
+  /* 羁绊一览（激活中 + 全部四种定义） */
+  var synActive = (ab && ab.synergies) || [];
+  var SYN_ALL = [
+    { id: 'JAVA_QA', name: '代码暴击', emoji: '☕', desc: 'Java+测试：暴击伤害提升，对护盾敌人+30%' },
+    { id: 'FRONTEND_DEVOPS', name: '稳定发布', emoji: '🎨', desc: '前端+运维：护盾回复提升' },
+    { id: 'QA_FRONTEND', name: '弱点标记', emoji: '🐛', desc: '测试+前端：弱点窗口伤害提升' },
+    { id: 'JAVA_DEVOPS', name: '一键回滚', emoji: '🔧', desc: 'Java+运维：回滚护盾' },
+  ];
+  var activeIds = {};
+  synActive.forEach(function (s) { activeIds[s.name] = 1; });
+  var synHtml = '<section class="ux-grow-card"><div class="ux-grow-title">🔗 职业羁绊</div><div class="ux-grow-syns">';
+  SYN_ALL.forEach(function (def) {
+    var on = !!activeIds[def.name] || synActive.some(function (s) { return s.name === def.name || s.id === def.id; });
+    synHtml += '<div class="ux-grow-syn' + (on ? ' is-on' : '') + '"><b>' + def.emoji + ' ' + escHtml(def.name) + (on ? ' · 已激活' : '') + '</b><small>' + escHtml(def.desc) + '</small></div>';
+  });
+  synHtml += '</div></section>';
+
+  var squadSummary = '';
+  if (ab && ab.squad) {
+    squadSummary = '<section class="ux-grow-card"><div class="ux-grow-title">👥 项目小队（' + ab.squad.length + '/5）</div><div class="ux-grow-squad">';
+    ab.squad.forEach(function (m) {
+      squadSummary += '<div class="ux-grow-member"><b>' + escHtml(m.name) + '</b><small>' + escHtml(m.professionLabel || '') + ' · Lv.' + m.level + '</small></div>';
+    });
+    squadSummary += '</div></section>';
+  }
+
+  return '<div class="ux-home ux-grow-page">' +
+    '<div class="ux-home-main">' +
+      '<section class="ux-grow-card"><div class="ux-grow-title">⚡ 战力 ' + (ab && ab.powerScore !== undefined ? fmtNum(ab.powerScore) : '--') +
+        (ab && ab.recommendedPower ? '<small class="ux-grow-rec">当前关推荐 ' + fmtNum(ab.recommendedPower) + '</small>' : '') + '</div></section>' +
+      squadSummary +
+      '<section class="ux-grow-card"><div class="ux-grow-title">🧑‍🤝‍🧑 招募队员</div>' + hireInline + '</section>' +
+      '<section class="ux-grow-card"><div class="ux-grow-title">🎽 装备与强化</div>' + equipInline + '</section>' +
+      synHtml +
+      mergeBoard +
+    '</div>' +
+  '</div>';
+}
+
+  /* V9.0 标记 */
   function renderCurrent() {
     var fCharacter = facade();
     var characterState = null;
@@ -3507,7 +3635,10 @@
     }
     var page = currentPage();
     switch (page) {
-      case 'HOME': return renderHome();
+      case 'HOME': return renderCave(); /* V9.0 */
+      case 'CAVE': return renderCave();
+      case 'BATTLE': return renderBattlePage();
+      case 'GROWTH': return renderGrowthPage();
       case 'TASKS': return renderTasks();
       case 'PROJECT': return renderProject();
       case 'CULTIVATION': return renderCultivation();
@@ -3722,13 +3853,13 @@
     var scrollTop = body.scrollTop;
     var columnScroll = $$('.ux-home-col', body).map(function (column) { return column.scrollTop; });
     /* 首页单列滚动；刷新保留当前位置，确保下方卡牌仍可操作。 */
-    body.classList.toggle('ux-body--home', currentPage() === 'HOME');
+    body.classList.toggle('ux-body--home', currentPage() === 'HOME' || currentPage() === 'CAVE' || currentPage() === 'BATTLE');
     /* V7.0 P1：战斗舞台常驻 — 签名未变时保留 #Ux63BattleArea 节点跨重绘，
        hp/冷却/DPS 由 tick() 局部更新；签名变化（换关/换敌/阵容变化）才重建。 */
     var preservedBattle = null;
     try {
       var v63ab = window.__V63__;
-      if (currentPage() === 'HOME' && v63ab && typeof v63ab.battleSignature === 'function') {
+      if ((currentPage() === 'HOME' || currentPage() === 'BATTLE') && v63ab && typeof v63ab.battleSignature === 'function') {
         var curBattle = document.getElementById('Ux63BattleArea');
         var fNow = facade();
         var vNow = (fNow && typeof fNow.queryAutoBattle === 'function') ? fNow.queryAutoBattle() : null;
@@ -3843,6 +3974,20 @@
       } catch (err) { /* a failed draft write must not block character creation */ }
     };
 
+    /* V9.0 移动端：点击攻击 touchend 即时响应 —— 纯 touch 环境（H5/小游戏）可能
+       不合成 click，且 touchstart 响应手感更快。preventDefault 防止合成 click 双发。 */
+    if (!overlay.__touchWired) {
+      overlay.__touchWired = true;
+      overlay.addEventListener('touchend', function (e) {
+        var t = e.changedTouches && e.changedTouches[0];
+        if (!t) return;
+        var el = document.elementFromPoint(t.clientX, t.clientY);
+        var target = el && el.closest ? el.closest('[data-action="v63-tapAttack"]') : null;
+        if (!target) return;
+        e.preventDefault();
+        try { if (window.__V63__ && window.__V63__.handleClick(target, 'v63-tapAttack')) return; } catch (err) { /* 触摸路径失败不影响 click 路径 */ }
+      }, { passive: false });
+    }
     overlay.onclick = function (e) {
       var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab],[data-codex-tab],[data-creation-action],[data-creation-choice],[data-enemy-uid],[data-ai-npc],[data-ai-send]') : null;
       if (!el) return;

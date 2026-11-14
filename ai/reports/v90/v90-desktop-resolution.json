@@ -1,0 +1,61 @@
+{
+  "home": true,
+  "results": [
+    {
+      "size": "1280x720",
+      "caveAudit": {
+        "w": 1281,
+        "h": 721,
+        "overflowX": false,
+        "clipped": 0
+      },
+      "battleReach": {
+        "firstScreen": "4/4",
+        "battleStage": true,
+        "overflowX": false
+      }
+    },
+    {
+      "size": "1366x768",
+      "caveAudit": {
+        "w": 1367,
+        "h": 769,
+        "overflowX": false,
+        "clipped": 0
+      },
+      "battleReach": {
+        "firstScreen": "4/4",
+        "battleStage": true,
+        "overflowX": false
+      }
+    },
+    {
+      "size": "1600x900",
+      "caveAudit": {
+        "w": 1601,
+        "h": 901,
+        "overflowX": false,
+        "clipped": 0
+      },
+      "battleReach": {
+        "firstScreen": "4/4",
+        "battleStage": true,
+        "overflowX": false
+      }
+    },
+    {
+      "size": "1920x1080",
+      "caveAudit": {
+        "w": 1921,
+        "h": 1081,
+        "overflowX": false,
+        "clipped": 0
+      },
+      "battleReach": {
+        "firstScreen": "4/4",
+        "battleStage": true,
+        "overflowX": false
+      }
+    }
+  ]
+}
