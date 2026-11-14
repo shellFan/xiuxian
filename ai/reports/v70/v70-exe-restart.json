@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-11-13T19:03:58.665Z",
+  "startedAt": "2026-11-14T20:34:09.711Z",
   "recovered": true,
   "bootReady": true,
   "state": {
@@ -8,7 +8,7 @@
     "battle": {
       "stage": 12,
       "maxStage": 12,
-      "kills": 52,
+      "kills": 70,
       "speed": 1,
       "status": "BOSS_PENDING"
     },
@@ -16,5 +16,5 @@
     "creation": false,
     "domNodes": 443
   },
-  "endedAt": "2026-11-13T19:04:09.692Z"
+  "endedAt": "2026-11-14T20:34:21.029Z"
 }
