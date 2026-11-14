@@ -1,0 +1,42 @@
+{
+  "project": "牛马修仙传",
+  "targetVersion": "V9.0",
+  "updatedAt": "2026-11-15T06:45:00+08:00",
+  "phase": "RELEASE_CANDIDATE",
+  "git": {
+    "branch": "v61/gameplay-v2",
+    "headAtStart": "8021cd3",
+    "finalHead": "5c1fda2",
+    "pushed": true
+  },
+  "completed": [
+    "V9.0 baseline audit + 17 before screenshots",
+    "five-page architecture (CAVE/BATTLE/GROWTH/PROJECT/TASKS) + bottom nav",
+    "standalone battle page with signature preservation extended to BATTLE",
+    "mobile CSS (<=560px breakpoint, safe-area, touch targets)",
+    "standalone H5 static server (scripts/h5-server.cjs)",
+    "pure-browser verification (no electronAPI): creation->cave->battle->touch->save->reload recovery",
+    "mobile width sweep 360/375/414/430: 0 overflow",
+    "desktop resolution sweep 1280/1366/1600/1920: cave clean, battle 4/4",
+    "full regression 170 files EXIT=0",
+    "EXE repack (asar 4c305db7) + 60min soak 0 exceptions 0 crashes + restart recovery PASS",
+    "V9.0 reports (9 docs)"
+  ],
+  "pending": [
+    "H5 60-min stability soak (probe ready)",
+    "wechat subpackaging",
+    "wechat/douyin real-device acceptance",
+    "home two-column deep layout (V9.1)"
+  ],
+  "testResults": {
+    "fullRegression": "170 files EXIT=0",
+    "routerProbe": "5/5 pages + battle persists across navigation",
+    "h5Probe": "PASS (pure browser, no electronAPI, touch damage, localStorage save+recovery)",
+    "mobileSweep": "4 widths, 0 overflowX, nav reachable",
+    "desktopResolution": "4 sizes, cave 0 overflow 0 clipped, battle 4/4",
+    "exeSoak60min": "112 samples, 0 exceptions, 0 crashes, heap 24.1-32.5MB",
+    "restartRecovery": "PASS"
+  },
+  "blockers": ["wechat/douyin real-device (env)"],
+  "nextAction": "V9.1: H5 long soak, home two-column layout, wechat subpackaging"
+}
