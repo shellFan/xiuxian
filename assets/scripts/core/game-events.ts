@@ -188,6 +188,8 @@ export interface GameEvents extends Record<string, unknown> {
   readonly v64SkillUsed: { readonly skillId: string; readonly totalDamage: number; readonly shieldGained: number };
   readonly v64MemberStarUp: { readonly memberId: string; readonly newStars: number };
   readonly v64AchievementUnlocked: { readonly id: string; readonly name: string; readonly emoji: string };
+  /** V9.2 连击里程碑（10/20/30/50 连击） */
+  readonly v63ComboMilestone: { readonly combo: number; readonly stage: number; readonly enemyName: string };
 }
 
 /** Domain events that should refresh Phase 2 HUD. UI must not poll every frame. */

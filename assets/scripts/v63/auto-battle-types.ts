@@ -205,6 +205,15 @@ export interface V63AutoBattleState {
   todayStagesAdvanced?: number;
   /** V6.4 今日日期索引（每日目标重置用） */
   todayIndex?: number;
+  /* ═══ V9.2 战斗爽感系统 ═══ */
+  /** 连击计数（连续点击攻击） */
+  comboCount?: number;
+  /** 上次点击攻击时间戳（ms）——超时重置连击 */
+  comboLastTime?: number;
+  /** 敌方 Bug Debuff 剩余秒数（受到伤害 +15%） */
+  enemyBugDebuff?: number;
+  /** 敌方 Vulnerable 剩余秒数（防御穿透 +25%） */
+  enemyVulnerable?: number;
 }
 
 // ── 运行时视图（UI只读快照） ─────────────────────────────────────────────────
@@ -290,6 +299,10 @@ export interface AutoBattleView {
   }[];
   /** V6.4 待领取装备数 */
   pendingEquipDrops: number;
+  /* V9.2 战斗爽感系统 */
+  comboCount: number;
+  enemyBugDebuff: number;
+  enemyVulnerable: number;
 }
 
 export interface TapAttackResult {

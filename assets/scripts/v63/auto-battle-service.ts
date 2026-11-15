@@ -366,6 +366,15 @@ export class AutoBattleService {
     // 计时器衰减（真实时间）
     if (s.weakSpotTimer > 0) s.weakSpotTimer = Math.max(0, s.weakSpotTimer - effective);
     if (b.squadStunTimer && b.squadStunTimer > 0) b.squadStunTimer = Math.max(0, b.squadStunTimer - effective);
+    /* V9.2 技能联动 Debuff 衰减 */
+    const bugDebuff = b.enemyBugDebuff ?? 0;
+    const vulnerable = b.enemyVulnerable ?? 0;
+    if (bugDebuff > 0) b.enemyBugDebuff = Math.max(0, bugDebuff - effective);
+    if (vulnerable > 0) b.enemyVulnerable = Math.max(0, vulnerable - effective);
+    /* V9.2 连击超时重置（3 秒无点击攻击） */
+    if ((b.comboCount ?? 0) > 0 && Date.now() - (b.comboLastTime ?? 0) > 3000) {
+      b.comboCount = 0;
+    }
 
     // V6.4 主动技能冷却衰减（真实时间，不受倍速影响）
     if (s.activeSkillCooldowns) {
@@ -534,18 +543,23 @@ export class AutoBattleService {
   private damageEnemy(b: V63AutoBattleState, damage: number, isCrit: boolean, antiShieldBonus = 0): void {
     if (!b.enemy || b.status !== 'FIGHTING') return;
     const enemy = b.enemy;
-    // V6.4 敌人护盾：先扣护盾再扣血
+    /* V9.2 技能联动 Debuff：
+       Bug Debuff → 所有来源伤害 +15%
+       Vulnerable → 无视 ARMORED 减伤 */
+    let mult = 1;
+    if ((b.enemyBugDebuff ?? 0) > 0) mult += 0.15;
+    let pierceArmor = (b.enemyVulnerable ?? 0) > 0;
+    // 护盾
     if (enemy.enemyShield && enemy.enemyShield > 0) {
-      const shieldDmg = Math.round(damage * (1 + antiShieldBonus));
+      const shieldDmg = Math.round(damage * (1 + antiShieldBonus) * mult);
       const absorbed = Math.min(enemy.enemyShield, shieldDmg);
       enemy.enemyShield -= absorbed;
       const remaining = damage - absorbed;
       if (remaining > 0) enemy.hp = Math.max(0, enemy.hp - remaining);
     } else {
-      // V6.4 ARMORED类型减伤
       const typeDef = enemy.enemyType ? enemyTypeDef(enemy.enemyType as EnemyType) : null;
-      const reduction = typeDef?.damageReduction ?? 0;
-      const finalDmg = Math.round(damage * (1 - reduction));
+      const reduction = pierceArmor ? 0 : (typeDef?.damageReduction ?? 0);
+      const finalDmg = Math.round(damage * mult * (1 - reduction));
       enemy.hp = Math.max(0, enemy.hp - finalDmg);
     }
     if (enemy.hp <= 0) this.onEnemyDefeated(b);
@@ -661,17 +675,32 @@ export class AutoBattleService {
       return { ok: false, damage: 0, isCrit: false, enemyHpAfter: 0, enemyDefeated: false, stageCleared: false, rewards: null, reason: b.status === 'BOSS_PENDING' ? 'BOSS_PENDING' : 'NOT_FIGHTING' };
     }
     const s = this.squad();
-    // V6.4 留存统计
     this.retention().totalTapCount++;
-    // V6.4 装备暴击加成
+
+    /* ═══ V9.2 连击系统 ═══ */
+    const COMBO_WINDOW_MS = 3000;
+    const COMBO_MAX_MULT = 0.5; // 最高 +50% 伤害
+    const COMBO_STEP = 0.02; // 每连击 +2%
+    const now = Date.now();
+    const prevCombo = b.comboCount ?? 0;
+    const prevTime = b.comboLastTime ?? 0;
+    // 连击窗口：3 秒内连续点击不重置；超时归零
+    const combo = (now - prevTime <= COMBO_WINDOW_MS) ? prevCombo + 1 : 1;
+    b.comboCount = combo;
+    b.comboLastTime = now;
+    const comboMult = 1 + Math.min(COMBO_MAX_MULT, combo * COMBO_STEP);
+    // 连击里程碑：10/20/30/50 → 事件（UI 演出层消费）
+    if (combo === 10 || combo === 20 || combo === 30 || combo === 50) {
+      this.context.events.emit('v63ComboMilestone', { combo, stage: b.stage, enemyName: b.enemy.name });
+    }
+
     const eqStats = equipTotalStats(this.equipState());
-    const critChance = Math.min(0.8, CLICK_CRIT_CHANCE + eqStats.critRate);
+    const critChance = Math.min(0.8, CLICK_CRIT_CHANCE + eqStats.critRate + Math.min(0.1, combo * 0.001));
     const critMult = CLICK_CRIT_MULT + eqStats.critMult;
     const baseDmg = clickDamageOf(s.clickLevel) + eqStats.atk;
     const isCrit = Math.random() < critChance;
     const weakMult = s.weakSpotTimer > 0 ? 1.5 : 1;
-    const damage = Math.round(baseDmg * (isCrit ? critMult : 1) * weakMult);
-    // V6.4 敌人护盾/减伤
+    const damage = Math.round(baseDmg * (isCrit ? critMult : 1) * weakMult * comboMult);
     const enemy = b.enemy;
     if (enemy.enemyShield && enemy.enemyShield > 0) {
       const absorbed = Math.min(enemy.enemyShield, damage);
@@ -684,7 +713,15 @@ export class AutoBattleService {
       enemy.hp = Math.max(0, enemy.hp - Math.round(damage * (1 - reduction)));
     }
     const defeated = enemy.hp <= 0;
-    if (defeated) this.onEnemyDefeated(b);
+    if (defeated) {
+      // V9.2 连击击杀奖励：combo ≥ 15 时额外灵石
+      if (combo >= 15) {
+        const bonus = Math.max(1, Math.floor(combo / 5));
+        this.context.player.spiritStones += bonus;
+      }
+      b.comboCount = 0;
+      this.onEnemyDefeated(b);
+    }
     return {
       ok: true,
       damage,
@@ -894,15 +931,22 @@ export class AutoBattleService {
 
     switch (def.kind) {
       case 'MULTI_TAP': {
+        /* V9.2 技能联动：代码飞剑将连击重置为至少 15（保证连击动量） */
+        if ((b.comboCount ?? 0) < 15) b.comboCount = 15;
+        b.comboLastTime = Date.now();
         const perHit = Math.round((clickDamageOf(s.clickLevel) + eqStats.atk) * def.power);
         totalDamage = perHit * (def.hits ?? 1);
         break;
       }
       case 'AOE_DPS': {
+        /* V9.2 技能联动：Bug 炸弹施加 enemyBugDebuff（敌人受伤 +15% 持续 5s） */
+        b.enemyBugDebuff = 5;
         totalDamage = Math.round(this.totalDps() * def.power);
         break;
       }
       case 'BOSS_BURST': {
+        /* V9.2 技能联动：需求粉碎施加 enemyVulnerable（防御穿透 +25% 持续 8s） */
+        b.enemyVulnerable = 8;
         const base = Math.round((clickDamageOf(s.clickLevel) + eqStats.atk) * def.power);
         totalDamage = enemy.isBoss ? base : Math.round(base * 0.5);
         break;
@@ -911,6 +955,9 @@ export class AutoBattleService {
         shieldGained = Math.round(def.power * Math.max(1, s.members[0]?.level ?? 1));
         s.shield += shieldGained;
         s.weakSpotTimer = 0; // 清除Debuff
+        /* V9.2 技能联动：紧急回滚清除敌方 Debuff 并重置连击冷却 */
+        b.enemyBugDebuff = 0;
+        b.enemyVulnerable = 0;
         break;
       }
     }
@@ -1359,6 +1406,9 @@ export class AutoBattleService {
       recommendedPower,
       squadDetail,
       pendingEquipDrops,
+      comboCount: b.comboCount ?? 0,
+      enemyBugDebuff: b.enemyBugDebuff ?? 0,
+      enemyVulnerable: b.enemyVulnerable ?? 0,
     };
   }
 }

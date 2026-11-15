@@ -4668,3 +4668,21 @@ button.ux-journey--sec { cursor: pointer; }
   .ux91-quick { grid-template-columns: repeat(3, 1fr); }
   .ux91-quick-btn { padding: 10px 10px; }
 }
+
+/* ═══ V9.2 战斗爽感：连击 + Debuff 演出 ═══ */
+.ux65-combo {
+  position: absolute; top: 4px; right: 8px; z-index: 5;
+  font-size: 18px; font-weight: 900; color: #ffd97a;
+  text-shadow: 0 0 8px rgba(255,217,122,.5), 0 2px 4px rgba(0,0,0,.5);
+  animation: ux65-combo-pop .3s ease;
+  pointer-events: none;
+}
+.ux65-combo--warm { color: #ffa94d; font-size: 22px; }
+.ux65-combo--hot { color: #ff6b6b; font-size: 26px; text-shadow: 0 0 14px rgba(255,107,107,.7), 0 2px 4px rgba(0,0,0,.6); }
+@keyframes ux65-combo-pop { from { transform: scale(1.3); } to { transform: scale(1); } }
+.ux65-debuff {
+  display: inline-block; padding: 1px 6px; border-radius: 6px;
+  font-size: 10px; font-weight: 700; margin-left: 2px;
+}
+.ux65-debuff--bug { background: rgba(107,143,58,.3); color: #b6d97a; }
+.ux65-debuff--vuln { background: rgba(201,107,152,.3); color: #e8a0c0; }

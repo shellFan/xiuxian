@@ -148,7 +148,17 @@
     /* V6.6: 敌人Sprite化 — 真实2D角色动画替代CSS拼装 */
     var spriteName = (window.__V66_SPRITE__ && v) ? window.__V66_SPRITE__.enemySpriteName(v) : 'requirement';
     var spriteScale = (e.isBoss || e.isCardBoss) ? 1.8 : 1.45;
+    var comboTag = '';
+    if (v.comboCount >= 5) {
+      var comboCls = v.comboCount >= 30 ? ' ux65-combo--hot' : v.comboCount >= 15 ? ' ux65-combo--warm' : '';
+      comboTag = '<div class="ux65-combo' + comboCls + '" id="Ux63Combo">' +
+        '⚡ 连击 x' + v.comboCount + '</div>';
+    }
+    var debuffTags = '';
+    if (v.enemyBugDebuff > 0) debuffTags += '<span class="ux65-debuff ux65-debuff--bug">🐛 Bug</span>';
+    if (v.enemyVulnerable > 0) debuffTags += '<span class="ux65-debuff ux65-debuff--vuln">💔 破防</span>';
     return '<div class="ux65-enemy' + (e.isBoss ? ' ux65-enemy--boss' : '') + '" id="Ux65EnemyZone">' +
+      comboTag +
       '<div class="ux65-enemy-stage">' +
         '<div class="ux66-sprite-container" id="Ux66EnemySprite"' +
           ' data-sprite="' + spriteName + '"' +
@@ -157,7 +167,7 @@
         '</div>' +
       '</div>' +
       '<div class="ux65-enemy-info">' +
-        '<div class="ux65-enemy-name">' + H.escHtml(e.name) + bossLabel + '</div>' +
+        '<div class="ux65-enemy-name">' + H.escHtml(e.name) + bossLabel + (debuffTags ? ' ' + debuffTags : '') + '</div>' +
         '<div class="ux65-hp-bar"><div class="ux65-hp-fill ' + hpColor + '" id="Ux63HpFill" style="width:' + e.hpPct + '%"></div></div>' +
         '<div class="ux65-hp-text"><span id="Ux63HpNow">' + fmtNum(e.hp) + '</span> / ' + fmtNum(e.maxHp) + '</div>' +
       '</div>' +
