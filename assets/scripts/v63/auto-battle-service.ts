@@ -69,6 +69,7 @@ import {
   equipStats,
   enhanceCost,
   dropEquipForStage,
+  computeSetBonus,
   MAX_EQUIP_LEVEL,
 } from '../v64/equipment';
 import {
@@ -104,7 +105,7 @@ function clickDamageOf(clickLevel: number): number {
   return Math.round(CLICK_BASE_DAMAGE * clickLevel * (1 + (clickLevel - 1) * 0.15));
 }
 
-/** V6.4 装备总属性 */
+/** V6.4 装备总属性（V9.2 新增套装奖励） */
 function equipTotalStats(eqState: V64EquipmentState | null): { atk: number; hp: number; critRate: number; critMult: number } {
   if (!eqState) return { atk: 0, hp: 0, critRate: 0, critMult: 0 };
   let atk = 0, hp = 0, critRate = 0, critMult = 0;
@@ -118,6 +119,12 @@ function equipTotalStats(eqState: V64EquipmentState | null): { atk: number; hp: 
   hp += s.hp;
   critRate += s.critRate;
   critMult += s.critMult;
+  }
+  /* V9.2 套装奖励：同品质件数 ≥ 2 时激活 */
+  const setBonus = computeSetBonus(eqState);
+  if (setBonus.pieces >= 2) {
+    atk = Math.round(atk * (1 + setBonus.atkPct));
+    critRate += setBonus.critRatePct;
   }
   return { atk, hp, critRate, critMult };
 }

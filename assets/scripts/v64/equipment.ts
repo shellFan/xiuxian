@@ -131,3 +131,35 @@ export function dropEquipForStage(stage: number, killCount: number): EquipDef | 
   const idx = Math.floor(killCount / 30) % pool.length;
   return pool[idx];
 }
+
+// ── V9.2 套装系统 ─────────────────────────────────────────────────────────────
+
+export interface EquipSetBonus {
+  readonly pieces: number;
+  readonly atkPct: number;
+  readonly critRatePct: number;
+}
+
+/**
+ * V9.2 套装奖励：装备同品质件数 ≥ 2 时激活套装。
+ * 2件 → +10% atk; 3件 → +15% atk + 8% 暴击率; 4件 → +20% atk + 15% 暴击率。
+ * 有边界、不无限膨胀。
+ */
+export function computeSetBonus(eqState: V64EquipmentState): EquipSetBonus {
+  const rarityCount: Record<string, number> = {};
+  let maxMatch = 0;
+  for (const slot of ['WEAPON', 'ARMOR', 'ACCESSORY', 'RELIC'] as EquipSlot[]) {
+    const instId = eqState.equipped[slot];
+    if (!instId) continue;
+    const inst = eqState.bag.find(b => b.id === instId);
+    if (!inst) continue;
+    const def = equipDef(inst.defId);
+    if (!def) continue;
+    rarityCount[def.rarity] = (rarityCount[def.rarity] ?? 0) + 1;
+    maxMatch = Math.max(maxMatch, rarityCount[def.rarity]);
+  }
+  if (maxMatch < 2) return { pieces: 0, atkPct: 0, critRatePct: 0 };
+  if (maxMatch >= 4) return { pieces: 4, atkPct: 0.20, critRatePct: 0.15 };
+  if (maxMatch >= 3) return { pieces: 3, atkPct: 0.15, critRatePct: 0.08 };
+  return { pieces: 2, atkPct: 0.10, critRatePct: 0 };
+}
