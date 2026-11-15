@@ -409,6 +409,12 @@ export class AutoBattleService {
   private tickFighting(b: V63AutoBattleState, s: V63SquadState, seconds: number): void {
     if (!b.enemy) { this.spawnEnemy(); return; }
     const enemy = b.enemy;
+    /* V9.2 Boss Phase 2：HP ≤ 50% 一次性触发（attack ×1.3） */
+    if (enemy.isBoss && !enemy.phase2Active && enemy.maxHp > 0 && enemy.hp / enemy.maxHp <= 0.5) {
+      enemy.phase2Active = true;
+      enemy.attack = Math.round(enemy.attack * 1.3);
+      this.context.events.emit('bossPhase2', { bossId: enemy.defId, name: enemy.name, phase: '狂暴' });
+    }
     const weakMult = s.weakSpotTimer > 0 ? 1.5 : 1;
 
     // V6.4 羁绊效果
@@ -1370,6 +1376,7 @@ export class AutoBattleService {
         hpPct: enemy.maxHp > 0 ? Math.round((enemy.hp / enemy.maxHp) * 100) : 0,
         isBoss: enemy.isBoss,
         isCardBoss: enemy.isCardBoss,
+        phase2Active: !!enemy.phase2Active,
       } : null,
       squad: s.members.filter(m => m.slot >= 0).map(m => {
         const def = professionDef(m.profession);

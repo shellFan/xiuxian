@@ -157,7 +157,8 @@
     var debuffTags = '';
     if (v.enemyBugDebuff > 0) debuffTags += '<span class="ux65-debuff ux65-debuff--bug">🐛 Bug</span>';
     if (v.enemyVulnerable > 0) debuffTags += '<span class="ux65-debuff ux65-debuff--vuln">💔 破防</span>';
-    return '<div class="ux65-enemy' + (e.isBoss ? ' ux65-enemy--boss' : '') + '" id="Ux65EnemyZone">' +
+    var phase2Tag = (e.isBoss && e.phase2Active) ? '<span class="ux65-debuff ux65-debuff--p2">⛔ P2</span>' : '';
+    return '<div class="ux65-enemy' + (e.isBoss ? ' ux65-enemy--boss' : '') + (e.phase2Active ? ' is-phase2' : '') + '" id="Ux65EnemyZone">' +
       comboTag +
       '<div class="ux65-enemy-stage">' +
         '<div class="ux66-sprite-container" id="Ux66EnemySprite"' +
@@ -167,7 +168,7 @@
         '</div>' +
       '</div>' +
       '<div class="ux65-enemy-info">' +
-        '<div class="ux65-enemy-name">' + H.escHtml(e.name) + bossLabel + (debuffTags ? ' ' + debuffTags : '') + '</div>' +
+        '<div class="ux65-enemy-name">' + H.escHtml(e.name) + bossLabel + (debuffTags ? ' ' + debuffTags : '') + phase2Tag + '</div>' +
         '<div class="ux65-hp-bar"><div class="ux65-hp-fill ' + hpColor + '" id="Ux63HpFill" style="width:' + e.hpPct + '%"></div></div>' +
         '<div class="ux65-hp-text"><span id="Ux63HpNow">' + fmtNum(e.hp) + '</span> / ' + fmtNum(e.maxHp) + '</div>' +
       '</div>' +

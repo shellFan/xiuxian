@@ -94,12 +94,12 @@ promotion flow tests passed
 task flow tests passed
 daily task service tests passed
 debug service tests passed
-✔ moves a worker to an empty target and returns to idle (1.2163ms)
-✔ restores a worker for an out-of-bounds or different-level target (0.1329ms)
-✔ locks input while merging and handles an occupied target after the lock clears (0.1454ms)
-✔ rejects a worker whose node/session became invalid (0.0735ms)
-✔ does not report success or remain locked when callbacks are unavailable (0.1099ms)
-✔ clears its lock when worker lookup or merge callback throws (0.1365ms)
+✔ moves a worker to an empty target and returns to idle (0.9384ms)
+✔ restores a worker for an out-of-bounds or different-level target (0.2009ms)
+✔ locks input while merging and handles an occupied target after the lock clears (0.2113ms)
+✔ rejects a worker whose node/session became invalid (0.1004ms)
+✔ does not report success or remain locked when callbacks are unavailable (0.1445ms)
+✔ clears its lock when worker lookup or merge callback throws (0.1832ms)
 ℹ tests 6
 ℹ suites 0
 ℹ pass 6
@@ -107,23 +107,23 @@ debug service tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 6.7279
-✔ uses transformed UI coordinates and parent-local worker positions (2.9142ms)
-✔ cancels by touch id even after the worker node becomes invalid (0.3411ms)
-✔ restores the cached worker-parent source point when the board becomes invalid (0.2324ms)
-✔ converts UI location through the actual worker parent container (0.2162ms)
-✔ clears the active touch after a throwing restore and ignores secondary touches (0.2891ms)
-✔ touch-start retries after board coordinate conversion failure (0.2208ms)
-✔ touch-start retries after worker-parent coordinate conversion failure (0.2001ms)
-✔ unbind cancels and restores a started worker (0.1734ms)
-✔ passive worker unbind does not cancel another worker session (0.2114ms)
-✔ onDestroy during merge does not restore or clear the merge lock (0.2942ms)
-✔ restores the actual node position when released on its original cell (0.2618ms)
-✔ restores the actual node position for an out-of-bounds drop (0.1057ms)
-✔ restores the actual node position for a different-level target (0.1065ms)
-✔ restores the actual node position when the target becomes occupied during drag (0.0971ms)
-✔ restores the actual node position when merge callback throws (0.111ms)
-✔ onDestroy restores an active drag and unregisters every touch event (0.876ms)
+ℹ duration_ms 7.7418
+✔ uses transformed UI coordinates and parent-local worker positions (3.7061ms)
+✔ cancels by touch id even after the worker node becomes invalid (0.3594ms)
+✔ restores the cached worker-parent source point when the board becomes invalid (0.2162ms)
+✔ converts UI location through the actual worker parent container (0.2155ms)
+✔ clears the active touch after a throwing restore and ignores secondary touches (0.2845ms)
+✔ touch-start retries after board coordinate conversion failure (0.1818ms)
+✔ touch-start retries after worker-parent coordinate conversion failure (0.1678ms)
+✔ unbind cancels and restores a started worker (0.1614ms)
+✔ passive worker unbind does not cancel another worker session (0.1806ms)
+✔ onDestroy during merge does not restore or clear the merge lock (0.2588ms)
+✔ restores the actual node position when released on its original cell (0.2184ms)
+✔ restores the actual node position for an out-of-bounds drop (0.0994ms)
+✔ restores the actual node position for a different-level target (0.1119ms)
+✔ restores the actual node position when the target becomes occupied during drag (0.0946ms)
+✔ restores the actual node position when merge callback throws (0.7817ms)
+✔ onDestroy restores an active drag and unregisters every touch event (0.229ms)
 ℹ tests 16
 ℹ suites 0
 ℹ pass 16
@@ -131,7 +131,7 @@ debug service tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 11.6569
+ℹ duration_ms 12.0068
 economy service tests passed
 ok - 同一离线窗口不能被第二个 settlementId 重复领取（P0 回归）
 ok - 已领取的 settlementId 重复领取返回 duplicate（既有幂等保障）
@@ -161,61 +161,61 @@ game events refresh tests passed
     at Test.postRun (node:internal/test_runner/test:1247:19)
     at Test.run (node:internal/test_runner/test:1175:12)
     at async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
-✔ GameSnapshot: createSnapshot returns frozen object (0.8158ms)
-✔ GameSnapshot: snapshotEqual returns true for identical snapshots (0.1508ms)
-✔ GameSnapshot: snapshotEqual returns false for different snapshots (0.0732ms)
-✔ resolveCategory: maps known events correctly (0.1064ms)
-✔ resolveCategory: returns STATE_CHANGED for unknown events (0.0735ms)
-✔ ALL_UI_CATEGORIES has 16 categories (0.0546ms)
-✔ RewardService: state machine transitions correctly (0.2384ms)
-✔ RewardService: double callback protection (0.1021ms)
-✔ RewardService: dispose clears listeners (0.3148ms)
-✔ RewardService: reset returns to IDLE (0.1385ms)
-✔ PlatformLifecycle: pause/resume lifecycle (0.2028ms)
-✔ PlatformLifecycle: double pause is idempotent (0.0594ms)
-✔ PlatformLifecycle: dispose clears listeners (0.043ms)
-✔ SettingsService: loads defaults when no saved data (0.1209ms)
-✔ SettingsService: set and persist (0.0851ms)
-✔ SettingsService: resetToDefaults (0.0499ms)
-✔ AudioService: respects music enabled flag (0.0968ms)
-✔ AudioService: respects sfx enabled flag (0.054ms)
-✔ AudioService: dispose stops bgm (0.0442ms)
-✔ ErrorBoundary: handles and classifies errors (0.104ms)
-✔ ErrorBoundary: try returns null on error (0.0582ms)
-✔ ErrorBoundary: try returns result on success (0.0327ms)
-✔ ErrorBoundary: hasFatalError (0.7221ms)
-✔ classifyError: classifies storage errors (0.1064ms)
-✔ validateConfigBundle: passes for empty config (0.0786ms)
-✔ validateConfigBundle: detects duplicate worker IDs (0.154ms)
-✔ validateConfigBundle: detects negative salary (0.0442ms)
-✔ NumberFormatter: zh-CN format (0.1547ms)
-✔ NumberFormatter: en-US format (0.0711ms)
-✔ NumberFormatter: formatPercent (0.0738ms)
+✔ GameSnapshot: createSnapshot returns frozen object (1.27ms)
+✔ GameSnapshot: snapshotEqual returns true for identical snapshots (0.183ms)
+✔ GameSnapshot: snapshotEqual returns false for different snapshots (0.0817ms)
+✔ resolveCategory: maps known events correctly (0.1135ms)
+✔ resolveCategory: returns STATE_CHANGED for unknown events (0.1009ms)
+✔ ALL_UI_CATEGORIES has 16 categories (0.0738ms)
+✔ RewardService: state machine transitions correctly (0.3095ms)
+✔ RewardService: double callback protection (0.1352ms)
+✔ RewardService: dispose clears listeners (0.2204ms)
+✔ RewardService: reset returns to IDLE (0.1418ms)
+✔ PlatformLifecycle: pause/resume lifecycle (0.2171ms)
+✔ PlatformLifecycle: double pause is idempotent (0.0661ms)
+✔ PlatformLifecycle: dispose clears listeners (0.0441ms)
+✔ SettingsService: loads defaults when no saved data (0.1253ms)
+✔ SettingsService: set and persist (0.0903ms)
+✔ SettingsService: resetToDefaults (0.0579ms)
+✔ AudioService: respects music enabled flag (0.0979ms)
+✔ AudioService: respects sfx enabled flag (0.0641ms)
+✔ AudioService: dispose stops bgm (0.0523ms)
+✔ ErrorBoundary: handles and classifies errors (0.1091ms)
+✔ ErrorBoundary: try returns null on error (0.0641ms)
+✔ ErrorBoundary: try returns result on success (0.0354ms)
+✔ ErrorBoundary: hasFatalError (0.7478ms)
+✔ classifyError: classifies storage errors (0.1049ms)
+✔ validateConfigBundle: passes for empty config (0.0753ms)
+✔ validateConfigBundle: detects duplicate worker IDs (0.16ms)
+✔ validateConfigBundle: detects negative salary (0.0459ms)
+✔ NumberFormatter: zh-CN format (0.1602ms)
+✔ NumberFormatter: en-US format (0.0688ms)
+✔ NumberFormatter: formatPercent (0.0639ms)
 ✔ NumberFormatter: formatDuration (0.0627ms)
-✔ NumberFormatter: formatSalary (0.0426ms)
-✔ PerformanceGuard: detects worker count overflow (0.1276ms)
-✔ PerformanceGuard: disabled guard produces no warnings (0.0511ms)
-✔ LeakProtection: disposes subscriptions (0.1066ms)
-✔ LeakProtection: throws after dispose (0.1449ms)
-✔ LifecycleGuard: prevents double start (0.061ms)
-✔ AnalyticsService: drops events without consent (0.0841ms)
-✔ AnalyticsService: tracks events with consent (0.0483ms)
-✔ sanitizeAnalyticsParams: strips restricted fields (0.0822ms)
-✔ DebugProtection: blocks in production (0.179ms)
-✔ DebugProtection: allows in development (0.0777ms)
-✔ SaveServiceV2: load returns default when empty (0.9896ms)
-✔ SaveServiceV2: save and load roundtrip (3.3753ms)
-✔ SaveServiceV2: backup and restore (0.6141ms)
-✔ SaveServiceV2: corruption recovery falls back to backup (0.7151ms)
-✔ validateSaveData: detects invalid data (0.2318ms)
-✔ GameFacade: creates and starts correctly (3.2919ms)
-✔ GameFacade: snapshot returns valid data (0.9118ms)
-✔ GameFacade: UI presentation boundary selects canonical projections by priority without consuming them (1.0232ms)
-✔ GameFacade: pending presentation query is read-only and never prepares a decision session (0.4936ms)
-✔ GameFacade: UI incident projection withholds first-five-minute S1 without hiding canonical state (0.6934ms)
-✔ GameFacade: DEV force-event path bypasses first-five-minute S1 presentation protection (0.5027ms)
-✔ GameFacade: onUiEvent subscription works (0.5003ms)
-✔ GameFacade: destroy is idempotent (0.2924ms)
+✔ NumberFormatter: formatSalary (0.0369ms)
+✔ PerformanceGuard: detects worker count overflow (0.1211ms)
+✔ PerformanceGuard: disabled guard produces no warnings (0.0397ms)
+✔ LeakProtection: disposes subscriptions (0.1093ms)
+✔ LeakProtection: throws after dispose (0.1588ms)
+✔ LifecycleGuard: prevents double start (0.0567ms)
+✔ AnalyticsService: drops events without consent (0.082ms)
+✔ AnalyticsService: tracks events with consent (0.0549ms)
+✔ sanitizeAnalyticsParams: strips restricted fields (0.084ms)
+✔ DebugProtection: blocks in production (0.1778ms)
+✔ DebugProtection: allows in development (0.0785ms)
+✔ SaveServiceV2: load returns default when empty (0.954ms)
+✔ SaveServiceV2: save and load roundtrip (3.2429ms)
+✔ SaveServiceV2: backup and restore (0.7281ms)
+✔ SaveServiceV2: corruption recovery falls back to backup (0.6819ms)
+✔ validateSaveData: detects invalid data (0.2247ms)
+✔ GameFacade: creates and starts correctly (4.198ms)
+✔ GameFacade: snapshot returns valid data (1.0512ms)
+✔ GameFacade: UI presentation boundary selects canonical projections by priority without consuming them (1.2538ms)
+✔ GameFacade: pending presentation query is read-only and never prepares a decision session (0.5786ms)
+✔ GameFacade: UI incident projection withholds first-five-minute S1 without hiding canonical state (1.0205ms)
+✔ GameFacade: DEV force-event path bypasses first-five-minute S1 presentation protection (0.6539ms)
+✔ GameFacade: onUiEvent subscription works (0.5004ms)
+✔ GameFacade: destroy is idempotent (0.329ms)
 ℹ tests 55
 ℹ suites 0
 ℹ pass 55
@@ -223,7 +223,7 @@ game events refresh tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 25.1538
+ℹ duration_ms 27.6443
 playable loop tests passed
 idle service tests passed
 kpi service tests passed
@@ -295,10 +295,10 @@ Phase 3 Gameplay Integration tests:
   ✓ COMPLETE gameplay flow: new player → recruit ×2 → merge → work → salary → cultivation → KPI → event → achievement → daily → promotion → save → offline → offline reward → continue
 phase3 gameplay integration tests passed
 Phase 3 integration tests: 18 passed, 0 failed
-✔ Lifecycle stress: 100 rounds init/start/pause/resume/dispose (33.0271ms)
-✔ Lifecycle stress: listener count stable across cycles (0.5136ms)
-✔ Lifecycle stress: PlatformLifecycle dispose clears all listeners (0.2982ms)
-✔ Lifecycle stress: no duplicate autosave on repeated hide (31.6278ms)
+✔ Lifecycle stress: 100 rounds init/start/pause/resume/dispose (32.6882ms)
+✔ Lifecycle stress: listener count stable across cycles (0.856ms)
+✔ Lifecycle stress: PlatformLifecycle dispose clears all listeners (0.2642ms)
+✔ Lifecycle stress: no duplicate autosave on repeated hide (29.2846ms)
 ℹ tests 4
 ℹ suites 0
 ℹ pass 4
@@ -306,25 +306,25 @@ Phase 3 integration tests: 18 passed, 0 failed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 73.3645
-✔ Phase4 integration: init creates valid facade (5.9979ms)
-✔ Phase4 integration: new save persists through load (3.3657ms)
-✔ Phase4 integration: snapshot is deeply frozen (1.5632ms)
-✔ Phase4 integration: recruit adds worker (0.7781ms)
-✔ Phase4 integration: work mode change (0.9744ms)
-✔ Phase4 integration: KPI tracking works (0.5433ms)
-✔ Phase4 integration: UI event stream works (0.4095ms)
-✔ Phase4 integration: reward request through facade (0.5519ms)
-✔ Phase4 integration: settings persist (0.1683ms)
-✔ Phase4 integration: save V2 backup preserves previous state (1.0615ms)
-✔ Phase4 integration: pause and resume (0.3179ms)
-✔ Phase4 integration: offline reward calculation (1.5778ms)
-✔ Phase4 integration: dispose and restart (1.0642ms)
-✔ Phase4 integration: error boundary catches and classifies (0.2128ms)
-✔ Phase4 integration: analytics strips PII recursively (0.5512ms)
-✔ Phase4 integration: debug protection blocks in production (0.4583ms)
+ℹ duration_ms 71.5742
+✔ Phase4 integration: init creates valid facade (5.8473ms)
+✔ Phase4 integration: new save persists through load (3.7422ms)
+✔ Phase4 integration: snapshot is deeply frozen (1.4757ms)
+✔ Phase4 integration: recruit adds worker (0.7894ms)
+✔ Phase4 integration: work mode change (0.6308ms)
+✔ Phase4 integration: KPI tracking works (0.3474ms)
+✔ Phase4 integration: UI event stream works (0.3841ms)
+✔ Phase4 integration: reward request through facade (0.5649ms)
+✔ Phase4 integration: settings persist (0.1614ms)
+✔ Phase4 integration: save V2 backup preserves previous state (0.7545ms)
+✔ Phase4 integration: pause and resume (0.1727ms)
+✔ Phase4 integration: offline reward calculation (0.6558ms)
+✔ Phase4 integration: dispose and restart (0.7598ms)
+✔ Phase4 integration: error boundary catches and classifies (0.1738ms)
+✔ Phase4 integration: analytics strips PII recursively (0.5058ms)
+✔ Phase4 integration: debug protection blocks in production (0.4007ms)
 ✔ Phase4 integration: number formatter zh-CN (0.1817ms)
-✔ Phase4 integration: leak protection tracks and disposes (0.1426ms)
+✔ Phase4 integration: leak protection tracks and disposes (0.2649ms)
 ℹ tests 18
 ℹ suites 0
 ℹ pass 18
@@ -332,13 +332,13 @@ Phase 3 integration tests: 18 passed, 0 failed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 25.3983
-✔ Platform hide: onHide and onSaveState each fire once (0.66ms)
-✔ Platform show: onShow and onRestoreState each fire once (0.2448ms)
-✔ Unsubscribe onShow: callback does not fire after unsubscribe (0.1292ms)
-✔ Unsubscribe onHide: callback does not fire after unsubscribe (0.1185ms)
-✔ 100 hide/show cycles: exactly 100 onHide and 100 onShow callbacks (0.9354ms)
-✔ Dispose: business listeners do not fire after dispose (0.1685ms)
+ℹ duration_ms 22.4447
+✔ Platform hide: onHide and onSaveState each fire once (0.5914ms)
+✔ Platform show: onShow and onRestoreState each fire once (0.1417ms)
+✔ Unsubscribe onShow: callback does not fire after unsubscribe (0.0891ms)
+✔ Unsubscribe onHide: callback does not fire after unsubscribe (0.0819ms)
+✔ 100 hide/show cycles: exactly 100 onHide and 100 onShow callbacks (0.7967ms)
+✔ Dispose: business listeners do not fire after dispose (0.1214ms)
 ℹ tests 6
 ℹ suites 0
 ℹ pass 6
@@ -346,15 +346,15 @@ Phase 3 integration tests: 18 passed, 0 failed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 7.3148
-✔ Reward abuse: double callback grants only once (0.6213ms)
-✔ Reward abuse: triple callback grants only once (0.1713ms)
-✔ Reward abuse: concurrent request throws (0.3417ms)
-✔ Reward abuse: can request again after cancel (0.1351ms)
-✔ Reward abuse: can request again after failure (0.1148ms)
-✔ Reward abuse: provider throw does not crash service (0.844ms)
-✔ Reward abuse: callback after dispose is ignored (0.2058ms)
-✔ Reward abuse: stale callback from previous request is ignored (0.1307ms)
+ℹ duration_ms 5.9421
+✔ Reward abuse: double callback grants only once (0.6688ms)
+✔ Reward abuse: triple callback grants only once (0.0929ms)
+✔ Reward abuse: concurrent request throws (0.4191ms)
+✔ Reward abuse: can request again after cancel (0.1589ms)
+✔ Reward abuse: can request again after failure (0.124ms)
+✔ Reward abuse: provider throw does not crash service (0.7274ms)
+✔ Reward abuse: callback after dispose is ignored (0.2574ms)
+✔ Reward abuse: stale callback from previous request is ignored (0.1909ms)
 ℹ tests 8
 ℹ suites 0
 ℹ pass 8
@@ -362,24 +362,24 @@ Phase 3 integration tests: 18 passed, 0 failed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 19.2897
-✔ category lottery: roll < 10 selects EASTER_EGG (1.4649ms)
-✔ category lottery: roll 10..109 selects RARE (0.203ms)
-✔ category lottery: roll >= 110 selects NORMAL (0.3082ms)
-✔ normal pool: career 1-2 favors POSITIVE (0.1471ms)
-✔ low mind protection: NEGATIVE weight = 0 when mind/maxMind < 0.3 (0.1855ms)
-✔ negative streak protection: 2 consecutive negatives → NEGATIVE weight = 0 (0.2363ms)
-✔ cooldown: same event tracked in lastShownAtById (0.1476ms)
-✔ recent history: last 5 event IDs tracked, oldest removed on 6th (0.1314ms)
-✔ EASTER_EGG: oncePerSave prevents same egg twice (0.2033ms)
-✔ EASTER_EGG: daily limit of 1 (0.2927ms)
-✔ eligibility: minCareerLevel filters out events (0.18ms)
-✔ eligibility: requiresWorkMode filters correctly (0.1147ms)
-✔ empty pool: no events returns undefined (0.0636ms)
-✔ no RARE events: RARE roll returns undefined (no reroll) (0.0744ms)
-✔ resetForNewSave clears all state (0.102ms)
-✔ KPI near completion boosts CHOICE weight (0.084ms)
-✔ fishing mode boosts POSITIVE and reduces NEGATIVE (0.0821ms)
+ℹ duration_ms 27.3667
+✔ category lottery: roll < 10 selects EASTER_EGG (1.3757ms)
+✔ category lottery: roll 10..109 selects RARE (0.133ms)
+✔ category lottery: roll >= 110 selects NORMAL (0.195ms)
+✔ normal pool: career 1-2 favors POSITIVE (0.2452ms)
+✔ low mind protection: NEGATIVE weight = 0 when mind/maxMind < 0.3 (0.2658ms)
+✔ negative streak protection: 2 consecutive negatives → NEGATIVE weight = 0 (0.2107ms)
+✔ cooldown: same event tracked in lastShownAtById (0.1283ms)
+✔ recent history: last 5 event IDs tracked, oldest removed on 6th (0.1035ms)
+✔ EASTER_EGG: oncePerSave prevents same egg twice (0.1488ms)
+✔ EASTER_EGG: daily limit of 1 (0.1657ms)
+✔ eligibility: minCareerLevel filters out events (0.1159ms)
+✔ eligibility: requiresWorkMode filters correctly (0.1061ms)
+✔ empty pool: no events returns undefined (0.0549ms)
+✔ no RARE events: RARE roll returns undefined (no reroll) (0.0655ms)
+✔ resetForNewSave clears all state (0.1452ms)
+✔ KPI near completion boosts CHOICE weight (0.2111ms)
+✔ fishing mode boosts POSITIVE and reduces NEGATIVE (0.2417ms)
 ℹ tests 17
 ℹ suites 0
 ℹ pass 17
@@ -387,44 +387,44 @@ Phase 3 integration tests: 18 passed, 0 failed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 10.6598
-✔ GameFacade.queryCareer returns career info (6.9489ms)
-✔ GameFacade.queryBoard returns board info (1.3504ms)
-✔ GameFacade.queryKpi returns KPI view (1.0911ms)
-✔ GameFacade.queryPromotionCheck returns check result (1.871ms)
-✔ GameFacade.queryTutorial returns tutorial state (1.1938ms)
-✔ GameFacade.queryAchievementConfigs returns configs (0.698ms)
-✔ GameFacade.queryDailyTaskProgress returns progress (0.6487ms)
-✔ GameFacade.querySects returns sect configs (0.4334ms)
-✔ GameFacade.queryOfficeName returns office name (0.5411ms)
-✔ buildMainHUDViewModel returns complete view model (1.0785ms)
-✔ buildMergeBoardViewModel returns board view model (0.4844ms)
-✔ buildCareerViewModel returns career view model (0.4739ms)
-✔ buildKpiViewModel returns KPI view model (0.3776ms)
-✔ buildPromotionViewModel returns promotion view model (0.5106ms)
-✔ buildTutorialViewModel returns tutorial view model (0.4708ms)
-✔ buildSectViewModel returns sect view model (0.5642ms)
-✔ GameFacade.toggleWorkMode switches work mode (1.0464ms)
-✔ GameFacade.recruit adds worker to board (0.724ms)
-✔ GameFacade.recruit fails when board is full (0.4331ms)
-✔ GameFacade.onUiEvent receives events after commands (0.5322ms)
-✔ GameFacade.onUiEvent unsubscribe stops events (0.5097ms)
-✔ resolveCategory maps known events correctly (0.1806ms)
-✔ resolveCategory returns STATE_CHANGED for unknown events (0.0766ms)
-✔ ALL_UI_CATEGORIES has 16 categories (0.0419ms)
-✔ ModalManager: enqueue opens modal immediately when no active modal (0.2333ms)
-✔ ModalManager: de-duplicates by entityId (0.0809ms)
-✔ ModalManager: close opens next queued modal (0.0837ms)
-✔ ModalManager: priority insertion works (0.0687ms)
-✔ ModalManager: max queue size enforced (0.0999ms)
-✔ ModalManager: submit transitions to SUBMITTING (0.0923ms)
-✔ ModalManager: complete transitions from SUBMITTING to next (0.0771ms)
-✔ ToastManager: show creates active toast (0.3654ms)
-✔ ToastManager: merge identical messages within cooldown (0.1708ms)
-✔ ToastManager: max queue size drops excess (0.1681ms)
-✔ GameFacade.snapshot returns immutable snapshot (0.5327ms)
-✔ GameFacade.hasChanged detects state changes (0.5262ms)
-✔ RewardAdPolicy: full session lifecycle (0.8317ms)
+ℹ duration_ms 9.7157
+✔ GameFacade.queryCareer returns career info (6.3828ms)
+✔ GameFacade.queryBoard returns board info (1.2483ms)
+✔ GameFacade.queryKpi returns KPI view (0.9223ms)
+✔ GameFacade.queryPromotionCheck returns check result (0.7531ms)
+✔ GameFacade.queryTutorial returns tutorial state (1.0286ms)
+✔ GameFacade.queryAchievementConfigs returns configs (0.5578ms)
+✔ GameFacade.queryDailyTaskProgress returns progress (0.5571ms)
+✔ GameFacade.querySects returns sect configs (0.3179ms)
+✔ GameFacade.queryOfficeName returns office name (0.4391ms)
+✔ buildMainHUDViewModel returns complete view model (0.9171ms)
+✔ buildMergeBoardViewModel returns board view model (0.6306ms)
+✔ buildCareerViewModel returns career view model (0.5972ms)
+✔ buildKpiViewModel returns KPI view model (0.4774ms)
+✔ buildPromotionViewModel returns promotion view model (0.4889ms)
+✔ buildTutorialViewModel returns tutorial view model (0.3436ms)
+✔ buildSectViewModel returns sect view model (0.3612ms)
+✔ GameFacade.toggleWorkMode switches work mode (0.6526ms)
+✔ GameFacade.recruit adds worker to board (0.4612ms)
+✔ GameFacade.recruit fails when board is full (0.3479ms)
+✔ GameFacade.onUiEvent receives events after commands (0.4264ms)
+✔ GameFacade.onUiEvent unsubscribe stops events (0.4104ms)
+✔ resolveCategory maps known events correctly (0.0639ms)
+✔ resolveCategory returns STATE_CHANGED for unknown events (0.0623ms)
+✔ ALL_UI_CATEGORIES has 16 categories (0.0408ms)
+✔ ModalManager: enqueue opens modal immediately when no active modal (0.1753ms)
+✔ ModalManager: de-duplicates by entityId (0.0942ms)
+✔ ModalManager: close opens next queued modal (0.0726ms)
+✔ ModalManager: priority insertion works (0.0644ms)
+✔ ModalManager: max queue size enforced (0.0998ms)
+✔ ModalManager: submit transitions to SUBMITTING (0.0778ms)
+✔ ModalManager: complete transitions from SUBMITTING to next (0.0529ms)
+✔ ToastManager: show creates active toast (0.8903ms)
+✔ ToastManager: merge identical messages within cooldown (1.2211ms)
+✔ ToastManager: max queue size drops excess (0.2134ms)
+✔ GameFacade.snapshot returns immutable snapshot (0.7176ms)
+✔ GameFacade.hasChanged detects state changes (0.695ms)
+✔ RewardAdPolicy: full session lifecycle (0.6958ms)
 ℹ tests 37
 ℹ suites 0
 ℹ pass 37
@@ -432,22 +432,22 @@ Phase 3 integration tests: 18 passed, 0 failed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 36.1101
-✔ RewardAdPolicy: initial state allows ad (1.5864ms)
-✔ RewardAdPolicy: isAllowed returns true initially (0.1755ms)
-✔ RewardAdPolicy: enforces session limit (0.1458ms)
-✔ RewardAdPolicy: resetSession clears session count (0.1592ms)
-✔ RewardAdPolicy: enforces daily limit (0.2599ms)
-✔ RewardAdPolicy: daily count resets on new day (0.1485ms)
-✔ RewardAdPolicy: enforces minimum interval (0.0998ms)
-✔ RewardAdPolicy: enforces cancel cooldown (0.0964ms)
-✔ RewardAdPolicy: enforces failure cooldown (0.0978ms)
-✔ RewardAdPolicy: getState returns current state (0.2129ms)
-✔ RewardAdPolicy: getRemainingSessionAds returns correct count (0.1013ms)
-✔ RewardAdPolicy: getRemainingDailyAds returns correct count (0.1229ms)
-✔ RewardAdPolicy: session limit takes priority over daily limit (0.1168ms)
-✔ RewardAdPolicy: failure cooldown does not block after expiry (0.0576ms)
-✔ RewardAdPolicy: recordShown increments both session and daily count (0.0462ms)
+ℹ duration_ms 35.2579
+✔ RewardAdPolicy: initial state allows ad (1.2502ms)
+✔ RewardAdPolicy: isAllowed returns true initially (0.1135ms)
+✔ RewardAdPolicy: enforces session limit (0.1016ms)
+✔ RewardAdPolicy: resetSession clears session count (0.0841ms)
+✔ RewardAdPolicy: enforces daily limit (0.2144ms)
+✔ RewardAdPolicy: daily count resets on new day (0.1377ms)
+✔ RewardAdPolicy: enforces minimum interval (0.0944ms)
+✔ RewardAdPolicy: enforces cancel cooldown (0.0824ms)
+✔ RewardAdPolicy: enforces failure cooldown (0.0929ms)
+✔ RewardAdPolicy: getState returns current state (0.1788ms)
+✔ RewardAdPolicy: getRemainingSessionAds returns correct count (0.1037ms)
+✔ RewardAdPolicy: getRemainingDailyAds returns correct count (0.0709ms)
+✔ RewardAdPolicy: session limit takes priority over daily limit (0.0626ms)
+✔ RewardAdPolicy: failure cooldown does not block after expiry (0.053ms)
+✔ RewardAdPolicy: recordShown increments both session and daily count (0.0468ms)
 ℹ tests 15
 ℹ suites 0
 ℹ pass 15
@@ -455,7 +455,7 @@ Phase 3 integration tests: 18 passed, 0 failed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 11.3716
+ℹ duration_ms 10.1247
 platform service tests passed
 ok - 无 SDK 环境（forceMock）：本地授予且不调用平台 SDK
 ok - 微信宿主：完整观看 → granted
@@ -480,15 +480,15 @@ ok - 四职业行动互异:每种职业有自己的行动 id 与收益类型
 profession action tests passed
 promotion service tests passed
 recruitment tests passed
-✔ Config: all JSON config files are valid JSON (4.2ms)
-✔ Config: idle.json has valid structure (0.3133ms)
-✔ Config: career.json has valid structure (0.2874ms)
-✔ Config: PRODUCTION_CONFIG is production-safe (0.1191ms)
-✔ Config: DEVELOPMENT_CONFIG has debug enabled (0.08ms)
-✔ Config: STAGING_CONFIG has both debug and analytics (0.0621ms)
-✔ Config: resolveReleaseConfig returns valid config (0.1332ms)
-✔ Config: isProduction and isAdAvailable work correctly (0.08ms)
-✔ Config: IAA policy values are within acceptable ranges (0.0868ms)
+✔ Config: all JSON config files are valid JSON (3.8032ms)
+✔ Config: idle.json has valid structure (0.333ms)
+✔ Config: career.json has valid structure (0.3005ms)
+✔ Config: PRODUCTION_CONFIG is production-safe (0.1237ms)
+✔ Config: DEVELOPMENT_CONFIG has debug enabled (0.1352ms)
+✔ Config: STAGING_CONFIG has both debug and analytics (0.09ms)
+✔ Config: resolveReleaseConfig returns valid config (0.1481ms)
+✔ Config: isProduction and isAdAvailable work correctly (0.1035ms)
+✔ Config: IAA policy values are within acceptable ranges (0.0802ms)
 ℹ tests 9
 ℹ suites 0
 ℹ pass 9
@@ -496,37 +496,37 @@ recruitment tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 11.4871
-✔ E2E: new save creation produces valid default state (4.7878ms)
-✔ E2E: recruit fails gracefully in PC V1 (no board) (0.8885ms)
-✔ E2E: MergeService throws in PC V1 (no board) (0.8376ms)
-✔ E2E: work tick accumulates salary and cultivation (54.9682ms)
-✔ E2E: toggleWorkMode switches between WORK and FISHING (1.3899ms)
-✔ E2E: KPI progress tracks task completions, work seconds, cultivation (0.7358ms)
-✔ E2E: daily tasks are generated and progress tracked (0.5006ms)
-✔ E2E: career event system can be queried (0.3675ms)
-✔ E2E: achievement system tracks career level achievements (0.654ms)
-✔ E2E: office level derives from career level (0.6843ms)
-✔ E2E: promotion check validates KPI and cultivation requirements (0.5825ms)
-✔ E2E: successful promotion advances career level and resets KPI (0.7914ms)
-✔ E2E: save and load preserves game state (3.0974ms)
-✔ E2E: offline reward settlement grants salary and cultivation (1.2708ms)
-✔ E2E: complete promotion path from Level 1 to Level 10 (1.1121ms)
-✔ E2E: no NaN, Infinity, or negative resources after extensive operations (15.4175ms)
-✔ E2E: save/load cycle preserves player state in PC V1 (1.0659ms)
-✔ E2E: game loop does not enter infinite loop with large delta (64.0357ms)
-✔ E2E: all 10 career levels have correct names and realms (0.4695ms)
-✔ E2E: office levels correctly map to career levels (0.2757ms)
-✔ E2E: promotion failure penalizes mind and requires retry (0.5233ms)
-✔ E2E: full lifecycle from new game to save/load/continue (5.2721ms)
-✔ E2E: career level salary multiplier increases with level (0.3767ms)
-✔ E2E: career level cultivation multiplier increases with level (0.259ms)
-✔ E2E: KPI targets increase across career levels (0.2822ms)
-✔ E2E: recruit always fails in PC V1 (no board capacity) (0.2841ms)
-✔ E2E: MergeService unavailable in PC V1 (no merge feature) (0.275ms)
-✔ E2E: career level chain 1-10 has no gaps (0.3057ms)
-✔ E2E: WORK mode gives higher salary than FISHING mode (29.7728ms)
-✔ E2E: snapshot reflects current player state consistently (0.5417ms)
+ℹ duration_ms 10.4724
+✔ E2E: new save creation produces valid default state (7.2364ms)
+✔ E2E: recruit fails gracefully in PC V1 (no board) (1.6272ms)
+✔ E2E: MergeService throws in PC V1 (no board) (1.5156ms)
+✔ E2E: work tick accumulates salary and cultivation (60.8114ms)
+✔ E2E: toggleWorkMode switches between WORK and FISHING (1.3495ms)
+✔ E2E: KPI progress tracks task completions, work seconds, cultivation (0.8867ms)
+✔ E2E: daily tasks are generated and progress tracked (0.6817ms)
+✔ E2E: career event system can be queried (0.4944ms)
+✔ E2E: achievement system tracks career level achievements (0.8495ms)
+✔ E2E: office level derives from career level (0.8664ms)
+✔ E2E: promotion check validates KPI and cultivation requirements (0.7007ms)
+✔ E2E: successful promotion advances career level and resets KPI (1.0348ms)
+✔ E2E: save and load preserves game state (3.7012ms)
+✔ E2E: offline reward settlement grants salary and cultivation (1.9662ms)
+✔ E2E: complete promotion path from Level 1 to Level 10 (1.8111ms)
+✔ E2E: no NaN, Infinity, or negative resources after extensive operations (17.0545ms)
+✔ E2E: save/load cycle preserves player state in PC V1 (1.1133ms)
+✔ E2E: game loop does not enter infinite loop with large delta (73.4735ms)
+✔ E2E: all 10 career levels have correct names and realms (0.676ms)
+✔ E2E: office levels correctly map to career levels (0.3777ms)
+✔ E2E: promotion failure penalizes mind and requires retry (0.6261ms)
+✔ E2E: full lifecycle from new game to save/load/continue (7.3247ms)
+✔ E2E: career level salary multiplier increases with level (0.595ms)
+✔ E2E: career level cultivation multiplier increases with level (0.288ms)
+✔ E2E: KPI targets increase across career levels (0.2828ms)
+✔ E2E: recruit always fails in PC V1 (no board capacity) (0.3106ms)
+✔ E2E: MergeService unavailable in PC V1 (no merge feature) (0.3153ms)
+✔ E2E: career level chain 1-10 has no gaps (0.3463ms)
+✔ E2E: WORK mode gives higher salary than FISHING mode (31.0296ms)
+✔ E2E: snapshot reflects current player state consistently (0.8014ms)
 ℹ tests 30
 ℹ suites 0
 ℹ pass 30
@@ -534,16 +534,16 @@ recruitment tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 200.3145
-✔ Event Stress: 100 rapid event resolutions without corruption (2.9468ms)
-✔ Event Stress: same event cannot appear within cooldown (0.2843ms)
-✔ Event Stress: 2 consecutive negatives suppress further negatives (0.1555ms)
-✔ Event Stress: easter egg can only appear once per save (0.1734ms)
-✔ Event Stress: last 5 event IDs are excluded from next poll (0.2033ms)
-✔ Event Stress: resolve with wrong event ID throws (5.6593ms)
-✔ Event Stress: scheduler pause/resume/destroy behavior (0.2799ms)
-✔ Event Stress: poll returns undefined when no events are eligible (0.1715ms)
-✔ Event Stress: rapid polls without recordShown do not corrupt state (0.3809ms)
+ℹ duration_ms 230.8604
+✔ Event Stress: 100 rapid event resolutions without corruption (2.8374ms)
+✔ Event Stress: same event cannot appear within cooldown (0.2864ms)
+✔ Event Stress: 2 consecutive negatives suppress further negatives (0.1313ms)
+✔ Event Stress: easter egg can only appear once per save (0.1553ms)
+✔ Event Stress: last 5 event IDs are excluded from next poll (0.1567ms)
+✔ Event Stress: resolve with wrong event ID throws (4.6972ms)
+✔ Event Stress: scheduler pause/resume/destroy behavior (0.3059ms)
+✔ Event Stress: poll returns undefined when no events are eligible (0.1355ms)
+✔ Event Stress: rapid polls without recordShown do not corrupt state (0.3033ms)
 ℹ tests 9
 ℹ suites 0
 ℹ pass 9
@@ -551,12 +551,12 @@ recruitment tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 15.047
-✔ Lifecycle: 100 rapid hide/show cycles preserve game state (58.2675ms)
-✔ Lifecycle: callbacks fire in correct order on hide/show (0.6122ms)
-✔ Lifecycle: save-on-hide preserves data integrity (24.4095ms)
-✔ Lifecycle: pause/resume does not corrupt game loop (27.406ms)
-✔ Lifecycle: no double-counting on rapid hide/show transitions (39.1759ms)
+ℹ duration_ms 13.7343
+✔ Lifecycle: 100 rapid hide/show cycles preserve game state (49.1958ms)
+✔ Lifecycle: callbacks fire in correct order on hide/show (0.6534ms)
+✔ Lifecycle: save-on-hide preserves data integrity (19.6232ms)
+✔ Lifecycle: pause/resume does not corrupt game loop (25.8495ms)
+✔ Lifecycle: no double-counting on rapid hide/show transitions (36.377ms)
 ℹ tests 5
 ℹ suites 0
 ℹ pass 5
@@ -564,15 +564,15 @@ recruitment tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 158.0064
-✔ Reward Abuse: cannot request reward while another is in progress (1.2752ms)
-✔ Reward Abuse: session limit blocks further ad requests (0.5112ms)
+ℹ duration_ms 139.9102
+✔ Reward Abuse: cannot request reward while another is in progress (0.8691ms)
+✔ Reward Abuse: session limit blocks further ad requests (0.4831ms)
 ✔ Reward Abuse: daily limit blocks further ad requests (0.1243ms)
-✔ Reward Abuse: minimum interval between ads enforced (0.1038ms)
-✔ Reward Abuse: cancel cooldown enforced (0.1658ms)
-✔ Reward Abuse: failure cooldown enforced (0.111ms)
-✔ Reward Abuse: double-callback from provider does not double-grant (0.1386ms)
-✔ Reward Abuse: session reset allows new ads (0.0851ms)
+✔ Reward Abuse: minimum interval between ads enforced (0.1007ms)
+✔ Reward Abuse: cancel cooldown enforced (0.2145ms)
+✔ Reward Abuse: failure cooldown enforced (0.1291ms)
+✔ Reward Abuse: double-callback from provider does not double-grant (0.1741ms)
+✔ Reward Abuse: session reset allows new ads (0.102ms)
 ℹ tests 8
 ℹ suites 0
 ℹ pass 8
@@ -580,13 +580,13 @@ recruitment tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 8.0441
-✔ Save Stress: 1000 save/load cycles preserve data consistency (423.2487ms)
-✔ Save Stress: backup recovers when primary save is corrupted (1.0519ms)
-✔ Save Stress: safe default when both primary and backup are corrupted (0.1726ms)
-✔ Save Stress: no NaN or Infinity after 1000 cycles (244.9171ms)
-✔ Save Stress: save/load preserves state across promotions (3.8127ms)
-✔ Save Stress: seed 4102 survives 100 mixed operations with save/load after every operation (92.72ms)
+ℹ duration_ms 7.1419
+✔ Save Stress: 1000 save/load cycles preserve data consistency (423.066ms)
+✔ Save Stress: backup recovers when primary save is corrupted (1.003ms)
+✔ Save Stress: safe default when both primary and backup are corrupted (0.1792ms)
+✔ Save Stress: no NaN or Infinity after 1000 cycles (237.4543ms)
+✔ Save Stress: save/load preserves state across promotions (2.1252ms)
+✔ Save Stress: seed 4102 survives 100 mixed operations with save/load after every operation (82.9723ms)
 ℹ tests 6
 ℹ suites 0
 ℹ pass 6
@@ -594,14 +594,14 @@ recruitment tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 775.5661
-✔ Simulation: 100 seeds complete without errors (69.579ms)
-✔ Simulation: no NaN or Infinity in final state across 100 seeds (55.2246ms)
-✔ Simulation: salary and cultivation are always non-negative (52.8592ms)
-✔ Simulation: career level starts at 1 and never decreases (40.2138ms)
-✔ Simulation: mind and maxMind are always positive (41.8876ms)
-✔ Simulation: workers count is always non-negative (43.4564ms)
-✔ Simulation: save/reload preserves salary and cultivation across 100 seeds (938.8155ms)
+ℹ duration_ms 755.0096
+✔ Simulation: 100 seeds complete without errors (63.2559ms)
+✔ Simulation: no NaN or Infinity in final state across 100 seeds (44.2909ms)
+✔ Simulation: salary and cultivation are always non-negative (49.8083ms)
+✔ Simulation: career level starts at 1 and never decreases (39.6684ms)
+✔ Simulation: mind and maxMind are always positive (42.821ms)
+✔ Simulation: workers count is always non-negative (40.0772ms)
+✔ Simulation: save/reload preserves salary and cultivation across 100 seeds (1025.8621ms)
 ℹ tests 7
 ℹ suites 0
 ℹ pass 7
@@ -609,7 +609,7 @@ recruitment tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 1247.2376
+ℹ duration_ms 1310.2307
 reward provider tests passed
 reward result tests passed
 ok - 老存档升级:合法字段不丢失,新增字段取安全默认
@@ -625,10 +625,10 @@ ok - wageMultiplier 随存档持久化，非法值回退 1（P1 回归）
 ok - 存档 careerLevel 越界被钳回 1，不再启动即崩溃（P2 回归）
 save regression lock tests passed
 save tests passed
-✔ home art files exist at the official asset paths (0.8443ms)
-✔ home generator declares the official art paths and creates resource nodes (0.4245ms)
-✔ Main.scene uses sprite resource nodes for the home character and office background (0.3073ms)
-✔ CharacterIconLabel is not the home character emoji visual (0.2085ms)
+✔ home art files exist at the official asset paths (0.8765ms)
+✔ home generator declares the official art paths and creates resource nodes (0.4416ms)
+✔ Main.scene uses sprite resource nodes for the home character and office background (0.2742ms)
+✔ CharacterIconLabel is not the home character emoji visual (0.5669ms)
 ℹ tests 4
 ℹ suites 0
 ℹ pass 4
@@ -636,11 +636,11 @@ save tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 6.5995
-✔ home layout follows the 720x1280 portrait reference bands (1.3658ms)
-✔ home resource chips keep their reference colors and text nodes (0.2211ms)
-✔ home primary actions expose the three reference button labels (0.1124ms)
-✔ primary actions directly follow idle income and stay separate from bottom navigation (0.1091ms)
+ℹ duration_ms 6.7198
+✔ home layout follows the 720x1280 portrait reference bands (1.9029ms)
+✔ home resource chips keep their reference colors and text nodes (0.3934ms)
+✔ home primary actions expose the three reference button labels (0.1765ms)
+✔ primary actions directly follow idle income and stay separate from bottom navigation (0.1376ms)
 ℹ tests 4
 ℹ suites 0
 ℹ pass 4
@@ -648,13 +648,13 @@ save tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 6.483
+ℹ duration_ms 7.9134
 static scene integrity tests passed
-✔ home UI has the branded header, four independent resource chips, and character card (2.539ms)
-✔ home UI keeps the five navigation tabs and all visible labels in their regions (0.4221ms)
-✔ home UI binds each resource chip to the live HUD view model (0.9868ms)
-✔ home UI preserves the designed parent-child regions (0.5102ms)
-✔ home UI keeps portrait visual parents and action/navigation separation (0.1476ms)
+✔ home UI has the branded header, four independent resource chips, and character card (1.7064ms)
+✔ home UI keeps the five navigation tabs and all visible labels in their regions (0.4374ms)
+✔ home UI binds each resource chip to the live HUD view model (0.8816ms)
+✔ home UI preserves the designed parent-child regions (0.566ms)
+✔ home UI keeps portrait visual parents and action/navigation separation (0.1675ms)
 ℹ tests 5
 ℹ suites 0
 ℹ pass 5
@@ -662,10 +662,10 @@ static scene integrity tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 9.6228
-✔ Task 5 key home containers are renderable at startup (1.0226ms)
-✔ Task 5 home scene exposes the requested visible content contract (0.18ms)
-✔ Task 5 craft rows remain visible recipe presentations with actions (0.1532ms)
+ℹ duration_ms 8.8689
+✔ Task 5 key home containers are renderable at startup (0.8564ms)
+✔ Task 5 home scene exposes the requested visible content contract (0.1653ms)
+✔ Task 5 craft rows remain visible recipe presentations with actions (0.1615ms)
 ℹ tests 3
 ℹ suites 0
 ℹ pass 3
@@ -673,13 +673,13 @@ static scene integrity tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 6.5794
-✔ Task 6 keeps the scene and desktop canvas on one 720x1280 portrait composition (2.2994ms)
-✔ Task 6 keeps PageContainer inside the portrait page composition (0.269ms)
-✔ Task 6 keeps the generator and pc copy/patch chain on 720x1280 (236.4497ms)
-✔ Task 6 keeps absolute label nodes under their intended layout parents (0.3724ms)
-✔ Task 6 uses non-overlapping top-to-bottom safe-area bands (0.4486ms)
-✔ Task 6 keeps Craft content inside the page band and uses direct labels (0.2724ms)
+ℹ duration_ms 5.5786
+✔ Task 6 keeps the scene and desktop canvas on one 720x1280 portrait composition (1.4861ms)
+✔ Task 6 keeps PageContainer inside the portrait page composition (0.2946ms)
+✔ Task 6 keeps the generator and pc copy/patch chain on 720x1280 (202.3896ms)
+✔ Task 6 keeps absolute label nodes under their intended layout parents (0.3963ms)
+✔ Task 6 uses non-overlapping top-to-bottom safe-area bands (0.4666ms)
+✔ Task 6 keeps Craft content inside the page band and uses direct labels (0.3031ms)
 ℹ tests 6
 ℹ suites 0
 ℹ pass 6
@@ -687,11 +687,11 @@ static scene integrity tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 245.0705
+ℹ duration_ms 210.0688
 numeric property type checks passed
-✔ no Cocos Component uses @property(Number) — must be CCFloat/CCInteger (6.6596ms)
-✔ MergeBoardView imports CCFloat and CCInteger from cc (0.6747ms)
-✔ MergeBoardView geometry fields use CCFloat and count fields use CCInteger (0.4992ms)
+✔ no Cocos Component uses @property(Number) — must be CCFloat/CCInteger (7.7346ms)
+✔ MergeBoardView imports CCFloat and CCInteger from cc (0.6093ms)
+✔ MergeBoardView geometry fields use CCFloat and count fields use CCInteger (0.4953ms)
 ℹ tests 3
 ℹ suites 0
 ℹ pass 3
@@ -699,7 +699,7 @@ numeric property type checks passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 12.1087
+ℹ duration_ms 13.1243
 ok - sectId 事件条件:宗门专属事件只对本宗门可见
 ok - 宗门事件已入库且按宗门正确分布(4 宗 × 3 阶段链)
 ok - 大厂宗修为加成:同等工作量修为高于国企宗(cultivationMultiplier 接通)
@@ -752,18 +752,18 @@ tutorial service tests passed
 }
 [GameUIController] Runtime wiring complete
 game UI controller tests passed
-✔ MainView onLoad uses the GameBootstrapComponent business context (5.6833ms)
-✔ refreshes labels and worker cards from the authoritative GameContext (1.1203ms)
-✔ ToastView presents a message without changing game state and can be stopped safely (0.2458ms)
-✔ FeedbackView uses separate salary and breakthrough nodes and restores merge scale on cancellation (1.1633ms)
-✔ FeedbackView restores feedback state after tween completion (0.3088ms)
-✔ full board recruitment shows a Toast instead of mutating the board (1.1873ms)
-✔ WorkerView exposes a model-driven card presentation without owning game state (0.3403ms)
-✔ Main.scene declares the core WEB V1 nodes and view components (37.9852ms)
-✔ Main.scene has a consistent WEB V1 node/component reference graph (42.2785ms)
-✔ Main.scene exposes the playable home and indexed board cell contract (35.762ms)
-✔ scene assembly binds every worker view and clears an empty cell (1.412ms)
-✔ refresh restores unique fixed cell centers after recruit, move, merge, and cancel (2.1036ms)
+✔ MainView onLoad uses the GameBootstrapComponent business context (6.4917ms)
+✔ refreshes labels and worker cards from the authoritative GameContext (1.1646ms)
+✔ ToastView presents a message without changing game state and can be stopped safely (0.4491ms)
+✔ FeedbackView uses separate salary and breakthrough nodes and restores merge scale on cancellation (0.9261ms)
+✔ FeedbackView restores feedback state after tween completion (0.2057ms)
+✔ full board recruitment shows a Toast instead of mutating the board (0.9173ms)
+✔ WorkerView exposes a model-driven card presentation without owning game state (0.2605ms)
+✔ Main.scene declares the core WEB V1 nodes and view components (32.9528ms)
+✔ Main.scene has a consistent WEB V1 node/component reference graph (34.3479ms)
+✔ Main.scene exposes the playable home and indexed board cell contract (29.2131ms)
+✔ scene assembly binds every worker view and clears an empty cell (1.3999ms)
+✔ refresh restores unique fixed cell centers after recruit, move, merge, and cancel (1.8188ms)
 ℹ tests 12
 ℹ suites 0
 ℹ pass 12
@@ -771,22 +771,22 @@ game UI controller tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 139.0947
-✔ ModalManager: enqueue opens modal immediately when no active (0.7553ms)
-✔ ModalManager: second enqueue queues behind active (0.1076ms)
-✔ ModalManager: close opens next queued modal (0.0973ms)
-✔ ModalManager: de-duplicates by entityId (0.0752ms)
-✔ ModalManager: after close, same entityId can re-enter (0.2438ms)
-✔ ModalManager: max queue size is 3 (0.1467ms)
-✔ ModalManager: submit transitions to SUBMITTING (0.1326ms)
-✔ ModalManager: cannot close while SUBMITTING (0.0907ms)
-✔ ModalManager: complete transitions from SUBMITTING to next (0.1287ms)
-✔ ModalManager: dismiss closes dismissible modal (0.226ms)
-✔ ModalManager: dismiss does nothing for non-dismissible modal (0.1283ms)
-✔ ModalManager: higher priority jumps queue (0.1298ms)
-✔ ModalManager: onStateChange fires on enqueue and close (0.161ms)
-✔ ModalManager: dispose clears everything (0.0743ms)
-✔ ModalManager: enqueue after dispose is no-op (0.0644ms)
+ℹ duration_ms 119.4361
+✔ ModalManager: enqueue opens modal immediately when no active (1.1072ms)
+✔ ModalManager: second enqueue queues behind active (0.2003ms)
+✔ ModalManager: close opens next queued modal (0.1422ms)
+✔ ModalManager: de-duplicates by entityId (0.0958ms)
+✔ ModalManager: after close, same entityId can re-enter (0.2238ms)
+✔ ModalManager: max queue size is 3 (0.1845ms)
+✔ ModalManager: submit transitions to SUBMITTING (0.1065ms)
+✔ ModalManager: cannot close while SUBMITTING (0.0701ms)
+✔ ModalManager: complete transitions from SUBMITTING to next (0.0923ms)
+✔ ModalManager: dismiss closes dismissible modal (0.1933ms)
+✔ ModalManager: dismiss does nothing for non-dismissible modal (0.0792ms)
+✔ ModalManager: higher priority jumps queue (0.078ms)
+✔ ModalManager: onStateChange fires on enqueue and close (0.0904ms)
+✔ ModalManager: dispose clears everything (0.0439ms)
+✔ ModalManager: enqueue after dispose is no-op (0.0423ms)
 ℹ tests 15
 ℹ suites 0
 ℹ pass 15
@@ -794,15 +794,15 @@ game UI controller tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 9.007
-✔ formatNumber: small numbers (0.6931ms)
-✔ formatNumber: 万 range (0.11ms)
-✔ formatNumber: 亿 range (0.081ms)
-✔ formatNumber: edge cases (0.1667ms)
-✔ formatProgress (0.1261ms)
-✔ formatPercent (0.1023ms)
-✔ formatDuration (0.1595ms)
-✔ formatTimestamp (1.1811ms)
+ℹ duration_ms 10.0462
+✔ formatNumber: small numbers (0.6422ms)
+✔ formatNumber: 万 range (0.1013ms)
+✔ formatNumber: 亿 range (0.0649ms)
+✔ formatNumber: edge cases (0.074ms)
+✔ formatProgress (0.1732ms)
+✔ formatPercent (0.1086ms)
+✔ formatDuration (0.1735ms)
+✔ formatTimestamp (1.127ms)
 ℹ tests 8
 ℹ suites 0
 ℹ pass 8
@@ -810,36 +810,36 @@ game UI controller tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 8.98
+ℹ duration_ms 7.2991
 phase2 bind idempotency tests passed
 phase 2 view model tests passed
-✔ buildCultivationViewModel: returns complete cultivation data (5.0839ms)
-✔ buildCultivationViewModel: cultivationProgress is between 0 and 1 (1.0345ms)
-✔ buildCultivationViewModel: canCultivate is true when no cooldown and mind > 0 (0.6552ms)
-✔ buildCultivationViewModel: result is frozen (immutable) (0.6442ms)
-✔ buildIdleViewModel: returns complete idle efficiency data (2.142ms)
-✔ buildIdleViewModel: default work mode is FISHING (0.5456ms)
-✔ buildIdleViewModel: FISHING mode has correct efficiency multipliers (0.4705ms)
-✔ buildIdleViewModel: WORK mode after toggle has correct multipliers (0.7334ms)
-✔ buildIdleViewModel: result is frozen (immutable) (0.5288ms)
-✔ buildTaskViewModel: returns task data with correct structure (0.763ms)
-✔ buildTaskViewModel: maxConcurrent is 3 (0.3104ms)
-✔ buildTaskViewModel: canStartMore when active < max (0.2744ms)
-✔ buildTaskViewModel: result is frozen (immutable) (0.2776ms)
-✔ buildLeaderboardViewModel: returns leaderboard data (0.5564ms)
-✔ buildLeaderboardViewModel: top3 has at most 3 entries (0.3699ms)
-✔ buildLeaderboardViewModel: result is frozen (immutable) (0.4272ms)
-✔ buildFriendsViewModel: returns friends data (0.4693ms)
-✔ buildFriendsViewModel: totalFriends matches friends array length (0.3438ms)
-✔ buildFriendsViewModel: result is frozen (immutable) (0.3279ms)
-✔ buildRewardedAdViewModel: returns ad data (0.4368ms)
-✔ buildRewardedAdViewModel: maxAdsPerHour is 10 (0.32ms)
-✔ buildRewardedAdViewModel: has 7 placement cooldowns (0.2877ms)
-✔ buildRewardedAdViewModel: each placement cooldown has placement and remaining (0.3051ms)
-✔ buildRewardedAdViewModel: result is frozen (immutable) (0.3025ms)
-✔ BottomNav: 7 tabs defined in correct order (0.0669ms)
-✔ BottomNav: Chinese labels for all tabs (0.0641ms)
-✔ HomePage: PAGE_NODE_MAP maps each tab to a content node name (0.0502ms)
+✔ buildCultivationViewModel: returns complete cultivation data (5.629ms)
+✔ buildCultivationViewModel: cultivationProgress is between 0 and 1 (0.9549ms)
+✔ buildCultivationViewModel: canCultivate is true when no cooldown and mind > 0 (0.6095ms)
+✔ buildCultivationViewModel: result is frozen (immutable) (0.5985ms)
+✔ buildIdleViewModel: returns complete idle efficiency data (1.971ms)
+✔ buildIdleViewModel: default work mode is FISHING (0.5669ms)
+✔ buildIdleViewModel: FISHING mode has correct efficiency multipliers (0.412ms)
+✔ buildIdleViewModel: WORK mode after toggle has correct multipliers (0.6639ms)
+✔ buildIdleViewModel: result is frozen (immutable) (0.5252ms)
+✔ buildTaskViewModel: returns task data with correct structure (0.781ms)
+✔ buildTaskViewModel: maxConcurrent is 3 (0.3153ms)
+✔ buildTaskViewModel: canStartMore when active < max (0.2674ms)
+✔ buildTaskViewModel: result is frozen (immutable) (0.2606ms)
+✔ buildLeaderboardViewModel: returns leaderboard data (0.5079ms)
+✔ buildLeaderboardViewModel: top3 has at most 3 entries (0.337ms)
+✔ buildLeaderboardViewModel: result is frozen (immutable) (0.367ms)
+✔ buildFriendsViewModel: returns friends data (0.4856ms)
+✔ buildFriendsViewModel: totalFriends matches friends array length (0.3397ms)
+✔ buildFriendsViewModel: result is frozen (immutable) (0.3196ms)
+✔ buildRewardedAdViewModel: returns ad data (0.4744ms)
+✔ buildRewardedAdViewModel: maxAdsPerHour is 10 (0.3103ms)
+✔ buildRewardedAdViewModel: has 7 placement cooldowns (0.2816ms)
+✔ buildRewardedAdViewModel: each placement cooldown has placement and remaining (0.3321ms)
+✔ buildRewardedAdViewModel: result is frozen (immutable) (0.3016ms)
+✔ BottomNav: 7 tabs defined in correct order (0.0625ms)
+✔ BottomNav: Chinese labels for all tabs (0.077ms)
+✔ HomePage: PAGE_NODE_MAP maps each tab to a content node name (0.0552ms)
 ℹ tests 27
 ℹ suites 0
 ℹ pass 27
@@ -847,18 +847,18 @@ phase 2 view model tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 26.4505
-✔ ToastManager: show makes toast active immediately (1.0663ms)
-✔ ToastManager: second show queues behind active (0.1323ms)
-✔ ToastManager: identical messages within cooldown are merged (0.0933ms)
-✔ ToastManager: different messages are not merged (0.0823ms)
-✔ ToastManager: max queue size is 3 (0.1163ms)
-✔ ToastManager: dismiss clears active and shows next (0.783ms)
-✔ ToastManager: dismiss with empty queue leaves no active (0.2531ms)
-✔ ToastManager: auto-dismisses after duration (161.3319ms)
-✔ ToastManager: supports all levels (0.258ms)
-✔ ToastManager: dispose clears everything (0.2149ms)
-✔ ToastManager: show after dispose is no-op (0.1736ms)
+ℹ duration_ms 26.6124
+✔ ToastManager: show makes toast active immediately (0.7962ms)
+✔ ToastManager: second show queues behind active (0.113ms)
+✔ ToastManager: identical messages within cooldown are merged (0.0903ms)
+✔ ToastManager: different messages are not merged (0.0801ms)
+✔ ToastManager: max queue size is 3 (0.1127ms)
+✔ ToastManager: dismiss clears active and shows next (0.7041ms)
+✔ ToastManager: dismiss with empty queue leaves no active (0.1322ms)
+✔ ToastManager: auto-dismisses after duration (161.4908ms)
+✔ ToastManager: supports all levels (0.2308ms)
+✔ ToastManager: dispose clears everything (0.1849ms)
+✔ ToastManager: show after dispose is no-op (0.0843ms)
 ℹ tests 11
 ℹ suites 0
 ℹ pass 11
@@ -866,27 +866,27 @@ phase 2 view model tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 168.154
+ℹ duration_ms 167.853
 tutorial overlay component tests passed
-✔ mindStatusText: returns correct text for each tier (0.6478ms)
-✔ mindStatusText: uses ratio against maxMind (0.0797ms)
-✔ buildMainHUDViewModel: returns complete HUD data (5.1613ms)
-✔ buildMainHUDViewModel: board is null in PC V1 (0.8945ms)
-✔ buildMergeBoardViewModel: returns empty board in PC V1 (0.6179ms)
-✔ buildMergeBoardViewModel: all cells empty in PC V1 (no board) (0.5366ms)
-✔ buildMergeBoardViewModel: queryBoard returns null in PC V1 (1.6719ms)
-✔ buildCareerViewModel: returns career data (0.7009ms)
-✔ buildKpiViewModel: returns KPI items (0.454ms)
-✔ buildPromotionViewModel: returns promotion data (0.4658ms)
-✔ buildEventViewModel: returns empty event when no pending (0.3951ms)
-✔ buildAchievementViewModel: returns achievement list (0.6286ms)
-✔ buildDailyTaskViewModel: returns task list (0.4727ms)
-✔ buildOfflineRewardViewModel: returns no reward for already-claimed settlement (0.5431ms)
-✔ buildSettingsViewModel: returns settings data (0.3694ms)
-✔ buildTutorialViewModel: returns tutorial data (0.4156ms)
-✔ buildSectViewModel: returns sect data (0.6404ms)
-✔ ViewModels are frozen (immutable) (0.4695ms)
-✔ MergeBoardViewModel is frozen (immutable) (0.4146ms)
+✔ mindStatusText: returns correct text for each tier (0.8501ms)
+✔ mindStatusText: uses ratio against maxMind (0.1294ms)
+✔ buildMainHUDViewModel: returns complete HUD data (7.0563ms)
+✔ buildMainHUDViewModel: board is null in PC V1 (1.609ms)
+✔ buildMergeBoardViewModel: returns empty board in PC V1 (1.2322ms)
+✔ buildMergeBoardViewModel: all cells empty in PC V1 (no board) (0.9552ms)
+✔ buildMergeBoardViewModel: queryBoard returns null in PC V1 (2.1216ms)
+✔ buildCareerViewModel: returns career data (1.0464ms)
+✔ buildKpiViewModel: returns KPI items (0.5799ms)
+✔ buildPromotionViewModel: returns promotion data (0.5094ms)
+✔ buildEventViewModel: returns empty event when no pending (0.4319ms)
+✔ buildAchievementViewModel: returns achievement list (0.6886ms)
+✔ buildDailyTaskViewModel: returns task list (0.4926ms)
+✔ buildOfflineRewardViewModel: returns no reward for already-claimed settlement (0.5704ms)
+✔ buildSettingsViewModel: returns settings data (0.3998ms)
+✔ buildTutorialViewModel: returns tutorial data (0.4021ms)
+✔ buildSectViewModel: returns sect data (0.4041ms)
+✔ ViewModels are frozen (immutable) (0.3611ms)
+✔ MergeBoardViewModel is frozen (immutable) (0.3071ms)
 ℹ tests 19
 ℹ suites 0
 ℹ pass 19
@@ -894,11 +894,11 @@ tutorial overlay component tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 21.005
-✔ Main.scene exposes playable task and promotion action nodes (1.2504ms)
-✔ GameUIController binds task facade commands (0.2648ms)
-✔ GameUIController binds promotion facade commands (0.0996ms)
-✔ GameUIController adds no drag or touch board interaction (0.3125ms)
+ℹ duration_ms 26.0796
+✔ Main.scene exposes playable task and promotion action nodes (1.0298ms)
+✔ GameUIController binds task facade commands (0.1343ms)
+✔ GameUIController binds promotion facade commands (0.1556ms)
+✔ GameUIController adds no drag or touch board interaction (0.3647ms)
 ℹ tests 4
 ℹ suites 0
 ℹ pass 4
@@ -906,11 +906,11 @@ tutorial overlay component tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 6.3869
-✔ WEB V1 scene exposes five page contracts with visible labels or buttons (1.5308ms)
-✔ WEB V1 scene exposes all five playable Tab buttons with visible labels (0.2473ms)
-✔ GameUIController binds the V1 facade commands, Tab clicks, and page visibility (0.7816ms)
-✔ PC V1 keeps the board out of the interaction loop and adds no drag binding (0.3951ms)
+ℹ duration_ms 6.1017
+✔ WEB V1 scene exposes five page contracts with visible labels or buttons (3.158ms)
+✔ WEB V1 scene exposes all five playable Tab buttons with visible labels (0.2886ms)
+✔ GameUIController binds the V1 facade commands, Tab clicks, and page visibility (0.557ms)
+✔ PC V1 keeps the board out of the interaction loop and adds no drag binding (0.2311ms)
 ℹ tests 4
 ℹ suites 0
 ℹ pass 4
@@ -918,7 +918,7 @@ tutorial overlay component tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 7.6218
+ℹ duration_ms 10.6374
 ===BALANCE_TABLE===
 | 画像 | 结算日 | 职级 | 工资 | 修为 | 绩效 | 道心 | 心魔 | 功法 | 法宝 | 材料种 | NPC均 | 不变量 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -973,10 +973,10 @@ overtime content check tests passed
 overtime event eligibility tests passed
 overtime fatigue weekend tests passed
 overtime game loop tests passed
-✔ new offers and short sessions cannot clear persisted exhaustion; explicit rest can (6.341ms)
-✔ night achievements require positive recorded overlap with the night window (5.8333ms)
-✔ wall-clock jumps without recorded work cannot unlock a night session (0.9966ms)
-✔ event choice requirements are checked again before any mutation (2.7117ms)
+✔ new offers and short sessions cannot clear persisted exhaustion; explicit rest can (6.5402ms)
+✔ night achievements require positive recorded overlap with the night window (4.7839ms)
+✔ wall-clock jumps without recorded work cannot unlock a night session (0.6572ms)
+✔ event choice requirements are checked again before any mutation (2.1417ms)
 ℹ tests 4
 ℹ suites 0
 ℹ pass 4
@@ -984,7 +984,7 @@ overtime game loop tests passed
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 24.0891
+ℹ duration_ms 22.0878
 overtime service tests passed
 pc overlay layout tests passed
 sect runtime modifier tests passed
@@ -1002,7 +1002,7 @@ desktop overlay DOM contract tests passed
 [REPAIR-MARK] loaded ok=true
 [REPAIR-MARK] wait SKIPPED (bisect)
 desktop UI repair contract tests passed
-[68276:1115/170917.887:INFO:CONSOLE(4794)] "[UI] Web V1 overlay initializing...", source:  (4794)
+[45928:1115/171640.436:INFO:CONSOLE(4794)] "[UI] Web V1 overlay initializing...", source:  (4794)
 v4.1 first-day protection tests passed
 v4.1 first-day reachability tests passed
 
@@ -1181,7 +1181,7 @@ milestones and monthly passed
 boss phase 2 passed
 save v14 passed
 V58 SYSTEMS TEST PASSED
-trigger schedule termination passed (50k seeds in 780ms)
+trigger schedule termination passed (50k seeds in 778ms)
 claimed-twin replacement passed
 ultra-deep fixes: all tests passed
 ok - all four supported professions finalize through their existing starter kits

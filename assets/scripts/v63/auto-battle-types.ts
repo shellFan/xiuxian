@@ -123,6 +123,8 @@ export interface V63EnemyState {
   stunTimer?: number;
   /** V6.4 DOT型Boss持续伤害计时器 */
   dotTimer?: number;
+  /** V9.2 Boss Phase 2：HP ≤ 50% 时触发，攻击 ×1.3 + 间隔 ×0.85 */
+  phase2Active?: boolean;
 }
 
 export interface V63SquadMemberState {
@@ -234,6 +236,8 @@ export interface AutoBattleView {
     hpPct: number;
     isBoss: boolean;
     isCardBoss: boolean;
+    /* V9.2 Boss Phase 2 */
+    phase2Active: boolean;
   } | null;
   squad: {
     id: string;
