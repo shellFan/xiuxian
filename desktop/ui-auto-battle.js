@@ -721,6 +721,12 @@
         window.__V66_SPRITE__.mountSquadMember(el, prof);
       }
     }
+    /* V9.1：洞府主角立绘动画（大尺寸职业 Sprite） */
+    var caveHero = document.getElementById('Ux90CaveHero');
+    if (caveHero && window.__V66_SPRITE__ && window.__V66_SPRITE__.mountCaveHero) {
+      var prof = caveHero.getAttribute('data-prof') || (v.squad && v.squad[0] ? v.squad[0].profession : 'JAVA_BACKEND');
+      window.__V66_SPRITE__.mountCaveHero(caveHero, prof);
+    }
     spriteMounted = true;
   }
 

@@ -278,6 +278,18 @@
     return player;
   }
 
+  /* V9.1：洞府主角立绘动画（大尺寸职业 Sprite） */
+  var caveHeroPlayer = null;
+  function mountCaveHero(el, professionId) {
+    if (!el) return null;
+    var spriteName = profSpriteName(professionId);
+    if (!caveHeroPlayer || caveHeroPlayer.spriteName !== spriteName || caveHeroPlayer.el !== el) {
+      if (caveHeroPlayer) caveHeroPlayer.destroy();
+      caveHeroPlayer = new SpriteAnimPlayer(el, spriteName, 1.15);
+    }
+    return caveHeroPlayer;
+  }
+
   function onSquadAttack(professionId) {
     var player = squadPlayers[professionId];
     if (player) player.playAttack();
@@ -309,6 +321,7 @@
     onEnemyDeath: onEnemyDeath,
     onEnemyAttack: onEnemyAttack,
     mountSquadMember: mountSquadMember,
+    mountCaveHero: mountCaveHero,
     onSquadAttack: onSquadAttack,
     destroyAllSquad: destroyAllSquad,
     sceneBgUrl: sceneBgUrl,

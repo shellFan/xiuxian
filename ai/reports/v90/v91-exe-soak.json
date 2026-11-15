@@ -1,0 +1,1984 @@
+{
+  "startedAt": "2026-11-15T03:23:46.914Z",
+  "plannedMinutes": 30,
+  "target": "dist/牛马修仙传-win32-x64/牛马修仙传.exe (packaged, CDP)",
+  "samples": [
+    {
+      "index": 1,
+      "at": "2026-11-15T03:24:16.938Z",
+      "elapsedSeconds": 0,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 1633,
+        "JSHeapUsedSize": 31226068,
+        "JSHeapTotalSize": 50384896
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 2,
+      "at": "2026-11-15T03:24:48.575Z",
+      "elapsedSeconds": 32,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 3420,
+        "JSHeapUsedSize": 29883476,
+        "JSHeapTotalSize": 47239168
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 3,
+      "at": "2026-11-15T03:25:20.300Z",
+      "elapsedSeconds": 63,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 5200,
+        "JSHeapUsedSize": 28709516,
+        "JSHeapTotalSize": 47763456
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 4,
+      "at": "2026-11-15T03:25:51.611Z",
+      "elapsedSeconds": 95,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 6966,
+        "JSHeapUsedSize": 27301488,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 5,
+      "at": "2026-11-15T03:26:23.111Z",
+      "elapsedSeconds": 126,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 8740,
+        "JSHeapUsedSize": 25462556,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 6,
+      "at": "2026-11-15T03:26:54.618Z",
+      "elapsedSeconds": 158,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 10512,
+        "JSHeapUsedSize": 29498928,
+        "JSHeapTotalSize": 47501312
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 7,
+      "at": "2026-11-15T03:27:27.668Z",
+      "elapsedSeconds": 191,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 12372,
+        "JSHeapUsedSize": 32494440,
+        "JSHeapTotalSize": 47763456
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 8,
+      "at": "2026-11-15T03:27:59.292Z",
+      "elapsedSeconds": 222,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 14148,
+        "JSHeapUsedSize": 30711992,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 9,
+      "at": "2026-11-15T03:28:30.985Z",
+      "elapsedSeconds": 254,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 15932,
+        "JSHeapUsedSize": 29602616,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 10,
+      "at": "2026-11-15T03:29:02.560Z",
+      "elapsedSeconds": 286,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 17706,
+        "JSHeapUsedSize": 34127464,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 11,
+      "at": "2026-11-15T03:29:34.282Z",
+      "elapsedSeconds": 317,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 19498,
+        "JSHeapUsedSize": 33049328,
+        "JSHeapTotalSize": 47501312
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 12,
+      "at": "2026-11-15T03:30:06.697Z",
+      "elapsedSeconds": 350,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 21333,
+        "JSHeapUsedSize": 29757508,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 13,
+      "at": "2026-11-15T03:30:38.160Z",
+      "elapsedSeconds": 381,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 23103,
+        "JSHeapUsedSize": 27467412,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 14,
+      "at": "2026-11-15T03:31:10.016Z",
+      "elapsedSeconds": 413,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 24895,
+        "JSHeapUsedSize": 27889144,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 15,
+      "at": "2026-11-15T03:31:41.594Z",
+      "elapsedSeconds": 445,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 26665,
+        "JSHeapUsedSize": 31759052,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 16,
+      "at": "2026-11-15T03:32:13.007Z",
+      "elapsedSeconds": 476,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 28437,
+        "JSHeapUsedSize": 31031936,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 17,
+      "at": "2026-11-15T03:32:44.448Z",
+      "elapsedSeconds": 508,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 30207,
+        "JSHeapUsedSize": 29110476,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 18,
+      "at": "2026-11-15T03:33:16.012Z",
+      "elapsedSeconds": 539,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 31974,
+        "JSHeapUsedSize": 27895092,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 19,
+      "at": "2026-11-15T03:33:47.381Z",
+      "elapsedSeconds": 570,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 33741,
+        "JSHeapUsedSize": 32068940,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 20,
+      "at": "2026-11-15T03:34:18.991Z",
+      "elapsedSeconds": 602,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 35523,
+        "JSHeapUsedSize": 30647760,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 21,
+      "at": "2026-11-15T03:34:50.346Z",
+      "elapsedSeconds": 633,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 37299,
+        "JSHeapUsedSize": 29324976,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 22,
+      "at": "2026-11-15T03:35:22.204Z",
+      "elapsedSeconds": 665,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 39093,
+        "JSHeapUsedSize": 28965148,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 23,
+      "at": "2026-11-15T03:35:53.672Z",
+      "elapsedSeconds": 697,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 663,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 40859,
+        "JSHeapUsedSize": 33327960,
+        "JSHeapTotalSize": 49074176
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 375,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 24,
+      "at": "2026-11-15T03:36:25.181Z",
+      "elapsedSeconds": 728,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 42632,
+        "JSHeapUsedSize": 31614992,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 25,
+      "at": "2026-11-15T03:36:56.620Z",
+      "elapsedSeconds": 760,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 44399,
+        "JSHeapUsedSize": 29668848,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 26,
+      "at": "2026-11-15T03:37:28.153Z",
+      "elapsedSeconds": 791,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 46174,
+        "JSHeapUsedSize": 28288272,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 27,
+      "at": "2026-11-15T03:37:59.612Z",
+      "elapsedSeconds": 823,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 47941,
+        "JSHeapUsedSize": 32880484,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 28,
+      "at": "2026-11-15T03:38:31.233Z",
+      "elapsedSeconds": 854,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 49722,
+        "JSHeapUsedSize": 31327724,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 29,
+      "at": "2026-11-15T03:39:02.585Z",
+      "elapsedSeconds": 886,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 51484,
+        "JSHeapUsedSize": 29229596,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 30,
+      "at": "2026-11-15T03:39:33.998Z",
+      "elapsedSeconds": 917,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 53256,
+        "JSHeapUsedSize": 27455140,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 31,
+      "at": "2026-11-15T03:40:05.948Z",
+      "elapsedSeconds": 949,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 55057,
+        "JSHeapUsedSize": 33833436,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 32,
+      "at": "2026-11-15T03:40:38.267Z",
+      "elapsedSeconds": 981,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 56875,
+        "JSHeapUsedSize": 29150784,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 33,
+      "at": "2026-11-15T03:41:09.854Z",
+      "elapsedSeconds": 1013,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 58649,
+        "JSHeapUsedSize": 27782528,
+        "JSHeapTotalSize": 49074176
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 34,
+      "at": "2026-11-15T03:41:41.403Z",
+      "elapsedSeconds": 1044,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 60422,
+        "JSHeapUsedSize": 31163592,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 35,
+      "at": "2026-11-15T03:42:13.026Z",
+      "elapsedSeconds": 1076,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 62204,
+        "JSHeapUsedSize": 25122100,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 36,
+      "at": "2026-11-15T03:42:44.582Z",
+      "elapsedSeconds": 1108,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 63979,
+        "JSHeapUsedSize": 29620008,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 37,
+      "at": "2026-11-15T03:43:16.332Z",
+      "elapsedSeconds": 1139,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 8,
+        "RecalcStyleCount": 65760,
+        "JSHeapUsedSize": 28965408,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 38,
+      "at": "2026-11-15T03:43:49.206Z",
+      "elapsedSeconds": 1172,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 67606,
+        "JSHeapUsedSize": 27515004,
+        "JSHeapTotalSize": 49336320
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 39,
+      "at": "2026-11-15T03:44:20.426Z",
+      "elapsedSeconds": 1203,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 69364,
+        "JSHeapUsedSize": 30152016,
+        "JSHeapTotalSize": 49074176
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 40,
+      "at": "2026-11-15T03:44:51.695Z",
+      "elapsedSeconds": 1235,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 71130,
+        "JSHeapUsedSize": 34500328,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 41,
+      "at": "2026-11-15T03:45:22.908Z",
+      "elapsedSeconds": 1266,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 72885,
+        "JSHeapUsedSize": 31515020,
+        "JSHeapTotalSize": 49074176
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 42,
+      "at": "2026-11-15T03:45:54.573Z",
+      "elapsedSeconds": 1298,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 74667,
+        "JSHeapUsedSize": 30209936,
+        "JSHeapTotalSize": 49074176
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 43,
+      "at": "2026-11-15T03:46:25.813Z",
+      "elapsedSeconds": 1329,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 76423,
+        "JSHeapUsedSize": 28085692,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 44,
+      "at": "2026-11-15T03:46:57.008Z",
+      "elapsedSeconds": 1360,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 78175,
+        "JSHeapUsedSize": 31874392,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 45,
+      "at": "2026-11-15T03:47:28.247Z",
+      "elapsedSeconds": 1391,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 79930,
+        "JSHeapUsedSize": 28999276,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 46,
+      "at": "2026-11-15T03:47:59.524Z",
+      "elapsedSeconds": 1423,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 81688,
+        "JSHeapUsedSize": 26444044,
+        "JSHeapTotalSize": 49074176
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 47,
+      "at": "2026-11-15T03:48:30.828Z",
+      "elapsedSeconds": 1454,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 83446,
+        "JSHeapUsedSize": 24125964,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 48,
+      "at": "2026-11-15T03:49:02.036Z",
+      "elapsedSeconds": 1485,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 85200,
+        "JSHeapUsedSize": 32309896,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 49,
+      "at": "2026-11-15T03:49:33.305Z",
+      "elapsedSeconds": 1516,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 86966,
+        "JSHeapUsedSize": 30026464,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 50,
+      "at": "2026-11-15T03:50:04.504Z",
+      "elapsedSeconds": 1548,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 88728,
+        "JSHeapUsedSize": 28844892,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 51,
+      "at": "2026-11-15T03:50:35.848Z",
+      "elapsedSeconds": 1579,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 90492,
+        "JSHeapUsedSize": 32691932,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 52,
+      "at": "2026-11-15T03:51:07.308Z",
+      "elapsedSeconds": 1610,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 92262,
+        "JSHeapUsedSize": 30802172,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 53,
+      "at": "2026-11-15T03:51:38.518Z",
+      "elapsedSeconds": 1642,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 94017,
+        "JSHeapUsedSize": 27340440,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 54,
+      "at": "2026-11-15T03:52:09.714Z",
+      "elapsedSeconds": 1673,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 95772,
+        "JSHeapUsedSize": 25538804,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 55,
+      "at": "2026-11-15T03:52:40.955Z",
+      "elapsedSeconds": 1704,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 97530,
+        "JSHeapUsedSize": 28899700,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 56,
+      "at": "2026-11-15T03:53:12.159Z",
+      "elapsedSeconds": 1735,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 99284,
+        "JSHeapUsedSize": 31294144,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 57,
+      "at": "2026-11-15T03:53:43.380Z",
+      "elapsedSeconds": 1766,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 101040,
+        "JSHeapUsedSize": 29179632,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 58,
+      "at": "2026-11-15T03:54:14.658Z",
+      "elapsedSeconds": 1798,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 665,
+        "LayoutCount": 10,
+        "RecalcStyleCount": 102800,
+        "JSHeapUsedSize": 32443788,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 376,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": "🏯 晋升条件已达成！ 参加答辩 › 明日预告 祖传后台系统的监控曲线最近有点不对劲。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 周末安排 周末到了。这个双休，你打算怎么过？ 闭关修炼 修为大进（+80），道心恢复少（+10）。 疯狂补觉 道心大复（+45），心魔消散（-15）。 朋友聚会 JUNIOR/VETERAN 关系+8，道心+20，随机小机缘。 主动加班 周末再卷 2 小时：有补偿，但会留下疲劳。"
+      },
+      "process": null,
+      "alive": true
+    }
+  ],
+  "exceptions": [],
+  "consoleErrors": [],
+  "screenshots": [
+    "exe-01-boot.png",
+    "exe-02-home.png",
+    "exe-soak-011.png",
+    "exe-soak-021.png",
+    "exe-soak-031.png",
+    "exe-soak-041.png",
+    "exe-soak-051.png",
+    "exe-03-final.png"
+  ],
+  "httpErrors": {},
+  "httpErrorTotal": 0,
+  "spriteResponses": {
+    "javabackend_idle.png": 3,
+    "scene_office.png": 1,
+    "bug_idle.png": 1,
+    "kpiLord_idle.png": 1
+  },
+  "spriteResponseTotal": 6,
+  "rendererCrashed": false,
+  "devtoolsTarget": {
+    "title": "牛马修仙传",
+    "url": "http://127.0.0.1:61522/index.html"
+  },
+  "bootReadyAfterSeconds": 0,
+  "bootReady": true,
+  "firstScreen": {
+    "title": "牛马修仙传",
+    "canvas": true,
+    "creation": false,
+    "modal": false,
+    "industryCard": false
+  },
+  "creationSteps": [
+    {
+      "round": 0,
+      "action": "wait"
+    },
+    {
+      "round": 1,
+      "action": "wait"
+    },
+    {
+      "round": 2,
+      "action": "wait"
+    },
+    {
+      "round": 3,
+      "action": "wait"
+    },
+    {
+      "round": 4,
+      "action": "wait"
+    },
+    {
+      "round": 5,
+      "action": "wait"
+    },
+    {
+      "round": 6,
+      "action": "wait"
+    },
+    {
+      "round": 7,
+      "action": "wait"
+    },
+    {
+      "round": 8,
+      "action": "wait"
+    },
+    {
+      "round": 9,
+      "action": "wait"
+    },
+    {
+      "round": 10,
+      "action": "wait"
+    },
+    {
+      "round": 11,
+      "action": "wait"
+    },
+    {
+      "round": 12,
+      "action": "wait"
+    },
+    {
+      "round": 13,
+      "action": "wait"
+    },
+    {
+      "round": 14,
+      "action": "wait"
+    },
+    {
+      "round": 15,
+      "action": "wait"
+    },
+    {
+      "round": 16,
+      "action": "wait"
+    },
+    {
+      "round": 17,
+      "action": "wait"
+    },
+    {
+      "round": 18,
+      "action": "wait"
+    },
+    {
+      "round": 19,
+      "action": "wait"
+    },
+    {
+      "round": 20,
+      "action": "wait"
+    },
+    {
+      "round": 21,
+      "action": "wait"
+    },
+    {
+      "round": 22,
+      "action": "wait"
+    },
+    {
+      "round": 23,
+      "action": "wait"
+    },
+    {
+      "round": 24,
+      "action": "wait"
+    },
+    {
+      "round": 25,
+      "action": "wait"
+    },
+    {
+      "round": 26,
+      "action": "wait"
+    },
+    {
+      "round": 27,
+      "action": "wait"
+    },
+    {
+      "round": 28,
+      "action": "wait"
+    },
+    {
+      "round": 29,
+      "action": "wait"
+    },
+    {
+      "round": 30,
+      "action": "wait"
+    },
+    {
+      "round": 31,
+      "action": "wait"
+    },
+    {
+      "round": 32,
+      "action": "wait"
+    },
+    {
+      "round": 33,
+      "action": "wait"
+    },
+    {
+      "round": 34,
+      "action": "wait"
+    },
+    {
+      "round": 35,
+      "action": "wait"
+    },
+    {
+      "round": 36,
+      "action": "wait"
+    },
+    {
+      "round": 37,
+      "action": "wait"
+    },
+    {
+      "round": 38,
+      "action": "wait"
+    },
+    {
+      "round": 39,
+      "action": "wait"
+    }
+  ],
+  "homeReached": false,
+  "exeReachability": {
+    "limit": 621,
+    "controls": {
+      "v64-useSkill": null,
+      "v64-toggleSpeed": null,
+      "v63-toggleAuto": null,
+      "v63-upgradeClick": null,
+      "v63-enterTower": null,
+      "v64-openEquip": null,
+      "v64-openGoals": null
+    },
+    "firstScreenCount": 0,
+    "total": 7
+  },
+  "spriteCheck": {
+    "scene_office.png": 200,
+    "javabackend_idle.png": 200,
+    "bug_idle.png": 200,
+    "kpiLord_idle.png": 200,
+    "__spriteDomCount": 1,
+    "__spriteBg": "url(\"http://127.0.0.1:61522/assets/sprites/sheets/javabackend_idle.png\")"
+  },
+  "progressTimeline": [],
+  "interactions": {
+    "tapAttack": 0,
+    "skills": 0,
+    "panelToggles": 0,
+    "speedToggles": 0,
+    "towerVisits": 0,
+    "modalDismissals": 0
+  },
+  "endedAt": "2026-11-15T03:54:17.186Z",
+  "actualMinutes": 30.004216666666668,
+  "completed": true,
+  "sampleCount": 58,
+  "exceptionCount": 0,
+  "consoleErrorCount": 0,
+  "spriteHttpErrors": [],
+  "spriteHttpErrorTotal": 0
+}

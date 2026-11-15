@@ -34,7 +34,7 @@ app.whenReady().then(async () => {
     var f=window.__GAME_FACADE__; var ab=null; try{ ab=f&&f.queryAutoBattle?f.queryAutoBattle():null; }catch(e){}
     return {
       screenMarker: {
-        cave: !!document.querySelector('.ux-cave-battle-card'),
+        cave: !!document.querySelector('.ux91-hero'),
         battle: !!document.querySelector('.ux65-stage'),
         growth: !!document.querySelector('.ux-grow-syns'),
         challenge: (document.body.innerText||'').indexOf('项目攻坚')>=0,
@@ -57,7 +57,7 @@ app.whenReady().then(async () => {
       var f = window.__GAME_FACADE__, q = null;
       try { q = f && f.queryCharacterCreation ? f.queryCharacterCreation() : null; } catch(e){}
       var d = q && q.draft ? q.draft : null;
-      if (document.querySelector('.ux-cave-battle-card') || document.querySelector('.ux65-stage')) return {action:'home'};
+      if (document.querySelector('.ux91-hero') || document.querySelector('.ux65-stage')) return {action:'home'};
       function click(sel){ var e=document.querySelector(sel); if(!e) return null; if(e.disabled) return 'disabled'; e.click(); return 'ok'; }
       function primary(){ return click('[data-creation-action="advance"]') || click('[data-creation-action="finalize"]') || click('[data-creation-action="start-game"]') || click('[data-creation-action="onboarding-skip"]') || click('[data-creation-action="onboarding-next"]'); }
       var wiz = !!document.querySelector('.v59-creation');

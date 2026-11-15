@@ -4557,3 +4557,114 @@ button.ux-journey--sec { cursor: pointer; }
   .ux64-equip-mini-btn { min-height: 32px; min-width: 44px; }
   .ux63-hire-close, .ux63-hire-option { min-height: 48px; }
 }
+/* ═══════════ V9.1 洞府五区重构 ═══════════ */
+/* A. 资源栏：3 chips */
+.ux91-res { display: flex; gap: 6px; margin-bottom: 8px; }
+.ux91-res-chip {
+  flex: 1; display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px; border-radius: 12px;
+  background: linear-gradient(160deg, rgba(16,42,66,.92), rgba(10,28,46,.96));
+  border: 1.5px solid rgba(94,130,160,.35);
+}
+.ux91-res-chip i { font-size: 16px; font-style: normal; }
+.ux91-res-chip b { font-size: 15px; color: #f4e7ca; }
+.ux91-res-chip b i { font-size: 11px; color: #8fa9ba; font-style: normal; }
+.ux91-res-chip small { font-size: 10px; color: #8fa9ba; margin-left: auto; }
+
+/* B. 主角展示区 */
+.ux91-hero {
+  display: flex; gap: 16px; align-items: center;
+  background: linear-gradient(160deg, rgba(18,38,60,.95), rgba(10,26,44,.96));
+  border: 1.5px solid rgba(224,189,123,.45); border-radius: 16px;
+  padding: 16px 18px; margin-bottom: 8px;
+}
+.ux91-hero-art { position: relative; flex: none; width: 120px; height: 130px; display: flex; align-items: flex-end; justify-content: center; }
+.ux91-hero-sprite {
+  width: 110px; height: 110px; display: block;
+  background-repeat: no-repeat;
+  image-rendering: auto;
+}
+.ux91-hero-shadow { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 80px; height: 10px; border-radius: 50%; background: rgba(0,0,0,.45); }
+.ux91-hero-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ux91-hero-name { font-size: 20px; font-weight: 800; color: #f4e7ca; }
+.ux91-hero-sub { font-size: 12px; color: #9fb6c8; }
+.ux91-hero-realm { font-size: 14px; color: var(--v65-gold,#e6c77f); font-weight: 700; }
+.ux91-hero-power { font-size: 14px; color: #ffd97a; font-weight: 700; }
+.ux91-hero-exp { font-size: 10.5px; color: #8fa9ba; }
+.ux91-hero .ux-progress { height: 6px; border-radius: 3px; background: rgba(60,90,118,.5); }
+.ux91-hero .ux-hero-cultivate {
+  margin-top: 4px; padding: 8px 16px; border-radius: 10px; cursor: pointer;
+  background: linear-gradient(180deg, #f0d089, #d8b25e); color: #2a1c05;
+  font-size: 13px; font-weight: 800; border: none; align-self: flex-start;
+}
+.ux91-hero .ux-hero-cultivate:disabled { opacity: .5; }
+
+/* C. 当前目标区 */
+.ux91-goal {
+  background: linear-gradient(160deg, rgba(18,38,60,.95), rgba(10,26,44,.96));
+  border: 1.5px solid rgba(224,189,123,.45); border-radius: 16px;
+  padding: 12px 14px; margin-bottom: 8px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ux91-goal--boss { border-color: rgba(216,75,58,.6); }
+.ux91-goal--promo { border-color: rgba(230,199,127,.7); }
+.ux91-goal-kicker { font-size: 11px; color: #8fa9ba; letter-spacing: 2px; }
+.ux91-goal-title { font-size: 17px; font-weight: 800; color: #f4e7ca; }
+.ux91-goal-desc { font-size: 12px; color: #9fb6c8; }
+.ux91-goal-cta {
+  width: 100%; padding: 12px; border-radius: 12px; cursor: pointer;
+  background: linear-gradient(180deg, #f0d089, #d8b25e); color: #2a1c05;
+  font-size: 16px; font-weight: 800; letter-spacing: 2px;
+  border: none; box-shadow: 0 3px 10px rgba(230,199,127,.35);
+}
+.ux91-goal-cta:active { transform: translateY(1px); }
+.ux91-goal--boss .ux91-goal-cta { background: linear-gradient(180deg, #e8705f, #c84b3a); color: #fff; }
+.ux91-goal-sub {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px; border-radius: 8px; background: rgba(12,25,40,.6);
+  font-size: 12px; color: #9fb6c8;
+}
+.ux91-goal-claim {
+  padding: 4px 12px; border-radius: 8px; cursor: pointer;
+  background: linear-gradient(180deg, #f0d089, #d8b25e); color: #2a1c05;
+  font-size: 11px; font-weight: 700; border: none;
+}
+
+/* D. 今日修行区 */
+.ux91-today {
+  background: linear-gradient(160deg, rgba(16,42,66,.92), rgba(10,28,46,.96));
+  border: 1.5px solid rgba(94,130,160,.35); border-radius: 14px;
+  padding: 10px 14px; margin-bottom: 8px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ux91-today-head { display: flex; align-items: center; gap: 10px; }
+.ux91-today-head b { font-size: 14px; color: #f4e7ca; }
+.ux91-today-mode { font-size: 12px; color: var(--v65-gold,#e6c77f); font-weight: 700; }
+.ux91-today-earn { margin-left: auto; font-size: 11px; color: #8fa9ba; }
+.ux91-today-mind { font-size: 12px; color: #9fb6c8; }
+.ux91-today-modes { margin-top: 2px; }
+
+/* E. 快捷入口 */
+.ux91-quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ux91-quick-btn {
+  display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
+  padding: 12px 14px; border-radius: 12px; cursor: pointer;
+  background: linear-gradient(160deg, rgba(16,42,66,.92), rgba(10,28,46,.96));
+  border: 1.5px solid rgba(94,130,160,.35); color: inherit;
+}
+.ux91-quick-btn b { font-size: 15px; color: #f4e7ca; }
+.ux91-quick-btn small { font-size: 10.5px; color: #8fa9ba; }
+.ux91-quick-btn:active { border-color: rgba(230,199,127,.6); }
+
+/* ═══════════ V9.1 移动端洞府适配 ═══════════ */
+@media (max-width: 560px) {
+  .ux91-hero { flex-direction: row; padding: 12px; gap: 12px; }
+  .ux91-hero-art { width: 90px; height: 100px; }
+  .ux91-hero-art .ux66-squad-sprite { width: 84px !important; height: 84px !important; background-size: 336px 84px !important; }
+  .ux91-hero-name { font-size: 17px; }
+  .ux91-res-chip { padding: 6px 8px; }
+  .ux91-res-chip b { font-size: 13px; }
+  .ux91-goal-cta { font-size: 17px; padding: 13px; }
+  .ux91-quick { grid-template-columns: repeat(3, 1fr); }
+  .ux91-quick-btn { padding: 10px 10px; }
+}

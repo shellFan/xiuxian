@@ -3496,6 +3496,44 @@
 /* ═══ V9.0 五页架构：洞府 / 战斗页 / 养成页 ═══ */
 
 /* 洞府 —— 角色与成长中心（战斗舞台移至独立战斗页） */
+/* ═══ V9.1 洞府首页重构：五区结构（资源栏/主角/动态目标/今日修行/快捷入口） ═══ */
+
+/* 动态目标状态机 —— 同一时间只突出一个最重要目标 */
+function computeCaveGoal(hud, ab, promo) {
+  /* 1. Boss 待战（最高优先：推进被卡牌 Boss 阻塞） */
+  if (ab && ab.status === 'BOSS_PENDING') {
+    return { kind: 'boss', kicker: '章节 Boss',
+      title: '⚔️ ' + (ab.enemy ? escHtml(ab.enemy.name) : 'Boss') + ' 待战',
+      desc: '击败它即可推进至第 ' + (ab.stage + 1) + ' 关。卡牌战斗已就绪。',
+      cta: '挑战 Boss', nav: 'BATTLE' };
+  }
+  /* 2. 晋升条件满足 */
+  if (promo && promo.allowed) {
+    return { kind: 'promo', kicker: '职场晋升',
+      title: '晋升条件已满足',
+      desc: '答辩通过即可晋升至 ' + (hud ? '第 ' + (hud.careerLevel + 1) + ' 职级' : '下一职级') + '。',
+      cta: '完成晋升', nav: 'PROMOTION' };
+  }
+  /* 3. 新手引导（前 3 关且击杀 < 10） */
+  if (ab && ab.stage <= 3 && ab.totalKills < 10) {
+    return { kind: 'newbie', kicker: '新手试炼',
+      title: '完成首次推关',
+      desc: '点击攻击与技能，击败眼前的第一只妖怪。',
+      cta: '进入战斗', nav: 'BATTLE' };
+  }
+  /* 4. 默认：继续修炼推进 */
+  var powerNote = '';
+  if (ab && ab.powerScore !== undefined && ab.recommendedPower) {
+    powerNote = ab.powerScore >= ab.recommendedPower
+      ? ' · 战力达标（' + fmtNum(ab.powerScore) + '）'
+      : ' · 战力 ' + fmtNum(ab.powerScore) + ' / 推荐 ' + fmtNum(ab.recommendedPower);
+  }
+  return { kind: 'fight', kicker: '当前章节 · ' + (ab ? escHtml(ab.chapterEmoji + ' ' + ab.chapterTitle) : '修炼'),
+    title: '继续修炼：第 ' + (ab ? ab.stage : 1) + ' 关',
+    desc: (ab && ab.enemy ? '当前敌人：' + escHtml(ab.enemy.name) : '') + powerNote,
+    cta: '继续战斗', nav: 'BATTLE' };
+}
+
 function renderCave() {
   var hud = readHUD();
   if (!hud) return emptyState('⏳', '加载中...', '正在唤醒游戏数据');
@@ -3503,54 +3541,122 @@ function renderCave() {
   try { creationState = facade() && facade().queryCharacterCreation ? facade().queryCharacterCreation() : null; } catch (e) { creationState = null; }
   var backfillBanner = creationState && creationState.status === 'BACKFILL_REQUIRED'
     ? '<button class="v59-backfill-banner" data-creation-action="open-backfill"><span>✦ 老友归来：为角色补录天命</span><small>补录只增加新成长字段，不影响既有进度。</small><b>现在补录 ›</b></button>' : '';
-  var v59fPanel = '';
-  try { v59fPanel = window.__V59F__ ? window.__V59F__.homePanelHtml(true) : ''; } catch (e) { v59fPanel = ''; }
   var mergeBoard = '';
   try { mergeBoard = window.__MERGE__ ? window.__MERGE__.boardHtml() : ''; } catch (e) { mergeBoard = ''; }
+  var v59fPanel = '';
+  try { v59fPanel = window.__V59F__ ? window.__V59F__.homePanelHtml(true) : ''; } catch (e) { v59fPanel = ''; }
 
-  /* 当前挑战卡（关卡/敌人/状态 + 进入战斗 CTA） */
   var ab = null;
   try { ab = facade() && facade().queryAutoBattle ? facade().queryAutoBattle() : null; } catch (e) { ab = null; }
-  var battleCta = '';
-  if (ab) {
-    var statusTag = ab.status === 'BOSS_PENDING' ? '<span class="ux-cave-tag ux-cave-tag--boss">⚔️ Boss待战</span>'
-      : ab.status === 'FIGHTING' ? '<span class="ux-cave-tag">战斗中</span>'
-      : ab.status === 'VICTORY' ? '<span class="ux-cave-tag ux-cave-tag--good">胜利结算</span>' : '';
-    battleCta = '<section class="ux-cave-battle-card">' +
-      '<div class="ux-cave-battle-head"><span class="ux-cave-chapter">' + escHtml(ab.chapterEmoji + ' ' + ab.chapterTitle) + '</span>' +
-      '<span class="ux-cave-stage">第' + ab.stage + '关</span>' + statusTag + '</div>' +
-      '<div class="ux-cave-battle-sub">' + (ab.enemy ? escHtml(ab.enemy.name) + ' · ' + fmtNum(ab.enemy.hp) + '/' + fmtNum(ab.enemy.maxHp) : '静待敌人') +
-      ' · 击杀 ' + fmtNum(ab.totalKills) + (ab.powerScore !== undefined ? ' · ⚡战力 ' + fmtNum(ab.powerScore) : '') + '</div>' +
-      '<button class="ux-cave-cta" data-nav="BATTLE">⚔️ 进入战斗</button>' +
-      '</section>';
+  var promo = null;
+  try { promo = facade() && facade().queryPromotionCheck ? facade().queryPromotionCheck() : null; } catch (e) { promo = null; }
+  var rates = readRates();
+  var goals = null;
+  try { goals = facade() && facade().queryHomeGoals ? facade().queryHomeGoals() : null; } catch (e) { goals = null; }
+  var prof = ab && ab.squad && ab.squad[0] ? ab.squad[0].profession : 'JAVA_BACKEND';
+
+  /* ── A. 顶部资源栏：灵石 / 修为 / 道心 ── */
+  var resBar = '<section class="ux91-res">' +
+    '<span class="ux91-res-chip"><i>💎</i><b>' + fmtNum(hud.spiritStones) + '</b><small>灵石</small></span>' +
+    '<span class="ux91-res-chip"><i>⛰️</i><b>' + fmtNum(hud.cultivationExp) + '</b><small>修为 +' + rates.cultivationPerMin.toFixed(1) + '/分</small></span>' +
+    '<span class="ux91-res-chip"><i>☯</i><b>' + fmtNum(hud.mind) + '<i>/' + fmtNum(hud.maxMind) + '</i></b><small>道心</small></span>' +
+  '</section>';
+
+  /* ── B. 主角展示区：Sprite 动画立绘 + 境界/职业/职级/战力/修为进度 ── */
+  var expPct = hud.requiredExp > 0 ? Math.min(100, Math.round(hud.cultivationExp / hud.requiredExp * 100)) : 100;
+  var power = ab && ab.powerScore !== undefined ? ab.powerScore : null;
+  var hero = '<section class="ux91-hero ux-hero">' +
+    '<div class="ux91-hero-art">' +
+      '<div class="ux91-hero-sprite" id="Ux90CaveHero" data-prof="' + escHtml(prof) + '"></div>' +
+      '<div class="ux91-hero-shadow"></div>' +
+    '</div>' +
+    '<div class="ux91-hero-info">' +
+      '<div class="ux91-hero-name">' + escHtml(ab && ab.squad && ab.squad[0] ? ab.squad[0].name : PLAYER_NAME) + '</div>' +
+      '<div class="ux91-hero-sub">' + escHtml(ab && ab.squad && ab.squad[0] ? ab.squad[0].professionLabel : hud.careerName) + '</div>' +
+      '<div class="ux91-hero-realm">' + escHtml(hud.careerName) + ' · ' + escHtml(hud.realm) + '</div>' +
+      (power !== null ? '<div class="ux91-hero-power">⚡ 战力 ' + fmtNum(power) + '</div>' : '') +
+      '<div class="ux-progress"><div class="ux-progress-fill ux-progress-fill--blue" style="width:' + expPct + '%"></div></div>' +
+      '<div class="ux91-hero-exp">修为 ' + fmtNum(hud.cultivationExp) + ' / ' + fmtNum(hud.requiredExp) + '</div>' +
+      '<button class="ux-hero-cultivate" data-action="cultivate"' + (cooldownOf('cultivate') > 0 ? ' disabled' : '') + '>' +
+        (cooldownOf('cultivate') > 0 ? '冷却 ' + Math.ceil(cooldownOf('cultivate')) + 's' : '⚡ 修炼一次') +
+      '</button>' +
+      '<div class="ux-hero-links">' +
+        '<button class="ux-hero-link" data-action="goto" data-page="sect">宗门 · ' + escHtml(hud.sectName || '散修') + '</button>' +
+        '<button class="ux-hero-link" data-action="openModal" data-modal="evidence">🧾 证据袋</button>' +
+        '<button class="ux-hero-link" data-action="goto" data-page="techniques">📖 功法</button>' +
+      '</div>' +
+    '</div>' +
+  '</section>';
+
+  /* ── C. 当前目标区：动态状态机 ── */
+  var goal = computeCaveGoal(hud, ab, promo);
+  var goalCard = '<section class="ux91-goal ux91-goal--' + goal.kind + '">' +
+    '<div class="ux91-goal-kicker">' + goal.kicker + '</div>' +
+    '<div class="ux91-goal-title">' + goal.title + '</div>' +
+    (goal.desc ? '<div class="ux91-goal-desc">' + goal.desc + '</div>' : '') +
+    '<button class="ux91-goal-cta" data-nav="' + goal.nav + '">' + goal.cta + ' ›</button>' +
+  '</section>';
+  /* 次要目标：未领取的今日目标（只展示第一条未领取） */
+  if (goals && goals.length) {
+    for (var gi = 0; gi < goals.length; gi++) {
+      if (goals[gi].claimed) continue;
+      goalCard += '<div class="ux91-goal-sub">' +
+        '<span>' + escHtml(goals[gi].title || goals[gi].text || '今日目标') + '</span>' +
+        '<button class="ux91-goal-claim" data-action="claimGoal" data-kind="' + escHtml(goals[gi].kind) + '">领取</button>' +
+      '</div>';
+    }
   }
 
-  /* 成长入口宫格 */
-  var entries = '<section class="ux-cave-entries">' +
-    '<button class="ux-cave-entry ux-cave-entry--battle" data-nav="BATTLE"><b>战斗</b><small>关卡 · 技能 · Boss</small></button>' +
-    '<button class="ux-cave-entry" data-nav="GROWTH"><b>养成</b><small>员工 · 装备 · 羁绊</small></button>' +
-    '<button class="ux-cave-entry" data-nav="PROJECT"><b>挑战</b><small>卡牌 · 通天塔</small></button>' +
-    '<button class="ux-cave-entry" data-nav="PROMOTION"><b>晋升</b><small>KPI · 答辩</small></button>' +
-    '<button class="ux-cave-entry" data-nav="TASKS"><b>任务</b><small>每日 · 七日</small></button>' +
-    '<button class="ux-cave-entry" data-action="openMessenger"><b>飞剑</b><small>NPC · 事故</small></button>' +
+  /* ── D. 今日修行区：当前状态 + 进度 + 道心 + 收益摘要 + 模式切换 ── */
+  var workView = null;
+  try { workView = facade().queryWorkToday ? facade().queryWorkToday() : null; } catch (e) { workView = null; }
+  var modeCards = HOME_ACTIONS.map(function (a) {
+    var isRunning = a.id === (hud.workMode || 'WORK');
+    return '<button type="button" class="ux-hero-action ux-hero-action--' + a.cls + (isRunning ? ' is-running' : '') +
+      '" data-action="mode" data-mode="' + a.id + '"' + (isRunning ? ' disabled' : '') + '>' +
+      '<span class="ic">' + (a.img ? img(a.img) : a.emoji) + '</span>' +
+      '<span class="tx"><b>' + a.label + '</b><i>' + a.sub + '</i></span>' +
+      (isRunning ? '<span class="run">✓</span>' : '') +
+    '</button>';
+  }).join('');
+  var lifeChips = '';
+  try { lifeChips = window.__V59F__ ? '' : ''; } catch (e) {}
+  var today = '<section class="ux91-today">' +
+    '<div class="ux91-today-head"><b>今日修行</b>' +
+      '<span class="ux91-today-mode">' + heroPoseText(hud.workMode || 'WORK') + '</span>' +
+      '<span class="ux91-today-earn">工资 +' + rates.salaryPerMin.toFixed(1) + '/分 · 绩效 +' + fmtNum(hud.performance) + '</span>' +
+    '</div>' +
+    '<div class="ux91-today-mind">☯ 道心 ' + fmtNum(hud.mind) + '/' + fmtNum(hud.maxMind) + ' · ' + MIND_LABELS[Math.min(MIND_LABELS.length - 1, Math.floor(hud.mind / Math.max(1, hud.maxMind) * MIND_LABELS.length))] + '</div>' +
+    '<div class="ux-hero-bar ux91-today-modes">' + modeCards + '</div>' +
   '</section>';
+
+  /* ── E. 快捷入口：员工 / 装备 / 晋升 ── */
+  var quick = '<section class="ux91-quick">' +
+    '<button class="ux91-quick-btn" data-nav="GROWTH"><b>👥 员工</b><small>招募 · 升级</small></button>' +
+    '<button class="ux91-quick-btn" data-nav="GROWTH"><b>🎽 装备</b><small>穿戴 · 强化</small></button>' +
+    '<button class="ux91-quick-btn" data-nav="PROMOTION"><b>🏯 晋升</b><small>KPI · 答辩</small></button>' +
+  '</section>';
+
+  var statusChips = '<div class="ux-home-status" aria-label="今日状态">' +
+    v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() +
+  '</div>';
 
   return '<div class="ux-home">' +
     backfillBanner +
     homeTopbarHtml(hud) +
-    '<div class="ux-home-main">' +
-      homeStatsHtml(hud) +
-      battleCta +
-      homeHeroHtml(hud) +
-      workSceneHtml(hud) +
-      todayCapacityHtml() + journeyGuideHtml() + actionDetailHtml(hud) +
-      entries +
-      '<div class="ux-home-status" aria-label="今日状态">' +
-        v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() +
-      '</div>' +
+    '<div class="ux-home-main ux91-cave">' +
+      resBar +
+      hero +
+      goalCard +
+      today +
       v59fPanel +
-      promotionGoalHtml(hud) + journeyGuideHtml() + homeRightHtml(hud) +
+      workSceneHtml(hud) +
+      actionDetailHtml(hud) +
+      statusChips +
+      quick +
       mergeBoard +
+      homeRightHtml(hud) +
+      journeyGuideHtml() +
     '</div>' +
   '</div>';
 }
