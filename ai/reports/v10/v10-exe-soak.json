@@ -1,0 +1,2014 @@
+{
+  "startedAt": "2026-11-16T16:03:29.086Z",
+  "plannedMinutes": 30,
+  "target": "dist/牛马修仙传-win32-x64/牛马修仙传.exe (packaged, CDP)",
+  "samples": [
+    {
+      "index": 1,
+      "at": "2026-11-16T16:03:58.058Z",
+      "elapsedSeconds": 0,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 1582,
+        "JSHeapUsedSize": 28531488,
+        "JSHeapTotalSize": 50647040
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 2,
+      "at": "2026-11-16T16:04:29.168Z",
+      "elapsedSeconds": 31,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 3329,
+        "JSHeapUsedSize": 31592168,
+        "JSHeapTotalSize": 46452736
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 3,
+      "at": "2026-11-16T16:05:00.141Z",
+      "elapsedSeconds": 62,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 5066,
+        "JSHeapUsedSize": 28272004,
+        "JSHeapTotalSize": 47239168
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 4,
+      "at": "2026-11-16T16:05:31.203Z",
+      "elapsedSeconds": 93,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 6808,
+        "JSHeapUsedSize": 27742472,
+        "JSHeapTotalSize": 47501312
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 5,
+      "at": "2026-11-16T16:06:02.521Z",
+      "elapsedSeconds": 124,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 8565,
+        "JSHeapUsedSize": 30677736,
+        "JSHeapTotalSize": 47501312
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 6,
+      "at": "2026-11-16T16:06:33.589Z",
+      "elapsedSeconds": 156,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 10310,
+        "JSHeapUsedSize": 28140120,
+        "JSHeapTotalSize": 47763456
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 7,
+      "at": "2026-11-16T16:07:04.713Z",
+      "elapsedSeconds": 187,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 12054,
+        "JSHeapUsedSize": 30252784,
+        "JSHeapTotalSize": 47763456
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 8,
+      "at": "2026-11-16T16:07:35.965Z",
+      "elapsedSeconds": 218,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 13807,
+        "JSHeapUsedSize": 33973784,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 9,
+      "at": "2026-11-16T16:08:07.500Z",
+      "elapsedSeconds": 249,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 15576,
+        "JSHeapUsedSize": 32061700,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 10,
+      "at": "2026-11-16T16:08:38.444Z",
+      "elapsedSeconds": 280,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 17310,
+        "JSHeapUsedSize": 29332760,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 11,
+      "at": "2026-11-16T16:09:09.431Z",
+      "elapsedSeconds": 311,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 19048,
+        "JSHeapUsedSize": 26808224,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 12,
+      "at": "2026-11-16T16:09:40.709Z",
+      "elapsedSeconds": 343,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 20799,
+        "JSHeapUsedSize": 29963128,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 13,
+      "at": "2026-11-16T16:10:11.635Z",
+      "elapsedSeconds": 374,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 22535,
+        "JSHeapUsedSize": 31613276,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 14,
+      "at": "2026-11-16T16:10:42.566Z",
+      "elapsedSeconds": 405,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 24269,
+        "JSHeapUsedSize": 28847860,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 15,
+      "at": "2026-11-16T16:11:13.496Z",
+      "elapsedSeconds": 435,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 26004,
+        "JSHeapUsedSize": 30770500,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 16,
+      "at": "2026-11-16T16:11:44.558Z",
+      "elapsedSeconds": 467,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 27747,
+        "JSHeapUsedSize": 28109364,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 17,
+      "at": "2026-11-16T16:12:15.545Z",
+      "elapsedSeconds": 497,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 29486,
+        "JSHeapUsedSize": 30663788,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 18,
+      "at": "2026-11-16T16:12:46.593Z",
+      "elapsedSeconds": 529,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 31227,
+        "JSHeapUsedSize": 33135100,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 19,
+      "at": "2026-11-16T16:13:17.779Z",
+      "elapsedSeconds": 560,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 32975,
+        "JSHeapUsedSize": 30077816,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 20,
+      "at": "2026-11-16T16:13:48.769Z",
+      "elapsedSeconds": 591,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 34711,
+        "JSHeapUsedSize": 26713156,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 21,
+      "at": "2026-11-16T16:14:19.746Z",
+      "elapsedSeconds": 622,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 36447,
+        "JSHeapUsedSize": 23895820,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 22,
+      "at": "2026-11-16T16:14:50.936Z",
+      "elapsedSeconds": 653,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 38194,
+        "JSHeapUsedSize": 32282080,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 23,
+      "at": "2026-11-16T16:15:21.861Z",
+      "elapsedSeconds": 684,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 39924,
+        "JSHeapUsedSize": 28928536,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 24,
+      "at": "2026-11-16T16:15:52.769Z",
+      "elapsedSeconds": 715,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 41658,
+        "JSHeapUsedSize": 27230252,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 25,
+      "at": "2026-11-16T16:16:23.680Z",
+      "elapsedSeconds": 746,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 43391,
+        "JSHeapUsedSize": 29035608,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 26,
+      "at": "2026-11-16T16:16:54.618Z",
+      "elapsedSeconds": 777,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 45125,
+        "JSHeapUsedSize": 30588624,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 27,
+      "at": "2026-11-16T16:17:25.572Z",
+      "elapsedSeconds": 808,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 46860,
+        "JSHeapUsedSize": 27814708,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 28,
+      "at": "2026-11-16T16:17:56.479Z",
+      "elapsedSeconds": 838,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 48591,
+        "JSHeapUsedSize": 29565980,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 29,
+      "at": "2026-11-16T16:18:27.395Z",
+      "elapsedSeconds": 869,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 50322,
+        "JSHeapUsedSize": 31739588,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 30,
+      "at": "2026-11-16T16:18:58.327Z",
+      "elapsedSeconds": 900,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 52057,
+        "JSHeapUsedSize": 29030532,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 31,
+      "at": "2026-11-16T16:19:29.243Z",
+      "elapsedSeconds": 931,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 53794,
+        "JSHeapUsedSize": 31479596,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 32,
+      "at": "2026-11-16T16:20:00.481Z",
+      "elapsedSeconds": 962,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 55546,
+        "JSHeapUsedSize": 28666792,
+        "JSHeapTotalSize": 48025600
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 33,
+      "at": "2026-11-16T16:20:31.399Z",
+      "elapsedSeconds": 993,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 57280,
+        "JSHeapUsedSize": 31270532,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 34,
+      "at": "2026-11-16T16:21:02.565Z",
+      "elapsedSeconds": 1025,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 59027,
+        "JSHeapUsedSize": 33911948,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 35,
+      "at": "2026-11-16T16:21:33.567Z",
+      "elapsedSeconds": 1056,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 60763,
+        "JSHeapUsedSize": 31229000,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 36,
+      "at": "2026-11-16T16:22:04.505Z",
+      "elapsedSeconds": 1086,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 62495,
+        "JSHeapUsedSize": 27414592,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 37,
+      "at": "2026-11-16T16:22:35.446Z",
+      "elapsedSeconds": 1117,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 64226,
+        "JSHeapUsedSize": 24968516,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 38,
+      "at": "2026-11-16T16:23:06.360Z",
+      "elapsedSeconds": 1148,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 65957,
+        "JSHeapUsedSize": 31207628,
+        "JSHeapTotalSize": 48287744
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 39,
+      "at": "2026-11-16T16:23:37.298Z",
+      "elapsedSeconds": 1179,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 67690,
+        "JSHeapUsedSize": 28001076,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 40,
+      "at": "2026-11-16T16:24:08.362Z",
+      "elapsedSeconds": 1210,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 69432,
+        "JSHeapUsedSize": 25748236,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 41,
+      "at": "2026-11-16T16:24:39.395Z",
+      "elapsedSeconds": 1241,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 71165,
+        "JSHeapUsedSize": 33219780,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 42,
+      "at": "2026-11-16T16:25:10.707Z",
+      "elapsedSeconds": 1273,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 72917,
+        "JSHeapUsedSize": 30417592,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 43,
+      "at": "2026-11-16T16:25:41.745Z",
+      "elapsedSeconds": 1304,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 74650,
+        "JSHeapUsedSize": 27909004,
+        "JSHeapTotalSize": 49074176
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 44,
+      "at": "2026-11-16T16:26:12.714Z",
+      "elapsedSeconds": 1335,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 76378,
+        "JSHeapUsedSize": 29459744,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 45,
+      "at": "2026-11-16T16:26:43.662Z",
+      "elapsedSeconds": 1366,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 78104,
+        "JSHeapUsedSize": 31182420,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 46,
+      "at": "2026-11-16T16:27:14.638Z",
+      "elapsedSeconds": 1397,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 79833,
+        "JSHeapUsedSize": 28373884,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 47,
+      "at": "2026-11-16T16:27:45.552Z",
+      "elapsedSeconds": 1427,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 81558,
+        "JSHeapUsedSize": 30057880,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 48,
+      "at": "2026-11-16T16:28:16.479Z",
+      "elapsedSeconds": 1458,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 83284,
+        "JSHeapUsedSize": 30894476,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 49,
+      "at": "2026-11-16T16:28:47.415Z",
+      "elapsedSeconds": 1489,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 85011,
+        "JSHeapUsedSize": 28218432,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 50,
+      "at": "2026-11-16T16:29:18.336Z",
+      "elapsedSeconds": 1520,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 86741,
+        "JSHeapUsedSize": 29959124,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 51,
+      "at": "2026-11-16T16:29:49.274Z",
+      "elapsedSeconds": 1551,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 88469,
+        "JSHeapUsedSize": 31629860,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 52,
+      "at": "2026-11-16T16:30:20.496Z",
+      "elapsedSeconds": 1582,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 90216,
+        "JSHeapUsedSize": 29479752,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 53,
+      "at": "2026-11-16T16:30:51.381Z",
+      "elapsedSeconds": 1613,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 91940,
+        "JSHeapUsedSize": 31337408,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 54,
+      "at": "2026-11-16T16:31:22.316Z",
+      "elapsedSeconds": 1644,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 93671,
+        "JSHeapUsedSize": 32005316,
+        "JSHeapTotalSize": 48549888
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 55,
+      "at": "2026-11-16T16:31:53.220Z",
+      "elapsedSeconds": 1675,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 95399,
+        "JSHeapUsedSize": 29018352,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 56,
+      "at": "2026-11-16T16:32:24.134Z",
+      "elapsedSeconds": 1706,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 97128,
+        "JSHeapUsedSize": 30527900,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 57,
+      "at": "2026-11-16T16:32:55.055Z",
+      "elapsedSeconds": 1737,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 98855,
+        "JSHeapUsedSize": 27410964,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 58,
+      "at": "2026-11-16T16:33:25.949Z",
+      "elapsedSeconds": 1768,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 100580,
+        "JSHeapUsedSize": 29436068,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    },
+    {
+      "index": 59,
+      "at": "2026-11-16T16:33:56.853Z",
+      "elapsedSeconds": 1799,
+      "metrics": {
+        "Documents": 1,
+        "Nodes": 673,
+        "LayoutCount": 15,
+        "RecalcStyleCount": 102307,
+        "JSHeapUsedSize": 32120544,
+        "JSHeapTotalSize": 48812032
+      },
+      "state": {
+        "stage": null,
+        "enemy": null,
+        "hp": null,
+        "power": null,
+        "domNodes": 381,
+        "skillButtons": 0,
+        "skillY": null,
+        "bodyLimit": 621,
+        "sprite": false,
+        "canvas": true,
+        "modal": true,
+        "facade": true,
+        "bodyTail": " 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🚨 🔴 S1线上事故：错误发布 全组等你，进入事故处置 立即处理 › 📋 接下今天的第一个任务 去任务页 › 📅 预计07:33下班 按计划推进 › 明日预告 测试仙子最近对你的态度有所改变。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 S1 生产事故 错误发布 事故仍保留在正式状态中，请立即进入处置流程。 立即处理"
+      },
+      "process": null,
+      "alive": true
+    }
+  ],
+  "exceptions": [],
+  "consoleErrors": [],
+  "screenshots": [
+    "exe-01-boot.png",
+    "exe-02-home.png",
+    "exe-soak-011.png",
+    "exe-soak-021.png",
+    "exe-soak-031.png",
+    "exe-soak-041.png",
+    "exe-soak-051.png",
+    "exe-03-final.png"
+  ],
+  "httpErrors": {},
+  "httpErrorTotal": 0,
+  "spriteResponses": {
+    "javabackend_idle.png": 3,
+    "scene_office.png": 1,
+    "bug_idle.png": 1,
+    "kpiLord_idle.png": 1
+  },
+  "spriteResponseTotal": 6,
+  "rendererCrashed": false,
+  "devtoolsTarget": {
+    "title": "牛马修仙传",
+    "url": "http://127.0.0.1:53151/index.html"
+  },
+  "bootReadyAfterSeconds": 0,
+  "bootReady": true,
+  "firstScreen": {
+    "title": "牛马修仙传",
+    "canvas": true,
+    "creation": false,
+    "modal": false,
+    "industryCard": false
+  },
+  "creationSteps": [
+    {
+      "round": 0,
+      "action": "wait"
+    },
+    {
+      "round": 1,
+      "action": "wait"
+    },
+    {
+      "round": 2,
+      "action": "wait"
+    },
+    {
+      "round": 3,
+      "action": "wait"
+    },
+    {
+      "round": 4,
+      "action": "wait"
+    },
+    {
+      "round": 5,
+      "action": "wait"
+    },
+    {
+      "round": 6,
+      "action": "wait"
+    },
+    {
+      "round": 7,
+      "action": "wait"
+    },
+    {
+      "round": 8,
+      "action": "wait"
+    },
+    {
+      "round": 9,
+      "action": "wait"
+    },
+    {
+      "round": 10,
+      "action": "wait"
+    },
+    {
+      "round": 11,
+      "action": "wait"
+    },
+    {
+      "round": 12,
+      "action": "wait"
+    },
+    {
+      "round": 13,
+      "action": "wait"
+    },
+    {
+      "round": 14,
+      "action": "wait"
+    },
+    {
+      "round": 15,
+      "action": "wait"
+    },
+    {
+      "round": 16,
+      "action": "wait"
+    },
+    {
+      "round": 17,
+      "action": "wait"
+    },
+    {
+      "round": 18,
+      "action": "wait"
+    },
+    {
+      "round": 19,
+      "action": "wait"
+    },
+    {
+      "round": 20,
+      "action": "wait"
+    },
+    {
+      "round": 21,
+      "action": "wait"
+    },
+    {
+      "round": 22,
+      "action": "wait"
+    },
+    {
+      "round": 23,
+      "action": "wait"
+    },
+    {
+      "round": 24,
+      "action": "wait"
+    },
+    {
+      "round": 25,
+      "action": "wait"
+    },
+    {
+      "round": 26,
+      "action": "wait"
+    },
+    {
+      "round": 27,
+      "action": "wait"
+    },
+    {
+      "round": 28,
+      "action": "wait"
+    },
+    {
+      "round": 29,
+      "action": "wait"
+    },
+    {
+      "round": 30,
+      "action": "wait"
+    },
+    {
+      "round": 31,
+      "action": "wait"
+    },
+    {
+      "round": 32,
+      "action": "wait"
+    },
+    {
+      "round": 33,
+      "action": "wait"
+    },
+    {
+      "round": 34,
+      "action": "wait"
+    },
+    {
+      "round": 35,
+      "action": "wait"
+    },
+    {
+      "round": 36,
+      "action": "wait"
+    },
+    {
+      "round": 37,
+      "action": "wait"
+    },
+    {
+      "round": 38,
+      "action": "wait"
+    },
+    {
+      "round": 39,
+      "action": "wait"
+    }
+  ],
+  "homeReached": false,
+  "exeReachability": {
+    "limit": 621,
+    "controls": {
+      "v64-useSkill": null,
+      "v64-toggleSpeed": null,
+      "v63-toggleAuto": null,
+      "v63-upgradeClick": null,
+      "v63-enterTower": null,
+      "v64-openEquip": null,
+      "v64-openGoals": null
+    },
+    "firstScreenCount": 0,
+    "total": 7
+  },
+  "spriteCheck": {
+    "scene_office.png": 200,
+    "javabackend_idle.png": 200,
+    "bug_idle.png": 200,
+    "kpiLord_idle.png": 200,
+    "__spriteDomCount": 1,
+    "__spriteBg": "url(\"http://127.0.0.1:53151/assets/sprites/sheets/javabackend_idle.png\")"
+  },
+  "progressTimeline": [],
+  "interactions": {
+    "tapAttack": 0,
+    "skills": 0,
+    "panelToggles": 0,
+    "speedToggles": 0,
+    "towerVisits": 0,
+    "modalDismissals": 0
+  },
+  "endedAt": "2026-11-16T16:33:59.077Z",
+  "actualMinutes": 30.017016666666667,
+  "completed": true,
+  "sampleCount": 59,
+  "exceptionCount": 0,
+  "consoleErrorCount": 0,
+  "spriteHttpErrors": [],
+  "spriteHttpErrorTotal": 0
+}

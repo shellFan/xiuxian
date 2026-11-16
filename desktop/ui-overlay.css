@@ -4696,3 +4696,13 @@ button.ux-journey--sec { cursor: pointer; }
 .ux65-enemy--boss.is-phase2 .ux65-enemy-stage .ux66-sprite-container {
   filter: brightness(1.3) hue-rotate(-15deg) saturate(1.3);
 }
+
+/* ═══ V10.0 章节进度条 ═══ */
+.ux91-chapter-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 2px 0;
+}
+.ux91-chapter-label { font-size: 10px; color: #8fa9ba; white-space: nowrap; }
+.ux91-chapter-progress { flex: 1; height: 4px; border-radius: 2px; background: rgba(60,90,118,.5); overflow: hidden; }
+.ux91-chapter-fill { height: 100%; background: linear-gradient(90deg, var(--v65-gold,#e6c77f), #ffd97a); border-radius: 2px; transition: width .5s ease; }
+.ux91-chapter-pct { font-size: 10px; color: #8fa9ba; white-space: nowrap; }

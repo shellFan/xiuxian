@@ -1,0 +1,67 @@
+[EXE-CDP] attached to packaged renderer: http://127.0.0.1:53151/index.html
+[EXE-CDP] bootReady=true after=0s
+[EXE-CDP] firstScreen={"title":"牛马修仙传","canvas":true,"creation":false,"modal":false,"industryCard":false}
+[EXE-CDP] homeReached=false
+[EXE-CDP] reachability={"limit":621,"controls":{"v64-useSkill":null,"v64-toggleSpeed":null,"v63-toggleAuto":null,"v63-upgradeClick":null,"v63-enterTower":null,"v64-openEquip":null,"v64-openGoals":null},"firstScreenCount":0,"total":7}
+[EXE-CDP] spriteCheck={"scene_office.png":200,"javabackend_idle.png":200,"bug_idle.png":200,"kpiLord_idle.png":200,"__spriteDomCount":1,"__spriteBg":"url(\"http://127.0.0.1:53151/assets/sprites/sheets/javabackend_idle.png\")"}
+[soak] #1 0s stage=null nodes=381 heap=28531488 exceptions=0 http4xx=0 sprite2xx=5
+[soak] #2 31s stage=null nodes=381 heap=31592168 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #3 62s stage=null nodes=381 heap=28272004 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #4 93s stage=null nodes=381 heap=27742472 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #5 124s stage=null nodes=381 heap=30677736 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #6 156s stage=null nodes=381 heap=28140120 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #7 187s stage=null nodes=381 heap=30252784 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #8 218s stage=null nodes=381 heap=33973784 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #9 249s stage=null nodes=381 heap=32061700 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #10 280s stage=null nodes=381 heap=29332760 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #11 311s stage=null nodes=381 heap=26808224 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #12 343s stage=null nodes=381 heap=29963128 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #13 374s stage=null nodes=381 heap=31613276 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #14 405s stage=null nodes=381 heap=28847860 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #15 435s stage=null nodes=381 heap=30770500 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #16 467s stage=null nodes=381 heap=28109364 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #17 497s stage=null nodes=381 heap=30663788 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #18 529s stage=null nodes=381 heap=33135100 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #19 560s stage=null nodes=381 heap=30077816 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #20 591s stage=null nodes=381 heap=26713156 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #21 622s stage=null nodes=381 heap=23895820 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #22 653s stage=null nodes=381 heap=32282080 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #23 684s stage=null nodes=381 heap=28928536 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #24 715s stage=null nodes=381 heap=27230252 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #25 746s stage=null nodes=381 heap=29035608 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #26 777s stage=null nodes=381 heap=30588624 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #27 808s stage=null nodes=381 heap=27814708 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #28 838s stage=null nodes=381 heap=29565980 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #29 869s stage=null nodes=381 heap=31739588 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #30 900s stage=null nodes=381 heap=29030532 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #31 931s stage=null nodes=381 heap=31479596 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #32 962s stage=null nodes=381 heap=28666792 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #33 993s stage=null nodes=381 heap=31270532 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #34 1025s stage=null nodes=381 heap=33911948 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #35 1056s stage=null nodes=381 heap=31229000 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #36 1086s stage=null nodes=381 heap=27414592 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #37 1117s stage=null nodes=381 heap=24968516 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #38 1148s stage=null nodes=381 heap=31207628 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #39 1179s stage=null nodes=381 heap=28001076 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #40 1210s stage=null nodes=381 heap=25748236 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #41 1241s stage=null nodes=381 heap=33219780 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #42 1273s stage=null nodes=381 heap=30417592 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #43 1304s stage=null nodes=381 heap=27909004 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #44 1335s stage=null nodes=381 heap=29459744 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #45 1366s stage=null nodes=381 heap=31182420 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #46 1397s stage=null nodes=381 heap=28373884 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #47 1427s stage=null nodes=381 heap=30057880 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #48 1458s stage=null nodes=381 heap=30894476 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #49 1489s stage=null nodes=381 heap=28218432 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #50 1520s stage=null nodes=381 heap=29959124 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #51 1551s stage=null nodes=381 heap=31629860 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #52 1582s stage=null nodes=381 heap=29479752 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #53 1613s stage=null nodes=381 heap=31337408 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #54 1644s stage=null nodes=381 heap=32005316 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #55 1675s stage=null nodes=381 heap=29018352 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #56 1706s stage=null nodes=381 heap=30527900 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #57 1737s stage=null nodes=381 heap=27410964 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #58 1768s stage=null nodes=381 heap=29436068 exceptions=0 http4xx=0 sprite2xx=6
+[soak] #59 1799s stage=null nodes=381 heap=32120544 exceptions=0 http4xx=0 sprite2xx=6
+[EXE-CDP] SOAK_DONE minutes=30.02 samples=59 exceptions=0 rendererCrashed=false
+EXIT=0

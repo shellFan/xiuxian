@@ -3588,12 +3588,18 @@ function renderCave() {
     '</div>' +
   '</section>';
 
-  /* ── C. 当前目标区：动态状态机 ── */
+  /* ── C. 当前目标区：动态状态机 + 章节进度条 ── */
   var goal = computeCaveGoal(hud, ab, promo);
+  var chapterPct = ab ? Math.round(((ab.stage - 1) % 12) / 12 * 100) : 0;
+  var chapterNum = ab ? Math.ceil(ab.stage / 12) : 1;
   var goalCard = '<section class="ux91-goal ux91-goal--' + goal.kind + '">' +
     '<div class="ux91-goal-kicker">' + goal.kicker + '</div>' +
     '<div class="ux91-goal-title">' + goal.title + '</div>' +
     (goal.desc ? '<div class="ux91-goal-desc">' + goal.desc + '</div>' : '') +
+    /* V10.0：章节进度条 */
+    '<div class="ux91-chapter-bar"><span class="ux91-chapter-label">第' + chapterNum + '章</span>' +
+      '<div class="ux91-chapter-progress"><div class="ux91-chapter-fill" style="width:' + chapterPct + '%"></div></div>' +
+      '<span class="ux91-chapter-pct">' + chapterPct + '%</span></div>' +
     '<button class="ux91-goal-cta" data-nav="' + goal.nav + '">' + goal.cta + ' ›</button>' +
   '</section>';
   /* 次要目标：未领取的今日目标（只展示第一条未领取） */
@@ -3641,19 +3647,20 @@ function renderCave() {
     v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() +
   '</div>';
 
+  /* V10.0：动态目标最优先 → 主角 → 今日修行 → 快捷入口 → 二级内容下方 */
   return '<div class="ux-home">' +
     backfillBanner +
     homeTopbarHtml(hud) +
     '<div class="ux-home-main ux91-cave">' +
       resBar +
-      hero +
       goalCard +
+      hero +
       today +
+      quick +
       v59fPanel +
       workSceneHtml(hud) +
       actionDetailHtml(hud) +
       statusChips +
-      quick +
       mergeBoard +
       homeRightHtml(hud) +
       journeyGuideHtml() +
