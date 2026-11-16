@@ -43,9 +43,9 @@
           "tasks": false
         },
         "battleAlive": true,
-        "enemyHp": 6,
+        "enemyHp": 0,
         "stage": 2,
-        "status": "FIGHTING"
+        "status": "VICTORY"
       }
     },
     {
@@ -59,9 +59,9 @@
           "tasks": false
         },
         "battleAlive": false,
-        "enemyHp": 0,
-        "stage": 2,
-        "status": "VICTORY"
+        "enemyHp": 64,
+        "stage": 3,
+        "status": "FIGHTING"
       }
     },
     {
@@ -75,7 +75,7 @@
           "tasks": false
         },
         "battleAlive": false,
-        "enemyHp": 49,
+        "enemyHp": 34,
         "stage": 3,
         "status": "FIGHTING"
       }
@@ -91,7 +91,7 @@
           "tasks": true
         },
         "battleAlive": false,
-        "enemyHp": 49,
+        "enemyHp": 34,
         "stage": 3,
         "status": "FIGHTING"
       }
@@ -107,7 +107,7 @@
           "tasks": false
         },
         "battleAlive": true,
-        "enemyHp": 19,
+        "enemyHp": 4,
         "stage": 3,
         "status": "FIGHTING"
       }

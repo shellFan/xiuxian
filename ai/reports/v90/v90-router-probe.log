@@ -6,3 +6,11 @@
 17:36:01 [shot] v90-05-tasks
 17:36:03 [shot] v90-06-battle-again
 17:36:03 assessment={"caveRenders":true,"battleRenders":true,"battleAlive":true,"combatProgressed":true,"growthRenders":true,"challengeRenders":true,"tasksRenders":true,"battleStatePersisted":false}
+16:00:01 creation done, home-ish=true
+16:00:03 [shot] v90-01-cave
+16:00:05 [shot] v90-02-battle
+16:00:08 [shot] v90-03-growth
+16:00:10 [shot] v90-04-challenge
+16:00:11 [shot] v90-05-tasks
+16:00:13 [shot] v90-06-battle-again
+16:00:13 assessment={"caveRenders":true,"battleRenders":true,"battleAlive":true,"combatProgressed":true,"growthRenders":true,"challengeRenders":true,"tasksRenders":true,"battleStatePersisted":false}

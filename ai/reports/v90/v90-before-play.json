@@ -1,6 +1,6 @@
 {
   "phase": "before",
-  "timestamp": "2026-11-14T17:26:59.320Z",
+  "timestamp": "2026-11-16T15:56:09.223Z",
   "head": "unknown",
   "creationSteps": [
     {
@@ -93,88 +93,213 @@
     },
     {
       "round": 15,
-      "action": "home-reached"
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n0\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 0 / 0\n⚡ "
+    },
+    {
+      "round": 16,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n0\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 0 / 0\n⚡ "
+    },
+    {
+      "round": 17,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n5\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 5 / 0\n⚡ "
+    },
+    {
+      "round": 18,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n5\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 5 / 0\n⚡ "
+    },
+    {
+      "round": 19,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n5\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 5 / 0\n⚡ "
+    },
+    {
+      "round": 20,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n5\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 5 / 0\n⚡ "
+    },
+    {
+      "round": 21,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n5\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 5 / 0\n⚡ "
+    },
+    {
+      "round": 22,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n5\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 5 / 0\n⚡ "
+    },
+    {
+      "round": 23,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n5\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 5 / 0\n⚡ "
+    },
+    {
+      "round": 24,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n5\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 5 / 0\n⚡ "
+    },
+    {
+      "round": 25,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n5\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 5 / 0\n⚡ "
+    },
+    {
+      "round": 26,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 27,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 28,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 29,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 30,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 31,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 32,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 33,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 34,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 35,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 36,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 37,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n11\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 11 / 0\n"
+    },
+    {
+      "round": 38,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n17\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 17 / 0\n"
+    },
+    {
+      "round": 39,
+      "action": "wait",
+      "bodyText": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n17\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 17 / 0\n"
     }
   ],
   "shots": [
     {
       "name": "01-boot",
-      "bytes": 1123155
+      "bytes": 1121080
     },
     {
       "name": "02a-profession-unconfirmed",
-      "bytes": 1238682
+      "bytes": 1245998
     },
     {
       "name": "02-after-creation",
-      "bytes": 785884
+      "bytes": 743015
     },
     {
       "name": "03-home",
-      "bytes": 753417
+      "bytes": 754119
     },
     {
       "name": "04-tap-attack",
-      "bytes": 1064815
+      "bytes": 754880
     },
     {
       "name": "05-skill-1",
-      "bytes": 761446
+      "bytes": 754618
     },
     {
       "name": "06-skill-2",
-      "bytes": 789997
+      "bytes": 753878
     },
     {
       "name": "07-skill-3",
-      "bytes": 794901
+      "bytes": 753680
     },
     {
       "name": "08-skill-4",
-      "bytes": 775654
+      "bytes": 756376
     },
     {
       "name": "09-speed-toggle",
-      "bytes": 802966
+      "bytes": 757616
     },
     {
       "name": "10-equipment",
-      "bytes": 788782
+      "bytes": 755724
     },
     {
       "name": "11-goals",
-      "bytes": 752623
+      "bytes": 876497
     },
     {
       "name": "12-squad-hire",
-      "bytes": 859961
+      "bytes": 876494
     },
     {
       "name": "13-tower",
-      "bytes": 810151
+      "bytes": 875630
     },
     {
       "name": "14-chest",
-      "bytes": 828391
+      "bytes": 876337
     },
     {
       "name": "15-card-battle",
-      "bytes": 837749
+      "bytes": 876614
     },
     {
       "name": "16-battle-progress",
-      "bytes": 906526
+      "bytes": 876322
     }
   ],
-  "homeReached": true,
+  "homeReached": false,
+  "finalScreen": {
+    "text": "11月16日\n周二 · 实习牛马 · 炼气一层\n未开工\n小师妹\n“摸鱼是门手艺，你已经是老师傅了。”\n🚨 1 件破事待处理\n飞剑\n任务\n项目\n人际\n背包\n设置\n💎\n0\n灵石\n⛰️\n17\n修为 +0.0/分\n☯\n100/100\n道心\n范大牛\nJava后端\n实习牛马 · 炼气一层\n⚡ 战力 241\n修为 17 / 0\n⚡ 修炼一次\n宗门 · 散修\n🧾 证据袋\n📖 功法\n新手试炼\n完成首次推关\n点击攻击与技能，击败眼前的第一只妖怪。\n进入战斗 ›\n完成一个工作任务\n领取\n获得一次真实成长\n领取\n执行一次生活或社交行为\n领取\n今日修行\n摸鱼中\n工资 +0.0/分 · 绩效 +0\n☯ 道心 100/100 · 道心通明\n努力工作\n工资 +30%\n带薪摸鱼\n道心恢复\n✓\n修炼一次\n修为 ×2.0\n社交划水\n道心逐步恢复\n📋\n领取一个任务\n任务库 18 份差事等你挑\n去任务页 ›\n今日修仙目标\n工作\n完成一个工作任务\n0/1\n在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20\n成长\n获得一次真实成长\n0/1\n修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45\n生活·社交\n执行一次生活或社交行为\n0/1\n喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12\n今日工作\n已赚 ¥0 · 修为 +0\n手头没有任务\n牛马不接活，仙途就要断\n去领任务\n绩效周\n沉迷战略\n项目即将验收\n+1\n今日已赚\n¥0.00\n+¥0.00 / 分钟\n+¥0.00 / 小时\n距离下班还有\n17:53:47\n今天已熬过去 0%\n带薪摸鱼中，道心平稳……\n今日工时 00:00:00\n带薪摸鱼\n修仙\n道心回复\n带薪摸鱼中\n摸鱼养性，游刃有余。公司将为本次修仙支付工资。\n🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100\n☯\n本次道心\n持续回复中\n💰\n本次工资\n¥0.00\n收心工作\n处理待办\n工资按 0.6× 结算；道心 +36/小时。\n🏢\n民企宗 · 时薪×1.00\n🌤\n今日·平常日\n😵‍💫\n疲劳 0\n精力充沛\n👥 员工\n招募 · 升级\n🎽 装备\n穿戴 · 强化\n🏯 晋升\nKPI · 答辩\n合成工位\n0/16 · 最高 Lv.1\n＋ 招个牛马\n①\n点两次【招个牛马】，凑齐两只实习牛马\n跳过\n空空如也。点【招个牛马】开工，合成升阶工资修为双收。\n今日待办\n全部\nP2\n第一张工单：排查接口异常\n系统\n✓\n✕\n📨 飞剑传书\n查看\n灵网安静，无人传书。\n最近动态\n全部\n今天尚无可展示的动态。完成任务或作出选择会记录在这里。\n今日生活\n今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。\n喝咖啡 ¥18\n剩 3 次 · 疲劳 -12\n喝奶茶 ¥16\n剩 2 次 · 道心 +8\n吃午餐 ¥25\n剩 1 次 · 疲劳 -8，道心 +5",
+    "html": "<div class=\"ux-screen\"><div class=\"ux-body ux-body--home\" id=\"UiBody\"><div class=\"ux-home\"><div class=\"ux-topbar\"><div class=\"ux-brand\"><img src=\"ui-slice/brand-title.png\" class=\"ux-brand-title\" alt=\"\"></div><div class=\"ux-topbar-date\"><b>11月16日</b><span>周二 · 实习牛马 · 炼气一层</span></div><span class=\"ux-topbar-state\">未开工</span><div class=\"ux-topbar-npc\"><span class=\"ux-topbar-npc-name\">小师妹</span><span class=\"ux-topbar-npc-line\">“摸鱼是门手艺，你已经是老师傅了。”</span></div><button class=\"ux-topbar-pending\" data-action=\"openPending\" title=\"点击处理\">🚨 1 件破事待处理</button><nav class=\"ux-topbar-shortcuts\"><button class=\"u"
+  },
   "homeSnapshot": {
-    "stage": "第1关",
-    "enemy": "「加个按钮就行」",
+    "stage": null,
+    "enemy": null,
     "hp": null,
     "power": null,
-    "autoState": "{\"stage\":1,\"maxStage\":1,\"status\":\"VICTORY\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「加个按钮就行」\",\"emoji\":\"👾\",\"hp\":0,\"maxHp\":50,\"hpPct\":0,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":1,\"spiritStones\":0,\"victoryTimer\":0.5,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining\":",
-    "stageClass": "ux65-stage ux65-theme--office",
-    "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 5 +0.0/分 · 炼气一层 工资 ¥10 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第1关 1~12关 普通 ⚡ 战力 241推荐300 「加个按钮就行」 0 / 50 ✅ 击败！ ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 ✨ Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀1 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:33 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h27m 剩余计划 5h00m 预计下班 06:33 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:33下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工"
+    "autoState": "{\"stage\":4,\"maxStage\":3,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「明天就要上线」\",\"emoji\":\"🤖\",\"hp\":57,\"maxHp\":72,\"hpPct\":79,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":83}],\"clickDamage\":10,\"totalKills\":3,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining",
+    "stageClass": null,
+    "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 17 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 17 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 4 关 当前敌人：「明天就要上线」 · 战力 241 / 推荐 433 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:52:58 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍"
   },
   "controls": [
     {
@@ -183,9 +308,9 @@
       "text": "🚨 1 件破事待处理",
       "visible": true,
       "disabled": false,
-      "w": 132,
-      "h": 27,
-      "x": 785,
+      "w": 129,
+      "h": 26,
+      "x": 786,
       "y": 26,
       "fontSize": "12px",
       "occluded": false
@@ -269,172 +394,16 @@
       "occluded": false
     },
     {
-      "key": "v63-tapAttack",
-      "tag": "DIV",
-      "text": "「加个按钮就行」 0 / 50 ✅ 击败！",
-      "visible": true,
-      "disabled": false,
-      "w": 898,
-      "h": 208,
-      "x": 185,
-      "y": 185,
-      "fontSize": "16px",
-      "occluded": false
-    },
-    {
-      "key": "v63-hireMenu",
+      "key": "cultivate",
       "tag": "BUTTON",
-      "text": "＋ 招募",
-      "visible": true,
-      "disabled": false,
-      "w": 56,
-      "h": 90,
-      "x": 639,
-      "y": 396,
-      "fontSize": "13.3333px",
-      "occluded": false
-    },
-    {
-      "key": "v64-useSkill",
-      "tag": "BUTTON",
-      "text": "代码飞剑 ✨",
-      "visible": true,
-      "disabled": false,
-      "w": 118,
-      "h": 71,
-      "x": 364,
-      "y": 493,
-      "fontSize": "13.3333px",
-      "occluded": false
-    },
-    {
-      "key": "btn:Bug炸弹 🔒5关",
-      "tag": "BUTTON",
-      "text": "Bug炸弹 🔒5关",
-      "visible": true,
-      "disabled": false,
-      "w": 118,
-      "h": 69,
-      "x": 488,
-      "y": 494,
-      "fontSize": "13.3333px",
-      "occluded": false
-    },
-    {
-      "key": "btn:需求粉碎 🔒10关",
-      "tag": "BUTTON",
-      "text": "需求粉碎 🔒10关",
-      "visible": true,
-      "disabled": false,
-      "w": 118,
-      "h": 69,
-      "x": 612,
-      "y": 494,
-      "fontSize": "13.3333px",
-      "occluded": false
-    },
-    {
-      "key": "btn:紧急回滚 🔒15关",
-      "tag": "BUTTON",
-      "text": "紧急回滚 🔒15关",
-      "visible": true,
-      "disabled": false,
-      "w": 118,
-      "h": 69,
-      "x": 736,
-      "y": 494,
-      "fontSize": "13.3333px",
-      "occluded": false
-    },
-    {
-      "key": "v64-toggleSpeed",
-      "tag": "BUTTON",
-      "text": "⚡ 1x",
-      "visible": true,
-      "disabled": false,
-      "w": 44,
-      "h": 52,
-      "x": 860,
-      "y": 503,
-      "fontSize": "13.3333px",
-      "occluded": false
-    },
-    {
-      "key": "v63-tapAttack",
-      "tag": "BUTTON",
-      "text": "👊点击攻击 10",
+      "text": "⚡ 修炼一次",
       "visible": true,
       "disabled": false,
       "w": 108,
       "h": 34,
-      "x": 187,
-      "y": 571,
-      "fontSize": "12px",
-      "occluded": false
-    },
-    {
-      "key": "v63-toggleAuto",
-      "tag": "BUTTON",
-      "text": "🤖 自动中",
-      "visible": true,
-      "disabled": false,
-      "w": 84,
-      "h": 34,
-      "x": 300,
-      "y": 571,
-      "fontSize": "12px",
-      "occluded": false
-    },
-    {
-      "key": "v63-upgradeClick",
-      "tag": "BUTTON",
-      "text": "⬆️ 升级点击",
-      "visible": true,
-      "disabled": false,
-      "w": 96,
-      "h": 34,
-      "x": 389,
-      "y": 571,
-      "fontSize": "12px",
-      "occluded": false
-    },
-    {
-      "key": "v63-enterTower",
-      "tag": "BUTTON",
-      "text": "🗼 996塔",
-      "visible": true,
-      "disabled": false,
-      "w": 78,
-      "h": 34,
-      "x": 491,
-      "y": 571,
-      "fontSize": "12px",
-      "occluded": false
-    },
-    {
-      "key": "v64-openEquip",
-      "tag": "BUTTON",
-      "text": "⚔️ 装备",
-      "visible": true,
-      "disabled": false,
-      "w": 72,
-      "h": 34,
-      "x": 574,
-      "y": 571,
-      "fontSize": "12px",
-      "occluded": false
-    },
-    {
-      "key": "v64-openGoals",
-      "tag": "BUTTON",
-      "text": "📋 目标",
-      "visible": true,
-      "disabled": false,
-      "w": 72,
-      "h": 34,
-      "x": 652,
-      "y": 571,
-      "fontSize": "12px",
+      "x": 520,
+      "y": 411,
+      "fontSize": "13px",
       "occluded": false
     },
     {
@@ -445,10 +414,10 @@
       "disabled": false,
       "w": 84,
       "h": 21,
-      "x": 259,
-      "y": 672,
+      "x": 520,
+      "y": 454,
       "fontSize": "11px",
-      "occluded": true
+      "occluded": false
     },
     {
       "key": "openModal",
@@ -458,10 +427,10 @@
       "disabled": false,
       "w": 72,
       "h": 21,
-      "x": 348,
-      "y": 672,
+      "x": 609,
+      "y": 454,
       "fontSize": "11px",
-      "occluded": true
+      "occluded": false
     },
     {
       "key": "goto",
@@ -471,23 +440,62 @@
       "disabled": false,
       "w": 61,
       "h": 21,
-      "x": 425,
-      "y": 672,
+      "x": 686,
+      "y": 454,
+      "fontSize": "11px",
+      "occluded": false
+    },
+    {
+      "key": "BATTLE",
+      "tag": "BUTTON",
+      "text": "继续战斗 ›",
+      "visible": true,
+      "disabled": false,
+      "w": 889,
+      "h": 45,
+      "x": 189,
+      "y": 586,
+      "fontSize": "16px",
+      "occluded": false
+    },
+    {
+      "key": "claimGoal",
+      "tag": "BUTTON",
+      "text": "领取",
+      "visible": true,
+      "disabled": false,
+      "w": 46,
+      "h": 20,
+      "x": 1038,
+      "y": 667,
       "fontSize": "11px",
       "occluded": true
     },
     {
-      "key": "cultivate",
+      "key": "claimGoal",
       "tag": "BUTTON",
-      "text": "⚡ 修炼一次",
+      "text": "领取",
       "visible": true,
       "disabled": false,
-      "w": 110,
-      "h": 43,
-      "x": 972,
-      "y": 642,
-      "fontSize": "14px",
-      "occluded": true
+      "w": 46,
+      "h": 20,
+      "x": 1038,
+      "y": 707,
+      "fontSize": "11px",
+      "occluded": null
+    },
+    {
+      "key": "claimGoal",
+      "tag": "BUTTON",
+      "text": "领取",
+      "visible": true,
+      "disabled": false,
+      "w": 46,
+      "h": 20,
+      "x": 1038,
+      "y": 747,
+      "fontSize": "11px",
+      "occluded": null
     },
     {
       "key": "mode",
@@ -495,10 +503,10 @@
       "text": "努力工作 工资 +30%",
       "visible": true,
       "disabled": false,
-      "w": 220,
+      "w": 218,
       "h": 69,
-      "x": 185,
-      "y": 703,
+      "x": 189,
+      "y": 838,
       "fontSize": "13.3333px",
       "occluded": null
     },
@@ -508,10 +516,10 @@
       "text": "带薪摸鱼 道心恢复 ✓",
       "visible": true,
       "disabled": true,
-      "w": 220,
+      "w": 218,
       "h": 69,
-      "x": 411,
-      "y": 703,
+      "x": 413,
+      "y": 838,
       "fontSize": "13.3333px",
       "occluded": null
     },
@@ -521,10 +529,10 @@
       "text": "修炼一次 修为 ×2.0",
       "visible": true,
       "disabled": false,
-      "w": 220,
+      "w": 218,
       "h": 69,
       "x": 637,
-      "y": 703,
+      "y": 838,
       "fontSize": "13.3333px",
       "occluded": null
     },
@@ -534,362 +542,11 @@
       "text": "社交划水 道心逐步恢复",
       "visible": true,
       "disabled": false,
-      "w": 220,
+      "w": 218,
       "h": 69,
-      "x": 862,
-      "y": 703,
+      "x": 860,
+      "y": 838,
       "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeRecruit",
-      "tag": "BUTTON",
-      "text": "＋ 招个牛马",
-      "visible": true,
-      "disabled": false,
-      "w": 131,
-      "h": 38,
-      "x": 951,
-      "y": 804,
-      "fontSize": "18px",
-      "occluded": null
-    },
-    {
-      "key": "mergeTutorialSkip",
-      "tag": "BUTTON",
-      "text": "跳过",
-      "visible": true,
-      "disabled": false,
-      "w": 40,
-      "h": 20,
-      "x": 1030,
-      "y": 860,
-      "fontSize": "11px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 354,
-      "y": 897,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 496,
-      "y": 897,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 638,
-      "y": 897,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 780,
-      "y": 897,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 354,
-      "y": 1039,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 496,
-      "y": 1039,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 638,
-      "y": 1039,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 780,
-      "y": 1039,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 354,
-      "y": 1181,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 496,
-      "y": 1181,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 638,
-      "y": 1181,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 780,
-      "y": 1181,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 354,
-      "y": 1323,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 496,
-      "y": 1323,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 638,
-      "y": 1323,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mergeCell",
-      "tag": "BUTTON",
-      "text": "",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 134,
-      "x": 780,
-      "y": 1323,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "voluntaryOvertime",
-      "tag": "BUTTON",
-      "text": "主动渡劫（加班 2h）",
-      "visible": true,
-      "disabled": false,
-      "w": 161,
-      "h": 30,
-      "x": 891,
-      "y": 1611,
-      "fontSize": "14px",
-      "occluded": null
-    },
-    {
-      "key": "goto",
-      "tag": "BUTTON",
-      "text": "🏢 民企宗 · 时薪×1.00",
-      "visible": true,
-      "disabled": false,
-      "w": 171,
-      "h": 32,
-      "x": 174,
-      "y": 1668,
-      "fontSize": "12px",
-      "occluded": null
-    },
-    {
-      "key": "goto",
-      "tag": "BUTTON",
-      "text": "🌤 今日·平常日",
-      "visible": true,
-      "disabled": false,
-      "w": 117,
-      "h": 32,
-      "x": 350,
-      "y": 1668,
-      "fontSize": "12px",
-      "occluded": null
-    },
-    {
-      "key": "goto",
-      "tag": "BUTTON",
-      "text": "😵‍💫 疲劳 0 精力充沛",
-      "visible": true,
-      "disabled": false,
-      "w": 134,
-      "h": 28,
-      "x": 473,
-      "y": 1670,
-      "fontSize": "12px",
-      "occluded": null
-    },
-    {
-      "key": "TASKS",
-      "tag": "BUTTON",
-      "text": "📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工",
-      "visible": true,
-      "disabled": false,
-      "w": 920,
-      "h": 50,
-      "x": 174,
-      "y": 1747,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "PROMOTION",
-      "tag": "BUTTON",
-      "text": "🏯 晋升条件已达成！ 参加答辩 ›",
-      "visible": true,
-      "disabled": false,
-      "w": 920,
-      "h": 33,
-      "x": 174,
-      "y": 1848,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "PROMOTION",
-      "tag": "BUTTON",
-      "text": "查看条件 ›",
-      "visible": true,
-      "disabled": false,
-      "w": 65,
-      "h": 18,
-      "x": 174,
-      "y": 2011,
-      "fontSize": "13.3333px",
-      "occluded": null
-    },
-    {
-      "key": "mode",
-      "tag": "BUTTON",
-      "text": "收心工作",
-      "visible": true,
-      "disabled": false,
-      "w": 187,
-      "h": 29,
-      "x": 896,
-      "y": 2046,
-      "fontSize": "13px",
-      "occluded": null
-    },
-    {
-      "key": "gotoTasks",
-      "tag": "BUTTON",
-      "text": "处理待办",
-      "visible": true,
-      "disabled": false,
-      "w": 187,
-      "h": 29,
-      "x": 896,
-      "y": 2079,
-      "fontSize": "13px",
       "occluded": null
     },
     {
@@ -901,7 +558,7 @@
       "w": 920,
       "h": 51,
       "x": 174,
-      "y": 2169,
+      "y": 934,
       "fontSize": "13.3333px",
       "occluded": null
     },
@@ -914,8 +571,346 @@
       "w": 104,
       "h": 38,
       "x": 976,
-      "y": 2550,
+      "y": 1315,
       "fontSize": "18px",
+      "occluded": null
+    },
+    {
+      "key": "mode",
+      "tag": "BUTTON",
+      "text": "收心工作",
+      "visible": true,
+      "disabled": false,
+      "w": 187,
+      "h": 29,
+      "x": 896,
+      "y": 1570,
+      "fontSize": "13px",
+      "occluded": null
+    },
+    {
+      "key": "gotoTasks",
+      "tag": "BUTTON",
+      "text": "处理待办",
+      "visible": true,
+      "disabled": false,
+      "w": 187,
+      "h": 29,
+      "x": 896,
+      "y": 1603,
+      "fontSize": "13px",
+      "occluded": null
+    },
+    {
+      "key": "goto",
+      "tag": "BUTTON",
+      "text": "🏢 民企宗 · 时薪×1.00",
+      "visible": true,
+      "disabled": false,
+      "w": 171,
+      "h": 32,
+      "x": 174,
+      "y": 1693,
+      "fontSize": "12px",
+      "occluded": null
+    },
+    {
+      "key": "goto",
+      "tag": "BUTTON",
+      "text": "🌤 今日·平常日",
+      "visible": true,
+      "disabled": false,
+      "w": 117,
+      "h": 32,
+      "x": 350,
+      "y": 1693,
+      "fontSize": "12px",
+      "occluded": null
+    },
+    {
+      "key": "goto",
+      "tag": "BUTTON",
+      "text": "😵‍💫 疲劳 0 精力充沛",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 28,
+      "x": 473,
+      "y": 1695,
+      "fontSize": "12px",
+      "occluded": null
+    },
+    {
+      "key": "GROWTH",
+      "tag": "BUTTON",
+      "text": "👥 员工 招募 · 升级",
+      "visible": true,
+      "disabled": false,
+      "w": 301,
+      "h": 62,
+      "x": 174,
+      "y": 1733,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "GROWTH",
+      "tag": "BUTTON",
+      "text": "🎽 装备 穿戴 · 强化",
+      "visible": true,
+      "disabled": false,
+      "w": 301,
+      "h": 62,
+      "x": 483,
+      "y": 1733,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "PROMOTION",
+      "tag": "BUTTON",
+      "text": "🏯 晋升 KPI · 答辩",
+      "visible": true,
+      "disabled": false,
+      "w": 301,
+      "h": 62,
+      "x": 792,
+      "y": 1733,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeRecruit",
+      "tag": "BUTTON",
+      "text": "＋ 招个牛马",
+      "visible": true,
+      "disabled": false,
+      "w": 131,
+      "h": 38,
+      "x": 951,
+      "y": 1815,
+      "fontSize": "18px",
+      "occluded": null
+    },
+    {
+      "key": "mergeTutorialSkip",
+      "tag": "BUTTON",
+      "text": "跳过",
+      "visible": true,
+      "disabled": false,
+      "w": 40,
+      "h": 20,
+      "x": 1030,
+      "y": 1870,
+      "fontSize": "11px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 354,
+      "y": 1908,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 496,
+      "y": 1908,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 638,
+      "y": 1908,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 780,
+      "y": 1908,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 354,
+      "y": 2050,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 496,
+      "y": 2050,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 638,
+      "y": 2050,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 780,
+      "y": 2050,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 354,
+      "y": 2192,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 496,
+      "y": 2192,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 638,
+      "y": 2192,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 780,
+      "y": 2192,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 354,
+      "y": 2334,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 496,
+      "y": 2334,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 638,
+      "y": 2334,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "mergeCell",
+      "tag": "BUTTON",
+      "text": "",
+      "visible": true,
+      "disabled": false,
+      "w": 134,
+      "h": 134,
+      "x": 780,
+      "y": 2334,
+      "fontSize": "13.3333px",
       "occluded": null
     },
     {
@@ -927,7 +922,7 @@
       "w": 39,
       "h": 17,
       "x": 1041,
-      "y": 2624,
+      "y": 2523,
       "fontSize": "11.5px",
       "occluded": null
     },
@@ -940,7 +935,7 @@
       "w": 20,
       "h": 20,
       "x": 1033,
-      "y": 2649,
+      "y": 2548,
       "fontSize": "12px",
       "occluded": null
     },
@@ -953,7 +948,7 @@
       "w": 20,
       "h": 20,
       "x": 1058,
-      "y": 2649,
+      "y": 2548,
       "fontSize": "12px",
       "occluded": null
     },
@@ -966,7 +961,7 @@
       "w": 39,
       "h": 17,
       "x": 1041,
-      "y": 2720,
+      "y": 2619,
       "fontSize": "11.5px",
       "occluded": null
     },
@@ -979,7 +974,7 @@
       "w": 39,
       "h": 17,
       "x": 1041,
-      "y": 2808,
+      "y": 2707,
       "fontSize": "11.5px",
       "occluded": null
     },
@@ -988,11 +983,11 @@
       "tag": "BUTTON",
       "text": "喝咖啡 ¥18",
       "visible": true,
-      "disabled": true,
+      "disabled": false,
       "w": 172,
       "h": 38,
       "x": 188,
-      "y": 2946,
+      "y": 2845,
       "fontSize": "18px",
       "occluded": null
     },
@@ -1001,11 +996,11 @@
       "tag": "BUTTON",
       "text": "喝奶茶 ¥16",
       "visible": true,
-      "disabled": true,
+      "disabled": false,
       "w": 172,
       "h": 38,
       "x": 368,
-      "y": 2946,
+      "y": 2845,
       "fontSize": "18px",
       "occluded": null
     },
@@ -1014,11 +1009,11 @@
       "tag": "BUTTON",
       "text": "吃午餐 ¥25",
       "visible": true,
-      "disabled": true,
+      "disabled": false,
       "w": 172,
       "h": 38,
       "x": 548,
-      "y": 2946,
+      "y": 2845,
       "fontSize": "18px",
       "occluded": null
     },
@@ -1031,7 +1026,7 @@
       "w": 172,
       "h": 38,
       "x": 728,
-      "y": 2946,
+      "y": 2845,
       "fontSize": "18px",
       "occluded": null
     },
@@ -1044,19 +1039,84 @@
       "w": 172,
       "h": 38,
       "x": 908,
-      "y": 2946,
+      "y": 2845,
       "fontSize": "18px",
       "occluded": null
     },
     {
-      "key": "HOME",
+      "key": "TASKS",
       "tag": "BUTTON",
-      "text": "🏠 首页",
+      "text": "📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工",
+      "visible": true,
+      "disabled": false,
+      "w": 920,
+      "h": 50,
+      "x": 174,
+      "y": 2939,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "PROMOTION",
+      "tag": "BUTTON",
+      "text": "🏯 晋升条件已达成！ 参加答辩 ›",
+      "visible": true,
+      "disabled": false,
+      "w": 920,
+      "h": 33,
+      "x": 174,
+      "y": 3039,
+      "fontSize": "13.3333px",
+      "occluded": null
+    },
+    {
+      "key": "CAVE",
+      "tag": "BUTTON",
+      "text": "🏠 洞府",
       "visible": true,
       "disabled": false,
       "w": 253,
       "h": 62,
       "x": 0,
+      "y": 623,
+      "fontSize": "13.3333px",
+      "occluded": false
+    },
+    {
+      "key": "BATTLE",
+      "tag": "BUTTON",
+      "text": "⚔️ 战斗",
+      "visible": true,
+      "disabled": false,
+      "w": 253,
+      "h": 62,
+      "x": 253,
+      "y": 623,
+      "fontSize": "13.3333px",
+      "occluded": false
+    },
+    {
+      "key": "GROWTH",
+      "tag": "BUTTON",
+      "text": "🧑‍🤝‍🧑 养成",
+      "visible": true,
+      "disabled": false,
+      "w": 253,
+      "h": 62,
+      "x": 507,
+      "y": 623,
+      "fontSize": "13.3333px",
+      "occluded": false
+    },
+    {
+      "key": "PROJECT",
+      "tag": "BUTTON",
+      "text": "🏯 挑战",
+      "visible": true,
+      "disabled": false,
+      "w": 253,
+      "h": 62,
+      "x": 760,
       "y": 623,
       "fontSize": "13.3333px",
       "occluded": false
@@ -1069,45 +1129,6 @@
       "disabled": false,
       "w": 253,
       "h": 62,
-      "x": 253,
-      "y": 623,
-      "fontSize": "13.3333px",
-      "occluded": false
-    },
-    {
-      "key": "PROJECT",
-      "tag": "BUTTON",
-      "text": "⚔️ 项目",
-      "visible": true,
-      "disabled": false,
-      "w": 253,
-      "h": 62,
-      "x": 507,
-      "y": 623,
-      "fontSize": "13.3333px",
-      "occluded": false
-    },
-    {
-      "key": "PROMOTION",
-      "tag": "BUTTON",
-      "text": "🏯 晋升",
-      "visible": true,
-      "disabled": false,
-      "w": 253,
-      "h": 62,
-      "x": 760,
-      "y": 623,
-      "fontSize": "13.3333px",
-      "occluded": false
-    },
-    {
-      "key": "MORE",
-      "tag": "BUTTON",
-      "text": "▦ 更多",
-      "visible": true,
-      "disabled": false,
-      "w": 253,
-      "h": 62,
       "x": 1014,
       "y": 623,
       "fontSize": "13.3333px",
@@ -1115,7 +1136,7 @@
     }
   ],
   "layout": {
-    "domNodes": 427,
+    "domNodes": 361,
     "viewport": {
       "w": 1267,
       "h": 685,
@@ -1127,17 +1148,13 @@
       "cssW": 385,
       "cssH": 685
     },
-    "stage": {
-      "w": 920,
-      "h": 459,
-      "cls": "ux65-stage ux65-theme--office"
-    },
-    "spriteCount": 1,
-    "enemySprite": true,
-    "sceneBg": true,
+    "stage": null,
+    "spriteCount": 0,
+    "enemySprite": false,
+    "sceneBg": false,
     "cssCharRemains": false,
-    "skillBtns": 1,
-    "visibleControls": 72,
+    "skillBtns": 0,
+    "visibleControls": 64,
     "clippedTexts": [],
     "overflow": {
       "docW": 1267,
@@ -1149,94 +1166,64 @@
   "reachability": {
     "viewportLimit": 621,
     "controls": {
-      "v64-useSkill": {
-        "y": 493,
-        "bottom": 564,
-        "inFirstScreen": true
-      },
-      "v64-toggleSpeed": {
-        "y": 503,
-        "bottom": 555,
-        "inFirstScreen": true
-      },
-      "v63-toggleAuto": {
-        "y": 571,
-        "bottom": 605,
-        "inFirstScreen": true
-      },
-      "v63-upgradeClick": {
-        "y": 571,
-        "bottom": 605,
-        "inFirstScreen": true
-      },
-      "v63-enterTower": {
-        "y": 571,
-        "bottom": 605,
-        "inFirstScreen": true
-      },
-      "v64-openEquip": {
-        "y": 571,
-        "bottom": 605,
-        "inFirstScreen": true
-      },
-      "v64-openGoals": {
-        "y": 571,
-        "bottom": 605,
-        "inFirstScreen": true
-      }
+      "v64-useSkill": null,
+      "v64-toggleSpeed": null,
+      "v63-toggleAuto": null,
+      "v63-upgradeClick": null,
+      "v63-enterTower": null,
+      "v64-openEquip": null,
+      "v64-openGoals": null
     },
-    "firstScreenCount": 7,
+    "firstScreenCount": 0,
     "total": 7
   },
   "interactions": [
     {
       "name": "04-tap-attack",
       "click": {
-        "found": true,
-        "text": "「加个按钮就行」\n0 / 50\n✅ 击败！"
+        "found": false
       },
       "before": {
-        "stage": "第1关",
-        "enemy": "「加个按钮就行」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":1,\"maxStage\":1,\"status\":\"VICTORY\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「加个按钮就行」\",\"emoji\":\"👾\",\"hp\":0,\"maxHp\":50,\"hpPct\":0,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":1,\"spiritStones\":0,\"victoryTimer\":0.5,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining\":",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 5 +0.0/分 · 炼气一层 工资 ¥10 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第1关 1~12关 普通 ⚡ 战力 241推荐300 「加个按钮就行」 0 / 50 ✅ 击败！ ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 ✨ Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀1 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:33 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h27m 剩余计划 5h00m 预计下班 06:33 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:33下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工"
+        "autoState": "{\"stage\":4,\"maxStage\":3,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「明天就要上线」\",\"emoji\":\"🤖\",\"hp\":57,\"maxHp\":72,\"hpPct\":79,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":83}],\"clickDamage\":10,\"totalKills\":3,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 17 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 17 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 4 关 当前敌人：「明天就要上线」 · 战力 241 / 推荐 433 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:52:58 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍"
       },
       "after": {
-        "stage": "第2关",
-        "enemy": "「很简单的不用设计」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":2,\"maxStage\":1,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「很简单的不用设计」\",\"emoji\":\"👹\",\"hp\":56,\"maxHp\":56,\"hpPct\":100,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":1,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 5 +0.0/分 · 炼气一层 工资 ¥10 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第2关 1~12关 普通 ⚡ 战力 241推荐339 「很简单的不用设计」 56 / 56 ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 ✨ Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀1 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:32 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h27m 剩余计划 5h00m 预计下班 06:33 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:33下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 "
+        "autoState": "{\"stage\":4,\"maxStage\":3,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「明天就要上线」\",\"emoji\":\"🤖\",\"hp\":42,\"maxHp\":72,\"hpPct\":58,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":92}],\"clickDamage\":10,\"totalKills\":3,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 17 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 17 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 4 关 当前敌人：「明天就要上线」 · 战力 241 / 推荐 433 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:52:58 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍"
       }
     },
     {
       "name": "05-skill-1",
       "click": {
-        "found": true,
-        "text": "代码飞剑✨"
+        "found": false
       },
       "before": {
-        "stage": "第2关",
-        "enemy": "「很简单的不用设计」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":2,\"maxStage\":1,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「很简单的不用设计」\",\"emoji\":\"👹\",\"hp\":56,\"maxHp\":56,\"hpPct\":100,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":1,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 5 +0.0/分 · 炼气一层 工资 ¥10 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第2关 1~12关 普通 ⚡ 战力 241推荐339 「很简单的不用设计」 56 / 56 ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 ✨ Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀1 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:32 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h27m 剩余计划 5h00m 预计下班 06:33 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:33下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 "
+        "autoState": "{\"stage\":4,\"maxStage\":3,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「明天就要上线」\",\"emoji\":\"🤖\",\"hp\":42,\"maxHp\":72,\"hpPct\":58,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":92}],\"clickDamage\":10,\"totalKills\":3,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 17 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 17 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 4 关 当前敌人：「明天就要上线」 · 战力 241 / 推荐 433 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:52:58 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍"
       },
       "after": {
-        "stage": "第2关",
-        "enemy": "「很简单的不用设计」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":2,\"maxStage\":2,\"status\":\"VICTORY\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「很简单的不用设计」\",\"emoji\":\"👹\",\"hp\":0,\"maxHp\":56,\"hpPct\":0,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":2,\"spiritStones\":0,\"victoryTimer\":0.5,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":7,\"ready\":false,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemainin",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 11 +0.0/分 · 炼气一层 工资 ¥21 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第2关 1~12关 普通 ⚡ 战力 241推荐339 「很简单的不用设计」 0 / 56 ✅ 击败！ ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 8s Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀2 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:32 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h27m 剩余计划 5h00m 预计下班 06:33 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:33下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修"
+        "autoState": "{\"stage\":4,\"maxStage\":4,\"status\":\"VICTORY\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「明天就要上线」\",\"emoji\":\"🤖\",\"hp\":0,\"maxHp\":72,\"hpPct\":0,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":1.5,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining\":",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 4 关 当前敌人：「明天就要上线」 · 战力 241 / 推荐 433 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:52:34 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍"
       }
     },
     {
@@ -1245,22 +1232,22 @@
         "found": false
       },
       "before": {
-        "stage": "第2关",
-        "enemy": "「很简单的不用设计」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":2,\"maxStage\":2,\"status\":\"VICTORY\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「很简单的不用设计」\",\"emoji\":\"👹\",\"hp\":0,\"maxHp\":56,\"hpPct\":0,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":2,\"spiritStones\":0,\"victoryTimer\":0.5,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":7,\"ready\":false,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemainin",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 11 +0.0/分 · 炼气一层 工资 ¥21 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第2关 1~12关 普通 ⚡ 战力 241推荐339 「很简单的不用设计」 0 / 56 ✅ 击败！ ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 8s Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀2 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:32 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h27m 剩余计划 5h00m 预计下班 06:33 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:33下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修"
+        "autoState": "{\"stage\":4,\"maxStage\":4,\"status\":\"VICTORY\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「明天就要上线」\",\"emoji\":\"🤖\",\"hp\":0,\"maxHp\":72,\"hpPct\":0,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":1.5,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining\":",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 4 关 当前敌人：「明天就要上线」 · 战力 241 / 推荐 433 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:52:34 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍"
       },
       "after": {
-        "stage": "第3关",
-        "enemy": "「参考竞品抄一下」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":3,\"maxStage\":2,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「参考竞品抄一下」\",\"emoji\":\"👺\",\"hp\":64,\"maxHp\":64,\"hpPct\":100,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":2,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":6,\"ready\":false,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 11 +0.0/分 · 炼气一层 工资 ¥21 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第3关 1~12关 普通 ⚡ 战力 241推荐383 「参考竞品抄一下」 64 / 64 ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 6s Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀2 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:30 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h27m 剩余计划 5h00m 预计下班 06:33 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:33下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。"
+        "autoState": "{\"stage\":4,\"maxStage\":4,\"status\":\"VICTORY\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「明天就要上线」\",\"emoji\":\"🤖\",\"hp\":0,\"maxHp\":72,\"hpPct\":0,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0.5,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining\":",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 4 关 当前敌人：「明天就要上线」 · 战力 241 / 推荐 433 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:52:27 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍"
       }
     },
     {
@@ -1269,22 +1256,22 @@
         "found": false
       },
       "before": {
-        "stage": "第3关",
-        "enemy": "「参考竞品抄一下」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":3,\"maxStage\":2,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「参考竞品抄一下」\",\"emoji\":\"👺\",\"hp\":64,\"maxHp\":64,\"hpPct\":100,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":2,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":6,\"ready\":false,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 11 +0.0/分 · 炼气一层 工资 ¥21 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第3关 1~12关 普通 ⚡ 战力 241推荐383 「参考竞品抄一下」 64 / 64 ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 6s Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀2 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:30 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h27m 剩余计划 5h00m 预计下班 06:33 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:33下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。"
+        "autoState": "{\"stage\":4,\"maxStage\":4,\"status\":\"VICTORY\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「明天就要上线」\",\"emoji\":\"🤖\",\"hp\":0,\"maxHp\":72,\"hpPct\":0,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0.5,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining\":",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 4 关 当前敌人：「明天就要上线」 · 战力 241 / 推荐 433 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:52:27 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍"
       },
       "after": {
-        "stage": "第3关",
-        "enemy": "「参考竞品抄一下」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":3,\"maxStage\":2,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「参考竞品抄一下」\",\"emoji\":\"👺\",\"hp\":49,\"maxHp\":64,\"hpPct\":77,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":8}],\"clickDamage\":10,\"totalKills\":2,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":5,\"ready\":false,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemainin",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 11 +0.0/分 · 炼气一层 工资 ¥21 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第3关 1~12关 普通 ⚡ 战力 241推荐383 「参考竞品抄一下」 64 / 64 ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 6s Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀2 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:30 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h26m 剩余计划 5h00m 预计下班 06:34 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:34下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。"
+        "autoState": "{\"stage\":4,\"maxStage\":4,\"status\":\"VICTORY\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「明天就要上线」\",\"emoji\":\"🤖\",\"hp\":0,\"maxHp\":72,\"hpPct\":0,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0.5,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining\":",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 4 关 当前敌人：「明天就要上线」 · 战力 241 / 推荐 433 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:52:10 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍"
       }
     },
     {
@@ -1293,46 +1280,46 @@
         "found": false
       },
       "before": {
-        "stage": "第3关",
-        "enemy": "「参考竞品抄一下」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":3,\"maxStage\":2,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「参考竞品抄一下」\",\"emoji\":\"👺\",\"hp\":49,\"maxHp\":64,\"hpPct\":77,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":8}],\"clickDamage\":10,\"totalKills\":2,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":5,\"ready\":false,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemainin",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 11 +0.0/分 · 炼气一层 工资 ¥21 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第3关 1~12关 普通 ⚡ 战力 241推荐383 「参考竞品抄一下」 64 / 64 ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 6s Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀2 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:30 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h26m 剩余计划 5h00m 预计下班 06:34 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:34下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。"
+        "autoState": "{\"stage\":4,\"maxStage\":4,\"status\":\"VICTORY\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「明天就要上线」\",\"emoji\":\"🤖\",\"hp\":0,\"maxHp\":72,\"hpPct\":0,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0.5,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaining\":",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 4 关 当前敌人：「明天就要上线」 · 战力 241 / 推荐 433 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:52:10 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍"
       },
       "after": {
-        "stage": "第3关",
-        "enemy": "「参考竞品抄一下」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":3,\"maxStage\":2,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「参考竞品抄一下」\",\"emoji\":\"👺\",\"hp\":34,\"maxHp\":64,\"hpPct\":53,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":17}],\"clickDamage\":10,\"totalKills\":2,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":4,\"ready\":false,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 11 +0.0/分 · 炼气一层 工资 ¥21 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第3关 1~12关 普通 ⚡ 战力 241推荐383 「参考竞品抄一下」 49 / 64 ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 5s Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀2 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:29 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h26m 剩余计划 5h00m 预计下班 06:34 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:34下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。"
+        "autoState": "{\"stage\":5,\"maxStage\":4,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"产品总监·画饼真人\",\"emoji\":\"😈\",\"hp\":294,\"maxHp\":294,\"hpPct\":100,\"isBoss\":true,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 5 关 当前敌人：产品总监·画饼真人 · 战力 241 / 推荐 489 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:51:54 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵"
       }
     },
     {
       "name": "09-speed-toggle",
       "click": {
-        "found": true
+        "found": false
       },
       "before": {
-        "stage": "第3关",
-        "enemy": "「参考竞品抄一下」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":3,\"maxStage\":2,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「参考竞品抄一下」\",\"emoji\":\"👺\",\"hp\":34,\"maxHp\":64,\"hpPct\":53,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":17}],\"clickDamage\":10,\"totalKills\":2,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":4,\"ready\":false,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 11 +0.0/分 · 炼气一层 工资 ¥21 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第3关 1~12关 普通 ⚡ 战力 241推荐383 「参考竞品抄一下」 49 / 64 ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 5s Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 1x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀2 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:29 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h26m 剩余计划 5h00m 预计下班 06:34 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:34下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。"
+        "autoState": "{\"stage\":5,\"maxStage\":4,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"产品总监·画饼真人\",\"emoji\":\"😈\",\"hp\":294,\"maxHp\":294,\"hpPct\":100,\"isBoss\":true,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":0}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 5 关 当前敌人：产品总监·画饼真人 · 战力 241 / 推荐 489 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:51:54 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵"
       },
       "after": {
-        "stage": "第3关",
-        "enemy": "「参考竞品抄一下」",
+        "stage": null,
+        "enemy": null,
         "hp": null,
         "power": null,
-        "autoState": "{\"stage\":3,\"maxStage\":2,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"「参考竞品抄一下」\",\"emoji\":\"👺\",\"hp\":34,\"maxHp\":64,\"hpPct\":53,\"isBoss\":false,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":17}],\"clickDamage\":10,\"totalKills\":2,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":2,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":4,\"ready\":false,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
-        "stageClass": "ux65-stage ux65-theme--office",
-        "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 11 +0.0/分 · 炼气一层 工资 ¥21 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第3关 1~12关 普通 ⚡ 战力 241推荐383 「参考竞品抄一下」 34 / 64 ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 4s Bug炸弹 🔒5关 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 2x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀2 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:28 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h26m 剩余计划 5h00m 预计下班 06:34 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:34下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。"
+        "autoState": "{\"stage\":5,\"maxStage\":4,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"产品总监·画饼真人\",\"emoji\":\"😈\",\"hp\":294,\"maxHp\":294,\"hpPct\":100,\"isBoss\":true,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":8}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
+        "stageClass": null,
+        "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 5 关 当前敌人：产品总监·画饼真人 · 战力 241 / 推荐 489 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:51:54 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵"
       }
     }
   ],
@@ -1341,44 +1328,44 @@
       "name": "10-equipment",
       "open": "v64-openEquip",
       "clicked": {
-        "found": true
+        "found": false
       },
       "opened": {
-        "text": " · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 今日待办 全部 P2 第一张工单：排查接口异常 系统 ✓ ✕ 📨 飞剑传书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 余额不足（还差 ¥4） 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 ⚔️ 战斗装备 ⌨️ 武器 空 🛡️ 护甲 空 💍 饰品 空 📿 法宝 空 背包为空，击杀敌人掉落装备 关闭 🏠 首页 📜 任务 ⚔️ 项目 🏯 晋升 ▦ 更多 ⚡ 倍速 2x 开启",
-        "modalCount": 2
+        "text": "书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计05:08下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 老板也在摸鱼 RARE 你路过老板办公室，看到他在刷短视频。四目相对，他缓缓地、庄重地关掉了屏幕。从此你们有了共享的秘密。 知道了",
+        "modalCount": 3
       }
     },
     {
       "name": "11-goals",
       "open": "v64-openGoals",
       "clicked": {
-        "found": true
+        "found": false
       },
       "opened": {
-        "text": " 📈 推进3关 1/3 ✨ 释放5次技能 0/5 👊 点击攻击50次 0/50 🗓️ 七日成长 🌱 Day1 初入职场 完成首次推关（通过第1关） 领取 👥 Day2 组建团队 招募第1名项目小队成员 领取 ✨ Day3 技能觉醒 释放3次主动技能 领取 🗼 Day4 塔的试炼 挑战996通天塔达到5层 领取 🔗 Day5 羁绊之力 激活任意1个职业羁绊 领取 ⚔️ Day6 装备加持 装备任意1件战斗装备 领取 🏆 Day7 独当一面 通过第15关 领取 🏆 成就 (0/17) 🔒 初战告捷 🔒 小有所成 🔒 项目骨干 🔒 技术专家 🔒 996飞升 🔒 百人斩 🔒 千人斩 🔒 塔的挑战者 🔒 塔之征服者 🔒 全栈团队 🔒 传说降临 🔒 星辰初现 🔒 五星上将 🔒 全栈攻坚 🔒 神器在手 🔒 强化大师 🔒 技能大师 关闭 🏠 首页 📜 任务 ⚔️ 项目 🏯 晋升 ▦ 更多",
-        "modalCount": 2
+        "text": "书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计05:08下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 老板也在摸鱼 RARE 你路过老板办公室，看到他在刷短视频。四目相对，他缓缓地、庄重地关掉了屏幕。从此你们有了共享的秘密。 知道了",
+        "modalCount": 3
       }
     },
     {
       "name": "12-squad-hire",
       "open": "v63-hireMenu",
       "clicked": {
-        "found": true
+        "found": false
       },
       "opened": {
-        "text": "0 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 今日待办 全部 P2 第一张工单：排查接口异常 系统 ✓ ✕ 📨 飞剑传书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 招募项目小队 💎 50 / 0 ☕ Java后端 稳定输出·代码暴击 🎨 前端 快速攻击·渲染护盾 🐛 测试 弱点识别·全队+50% 🔧 运维 防御恢复·一键回滚 关闭 🏠 首页 📜 任务 ⚔️ 项目 🏯 晋升 ▦ 更多",
-        "modalCount": 2
+        "text": "书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计05:08下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 老板也在摸鱼 RARE 你路过老板办公室，看到他在刷短视频。四目相对，他缓缓地、庄重地关掉了屏幕。从此你们有了共享的秘密。 知道了",
+        "modalCount": 3
       }
     },
     {
       "name": "13-tower",
       "open": "v63-enterTower",
       "clicked": {
-        "found": true
+        "found": false
       },
       "opened": {
-        "text": "来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 今日待办 全部 P2 第一张工单：排查接口异常 系统 ✓ ✕ 📨 飞剑传书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🏠 首页 📜 任务 ⚔️ 项目 🏯 晋升 ▦ 更多 🗼 进入996通天塔第1层！",
-        "modalCount": 1
+        "text": "书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计05:08下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 老板也在摸鱼 RARE 你路过老板办公室，看到他在刷短视频。四目相对，他缓缓地、庄重地关掉了屏幕。从此你们有了共享的秘密。 知道了",
+        "modalCount": 3
       }
     },
     {
@@ -1388,8 +1375,8 @@
         "found": false
       },
       "opened": {
-        "text": "为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 今日待办 全部 P2 第一张工单：排查接口异常 系统 ✓ ✕ 📨 飞剑传书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🏠 首页 📜 任务 ⚔️ 项目 🏯 晋升 ▦ 更多 🗼 进入996通天塔第1层！ ↩️ 已退出通天塔，回到主线推关",
-        "modalCount": 1
+        "text": "书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计05:08下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 老板也在摸鱼 RARE 你路过老板办公室，看到他在刷短视频。四目相对，他缓缓地、庄重地关掉了屏幕。从此你们有了共享的秘密。 知道了",
+        "modalCount": 3
       }
     },
     {
@@ -1399,39 +1386,39 @@
         "found": false
       },
       "opened": {
-        "text": "实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 今日待办 全部 P2 第一张工单：排查接口异常 系统 ✓ ✕ 📨 飞剑传书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 🏠 首页 📜 任务 ⚔️ 项目 🏯 晋升 ▦ 更多",
-        "modalCount": 1
+        "text": "书 查看 灵网安静，无人传书。 最近动态 全部 今天尚无可展示的动态。完成任务或作出选择会记录在这里。 今日生活 今天还没有记录生活行为。喝杯咖啡或开始一项工作吧。 喝咖啡 ¥18 剩 3 次 · 疲劳 -12 喝奶茶 ¥16 剩 2 次 · 道心 +8 吃午餐 ¥25 剩 1 次 · 疲劳 -8，道心 +5 吃零食 ¥8 剩 3 次 · 道心 +3 下班聚餐 ¥68 剩 1 次 · 道心 +15 下班后才能聚餐 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计05:08下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏠 洞府 ⚔️ 战斗 🧑‍🤝‍🧑 养成 🏯 挑战 📜 任务 老板也在摸鱼 RARE 你路过老板办公室，看到他在刷短视频。四目相对，他缓缓地、庄重地关掉了屏幕。从此你们有了共享的秘密。 知道了",
+        "modalCount": 3
       }
     }
   ],
   "autoBattleProgress": {
     "beforeProgress": {
-      "stage": "第5关",
-      "enemy": "产品总监·画饼真人 Boss",
+      "stage": null,
+      "enemy": null,
       "hp": null,
       "power": null,
-      "autoState": "{\"stage\":5,\"maxStage\":4,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"产品总监·画饼真人\",\"emoji\":\"😈\",\"hp\":294,\"maxHp\":294,\"hpPct\":100,\"isBoss\":true,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":17}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":2,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemain",
-      "stageClass": "ux65-stage ux65-theme--office",
-      "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 24 +0.0/分 · 炼气一层 工资 ¥46 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第5关 1~12关 护盾型 高防 ⚡ 战力 241推荐489 产品总监·画饼真人 Boss 294 / 294 ⚠ 产品总监·画饼真人 降临 ⚠ ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 ✨ Bug炸弹 ✨ 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 2x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀4 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:19 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h23m 剩余计划 5h00m 预计下班 06:37 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:37下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中"
+      "autoState": "{\"stage\":5,\"maxStage\":4,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"产品总监·画饼真人\",\"emoji\":\"😈\",\"hp\":294,\"maxHp\":294,\"hpPct\":100,\"isBoss\":true,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":83}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemain",
+      "stageClass": null,
+      "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 5 关 当前敌人：产品总监·画饼真人 · 战力 241 / 推荐 489 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:51:23 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵"
     },
     "afterProgress": {
-      "stage": "第5关",
-      "enemy": "产品总监·画饼真人 Boss",
+      "stage": null,
+      "enemy": null,
       "hp": null,
       "power": null,
-      "autoState": "{\"stage\":5,\"maxStage\":4,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"产品总监·画饼真人\",\"emoji\":\"😈\",\"hp\":172,\"maxHp\":294,\"hpPct\":59,\"isBoss\":true,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":83}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":2,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
-      "stageClass": "ux65-stage ux65-theme--office",
-      "bodyHead": "11月15日 周日 · 实习牛马 · 炼气一层 周末 小师妹 “别看手机了，企业群不会自己冒红点。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 修为 24 +0.0/分 · 炼气一层 工资 ¥46 +0.00/分 道心 100/100 心神状态 绩效 0 KPI 0/3 📋 需求分析 第5关 1~12关 护盾型 高防 ⚡ 战力 241推荐489 产品总监·画饼真人 Boss 172 / 294 ⏳ 范大牛 Lv.1 ＋ 招募 代码飞剑 ✨ Bug炸弹 ✨ 需求粉碎 🔒10关 紧急回滚 🔒15关 ⚡ 2x 👊点击攻击 10 🤖 自动中 ⬆️ 升级点击 🗼 996塔 ⚔️ 装备 📋 目标 DPS 13 · 击杀4 摸鱼中 范大牛 实习牛马 Lv.1 · 炼气一层 宗门 · 散修 🧾 证据袋 📖 功法 ⚡ 修炼一次 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 合成工位 0/16 · 最高 Lv.1 ＋ 招个牛马 ① 点两次【招个牛马】，凑齐两只实习牛马 跳过 空空如也。点【招个牛马】开工，合成升阶工资修为双收。 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离周一 31:32:12 肉身自由。修仙不打卡。 带薪摸鱼中，道心平稳…… 主动渡劫（加班 2h） 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵‍💫 疲劳 0 精力充沛 今日容量 剩余工时 16h22m 剩余计划 5h00m 预计下班 06:38 📋 接下今天的第一个任务 任务页挑选差事——完成领工资、修为与绩效，工时正等着你 去任务页 › 📅 预计06:38下班 按计划推进 › 🏯 晋升条件已达成！ 参加答辩 › 明日预告 产品真君又攒了一份『小』需求。 🏯 晋升目标：正式牛马0% 📋 工作时长 0/7,200 💼 经营→🧘 修炼→⚔️ 战斗→🏯 晋升 查看条件 › 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次"
+      "autoState": "{\"stage\":5,\"maxStage\":4,\"status\":\"FIGHTING\",\"autoEnabled\":true,\"chapterTitle\":\"需求分析\",\"chapterEmoji\":\"📋\",\"stageProgress\":\"1~12关\",\"enemy\":{\"name\":\"产品总监·画饼真人\",\"emoji\":\"😈\",\"hp\":183,\"maxHp\":294,\"hpPct\":62,\"isBoss\":true,\"isCardBoss\":false},\"squad\":[{\"id\":\"leader\",\"name\":\"范大牛\",\"profession\":\"JAVA_BACKEND\",\"professionLabel\":\"Java后端\",\"professionEmoji\":\"☕\",\"level\":1,\"slot\":0,\"attack\":15,\"skillName\":\"代码暴击\",\"skillReady\":false,\"skillCooldownPct\":67}],\"clickDamage\":10,\"totalKills\":4,\"spiritStones\":0,\"victoryTimer\":0,\"defeatTimer\":0,\"towerFloor\":0,\"towerBestFloor\":0,\"pendingChests\":0,\"dps\":12.5,\"speedMultiplier\":1,\"activeSkills\":[{\"id\":\"code_sword\",\"name\":\"代码飞剑\",\"emoji\":\"🗡️\",\"desc\":\"召唤5柄代码飞剑连续攻击，每段造成点击伤害×2\",\"cooldownSec\":8,\"cooldownRemaining\":0,\"ready\":true,\"unlocked\":true,\"unlockStage\":1},{\"id\":\"bug_bomb\",\"name\":\"Bug炸弹\",\"emoji\":\"💣\",\"desc\":\"投掷Bug炸弹造成范围伤害，伤害=全队DPS×3\",\"cooldownSec\":15,\"cooldownRemaini",
+      "stageClass": null,
+      "bodyHead": "11月16日 周二 · 实习牛马 · 炼气一层 未开工 小师妹 “摸鱼是门手艺，你已经是老师傅了。” 🚨 1 件破事待处理 飞剑 任务 项目 人际 背包 设置 💎 0 灵石 ⛰️ 24 修为 +0.0/分 ☯ 100/100 道心 范大牛 Java后端 实习牛马 · 炼气一层 ⚡ 战力 241 修为 24 / 0 ⚡ 修炼一次 宗门 · 散修 🧾 证据袋 📖 功法 当前章节 · 📋 需求分析 继续修炼：第 5 关 当前敌人：产品总监·画饼真人 · 战力 241 / 推荐 489 继续战斗 › 完成一个工作任务 领取 获得一次真实成长 领取 执行一次生活或社交行为 领取 今日修行 摸鱼中 工资 +0.0/分 · 绩效 +0 ☯ 道心 100/100 · 道心通明 努力工作 工资 +30% 带薪摸鱼 道心恢复 ✓ 修炼一次 修为 ×2.0 社交划水 道心逐步恢复 📋 领取一个任务 任务库 18 份差事等你挑 去任务页 › 今日修仙目标 工作 完成一个工作任务 0/1 在任务页接一份差事，干完领奖励 · 奖励 ¥80 修为+20 成长 获得一次真实成长 0/1 修炼一次或完成带来修为的任务 · 奖励 ¥30 修为+45 生活·社交 执行一次生活或社交行为 0/1 喝杯咖啡、吃顿饭，或切到社交划水 3 分钟 · 奖励 ¥20 修为+10 道心+12 今日工作 已赚 ¥0 · 修为 +0 手头没有任务 牛马不接活，仙途就要断 去领任务 绩效周 沉迷战略 项目即将验收 +1 今日已赚 ¥0.00 +¥0.00 / 分钟 +¥0.00 / 小时 距离下班还有 17:51:23 今天已熬过去 0% 带薪摸鱼中，道心平稳…… 今日工时 00:00:00 带薪摸鱼 修仙 道心回复 带薪摸鱼中 摸鱼养性，游刃有余。公司将为本次修仙支付工资。 🐟 本次摸鱼已入账 ¥0.00 · 当前道心 100/100 ☯ 本次道心 持续回复中 💰 本次工资 ¥0.00 收心工作 处理待办 工资按 0.6× 结算；道心 +36/小时。 🏢 民企宗 · 时薪×1.00 🌤 今日·平常日 😵"
     }
   },
   "saveFiles": [
     {
       "name": "save.backup.json",
-      "bytes": 10829
+      "bytes": 13353
     },
     {
       "name": "save.json",
-      "bytes": 11833
+      "bytes": 13336
     }
   ],
   "errors": {
