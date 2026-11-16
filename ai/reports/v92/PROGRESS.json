@@ -1,0 +1,34 @@
+{
+  "project": "牛马修仙传",
+  "targetVersion": "V9.2",
+  "updatedAt": "2026-11-15T10:00:00+08:00",
+  "phase": "COMBAT_FEEL_COMPLETE",
+  "git": {
+    "branch": "v61/gameplay-v2",
+    "baseHead": "3a20476",
+    "milestones": ["e88bd16 combat feel", "818ef6e boss phase2", "54538d6 equip set bonus"]
+  },
+  "completed": [
+    "V9.2-A combo system (service layer): tap combo tracker, multiplier +2%/hit max +50%, milestones 10/20/30/50, kill reward ≥15 combo",
+    "V9.2-A crit enhancement: combo adds +0.1% crit chance per hit (max +10%)",
+    "V9.2-A skill synergy: code_sword resets combo ≥15, bug_bomb applies bug debuff (+15% dmg taken 5s), req_crusher applies vulnerable (pierce armor 8s), rollback clears debuffs",
+    "V9.2-A damageEnemy: applies bug/vulnerable multipliers",
+    "V9.2-A UI: combo counter (gold→orange→red), debuff tags on enemy row",
+    "V9.2-C boss phase 2: HP ≤ 50% → attack ×1.3, phase2Active, visual tag + CSS escalation",
+    "V9.2-E equipment set bonus: matched rarity 2+ slots → atk/crit bonus (bounded)",
+    "full regression 170 files EXIT=0 after each change"
+  ],
+  "pending": [
+    "V9.2-B card profession playstyle deepening (architectural prep done)",
+    "V9.2-D squad formation strategy (synergy system exists, UI enhancement pending)",
+    "V9.2-F random stage events (career event system exists)",
+    "30min V9.2 EXE soak (running)",
+    "H5 verification",
+    "reports + commit + push"
+  ],
+  "testResults": {
+    "fullRegression": "170 files EXIT=0 (after each change)"
+  },
+  "blockers": [],
+  "nextAction": "wait for soak, write reports, commit + push"
+}
