@@ -217,12 +217,12 @@ ok('Boss 机制回合化：封技/致盲/召唤/Phase2', () => {
   const boss = card.enemies[0]!;
   const rng = new CardRng(7);
   const lines: string[] = [];
-  e.runBossSpecial(boss, { kind: 'SPECIAL', mechanic: 'LOCK_SKILL' }, card, rng, (l) => lines.push(l));
+  e.runBossSpecial(boss, { kind: 'SPECIAL', mechanic: 'LOCK_SKILL' }, card, rng, (l) => lines.push(l), { strikePlayer: () => undefined });
   assert.ok(card.hand.some((c) => c.defId === 'card_deadlock') || card.discardPile.some((c) => c.defId === 'card_deadlock'), '封技应塞入死锁诅咒');
   assert.ok(lines.some((l) => l.includes('死锁')));
-  e.runBossSpecial(boss, { kind: 'SPECIAL', mechanic: 'BLIND' }, card, rng, (l) => lines.push(l));
+  e.runBossSpecial(boss, { kind: 'SPECIAL', mechanic: 'BLIND' }, card, rng, (l) => lines.push(l), { strikePlayer: () => undefined });
   assert.ok((card.player.statuses.BLIND ?? 0) >= 2, '致盲应给玩家 BLIND');
-  e.runBossSpecial(boss, { kind: 'SPECIAL', mechanic: 'SUMMON' }, card, rng, (l) => lines.push(l));
+  e.runBossSpecial(boss, { kind: 'SPECIAL', mechanic: 'SUMMON' }, card, rng, (l) => lines.push(l), { strikePlayer: () => undefined });
   assert.ok(card.enemies.length > 1, '召唤应增加敌人');
   // Phase2（使用真实带 phase2 的 Boss：boss_oom_lord，阈值 50%）。
   const p2boss = {
@@ -232,7 +232,7 @@ ok('Boss 机制回合化：封技/致盲/召唤/Phase2', () => {
   };
   card.enemies[0] = p2boss;
   const atkBefore = p2boss.attack;
-  e.runBossSpecial(p2boss, { kind: 'SPECIAL', mechanic: 'ATTACK' }, card, rng, (l) => lines.push(l));
+  e.runBossSpecial(p2boss, { kind: 'SPECIAL', mechanic: 'ATTACK' }, card, rng, (l) => lines.push(l), { strikePlayer: () => undefined });
   assert.equal(p2boss.phase2Active, true, 'Phase2 应触发');
   assert.ok(p2boss.attack > atkBefore || atkBefore === 0, 'Phase2 应提升攻击');
   // 换算表。

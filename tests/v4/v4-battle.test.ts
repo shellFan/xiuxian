@@ -69,10 +69,12 @@ function driveToFinish(context: GameContext, maxActions = 800): BattleRunState {
 function testStartRequiresGameDayAndUniqueRun(): void {
   const clock = new FakeClock(at(21, 10));
   const raw = new GameContext({ player: new PlayerData({ lastSaveTime: clock.now() }), clock, board: null, battleRng: seededRng(1) });
-  assert.throws(() => raw.battle.start('PROJECT', 'build_db'), /尚未开工/);
-  raw.gameDay.ensureStarted();
+  // V10.1：战斗入口自动开工（消除新手"尚未开工"死胡同），日状态自动创建。
+  assert.equal(raw.gameDay.current(), null, '开局前游戏日应为空');
   const run = raw.battle.start('PROJECT', 'build_db');
+  assert.ok(raw.gameDay.current(), '战斗开始应自动开工');
   assert.equal(run.status, 'FIGHTING');
+  assert.equal(raw.gameDay.current()!.dayIndex, 1, '自动开工只创建一个游戏日');
   assert.equal(run.waveTotal, 5);
   assert.throws(() => raw.battle.start('PROJECT', 'build_java'), /已有进行中的战斗/);
   assert.throws(() => raw.battle.start('PROJECT', 'build_nonsense'), /未知的 Build/);
@@ -160,10 +162,16 @@ function testVictoryRewardsExactlyOnce(): void {
 }
 
 function testBossVictoryCompletesLinkedTask(): void {
-  // V5.9-O.2 卡牌语义下重新扫描的胜利种子（0x100）——测试意图是任务联动，非特定平衡。
+  // 测试意图是任务联动，非特定平衡 —— 用压倒性攻击力保证跨平衡调整确定性
+  // （V10.1 敌人行为/HP 缩放调整后，固定种子会漂移，不再依赖胜利种子扫描）。
   const { context } = make(10, 0x100);
   const task = context.assignedTasks.assign({ title: '修复支付超时', priority: 'P0', source: 'BOSS', rewardSalary: 50, rewardPerformance: 5 });
   context.battle.start('PROJECT', 'build_db', task.id);
+  const card = context.battle.battleCardView()!;
+  card.player.attack = 5000;
+  card.player.critChance = 0;
+  card.player.maxHp = 100000;
+  card.player.hp = 100000;
   const finished = driveToFinish(context);
   assert.equal(finished.status, 'VICTORY');
   assert.equal(finished.linkedTaskId, task.id);

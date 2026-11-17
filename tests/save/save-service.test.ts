@@ -37,8 +37,11 @@ function testSavesAndRestoresPlayerAndWorkers(): void {
   assert.deepEqual(loaded.materials, {});
   assert.equal(loaded.gameDay, null);
   assert.deepEqual(loaded.equippedTechniques, [null, null, null]);
-  // roundtrip 一致
-  assert.deepEqual(new PlayerData(loaded).toSaveData(), loaded);
+  // roundtrip 一致（不动点：旧存档载入后重存新增的版本字段会补默认值，
+  // 但再次载入必须稳定不变 —— V10.1 cardRemovals 等新增字段即为该演进）。
+  const roundtripped = new PlayerData(loaded).toSaveData();
+  assert.deepEqual(new PlayerData(roundtripped).toSaveData(), roundtripped);
+  assert.equal(roundtripped.cardRemovals !== undefined, true, 'V10.1 净化记录应有安全默认值');
 }
 
 function testSuccessfulSavesRecordMonotonicInjectedTime(): void {

@@ -10,11 +10,13 @@ import { join } from 'node:path';
 
 const ELECTRON_CHILD_FLAG = '--card-ui-dom-child';
 
-if (!process.versions.electron) {
+if (!process.versions.electron || process.env.ELECTRON_RUN_AS_NODE) {
   const electron = require(join(process.cwd(), 'desktop', 'node_modules', 'electron')) as string;
+  const childEnv = { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: 'true' } as Record<string, string | undefined>;
+
+    delete childEnv.ELECTRON_RUN_AS_NODE;
   const result = spawnSync(electron, [__filename, ELECTRON_CHILD_FLAG], {
-    cwd: process.cwd(),
-    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: 'true' },
+    cwd: process.cwd(),  env: childEnv,
     encoding: 'utf8',
   });
   if (result.stdout) process.stdout.write(result.stdout);

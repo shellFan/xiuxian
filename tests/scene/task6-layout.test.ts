@@ -106,8 +106,10 @@ test('Task 6 keeps the generator and pc copy/patch chain on 720x1280', () => {
   const desktopPackage = JSON.parse(fs.readFileSync('desktop/package.json', 'utf8')) as {
     scripts?: { 'build:copy'?: string };
   };
-  assert.match(desktopPackage.scripts?.['build:copy'] ?? '', /cpSync/);
-  assert.match(desktopPackage.scripts?.['build:copy'] ?? '', /patch-html\.cjs/);
+  // build:copy routes through scripts/copy-web-build.cjs, which picks a provenance-verified
+  // Creator output, runs patch-html and writes the build manifest (V10 provenance chain).
+  assert.match(desktopPackage.scripts?.['build:copy'] ?? '', /copy-web-build\.cjs/);
+  assert.match(fs.readFileSync('scripts/copy-web-build.cjs', 'utf8'), /patch-html\.cjs/);
   assert.doesNotMatch(fs.readFileSync('desktop/patch-html.cjs', 'utf8'), /pc-patch\.js/);
 
   const tempBuild = fs.mkdtempSync(path.join(os.tmpdir(), 'task6-layout-'));

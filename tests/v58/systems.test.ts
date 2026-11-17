@@ -258,7 +258,7 @@ function testBossPhase2(): void {
     const env = cards.envFor(facade.context.battle.current());
     const rng = new (require('../../assets/scripts/v59o/card-battle/card-rng') as typeof import('../../assets/scripts/v59o/card-battle/card-rng')).CardRng(5);
     const boss = card.enemies[0];
-    env.runBossSpecial(boss, { kind: 'SPECIAL', mechanic: 'ATTACK' }, card, rng, (l: string) => card.log.push(l));
+    env.runBossSpecial(boss, { kind: 'SPECIAL', mechanic: 'ATTACK' }, card, rng, (l: string) => card.log.push(l), { strikePlayer: () => undefined });
     let phase2Seen = card.log.some((l) => l.includes('Phase 2'));
     for (let i = 0; i < 4 && !phase2Seen && !facade.queryFinishedBattle(); i++) {
       clock.advance(1000);

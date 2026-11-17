@@ -4,11 +4,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // Exercise the shipped DOM handlers against real services and an isolated save.
-if (!process.versions.electron) {
+if (!process.versions.electron || process.env.ELECTRON_RUN_AS_NODE) {
   const electron = require(join(process.cwd(), 'desktop/node_modules/electron')) as string;
+  const childEnv = { ...process.env, TZ: 'Asia/Shanghai', ELECTRON_DISABLE_SECURITY_WARNINGS: 'true' } as Record<string, string | undefined>;
+
+    delete childEnv.ELECTRON_RUN_AS_NODE;
   const result = spawnSync(electron, [__filename], {
-    cwd: process.cwd(), encoding: 'utf8',
-    env: { ...process.env, TZ: 'Asia/Shanghai', ELECTRON_DISABLE_SECURITY_WARNINGS: 'true' },
+    cwd: process.cwd(), encoding: 'utf8',  env: childEnv,
   });
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
