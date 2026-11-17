@@ -77,7 +77,7 @@ pnpm-lock.yaml 为无关工具残留，保持未跟踪。
 | FLYING_SWORD_MESSENGER | PASS | 收件箱+会话+回复实拍（15/16/16b） |
 | DAILY_REPORT | PARTIAL | 日报任务/日程面板实拍；AI 化下班总结未实现（模板层在位） |
 | PERFORMANCE | PASS | soak 0 异常 + 堆平稳 + 资源加载 gate |
-| GIT_PUSH | PASS | fast-forward 推送，远端 = 本地 = `f4b4d589112b…`（origin/feature/v10-final-release） |
+| GIT_PUSH | PASS | fast-forward 推送，最终远端 = 本地 = `8eea17c2374e…`（origin/feature/v10-final-release） |
 
 ## EXE_SOAK_60MIN 状态行
 
@@ -94,9 +94,10 @@ pnpm-lock.yaml 为无关工具残留，保持未跟踪。
   （V10.1 快照·署名）→ `9d4f5e6`（AI 桥接+记忆+MNN）→ `dd71441`（打包脚本）→ `565c55b`
   （验收报告+截图）→ `f4b4d58`（FINAL 报告 + 60min soak 证据）；其间并入并行开发者的
   `c6dbd4e`/`376e7ef`（v101 证据）。
-- 推送：`git push origin feature/v10-final-release` → **fast-forward**（`376e7ef..f4b4d58`），
-  无 force。
-- 远端核实：`origin/feature/v10-final-release` = `f4b4d589112b…` = 本地 HEAD。
+- 推送：`git push origin feature/v10-final-release` → **fast-forward**（`376e7ef..f4b4d58`，
+  终态 `f4b4d58..8eea17c`），无 force。
+- 远端核实（终态）：`origin/feature/v10-final-release` = `8eea17c2374e…` = 本地 HEAD
+  （即本报告的最终修订提交）。
 - 本地工作树：tracked 修改 0（全部入库）；未跟踪仅 pnpm-* 残留与 tmp/ 工作目录。
 
 ## 遗留
