@@ -258,6 +258,12 @@
     var f = H.facade();
     var def = fQuery('queryV2CurrentEvent');
     if (!def) { _v2EventShowing = false; return; }
+    /* V10.1：战斗内的升级三选一优先于可选职场事件 —— 技能选择阻塞全部出牌，
+       事件只是叙事弹窗；等技能弹窗关闭后本事件会由重新派发机制补弹。 */
+    try {
+      var b = f && typeof f.queryBattle === 'function' ? f.queryBattle() : null;
+      if (b && b.skillOffers && b.skillOffers.length) return;
+    } catch (e) { /* 查询失败不阻塞事件 */ }
     _v2EventShowing = true;
     var choices = fQuery('queryV2CurrentChoices') || [];
     var layer = H.popupLayer();
