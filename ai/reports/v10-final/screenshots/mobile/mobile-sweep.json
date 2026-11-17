@@ -1,0 +1,126 @@
+{
+ "url": "http://127.0.0.1:8633/",
+ "results": [
+  {
+   "viewport": "360x640",
+   "gates": {
+    "home": {
+     "electronReady": true,
+     "cocosReady": true,
+     "facadeReady": true,
+     "creationComplete": true,
+     "homeVisible": true,
+     "resourcesReady": true,
+     "heroSpriteReady": true,
+     "chapterValid": true
+    },
+    "battleReady": true
+   },
+   "overflow": {
+    "home": false,
+    "battle": false
+   },
+   "shots": 1,
+   "gap": {
+    "navTap": true
+   }
+  },
+  {
+   "viewport": "375x812",
+   "gates": {
+    "home": {
+     "electronReady": true,
+     "cocosReady": true,
+     "facadeReady": true,
+     "creationComplete": true,
+     "homeVisible": true,
+     "resourcesReady": true,
+     "heroSpriteReady": true,
+     "chapterValid": true
+    },
+    "battleReady": true
+   },
+   "overflow": {
+    "home": false,
+    "battle": false
+   },
+   "shots": 1,
+   "gap": {
+    "navTap": true
+   }
+  },
+  {
+   "viewport": "390x844",
+   "gates": {
+    "home": {
+     "electronReady": true,
+     "cocosReady": true,
+     "facadeReady": true,
+     "creationComplete": true,
+     "homeVisible": true,
+     "resourcesReady": true,
+     "heroSpriteReady": true,
+     "chapterValid": true
+    },
+    "battleReady": true
+   },
+   "overflow": {
+    "home": false,
+    "battle": false
+   },
+   "shots": 1,
+   "gap": {
+    "navTap": true
+   }
+  },
+  {
+   "viewport": "414x896",
+   "gates": {
+    "home": {
+     "electronReady": true,
+     "cocosReady": true,
+     "facadeReady": true,
+     "creationComplete": true,
+     "homeVisible": true,
+     "resourcesReady": true,
+     "heroSpriteReady": true,
+     "chapterValid": true
+    },
+    "battleReady": true
+   },
+   "overflow": {
+    "home": false,
+    "battle": false
+   },
+   "shots": 1,
+   "gap": {
+    "navTap": true
+   }
+  },
+  {
+   "viewport": "430x932",
+   "gates": {
+    "home": {
+     "electronReady": true,
+     "cocosReady": true,
+     "facadeReady": true,
+     "creationComplete": true,
+     "homeVisible": true,
+     "resourcesReady": true,
+     "heroSpriteReady": true,
+     "chapterValid": true
+    },
+    "battleReady": true
+   },
+   "overflow": {
+    "home": false,
+    "battle": false
+   },
+   "shots": 1,
+   "gap": {
+    "navTap": true
+   }
+  }
+ ],
+ "at": "2026-11-17T17:11:01.920Z"
+}
