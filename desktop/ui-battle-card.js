@@ -49,6 +49,7 @@
     SUMMON: '召唤', RAGE: '蓄怒', ENRAGE: '狂暴', LOCK_SKILL: '封技',
     ATTACK_SPEED_DEBUFF: '减速', HP_DRAIN: '吞噬', PROMOTE_MINION: '强化爪牙',
     DODGE: '闪避', BLIND: '致盲', RANDOM: '诡变',
+    JUDGE: '绩效审判', COST_CURSE: '费率上调', MORALE_DRAIN: '加班磨蚀',
   };
 
   /** 手牌内实际费用（与引擎 effectiveCost 同口径）。 */
@@ -158,16 +159,32 @@
     Object.keys(enemy.telegraphed || {}).forEach(function (mk) {
       if (enemy.telegraphed[mk] && MECH_CN[mk]) telegraph = '⚠ ' + MECH_CN[mk];
     });
+    // V10.1 绩效审判打断窗口：显示玩家还需造成的伤害进度。
+    var judgeWindow = '';
+    if (enemy.telegraphed && enemy.telegraphed.JUDGE && enemy.timers && typeof enemy.timers.judgeNeed === 'number' && typeof enemy.timers.judgeRefHp === 'number') {
+      var need = Math.max(1, enemy.timers.judgeNeed);
+      var dealt = Math.max(0, enemy.timers.judgeRefHp - enemy.hp);
+      var pct = Math.min(100, Math.round((dealt / need) * 100));
+      var done = dealt >= need;
+      judgeWindow = '<span class="ux-bc-judgewindow' + (done ? ' is-done' : '') + '">' +
+        (done ? '✦ 审判可打断！' : '⚖ 打断窗口：' + dealt + '/' + need + '（' + pct + '%）') +
+        '<i style="width:' + pct + '%"></i></span>';
+    }
     return '<span class="ux-bc-intent' + cls + '">' + esc(label + detail) + '</span>' +
-      (telegraph ? '<span class="ux-bc-telegraph">' + esc(telegraph) + '</span>' : '');
+      (telegraph ? '<span class="ux-bc-telegraph">' + esc(telegraph) + '</span>' : '') +
+      judgeWindow;
   }
 
   // ── 整屏（battle-screen）：挂到 battleHtml 的扩展点 ─────────────────────────
 
-  /** 卡牌战斗侧栏扩展（能量/回合/手牌行/结束回合），ui-overlay.battleHtml 调用。 */
+  /** 卡牌战斗侧栏扩展（能量/回合/手牌行/结束回合/连击计数），ui-overlay.battleHtml 调用。 */
   function battlePanelHtml(card) {
     if (!card) return '';
-    var runInfo = '<div class="ux-bc-turnbar"><span>回合 ' + card.turn + '</span>' + energyHtml(card) + '</div>';
+    var combo = tryGet(function () { return facade().queryAutoBattle().comboCount; }, 0) || 0;
+    var comboChip = combo >= 2
+      ? '<span class="ux-bc-combo' + (combo >= 15 ? ' is-hot' : '') + '" title="连续点击的连击热度（V9.2 连击系统）：+2%/击，最高 +50%">🔥 连击 ×' + combo + '</span>'
+      : '';
+    var runInfo = '<div class="ux-bc-turnbar"><span>回合 ' + card.turn + '</span>' + energyHtml(card) + comboChip + '</div>';
     if (card.phase === 'REWARD_SELECTION') return runInfo;
     if (card.phase === 'FINISHED') return runInfo;
     return runInfo + handHtml(card);
@@ -204,14 +221,40 @@
       '</div></div>';
   }
 
-  // ── 卡组页（战斗外） ────────────────────────────────────────────────────────
+  // ── 卡组页（战斗外，V10.1：净化 + 流派倾向 + 图鉴） ─────────────────────────────
+
+  /** 流派标签 → 组成卡（用于"牌组倾向"提示，让组合策略可见）。 */
+  var ARCHETYPES = [
+    { id: 'poison', name: '毒系爆发', cards: ['card_poison_dart', 'card_poison_bloom', 'card_plague', 'card_detox'] },
+    { id: 'block', name: '格挡铁壁', cards: ['card_block', 'card_shield', 'card_iron_wall', 'card_fortress', 'card_gate', 'card_devops_basic', 'card_aop', 'card_block_smash', 'card_testenv', 'card_overtime'] },
+    { id: 'combo', name: '低费连击', cards: ['card_combo', 'card_flurry', 'card_finale', 'card_keyframe', 'card_adrenaline', 'card_overclock'] },
+    { id: 'armorPierce', name: '破甲精准', cards: ['card_pierce', 'card_review', 'card_buglist', 'card_weak_point', 'card_root_cause', 'card_aftermath'] },
+    { id: 'sustain', name: '循环回血', cards: ['card_gc_full', 'card_gc_tuning', 'card_breath', 'card_fate_labor', 'card_potion', 'card_zen'] },
+    { id: 'draw', name: '过牌引擎', cards: ['card_docs', 'card_cache', 'card_vdom', 'card_monitor', 'card_insight', 'card_thread_pool', 'card_battery', 'card_timemgr'] },
+  ];
+
+  function archetypeHints(manifest) {
+    var rows = ARCHETYPES.map(function (a) {
+      var count = 0;
+      a.cards.forEach(function (id) { count += manifest[id] || 0; });
+      return { name: a.name, count: count };
+    }).filter(function (r) { return r.count >= 2; })
+      .sort(function (x, y) { return y.count - x.count; })
+      .slice(0, 3);
+    if (!rows.length) return '<span class="ux-bc-arch-none">牌组尚未成形 —— 收集同流派卡牌可获得联动加成</span>';
+    return rows.map(function (r) {
+      return '<span class="ux-bc-arch">' + esc(r.name) + ' ×' + r.count + '</span>';
+    }).join('') + '<small>同流派卡牌打出会有真实联动伤害（毒爆/格挡转攻/连击/破甲）</small>';
+  }
 
   function deckPageHtml() {
     var f = facade();
     var deck = tryGet(function () { return f.queryCardDeck(); }, null);
     var catalog = tryGet(function () { return f.queryCardCatalog(); }, []) || [];
+    var removalView = tryGet(function () { return f.queryCardRemovalView(); }, null);
     if (!deck) return '';
     var stones = tryGet(function () { return f.queryPlayer().spiritStones; }, 0);
+    var removalCostNow = deck.removalNextCost != null ? deck.removalNextCost : (removalView ? removalView.nextCost : 50);
     var rows = catalog.filter(function (d) { return !d.unplayable && d.type !== 'SPECIAL' || d.id === 'card_overtime'; }).map(function (def) {
       var count = deck.manifest[def.id] || 0;
       if (!count) return '';
@@ -220,18 +263,32 @@
       var canUp = !!currentDef.upgradeTo;
       var costByRarity = { BASIC: 20, COMMON: 30, RARE: 60, EPIC: 100 };
       var cost = costByRarity[def.rarity] || 30;
+      var removable = removalView ? (removalView.removable[def.id] || 0) : 0;
       return '<div class="ux-bc-deckrow' + (count ? '' : ' is-empty') + '">' +
         '<span class="ux-bc-deckname">' + esc(currentDef.name) + (upLevel ? '<b>+' + upLevel + '</b>' : '') + ' <small>×' + count + '</small></span>' +
         '<span class="ux-bc-deckmeta">' + esc(TYPE_CN[def.type] || def.type) + ' · ' + esc(RARITY_CN[def.rarity] || def.rarity) + ' · 费用 ' + currentDef.cost + '</span>' +
         '<span class="ux-bc-deckdesc">' + esc(currentDef.desc) + '</span>' +
+        '<span class="ux-bc-deckops">' +
         (canUp
           ? '<button class="ux-btn ux-btn--sm' + (stones >= cost ? '' : ' ux-btn--gray') + '" data-action="battleUpgradeCard" data-card="' + esc(def.id) + '">升级（💎' + cost + '）</button>'
           : '<span class="ux-bc-maxed">已满级</span>') +
+        (removable > 0
+          ? '<button class="ux-btn ux-btn--sm ux-btn--gray' + (stones >= removalCostNow ? '' : ' is-disabled') + '" data-action="battleRemoveCard" data-card="' + esc(def.id) + '" title="把这张牌从卡组移除（精简牌组是重要策略）">净化（💎' + removalCostNow + '）</button>'
+          : '') +
+        '</span>' +
         '</div>';
+    }).join('');
+    var codex = catalog.filter(function (d) { return d.rewardable; }).map(function (def) {
+      var owned = deck.manifest[def.id] || 0;
+      return '<span class="ux-bc-codex-item' + (owned ? ' is-owned' : '') + '" title="' + esc(def.desc) + '">' +
+        esc(def.name) + (owned ? ' ×' + owned : '') + '</span>';
     }).join('');
     return '<section class="ux-bc-deckpage">' +
       '<div class="ux-bc-deckhead"><b>卡组（' + deck.total + ' 张）</b><span>💎 ' + stones + ' 灵石 · 胜利后可收新卡</span></div>' +
+      '<div class="ux-bc-archbar">' + archetypeHints(deck.manifest) + '</div>' +
       (rows || '<div class="ux-bc-empty">卡组为空</div>') +
+      '<div class="ux-bc-codexhead">卡牌图鉴 <small>收集进度 ' + catalog.filter(function (d) { return d.rewardable && (deck.manifest[d.id] || 0) > 0; }).length + ' / ' + catalog.filter(function (d) { return d.rewardable; }).length + '</small></div>' +
+      '<div class="ux-bc-codex">' + codex + '</div>' +
       '</section>';
   }
 
@@ -261,16 +318,25 @@
 
   function gf() { return (typeof window !== 'undefined' && window.__GAME_FEEL__) || null; }
 
-  /** 快照战斗状态（用于动作前后对比，检测伤害/治疗/胜负） */
+  /** 快照战斗状态（用于动作前后对比，检测伤害/治疗/胜负/暴击/击杀/Boss 登场） */
   function snapshotBattle(f) {
     var c = tryGet(function () { return f.queryBattleCard(); }, null);
     if (!c) return null;
     var enemies = {};
-    (c.enemies || []).forEach(function (e) { enemies[e.uid] = { hp: e.hp, maxHp: e.maxHp }; });
-    return { phase: c.phase, playerHp: c.player ? c.player.hp : 0, enemies: enemies };
+    (c.enemies || []).forEach(function (e) {
+      enemies[e.uid] = { hp: e.hp, maxHp: e.maxHp, tier: e.tier, name: e.name };
+    });
+    return {
+      phase: c.phase,
+      playerHp: c.player ? c.player.hp : 0,
+      enemies: enemies,
+      wave: c.wave,
+      logLen: (c.log || []).length,
+      logTail: (c.log || []).slice(-3).join('|'),
+    };
   }
 
-  /** 对比前后快照，触发对应的 Game Feel 特效 */
+  /** 对比前后快照，触发对应的 Game Feel 特效（V10.1：暴击/击杀/Boss 登场） */
   function diffAndFeel(before, after, opts) {
     var G = gf();
     if (!G || !before || !after) return;
@@ -289,15 +355,39 @@
         G.battle('defeat', {});
         return;
       }
-      // 敌人受击检测
+      // Boss 登场：波次推进后出现 BOSS 单位（每波只触发一次）。
+      if (typeof after.wave === 'number' && typeof before.wave === 'number' && after.wave > before.wave) {
+        var bossEntry = null;
+        Object.keys(after.enemies).forEach(function (uid) {
+          if (after.enemies[uid].tier === 'BOSS') bossEntry = after.enemies[uid];
+        });
+        if (bossEntry) G.battle('bossWave', { name: bossEntry.name });
+      }
+      // 敌人受击/暴击/击杀检测
       var totalDamage = 0;
       Object.keys(before.enemies).forEach(function (uid) {
         var b = before.enemies[uid], a = after.enemies[uid];
-        if (a && b && b.hp > a.hp) totalDamage += (b.hp - a.hp);
+        if (a && b && b.hp > a.hp) {
+          totalDamage += (b.hp - a.hp);
+          if (a.hp <= 0 && b.hp > 0) {
+            // 击杀特效
+            var killEl = opts.enemyEl || document.querySelector('[data-enemy-uid="' + uid + '"]');
+            G.battle('kill', { targetEl: killEl });
+          }
+        }
       });
       if (totalDamage > 0) {
         var enemyEl = opts.enemyEl || null;
-        G.battle('enemyHit', { value: totalDamage, targetEl: enemyEl });
+        // 暴击检测：日志推进且尾部出现「暴击！」。
+        var newLog = (after.logTail || '');
+        if (after.logLen > before.logLen && newLog.indexOf('暴击！') >= 0) {
+          var lastCritLine = newLog.split('|').filter(function (l) { return l.indexOf('暴击！') >= 0; }).pop() || '';
+          var m = /造成 (\d+) 伤害/.exec(lastCritLine);
+          var critDamage = m ? Number(m[1]) : 0;
+          G.battle('crit', { value: critDamage || totalDamage, targetEl: enemyEl });
+        } else {
+          G.battle('enemyHit', { value: totalDamage, targetEl: enemyEl });
+        }
       }
       // 玩家受击检测
       if (before.playerHp > after.playerHp) {
@@ -442,6 +532,18 @@
     }
   }
 
+  function handleRemoveCard(cardId) {
+    var f = facade();
+    if (!f) return;
+    try {
+      var view = f.removeBattleCard(cardId);
+      toast('已净化 1 张卡牌（剩余灵石 💎' + (view && view.stones != null ? view.stones : '?') + '）');
+      try { if (gf()) gf().battle('reward', {}); } catch (eGF) { /* 特效失败不影响游戏 */ }
+    } catch (e) {
+      toast(e && e.message ? e.message : '净化失败');
+    }
+  }
+
   function handleTutorialNext() {
     tutorialStep += 1;
     if (tutorialStep >= tutorialSteps.length) {
@@ -479,6 +581,7 @@
     handleRewardPick: handleRewardPick,
     handleRewardSkip: handleRewardSkip,
     handleUpgrade: handleUpgrade,
+    handleRemoveCard: handleRemoveCard,
     handleTutorialNext: handleTutorialNext,
     handleTutorialSkip: handleTutorialSkip,
     isSelecting: function () { return !!selectedCardUid; },

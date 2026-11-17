@@ -122,6 +122,8 @@ export interface PlayerDataOptions {
   // ── V5.9-O.2 卡牌战斗 ──
   readonly cardCollection?: Record<string, number>;
   readonly cardUpgrades?: Record<string, number>;
+  /** V10.1 净化记录：卡牌移除（defId → 已移除张数）。 */
+  readonly cardRemovals?: Record<string, number>;
   readonly dailySituation?: string;
   readonly companyProfile?: string;
   readonly secretEventsDone?: readonly string[];
@@ -286,6 +288,8 @@ export class PlayerData {
   // V5.9-O.2 卡牌战斗：跨战斗收藏（defId → 数量）与升级等级（defId → 等级）。
   public cardCollection: Record<string, number>;
   public cardUpgrades: Record<string, number>;
+  /** V10.1 净化记录：卡牌移除。 */
+  public cardRemovals: Record<string, number>;
   public dailySituation: string;
   public companyProfile: string;
   public secretEventsDone: string[];
@@ -433,6 +437,7 @@ export class PlayerData {
     this.bossPity = { ...(options.bossPity ?? {}) };
     this.cardCollection = sanitizeCardRecord(options.cardCollection);
     this.cardUpgrades = sanitizeCardRecord(options.cardUpgrades);
+    this.cardRemovals = sanitizeCardRecord(options.cardRemovals);
     this.dailySituation = options.dailySituation ?? 'sit_normal';
     this.companyProfile = options.companyProfile ?? 'COMP_MIN_PRIVATE';
     this.secretEventsDone = [...(options.secretEventsDone ?? [])];
@@ -586,6 +591,7 @@ export class PlayerData {
       bossPity: { ...this.bossPity },
       cardCollection: { ...this.cardCollection },
       cardUpgrades: { ...this.cardUpgrades },
+      cardRemovals: { ...this.cardRemovals },
       dailySituation: this.dailySituation,
       companyProfile: this.companyProfile,
       secretEventsDone: [...this.secretEventsDone],

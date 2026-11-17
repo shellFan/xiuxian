@@ -594,7 +594,46 @@
           ScreenShake.shake('light');
           if (data.el) ParticleBurst.at(data.el, { count: 10, color: '#a29bfe', spread: 60, size: 6, life: 700 });
           break;
+        /* ── V10.1 战斗爽感：暴击金色 / 击杀 / Boss 登场 ── */
+        case 'crit':
+          FloatingNumber.at(data.targetEl || rootEl(), '暴击 -' + (data.value || 0), { kind: 'crit', life: 1100 });
+          if (data.targetEl) {
+            ParticleBurst.at(data.targetEl, { count: 16, color: ['#ffd700', '#ffb347', '#fff3c4'][Math.floor(Math.random() * 3)], spread: 90, size: 6, life: 900 });
+          }
+          ScreenShake.shake('heavy');
+          SfxSynth.play('crit');
+          break;
+        case 'kill':
+          if (data.targetEl) {
+            ParticleBurst.at(data.targetEl, { count: 14, color: ['#7ec08a', '#ffd700', '#c3c9d8'][Math.floor(Math.random() * 3)], spread: 110, size: 6, life: 900 });
+            data.targetEl.classList.remove('ux-gf-kill');
+            void data.targetEl.offsetWidth;
+            data.targetEl.classList.add('ux-gf-kill');
+          }
+          ScreenShake.shake('light');
+          SfxSynth.play('battleHit');
+          break;
+        case 'bossWave':
+          showBossBanner(data.name || 'Boss 登场');
+          ScreenShake.shake('heavy');
+          SfxSynth.play('victory');
+          break;
       }
+    } catch (e) { /* 静默 */ }
+  }
+
+  /** V10.1 Boss 登场横幅（一次性，自动淡出，不阻塞输入）。 */
+  function showBossBanner(name) {
+    try {
+      var root = rootEl();
+      var old = root.querySelector('.ux-gf-boss-banner');
+      if (old) old.remove();
+      var el = document.createElement('div');
+      el.className = 'ux-gf-boss-banner';
+      el.innerHTML = '<b>⚔ ' + String(name).replace(/[<>&]/g, '') + ' 登场</b>';
+      root.appendChild(el);
+      setTimeout(function () { try { el.classList.add('is-out'); } catch (e) {} }, 1600);
+      setTimeout(function () { try { el.remove(); } catch (e) {} }, 2200);
     } catch (e) { /* 静默 */ }
   }
 

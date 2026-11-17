@@ -38,6 +38,16 @@ function validateEffects(effects: readonly CardEffect[], context: string): void 
     switch (effect.kind) {
       case 'DAMAGE':
         assert(typeof effect.mul === 'number' && effect.mul > 0, `${context}: DAMAGE.mul 必须为正数`);
+        if (effect.perTargetStatus) {
+          assert(VALID_STATUS.includes(effect.perTargetStatus.status), `${context}: DAMAGE.perTargetStatus 未知状态`);
+          assert(typeof effect.perTargetStatus.perStacks === 'number' && effect.perTargetStatus.perStacks > 0, `${context}: perTargetStatus.perStacks 必须为正`);
+        }
+        if (effect.perSelfBlockPerTen !== undefined) {
+          assert(typeof effect.perSelfBlockPerTen === 'number' && effect.perSelfBlockPerTen > 0, `${context}: perSelfBlockPerTen 必须为正`);
+        }
+        if (effect.perCardPlayed !== undefined) {
+          assert(typeof effect.perCardPlayed === 'number' && effect.perCardPlayed > 0, `${context}: perCardPlayed 必须为正`);
+        }
         break;
       case 'BLOCK':
       case 'HEAL':
@@ -63,6 +73,8 @@ function validateEffects(effects: readonly CardEffect[], context: string): void 
         if (effect.otherwise) validateEffects(effect.otherwise, `${context}.otherwise`);
         break;
       case 'DISCARD_HAND':
+        break;
+      case 'CLEANSE':
         break;
       default:
         throw new Error(`[card-battle.json] ${context}: 未知效果 ${JSON.stringify(effect)}`);
@@ -220,6 +232,8 @@ export interface DeckBuildInput {
   collection: Record<string, number>;
   /** 升级等级（卡牌定义 id → 等级）。 */
   upgrades: Record<string, number>;
+  /** V10.1 卡牌移除记录（defId → 已移除张数；净化玩法）。 */
+  removals?: Record<string, number>;
 }
 
 export interface DeckBuildResult {
@@ -229,7 +243,13 @@ export interface DeckBuildResult {
   total: number;
 }
 
-/** 组建战斗卡组：基础攻击 5 + 基础防御 4 + 职业特色 1 + 命格卡 1 + 收藏卡（§14）。 */
+/** 基础牌移除下限（打磨提交/摸鱼防御各保底 2 张，防止牌组清空）。 */
+export const BASIC_REMOVAL_FLOOR = 2;
+
+/**
+ * 组建战斗卡组：基础攻击 5 + 基础防御 4 + 职业特色 1 + 命格卡 1 + 收藏卡 - 移除记录（§14）。
+ * V10.1：净化（removals）只作用于基础牌（下限 2）与收藏卡；职业/命格卡为身份牌不可移除。
+ */
 export function buildDeckManifest(input: DeckBuildInput): DeckBuildResult {
   const template = cardConfig.deckTemplate;
   const manifest: Record<string, number> = {};
@@ -237,8 +257,10 @@ export function buildDeckManifest(input: DeckBuildInput): DeckBuildResult {
     assert(CARD_MAP.has(id), `牌组引用了未定义的卡牌 ${id}`);
     manifest[id] = (manifest[id] ?? 0) + count;
   };
-  add(template.basicAttack, template.basicAttackCount);
-  add(template.basicDefense, template.basicDefenseCount);
+  const removals = input.removals && typeof input.removals === 'object' ? input.removals : {};
+  const removalOf = (id: string): number => Math.max(0, Math.floor(removals[id] ?? 0));
+  add(template.basicAttack, template.basicAttackCount - Math.min(template.basicAttackCount - BASIC_REMOVAL_FLOOR, removalOf(template.basicAttack)));
+  add(template.basicDefense, template.basicDefenseCount - Math.min(template.basicDefenseCount - BASIC_REMOVAL_FLOOR, removalOf(template.basicDefense)));
   const profCard = (template.professionBasic as Record<string, string>)[input.professionId];
   assert(profCard, `职业 ${input.professionId} 没有基础职业卡`);
   add(profCard, 1);
@@ -250,10 +272,15 @@ export function buildDeckManifest(input: DeckBuildInput): DeckBuildResult {
     const def = CARD_MAP.get(id);
     if (!def) continue; // 未知收藏卡（配置回退）不阻塞开局
     if (def.unplayable) continue; // 状态/诅咒牌不进收藏
-    add(id, count);
+    add(id, Math.max(0, count - removalOf(id)));
   }
   const total = Object.values(manifest).reduce((s, n) => s + n, 0);
   return { manifest, total };
+}
+
+/** V10.1 净化费用：50 灵石起步，每张已移除卡 +25（防止无脑清空）。 */
+export function removalCost(totalRemoved: number): number {
+  return 50 + Math.max(0, Math.floor(totalRemoved)) * 25;
 }
 
 export interface StarterDeckInput {

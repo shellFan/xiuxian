@@ -232,8 +232,9 @@ export class BattleService {
     const build = BUILD_MAP.get(buildId) ?? ALL_BUILDS.find((b) => b.id === buildId);
     if (!build) throw new Error('未知的 Build');
     if (this.current()) throw new Error('已有进行中的战斗');
-    const day = this.context.player.gameDay;
-    if (!day) throw new Error('尚未开工');
+    // V10.1：战斗入口自动开工（消除新手"尚未开工"死胡同——任何玩家随时可应战）。
+    const day = this.context.gameDay.ensureStarted();
+    this.context.player.gameDay = day;
     const hour = new Date(this.context.clockV2.now()).getHours();
     const overtimeActive = this.context.overtime.current()?.status === 'ACTIVE';
     const night = overtimeActive && (hour >= 20 || hour < 6);
@@ -458,8 +459,20 @@ export class BattleService {
     return level;
   }
 
+  /** V10.1 卡组管理：净化一张卡牌（消耗灵石）。返回移除后的净化视图。 */
+  public removeCollectionCard(defId: string): ReturnType<CardBattleService['removalView']> {
+    const view = this.cards.removeCard(defId);
+    this.context.saveService.save(this.context.player);
+    return view;
+  }
+
+  /** V10.1 卡组管理：净化视图（可移除张数/费用）。 */
+  public cardRemovalView(): ReturnType<CardBattleService['removalView']> {
+    return this.cards.removalView();
+  }
+
   /** V5.9-O.2 §28：卡组视图（战斗外）。 */
-  public cardDeckView(): { manifest: Record<string, number>; total: number; upgrades: Record<string, number> } {
+  public cardDeckView(): { manifest: Record<string, number>; total: number; upgrades: Record<string, number>; removals: Record<string, number>; removalNextCost: number } {
     return this.cards.deckView();
   }
 

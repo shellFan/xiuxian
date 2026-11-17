@@ -99,6 +99,8 @@ export function beginCardBattle(params: {
     drawPerTurn: params.drawPerTurn,
     handLimit: params.handLimit,
     reshuffles: 0,
+    turnCardsPlayed: 0,
+    pendingHandCostDelta: 0,
     rng: rng.toState(),
     deckManifest: manifestOf(params.deck),
     reward: null,
@@ -168,7 +170,18 @@ export function startPlayerTurn(state: CardBattleState, env: CardEngineEnv): voi
   if (state.modifiers.startBlockPerTurn > 0) {
     state.player.block += state.modifiers.startBlockPerTurn;
   }
+  // V10.1 敌人施加的手牌费率上调（需求幻魔）：在发牌后对本手手牌费用 +N。
+  // V10.1 连击计数器：新回合清零。
+  state.turnCardsPlayed = 0;
   drawCards(state, state.drawPerTurn);
+  if ((state.pendingHandCostDelta ?? 0) > 0) {
+    const curse = state.pendingHandCostDelta!;
+    for (const card of state.hand) {
+      card.turnCostDelta = (card.turnCostDelta ?? 0) + curse;
+    }
+    state.log.push(`⚠ 需求费率上调：本回合所有手牌费用 +${curse}。`);
+    state.pendingHandCostDelta = 0;
+  }
   state.phase = 'PLAYER_TURN';
 }
 
@@ -204,6 +217,8 @@ export function playCard(state: CardBattleState, env: CardEngineEnv, cardUid: st
   const rng = CardRng.fromState(state.rng);
   for (const effect of def.effects) applyEffect(state, env, effect, target, rng, instance);
   state.rng = rng.toState();
+  // V10.1 连击计数：在本张牌结算完成后 +1（perCardPlayed 倍率按之前的张数计）。
+  state.turnCardsPlayed = (state.turnCardsPlayed ?? 0) + 1;
   // ── 移动卡牌：消耗 / 弃牌堆 ──
   state.hand.splice(handIndex, 1);
   if (def.exhaust) {
@@ -291,7 +306,9 @@ function executeEnemyIntent(state: CardBattleState, env: CardEngineEnv, enemy: C
     case 'SUMMON':
     case 'SPECIAL': {
       // Boss 机制（召唤/封技/蓄力/吞噬/狂暴预警等）由服务层回合化实现。
-      env.runBossSpecial(enemy, intent, state, rng, (line) => state.log.push(line));
+      env.runBossSpecial(enemy, intent, state, rng, (line) => state.log.push(line), {
+        strikePlayer: (raw: number, label?: string) => dealDamageToPlayer(state, env, enemy, Math.max(1, Math.floor(raw)), label || enemy.name),
+      });
       return;
     }
     case 'SLEEP': {
@@ -403,7 +420,7 @@ function applyEffect(
     case 'DAMAGE': {
       const targets = effect.aoe === true ? state.enemies.filter((e) => e.hp > 0) : target && target.hp > 0 ? [target] : [];
       for (const enemy of targets) {
-        dealDamageToEnemy(state, env, enemy, effect.mul ?? 1, effect.flat ?? 0, effect.pierce === true, rng);
+        dealDamageToEnemy(state, env, enemy, effect, rng);
       }
       return;
     }
@@ -446,6 +463,17 @@ function applyEffect(
     case 'REMOVE_STATUS': {
       delete state.player.statuses[effect.status];
       state.log.push(`清除了【${statusName(effect.status)}】。`);
+      return;
+    }
+    case 'CLEANSE': {
+      const cleared: string[] = [];
+      for (const id of ['WEAK', 'BLIND', 'POISON'] as StatusId[]) {
+        if ((state.player.statuses[id] ?? 0) > 0) {
+          delete state.player.statuses[id];
+          cleared.push(statusName(id));
+        }
+      }
+      state.log.push(cleared.length ? `净化了【${cleared.join('、')}】。` : '身上没有可净化的负面状态。');
       return;
     }
     case 'DISCARD_HAND': {
@@ -493,8 +521,8 @@ function evaluateCondition(state: CardBattleState, target: CardEnemy | null, con
   }
 }
 
-/** 对敌人结算一次伤害：力量/暴击/虚弱/易伤/闪避/格挡全链路。 */
-function dealDamageToEnemy(state: CardBattleState, env: CardEngineEnv, enemy: CardEnemy, mul: number, flat: number, pierce: boolean, rng: CardRng): void {
+/** 对敌人结算一次伤害：力量/暴击/虚弱/易伤/闪避/格挡全链路 + V10.1 流派联动倍率。 */
+function dealDamageToEnemy(state: CardBattleState, env: CardEngineEnv, enemy: CardEnemy, effect: Extract<CardEffect, { kind: 'DAMAGE' }>, rng: CardRng): void {
   if (enemy.hp <= 0) return;
   // BLIND：50% 落空。
   if ((state.player.statuses.BLIND ?? 0) > 0 && rng.chance(0.5)) {
@@ -509,7 +537,32 @@ function dealDamageToEnemy(state: CardBattleState, env: CardEngineEnv, enemy: Ca
     return;
   }
   const strength = state.player.statuses.STRENGTH ?? 0;
-  let damage = (state.player.attack + strength) * mul + flat;
+  // V10.1 流派联动倍率：目标状态层数 / 自身格挡 / 本回合出牌数。
+  let dynMul = 0;
+  const dynParts: string[] = [];
+  if (effect.perTargetStatus) {
+    const stacks = enemy.statuses[effect.perTargetStatus.status] ?? 0;
+    if (stacks > 0) {
+      dynMul += stacks * effect.perTargetStatus.perStacks;
+      dynParts.push(`${statusName(effect.perTargetStatus.status)}×${stacks} +${Math.round(stacks * effect.perTargetStatus.perStacks * 100)}%`);
+    }
+  }
+  if (effect.perSelfBlockPerTen) {
+    const perTen = Math.floor(state.player.block / 10);
+    if (perTen > 0) {
+      dynMul += perTen * effect.perSelfBlockPerTen;
+      dynParts.push(`格挡${state.player.block} +${Math.round(perTen * effect.perSelfBlockPerTen * 100)}%`);
+    }
+  }
+  if (effect.perCardPlayed) {
+    const played = state.turnCardsPlayed ?? 0;
+    if (played > 0) {
+      dynMul += played * effect.perCardPlayed;
+      dynParts.push(`连击${played} +${Math.round(played * effect.perCardPlayed * 100)}%`);
+    }
+  }
+  let damage = (state.player.attack + strength) * ((effect.mul ?? 1) + dynMul) + (effect.flat ?? 0);
+  if (dynParts.length > 0) state.log.push(`【流派联动】${dynParts.join('，')}`);
   // 职业专克（+20% vs 本职业怪，旧语义移植）。
   if (env.specialtyMultiplier) damage *= env.specialtyMultiplier(enemy.defId);
   const crit = rng.chance(state.player.critChance);
@@ -517,7 +570,7 @@ function dealDamageToEnemy(state: CardBattleState, env: CardEngineEnv, enemy: Ca
   if ((state.player.statuses.WEAK ?? 0) > 0) damage *= 0.66;
   if ((enemy.statuses.VULNERABLE ?? 0) > 0) damage *= 1.5;
   damage = Math.max(1, Math.floor(damage * (state.modifiers.damageMul || 1)));
-  if (!pierce && enemy.block > 0) {
+  if (!effect.pierce && enemy.block > 0) {
     const absorbed = Math.min(enemy.block, damage);
     enemy.block -= absorbed;
     damage -= absorbed;

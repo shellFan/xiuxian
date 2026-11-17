@@ -424,6 +424,8 @@ export interface GameSaveData {
   readonly cardCollection?: Readonly<Record<string, number>>;
   /** V5.9-O.2 卡牌战斗：卡牌升级等级（defId → 等级）。 */
   readonly cardUpgrades?: Readonly<Record<string, number>>;
+  /** V10.1 净化记录：卡牌移除（defId → 已移除张数）。 */
+  readonly cardRemovals?: Readonly<Record<string, number>>;
   /** 今日情境（DailySituation）。 */
   readonly dailySituation?: string;
   /** 公司宗门（CompanyProfile）。 */

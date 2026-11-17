@@ -48,10 +48,35 @@
       "rarity": "BASIC",
       "cost": 1,
       "target": "ENEMY",
-      "effects": [{ "kind": "DAMAGE", "mul": 1.0 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 1
+        }
+      ],
       "upgrades": [
-        { "name": "打磨提交+1", "desc": "对目标造成 140% 攻击的伤害。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.4 }] },
-        { "name": "打磨提交+2", "desc": "对目标造成 180% 攻击的伤害。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.8 }] }
+        {
+          "name": "打磨提交+1",
+          "desc": "对目标造成 140% 攻击的伤害。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.4
+            }
+          ]
+        },
+        {
+          "name": "打磨提交+2",
+          "desc": "对目标造成 180% 攻击的伤害。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.8
+            }
+          ]
+        }
       ]
     },
     {
@@ -62,10 +87,35 @@
       "rarity": "BASIC",
       "cost": 1,
       "target": "SELF",
-      "effects": [{ "kind": "BLOCK", "flat": 5 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 5
+        }
+      ],
       "upgrades": [
-        { "name": "摸鱼防御+1", "desc": "获得 8 点格挡。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 8 }] },
-        { "name": "摸鱼防御+2", "desc": "获得 11 点格挡。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 11 }] }
+        {
+          "name": "摸鱼防御+1",
+          "desc": "获得 8 点格挡。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 8
+            }
+          ]
+        },
+        {
+          "name": "摸鱼防御+2",
+          "desc": "获得 11 点格挡。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 11
+            }
+          ]
+        }
       ]
     },
     {
@@ -77,9 +127,32 @@
       "cost": 1,
       "target": "ENEMY",
       "profession": "JAVA_BACKEND",
-      "effects": [{ "kind": "DAMAGE", "mul": 0.8 }, { "kind": "BLOCK", "flat": 3 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.8
+        },
+        {
+          "kind": "BLOCK",
+          "flat": 3
+        }
+      ],
       "upgrades": [
-        { "name": "单元测试+1", "desc": "造成 110% 攻击伤害，获得 5 点格挡。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.1 }, { "kind": "BLOCK", "flat": 5 }] }
+        {
+          "name": "单元测试+1",
+          "desc": "造成 110% 攻击伤害，获得 5 点格挡。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.1
+            },
+            {
+              "kind": "BLOCK",
+              "flat": 5
+            }
+          ]
+        }
       ]
     },
     {
@@ -91,9 +164,32 @@
       "cost": 1,
       "target": "ENEMY",
       "profession": "FRONTEND",
-      "effects": [{ "kind": "DAMAGE", "mul": 0.55 }, { "kind": "DRAW", "count": 1 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.55
+        },
+        {
+          "kind": "DRAW",
+          "count": 1
+        }
+      ],
       "upgrades": [
-        { "name": "热修复+1", "desc": "造成 80% 攻击伤害，抽 1 张牌。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 0.8 }, { "kind": "DRAW", "count": 1 }] }
+        {
+          "name": "热修复+1",
+          "desc": "造成 80% 攻击伤害，抽 1 张牌。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 0.8
+            },
+            {
+              "kind": "DRAW",
+              "count": 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -105,9 +201,36 @@
       "cost": 1,
       "target": "ENEMY",
       "profession": "QA",
-      "effects": [{ "kind": "DAMAGE", "mul": 0.4 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 1 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.4
+        },
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ENEMY",
+          "status": "WEAK",
+          "stacks": 1
+        }
+      ],
       "upgrades": [
-        { "name": "回归脚本+1", "desc": "造成 60% 攻击伤害，施加虚弱 2。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 0.6 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 2 }] }
+        {
+          "name": "回归脚本+1",
+          "desc": "造成 60% 攻击伤害，施加虚弱 2。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 0.6
+            },
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ENEMY",
+              "status": "WEAK",
+              "stacks": 2
+            }
+          ]
+        }
       ]
     },
     {
@@ -119,9 +242,24 @@
       "cost": 1,
       "target": "SELF",
       "profession": "DEVOPS",
-      "effects": [{ "kind": "BLOCK", "flat": 8 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 8
+        }
+      ],
       "upgrades": [
-        { "name": "服务巡检+1", "desc": "获得 12 点格挡。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 12 }] }
+        {
+          "name": "服务巡检+1",
+          "desc": "获得 12 点格挡。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 12
+            }
+          ]
+        }
       ]
     },
     {
@@ -133,9 +271,32 @@
       "cost": 1,
       "target": "ENEMY",
       "fate": "LABOR_SAINT",
-      "effects": [{ "kind": "DAMAGE", "mul": 0.8 }, { "kind": "HEAL", "flat": 4 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.8
+        },
+        {
+          "kind": "HEAL",
+          "flat": 4
+        }
+      ],
       "upgrades": [
-        { "name": "劳模本色+1", "desc": "造成 110% 攻击伤害，回复 6 点生命。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.1 }, { "kind": "HEAL", "flat": 6 }] }
+        {
+          "name": "劳模本色+1",
+          "desc": "造成 110% 攻击伤害，回复 6 点生命。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.1
+            },
+            {
+              "kind": "HEAL",
+              "flat": 6
+            }
+          ]
+        }
       ]
     },
     {
@@ -147,9 +308,36 @@
       "cost": 1,
       "target": "SELF",
       "fate": "KING_OF_GRIND",
-      "effects": [{ "kind": "BLOCK", "flat": 4 }, { "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 1 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 4
+        },
+        {
+          "kind": "APPLY_STATUS",
+          "target": "SELF",
+          "status": "STRENGTH",
+          "stacks": 1
+        }
+      ],
       "upgrades": [
-        { "name": "卷王之魂+1", "desc": "获得 6 点格挡与 1 点力量。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 6 }, { "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 1 }] }
+        {
+          "name": "卷王之魂+1",
+          "desc": "获得 6 点格挡与 1 点力量。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 6
+            },
+            {
+              "kind": "APPLY_STATUS",
+              "target": "SELF",
+              "status": "STRENGTH",
+              "stacks": 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -162,9 +350,24 @@
       "target": "SELF",
       "fate": "FISHING_IMMORTAL",
       "exhaust": true,
-      "effects": [{ "kind": "DRAW", "count": 1 }],
+      "effects": [
+        {
+          "kind": "DRAW",
+          "count": 1
+        }
+      ],
       "upgrades": [
-        { "name": "垂钓仙缘+1", "desc": "抽 2 张牌。消耗。", "cost": 0, "effects": [{ "kind": "DRAW", "count": 2 }] }
+        {
+          "name": "垂钓仙缘+1",
+          "desc": "抽 2 张牌。消耗。",
+          "cost": 0,
+          "effects": [
+            {
+              "kind": "DRAW",
+              "count": 2
+            }
+          ]
+        }
       ]
     },
     {
@@ -176,9 +379,34 @@
       "cost": 1,
       "target": "SELF",
       "fate": "SCAPEGOAT",
-      "effects": [{ "kind": "BLOCK", "flat": 8 }, { "kind": "REMOVE_STATUS", "target": "SELF", "status": "WEAK" }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 8
+        },
+        {
+          "kind": "REMOVE_STATUS",
+          "target": "SELF",
+          "status": "WEAK"
+        }
+      ],
       "upgrades": [
-        { "name": "背锅侠+1", "desc": "获得 12 点格挡，清除虚弱。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 12 }, { "kind": "REMOVE_STATUS", "target": "SELF", "status": "WEAK" }] }
+        {
+          "name": "背锅侠+1",
+          "desc": "获得 12 点格挡，清除虚弱。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 12
+            },
+            {
+              "kind": "REMOVE_STATUS",
+              "target": "SELF",
+              "status": "WEAK"
+            }
+          ]
+        }
       ]
     },
     {
@@ -190,9 +418,32 @@
       "cost": 1,
       "target": "ENEMY",
       "fate": "CODE_SPIRIT",
-      "effects": [{ "kind": "DAMAGE", "mul": 0.9 }, { "kind": "DRAW", "count": 1 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.9
+        },
+        {
+          "kind": "DRAW",
+          "count": 1
+        }
+      ],
       "upgrades": [
-        { "name": "代码之魂+1", "desc": "造成 120% 攻击伤害，抽 1 张牌。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.2 }, { "kind": "DRAW", "count": 1 }] }
+        {
+          "name": "代码之魂+1",
+          "desc": "造成 120% 攻击伤害，抽 1 张牌。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.2
+            },
+            {
+              "kind": "DRAW",
+              "count": 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -205,14 +456,39 @@
       "target": "ENEMY",
       "fate": "SOCIAL_FATE",
       "effects": [
-        { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 1 },
-        { "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 1 }
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ENEMY",
+          "status": "WEAK",
+          "stacks": 1
+        },
+        {
+          "kind": "APPLY_STATUS",
+          "target": "SELF",
+          "status": "STRENGTH",
+          "stacks": 1
+        }
       ],
       "upgrades": [
-        { "name": "社牛附体+1", "desc": "目标陷入虚弱 2，你获得 1 点力量。", "cost": 1, "effects": [
-          { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 2 },
-          { "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 1 }
-        ] }
+        {
+          "name": "社牛附体+1",
+          "desc": "目标陷入虚弱 2，你获得 1 点力量。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ENEMY",
+              "status": "WEAK",
+              "stacks": 2
+            },
+            {
+              "kind": "APPLY_STATUS",
+              "target": "SELF",
+              "status": "STRENGTH",
+              "stacks": 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -224,9 +500,24 @@
       "cost": 2,
       "target": "ENEMY",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 2.2 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 2.2
+        }
+      ],
       "upgrades": [
-        { "name": "重构重击+1", "desc": "造成 280% 攻击的伤害。", "cost": 2, "effects": [{ "kind": "DAMAGE", "mul": 2.8 }] }
+        {
+          "name": "重构重击+1",
+          "desc": "造成 280% 攻击的伤害。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 2.8
+            }
+          ]
+        }
       ]
     },
     {
@@ -238,9 +529,32 @@
       "cost": 1,
       "target": "ENEMY",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 0.6 }, { "kind": "DAMAGE", "mul": 0.6 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.6
+        },
+        {
+          "kind": "DAMAGE",
+          "mul": 0.6
+        }
+      ],
       "upgrades": [
-        { "name": "快捷连击+1", "desc": "造成两次 80% 攻击的伤害。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 0.8 }, { "kind": "DAMAGE", "mul": 0.8 }] }
+        {
+          "name": "快捷连击+1",
+          "desc": "造成两次 80% 攻击的伤害。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 0.8
+            },
+            {
+              "kind": "DAMAGE",
+              "mul": 0.8
+            }
+          ]
+        }
       ]
     },
     {
@@ -252,9 +566,26 @@
       "cost": 1,
       "target": "ENEMY",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 1.0, "pierce": true }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 1,
+          "pierce": true
+        }
+      ],
       "upgrades": [
-        { "name": "穿透一击+1", "desc": "造成 130% 攻击的伤害，无视格挡。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.3, "pierce": true }] }
+        {
+          "name": "穿透一击+1",
+          "desc": "造成 130% 攻击的伤害，无视格挡。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.3,
+              "pierce": true
+            }
+          ]
+        }
       ]
     },
     {
@@ -266,9 +597,26 @@
       "cost": 1,
       "target": "ALL_ENEMIES",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 0.7, "aoe": true }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.7,
+          "aoe": true
+        }
+      ],
       "upgrades": [
-        { "name": "横扫批量+1", "desc": "对所有敌人造成 100% 攻击的伤害。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.0, "aoe": true }] }
+        {
+          "name": "横扫批量+1",
+          "desc": "对所有敌人造成 100% 攻击的伤害。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1,
+              "aoe": true
+            }
+          ]
+        }
       ]
     },
     {
@@ -280,9 +628,54 @@
       "cost": 2,
       "target": "ENEMY",
       "rewardable": true,
-      "effects": [{ "kind": "CONDITIONAL", "if": { "kind": "ENEMY_HP_BELOW_PCT", "pct": 0.3 }, "then": [{ "kind": "DAMAGE", "mul": 3.0 }], "otherwise": [{ "kind": "DAMAGE", "mul": 1.2 }] }],
+      "effects": [
+        {
+          "kind": "CONDITIONAL",
+          "if": {
+            "kind": "ENEMY_HP_BELOW_PCT",
+            "pct": 0.3
+          },
+          "then": [
+            {
+              "kind": "DAMAGE",
+              "mul": 3
+            }
+          ],
+          "otherwise": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.2
+            }
+          ]
+        }
+      ],
       "upgrades": [
-        { "name": "终结审判+1", "desc": "目标生命低于 30% 时造成 360% 伤害，否则造成 150% 伤害。", "cost": 2, "effects": [{ "kind": "CONDITIONAL", "if": { "kind": "ENEMY_HP_BELOW_PCT", "pct": 0.3 }, "then": [{ "kind": "DAMAGE", "mul": 3.6 }], "otherwise": [{ "kind": "DAMAGE", "mul": 1.5 }] }] }
+        {
+          "name": "终结审判+1",
+          "desc": "目标生命低于 30% 时造成 360% 伤害，否则造成 150% 伤害。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "CONDITIONAL",
+              "if": {
+                "kind": "ENEMY_HP_BELOW_PCT",
+                "pct": 0.3
+              },
+              "then": [
+                {
+                  "kind": "DAMAGE",
+                  "mul": 3.6
+                }
+              ],
+              "otherwise": [
+                {
+                  "kind": "DAMAGE",
+                  "mul": 1.5
+                }
+              ]
+            }
+          ]
+        }
       ]
     },
     {
@@ -294,9 +687,36 @@
       "cost": 1,
       "target": "ENEMY",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 0.4 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "POISON", "stacks": 3 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.4
+        },
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ENEMY",
+          "status": "POISON",
+          "stacks": 3
+        }
+      ],
       "upgrades": [
-        { "name": "毒镖投掷+1", "desc": "造成 40% 攻击伤害，施加中毒 5。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 0.4 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "POISON", "stacks": 5 }] }
+        {
+          "name": "毒镖投掷+1",
+          "desc": "造成 40% 攻击伤害，施加中毒 5。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 0.4
+            },
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ENEMY",
+              "status": "POISON",
+              "stacks": 5
+            }
+          ]
+        }
       ]
     },
     {
@@ -308,9 +728,24 @@
       "cost": 1,
       "target": "SELF",
       "rewardable": true,
-      "effects": [{ "kind": "BLOCK", "flat": 8 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 8
+        }
+      ],
       "upgrades": [
-        { "name": "护盾术+1", "desc": "获得 11 点格挡。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 11 }] }
+        {
+          "name": "护盾术+1",
+          "desc": "获得 11 点格挡。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 11
+            }
+          ]
+        }
       ]
     },
     {
@@ -322,9 +757,24 @@
       "cost": 2,
       "target": "SELF",
       "rewardable": true,
-      "effects": [{ "kind": "BLOCK", "flat": 15 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 15
+        }
+      ],
       "upgrades": [
-        { "name": "铁壁+1", "desc": "获得 20 点格挡。", "cost": 2, "effects": [{ "kind": "BLOCK", "flat": 20 }] }
+        {
+          "name": "铁壁+1",
+          "desc": "获得 20 点格挡。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 20
+            }
+          ]
+        }
       ]
     },
     {
@@ -336,9 +786,36 @@
       "cost": 1,
       "target": "ENEMY",
       "rewardable": true,
-      "effects": [{ "kind": "BLOCK", "flat": 5 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 1 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 5
+        },
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ENEMY",
+          "status": "WEAK",
+          "stacks": 1
+        }
+      ],
       "upgrades": [
-        { "name": "反击姿态+1", "desc": "获得 8 点格挡，目标陷入虚弱 2。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 8 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 2 }] }
+        {
+          "name": "反击姿态+1",
+          "desc": "获得 8 点格挡，目标陷入虚弱 2。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 8
+            },
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ENEMY",
+              "status": "WEAK",
+              "stacks": 2
+            }
+          ]
+        }
       ]
     },
     {
@@ -350,9 +827,24 @@
       "cost": 0,
       "target": "SELF",
       "rewardable": true,
-      "effects": [{ "kind": "BLOCK", "flat": 4 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 4
+        }
+      ],
       "upgrades": [
-        { "name": "吐纳调息+1", "desc": "获得 6 点格挡。", "cost": 0, "effects": [{ "kind": "BLOCK", "flat": 6 }] }
+        {
+          "name": "吐纳调息+1",
+          "desc": "获得 6 点格挡。",
+          "cost": 0,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 6
+            }
+          ]
+        }
       ]
     },
     {
@@ -364,9 +856,24 @@
       "cost": 1,
       "target": "SELF",
       "rewardable": true,
-      "effects": [{ "kind": "DRAW", "count": 2 }],
+      "effects": [
+        {
+          "kind": "DRAW",
+          "count": 2
+        }
+      ],
       "upgrades": [
-        { "name": "技术文档+1", "desc": "抽 3 张牌。", "cost": 1, "effects": [{ "kind": "DRAW", "count": 3 }] }
+        {
+          "name": "技术文档+1",
+          "desc": "抽 3 张牌。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DRAW",
+              "count": 3
+            }
+          ]
+        }
       ]
     },
     {
@@ -379,9 +886,24 @@
       "target": "SELF",
       "rewardable": true,
       "exhaust": true,
-      "effects": [{ "kind": "ENERGY", "delta": 2 }],
+      "effects": [
+        {
+          "kind": "ENERGY",
+          "delta": 2
+        }
+      ],
       "upgrades": [
-        { "name": "能量饮料+1", "desc": "获得 3 点能量。消耗。", "cost": 0, "effects": [{ "kind": "ENERGY", "delta": 3 }] }
+        {
+          "name": "能量饮料+1",
+          "desc": "获得 3 点能量。消耗。",
+          "cost": 0,
+          "effects": [
+            {
+              "kind": "ENERGY",
+              "delta": 3
+            }
+          ]
+        }
       ]
     },
     {
@@ -393,9 +915,28 @@
       "cost": 1,
       "target": "SELF",
       "rewardable": true,
-      "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 2 }],
+      "effects": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "SELF",
+          "status": "STRENGTH",
+          "stacks": 2
+        }
+      ],
       "upgrades": [
-        { "name": "战意鼓舞+1", "desc": "获得 3 点力量。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "STRENGTH", "stacks": 3 }] }
+        {
+          "name": "战意鼓舞+1",
+          "desc": "获得 3 点力量。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "SELF",
+              "status": "STRENGTH",
+              "stacks": 3
+            }
+          ]
+        }
       ]
     },
     {
@@ -407,9 +948,28 @@
       "cost": 1,
       "target": "ENEMY",
       "rewardable": true,
-      "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 2 }],
+      "effects": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ENEMY",
+          "status": "WEAK",
+          "stacks": 2
+        }
+      ],
       "upgrades": [
-        { "name": "需求拆解+1", "desc": "目标陷入虚弱 3。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 3 }] }
+        {
+          "name": "需求拆解+1",
+          "desc": "目标陷入虚弱 3。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ENEMY",
+              "status": "WEAK",
+              "stacks": 3
+            }
+          ]
+        }
       ]
     },
     {
@@ -421,9 +981,28 @@
       "cost": 1,
       "target": "ENEMY",
       "rewardable": true,
-      "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "VULNERABLE", "stacks": 2 }],
+      "effects": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ENEMY",
+          "status": "VULNERABLE",
+          "stacks": 2
+        }
+      ],
       "upgrades": [
-        { "name": "代码评审+1", "desc": "目标陷入易伤 3。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "VULNERABLE", "stacks": 3 }] }
+        {
+          "name": "代码评审+1",
+          "desc": "目标陷入易伤 3。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ENEMY",
+              "status": "VULNERABLE",
+              "stacks": 3
+            }
+          ]
+        }
       ]
     },
     {
@@ -436,9 +1015,24 @@
       "target": "SELF",
       "rewardable": true,
       "exhaust": true,
-      "effects": [{ "kind": "HEAL", "flat": 8 }],
+      "effects": [
+        {
+          "kind": "HEAL",
+          "flat": 8
+        }
+      ],
       "upgrades": [
-        { "name": "修仙丹药+1", "desc": "回复 12 点生命。消耗。", "cost": 1, "effects": [{ "kind": "HEAL", "flat": 12 }] }
+        {
+          "name": "修仙丹药+1",
+          "desc": "回复 12 点生命。消耗。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "HEAL",
+              "flat": 12
+            }
+          ]
+        }
       ]
     },
     {
@@ -451,9 +1045,30 @@
       "target": "SELF",
       "rewardable": true,
       "exhaust": true,
-      "effects": [{ "kind": "REMOVE_STATUS", "target": "SELF", "status": "POISON" }],
+      "effects": [
+        {
+          "kind": "REMOVE_STATUS",
+          "target": "SELF",
+          "status": "POISON"
+        }
+      ],
       "upgrades": [
-        { "name": "排毒清心+1", "desc": "清除中毒，抽 1 张牌。消耗。", "cost": 0, "effects": [{ "kind": "REMOVE_STATUS", "target": "SELF", "status": "POISON" }, { "kind": "DRAW", "count": 1 }] }
+        {
+          "name": "排毒清心+1",
+          "desc": "清除中毒，抽 1 张牌。消耗。",
+          "cost": 0,
+          "effects": [
+            {
+              "kind": "REMOVE_STATUS",
+              "target": "SELF",
+              "status": "POISON"
+            },
+            {
+              "kind": "DRAW",
+              "count": 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -466,9 +1081,32 @@
       "target": "SELF",
       "rewardable": true,
       "exhaust": true,
-      "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "INTANGIBLE", "stacks": 1 }],
+      "effects": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "SELF",
+          "status": "INTANGIBLE",
+          "stacks": 1
+        }
+      ],
       "upgrades": [
-        { "name": "禅定护体+1", "desc": "本回合免疫所有伤害，获得 5 点格挡。消耗。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "INTANGIBLE", "stacks": 1 }, { "kind": "BLOCK", "flat": 5 }] }
+        {
+          "name": "禅定护体+1",
+          "desc": "本回合免疫所有伤害，获得 5 点格挡。消耗。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "SELF",
+              "status": "INTANGIBLE",
+              "stacks": 1
+            },
+            {
+              "kind": "BLOCK",
+              "flat": 5
+            }
+          ]
+        }
       ]
     },
     {
@@ -481,9 +1119,32 @@
       "target": "SELF",
       "rewardable": true,
       "exhaust": true,
-      "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "COST_DOWN", "stacks": 1 }],
+      "effects": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "SELF",
+          "status": "COST_DOWN",
+          "stacks": 1
+        }
+      ],
       "upgrades": [
-        { "name": "超频运转+1", "desc": "本回合手牌费用 -1，抽 1 张牌。消耗。", "cost": 0, "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "COST_DOWN", "stacks": 1 }, { "kind": "DRAW", "count": 1 }] }
+        {
+          "name": "超频运转+1",
+          "desc": "本回合手牌费用 -1，抽 1 张牌。消耗。",
+          "cost": 0,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "SELF",
+              "status": "COST_DOWN",
+              "stacks": 1
+            },
+            {
+              "kind": "DRAW",
+              "count": 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -495,9 +1156,34 @@
       "cost": 1,
       "target": "SELF",
       "rewardable": true,
-      "effects": [{ "kind": "DRAW", "count": 1 }, { "kind": "ADD_CARD_TO_HAND", "cardId": "card_adrenaline", "copies": 1 }],
+      "effects": [
+        {
+          "kind": "DRAW",
+          "count": 1
+        },
+        {
+          "kind": "ADD_CARD_TO_HAND",
+          "cardId": "card_adrenaline",
+          "copies": 1
+        }
+      ],
       "upgrades": [
-        { "name": "灵光一闪+1", "desc": "抽 1 张牌，生成 2 张临时【肾上腺素】。", "cost": 1, "effects": [{ "kind": "DRAW", "count": 1 }, { "kind": "ADD_CARD_TO_HAND", "cardId": "card_adrenaline", "copies": 2 }] }
+        {
+          "name": "灵光一闪+1",
+          "desc": "抽 1 张牌，生成 2 张临时【肾上腺素】。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DRAW",
+              "count": 1
+            },
+            {
+              "kind": "ADD_CARD_TO_HAND",
+              "cardId": "card_adrenaline",
+              "copies": 2
+            }
+          ]
+        }
       ]
     },
     {
@@ -509,7 +1195,12 @@
       "cost": 0,
       "target": "ENEMY",
       "exhaust": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 1.0 }]
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 1
+        }
+      ]
     },
     {
       "id": "card_p0slash",
@@ -520,9 +1211,24 @@
       "cost": 3,
       "target": "ENEMY",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 4.0 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 4
+        }
+      ],
       "upgrades": [
-        { "name": "P0 一刀+1", "desc": "造成 500% 攻击的伤害。", "cost": 3, "effects": [{ "kind": "DAMAGE", "mul": 5.0 }] }
+        {
+          "name": "P0 一刀+1",
+          "desc": "造成 500% 攻击的伤害。",
+          "cost": 3,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 5
+            }
+          ]
+        }
       ]
     },
     {
@@ -535,14 +1241,37 @@
       "target": "ALL_ENEMIES",
       "rewardable": true,
       "effects": [
-        { "kind": "APPLY_STATUS", "target": "ALL_ENEMIES", "status": "VULNERABLE", "stacks": 2 },
-        { "kind": "DAMAGE", "mul": 1.0, "aoe": true }
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ALL_ENEMIES",
+          "status": "VULNERABLE",
+          "stacks": 2
+        },
+        {
+          "kind": "DAMAGE",
+          "mul": 1,
+          "aoe": true
+        }
       ],
       "upgrades": [
-        { "name": "责任追溯+1", "desc": "所有敌人陷入易伤 3，并对全体造成 130% 攻击伤害。", "cost": 2, "effects": [
-          { "kind": "APPLY_STATUS", "target": "ALL_ENEMIES", "status": "VULNERABLE", "stacks": 3 },
-          { "kind": "DAMAGE", "mul": 1.3, "aoe": true }
-        ] }
+        {
+          "name": "责任追溯+1",
+          "desc": "所有敌人陷入易伤 3，并对全体造成 130% 攻击伤害。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ALL_ENEMIES",
+              "status": "VULNERABLE",
+              "stacks": 3
+            },
+            {
+              "kind": "DAMAGE",
+              "mul": 1.3,
+              "aoe": true
+            }
+          ]
+        }
       ]
     },
     {
@@ -554,9 +1283,36 @@
       "cost": 2,
       "target": "ENEMY",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 2.5 }, { "kind": "APPLY_STATUS", "target": "SELF", "status": "WEAK", "stacks": 1 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 2.5
+        },
+        {
+          "kind": "APPLY_STATUS",
+          "target": "SELF",
+          "status": "WEAK",
+          "stacks": 1
+        }
+      ],
       "upgrades": [
-        { "name": "极限突破+1", "desc": "造成 320% 攻击伤害，你陷入虚弱 1。", "cost": 2, "effects": [{ "kind": "DAMAGE", "mul": 3.2 }, { "kind": "APPLY_STATUS", "target": "SELF", "status": "WEAK", "stacks": 1 }] }
+        {
+          "name": "极限突破+1",
+          "desc": "造成 320% 攻击伤害，你陷入虚弱 1。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 3.2
+            },
+            {
+              "kind": "APPLY_STATUS",
+              "target": "SELF",
+              "status": "WEAK",
+              "stacks": 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -569,9 +1325,32 @@
       "target": "SELF",
       "rewardable": true,
       "exhaust": true,
-      "effects": [{ "kind": "ENERGY", "delta": 1 }, { "kind": "DRAW", "count": 1 }],
+      "effects": [
+        {
+          "kind": "ENERGY",
+          "delta": 1
+        },
+        {
+          "kind": "DRAW",
+          "count": 1
+        }
+      ],
       "upgrades": [
-        { "name": "时间管理大师+1", "desc": "获得 1 点能量，抽 2 张牌。消耗。", "cost": 1, "effects": [{ "kind": "ENERGY", "delta": 1 }, { "kind": "DRAW", "count": 2 }] }
+        {
+          "name": "时间管理大师+1",
+          "desc": "获得 1 点能量，抽 2 张牌。消耗。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "ENERGY",
+              "delta": 1
+            },
+            {
+              "kind": "DRAW",
+              "count": 2
+            }
+          ]
+        }
       ]
     },
     {
@@ -584,9 +1363,24 @@
       "target": "ENEMY",
       "profession": "JAVA_BACKEND",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 1.2 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 1.2
+        }
+      ],
       "upgrades": [
-        { "name": "JVM 调优+1", "desc": "造成 160% 攻击伤害。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.6 }] }
+        {
+          "name": "JVM 调优+1",
+          "desc": "造成 160% 攻击伤害。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.6
+            }
+          ]
+        }
       ]
     },
     {
@@ -599,9 +1393,36 @@
       "target": "ENEMY",
       "profession": "JAVA_BACKEND",
       "rewardable": true,
-      "effects": [{ "kind": "BLOCK", "flat": 10 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 2 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 10
+        },
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ENEMY",
+          "status": "WEAK",
+          "stacks": 2
+        }
+      ],
       "upgrades": [
-        { "name": "切面拦截+1", "desc": "获得 13 点格挡，目标陷入虚弱 3。", "cost": 2, "effects": [{ "kind": "BLOCK", "flat": 13 }, { "kind": "APPLY_STATUS", "target": "ENEMY", "status": "WEAK", "stacks": 3 }] }
+        {
+          "name": "切面拦截+1",
+          "desc": "获得 13 点格挡，目标陷入虚弱 3。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 13
+            },
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ENEMY",
+              "status": "WEAK",
+              "stacks": 3
+            }
+          ]
+        }
       ]
     },
     {
@@ -614,9 +1435,32 @@
       "target": "SELF",
       "profession": "JAVA_BACKEND",
       "rewardable": true,
-      "effects": [{ "kind": "DRAW", "count": 1 }, { "kind": "BLOCK", "flat": 3 }],
+      "effects": [
+        {
+          "kind": "DRAW",
+          "count": 1
+        },
+        {
+          "kind": "BLOCK",
+          "flat": 3
+        }
+      ],
       "upgrades": [
-        { "name": "缓存命中+1", "desc": "抽 2 张牌，获得 3 点格挡。", "cost": 0, "effects": [{ "kind": "DRAW", "count": 2 }, { "kind": "BLOCK", "flat": 3 }] }
+        {
+          "name": "缓存命中+1",
+          "desc": "抽 2 张牌，获得 3 点格挡。",
+          "cost": 0,
+          "effects": [
+            {
+              "kind": "DRAW",
+              "count": 2
+            },
+            {
+              "kind": "BLOCK",
+              "flat": 3
+            }
+          ]
+        }
       ]
     },
     {
@@ -629,9 +1473,32 @@
       "target": "ENEMY",
       "profession": "FRONTEND",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 0.7 }, { "kind": "DRAW", "count": 1 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.7
+        },
+        {
+          "kind": "DRAW",
+          "count": 1
+        }
+      ],
       "upgrades": [
-        { "name": "虚拟 DOM+1", "desc": "造成 100% 攻击伤害，抽 1 张牌。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.0 }, { "kind": "DRAW", "count": 1 }] }
+        {
+          "name": "虚拟 DOM+1",
+          "desc": "造成 100% 攻击伤害，抽 1 张牌。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1
+            },
+            {
+              "kind": "DRAW",
+              "count": 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -644,9 +1511,26 @@
       "target": "ALL_ENEMIES",
       "profession": "FRONTEND",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 1.0, "aoe": true }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 1,
+          "aoe": true
+        }
+      ],
       "upgrades": [
-        { "name": "重渲染风暴+1", "desc": "对所有敌人造成 140% 攻击伤害。", "cost": 2, "effects": [{ "kind": "DAMAGE", "mul": 1.4, "aoe": true }] }
+        {
+          "name": "重渲染风暴+1",
+          "desc": "对所有敌人造成 140% 攻击伤害。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.4,
+              "aoe": true
+            }
+          ]
+        }
       ]
     },
     {
@@ -659,9 +1543,36 @@
       "target": "SELF",
       "profession": "FRONTEND",
       "rewardable": true,
-      "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "DODGE", "stacks": 1 }, { "kind": "BLOCK", "flat": 5 }],
+      "effects": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "SELF",
+          "status": "DODGE",
+          "stacks": 1
+        },
+        {
+          "kind": "BLOCK",
+          "flat": 5
+        }
+      ],
       "upgrades": [
-        { "name": "样式奇技+1", "desc": "获得 1 次闪避与 8 点格挡。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "SELF", "status": "DODGE", "stacks": 1 }, { "kind": "BLOCK", "flat": 8 }] }
+        {
+          "name": "样式奇技+1",
+          "desc": "获得 1 次闪避与 8 点格挡。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "SELF",
+              "status": "DODGE",
+              "stacks": 1
+            },
+            {
+              "kind": "BLOCK",
+              "flat": 8
+            }
+          ]
+        }
       ]
     },
     {
@@ -674,9 +1585,36 @@
       "target": "ENEMY",
       "profession": "QA",
       "rewardable": true,
-      "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "VULNERABLE", "stacks": 1 }, { "kind": "DAMAGE", "mul": 0.6 }],
+      "effects": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ENEMY",
+          "status": "VULNERABLE",
+          "stacks": 1
+        },
+        {
+          "kind": "DAMAGE",
+          "mul": 0.6
+        }
+      ],
       "upgrades": [
-        { "name": "缺陷清单+1", "desc": "目标陷入易伤 2，造成 90% 攻击伤害。", "cost": 1, "effects": [{ "kind": "APPLY_STATUS", "target": "ENEMY", "status": "VULNERABLE", "stacks": 2 }, { "kind": "DAMAGE", "mul": 0.9 }] }
+        {
+          "name": "缺陷清单+1",
+          "desc": "目标陷入易伤 2，造成 90% 攻击伤害。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ENEMY",
+              "status": "VULNERABLE",
+              "stacks": 2
+            },
+            {
+              "kind": "DAMAGE",
+              "mul": 0.9
+            }
+          ]
+        }
       ]
     },
     {
@@ -689,9 +1627,32 @@
       "target": "SELF",
       "profession": "QA",
       "rewardable": true,
-      "effects": [{ "kind": "BLOCK", "flat": 10 }, { "kind": "HEAL", "flat": 6 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 10
+        },
+        {
+          "kind": "HEAL",
+          "flat": 6
+        }
+      ],
       "upgrades": [
-        { "name": "测试环境+1", "desc": "获得 14 点格挡，回复 9 点生命。", "cost": 2, "effects": [{ "kind": "BLOCK", "flat": 14 }, { "kind": "HEAL", "flat": 9 }] }
+        {
+          "name": "测试环境+1",
+          "desc": "获得 14 点格挡，回复 9 点生命。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 14
+            },
+            {
+              "kind": "HEAL",
+              "flat": 9
+            }
+          ]
+        }
       ]
     },
     {
@@ -704,9 +1665,32 @@
       "target": "ENEMY",
       "profession": "QA",
       "rewardable": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 0.8 }, { "kind": "DRAW", "count": 1 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.8
+        },
+        {
+          "kind": "DRAW",
+          "count": 1
+        }
+      ],
       "upgrades": [
-        { "name": "复现步骤+1", "desc": "造成 110% 攻击伤害，抽 1 张牌。", "cost": 1, "effects": [{ "kind": "DAMAGE", "mul": 1.1 }, { "kind": "DRAW", "count": 1 }] }
+        {
+          "name": "复现步骤+1",
+          "desc": "造成 110% 攻击伤害，抽 1 张牌。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.1
+            },
+            {
+              "kind": "DRAW",
+              "count": 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -720,9 +1704,24 @@
       "profession": "DEVOPS",
       "rewardable": true,
       "exhaust": true,
-      "effects": [{ "kind": "DAMAGE", "mul": 1.5 }],
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 1.5
+        }
+      ],
       "upgrades": [
-        { "name": "重启大法+1", "desc": "造成 200% 攻击伤害。消耗。", "cost": 2, "effects": [{ "kind": "DAMAGE", "mul": 2.0 }] }
+        {
+          "name": "重启大法+1",
+          "desc": "造成 200% 攻击伤害。消耗。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 2
+            }
+          ]
+        }
       ]
     },
     {
@@ -736,16 +1735,43 @@
       "profession": "DEVOPS",
       "rewardable": true,
       "effects": [
-        { "kind": "REMOVE_STATUS", "target": "SELF", "status": "POISON" },
-        { "kind": "REMOVE_STATUS", "target": "SELF", "status": "WEAK" },
-        { "kind": "BLOCK", "flat": 6 }
+        {
+          "kind": "REMOVE_STATUS",
+          "target": "SELF",
+          "status": "POISON"
+        },
+        {
+          "kind": "REMOVE_STATUS",
+          "target": "SELF",
+          "status": "WEAK"
+        },
+        {
+          "kind": "BLOCK",
+          "flat": 6
+        }
       ],
       "upgrades": [
-        { "name": "回滚方案+1", "desc": "清除中毒与虚弱，获得 10 点格挡。", "cost": 1, "effects": [
-          { "kind": "REMOVE_STATUS", "target": "SELF", "status": "POISON" },
-          { "kind": "REMOVE_STATUS", "target": "SELF", "status": "WEAK" },
-          { "kind": "BLOCK", "flat": 10 }
-        ] }
+        {
+          "name": "回滚方案+1",
+          "desc": "清除中毒与虚弱，获得 10 点格挡。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "REMOVE_STATUS",
+              "target": "SELF",
+              "status": "POISON"
+            },
+            {
+              "kind": "REMOVE_STATUS",
+              "target": "SELF",
+              "status": "WEAK"
+            },
+            {
+              "kind": "BLOCK",
+              "flat": 10
+            }
+          ]
+        }
       ]
     },
     {
@@ -758,9 +1784,32 @@
       "target": "SELF",
       "profession": "DEVOPS",
       "rewardable": true,
-      "effects": [{ "kind": "BLOCK", "flat": 5 }, { "kind": "DRAW", "count": 1 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 5
+        },
+        {
+          "kind": "DRAW",
+          "count": 1
+        }
+      ],
       "upgrades": [
-        { "name": "监控告警+1", "desc": "获得 7 点格挡，抽 1 张牌。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 7 }, { "kind": "DRAW", "count": 1 }] }
+        {
+          "name": "监控告警+1",
+          "desc": "获得 7 点格挡，抽 1 张牌。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 7
+            },
+            {
+              "kind": "DRAW",
+              "count": 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -793,10 +1842,618 @@
       "cost": 1,
       "target": "SELF",
       "retain": true,
-      "effects": [{ "kind": "BLOCK", "flat": 6 }],
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 6
+        }
+      ],
       "upgrades": [
-        { "name": "加班凝聚+1", "desc": "获得 9 点格挡。保留（回合结束不弃置）。", "cost": 1, "effects": [{ "kind": "BLOCK", "flat": 9 }] }
+        {
+          "name": "加班凝聚+1",
+          "desc": "获得 9 点格挡。保留（回合结束不弃置）。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_block_smash",
+      "name": "崩击·格挡转攻",
+      "desc": "造成 90% 攻击伤害，自身每 10 点格挡额外 +100%。",
+      "type": "ATTACK",
+      "rarity": "RARE",
+      "cost": 2,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.9,
+          "perSelfBlockPerTen": 1
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "崩击·格挡转攻+1",
+          "desc": "造成 90% 攻击伤害，自身每 10 点格挡额外 +150%。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 0.9,
+              "perSelfBlockPerTen": 1.5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_poison_bloom",
+      "name": "毒素爆发",
+      "desc": "造成 60% 攻击伤害，目标每层中毒额外 +50%。",
+      "type": "ATTACK",
+      "rarity": "RARE",
+      "cost": 2,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.6,
+          "perTargetStatus": {
+            "status": "POISON",
+            "perStacks": 0.5
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "毒素爆发+1",
+          "desc": "造成 60% 攻击伤害，目标每层中毒额外 +80%。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 0.6,
+              "perTargetStatus": {
+                "status": "POISON",
+                "perStacks": 0.8
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_flurry",
+      "name": "连击风暴",
+      "desc": "造成 50% 攻击伤害，本回合每打出一张牌额外 +30%。",
+      "type": "ATTACK",
+      "rarity": "COMMON",
+      "cost": 1,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.5,
+          "perCardPlayed": 0.3
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "连击风暴+1",
+          "desc": "造成 50% 攻击伤害，本回合每打出一张牌额外 +50%。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 0.5,
+              "perCardPlayed": 0.5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_finale",
+      "name": "终幕连斩",
+      "desc": "造成 100% 攻击伤害，本回合每打出一张牌额外 +60%。",
+      "type": "ATTACK",
+      "rarity": "EPIC",
+      "cost": 2,
+      "target": "ENEMY",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 1,
+          "perCardPlayed": 0.6
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "终幕连斩+1",
+          "desc": "造成 100% 攻击伤害，本回合每打出一张牌额外 +90%。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1,
+              "perCardPlayed": 0.9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_fortress",
+      "name": "不动如山",
+      "desc": "获得 25 点格挡。",
+      "type": "DEFENSE",
+      "rarity": "EPIC",
+      "cost": 2,
+      "target": "SELF",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 25
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "不动如山+1",
+          "desc": "获得 35 点格挡。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 35
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_plague",
+      "name": "瘟疫扩散",
+      "desc": "所有敌人陷入中毒 4。",
+      "type": "SKILL",
+      "rarity": "EPIC",
+      "cost": 2,
+      "target": "ALL_ENEMIES",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ALL_ENEMIES",
+          "status": "POISON",
+          "stacks": 4
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "瘟疫扩散+1",
+          "desc": "所有敌人陷入中毒 6。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ALL_ENEMIES",
+              "status": "POISON",
+              "stacks": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_gc_full",
+      "name": "Full GC·新生代",
+      "desc": "生命低于 50% 时回复 12 点并获得 8 点格挡，否则回复 6 点。",
+      "type": "PROFESSION",
+      "rarity": "RARE",
+      "cost": 1,
+      "target": "SELF",
+      "profession": "JAVA_BACKEND",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "CONDITIONAL",
+          "if": {
+            "kind": "PLAYER_HP_BELOW_PCT",
+            "pct": 0.5
+          },
+          "then": [
+            {
+              "kind": "HEAL",
+              "flat": 12
+            },
+            {
+              "kind": "BLOCK",
+              "flat": 8
+            }
+          ],
+          "otherwise": [
+            {
+              "kind": "HEAL",
+              "flat": 6
+            }
+          ]
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "Full GC·新生代+1",
+          "desc": "生命低于 50% 时回复 16 点并获得 10 点格挡，否则回复 8 点。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "CONDITIONAL",
+              "if": {
+                "kind": "PLAYER_HP_BELOW_PCT",
+                "pct": 0.5
+              },
+              "then": [
+                {
+                  "kind": "HEAL",
+                  "flat": 16
+                },
+                {
+                  "kind": "BLOCK",
+                  "flat": 10
+                }
+              ],
+              "otherwise": [
+                {
+                  "kind": "HEAL",
+                  "flat": 8
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_thread_pool",
+      "name": "线程池复用",
+      "desc": "抽 2 张牌。消耗。",
+      "type": "PROFESSION",
+      "rarity": "RARE",
+      "cost": 1,
+      "target": "SELF",
+      "profession": "JAVA_BACKEND",
+      "rewardable": true,
+      "exhaust": true,
+      "effects": [
+        {
+          "kind": "DRAW",
+          "count": 2
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "线程池复用+1",
+          "desc": "抽 3 张牌。消耗。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DRAW",
+              "count": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_gc_tuning",
+      "name": "GC 调优大师",
+      "desc": "获得 3 层回气与 6 点格挡。",
+      "type": "PROFESSION",
+      "rarity": "EPIC",
+      "cost": 1,
+      "target": "SELF",
+      "profession": "JAVA_BACKEND",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "SELF",
+          "status": "REGEN",
+          "stacks": 3
+        },
+        {
+          "kind": "BLOCK",
+          "flat": 6
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "GC 调优大师+1",
+          "desc": "获得 4 层回气与 10 点格挡。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "SELF",
+              "status": "REGEN",
+              "stacks": 4
+            },
+            {
+              "kind": "BLOCK",
+              "flat": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_component",
+      "name": "组件复用",
+      "desc": "获得 4 点格挡，生成 1 张临时【虚拟 DOM】。",
+      "type": "PROFESSION",
+      "rarity": "RARE",
+      "cost": 1,
+      "target": "SELF",
+      "profession": "FRONTEND",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 4
+        },
+        {
+          "kind": "ADD_CARD_TO_HAND",
+          "cardId": "card_vdom",
+          "copies": 1
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "组件复用+1",
+          "desc": "获得 6 点格挡，生成 1 张临时【虚拟 DOM】。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 6
+            },
+            {
+              "kind": "ADD_CARD_TO_HAND",
+              "cardId": "card_vdom",
+              "copies": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_keyframe",
+      "name": "关键帧连打",
+      "desc": "造成 80% 攻击伤害（每打出一张牌 +40%），抽 1 张牌。",
+      "type": "PROFESSION",
+      "rarity": "EPIC",
+      "cost": 1,
+      "target": "ENEMY",
+      "profession": "FRONTEND",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 0.8,
+          "perCardPlayed": 0.4
+        },
+        {
+          "kind": "DRAW",
+          "count": 1
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "关键帧连打+1",
+          "desc": "造成 80% 攻击伤害（每打出一张牌 +70%），抽 1 张牌。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 0.8,
+              "perCardPlayed": 0.7
+            },
+            {
+              "kind": "DRAW",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_weak_point",
+      "name": "弱点标记",
+      "desc": "目标陷入易伤 3，造成 40% 攻击伤害。",
+      "type": "PROFESSION",
+      "rarity": "RARE",
+      "cost": 1,
+      "target": "ENEMY",
+      "profession": "QA",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "ENEMY",
+          "status": "VULNERABLE",
+          "stacks": 3
+        },
+        {
+          "kind": "DAMAGE",
+          "mul": 0.4
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "弱点标记+1",
+          "desc": "目标陷入易伤 4，造成 40% 攻击伤害。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "APPLY_STATUS",
+              "target": "ENEMY",
+              "status": "VULNERABLE",
+              "stacks": 4
+            },
+            {
+              "kind": "DAMAGE",
+              "mul": 0.4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_root_cause",
+      "name": "根因定位",
+      "desc": "造成 120% 攻击伤害，目标每层易伤额外 +40%。",
+      "type": "PROFESSION",
+      "rarity": "EPIC",
+      "cost": 1,
+      "target": "ENEMY",
+      "profession": "QA",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "DAMAGE",
+          "mul": 1.2,
+          "perTargetStatus": {
+            "status": "VULNERABLE",
+            "perStacks": 0.4
+          }
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "根因定位+1",
+          "desc": "造成 120% 攻击伤害，目标每层易伤额外 +70%。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "DAMAGE",
+              "mul": 1.2,
+              "perTargetStatus": {
+                "status": "VULNERABLE",
+                "perStacks": 0.7
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_disaster_dr",
+      "name": "容灾演练",
+      "desc": "清除自身全部负面状态，获得 8 点格挡。",
+      "type": "SKILL",
+      "rarity": "RARE",
+      "cost": 1,
+      "target": "SELF",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "CLEANSE"
+        },
+        {
+          "kind": "BLOCK",
+          "flat": 8
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "容灾演练+1",
+          "desc": "清除自身全部负面状态，获得 12 点格挡。",
+          "cost": 1,
+          "effects": [
+            {
+              "kind": "CLEANSE"
+            },
+            {
+              "kind": "BLOCK",
+              "flat": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "card_gate",
+      "name": "发布门禁",
+      "desc": "获得 12 点格挡，抽 1 张牌。",
+      "type": "DEFENSE",
+      "rarity": "RARE",
+      "cost": 2,
+      "target": "SELF",
+      "rewardable": true,
+      "effects": [
+        {
+          "kind": "BLOCK",
+          "flat": 12
+        },
+        {
+          "kind": "DRAW",
+          "count": 1
+        }
+      ],
+      "upgrades": [
+        {
+          "name": "发布门禁+1",
+          "desc": "获得 16 点格挡，抽 1 张牌。",
+          "cost": 2,
+          "effects": [
+            {
+              "kind": "BLOCK",
+              "flat": 16
+            },
+            {
+              "kind": "DRAW",
+              "count": 1
+            }
+          ]
+        }
       ]
     }
-  ]
+  ],
+  "enemyBehaviors": {
+    "mon_502": "AGGRESSIVE",
+    "mon_cert_expired": "AGGRESSIVE",
+    "mon_api_timeout": "AGGRESSIVE",
+    "mon_thread_pool_burst": "AGGRESSIVE",
+    "mon_p0_abuse": "AGGRESSIVE",
+    "mon_slow_sql": "DEFENSIVE",
+    "mon_msg_backlog": "DEFENSIVE",
+    "mon_disk_full": "DEFENSIVE",
+    "mon_npm_hell": "DEFENSIVE",
+    "mon_first_paint_turtle": "DEFENSIVE",
+    "mon_lock_table": "TRICKSTER",
+    "mon_null_pointer": "TRICKSTER",
+    "mon_cors_demon": "TRICKSTER",
+    "mon_not_reproducible": "TRICKSTER",
+    "mon_timezone_bug": "TRICKSTER",
+    "mon_cache_penetrate": "CONSUMING",
+    "mon_thread_leak": "CONSUMING",
+    "mon_memory_leak_fe": "CONSUMING",
+    "mon_data_pollution": "CONSUMING",
+    "mon_elite_race": "SUPPORT",
+    "mon_elite_sharding": "DEFENSIVE",
+    "mon_elite_gateway": "AGGRESSIVE",
+    "mon_elite_dark_deploy": "TRICKSTER",
+    "mon_elite_gc": "AGGRESSIVE",
+    "mon_zindex_lord": "TRICKSTER",
+    "mon_mock_distort": "CONSUMING"
+  }
 }

@@ -2350,10 +2350,18 @@
   function aiGetMessages(npcId) {
     if (!_aiMessages[npcId]) {
       _aiMessages[npcId] = [];
-      // 初始问候
+      // 初始问候（EXE 走 electronAPI；H5 走同源 /ai 代理，浏览器不直连模型端口）
       try {
         if (window.electronAPI && window.electronAPI.ai) {
           window.electronAPI.ai.greeting(npcId).then(function (r) {
+            if (r && r.success && r.greeting) {
+              _aiMessages[npcId] = [{ role: 'assistant', content: r.greeting, ts: Date.now() }];
+            }
+          }).catch(function () {});
+        } else if (window.fetch) {
+          fetch('/ai/greeting?persona=' + encodeURIComponent(npcId)).then(function (resp) {
+            return resp.ok ? resp.json() : null;
+          }).then(function (r) {
             if (r && r.success && r.greeting) {
               _aiMessages[npcId] = [{ role: 'assistant', content: r.greeting, ts: Date.now() }];
             }
@@ -2393,6 +2401,18 @@
       var r = null;
       if (window.electronAPI && window.electronAPI.ai && window.electronAPI.ai.chat) {
         r = await window.electronAPI.ai.chat(npcId, msg, aiBuildContext());
+      } else if (window.fetch) {
+        // H5：走 h5-server 同源 /ai 代理（内部转发本地 MNN 或回退规则引擎），
+        // 浏览器不直接访问模型端口。
+        var aiResp = await fetch('/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ personaId: npcId, message: msg, context: aiBuildContext() }),
+        });
+        if (aiResp.ok) {
+          var aiData = await aiResp.json();
+          if (aiData && aiData.reply) r = { success: true, reply: aiData.reply, mode: aiData.mode };
+        }
       }
       if (r && r.success && r.reply) {
         _aiMode = r.mode || 'rule';
@@ -3647,16 +3667,19 @@ function renderCave() {
     v58companyChipHtml() + v57situationChipHtml() + v57fatigueChipHtml() + v58burnoutChipHtml() +
   '</div>';
 
-  /* V10.0：动态目标最优先 → 主角 → 今日修行 → 快捷入口 → 二级内容下方 */
+  /* V10.0：动态目标最优先 → 主角 → 今日修行 → 快捷入口 → 二级内容下方
+   * V10.1：hero/today/quick 包进 .ux91-mid —— 桌面端并排（第一屏即见今日修行），移动端仍纵向堆叠 */
   return '<div class="ux-home">' +
     backfillBanner +
     homeTopbarHtml(hud) +
     '<div class="ux-home-main ux91-cave">' +
       resBar +
       goalCard +
-      hero +
-      today +
-      quick +
+      '<div class="ux91-mid">' +
+        hero +
+        today +
+        quick +
+      '</div>' +
       v59fPanel +
       workSceneHtml(hud) +
       actionDetailHtml(hud) +
@@ -4475,6 +4498,14 @@ function renderGrowthPage() {
           }
           break;
         }
+        case 'battleRemoveCard': {
+          var fRm = window.__BATTLE_CARD__;
+          if (fRm) {
+            fRm.handleRemoveCard(el.dataset.card);
+            fullRefresh();
+          }
+          break;
+        }
         case 'battleTutorialNext': {
           if (window.__BATTLE_CARD__) window.__BATTLE_CARD__.handleTutorialNext();
           break;
@@ -4928,6 +4959,19 @@ function renderGrowthPage() {
       } catch (e) { /* noop */ }
     });
   }
+
+  /* V10.1：页面隐藏/关闭时立即落盘 —— 自动保存间隔（60s）内的进度不因刷新丢失（H5 存档连续性）。 */
+  function flushSave() {
+    var f = facade();
+    if (f && typeof f.save === 'function') {
+      try { f.save(); } catch (e) { /* 存档失败不阻塞卸载 */ }
+    }
+  }
+  window.addEventListener('pagehide', flushSave);
+  window.addEventListener('beforeunload', flushSave);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') flushSave();
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

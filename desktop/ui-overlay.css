@@ -2045,6 +2045,23 @@
 .ux-bt-loot { font-size: 11.5px; line-height: 1.7; color: #9fe8c8; }
 .ux-bt-loot--empty { color: #5d7284; }
 .ux-battle2-bottom { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 10px; }
+
+/* V10.1 移动端：事件弹窗稀有度标签不与标题重叠 */
+@media (max-width: 560px) {
+  .ux-header-title { font-size: 17px; }
+  .ux-event-tag { position: static; transform: none; display: inline-block; margin-left: 8px; padding: 2px 10px; font-size: 11px; }
+}
+
+/* ═══ V10.1 H5 移动端专项：战斗页单列堆叠 ═══
+   390~560px 视口下三列固定宽（240/1fr/220）会把敌人列挤出屏幕，
+   导致 Boss 血条/意图被裁切；改为单列纵向堆叠，手牌区在底部导航之上完整可见。 */
+@media (max-width: 899px) {
+  .ux-battle2-grid { grid-template-columns: minmax(0, 1fr); }
+  .ux-battle2-bottom { grid-template-columns: minmax(0, 1fr); }
+  .ux-bc-card { flex: 0 0 118px; min-height: 124px; }
+  .ux-bc-hand { min-height: 122px; padding-bottom: 10px; }
+  .ux-nav-item span { font-size: 10px; }
+}
 .ux-bt-skills { display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
 .ux-bt-skill {
   padding: 8px 12px;
@@ -2753,6 +2770,43 @@ button.ux-journey--sec { cursor: pointer; }
 .ux-bc-deckmeta { flex: 0 0 150px; font-size: 11px; color: #9aa3b8; }
 .ux-bc-deckdesc { flex: 1; font-size: 11px; color: #c3c9d8; }
 .ux-bc-maxed { font-size: 11px; color: #7fe08f; }
+
+/* ── V10.1 卡牌深度：打断窗口 / 流派倾向 / 图鉴 / 净化 ── */
+.ux-bc-judgewindow {
+  position: relative; display: inline-block; margin-left: 6px; padding: 2px 8px 3px;
+  font-size: 11px; color: #ffd76a; background: rgba(255,120,80,.14);
+  border: 1px solid rgba(255,160,90,.5); border-radius: 8px; overflow: hidden;
+}
+.ux-bc-judgewindow i { position: absolute; left: 0; bottom: 0; height: 3px; background: linear-gradient(90deg,#ffb347,#ff5e5e); transition: width .3s ease; }
+.ux-bc-judgewindow.is-done { color: #7fe08f; background: rgba(127,224,143,.12); border-color: rgba(127,224,143,.5); }
+.ux-bc-judgewindow.is-done i { background: #7fe08f; }
+.ux-bc-archbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 10px; margin-bottom: 8px; background: rgba(46,52,74,.45); border: 1px solid rgba(74,81,102,.5); border-radius: 10px; }
+.ux-bc-arch { font-size: 12px; color: #ffd76a; padding: 2px 8px; border-radius: 8px; background: rgba(255,215,106,.1); border: 1px solid rgba(255,215,106,.35); }
+.ux-bc-arch-none { font-size: 12px; color: #9aa3b8; }
+.ux-bc-archbar small { flex-basis: 100%; color: #8d94a8; font-size: 11px; }
+.ux-bc-deckops { display: flex; gap: 6px; align-items: center; }
+.ux-bc-codexhead { margin-top: 14px; color: #ffe9bd; font-size: 13px; }
+.ux-bc-codexhead small { color: #9aa3b8; margin-left: 8px; }
+.ux-bc-codex { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ux-bc-codex-item { font-size: 11px; color: #5d6478; padding: 3px 8px; border-radius: 8px; border: 1px dashed rgba(93,100,120,.6); }
+.ux-bc-codex-item.is-owned { color: #e8e4d8; border-style: solid; border-color: rgba(127,224,143,.4); background: rgba(127,224,143,.06); }
+.ux-bc-combo { font-size: 12px; color: #ffd76a; padding: 2px 8px; border-radius: 8px; background: rgba(255,180,71,.12); border: 1px solid rgba(255,180,71,.4); animation: uxbc-combo-pop .3s ease; }
+.ux-bc-combo.is-hot { color: #ff8c5a; border-color: rgba(255,110,90,.6); background: rgba(255,94,94,.14); }
+@keyframes uxbc-combo-pop { 0% { transform: scale(.8); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+@keyframes uxbc-kill-dissolve { 0% { opacity: 1; filter: brightness(1); } 40% { filter: brightness(2.2) saturate(0); } 100% { opacity: .25; filter: brightness(1.4) saturate(0); } }
+.ux-gf-kill { animation: uxbc-kill-dissolve .5s ease forwards; }
+.ux-gf-boss-banner {
+  position: fixed; left: 50%; top: 22%; transform: translateX(-50%);
+  z-index: 260; padding: 10px 26px; border-radius: 14px;
+  background: linear-gradient(135deg, rgba(60,20,20,.92), rgba(120,30,30,.85));
+  border: 1px solid rgba(255,120,90,.65); box-shadow: 0 6px 30px rgba(255,80,60,.35);
+  color: #ffe9bd; font-size: 18px; letter-spacing: 2px;
+  animation: uxbc-boss-in .45s cubic-bezier(.2,1.4,.4,1) both;
+  pointer-events: none;
+}
+.ux-gf-boss-banner.is-out { animation: uxbc-boss-out .6s ease forwards; }
+@keyframes uxbc-boss-in { 0% { opacity: 0; transform: translateX(-50%) scale(.7); } 100% { opacity: 1; transform: translateX(-50%) scale(1); } }
+@keyframes uxbc-boss-out { 0% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-16px); } }
 
 /* 出牌/受伤反馈动画 */
 @keyframes uxbc-play { 0% { transform: translateY(0) scale(1); opacity: 1; } 60% { transform: translateY(-16px) scale(1.06); opacity: .9; } 100% { transform: translateY(-28px); opacity: 0; } }
@@ -4558,6 +4612,17 @@ button.ux-journey--sec { cursor: pointer; }
   .ux63-hire-close, .ux63-hire-option { min-height: 48px; }
 }
 /* ═══════════ V9.1 洞府五区重构 ═══════════ */
+/* V10.1：主角区横向紧凑 —— 遗留 .ux-hero 的 flex-direction:column 会泄漏进
+   .ux91-hero（选择器同权重、且 .ux91-hero 未声明方向），导致立绘居中堆叠、
+   「今日修行」被挤出 720p 首屏。显式声明 row 修正，并裁切立绘溢出。 */
+.ux91-hero { flex-direction: row; }
+.ux91-hero-art { overflow: hidden; }
+/* V10.1：桌面端主角 | 今日修行 并排（第一屏即见今日修行），移动端保持堆叠 */
+@media (min-width: 900px) {
+  .ux91-mid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 8px; align-items: stretch; }
+  .ux91-mid .ux91-hero { margin-bottom: 0; }
+  .ux91-mid .ux91-quick { grid-column: 1 / -1; }
+}
 /* A. 资源栏：3 chips */
 .ux91-res { display: flex; gap: 6px; margin-bottom: 8px; }
 .ux91-res-chip {

@@ -669,6 +669,51 @@
       "attack": 15,
       "intervalSec": 2.5,
       "exp": 78
+    },
+    {
+      "id": "boss_kpi_tyrant",
+      "name": "KPI暴君",
+      "tier": "BOSS",
+      "hp": 880,
+      "attack": 15,
+      "intervalSec": 2.6,
+      "exp": 85
+    },
+    {
+      "id": "boss_overtime_demon",
+      "name": "加班魔王",
+      "tier": "BOSS",
+      "hp": 820,
+      "attack": 13,
+      "intervalSec": 2.4,
+      "exp": 82
+    },
+    {
+      "id": "boss_bug_behemoth",
+      "name": "Bug巨兽",
+      "tier": "BOSS",
+      "hp": 900,
+      "attack": 14,
+      "intervalSec": 2.8,
+      "exp": 86
+    },
+    {
+      "id": "boss_req_phantom",
+      "name": "需求幻魔",
+      "tier": "BOSS",
+      "hp": 760,
+      "attack": 13,
+      "intervalSec": 2.4,
+      "exp": 80
+    },
+    {
+      "id": "boss_version_calamity",
+      "name": "版本灾厄",
+      "tier": "BOSS",
+      "hp": 960,
+      "attack": 16,
+      "intervalSec": 2.8,
+      "exp": 92
     }
   ],
   "builds": [
@@ -2935,6 +2980,137 @@
         "summonEverySec": 4,
         "capBonus": 2,
         "telegraph": "⚠️ 报警风暴升级——所有频道同时在响！"
+      }
+    },
+    "boss_kpi_tyrant": {
+      "telegraph": "KPI 暴君举起绩效审判的红笔！",
+      "mechanics": [
+        {
+          "kind": "JUDGE",
+          "everySec": 6,
+          "interruptHpPct": 0.1,
+          "judgeDamageMul": 2.5
+        },
+        {
+          "kind": "RAGE",
+          "everySec": 10
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_exec_plan",
+        "dropChance": 0.18,
+        "pityAt": 9
+      },
+      "phase2": {
+        "atHpPct": 0.4,
+        "name": "KPI 白热化",
+        "attackMul": 1.3,
+        "intervalMul": 1,
+        "telegraph": "⚠️ 季度末将至——KPI 审判变成每两回合一次！"
+      }
+    },
+    "boss_overtime_demon": {
+      "telegraph": "加班魔王打开了深夜的工位灯！",
+      "mechanics": [
+        {
+          "kind": "MORALE_DRAIN",
+          "everySec": 5
+        },
+        {
+          "kind": "ATTACK_SPEED_DEBUFF",
+          "everySec": 9
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_selfheal_core",
+        "dropChance": 0.18,
+        "pityAt": 9
+      },
+      "phase2": {
+        "atHpPct": 0.45,
+        "name": "深夜干熬",
+        "attackMul": 1.25,
+        "intervalMul": 1,
+        "telegraph": "⚠️ 凌晨三点——加班磨蚀变得凶猛！"
+      }
+    },
+    "boss_bug_behemoth": {
+      "telegraph": "Bug 巨兽的甲壳下涌出新的 Bug！",
+      "mechanics": [
+        {
+          "kind": "SUMMON",
+          "minion": "mon_flaky_bug",
+          "cap": 3,
+          "everySec": 5
+        },
+        {
+          "kind": "PROMOTE_MINION",
+          "everySec": 11
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_regression_seal",
+        "dropChance": 0.18,
+        "pityAt": 9
+      },
+      "phase2": {
+        "atHpPct": 0.5,
+        "name": "Bug 孵化季",
+        "attackMul": 1.15,
+        "intervalMul": 1,
+        "summonEverySec": 4,
+        "telegraph": "⚠️ 巨兽开始疯狂孵化——小怪源源不断！"
+      }
+    },
+    "boss_req_phantom": {
+      "telegraph": "需求幻魔的幻影在你手牌间穿梭！",
+      "mechanics": [
+        {
+          "kind": "COST_CURSE",
+          "everySec": 7,
+          "costDelta": 1
+        },
+        {
+          "kind": "RANDOM",
+          "everySec": 10
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_req_freeze_badge",
+        "dropChance": 0.18,
+        "pityAt": 9
+      },
+      "phase2": {
+        "atHpPct": 0.45,
+        "name": "需求海啸",
+        "attackMul": 1.2,
+        "intervalMul": 1,
+        "telegraph": "⚠️ 需求像海啸一样涌来——费率诅咒愈发频繁！"
+      }
+    },
+    "boss_version_calamity": {
+      "telegraph": "版本灾厄开始了发布倒计时！",
+      "mechanics": [
+        {
+          "kind": "RAGE",
+          "everySec": 8
+        },
+        {
+          "kind": "LOCK_SKILL",
+          "everySec": 12
+        }
+      ],
+      "exclusiveDrop": {
+        "equipmentId": "eq_postmortem_shield",
+        "dropChance": 0.18,
+        "pityAt": 9
+      },
+      "phase2": {
+        "atHpPct": 0.5,
+        "name": "版本回滚风暴",
+        "attackMul": 1.4,
+        "intervalMul": 0.85,
+        "telegraph": "⚠️ Phase 2——发布失败！回滚风暴改变了一切！"
       }
     }
   }

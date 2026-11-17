@@ -635,6 +635,10 @@ export class GameFacade {
   public queryCardCatalog() { return this.context.battle.cardCatalog(); }
   /** 升级卡牌（消耗灵石）。返回新等级。 */
   public upgradeBattleCard(defId: string) { return this.context.battle.upgradeCollectionCard(defId); }
+  /** V10.1 卡组管理：净化视图（可移除张数/下一次费用）。 */
+  public queryCardRemovalView() { return this.context.battle.cardRemovalView(); }
+  /** V10.1 卡组管理：净化（移除）一张卡牌（消耗灵石）。 */
+  public removeBattleCard(defId: string) { return this.context.battle.removeCollectionCard(defId); }
   public queryAllMaterials() { return ({ ...this.context.player.materials }); }
   public queryOwnedTechniques() { return [...this.context.player.ownedTechniques]; }
   public queryTechniqueLevels() { return ({ ...this.context.player.techniqueLevels }); }

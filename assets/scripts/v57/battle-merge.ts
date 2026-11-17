@@ -107,7 +107,11 @@ export interface SynergyDef {
 export interface BossMechanic {
   readonly kind:
     | 'SUMMON' | 'RAGE' | 'ENRAGE' | 'LINKED' | 'REVIVE' | 'LOCK_SKILL'
-    | 'ATTACK_SPEED_DEBUFF' | 'HP_DRAIN' | 'PROMOTE_MINION' | 'DODGE' | 'BLIND' | 'RANDOM';
+    | 'ATTACK_SPEED_DEBUFF' | 'HP_DRAIN' | 'PROMOTE_MINION' | 'DODGE' | 'BLIND' | 'RANDOM'
+    // ── V10.1 Boss 独特战术（卡牌战斗回合化） ──
+    | 'JUDGE'        // 绩效审判：蓄力一回合，窗口期内被打掉足量 HP 则被打断
+    | 'COST_CURSE'   // 需求费率上调：玩家下一手手牌费用 +N
+    | 'MORALE_DRAIN'; // 加班磨蚀：玩家获得虚弱，Boss 自愈（逼迫快攻或稳健抉择）
   readonly everySec?: number;
   readonly minion?: string;
   readonly cap?: number;
@@ -117,6 +121,12 @@ export interface BossMechanic {
   readonly reviveHpPct?: number;
   readonly amount?: number;
   readonly durationSec?: number;
+  /** JUDGE：打断所需伤害（占 Boss 最大生命比例；缺省 0.1）。 */
+  readonly interruptHpPct?: number;
+  /** JUDGE：审判命中的攻击倍率（缺省 2.5）。 */
+  readonly judgeDamageMul?: number;
+  /** COST_CURSE：下一手手牌费用 +N（缺省 1）。 */
+  readonly costDelta?: number;
 }
 
 /** V5.8 §14.2：Boss Phase 2（HP 阈值触发，行为真实改变）。 */

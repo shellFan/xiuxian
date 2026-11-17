@@ -61,13 +61,23 @@ export type CardRarity = 'BASIC' | 'COMMON' | 'RARE' | 'EPIC';
 export type CardTargetMode = 'ENEMY' | 'ALL_ENEMIES' | 'SELF';
 
 export type CardEffect =
-  | { kind: 'DAMAGE'; mul?: number; flat?: number; aoe?: boolean; pierce?: boolean }
+  | {
+      kind: 'DAMAGE'; mul?: number; flat?: number; aoe?: boolean; pierce?: boolean;
+      /** V10.1 流派联动：目标每层指定状态附加倍率（毒爆/破甲精准打击）。 */
+      perTargetStatus?: { status: StatusId; perStacks: number };
+      /** V10.1 流派联动：自身每 10 点格挡附加倍率（格挡转攻）。 */
+      perSelfBlockPerTen?: number;
+      /** V10.1 流派联动：本回合每打出一张牌附加倍率（低费连击）。 */
+      perCardPlayed?: number;
+    }
   | { kind: 'BLOCK'; flat: number }
   | { kind: 'HEAL'; flat: number }
   | { kind: 'DRAW'; count: number }
   | { kind: 'ENERGY'; delta: number }
   | { kind: 'APPLY_STATUS'; target: 'ENEMY' | 'ALL_ENEMIES' | 'SELF'; status: StatusId; stacks: number }
   | { kind: 'REMOVE_STATUS'; target: 'SELF'; status: StatusId }
+  /** V10.1：清除自身全部负面状态（虚弱/失明/中毒）（容灾演练等）。 */
+  | { kind: 'CLEANSE' }
   | { kind: 'DISCARD_HAND' }                                   // 弃掉其余手牌
   | { kind: 'ADD_CARD_TO_HAND'; cardId: string; copies: number } // 生成临时牌
   | { kind: 'CONDITIONAL'; if: ConditionDef; then: CardEffect[]; otherwise?: CardEffect[] };
@@ -112,8 +122,8 @@ export interface CardInstance {
   readonly defId: string;
   /** 升级等级 0=普通 1=+1 2=+2。 */
   readonly upgraded: number;
-  /** 本回合临时降费（回合结束清除）。 */
-  readonly turnCostDelta: number;
+  /** 本回合临时降费/升费（回合结束清除；V10.1 需求费率上调会写入）。 */
+  turnCostDelta: number;
 }
 
 // ── 敌人 ─────────────────────────────────────────────────────────────────────
@@ -206,6 +216,10 @@ export interface CardBattleState {
   handLimit: number;
   /** 弃牌堆洗回次数（诊断用）。 */
   reshuffles: number;
+  /** V10.1 本回合已打出卡牌数（连击流派联动）。 */
+  turnCardsPlayed?: number;
+  /** V10.1 敌人施加的下一手手牌费用增加（需求费率上调，startPlayerTurn 消费后清零）。 */
+  pendingHandCostDelta?: number;
   rng: CardRngState;
   /** 战斗卡组构成快照（deck 定义 id → 数量，诊断/恢复校验用）。 */
   deckManifest: Record<string, number>;
@@ -241,6 +255,12 @@ export type WaveSpawner = (waveIndex: number, rng: CardRng, state: CardBattleSta
 /** 奖励候选生成器：服务层从卡池/职业/宗门权重抽取 3 张。 */
 export type RewardRoller = (rng: CardRng, state: CardBattleState) => string[];
 
+/** V10.1 Boss 特殊机制执行上下文（引擎提供，服务层消费）。 */
+export interface BossSpecialCtx {
+  /** 以敌人名义对玩家造成一次攻击结算（走格挡/闪避/虚弱全链路）。 */
+  readonly strikePlayer: (raw: number, label?: string) => void;
+}
+
 /** 引擎运行环境（每次调用注入，不进存档）。 */
 export interface CardEngineEnv {
   readonly spawnWave: WaveSpawner;
@@ -257,6 +277,7 @@ export interface CardEngineEnv {
     state: CardBattleState,
     rng: CardRng,
     log: (line: string) => void,
+    ctx: BossSpecialCtx,
   ) => void;
   /** 敌人死亡钩子（经验/击杀统计；在波次推进判定前调用）。 */
   readonly onEnemyKilled?: (enemy: CardEnemy, state: CardBattleState, rng: CardRng) => void;

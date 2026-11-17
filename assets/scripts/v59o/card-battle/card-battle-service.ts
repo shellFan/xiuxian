@@ -33,17 +33,20 @@ import {
 import { CardRng } from './card-rng';
 import {
   allCardDefs,
+  BASIC_REMOVAL_FLOOR,
   battleRules,
+  CARD_BATTLE_CONFIG,
   databaseDebug,
   buildDeckManifest,
   cardDefById,
   emptyCollection,
   installEngineResolver,
+  removalCost,
   rewardPool,
   rewardWeights,
   upgradeCost,
 } from './card-database';
-import type { CardBattleState, CardDef, CardEnemy, CardEngineEnv, CardInstance, EnemyIntent, StatusId } from './card-types';
+import type { BossSpecialCtx, CardBattleState, CardDef, CardEnemy, CardEngineEnv, CardInstance, EnemyIntent, StatusId } from './card-types';
 
 /** Boss 机制换算：旧每 X 秒 → 每 N 回合（2 游戏秒 ≈ 1 回合，向上取整保底 1）。 */
 export function secondsToTurns(seconds: number): number {
@@ -201,6 +204,7 @@ export class CardBattleService {
       destinyId: this.context.player.destinyId ?? null,
       collection: this.collectionOf(),
       upgrades: this.upgradesOf(),
+      removals: this.removalsOf(),
     });
     const loadout = this.loadout(run, run.buildId);
     const seed = (Math.floor(this.rngSource() * 0x7fffffff) ^ Math.imul(run.dayIndex, 2654435761)) >>> 0;
@@ -253,8 +257,8 @@ export class CardBattleService {
       spawnWave: (waveIndex: number, rng: CardRng) => self.spawnWave(run, waveIndex, rng),
       rollRewards: (rng: CardRng) => self.rollRewards(rng),
       planIntent: (enemy: CardEnemy, state: CardBattleState, rng: CardRng) => self.planIntent(enemy, state, rng),
-      runBossSpecial: (enemy: CardEnemy, intent, state: CardBattleState, rng: CardRng, log: (line: string) => void) =>
-        self.runBossSpecial(run, enemy, intent, state, rng, log),
+      runBossSpecial: (enemy: CardEnemy, intent, state: CardBattleState, rng: CardRng, log: (line: string) => void, ctx: BossSpecialCtx) =>
+        self.runBossSpecial(run, enemy, intent, state, rng, log, ctx),
       onEnemyKilled: (enemy: CardEnemy, state: CardBattleState, rng: CardRng) => self.handleEnemyKilled?.(run, enemy, state, rng),
       tryEnemyRevive: (enemy: CardEnemy, state: CardBattleState, rng: CardRng, log: (line: string) => void) =>
         self.tryRevive(enemy, state, log),
@@ -346,14 +350,23 @@ export class CardBattleService {
     return enemies;
   }
 
+  /**
+   * V10.1 卡牌战斗专属生命缩放：卡牌战斗单场 5 波 + 每 2 游戏秒一回合，
+   * 沿用怪物表原始 HP 会让普通战斗拖到 23+ 回合（模拟实测）。按层级收紧：
+   * 普通 ×0.8 / 精英 ×0.85 / Boss ×0.85 —— 普通战斗短平快，Boss 仍需构筑成型。
+   */
+  private static readonly CARD_HP_SCALE: Record<MonsterDef['tier'], number> = { NORMAL: 0.75, ELITE: 0.85, BOSS: 0.85 };
+
   private enemyFromDef(def: MonsterDef, nightMul: number, rng: CardRng): CardEnemy {
+    const hpScale = CardBattleService.CARD_HP_SCALE[def.tier] ?? 1;
+    const hp = Math.max(1, Math.floor(def.hp * nightMul * hpScale));
     return {
       uid: `${def.id}_${Math.floor(rng.next() * 1e6).toString(36)}`,
       defId: def.id,
       name: def.name,
       tier: def.tier,
-      hp: Math.floor(def.hp * nightMul),
-      maxHp: Math.floor(def.hp * nightMul),
+      hp,
+      maxHp: hp,
       attack: Math.max(1, Math.floor(def.attack * nightMul)),
       block: 0,
       statuses: {},
@@ -364,7 +377,7 @@ export class CardBattleService {
     };
   }
 
-  /** 敌人意图规划：普通怪攻击节奏 + Boss 机制回合化（玩家回合开始前可见）。 */
+  /** 敌人意图规划：行为类型化（V10.1）+ Boss 机制回合化（玩家回合开始前可见）。 */
   private planIntent(enemy: CardEnemy, state: CardBattleState, rng: CardRng): EnemyIntent {
     const mechDef = bossMechanicsFor(enemy.defId);
     const turn = state.turn;
@@ -381,23 +394,94 @@ export class CardBattleService {
         enemy.timers[mechanic.kind] = acc;
         if (acc >= everyTurns - 1 && !enemy.telegraphed[mechanic.kind]) {
           enemy.telegraphed[mechanic.kind] = true;
+          if (mechanic.kind === 'JUDGE') {
+            // 打断窗口基准：记录蓄力开始时 HP 与所需伤害，供玩家决策与 UI 进度条。
+            enemy.timers.judgeRefHp = enemy.hp;
+            enemy.timers.judgeNeed = Math.max(1, Math.ceil(enemy.maxHp * (mechanic.interruptHpPct ?? 0.1)));
+          }
           state.log.push(`⚠️ ${mechDef.telegraph}`);
         }
       }
-      // 蓄力重击节奏：每 4 回合一次 1.6 倍重击，其余普攻（回合化压力校准）。
-      if (turn % 4 === 0) return { kind: 'ATTACK', damage: Math.floor(enemy.attack * 1.6), hits: 1 };
-      return { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      if (enemy.defId === 'boss_version_calamity' && enemy.phase2Active) {
+        // V10.1 版本灾厄 Phase 2：回滚风暴改变攻击模式（双击 ↔ 重击交替）。
+        return turn % 2 === 0
+          ? { kind: 'ATTACK', damage: Math.max(1, Math.floor(enemy.attack * 0.72)), hits: 2 }
+          : { kind: 'ATTACK', damage: Math.floor(enemy.attack * 1.5), hits: 1 };
+      }
+      // V10.1 软狂暴（僵局保护）：第 18 回合起 Boss 攻击逐步上升（每 3 回合 +6%，上限 +50%），
+      // 逼迫拖延战术收尾 —— 毒流/格挡流不能无限磨。
+      const enrageTurns = Math.max(0, turn - 18);
+      const enrageMul = Math.min(1.5, 1 + Math.floor(enrageTurns / 3) * 0.06);
+      const baseAttack = Math.max(1, Math.floor(enemy.attack * (turn % 4 === 0 ? 1.6 : 1)));
+      if (enrageMul > 1 && turn % 3 === 0 && !enemy.telegraphed.ENRAGE_SOFT) {
+        enemy.telegraphed.ENRAGE_SOFT = true;
+        state.log.push(`🔥 ${enemy.name} 越来越暴躁了（攻击 +${Math.round((enrageMul - 1) * 100)}%）——尽快结束战斗！`);
+      }
+      if (turn % 4 === 0) return { kind: 'ATTACK', damage: Math.floor(baseAttack * enrageMul), hits: 1 };
+      return { kind: 'ATTACK', damage: Math.max(1, Math.floor(enemy.attack * enrageMul)), hits: 1 };
     }
+    // V10.1 行为类型：普通怪/精英按配置行为表行动（强攻/防御/控制/消耗/增益），
+    // 让玩家必须改变打法：看意图决定防/攻/驱散。
+    const behavior = this.behaviorOf(enemy.defId, enemy.tier);
     if (enemy.tier === 'ELITE') {
-      // 精英：3 回合循环 攻/攻/强化。
+      if (behavior === 'SUPPORT') {
+        // 增益型精英：强化自身或普攻交替，玩家需要在其变强前集火。
+        return turn % 2 === 0 ? { kind: 'BUFF', status: 'STRENGTH', stacks: 1 } : { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      }
+      if (behavior === 'DEFENSIVE') {
+        return turn % 2 === 0 ? { kind: 'BLOCK', amount: Math.ceil(enemy.attack * 1.4) } : { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      }
+      if (behavior === 'TRICKSTER') {
+        return turn % 3 === 0 ? { kind: 'ATTACK_DEBUFF', damage: Math.floor(enemy.attack * 0.8), status: 'WEAK', stacks: 1 } : { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      }
+      if (behavior === 'CONSUMING') {
+        return turn % 3 === 0 ? { kind: 'DEBUFF', status: 'POISON', stacks: 2 } : { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      }
+      // 强攻型精英：3 回合循环 攻/重击/强化（保留原节奏并加重）。
       const pattern = turn % 3;
       if (pattern === 2) return { kind: 'BUFF', status: 'STRENGTH', stacks: 1 };
+      if (pattern === 1) return { kind: 'ATTACK', damage: Math.floor(enemy.attack * 1.2), hits: 1 };
       return { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
     }
-    // 普通怪：基础攻击，偶尔防御（按 uid 稳定伪随机，确定性可回放）。
-    const salt = enemy.uid.length % 3;
-    if ((turn + salt) % 4 === 3) return { kind: 'BLOCK', amount: Math.ceil(enemy.attack * 0.8) };
-    return { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+    switch (behavior) {
+      case 'AGGRESSIVE': {
+        // 强攻型：第 3 回合连击两段（意图可见，玩家需提前防御）。
+        if ((turn + 1) % 3 === 0) return { kind: 'ATTACK', damage: Math.max(1, Math.floor(enemy.attack * 0.7)), hits: 2 };
+        return { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      }
+      case 'DEFENSIVE': {
+        // 防御型：高频格挡，玩家需要穿甲/易伤或积攒爆发。
+        if (turn % 2 === 0) return { kind: 'BLOCK', amount: Math.ceil(enemy.attack * 1.5) };
+        return { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      }
+      case 'TRICKSTER': {
+        // 控制型：削弱玩家的输出节奏。
+        if (turn % 3 === 0) return { kind: 'ATTACK_DEBUFF', damage: Math.floor(enemy.attack * 0.8), status: 'WEAK', stacks: 1 };
+        return { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      }
+      case 'CONSUMING': {
+        // 消耗型：施加中毒，逼玩家带净化/回血手段。
+        if (turn % 3 === 0) return { kind: 'DEBUFF', status: 'POISON', stacks: 2 };
+        return { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      }
+      case 'SUPPORT': {
+        // 增益型：给自己叠力量（小怪层面罕见）。
+        if (turn % 2 === 0) return { kind: 'BUFF', status: 'STRENGTH', stacks: 1 };
+        return { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      }
+      default: {
+        // 普通怪缺省：基础攻击，偶尔防御（按 uid 稳定伪随机，确定性可回放）。
+        const salt = enemy.uid.length % 3;
+        if ((turn + salt) % 4 === 3) return { kind: 'BLOCK', amount: Math.ceil(enemy.attack * 0.8) };
+        return { kind: 'ATTACK', damage: enemy.attack, hits: 1 };
+      }
+    }
+  }
+
+  /** 行为类型读取（card-battle.json.enemyBehaviors；未配置按层级缺省）。 */
+  private behaviorOf(defId: string, tier: 'NORMAL' | 'ELITE' | 'BOSS'): string {
+    const table = (CARD_BATTLE_CONFIG as { enemyBehaviors?: Record<string, string> }).enemyBehaviors ?? {};
+    return table[defId] ?? (tier === 'ELITE' ? 'AGGRESSIVE' : 'DEFAULT');
   }
 
   /** Boss 机制执行（回合化，§22：不得把秒直接当回合）。 */
@@ -408,6 +492,7 @@ export class CardBattleService {
     state: CardBattleState,
     rng: CardRng,
     log: (line: string) => void,
+    ctx: BossSpecialCtx,
   ): void {
     const mechDef = bossMechanicsFor(enemy.defId);
     // Phase2 触发（HP 阈值，行为真实改变）。
@@ -497,6 +582,44 @@ export class CardBattleService {
         this.addEnemyStatus(enemy, 'DODGE', 1, log, `${enemy.name} 的身影变得模糊……`);
         return;
       }
+      // ── V10.1 Boss 独特战术 ──
+      case 'JUDGE': {
+        // 绩效审判：蓄力窗口期内被打掉足量 HP 则被打断，否则重击。
+        const mech = mechDef?.mechanics.find((m) => m.kind === 'JUDGE');
+        const need = Math.max(1, Math.ceil(enemy.maxHp * (mech?.interruptHpPct ?? 0.1)));
+        const refHp = enemy.timers.judgeRefHp;
+        const dealt = typeof refHp === 'number' ? Math.max(0, refHp - enemy.hp) : 0;
+        delete enemy.timers.judgeRefHp;
+        delete enemy.telegraphed.JUDGE;
+        if (dealt >= need) {
+          log(`✦ 打断成功！${enemy.name} 的审判被打断了（窗口期内受到 ${dealt} 伤害）！`);
+          this.addEnemyStatus(enemy, 'WEAK', 2, log, `${enemy.name} 阵脚大乱，陷入虚弱！`);
+          try {
+            const stats = this.context.player.lifetimeStats;
+            this.context.player.lifetimeStats = { ...stats, bossJudgesInterrupted: (stats.bossJudgesInterrupted ?? 0) + 1 };
+          } catch { /* 统计失败不阻塞战斗 */ }
+          return;
+        }
+        log(`⚖️ 绩效审判落下！${enemy.name} 判定你绩效不达标！`);
+        ctx.strikePlayer(Math.floor(enemy.attack * (mech?.judgeDamageMul ?? 2.5)), `${enemy.name} 的绩效审判`);
+        return;
+      }
+      case 'COST_CURSE': {
+        // 需求费率上调：玩家下一手手牌费用 +N（意图可见，玩家可提前积攒能量/降费）。
+        const mech = mechDef?.mechanics.find((m) => m.kind === 'COST_CURSE');
+        const delta = Math.max(1, mech?.costDelta ?? 1);
+        state.pendingHandCostDelta = (state.pendingHandCostDelta ?? 0) + delta;
+        log(`🧾 ${enemy.name} 上调了需求费率：你的下一手手牌费用 +${delta}！`);
+        return;
+      }
+      case 'MORALE_DRAIN': {
+        // 加班磨蚀：削弱玩家 + Boss 自愈 —— 快攻止损还是稳健防御由玩家决定。
+        this.addPlayerStatus(state, 'WEAK', 1, log, `${enemy.name} 磨蚀了你的斗志（虚弱 +1）！`);
+        const heal = Math.max(2, Math.floor(enemy.maxHp * 0.04));
+        enemy.hp = Math.min(enemy.maxHp, enemy.hp + heal);
+        log(`${enemy.name} 靠加班文化回血 ${heal} 点！`);
+        return;
+      }
       case 'BLIND': {
         this.addPlayerStatus(state, 'BLIND', 2, log, `${enemy.name} 闪瞎了你的眼！`);
         const fatigue = makeCardInstance(state, 'card_fatigue');
@@ -507,9 +630,9 @@ export class CardBattleService {
       }
       case 'RANDOM': {
         const roll = rng.next();
-        if (roll < 0.34) this.runBossSpecial(run, enemy, { kind: 'SPECIAL', mechanic: 'RAGE' }, state, rng, log);
-        else if (roll < 0.67) this.runBossSpecial(run, enemy, { kind: 'SPECIAL', mechanic: 'BLIND' }, state, rng, log);
-        else this.runBossSpecial(run, enemy, { kind: 'SPECIAL', mechanic: 'ATTACK_SPEED_DEBUFF' }, state, rng, log);
+        if (roll < 0.34) this.runBossSpecial(run, enemy, { kind: 'SPECIAL', mechanic: 'RAGE' }, state, rng, log, ctx);
+        else if (roll < 0.67) this.runBossSpecial(run, enemy, { kind: 'SPECIAL', mechanic: 'BLIND' }, state, rng, log, ctx);
+        else this.runBossSpecial(run, enemy, { kind: 'SPECIAL', mechanic: 'ATTACK_SPEED_DEBUFF' }, state, rng, log, ctx);
         return;
       }
       default: {
@@ -577,14 +700,17 @@ export class CardBattleService {
   // ── 卡组/升级（战斗外） ─────────────────────────────────────────────────────
 
   /** 卡组总览（卡组页 UI）。 */
-  public deckView(): { manifest: Record<string, number>; total: number; upgrades: Record<string, number> } {
+  public deckView(): { manifest: Record<string, number>; total: number; upgrades: Record<string, number>; removals: Record<string, number>; removalNextCost: number } {
     const manifest = buildDeckManifest({
       professionId: this.context.profession?.currentId() ?? 'JAVA_BACKEND',
       destinyId: this.context.player.destinyId ?? null,
       collection: this.collectionOf(),
       upgrades: this.upgradesOf(),
+      removals: this.removalsOf(),
     });
-    return { manifest: manifest.manifest, total: manifest.total, upgrades: this.upgradesOf() };
+    const removals = this.removalsOf();
+    const totalRemoved = Object.values(removals).reduce((s, n) => s + n, 0);
+    return { manifest: manifest.manifest, total: manifest.total, upgrades: this.upgradesOf(), removals: { ...removals }, removalNextCost: removalCost(totalRemoved) };
   }
 
   /** 收藏列表（id → 数量，不含基础卡组）。 */
@@ -594,6 +720,61 @@ export class CardBattleService {
       if (cardDefById(id) && count > 0) collection[id] = count;
     }
     return collection;
+  }
+
+  // ── V10.1 卡组管理：净化（卡牌移除） ────────────────────────────────────────
+
+  private removalsOf(): Record<string, number> {
+    const raw = (this.context.player as { cardRemovals?: Record<string, number> }).cardRemovals;
+    return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+  }
+
+  /** 净化视图：可移除张数与下一次费用（卡组页 UI）。 */
+  public removalView(): {
+    removals: Record<string, number>;
+    totalRemoved: number;
+    nextCost: number;
+    stones: number;
+    removable: Record<string, number>;
+  } {
+    const removals = this.removalsOf();
+    const collection = this.collectionOf();
+    const template = CARD_BATTLE_CONFIG.deckTemplate as { basicAttack: string; basicAttackCount: number; basicDefense: string; basicDefenseCount: number };
+    const removable: Record<string, number> = {};
+    const basicLeft = (id: string, base: number): number => Math.max(0, base - BASIC_REMOVAL_FLOOR - (removals[id] ?? 0));
+    removable[template.basicAttack] = basicLeft(template.basicAttack, template.basicAttackCount);
+    removable[template.basicDefense] = basicLeft(template.basicDefense, template.basicDefenseCount);
+    for (const [id, count] of Object.entries(collection)) {
+      if (cardDefById(id) && count > 0) removable[id] = count;
+    }
+    const totalRemoved = Object.values(removals).reduce((s, n) => s + n, 0);
+    const stones = this.context.player.spiritStones ?? 0;
+    return { removals: { ...removals }, totalRemoved, nextCost: removalCost(totalRemoved), stones, removable };
+  }
+
+  /**
+   * 净化一张卡牌（消耗灵石）：基础牌保底 2 张；收藏卡逐张移除。
+   * @returns 移除后的净化视图
+   */
+  public removeCard(defId: string): ReturnType<CardBattleService['removalView']> {
+    const base = cardDefById(defId);
+    if (!base) throw new Error('未知卡牌');
+    const view = this.removalView();
+    const available = view.removable[defId] ?? 0;
+    if (available <= 0) throw new Error('该卡牌不可移除');
+    if (view.stones < view.nextCost) throw new Error(`灵石不足（需要 ${view.nextCost}）`);
+    this.context.player.spiritStones -= view.nextCost;
+    const removals = this.removalsOf();
+    removals[defId] = (removals[defId] ?? 0) + 1;
+    (this.context.player as { cardRemovals?: Record<string, number> }).cardRemovals = removals;
+    // 收藏卡同步扣减（基础牌从模板扣减，不占收藏）。
+    const collection = this.collectionOf();
+    if (collection[defId] > 0) {
+      collection[defId] -= 1;
+      if (collection[defId] <= 0) delete collection[defId];
+      this.context.player.cardCollection = collection;
+    }
+    return this.removalView();
   }
 
   /** 全卡牌图鉴（卡组页展示）。 */
