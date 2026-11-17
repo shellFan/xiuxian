@@ -214,6 +214,13 @@ export function playCard(state: CardBattleState, env: CardEngineEnv, cardUid: st
   state.player.energy -= cost;
   state.lastActionId = actionId;
   state.log.push(`打出【${def.name}${instance.upgraded > 0 ? `+${instance.upgraded}` : ''}】${cost > 0 ? `（-${cost} 能量）` : ''}`);
+  // V10 ULTIMATE：记录最近一次出牌（代码心魔 MIRROR 机制的复制源）。
+  const firstDamage = def.effects.find((e) => e.kind === 'DAMAGE') as
+    | (Extract<typeof def.effects[number], { kind: 'DAMAGE' }> & { mul?: number })
+    | undefined;
+  state.lastPlayedCardDefId = def.id;
+  state.lastPlayedCardName = def.name;
+  state.lastPlayedDamageMul = firstDamage && typeof firstDamage.mul === 'number' ? firstDamage.mul : 0;
   const rng = CardRng.fromState(state.rng);
   for (const effect of def.effects) applyEffect(state, env, effect, target, rng, instance);
   state.rng = rng.toState();

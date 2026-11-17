@@ -111,7 +111,12 @@ export interface BossMechanic {
     // ── V10.1 Boss 独特战术（卡牌战斗回合化） ──
     | 'JUDGE'        // 绩效审判：蓄力一回合，窗口期内被打掉足量 HP 则被打断
     | 'COST_CURSE'   // 需求费率上调：玩家下一手手牌费用 +N
-    | 'MORALE_DRAIN'; // 加班磨蚀：玩家获得虚弱，Boss 自愈（逼迫快攻或稳健抉择）
+    | 'MORALE_DRAIN' // 加班磨蚀：玩家获得虚弱，Boss 自愈（逼迫快攻或稳健抉择）
+    // ── V10 ULTIMATE 五种新 Boss 机制（回合化） ──
+    | 'ENERGY_LEECH'          // 资源吞噬：抽走玩家能量并转化为自身护盾
+    | 'MIRROR'                // 代码心魔：复制玩家最近打出的卡牌反噬
+    | 'COUNTER_STANCE'        // 绩效判官：按玩家上回合攻防行为反制
+    | 'TRIBULATION_COUNTDOWN' // 天劫倒计时：每 N 回合引爆一次重击
   readonly everySec?: number;
   readonly minion?: string;
   readonly cap?: number;
@@ -127,6 +132,18 @@ export interface BossMechanic {
   readonly judgeDamageMul?: number;
   /** COST_CURSE：下一手手牌费用 +N（缺省 1）。 */
   readonly costDelta?: number;
+  /** ENERGY_LEECH：抽取玩家能量点数（缺省 1）。 */
+  readonly energyDrain?: number;
+  /** ENERGY_LEECH：转化为护盾的比例（占 Boss 最大生命，缺省 0.03）。 */
+  readonly shieldPct?: number;
+  /** MIRROR：复制玩家卡牌伤害倍率的缩放（缺省 1）。 */
+  readonly mirrorScale?: number;
+  /** COUNTER_STANCE：判定「龟缩」的格挡门槛（缺省 10）。 */
+  readonly blockGate?: number;
+  /** TRIBULATION_COUNTDOWN：引爆倒计时回合数（缺省 4）。 */
+  readonly everyTurns?: number;
+  /** TRIBULATION_COUNTDOWN：引爆攻击倍率（缺省 2.5）。 */
+  readonly strikeDamageMul?: number;
 }
 
 /** V5.8 §14.2：Boss Phase 2（HP 阈值触发，行为真实改变）。 */

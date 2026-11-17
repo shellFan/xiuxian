@@ -220,6 +220,10 @@ export interface CardBattleState {
   turnCardsPlayed?: number;
   /** V10.1 敌人施加的下一手手牌费用增加（需求费率上调，startPlayerTurn 消费后清零）。 */
   pendingHandCostDelta?: number;
+  /** V10 ULTIMATE 代码心魔：最近一次玩家打出的牌（defId/名称/伤害倍率），供 MIRROR 复制。 */
+  lastPlayedCardDefId?: string;
+  lastPlayedCardName?: string;
+  lastPlayedDamageMul?: number;
   rng: CardRngState;
   /** 战斗卡组构成快照（deck 定义 id → 数量，诊断/恢复校验用）。 */
   deckManifest: Record<string, number>;

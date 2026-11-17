@@ -47,6 +47,7 @@ import {
   upgradeCost,
 } from './card-database';
 import type { BossSpecialCtx, CardBattleState, CardDef, CardEnemy, CardEngineEnv, CardInstance, EnemyIntent, StatusId } from './card-types';
+import { applyUltimateBossMechanic } from './boss-mechanics-ultimate';
 
 /** Boss 机制换算：旧每 X 秒 → 每 N 回合（2 游戏秒 ≈ 1 回合，向上取整保底 1）。 */
 export function secondsToTurns(seconds: number): number {
@@ -633,6 +634,17 @@ export class CardBattleService {
         if (roll < 0.34) this.runBossSpecial(run, enemy, { kind: 'SPECIAL', mechanic: 'RAGE' }, state, rng, log, ctx);
         else if (roll < 0.67) this.runBossSpecial(run, enemy, { kind: 'SPECIAL', mechanic: 'BLIND' }, state, rng, log, ctx);
         else this.runBossSpecial(run, enemy, { kind: 'SPECIAL', mechanic: 'ATTACK_SPEED_DEBUFF' }, state, rng, log, ctx);
+        return;
+      }
+      // ── V10 ULTIMATE 新增四种 Boss 机制（纯实现见 boss-mechanics-ultimate.ts） ──
+      case 'ENERGY_LEECH':
+      case 'MIRROR':
+      case 'COUNTER_STANCE':
+      case 'TRIBULATION_COUNTDOWN': {
+        const mech = mechDef?.mechanics.find((m) => m.kind === mechanicKind) as
+          | import('./boss-mechanics-ultimate').UltimateMechanicDef
+          | undefined;
+        applyUltimateBossMechanic(mechanicKind as import('./boss-mechanics-ultimate').UltimateMechanicKind, mech, enemy, state, log, ctx);
         return;
       }
       default: {
