@@ -2894,6 +2894,10 @@
         settingRow('音效', '游戏音效开关', 'sfx', true) +
         settingRow('背景音乐', '修仙背景音乐开关', 'bgm', true) +
         settingRow('推送提醒', '渡劫与事件提醒', 'notify', false) +
+        '<div class="ux-setting-row" style="display:flex;align-items:center;justify-content:space-between">' +
+          '<div><div class="ux-task-name">音效音量</div><div class="ux-recipe-desc">合成音效的播放音量</div></div>' +
+          '<input id="SfxVolumeSlider" type="range" min="0" max="100" value="' + Math.round((window.__UI_SFX__ ? window.__UI_SFX__.getVolume() : 0.5) * 100) + '" data-action="sfxVolume" style="width:160px" />' +
+        '</div>' +
       '</div>' +
       '<div class="ux-card" style="margin-top:20px">' +
         '<div class="ux-setting-row" style="display:flex;align-items:center;justify-content:space-between">' +
@@ -4124,9 +4128,36 @@ function renderGrowthPage() {
         try { if (window.__V63__ && window.__V63__.handleClick(target, 'v63-tapAttack')) return; } catch (err) { /* 触摸路径失败不影响 click 路径 */ }
       }, { passive: false });
     }
+    // V10 ULTIMATE §16：音效音量滑杆（input 事件独立于点击委托）。
+    overlay.addEventListener('input', function (e) {
+      if (e.target && e.target.id === 'SfxVolumeSlider' && window.__UI_SFX__) {
+        try { window.__UI_SFX__.setVolume(Number(e.target.value) / 100); } catch (eVol) { /* 音量失败不影响游戏 */ }
+      }
+    });
     overlay.onclick = function (e) {
       var el = e.target.closest ? e.target.closest('[data-action],[data-nav],[data-select-action],[data-open-conversation],[data-reply],[data-choose-profession],[data-goto-page],[data-tasktab],[data-crafttab],[data-lbtab],[data-ftab],[data-achtab],[data-codex-tab],[data-creation-action],[data-creation-choice],[data-enemy-uid],[data-ai-npc],[data-ai-send]') : null;
       if (!el) return;
+
+      // V10 ULTIMATE §16：事件音效映射（具体事件覆盖默认点击音）。
+      try {
+        if (window.__UI_SFX__) {
+          var _act = el.dataset.action || '';
+          var _sfxMap = {
+            'v63-tapAttack': 'ATTACK',
+            battleSkill: 'SKILL',
+            battlePlayCard: 'CARD_PLAY',
+            battleEndTurn: 'CARD_DRAW',
+            projectEntry: 'BOSS_INTRO',
+            'v63-gotoCardBattle': 'BOSS_INTRO',
+            promote: 'PROMOTION',
+            claimGoal: 'CLAIM',
+            claimAch: 'CLAIM',
+            claim: 'CLAIM',
+            'v63-upgradeClick': 'LEVELUP',
+          };
+          window.__UI_SFX__.play(_sfxMap[_act] || 'CLICK');
+        }
+      } catch (eSfx) { /* 音效失败不影响游戏 */ }
 
       // V6.1 Game Feel：全局点击涟漪反馈
       try { if (window.__GAME_FEEL__) window.__GAME_FEEL__.click(el); } catch (eGF) { /* 特效失败不影响游戏 */ }
@@ -4719,6 +4750,11 @@ function renderGrowthPage() {
           _settings[key] = !_settings[key];
           el.className = 'ux-btn ux-btn--' + (_settings[key] ? 'gold' : 'gray') + ' ux-btn--sm';
           el.textContent = _settings[key] ? '开' : '关';
+          // V10 ULTIMATE §16：音效开关同步到 WebAudio 引擎。
+          try {
+            if (key === 'sfx' && window.__UI_SFX__) window.__UI_SFX__.setEnabled(_settings.sfx);
+            if (key === 'sfx' && _settings.sfx) window.__UI_SFX__.play('CLICK');
+          } catch (eSfxT) { /* 同步失败不影响设置 */ }
           break;
         }
         case 'clearSave':

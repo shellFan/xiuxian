@@ -15,7 +15,7 @@ const runner = require(path.join(__dirname, 'cdp-runner.cjs'));
 const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const EXE = path.resolve(__dirname, '..', '..', 'dist', '牛马修仙传-win32-x64', '牛马修仙传.exe');
-const OUT = path.resolve(__dirname, '..', '..', 'ai', 'reports', 'v10-final', 'screenshots', 'desktop');
+const OUT = path.resolve(__dirname, '..', '..', 'ai', 'reports', 'v10-ultimate', 'screenshots', 'desktop');
 
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });

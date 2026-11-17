@@ -13,7 +13,7 @@ const { spawn } = require('node:child_process');
 
 const VIEWPORTS = [[360, 640], [375, 812], [390, 844], [414, 896], [430, 932]];
 const URL = process.argv[2] || 'http://127.0.0.1:8633/';
-const OUT = path.resolve(__dirname, '..', '..', 'ai', 'reports', 'v10-final', 'screenshots', 'mobile');
+const OUT = path.resolve(__dirname, '..', '..', 'ai', 'reports', 'v10-ultimate', 'screenshots', 'mobile');
 const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function runViewport(browser, width, height, index) {

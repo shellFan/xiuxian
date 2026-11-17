@@ -98,6 +98,7 @@ if (fs.existsSync(htmlPath)) {
   const overlayGameFeelJs = path.join(__dirname, 'ui-game-feel.js');
   const overlayAutoBattleJs = path.join(__dirname, 'ui-auto-battle.js');
   const overlayV66SpriteJs = path.join(__dirname, 'ui-v66-sprite.js');
+  const overlaySfxJs = path.join(__dirname, 'ui-sfx.js');
   const destCss    = path.join(buildDir, 'ui-overlay.css');
   const destJs     = path.join(buildDir, 'ui-overlay.js');
   const destV2Js   = path.join(buildDir, 'ui-overlay-v2.js');
@@ -137,6 +138,10 @@ if (fs.existsSync(htmlPath)) {
   if (fs.existsSync(overlayV66SpriteJs)) {
     fs.copyFileSync(overlayV66SpriteJs, path.join(buildDir, 'ui-v66-sprite.js'));
     console.log('[patch-html] Copied ui-v66-sprite.js');
+  }
+  if (fs.existsSync(overlaySfxJs)) {
+    fs.copyFileSync(overlaySfxJs, path.join(buildDir, 'ui-sfx.js'));
+    console.log('[patch-html] Copied ui-sfx.js');
   }
 
   // V6.8 P0: ship the V6.6 sprite sheets into the actual playable build.
@@ -193,7 +198,7 @@ if (fs.existsSync(htmlPath)) {
   // Inject <link> and <script> into index.html
   // Position overlay relative to GameDiv for correct scaling
   const overlayLink = '<link rel="stylesheet" href="ui-overlay.css">';
-  const overlayScript = '<script src="ui-game-feel.js"></script>\n  <script src="ui-v66-sprite.js"></script>\n  <script src="ui-auto-battle.js"></script>\n  <script src="ui-v59f-home.js"></script>\n  <script src="ui-merge-home.js"></script>\n  <script src="ui-battle-card.js"></script>\n  <script src="ui-overlay-v2.js"></script>\n  <script src="ui-overlay.js"></script>';
+  const overlayScript = '<script src="ui-sfx.js"></script>\n  <script src="ui-game-feel.js"></script>\n  <script src="ui-v66-sprite.js"></script>\n  <script src="ui-auto-battle.js"></script>\n  <script src="ui-v59f-home.js"></script>\n  <script src="ui-merge-home.js"></script>\n  <script src="ui-battle-card.js"></script>\n  <script src="ui-overlay-v2.js"></script>\n  <script src="ui-overlay.js"></script>';
   // Older builds already include the host overlay; add the merge module before it.
   if (html.includes('ui-overlay.js') && !html.includes('ui-merge-home.js')) {
     html = html.replace('<script src="ui-overlay.js"></script>', '<script src="ui-merge-home.js"></script>\n  <script src="ui-overlay.js"></script>');
@@ -210,6 +215,10 @@ if (fs.existsSync(htmlPath)) {
       '<script src="ui-overlay.js"></script>',
       '<script src="ui-v59f-home.js"></script>\n  <script src="ui-overlay-v2.js"></script>\n  <script src="ui-overlay.js"></script>',
     );
+  }
+  // V10 ULTIMATE: ensure ui-sfx.js is present (loads first, audio unlock)
+  if (html.includes('ui-overlay.js') && !html.includes('ui-sfx.js')) {
+    html = html.replace('<script src="ui-overlay.js"></script>', '<script src="ui-sfx.js"></script>\n  <script src="ui-overlay.js"></script>');
   }
   // V6.1: ensure ui-game-feel.js loads first (before all overlay modules)
   if (html.includes('ui-overlay.js') && !html.includes('ui-game-feel.js')) {

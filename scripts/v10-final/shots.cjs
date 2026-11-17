@@ -19,7 +19,7 @@ const runner = require(path.join(__dirname, 'cdp-runner.cjs'));
 const sleep = runner.sleep || ((ms) => new Promise((r) => setTimeout(r, ms)));
 
 const EXE = path.resolve(__dirname, '..', '..', 'dist', '牛马修仙传-win32-x64', '牛马修仙传.exe');
-const OUT = path.resolve(__dirname, '..', '..', 'ai', 'reports', 'v10-final', 'screenshots', 'desktop');
+const OUT = path.resolve(__dirname, '..', '..', 'ai', 'reports', 'v10-ultimate', 'screenshots', 'desktop');
 const PORT = 25000 + Math.floor(Math.random() * 5000);
 
 const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -129,7 +129,7 @@ async function main() {
         if (turn === 0) await shot('09-card-hand.png');
         await cdp.click('[data-enemy-uid]');
         await sleepMs(500);
-        if (turn === 1) await shot('10-card-selection.png');
+        if (turn === 1) await shot('10-card-choice.png');
         continue;
       }
       const ended = await cdp.click('[data-action="battleEndTurn"]');
