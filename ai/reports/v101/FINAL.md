@@ -79,5 +79,5 @@ RELEASE_STATUS=RELEASE_CANDIDATE
 
 ## 五、执行记录
 
-- 提交：按模块（card / boss / feel+ui / growth-save / tools / reports）。
-- 推送：见 git log；远端 SHA 核对见提交记录末条。
+- 提交：V10 主会话将本会话工作树快照按其发布列车合并采纳（8177dd4 卡牌深度/净化/首页带/落盘 + c472456 弹窗优先级，均注明 Parallel developer snapshot），随后本会话补充证据集 c6dbd4e docs(v101)（181 文件：报告/截图/审计 JSON/日志）。
+- 推送：085013a..c6dbd4e → origin/feature/v10-final-release；远端 SHA 核对一致（c6dbd4e3cceb4c15c75e328f4daafb03a4abf0ee）。无强推、无重写历史。
