@@ -1,0 +1,48 @@
+16:52:03 [srv] using port 8630
+16:52:07 [shot] 00-boot
+16:52:08 [shot] 01-first-launch
+16:52:19 [step] S1_create_character 11s {"done":true,"rounds":17,"trace":["cand","adv","adv","finalize","adv:UNKNOWN","adv:UNKNOWN","adv:UNKNOWN","adv:UNKNOWN","adv:UNKNOWN","home"]}
+16:52:22 [shot] 02-home-fresh
+16:52:22 [step] S1b_day_start 0s true
+16:52:22 [step] S2_home_structure 0s {"hero":true,"resChips":["💎 0 灵石 ⛰️ 5 修为 +0.0/分 ☯ 100/100 道心"],"goalText":"新手试炼\n完成首次推关\n点击攻击与技能，击败眼前的第一只妖怪。\n第1章\n8%\n进入战斗 ›","todayText":"今日修行\n摸鱼中\n工资 +0.0/分 · 绩效 +0\n☯ 道心 100/100 · 道心通明\n努力工作\n工资 +30%\n带薪摸鱼\n道心恢复\n✓\n修炼一次\n修为 ×2.0\n社交划水\n道心逐步恢复","quickNav
+16:52:24 [shot] 03-work-selected
+16:52:24 [step] S3_work 2s {"sel":"ok","feedback":"努力工作\n事业\n稳定收入\n正在搬砖\n推进手头任务，工资与绩效稳步入账。老板的目光 +1。\n当前塞来的活：第一张工单：排查接口异常（P2 · 系统）\n💰\n预计工资\n¥0.00/分\n📈\n结算方式\n随任务与事件入账\n保持专注\n当前已是工作状态\n进入项目\n工资按 1.3× 结算；道心 -12/小时，注意休息。"}
+16:52:31 [shot] 04-work-running
+16:52:31 [step] S3b_work_run 7s "ok"
+16:52:34 [shot] 05-fishing
+16:52:34 [step] S4_fishing 3s {"sel":"ok"}
+16:52:36 [shot] 06-cultivate
+16:52:36 [step] S5_cultivate 3s {"r":"ok","before":{"stones":0},"after":{"stones":0}}
+16:52:39 [shot] 07-social
+16:52:39 [step] S6_social 2s {"sel":"ok"}
+16:52:41 [shot] 08-project-page
+16:52:41 [step] S7_project_page 3s "⚔️ 项目攻坚\n回合制卡牌战斗：每回合 3 点能量，从 5 张手牌中出牌进攻或防御，看清敌人意图再结束回合。五波推进：普通 → 精英 → Boss。\nBoss 胜利自动完成当前待办，掉落材料与法宝；胜利后可选择一张新卡加入卡组。\n选择 Build 进入项目\n卡组（11 张）\n💎 0 灵石 · 胜利后可收新卡\n格挡铁壁 ×4\n同流派卡牌打出会有真实联动伤害（毒爆/格挡转攻/连击/破甲）\n打磨提交 ×5\n攻击 · 基础 · 费用 1\n对目标造成 100% 攻击的伤害。\n升级（💎20）\n净化
+16:52:43 [shot] 09-build-select
+16:52:48 [shot] 10-battle-start
+16:52:48 [step] S8_start_battle 7s {"entry":"ok","buildClick":"clicked-build","confirm":"miss","st":{"phase":"PLAYER_TURN","turn":1,"wave":0}}
+16:53:12 [shot] 11-battle-turn-2
+16:53:15 [shot] 11-battle-turn-2
+16:53:17 [shot] 11-battle-turn-2
+16:53:19 [shot] 11-battle-turn-2
+16:53:21 [shot] 11-battle-turn-2
+16:53:24 [shot] 11-battle-turn-2
+16:53:35 [shot] 11-battle-turn-4
+16:53:38 [shot] 11-battle-turn-4
+16:53:40 [shot] 11-battle-turn-4
+16:53:42 [shot] 11-battle-turn-4
+16:53:47 [shot] 12-battle-final
+16:53:47 [step] S9_card_battle 58s {"lastTimeline":[{"t":20,"turn":3,"phase":"PLAYER_TURN","hp":148,"wave":0,"enemies":[{"n":"连接池枯竭怪","hp":0,"boss":false,"intent":null},{"n":"Full GC怨灵","hp":20,"boss":false,"intent":"ATTACK"},{"n":"线上数据错乱魔","hp":36,"boss":false,"intent":"BLOCK"}]},{"t":21,"turn
+16:53:47 [shot] 13-reward-or-settlement
+16:53:50 [shot] 14-after-claim
+16:53:51 [step] S10_reward 4s {"claim":"no-reward"}
+16:53:54 [shot] 15-growth-page
+16:53:56 [shot] 16-recruit
+16:53:56 [step] S11_recruit 5s {"hire":"no-options"}
+16:53:59 [shot] 17-equipment
+16:53:59 [step] S12_equipment 3s {"tab":"miss"}
+16:54:01 [shot] 18-promotion
+16:54:03 [shot] 19-back-home
+16:54:03 [step] S13_promotion 5s "ok"
+16:54:11 [shot] 20-restart-home
+16:54:11 [step] S14_restart_recovery 8s {"before":{"stones":4,"xiuwei":124,"career":1},"facade2":true,"after":{"stones":4,"xiuwei":137,"career":1}}
+16:54:11 [done] 0 defects, 16 steps

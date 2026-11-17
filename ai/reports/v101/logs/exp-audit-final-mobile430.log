@@ -1,0 +1,78 @@
+16:46:00 [srv] using port 8630
+16:46:04 [shot] 00-boot
+16:46:04 [shot] 01-first-launch
+16:46:44 [step] S1_create_character 39s {"done":false,"rounds":60,"trace":[null,null,null,null,null,null,null,null,null,null,null,null]}
+16:46:44 [DEFECT:P0] S1_create_character — 创建角色流程未能在预算轮次内进入洞府
+16:46:47 [shot] 02-home-fresh
+16:46:47 [step] S1b_day_start 0s true
+16:46:47 [step] S2_home_structure 0s {"hero":false,"resChips":[],"goalText":null,"todayText":null,"quickNavs":["CAVE","BATTLE","GROWTH","PROJECT","TASKS"],"actions":[],"modeCards":[],"bodyTextLen":163,"navCount":5}
+16:46:49 [shot] 03-work-selected
+16:46:49 [step] S3_work 2s {"sel":"miss","feedback":null}
+16:46:55 [shot] 04-work-running
+16:46:55 [step] S3b_work_run 7s "ok"
+16:46:58 [shot] 05-fishing
+16:46:58 [step] S4_fishing 3s {"sel":"miss"}
+16:47:01 [shot] 06-cultivate
+16:47:01 [step] S5_cultivate 3s {"r":"miss","before":{"stones":0},"after":{"stones":0}}
+16:47:03 [shot] 07-social
+16:47:03 [step] S6_social 2s {"sel":"miss"}
+16:47:06 [shot] 08-project-page
+16:47:06 [step] S7_project_page 3s "V5.9-A · 牛马降世\n选择你的修仙职场命途\n选择行业\n1\n选择行业\n2\n职业方向\n3\n具体职业\n4\n创建身份\n5\n天命推演\n6\n自由加点\n7\n确认入职\n选择行业\n\n先选定你要踏入的职场天地。\n\n互联网\n代码、产品、流量与线上事故交织的修仙世界。\n金融\n尚未开放 · 后续版本开启\n医疗\n尚未开放 · 后续版本开启\n下一步"
+16:47:08 [shot] 09-build-select
+16:47:12 [shot] 10-battle-start
+16:47:12 [step] S8_start_battle 7s {"entry":"miss","buildClick":"miss","confirm":"miss","st":null}
+16:47:13 [shot] 12-battle-final
+16:47:13 [step] S9_card_battle 1s {"lastTimeline":[{"t":0,"stop":"no-state"}],"final":null}
+16:47:14 [shot] 13-reward-or-settlement
+16:47:16 [shot] 14-after-claim
+16:47:17 [step] S10_reward 4s {"claim":"no-reward"}
+16:47:20 [shot] 15-growth-page
+16:47:22 [shot] 16-recruit
+16:47:22 [step] S11_recruit 5s {"hire":"no-options"}
+16:47:24 [srv] using port 8630
+16:47:25 [shot] 17-equipment
+16:47:25 [step] S12_equipment 3s {"tab":"miss"}
+16:47:27 [shot] 00-boot
+16:47:28 [shot] 18-promotion
+16:47:28 [shot] 01-first-launch
+16:47:30 [shot] 19-back-home
+16:47:30 [step] S13_promotion 5s "ok"
+16:48:07 [step] S1_create_character 40s {"done":false,"rounds":60,"trace":[null,null,null,null,null,null,null,null,null,null,null,null]}
+16:48:07 [DEFECT:P0] S1_create_character — 创建角色流程未能在预算轮次内进入洞府
+16:48:11 [shot] 02-home-fresh
+16:48:11 [step] S1b_day_start 0s true
+16:48:11 [step] S2_home_structure 0s {"hero":false,"resChips":[],"goalText":null,"todayText":null,"quickNavs":["CAVE","BATTLE","GROWTH","PROJECT","TASKS"],"actions":[],"modeCards":[],"bodyTextLen":163,"navCount":5}
+16:48:13 [shot] 03-work-selected
+16:48:13 [step] S3_work 2s {"sel":"miss","feedback":null}
+16:48:19 [shot] 04-work-running
+16:48:19 [step] S3b_work_run 7s "ok"
+16:48:22 [shot] 05-fishing
+16:48:22 [step] S4_fishing 3s {"sel":"miss"}
+16:48:25 [shot] 06-cultivate
+16:48:25 [step] S5_cultivate 3s {"r":"miss","before":{"stones":0},"after":{"stones":0}}
+16:48:27 [shot] 07-social
+16:48:27 [step] S6_social 2s {"sel":"miss"}
+16:48:29 [shot] 08-project-page
+16:48:29 [step] S7_project_page 3s "V5.9-A · 牛马降世\n选择你的修仙职场命途\n选择行业\n1\n选择行业\n2\n职业方向\n3\n具体职业\n4\n创建身份\n5\n天命推演\n6\n自由加点\n7\n确认入职\n选择行业\n\n先选定你要踏入的职场天地。\n\n互联网\n代码、产品、流量与线上事故交织的修仙世界。\n金融\n尚未开放 · 后续版本开启\n医疗\n尚未开放 · 后续版本开启\n下一步"
+16:48:32 [shot] 09-build-select
+16:48:36 [shot] 10-battle-start
+16:48:36 [step] S8_start_battle 7s {"entry":"miss","buildClick":"miss","confirm":"miss","st":null}
+16:48:37 [shot] 12-battle-final
+16:48:37 [step] S9_card_battle 1s {"lastTimeline":[{"t":0,"stop":"no-state"}],"final":null}
+16:48:37 [shot] 20-restart-home
+16:48:37 [step] S14_restart_recovery 68s {"before":{"stones":0,"xiuwei":0,"career":1},"facade2":false,"after":null}
+16:48:37 [done] 1 defects, 16 steps
+16:48:38 [shot] 13-reward-or-settlement
+16:48:40 [shot] 14-after-claim
+16:48:41 [step] S10_reward 4s {"claim":"no-reward"}
+16:48:44 [shot] 15-growth-page
+16:48:46 [shot] 16-recruit
+16:48:46 [step] S11_recruit 5s {"hire":"no-options"}
+16:48:49 [shot] 17-equipment
+16:48:49 [step] S12_equipment 3s {"tab":"miss"}
+16:48:51 [shot] 18-promotion
+16:48:54 [shot] 19-back-home
+16:48:54 [step] S13_promotion 5s "ok"
+16:49:01 [shot] 20-restart-home
+16:49:01 [step] S14_restart_recovery 8s {"before":{"stones":0,"xiuwei":0,"career":1},"facade2":true,"after":{"stones":0,"xiuwei":5,"career":1}}
+16:49:01 [done] 1 defects, 16 steps

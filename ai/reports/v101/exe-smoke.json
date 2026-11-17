@@ -1,0 +1,56 @@
+{
+  "startedAt": "2026-11-17T16:55:30.629Z",
+  "checks": {
+    "exe_facade_ready": {
+      "pass": true,
+      "detail": null
+    },
+    "exe_v101_cards_registered": {
+      "pass": true,
+      "detail": {
+        "cards": 133,
+        "hasFinale": true,
+        "hasGcTuning": true,
+        "hasRootCause": true,
+        "removalApi": true,
+        "removalView": true,
+        "overlayCss": true
+      }
+    },
+    "exe_removal_api_present": {
+      "pass": true,
+      "detail": {
+        "cards": 133,
+        "hasFinale": true,
+        "hasGcTuning": true,
+        "hasRootCause": true,
+        "removalApi": true,
+        "removalView": true,
+        "overlayCss": true
+      }
+    },
+    "exe_judgewindow_css_present": {
+      "pass": true,
+      "detail": {
+        "cards": 133,
+        "hasFinale": true,
+        "hasGcTuning": true,
+        "hasRootCause": true,
+        "removalApi": true,
+        "removalView": true,
+        "overlayCss": true
+      }
+    },
+    "exe_home_first_screen": {
+      "pass": true,
+      "detail": {
+        "hero": true,
+        "today": true,
+        "mid": true,
+        "nav": 5
+      }
+    }
+  },
+  "screenshot": "screenshots/exe/exe-smoke-home.png",
+  "endedAt": "2026-11-17T16:55:35.915Z"
+}

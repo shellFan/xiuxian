@@ -1,0 +1,222 @@
+{
+  "tag": "final-mobile430",
+  "viewport": {
+    "width": 430,
+    "height": 932
+  },
+  "startedAt": "2026-11-17T16:47:24.325Z",
+  "boot": {
+    "facadeReadySec": 3,
+    "facadeReady": true,
+    "resources": 61
+  },
+  "steps": [
+    {
+      "name": "S1_create_character",
+      "ms": 40,
+      "out": {
+        "done": false,
+        "rounds": 60,
+        "trace": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    },
+    {
+      "name": "S1b_day_start",
+      "ms": 0,
+      "out": true
+    },
+    {
+      "name": "S2_home_structure",
+      "ms": 0,
+      "out": {
+        "hero": false,
+        "resChips": [],
+        "goalText": null,
+        "todayText": null,
+        "quickNavs": [
+          "CAVE",
+          "BATTLE",
+          "GROWTH",
+          "PROJECT",
+          "TASKS"
+        ],
+        "actions": [],
+        "modeCards": [],
+        "bodyTextLen": 163,
+        "navCount": 5
+      }
+    },
+    {
+      "name": "S3_work",
+      "ms": 2,
+      "out": {
+        "sel": "miss",
+        "feedback": null
+      }
+    },
+    {
+      "name": "S3b_work_run",
+      "ms": 7,
+      "out": "ok"
+    },
+    {
+      "name": "S4_fishing",
+      "ms": 3,
+      "out": {
+        "sel": "miss"
+      }
+    },
+    {
+      "name": "S5_cultivate",
+      "ms": 3,
+      "out": {
+        "r": "miss",
+        "before": {
+          "stones": 0
+        },
+        "after": {
+          "stones": 0
+        }
+      }
+    },
+    {
+      "name": "S6_social",
+      "ms": 2,
+      "out": {
+        "sel": "miss"
+      }
+    },
+    {
+      "name": "S7_project_page",
+      "ms": 3,
+      "out": "V5.9-A · 牛马降世\n选择你的修仙职场命途\n选择行业\n1\n选择行业\n2\n职业方向\n3\n具体职业\n4\n创建身份\n5\n天命推演\n6\n自由加点\n7\n确认入职\n选择行业\n\n先选定你要踏入的职场天地。\n\n互联网\n代码、产品、流量与线上事故交织的修仙世界。\n金融\n尚未开放 · 后续版本开启\n医疗\n尚未开放 · 后续版本开启\n下一步"
+    },
+    {
+      "name": "S8_start_battle",
+      "ms": 7,
+      "out": {
+        "entry": "miss",
+        "buildClick": "miss",
+        "confirm": "miss",
+        "st": null
+      }
+    },
+    {
+      "name": "S9_card_battle",
+      "ms": 1,
+      "out": {
+        "lastTimeline": [
+          {
+            "t": 0,
+            "stop": "no-state"
+          }
+        ],
+        "final": null
+      }
+    },
+    {
+      "name": "S10_reward",
+      "ms": 4,
+      "out": {
+        "claim": "no-reward"
+      }
+    },
+    {
+      "name": "S11_recruit",
+      "ms": 5,
+      "out": {
+        "hire": "no-options"
+      }
+    },
+    {
+      "name": "S12_equipment",
+      "ms": 3,
+      "out": {
+        "tab": "miss"
+      }
+    },
+    {
+      "name": "S13_promotion",
+      "ms": 5,
+      "out": "ok"
+    },
+    {
+      "name": "S14_restart_recovery",
+      "ms": 8,
+      "out": {
+        "before": {
+          "stones": 0,
+          "xiuwei": 0,
+          "career": 1
+        },
+        "facade2": true,
+        "after": {
+          "stones": 0,
+          "xiuwei": 5,
+          "career": 1
+        }
+      }
+    }
+  ],
+  "defects": [
+    {
+      "step": "S1_create_character",
+      "severity": "P0",
+      "issue": "创建角色流程未能在预算轮次内进入洞府",
+      "detail": {
+        "done": false,
+        "rounds": 60,
+        "trace": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    }
+  ],
+  "metrics": {
+    "home": {
+      "hero": false,
+      "resChips": [],
+      "goalText": null,
+      "todayText": null,
+      "quickNavs": [
+        "CAVE",
+        "BATTLE",
+        "GROWTH",
+        "PROJECT",
+        "TASKS"
+      ],
+      "actions": [],
+      "modeCards": [],
+      "bodyTextLen": 163,
+      "navCount": 5
+    },
+    "battleClicks": 0,
+    "modals": 1,
+    "defectCount": 1
+  },
+  "endedAt": "2026-11-17T16:49:01.867Z"
+}

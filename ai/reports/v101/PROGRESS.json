@@ -1,0 +1,38 @@
+{
+  "version": "V10.1",
+  "branch": "feature/v10-final-release",
+  "startedFrom": "085013af30cc6e5a94a86a6d3c4d365f88b43d19",
+  "startedAt": "2026-11-17T15:18:00+08:00",
+  "updatedAt": null,
+  "phases": [
+    { "id": 1, "name": "真实试玩审查", "status": "DONE", "outputs": ["ai/reports/v101/PLAYER-EXPERIENCE-AUDIT.md", "ai/reports/v101/audit-before-desktop.json", "screenshots/before/"] },
+    { "id": 2, "name": "玩法与UI分析", "status": "DONE", "outputs": ["ai/reports/v101/GAME-DESIGN-REFERENCE.md"] },
+    { "id": 3, "name": "五页面信息架构设计", "status": "DONE", "outputs": ["ai/reports/v101/HOME-REDESIGN.md", "ai/reports/v101/UI-UX-REDESIGN.md"] },
+    { "id": 4, "name": "首页重构", "status": "DONE", "outputs": ["desktop/ui-overlay.js .ux91-mid", "desktop/ui-overlay.css", "screenshots/after/02-home-fresh.png"] },
+    { "id": 5, "name": "战斗页面重构", "status": "DONE", "outputs": ["desktop/ui-overlay.css 移动单列", "desktop/ui-battle-card.js", "MOBILE-UI.md"] },
+    { "id": 6, "name": "卡牌策略升级", "status": "DONE", "outputs": ["card-engine/types/database/service", "assets/configs/v59o/card-battle.json", "CARD-BATTLE-REDESIGN.md"] },
+    { "id": 7, "name": "Boss机制升级", "status": "DONE", "outputs": ["assets/configs/v57/battle-extension.json", "BOSS-REDESIGN.md"] },
+    { "id": 8, "name": "四职业差异", "status": "DONE", "outputs": ["职业流派卡 9 张（Java/前端/QA/运维）", "CARD-BATTLE-REDESIGN.md"] },
+    { "id": 9, "name": "员工装备成长", "status": "DONE", "outputs": ["净化/图鉴/倾向（GROWTH-UI.md）"] },
+    { "id": 10, "name": "GameFeel", "status": "DONE", "outputs": ["GAME-FEEL.md"] },
+    { "id": 11, "name": "新手引导与弹窗", "status": "DONE", "outputs": ["TUTORIAL.md", "技能选择优先级修复"] },
+    { "id": 12, "name": "H5移动端专项", "status": "DONE", "outputs": ["MOBILE-UI.md", "390/430 实测"] },
+    { "id": 13, "name": "完整回归", "status": "DONE", "outputs": ["174 测试文件 EXIT=0", "TEST-MATRIX.md"] },
+    { "id": 14, "name": "真实试玩截图报告", "status": "DONE", "outputs": ["10 档案 audit json + 截图", "exe-smoke.json 5/5"] },
+    { "id": 15, "name": "Git提交推送", "status": "IN_PROGRESS", "outputs": [] }
+  ],
+  "metrics": {
+    "fullRegression": "174 files EXIT=0",
+    "newUnitTests": 19,
+    "balanceSim": "24 seeds x 3 scenarios ALL PASS",
+    "cardPool": "52 -> 67",
+    "newBosses": 5,
+    "newMechanics": 3,
+    "defectsFixed": ["DEF-001", "DEF-002", "DEF-004", "DEF-005", "DEF-006", "DEF-007", "DEF-008", "DEF-010", "DEF-011"],
+    "defectsOpen": ["DEF-003 (IAB 特定)", "DEF-009 (LOW)", "DEF-012 (留档)"]
+  },
+  "notCompleted": ["卡组预设", "奖励替换(Transform)", "创建向导保存后自动前进", "360/375/414 逐一驱动运行(同断点组以极值覆盖)"],
+  "simOnly": ["平衡数值(引擎级24种子模拟)", "拖把流极限(软狂暴封顶)"],
+  "exeVerified": ["打包EXE CDP冒烟 5/5"],
+  "h5Verified": ["1280x720", "390x844", "430x932", "存档连续性", "10档案独立验收"]
+}
