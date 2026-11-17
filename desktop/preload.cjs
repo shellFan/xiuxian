@@ -20,6 +20,7 @@ const electronAPI = {
     getVersion: () => ipcRenderer.invoke('app:getVersion'),
     getPath: (name) => ipcRenderer.invoke('app:getPath', name),
     isElectron: () => ipcRenderer.invoke('app:isElectron'),
+    getRuntimeInfo: () => ipcRenderer.invoke('app:getRuntimeInfo'),
   },
 
   // ── Save Signal Listener ───────────────────────────────────────────────

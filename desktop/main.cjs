@@ -41,11 +41,69 @@ let gameReady = false;
 // F05: set while waiting for the renderer to flush its save on close
 let closeFlushInProgress = false;
 const isDev = process.argv.includes('--dev') || process.argv.includes('--debug');
+const isTestMode = process.env.XIUXIAN_TEST_MODE === '1' || process.argv.includes('--test');
+
+function resolveUserDataPath() {
+  const requested = process.env.XIUXIAN_USER_DATA;
+  if (!requested) {
+    if (isTestMode) throw new Error('XIUXIAN_TEST_MODE requires an absolute XIUXIAN_USER_DATA directory');
+    return app.getPath('userData');
+  }
+  const resolved = path.resolve(requested);
+  if (!path.isAbsolute(requested) || path.parse(resolved).root === resolved) {
+    throw new Error('XIUXIAN_USER_DATA must be an absolute, non-root directory');
+  }
+  return resolved;
+}
+
+const configuredUserDataPath = resolveUserDataPath();
+if (process.env.XIUXIAN_USER_DATA) {
+  // Must happen before storage initialization and before BrowserWindow creates
+  // a session. This keeps EXE probes and tests out of the player's real data.
+  app.setPath('userData', configuredUserDataPath);
+}
 
 // ── Storage Init ───────────────────────────────────────────────────────────
 // XIUXIAN_USER_DATA 允许自动化烟测把存档重定向到临时目录（未设置时行为不变，
 // 永不触碰真实玩家存档）。Electron 的 appData 取自系统 API，无法用 APPDATA 环境变量隔离。
-initStorage(process.env.XIUXIAN_USER_DATA || app.getPath('userData'));
+initStorage(app.getPath('userData'));
+
+// V10：NPC 长期记忆持久化到隔离的用户数据目录（绝不写进游戏存档文件）。
+try { aiBridge.attachMemoryStore(app.getPath('userData')); } catch (memoryError) {
+  console.warn('[ai] memory store attach failed:', memoryError && memoryError.message);
+}
+
+function getBuildDir() { return path.join(__dirname, 'build', 'web-desktop'); }
+function getBuildIdentity() {
+  try {
+    const manifest = JSON.parse(require('node:fs').readFileSync(path.join(getBuildDir(), '.xiuxian-build-manifest.json'), 'utf8'));
+    return {
+      buildId: manifest.buildId || 'unknown',
+      gitHead: manifest.gitHead || 'unknown',
+      sourceInputsHash: manifest.sourceInputsHash || null,
+      artifactHash: manifest.artifactHash || null,
+    };
+  } catch {
+    return { buildId: 'unknown', gitHead: 'unknown', sourceInputsHash: null, artifactHash: null };
+  }
+}
+
+function getRuntimeInfo() {
+  const userData = app.getPath('userData');
+  return {
+    userData,
+    storageRoot: path.join(userData, 'xiuxian-save'),
+    savePath: path.join(userData, 'xiuxian-save', 'save.json'),
+    renderer: {
+      type: 'electron',
+      url: mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents.getURL ? mainWindow.webContents.getURL() : null,
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+    isPackaged: !!app.isPackaged,
+    build: getBuildIdentity(),
+  };
+}
 
 // ── IPC Handlers ───────────────────────────────────────────────────────────
 ipcMain.handle('storage:save', async (_event, data) => {
@@ -71,6 +129,7 @@ ipcMain.handle('storage:recover', async () => {
 ipcMain.handle('app:getVersion', () => app.getVersion());
 ipcMain.handle('app:getPath', (_e, name) => app.getPath(name));
 ipcMain.handle('app:isElectron', () => true);
+ipcMain.handle('app:getRuntimeInfo', () => getRuntimeInfo());
 
 // F05: renderer acks the close-flush save has been written to disk
 ipcMain.on('game:save-flushed', () => {
@@ -136,7 +195,7 @@ ipcMain.on('game:ready', () => {
 async function createWindow() {
   closeFlushInProgress = false;
   // Start local game server FIRST
-  const buildDir = path.join(__dirname, 'build', 'web-desktop');
+  const buildDir = getBuildDir();
   if (!require('fs').existsSync(buildDir)) {
     console.error(`[Electron] Build directory not found: ${buildDir}`);
     console.error('[Electron] Run: cd desktop && npm run build:copy');
