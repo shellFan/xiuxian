@@ -14,6 +14,12 @@ const http = require('http');
 const MNN_CHAT_URL = process.env.MNN_CHAT_URL || 'http://127.0.0.1:7860';
 const REQUEST_TIMEOUT_MS = 8000;
 const MAX_HISTORY = 12; // 每个NPC最多保留的对话轮数
+const MAX_REPLY_CHARS = 300; // 模型输出硬上限，防止超长输出拖垮 UI
+const MAX_MESSAGE_CHARS = 400; // 玩家输入硬上限
+
+// 同一 NPC 同时只允许一个在途 MNN 请求：重复点击立即回退规则引擎，
+// 不排队、不阻塞、不产生竞态历史。
+const inFlight = {};
 
 // ── NPC 人设库 ──────────────────────────────────────────────────────────────
 const NPC_PERSONAS = {
@@ -79,8 +85,103 @@ const NPC_PERSONAS = {
   },
 };
 
-// ── 对话记忆（内存级，进程重启清空） ────────────────────────────────────────
+// ── 对话记忆（短期在内存 + 长期持久化到 npc-memory.json） ────────────────────
+// 短期: 最近对话轮（内存）。长期: 玩家概况/好感度/重要事件（磁盘）。
+// 永远不把完整存档交给模型 —— 只交 facts 摘要行（≤160 字符）。
 const conversations = {}; // { personaId: [{ role, content, ts }] }
+const memory = {}; // { personaId: { summary, facts, affinity, notableEvents } }
+let memoryDir = null;
+let memorySaveTimer = null;
+
+const MEMORY_FILE = function () { return require('path').join(memoryDir, 'xiuxian-save', 'npc-memory.json'); };
+const MAX_FACTS = 24;
+const MAX_NOTABLE = 20;
+const MAX_SUMMARY_CHARS = 400;
+
+function defaultMemory() {
+  return { summary: '', facts: {}, affinity: 0, notableEvents: [], updatedAt: 0 };
+}
+
+function loadMemory() {
+  if (!memoryDir) return;
+  try {
+    const raw = require('fs').readFileSync(MEMORY_FILE(), 'utf8');
+    const parsed = JSON.parse(raw);
+    Object.keys(parsed || {}).forEach(function (k) { memory[k] = parsed[k]; });
+  } catch (e) { /* 首次运行或损坏时从空白开始 */ }
+}
+
+function saveMemory() {
+  if (!memoryDir) return;
+  if (memorySaveTimer) return;
+  memorySaveTimer = setTimeout(function () {
+    memorySaveTimer = null;
+    try {
+      const fs = require('fs');
+      const file = MEMORY_FILE();
+      fs.mkdirSync(require('path').dirname(file), { recursive: true });
+      const tmp = file + '.tmp';
+      fs.writeFileSync(tmp, JSON.stringify(memory, null, 1));
+      fs.renameSync(tmp, file);
+    } catch (e) { /* 持久化失败不阻塞对话 */ }
+  }, 1500);
+}
+
+/** 由 Electron 主进程调用：把长期记忆挂到隔离的用户数据目录。 */
+function attachMemoryStore(userDataDir) {
+  memoryDir = String(userDataDir || '');
+  loadMemory();
+}
+
+function getMemory(personaId) {
+  if (!memory[personaId]) memory[personaId] = defaultMemory();
+  return memory[personaId];
+}
+
+function rememberContext(personaId, context) {
+  if (!context || typeof context !== 'object') return;
+  const mem = getMemory(personaId);
+  const KEYS = ['profession', 'professionName', 'sect', 'realm', 'stage', 'chapter', 'level',
+    'workHours', 'promoAllowed', 'fatigue', 'combo', 'kpi', 'wage', 'daoHeart'];
+  KEYS.forEach(function (k) {
+    if (context[k] !== undefined && context[k] !== null) mem.facts[k] = context[k];
+  });
+  const factKeys = Object.keys(mem.facts);
+  if (factKeys.length > MAX_FACTS) {
+    factKeys.slice(0, factKeys.length - MAX_FACTS).forEach(function (k) { delete mem.facts[k]; });
+  }
+}
+
+/** 记录一段值得 NPC 长期记住的经历（由游戏在事件结算后调用）。 */
+function rememberEvent(personaId, description) {
+  const mem = getMemory(personaId);
+  const text = String(description || '').slice(0, 120);
+  if (!text) return { success: false };
+  // 去重：同一事件文本只保留一条
+  if (mem.notableEvents.indexOf(text) >= 0) return { success: true, duplicate: true };
+  mem.notableEvents.push(text);
+  if (mem.notableEvents.length > MAX_NOTABLE) mem.notableEvents.splice(0, mem.notableEvents.length - MAX_NOTABLE);
+  saveMemory();
+  return { success: true };
+}
+
+/** 好感度调整（-5..+5/次），持久化；影响问候语与规则引擎语气由上层决定。 */
+function adjustAffinity(personaId, delta) {
+  const mem = getMemory(personaId);
+  const d = Math.max(-5, Math.min(5, Number(delta) || 0));
+  mem.affinity = Math.max(-100, Math.min(100, (mem.affinity || 0) + d));
+  saveMemory();
+  return { success: true, affinity: mem.affinity };
+}
+
+function factsLine(personaId) {
+  const mem = getMemory(personaId);
+  const pairs = Object.keys(mem.facts).map(function (k) { return k + '=' + mem.facts[k]; });
+  let line = pairs.join(' ');
+  if (mem.summary) line = line + (line ? ' | ' : '') + '近期摘要: ' + mem.summary;
+  if (line.length > 160) line = line.slice(0, 160);
+  return line;
+}
 
 function getHistory(personaId) {
   if (!conversations[personaId]) conversations[personaId] = [];
@@ -89,17 +190,36 @@ function getHistory(personaId) {
 
 function pushHistory(personaId, role, content) {
   var hist = getHistory(personaId);
+  // 去重：连续完全相同的用户发言折叠（防连点重复入库）
+  var last = hist[hist.length - 1];
+  if (last && last.role === role && last.content === content) {
+    last.ts = Date.now();
+    last.repeat = (last.repeat || 1) + 1;
+    return;
+  }
   hist.push({ role: role, content: content, ts: Date.now() });
-  // 裁剪到 MAX_HISTORY
-  if (hist.length > MAX_HISTORY) hist.splice(0, hist.length - MAX_HISTORY);
+  // 摘要折叠：溢出的早期轮次并入 summary（容量控制）
+  while (hist.length > MAX_HISTORY) {
+    var evicted = hist.shift();
+    var mem = getMemory(personaId);
+    var piece = (evicted.role === 'user' ? '问:' : '答:') + String(evicted.content).slice(0, 40);
+    mem.summary = (mem.summary ? mem.summary + '；' : '') + piece;
+    if (mem.summary.length > MAX_SUMMARY_CHARS) {
+      mem.summary = '…' + mem.summary.slice(mem.summary.length - MAX_SUMMARY_CHARS);
+    }
+  }
+  saveMemory();
 }
 
 // ── MNN-Pocket-0.3B HTTP 调用 ────────────────────────────────────────────────
-function callMnnChat(persona, userMessage, history) {
+function callMnnChat(persona, userMessage, history, personaId) {
   return new Promise(function (resolve, reject) {
+    var systemContent = persona.systemPrompt;
+    var profile = factsLine(personaId);
+    if (profile) systemContent = systemContent + '\n(玩家概况: ' + profile + ')';
     var body = JSON.stringify({
       model: 'mnn-pocket-0.3b',
-      messages: [{ role: 'system', content: persona.systemPrompt }]
+      messages: [{ role: 'system', content: systemContent }]
         .concat(history.slice(-6).map(function (m) { return { role: m.role, content: m.content }; }))
         .concat([{ role: 'user', content: userMessage }]),
       max_tokens: 120,
@@ -175,20 +295,41 @@ async function getStatus() {
 /** NPC 对话 */
 async function chat(personaId, userMessage, context) {
   var persona = NPC_PERSONAS[personaId] || NPC_PERSONAS.assistant;
-  var history = getHistory(personaId);
-  pushHistory(personaId, 'user', userMessage);
+  rememberContext(personaId, context);
+  // 修复：必须在 push 之前对历史做快照。此前把 live 数组直接传给模型，
+  // push 之后用户消息会出现两份（重复历史消息缺陷根因）。
+  var historySnapshot = getHistory(personaId).slice();
+  var safeMessage = sanitizeUserMessage(userMessage);
+  pushHistory(personaId, 'user', safeMessage);
 
   var reply = '';
   var mode = 'rule';
-  try {
-    reply = await callMnnChat(persona, userMessage, history);
-    mode = 'mnn';
-  } catch (e) {
-    reply = ruleBasedReply(persona, userMessage, context);
-    mode = 'rule';
+  if (inFlight[personaId]) {
+    // 并发保护：同 NPC 的在途请求未结束时直接走规则引擎，绝不排队挂起。
+    reply = ruleBasedReply(persona, safeMessage, context);
+    mode = 'rule-duplicate';
+  } else {
+    inFlight[personaId] = true;
+    try {
+      reply = await callMnnChat(persona, safeMessage, historySnapshot, personaId);
+      mode = 'mnn';
+    } catch (e) {
+      reply = ruleBasedReply(persona, safeMessage, context);
+      mode = 'rule';
+    } finally {
+      inFlight[personaId] = false;
+    }
   }
+  reply = String(reply || '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').slice(0, MAX_REPLY_CHARS);
   pushHistory(personaId, 'assistant', reply);
   return { reply: reply, mode: mode, persona: persona.name, avatar: persona.avatar };
+}
+
+/** 输入清洗：截断 + 去控制字符。模型仅产出文本，任何输入都无法改动游戏状态。 */
+function sanitizeUserMessage(userMessage) {
+  return String(userMessage == null ? '' : userMessage)
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, ' ')
+    .slice(0, MAX_MESSAGE_CHARS);
 }
 
 /** 获取 NPC 列表 */
@@ -206,11 +347,20 @@ function getGreeting(personaId) {
   return greetings[Math.floor(Math.random() * greetings.length)];
 }
 
-/** 清空对话记忆 */
+/** 清空对话记忆（含该 NPC 的长期记忆；不传 personaId 则全清） */
 function clearHistory(personaId) {
-  if (personaId) delete conversations[personaId];
-  else Object.keys(conversations).forEach(function (k) { delete conversations[k]; });
+  if (personaId) {
+    delete conversations[personaId];
+    delete memory[personaId];
+  } else {
+    Object.keys(conversations).forEach(function (k) { delete conversations[k]; });
+    Object.keys(memory).forEach(function (k) { delete memory[k]; });
+  }
+  saveMemory();
   return { success: true };
 }
 
-module.exports = { getStatus, chat, getNpcList, getGreeting, clearHistory, NPC_PERSONAS };
+module.exports = {
+  getStatus, chat, getNpcList, getGreeting, clearHistory, NPC_PERSONAS,
+  attachMemoryStore, rememberEvent, adjustAffinity, factsLine, getMemory,
+};
