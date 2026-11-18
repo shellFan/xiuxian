@@ -169,9 +169,9 @@
   - `4bed861` fix(v10-qa): card battle engine — REGEN 衰减/开局护盾/gen_ uid/rng 快照/波间喘息守卫 + 回归测试
   - `567e3fd` fix(v10-qa): professions really differ — finalize 对齐队长职业 + facade queryPlayerFlags + 教程可关闭 + 单测
   - `ed12e33` fix(v10-qa): hire/equip/goals 面板冒泡拦截 + UI 生命周期泄漏 + 广告 cancel 双发
-  - `ca34bf8` test(v10-qa): QA 覆盖（六探针）+ harness 观测修复 + 全量 QA 报告 + 截图（本提交）
-- 最终 SHA：`ca34bf8`（test(v10-qa) 报告提交；其中三枚 fix 提交 SHA 稳定不变）
-- Push 状态：见下（提交后推送结果回填）
+  - `ff40444` test(v10-qa): QA 覆盖（六探针）+ harness 观测修复 + 全量 QA 报告 + 截图（推送 HEAD）
+- 最终 SHA：`ff40444`（已推送；三枚 fix 提交 SHA：4bed861 / 567e3fd / ed12e33）
+- Push 状态：✅ 成功（fast-forward `b677ac4..ff40444`，远程与本地一致）
 - 远程分支：`origin/feature/v10-final-release`
 - 测试报告位置：`docs/QA/V10_FULL_QA_REPORT.md`
 - 排除项：根目录 `pnpm-lock.yaml`/`pnpm-workspace.yaml`（历史会话意外产物，未纳入）
