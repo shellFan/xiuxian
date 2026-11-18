@@ -296,6 +296,10 @@
 
   function tutorialHtml() {
     var f = facade();
+    // V10 QA P2 修复：渲染器一直按设计调用 f.queryPlayerFlags()，但 facade 从未
+    // 实现该方法 → tryGet 短路 undefined（tryGet 只在抛错时用 fallback）→ 教程
+    // 永远渲染且「跳过引导」写入的旗标读不回——首战引导永远无法关闭。现已在
+    // GameFacade 补实现 queryPlayerFlags()（返回 eventFlags 快照），渲染逻辑还原设计。
     var done = tryGet(function () { return f.queryPlayerFlags && f.queryPlayerFlags()['v59o_battle_tutorial_done']; }, true);
     if (done) return '';
     if (tutorialStep < 0) tutorialStep = 0;

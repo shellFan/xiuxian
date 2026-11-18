@@ -455,6 +455,18 @@ export class CharacterCreationService {
       player.characterCreationReceipt = `${CREATE_RECEIPT_PREFIX}:${draft.seed}:${candidate.id}`;
       player.characterOnboardingStep = 'INTRO_1';
       player.characterOnboardingTaskReceipt = undefined;
+      // V10 QA P1：创建期间任何 queryAutoBattle 查询都会把战斗队长按当时的默认
+      // 职业(JAVA_BACKEND)持久化进存档，finalize 后不再重算——玩家选了
+      // FRONTEND/QA/DEVOPS 也永远拿到 JAVA_BACKEND 队长（技能/攻击全同）。
+      // 入职时把队长职业对齐到最终选择，同时修复已被污染的存档。
+      if (player.v63Squad && Array.isArray(player.v63Squad.members) && isProfessionId(draft.professionId)) {
+        const leader = player.v63Squad.members.find((m) => m && m.id === 'leader');
+        if (leader && leader.profession !== draft.professionId) {
+          // V63SquadMemberState.profession 在接口上为 readonly（运行时状态可变，与
+          // auto-battle-service 兼容旧档直接改 rarity 的口径一致）。
+          (leader as { profession: string }).profession = draft.professionId;
+        }
+      }
       const starterKit = this.context.profession.grantStarterKit(draft.professionId);
       if (!starterKit.success) throw new Error(starterKit.reason ?? '入职物品发放失败');
       this.context.saveService.save(player);

@@ -575,6 +575,11 @@ export class GameFacade {
   public queryPlayerFlag(key: string): boolean {
     return this.context.player.eventFlags?.[key] === true;
   }
+  /** V10 QA P2：读全部旗标（ui-battle-card 首战引导按 flags 对象读取；
+   *  此前渲染器调用本方法但 facade 从未实现——引导永远无法关闭）。 */
+  public queryPlayerFlags(): Record<string, boolean> {
+    return { ...(this.context.player.eventFlags ?? {}) };
+  }
   /** V5.9-F-Z：写一个持久化旗标并回写存档。 */
   public markPlayerFlag(key: string, value: boolean): void {
     this.context.player.eventFlags = { ...(this.context.player.eventFlags ?? {}), [key]: value };

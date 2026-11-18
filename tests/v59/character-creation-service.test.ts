@@ -244,6 +244,34 @@ const tests: Array<[string, () => void]> = [
     assert.equal(context.player.characterCreationReceipt, undefined);
     assert.ok(context.player.characterBackfillReceipt);
   }],
+  ['V10 QA: finalize 对齐被污染的战斗队长职业（创建期间 queryAutoBattle 触发的持久化）', () => {
+    for (const chosen of ['FRONTEND', 'QA', 'DEVOPS'] as const) {
+      const context = createContext(new MemoryStorageAdapter(), 42);
+      const service = (context as any).characterCreation;
+      // 模拟污染：创建完成前战斗小队已按默认职业初始化并持久化
+      context.player.v63Squad = {
+        members: [{
+          id: 'leader', name: '青云牛马', profession: 'JAVA_BACKEND', level: 1, exp: 0, slot: 0,
+          attackTimer: 0, skillTimer: 0, hiredAtDay: 0, rarity: 1, stars: 1, fragments: 0,
+        }],
+        clickLevel: 1, shield: 0, weakSpotTimer: 0, activeSkillCooldowns: {},
+      } as never;
+      service.selectIndustry('INTERNET'); service.advance();
+      service.selectDirection('TECH_RND'); service.advance();
+      assert.equal(service.selectProfession(chosen).success, true);
+      service.advance();
+      service.setIdentity('青云牛马', 'avatar-1');
+      service.setBackground('ORDINARY_WORKER');
+      service.advance();
+      service.selectCandidate('B'); service.advance(); service.advance();
+      assert.equal(service.finalize().success, true);
+      assert.equal(context.player.profession, chosen, 'save profession must be the chosen one');
+      const squadAfter = context.player.v63Squad as { members: Array<{ id: string; profession: string }> };
+      const leader = squadAfter.members.find((m) => m.id === 'leader');
+      assert.ok(leader, 'leader must exist after finalize');
+      assert.equal(leader.profession, chosen, `squad leader profession must be aligned to ${chosen}`);
+    }
+  }],
 ];
 
 for (const [name, run] of tests) {
