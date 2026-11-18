@@ -164,7 +164,7 @@ export class CharacterCreationWizardComponent extends Component {
     }
     bootstrap.onFacadeReady((facade) => {
       if (!this.destroyed) this.bindFacade(facade);
-    });
+    }, this);
   }
 
   protected onDestroy(): void {

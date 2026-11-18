@@ -112,7 +112,7 @@ export class PromotionPageComponent extends Component {
     if (!bootstrap.facade) {
       // F15: facade arrives after async storage init — rerun this onLoad then.
       console.log('[PromotionPageComponent] facade not ready — deferring wiring via onFacadeReady');
-      bootstrap.onFacadeReady(() => this.onLoad());
+      bootstrap.onFacadeReady(() => this.onLoad(), this);
       return;
     }
     this.facade = bootstrap.facade;

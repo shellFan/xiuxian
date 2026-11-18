@@ -91,7 +91,7 @@ export class FloatingRewardComponent extends Component {
     if (!bootstrap.facade) {
       // F15: facade arrives after async storage init — rerun this onLoad then.
       console.log('[FloatingRewardComponent] facade not ready — deferring wiring via onFacadeReady');
-      bootstrap.onFacadeReady(() => this.onLoad());
+      bootstrap.onFacadeReady(() => this.onLoad(), this);
       return;
     }
     this.facade = bootstrap.facade;
@@ -147,20 +147,29 @@ export class FloatingRewardComponent extends Component {
 
   private animateFloat(node: NodeLike, opacity: OpacityLike | null): void {
     const factory = (Cocos as unknown as { tween?: (target: object) => TweenLike }).tween;
-    if (!factory) {
+    const Vec3 = (Cocos as unknown as { Vec3?: new (x?: number, y?: number, z?: number) => { x: number; y: number; z?: number } }).Vec3;
+    if (!factory || !Vec3) {
       // Fallback: just hide after duration
       setTimeout(() => { node.active = false; }, FloatingRewardComponent.FLOAT_DURATION * 1000);
       return;
     }
 
-    const target = { y: 0, opacity: 255 };
-    factory(target)
+    // V10 QA P2 修复：此前 tween 作用于游离临时对象 {y, opacity}，节点本身
+    // 从未上升/淡出（池化节点静止 1.5s 后直接隐藏）。改为对节点位置与
+    // UIOpacity 分别驱动真实动画。
+    const startX = node.position?.x ?? 0;
+    node.setPosition?.({ x: startX, y: 0, z: 0 });
+    factory(node as unknown as object)
       .to(FloatingRewardComponent.FLOAT_DURATION, {
-        y: FloatingRewardComponent.RISE_DISTANCE,
-        opacity: 0,
+        position: new Vec3(startX, FloatingRewardComponent.RISE_DISTANCE, 0),
       })
       .call(() => { node.active = false; })
       .start();
+    if (opacity) {
+      factory(opacity)
+        .to(FloatingRewardComponent.FLOAT_DURATION, { opacity: 0 })
+        .start();
+    }
   }
 
   // ── Event Subscription ────────────────────────────────────────────────────

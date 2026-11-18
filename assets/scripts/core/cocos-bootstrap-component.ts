@@ -34,7 +34,9 @@ export class CocosBootstrapComponent extends Component {
   private _audioService: AudioService | null = null;
   private _safeAreaService: SafeAreaService | null = null;
   private _lastBgmId: string | null = null;
-  private _facadeWaiters: Array<(facade: GameFacade) => void> = [];
+  private _facadeWaiters: Array<{ cb: (facade: GameFacade) => void; owner?: object }> = [];
+  private _saveSignalWired = false;
+  private _gameReadyTimer: ReturnType<typeof setTimeout> | null = null;
 
   /** Singleton instance — null after destroy. */
   public static get instance(): CocosBootstrapComponent | null {
@@ -51,15 +53,21 @@ export class CocosBootstrapComponent extends Component {
    * is deferred behind async storage initialization, so scene components that
    * load earlier must subscribe instead of failing in onLoad.
    */
-  public onFacadeReady(cb: (facade: GameFacade) => void): void {
+  public onFacadeReady(cb: (facade: GameFacade) => void, owner?: object): void {
+    // V10 QA P2：owner（通常是组件自身）在 facade 就绪前被销毁时，flush 阶段
+    // 必须跳过——否则销毁组件的 onLoad 会被重新执行，重新订阅事件并复活
+    // 已失效的单例（SceneBindingComponent._instance 指向已销毁组件）。
+    // Cocos CCObject 的 isValid 在 destroy() 时同步翻转为 false。
+    if (owner && (owner as { isValid?: boolean }).isValid === false) return;
     if (this._facade) { cb(this._facade); return; }
-    this._facadeWaiters.push(cb);
+    this._facadeWaiters.push({ cb, owner });
   }
 
   private notifyFacadeReady(): void {
     const waiters = this._facadeWaiters.splice(0);
     for (const w of waiters) {
-      try { w(this._facade!); } catch (e) {
+      if (w.owner && (w.owner as { isValid?: boolean }).isValid === false) continue;
+      try { w.cb(this._facade!); } catch (e) {
         console.error('[BOOT] facade-ready wiring callback failed:', e);
       }
     }
@@ -257,6 +265,18 @@ export class CocosBootstrapComponent extends Component {
     game.off(game.EVENT_HIDE, this.onGameHide, this);
     game.off(game.EVENT_SHOW, this.onGameShow, this);
 
+    // V10 QA P2：清掉 GAME_READY 重试定时器，并移除 Electron 存档信号监听，
+    // 防止销毁后的组件继续被定时器/信号唤醒（泄漏 + 重复 gameReady）。
+    if (this._gameReadyTimer !== null) {
+      clearTimeout(this._gameReadyTimer);
+      this._gameReadyTimer = null;
+    }
+    if (this._saveSignalWired && typeof window !== 'undefined') {
+      const electronAPI = (window as unknown as { electronAPI?: { removeSaveListener?: () => void } }).electronAPI;
+      try { electronAPI?.removeSaveListener?.(); } catch { /* 桥未就绪时忽略 */ }
+      this._saveSignalWired = false;
+    }
+
     // Destroy the facade and release all resources
     this._facade?.destroy();
     this._audioService?.dispose();
@@ -331,8 +351,12 @@ export class CocosBootstrapComponent extends Component {
    */
   private wireElectronSaveSignals(): void {
     if (typeof window === 'undefined') return;
-    const electronAPI = (window as unknown as { electronAPI?: { onSaveRequested?: (cb: (data: { reason: string }) => void) => void } }).electronAPI;
+    const electronAPI = (window as unknown as { electronAPI?: { onSaveRequested?: (cb: (data: { reason: string }) => void) => void; removeSaveListener?: () => void } }).electronAPI;
     if (!electronAPI?.onSaveRequested) return;
+    // V10 QA P2：ipcRenderer.on 会累积监听器；组件销毁/重建后旧回调仍持有已销毁
+    // 组件并重复触发保存。同一实例只注册一次，销毁时移除。
+    if (this._saveSignalWired) return;
+    this._saveSignalWired = true;
 
     electronAPI.onSaveRequested((data: { reason: string }) => {
       if (this._facade && !this._facade['disposed']) {
@@ -398,8 +422,10 @@ export class CocosBootstrapComponent extends Component {
       }
     } else {
       console.warn(`[BOOT] ⚠️ Game not fully ready — Canvas=${canvasOk} GameDiv=${gameDivOk}`);
-      // Retry after a short delay
-      setTimeout(() => {
+      // Retry after a short delay（句柄入字段：销毁时可清除，防止死组件重复触发）
+      if (this._gameReadyTimer !== null) clearTimeout(this._gameReadyTimer);
+      this._gameReadyTimer = setTimeout(() => {
+        this._gameReadyTimer = null;
         this.checkGameReady();
       }, 1000);
     }

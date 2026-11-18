@@ -52,6 +52,8 @@ export class RewardedAdService {
   private readonly simulatedDuration: number;
   private readonly history: AdHistoryEntry[] = [];
   private watching = false;
+  /** V10 QA P3：pending 的完成定时器句柄——cancel 必须真正取消它，否则奖励仍会发放。 */
+  private pendingCompleteTimer: ReturnType<typeof setTimeout> | null = null;
 
   public constructor(options: RewardedAdServiceOptions = {}) {
     this.clock = options.clock ?? DEFAULT_CLOCK;
@@ -109,7 +111,9 @@ export class RewardedAdService {
 
     // Simulate ad watching with a timeout
     // In a real implementation, this would show an actual ad
-    setTimeout(() => {
+    if (this.pendingCompleteTimer !== null) clearTimeout(this.pendingCompleteTimer);
+    this.pendingCompleteTimer = setTimeout(() => {
+      this.pendingCompleteTimer = null;
       this.watching = false;
       const entry: AdHistoryEntry = { placement, timestamp: this.clock.now() };
       this.history.push(entry);
@@ -157,6 +161,12 @@ export class RewardedAdService {
 
   /** Cancel the current ad watch (e.g., user navigated away). */
   public cancel(): void {
+    // V10 QA P3：同时清掉 pending 完成定时器——否则取消后奖励仍会照常发放，
+    // 且 canShow 提前放行会造成同一广告双发奖励。
+    if (this.pendingCompleteTimer !== null) {
+      clearTimeout(this.pendingCompleteTimer);
+      this.pendingCompleteTimer = null;
+    }
     this.watching = false;
   }
 

@@ -156,7 +156,7 @@ export class MainHudComponent extends Component {
     if (!bootstrap.facade) {
       // F15: facade arrives after async storage init — rerun this onLoad then.
       console.log('[MainHudComponent] facade not ready — deferring wiring via onFacadeReady');
-      bootstrap.onFacadeReady(() => this.onLoad());
+      bootstrap.onFacadeReady(() => this.onLoad(), this);
       return;
     }
     this.facade = bootstrap.facade;

@@ -236,7 +236,7 @@ export class GameUIController extends Component {
       bootstrap.onFacadeReady((facade) => {
         this.facade = facade;
         this.wireRuntime();
-      });
+      }, this);
       return;
     }
     console.error('[GameUIController] bootstrap has no facade and no onFacadeReady — cannot wire UI');

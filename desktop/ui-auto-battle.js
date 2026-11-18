@@ -277,7 +277,7 @@
       return inlineHtml + '</div>';
     }
     var html = '<div class="ux63-hire-overlay" data-action="v63-closeHireMenu">' +
-      '<div class="ux63-hire-panel" onclick="event.stopPropagation()">' +
+      '<div class="ux63-hire-panel" onclick="if(!event.target.closest(\'[data-action]\'))event.stopPropagation()">' +
         '<div class="ux63-hire-title">招募项目小队 ' + costHtml + '</div>';
     for (var i = 0; i < profs.length; i++) {
       var p = profs[i];
@@ -311,7 +311,7 @@
         '<div class="ux63-hire-title">⚔️ 战斗装备</div>';
     } else {
       open = '<div class="ux63-hire-overlay" data-action="v64-closeEquip">' +
-        '<div class="ux63-hire-panel ux64-equip-panel" onclick="event.stopPropagation()">' +
+        '<div class="ux63-hire-panel ux64-equip-panel" onclick="if(!event.target.closest(\'[data-action]\'))event.stopPropagation()">' +
           '<div class="ux63-hire-title">⚔️ 战斗装备</div>';
     }
     var html = open;
@@ -382,7 +382,7 @@
     var sd = fQuery('querySevenDayGoals');
     var ach = fQuery('queryV64Achievements');
     var html = '<div class="ux63-hire-overlay" data-action="v64-closeGoals">' +
-      '<div class="ux63-hire-panel ux64-goals-panel" onclick="event.stopPropagation()">' +
+      '<div class="ux63-hire-panel ux64-goals-panel" onclick="if(!event.target.closest(\'[data-action]\'))event.stopPropagation()">' +
         '<div class="ux63-hire-title">📋 每日目标</div>';
     // 每日目标
     if (dg && dg.length) {
