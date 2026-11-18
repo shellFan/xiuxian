@@ -121,6 +121,9 @@ export function beginCardBattle(params: {
   state.enemies = params.env.spawnWave(0, rng, state);
   if (state.enemies.length === 0) throw new Error('卡牌战斗至少需要一名敌人');
   state.log.push(`第 1/${params.env.waveTotal} 波：${state.enemies.map((e) => e.name).join('、')}`);
+  // V10 QA P3：spawnWave 已消耗 rng 前段随机数，此处必须同步快照，否则
+  // startPlayerTurn 从旧计数器重放 spawnWave 用过的随机段（破坏种子复现契约）。
+  state.rng = rng.toState();
   startPlayerTurn(state, params.env);
   return state;
 }
@@ -131,10 +134,14 @@ function manifestOf(deck: CardInstance[]): Record<string, number> {
   return manifest;
 }
 
-/** 卡牌实例发号（uid 全局唯一，跨存档恢复稳定）。 */
+/** 卡牌实例发号（uid 全局唯一，跨存档恢复稳定）。
+ *  V10 QA P3：战斗内生成卡（ADD_CARD_TO_HAND 等）使用 `gen_` 前缀命名空间，
+ *  与牌库构建的 `${defId}_${n}` uid 空间隔离——两者计数都从 1 开始且按 defId
+ *  命名，此前可产生同 uid（如 card_vdom_1），playCard 按 uid 查找时会误吃
+ *  牌库中的升级副本。 */
 export function makeCardInstance(state: CardBattleState, defId: string, upgraded = 0): CardInstance {
   state.uidCounter += 1;
-  return { uid: `${defId}_${state.uidCounter}`, defId, upgraded, turnCostDelta: 0 };
+  return { uid: `gen_${defId}_${state.uidCounter}`, defId, upgraded, turnCostDelta: 0 };
 }
 
 // ── 回合流转 ─────────────────────────────────────────────────────────────────
@@ -145,7 +152,10 @@ export function startPlayerTurn(state: CardBattleState, env: CardEngineEnv): voi
   state.phase = 'PLAYER_TURN_START';
   state.turn += 1;
   // 玩家格挡在玩家回合开始时清空（StS 口径）。
-  state.player.block = 0;
+  // V10 QA P2 修复：第 1 回合不清空——beginCardBattle 先授予装备 shieldBonus，
+  // 此前无条件清零让开局护盾永远吸收不到伤害（死属性 + 假日志）。护盾按 StS
+  // 口径存续到下一回合开始（覆盖第 1 波敌人阶段）。
+  if (state.turn > 1) state.player.block = 0;
   // 敌人意图（玩家行动前必须可见，§21）。
   const rng = CardRng.fromState(state.rng);
   for (const enemy of state.enemies) {
@@ -153,10 +163,12 @@ export function startPlayerTurn(state: CardBattleState, env: CardEngineEnv): voi
     enemy.intent = env.planIntent(enemy, state, rng);
   }
   state.rng = rng.toState();
-  // REGEN。
+  // REGEN（按「层」消耗：每回合回复当前层数后衰减一层，与 POISON 衰减同模式）。
   const regen = state.player.statuses.REGEN ?? 0;
   if (regen > 0) {
     state.player.hp = Math.min(state.player.maxHp, state.player.hp + regen);
+    state.player.statuses.REGEN = regen - 1;
+    if ((state.player.statuses.REGEN ?? 0) <= 0) delete state.player.statuses.REGEN;
     state.log.push(`回气：+${regen} 生命。`);
   }
   // 能量恢复（基础 + 周期奖励）。
@@ -685,9 +697,13 @@ function onEnemyDefeated(state: CardBattleState, env: CardEngineEnv, enemy: Card
   if (state.enemies.some((e) => e.hp > 0)) return;
   if (state.wave < env.waveTotal - 1) {
     state.wave += 1;
-    const healed = Math.floor(state.player.maxHp * 0.25);
-    state.player.hp = Math.min(state.player.maxHp, state.player.hp + healed);
-    state.log.push(`波间喘息：回复 ${healed} 生命。`);
+    // V10 QA P3：与 endTurnHeal 相同的 hp>0 守卫——玩家已死亡时（如末敌死于
+    // 中毒同回合）不得被波间喘息复活，否则 checkBattleEnd 的失败判定被绕过。
+    if (state.player.hp > 0) {
+      const healed = Math.floor(state.player.maxHp * 0.25);
+      state.player.hp = Math.min(state.player.maxHp, state.player.hp + healed);
+      state.log.push(`波间喘息：回复 ${healed} 生命。`);
+    }
     state.enemies = env.spawnWave(state.wave, rng, state);
     state.log.push(`第 ${state.wave + 1}/${env.waveTotal} 波：${state.enemies.map((e) => e.name).join('、')}`);
     for (const next of state.enemies) {
