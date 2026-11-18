@@ -82,9 +82,13 @@ function buildLaunchSpec(opts) {
   const command = opts.browserPath || resolveBrowser(opts.browser);
   const sizeArgs = (opts.width && opts.height) ? [`--window-size=${opts.width},${opts.height}`] : [];
   const mobileArgs = opts.mobile ? ['--force-device-scale-factor=1'] : [];
+  // Unattended automation: without these, Chrome intensively throttles timers in
+  // background/occluded windows and the Cocos boot pipeline stalls silently
+  // (facade never mounts) — the EXE has its own occlusion fix (v70), the page needs flags.
+  const throttleArgs = ['--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows', '--disable-features=IntensiveWakeUpThrottling'];
   return {
     command,
-    args: [`--remote-debugging-port=${opts.port}`, `--user-data-dir=${profileDir}`, '--no-first-run', '--no-default-browser-check', '--disable-popup-blocking', '--new-window', ...sizeArgs, ...mobileArgs, opts.url],
+    args: [`--remote-debugging-port=${opts.port}`, `--user-data-dir=${profileDir}`, '--no-first-run', '--no-default-browser-check', '--disable-popup-blocking', '--new-window', ...throttleArgs, ...sizeArgs, ...mobileArgs, opts.url],
     env: {},
     identity: { mode: 'h5', browser: opts.browser, browserPath: command, cdpPort: opts.port, profileDir, saveDir, electronApiExpected: false, viewport: opts.width && opts.height ? `${opts.width}x${opts.height}` : null },
   };
@@ -321,6 +325,7 @@ const SNAPSHOT_JS = `(async function(){
     !!first(['.ux-messenger','.ux-mb-list','[data-reply]']),
     (document.querySelector('.ux65-combo')||{}).innerText||null,
     resources?(JSON.stringify(resources).length+''):null,
+    (document.querySelector('[data-action="mode"].is-running')||{}).getAttribute?((document.querySelector('[data-action="mode"].is-running')||{}).getAttribute('data-mode')):null,
   ].join('|');
   return {url:location.href,readyState:document.readyState,title:document.title,
     electronApi:typeof window.electronAPI, runtimeInfo, cocosReady:!!(window.__COCOS_READY__||window.cc||window.__cocosReady||document.querySelector('canvas')),

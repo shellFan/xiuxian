@@ -11,7 +11,13 @@ function findTests(directory) {
     return entry.isFile() && entry.name.endsWith('.test.js') ? [fullPath] : [];
   });
 }
-const tests = findTests(compiledRoot).sort();
+// Raw .cjs contract tests (harness/h5-server) live outside the compiled tree
+// and were silently missing from the suite; include them explicitly.
+const rawCjsDir = path.join(__dirname, 'v10-final');
+const rawCjsTests = fs.existsSync(rawCjsDir)
+  ? fs.readdirSync(rawCjsDir).filter((n) => n.endsWith('.test.cjs')).map((n) => path.join(rawCjsDir, n))
+  : [];
+const tests = findTests(compiledRoot).concat(rawCjsTests).sort();
 if (tests.length === 0) { console.error('No compiled tests found'); process.exit(1); }
 for (const test of tests) {
   const result = spawnSync(process.execPath, [test], { stdio: 'inherit' });
