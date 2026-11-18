@@ -44,6 +44,8 @@ function loadEffects(): EffectsModule {
 
 const effects = loadEffects();
 const BASE_STATS: CharacterStats = Object.freeze({ insight: 10, constitution: 10, perception: 10, fortune: 10, willpower: 10 });
+/** V6.1: rng stub that never rolls a crit, keeping exact-exp assertions deterministic. */
+const NEVER_CRIT_RNG = (): number => 1;
 
 function v59Options(destinyId: DestinyId, boosted?: StatKey): PlayerDataOptions {
   return {
@@ -106,11 +108,11 @@ function testPureHooksAreBoundedAndRequireACompleteRecord(): void {
 
 function testInsightIncreasesCultivationSettlementWithoutDestinySubstitution(): void {
   const baseContext = makeContext({ mind: 100, lastCultivateTime: 0 });
-  const baseService = new CultivationService(baseContext, { cultivationClickReward: 100, clock: new FakeClock(10_000) });
+  const baseService = new CultivationService(baseContext, { cultivationClickReward: 100, clock: new FakeClock(10_000), rng: NEVER_CRIT_RNG });
   assert.equal(baseService.cultivate().cultivationExp, 100, 'legacy cultivation reward remains unchanged');
 
   const boostedContext = makeContext({ ...v59Options('LABOR_SAINT', 'insight'), mind: 100, lastCultivateTime: 0 });
-  const boostedService = new CultivationService(boostedContext, { cultivationClickReward: 100, clock: new FakeClock(10_000) });
+  const boostedService = new CultivationService(boostedContext, { cultivationClickReward: 100, clock: new FakeClock(10_000), rng: NEVER_CRIT_RNG });
   assert.equal(boostedService.cultivate().cultivationExp, 110, 'insight owns cultivation growth');
 }
 

@@ -17,6 +17,9 @@ import { CultivationService } from '../../assets/scripts/services/cultivation-se
 import { SaveService } from '../../assets/scripts/services/save-service';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 
+/** V6.1: rng stub that never rolls a crit, keeping exact-exp assertions deterministic. */
+const NEVER_CRIT_RNG = (): number => 1;
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function makeContext(clock?: FakeClock, playerOverrides?: Partial<ConstructorParameters<typeof PlayerData>[0]>) {
@@ -31,7 +34,7 @@ function makeContext(clock?: FakeClock, playerOverrides?: Partial<ConstructorPar
 
 function testCultivateClickGrantsBaseExp(): void {
   const { context, clock } = makeContext();
-  const cultivation = new CultivationService(context, { clock });
+  const cultivation = new CultivationService(context, { clock, rng: NEVER_CRIT_RNG });
 
   const result = cultivation.cultivate();
   assert.equal(result.cultivationExp, 5, 'should grant 5 base exp with full mind');
@@ -45,7 +48,7 @@ function testCultivateClickGrantsBaseExp(): void {
 
 function testCultivateCooldownBlocksRapidClicks(): void {
   const { context, clock } = makeContext();
-  const cultivation = new CultivationService(context, { clock, cultivationCooldownSeconds: 3 });
+  const cultivation = new CultivationService(context, { clock, cultivationCooldownSeconds: 3, rng: NEVER_CRIT_RNG });
 
   // First click succeeds
   const r1 = cultivation.cultivate();
@@ -71,22 +74,22 @@ function testCultivateCooldownBlocksRapidClicks(): void {
 function testMindEfficiencyScales(): void {
   // mind=100, maxMind=100 → ratio=1.0 → efficiency=1.0
   const { context: c1 } = makeContext(undefined, { mind: 100, maxMind: 100 });
-  const cs1 = new CultivationService(c1, { clock: new FakeClock(10_000) });
+  const cs1 = new CultivationService(c1, { clock: new FakeClock(10_000), rng: NEVER_CRIT_RNG });
   assert.equal(cs1.getMindEfficiency(), 1.0, 'mind=100 → efficiency=1.0');
 
   // mind=80, maxMind=100 → ratio=0.8 → efficiency=1.0 (threshold)
   const { context: c2 } = makeContext(undefined, { mind: 80, maxMind: 100 });
-  const cs2 = new CultivationService(c2, { clock: new FakeClock(10_000) });
+  const cs2 = new CultivationService(c2, { clock: new FakeClock(10_000), rng: NEVER_CRIT_RNG });
   assert.equal(cs2.getMindEfficiency(), 1.0, 'mind=80 → efficiency=1.0 (threshold)');
 
   // mind=40, maxMind=100 → ratio=0.4 → efficiency=0.2+0.8*(0.4/0.8)=0.6
   const { context: c3 } = makeContext(undefined, { mind: 40, maxMind: 100 });
-  const cs3 = new CultivationService(c3, { clock: new FakeClock(10_000) });
+  const cs3 = new CultivationService(c3, { clock: new FakeClock(10_000), rng: NEVER_CRIT_RNG });
   assert.ok(Math.abs(cs3.getMindEfficiency() - 0.6) < 0.001, 'mind=40 → efficiency≈0.6');
 
   // mind=0, maxMind=100 → ratio=0 → efficiency=0.2
   const { context: c4 } = makeContext(undefined, { mind: 0, maxMind: 100 });
-  const cs4 = new CultivationService(c4, { clock: new FakeClock(10_000) });
+  const cs4 = new CultivationService(c4, { clock: new FakeClock(10_000), rng: NEVER_CRIT_RNG });
   assert.equal(cs4.getMindEfficiency(), 0.2, 'mind=0 → efficiency=0.2');
 
   console.log('  ✓ mind efficiency scales from 20% to 100%');
@@ -97,7 +100,7 @@ function testMindEfficiencyScales(): void {
 function testLowMindReducesCultivationReward(): void {
   const clock = new FakeClock(10_000);
   const { context } = makeContext(clock, { mind: 0, maxMind: 100 });
-  const cultivation = new CultivationService(context, { clock });
+  const cultivation = new CultivationService(context, { clock, rng: NEVER_CRIT_RNG });
 
   const result = cultivation.cultivate();
   // mind=0 → efficiency=0.2 → reward = max(1, floor(5 * 0.2)) = max(1, 1) = 1
@@ -112,7 +115,7 @@ function testLowMindReducesCultivationReward(): void {
 function testCultivateUpdatesTimestamp(): void {
   const clock = new FakeClock(10_000);
   const { context } = makeContext(clock);
-  const cultivation = new CultivationService(context, { clock });
+  const cultivation = new CultivationService(context, { clock, rng: NEVER_CRIT_RNG });
 
   assert.equal(context.player.lastCultivateTime, 0, 'initial lastCultivateTime should be 0');
   cultivation.cultivate();
@@ -126,7 +129,7 @@ function testCultivateUpdatesTimestamp(): void {
 function testCultivateEmitsEvent(): void {
   const clock = new FakeClock(10_000);
   const { context } = makeContext(clock);
-  const cultivation = new CultivationService(context, { clock });
+  const cultivation = new CultivationService(context, { clock, rng: NEVER_CRIT_RNG });
 
   let eventFired = false;
   context.events.on('cultivationClicked', () => { eventFired = true; });
@@ -153,7 +156,7 @@ function testCultivateRollbackOnSaveFailure(): void {
       removeItem: (key) => storage.removeItem(key),
     }),
   });
-  const cultivation = new CultivationService(context, { clock });
+  const cultivation = new CultivationService(context, { clock, rng: NEVER_CRIT_RNG });
 
   assert.throws(() => cultivation.cultivate(), /disk full/);
   assert.equal(context.player.cultivationExp, 50, 'exp should rollback on save failure');
@@ -167,7 +170,7 @@ function testCultivateRollbackOnSaveFailure(): void {
 function testCooldownRemainingReportsCorrectly(): void {
   const clock = new FakeClock(10_000);
   const { context } = makeContext(clock);
-  const cultivation = new CultivationService(context, { clock, cultivationCooldownSeconds: 5 });
+  const cultivation = new CultivationService(context, { clock, cultivationCooldownSeconds: 5, rng: NEVER_CRIT_RNG });
 
   cultivation.cultivate();
   assert.equal(cultivation.getCooldownRemaining(), 5, 'immediately after click, 5s remaining');

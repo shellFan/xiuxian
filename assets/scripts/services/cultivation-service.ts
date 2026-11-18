@@ -8,6 +8,8 @@ export interface CultivationServiceOptions {
   readonly cultivationClickReward?: number;
   readonly cultivationCooldownSeconds?: number;
   readonly clock?: Clock;
+  /** V6.1: RNG source for the crit roll; defaults to Math.random. Injectable for deterministic tests. */
+  readonly rng?: () => number;
 }
 
 export interface CultivationClickResult {
@@ -52,6 +54,8 @@ export class CultivationService {
   private readonly cultivationClickReward: number;
   private readonly cultivationCooldownSeconds: number;
   private readonly clock: Clock;
+  /** V6.1: RNG source for the crit roll. */
+  private readonly rng: () => number;
   /** V6.1: combo tracking — timestamp of last successful click. */
   private _lastComboTime = 0;
   /** V6.1: combo tracking — current consecutive click count. */
@@ -62,6 +66,7 @@ export class CultivationService {
     this.cultivationClickReward = options.cultivationClickReward ?? DEFAULT_CLICK_REWARD;
     this.cultivationCooldownSeconds = options.cultivationCooldownSeconds ?? DEFAULT_COOLDOWN_SECONDS;
     this.clock = options.clock ?? DEFAULT_CLOCK;
+    this.rng = options.rng ?? (() => Math.random());
     if (!Number.isSafeInteger(this.cultivationClickReward) || this.cultivationClickReward <= 0) {
       throw new Error('Invalid cultivation click reward');
     }
@@ -120,10 +125,10 @@ export class CultivationService {
     const comboBonus = Math.min(combo - 1, 10) * COMBO_CRIT_BONUS_PER_STEP;
     const fortuneMul = characterEffectMultiplier(this.context.player, 'BATTLE_CRIT_CHANCE');
     const critChance = Math.max(0.05, Math.min((BASE_CRIT_CHANCE + comboBonus) * fortuneMul, 0.6));
-    const isCrit = Math.random() < critChance;
+    const isCrit = this.rng() < critChance;
     let critMultiplier = 1;
     if (isCrit) {
-      critMultiplier = MIN_CRIT_MULTIPLIER + Math.random() * (MAX_CRIT_MULTIPLIER - MIN_CRIT_MULTIPLIER);
+      critMultiplier = MIN_CRIT_MULTIPLIER + this.rng() * (MAX_CRIT_MULTIPLIER - MIN_CRIT_MULTIPLIER);
       actualReward = Math.max(1, Math.floor(actualReward * critMultiplier));
     }
 
