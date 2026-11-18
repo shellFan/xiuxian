@@ -3245,7 +3245,6 @@
     {
      "kind": "TRIBULATION_COUNTDOWN",
      "everySec": 8,
-     "everyTurns": 4,
      "strikeDamageMul": 2.5
     },
     {

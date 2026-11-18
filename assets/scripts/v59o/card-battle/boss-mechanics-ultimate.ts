@@ -18,9 +18,7 @@ export interface UltimateMechanicDef {
   mirrorScale?: number;
   /** COUNTER_STANCE：判定「龟缩」的格挡门槛（缺省 10）。 */
   blockGate?: number;
-  /** TRIBULATION_COUNTDOWN：引爆倒计时回合数（缺省 4）。 */
-  everyTurns?: number;
-  /** TRIBULATION_COUNTDOWN：引爆攻击倍率（缺省 2.5）。 */
+  /** TRIBULATION_COUNTDOWN：引爆攻击倍率（缺省 2.5）。引爆节奏由 planIntent 的 everySec 驱动（进入 SPECIAL 即引爆），此处只定强度。 */
   strikeDamageMul?: number;
 }
 
@@ -39,11 +37,13 @@ export function applyUltimateBossMechanic(
 ): void {
   switch (kind) {
     case 'ENERGY_LEECH': {
-      const leeched = Math.min(state.player.energy, Math.max(1, mech?.energyDrain ?? 1));
-      state.player.energy -= leeched;
+      // 抽取记录到 pendingEnergyLeech，在下个玩家回合开始时结算（startPlayerTurn）。
+      // 敌人回合直接扣当前能量没有意义：startPlayerTurn 会把能量重置为基础值。
+      const drain = Math.max(1, mech?.energyDrain ?? 1);
+      state.pendingEnergyLeech = (state.pendingEnergyLeech ?? 0) + drain;
       const shieldGain = Math.max(4, Math.floor(enemy.maxHp * (mech?.shieldPct ?? 0.03)));
       enemy.block += shieldGain;
-      log(`🫗 ${enemy.name} 吞噬了你 ${leeched} 点能量，凝聚成 ${shieldGain} 点护盾！`);
+      log(`🫗 ${enemy.name} 吞噬了你 ${drain} 点能量（下回合生效），凝聚成 ${shieldGain} 点护盾！`);
       return;
     }
     case 'MIRROR': {
@@ -74,17 +74,11 @@ export function applyUltimateBossMechanic(
       return;
     }
     case 'TRIBULATION_COUNTDOWN': {
-      const every = Math.max(2, mech?.everyTurns ?? 4);
+      // 引爆节奏由 planIntent 的 everySec 驱动（累计到点才进入 SPECIAL），
+      // 进入本函数即引爆一次——避免「外层节奏 × 内层倒计时」的双重计时放大间隔。
       const mul = mech?.strikeDamageMul ?? 2.5;
-      const left = (enemy.timers.tribulationTurns ?? every) - 1;
-      enemy.timers.tribulationTurns = left;
-      if (left <= 0) {
-        enemy.timers.tribulationTurns = every;
-        log(`⚡ 天劫降临！${enemy.name} 的 KPI 倒计时归零！`);
-        ctx.strikePlayer(Math.floor(enemy.attack * mul), `${enemy.name} 的天劫`);
-        return;
-      }
-      log(`⏳ ${enemy.name} 的天劫倒计时：还有 ${left} 回合……`);
+      log(`⚡ 天劫降临！${enemy.name} 的 KPI 倒计时归零！`);
+      ctx.strikePlayer(Math.floor(enemy.attack * mul), `${enemy.name} 的天劫`);
       return;
     }
     default:

@@ -224,6 +224,8 @@ export interface CardBattleState {
   lastPlayedCardDefId?: string;
   lastPlayedCardName?: string;
   lastPlayedDamageMul?: number;
+  /** V10 ULTIMATE 资源吞噬：敌人回合抽取的能量，在下个玩家回合开始时结算（能量回合开始会被重置，直接扣当前能量是空操作）。 */
+  pendingEnergyLeech?: number;
   rng: CardRngState;
   /** 战斗卡组构成快照（deck 定义 id → 数量，诊断/恢复校验用）。 */
   deckManifest: Record<string, number>;

@@ -165,6 +165,14 @@ export function startPlayerTurn(state: CardBattleState, env: CardEngineEnv): voi
     energy += 1;
     state.log.push('【宗门加持】回合能量 +1。');
   }
+  // V10 ULTIMATE 资源吞噬（资源吞噬者）：上轮敌人回合抽取的能量在此结算，
+  // 保证「吞噬」真的影响玩家下回合可用能量（直接扣当前能量会被本行重置覆盖）。
+  const energyLeech = state.pendingEnergyLeech ?? 0;
+  if (energyLeech > 0) {
+    energy = Math.max(0, energy - energyLeech);
+    state.pendingEnergyLeech = 0;
+    state.log.push(`🫗 被吞噬的能量尚未恢复：本回合能量 -${energyLeech}。`);
+  }
   state.player.energy = energy;
   // 回合开始格挡加成（宗门/命格小加成）。
   if (state.modifiers.startBlockPerTurn > 0) {

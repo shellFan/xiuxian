@@ -39,22 +39,21 @@ function run(kind: UltimateMechanicDef['kind'], enemy: CardEnemy, state: CardBat
   return { strikes, lines };
 }
 
-// 1. ENERGY_LEECH：抽能量化盾
+// 1. ENERGY_LEECH：记录到 pendingEnergyLeech（下回合结算）+ 立即化盾
 {
   const enemy = makeEnemy(100, 10);
   const state = makeState({ energy: 3 });
   const { strikes, lines } = run('ENERGY_LEECH', enemy, state, { energyDrain: 1, shieldPct: 0.05 });
-  assert.equal(state.player.energy, 2, 'must drain exactly 1 energy');
+  assert.equal(state.pendingEnergyLeech, 1, 'drain must be recorded for next player turn');
+  assert.equal(state.player.energy, 3, 'current-turn energy untouched (startPlayerTurn resets it anyway)');
   assert.equal(enemy.block, 5, 'shield = 5% of maxHp');
   assert.equal(strikes.length, 0, 'no direct damage');
   assert.ok(lines[0].includes('吞噬'));
-  const state0 = makeState({ energy: 0 });
-  const enemy0 = makeEnemy(100, 10);
-  run('ENERGY_LEECH', enemy0, state0, { energyDrain: 1, shieldPct: 0.05 });
-  assert.equal(state0.player.energy, 0);
-  assert.equal(enemy0.block, 5);
+  // 累计：连续两次吞噬叠加，由 startPlayerTurn 一次性结算
+  run('ENERGY_LEECH', enemy, state, { energyDrain: 1, shieldPct: 0.05 });
+  assert.equal(state.pendingEnergyLeech, 2, 'repeated leech stacks');
 }
-console.log('ok - ENERGY_LEECH 吞噬能量化盾');
+console.log('ok - ENERGY_LEECH 吞噬记入下回合结算并化盾');
 
 // 2. MIRROR：复制玩家最近出牌反噬
 {
@@ -88,19 +87,17 @@ console.log('ok - MIRROR 复制最近出牌');
 }
 console.log('ok - COUNTER_STANCE 行为反制分支');
 
-// 4. TRIBULATION_COUNTDOWN：4 回合窗口恰好引爆一次并重置
+// 4. TRIBULATION_COUNTDOWN：进入 SPECIAL 即引爆（节奏由 planIntent 的 everySec 驱动，
+//    机制内部不再持有第二个计时器——否则实际间隔会被相乘放大）
 {
   const enemy = makeEnemy(100, 16);
   const state = makeState();
-  let strikes = 0;
-  for (let t = 0; t < 4; t += 1) {
-    const r = run('TRIBULATION_COUNTDOWN', enemy, state, { everyTurns: 4, strikeDamageMul: 2.5 });
-    if (r.strikes.length) strikes += 1;
-  }
-  assert.equal(strikes, 1, '4 回合窗口恰好一次天劫');
-  assert.equal(enemy.timers.tribulationTurns, 4, '引爆后倒计时重置');
+  const r = run('TRIBULATION_COUNTDOWN', enemy, state, { strikeDamageMul: 2.5 });
+  assert.equal(r.strikes.length, 1, '每次 SPECIAL 到点必然引爆一次天劫');
+  assert.equal(r.strikes[0].raw, Math.floor(16 * 2.5), '引爆伤害 = 攻击 × 倍率');
+  assert.equal(enemy.timers.tribulationTurns, undefined, '机制内部不维护第二套倒计时');
 }
-console.log('ok - TRIBULATION_COUNTDOWN 倒计时引爆');
+console.log('ok - TRIBULATION_COUNTDOWN 到点即引爆（无双重计时）');
 
 // 5. 配置完整性：任务点名的十 Boss 全部存在且有 mechanics/phase2
 {
