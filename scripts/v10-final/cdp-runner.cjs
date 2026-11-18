@@ -310,15 +310,17 @@ const SNAPSHOT_JS = `(async function(){
   try{creation=facade&&facade.queryCharacterCreation?facade.queryCharacterCreation():null;}catch(e){creation={error:String(e)}}
   try{battle=facade&&facade.queryAutoBattle?facade.queryAutoBattle():null;}catch(e){battle={error:String(e)}}
   try{if(window.electronAPI&&window.electronAPI.app&&window.electronAPI.app.getRuntimeInfo)runtimeInfo=await window.electronAPI.app.getRuntimeInfo();}catch(e){runtimeInfo={error:String(e)}}
-  const modal=first(['[data-vevent-choice]','.ux-modal-layer[role="dialog"]','.ux-dialog[role="dialog"]','.ux-modal-layer','.ux-dialog','[data-offline-decision-action]']);
+  const modal=first(['.ux-modal-layer[role="dialog"]','.ux-dialog[role="dialog"]','.ux-modal-layer','.ux-dialog','[data-offline-decision-action]','[data-vevent-choice]']);
   const hero=first(['#Ux90CaveHero','.ux91-hero img','.ux91-hero','.ux-hero']);
   const images=[...document.images].map(i=>({src:i.currentSrc||i.src,complete:i.complete,naturalWidth:i.naturalWidth}));
   const entries=performance.getEntriesByType('resource').slice(-80).map(x=>({name:x.name,initiatorType:x.initiatorType,duration:Math.round(x.duration)}));
-  const modalButtons=modal?[...modal.querySelectorAll('button,[role="button"]')].filter(visible).map(e=>({id:e.id,action:e.getAttribute('data-action'),choice:e.getAttribute('data-vevent-choice'),offline:e.getAttribute('data-offline-decision-action'),text:(e.innerText||'').trim().slice(0,120),disabled:!!e.disabled})):[];
+  const modalButtons=modal?[...modal.querySelectorAll('button,[role="button"]')].filter(visible).map(e=>({id:e.id,action:e.getAttribute('data-action'),choice:e.getAttribute('data-vevent-choice'),offline:e.getAttribute('data-offline-decision-action'),projectDecision:e.getAttribute('data-project-decision'),skillOffer:e.getAttribute('data-battle-skill'),text:(e.innerText||'').trim().slice(0,120),disabled:!!e.disabled})):[];
   const creationActive=!!first(['.v59-creation','[data-creation-action="advance"]','[data-creation-action="finalize"]','[data-creation-action="start-game"]']);
   const profile=facade&&facade.queryCharacterProfile?(()=>{try{return facade.queryCharacterProfile()}catch(e){return null}})():null;
   let resources=null;
   try{resources=facade.queryResources?facade.queryResources():null;}catch(e){}
+  let equipBagN=null;
+  try{const ev=facade.queryEquipView?facade.queryEquipView():null;equipBagN=ev&&Array.isArray(ev.bag)?ev.bag.length:null;}catch(e){}
   const domSignature=[
     !!first(['[data-action="v63-hire"]']),
     !!first(['[data-action="v64-closeEquip"]','[data-action="v64-equipItem"]']),
@@ -338,7 +340,7 @@ const SNAPSHOT_JS = `(async function(){
     horizontalOverflow:(document.documentElement.scrollWidth||0) > (document.documentElement.clientWidth||0) + 1,
     domSignature,
     actionCount:battle&&(battle.totalTaps||battle.actionCount||0),
-    projection:{stage:battle&&battle.stage,status:battle&&battle.status,chapter:battle&&(battle.chapter||battle.chapterTitle),totalTaps:battle&&battle.totalTaps,squad:battle&&battle.squad&&battle.squad.length,equipment:battle&&battle.equipment&&battle.equipment.bag&&battle.equipment.bag.length,cardPhase:battle&&battle.cardPhase,reward:!!(battle&&battle.reward)}
+    projection:{stage:battle&&battle.stage,maxStage:battle&&battle.maxStage,status:battle&&battle.status,chapter:battle&&(battle.chapter||battle.chapterTitle),totalTaps:battle&&battle.totalTaps,squad:battle&&battle.squad&&battle.squad.length,squadAtk:(battle&&battle.squad||[]).map(m=>m.attack).join(','),clickDamage:battle&&battle.clickDamage,spiritStones:battle&&battle.spiritStones,pendingChests:battle&&battle.pendingChests,equipBagN:equipBagN,cardPhase:battle&&battle.cardPhase,reward:!!(battle&&battle.reward)}
   };
 })()`;
 
@@ -386,14 +388,16 @@ async function captureDiagnostics(cdp, manifest, dir, stage, snapshotValue) {
 async function handleSpecificModal(cdp, snap) {
   const modal = snap && snap.modal;
   if (!modal || !Array.isArray(modal.buttons)) return { handled: false, reason: 'none' };
-  const button = modal.buttons.find((item) => !item.disabled && (item.choice || item.offline || item.id === 'EventOkBtn' || item.id === 'V2EventOk' || item.action === 'battleTutorialNext' || item.action === 'battleTutorialSkip'));
+  // V10 QA: tutorial SKIP before Next — clicking Next re-renders the tutorial
+  // endlessly in unattended runs (observed 60+ consecutive Next clicks).
+  const button = modal.buttons.find((item) => !item.disabled && (item.choice || item.offline || item.id === 'EventOkBtn' || item.id === 'V2EventOk' || item.action === 'battleTutorialSkip' || item.action === 'battleTutorialNext' || item.projectDecision || item.skillOffer));
   if (!button) {
     // Build-selection modal: pick the first build through the real button.
     const build = await cdp.click('[data-battle-build]');
     if (build.clicked) return { handled: true, selector: '[data-battle-build]', resolved: true };
     return { handled: false, reason: 'unknown-modal', modal };
   }
-  const selector = button.id ? `#${button.id}` : button.choice ? `[data-vevent-choice=${JSON.stringify(button.choice)}]` : button.offline ? `[data-offline-decision-action=${JSON.stringify(button.offline)}]` : `[data-action=${JSON.stringify(button.action)}]`;
+  const selector = button.id ? `#${button.id}` : button.choice ? `[data-vevent-choice=${JSON.stringify(button.choice)}]` : button.offline ? `[data-offline-decision-action=${JSON.stringify(button.offline)}]` : button.projectDecision ? `[data-project-decision=${JSON.stringify(button.projectDecision)}]` : button.skillOffer ? `[data-battle-skill=${JSON.stringify(button.skillOffer)}]` : `[data-action=${JSON.stringify(button.action)}]`;
   const clicked = await cdp.click(selector);
   await sleep(200);
   const after = await snapshot(cdp);
