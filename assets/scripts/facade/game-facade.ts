@@ -656,6 +656,12 @@ export class GameFacade {
   public activateCardDeckPreset(slot: string | null) { return this.context.battle.activateCardDeckPreset(slot); }
   public queryAllMaterials() { return ({ ...this.context.player.materials }); }
   public queryOwnedTechniques() { return [...this.context.player.ownedTechniques]; }
+
+  /** V10.2 功法目录（名称/流派/稀有度/成长），功法页渲染单源。 */
+  public queryTechniqueCatalog() { return this.context.v2Items.techniqueCatalog(); }
+
+  /** V10.2 当前流派共鸣（全部已装备功法同流派时非空），功法页横幅展示。 */
+  public queryRouteResonance() { return this.context.v2Items.routeResonance(); }
   public queryTechniqueLevels() { return ({ ...this.context.player.techniqueLevels }); }
   public queryEquippedTechniques() { return [...this.context.player.equippedTechniques]; }
   public queryOwnedEquipment() { return [...this.context.player.ownedEquipment]; }

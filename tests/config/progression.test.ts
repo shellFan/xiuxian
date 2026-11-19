@@ -13,17 +13,17 @@ function findRepoRoot(start: string): string {
   return process.cwd();
 }
 
-function testProgressionConfigHasTenCareerLevels(): void {
+function testProgressionConfigHasTwentyCareerLevels(): void {
   const root = findRepoRoot(__dirname);
   const raw = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'configs', 'progression.json'), 'utf8')) as {
     levels: Array<{ careerLevel: number; expectedMinutes: number; requiredExp: number; kpiWorkSeconds: number }>;
   };
-  assert.equal(raw.levels.length, 10);
+  assert.equal(raw.levels.length, 20); // V10.2：20 级扩展
   assert.equal(raw.levels[0].careerLevel, 1);
   assert.ok(raw.levels[0].expectedMinutes >= 5 && raw.levels[0].expectedMinutes <= 10, 'first visible upgrade in 5-10 minutes');
   assert.ok(raw.levels[1].expectedMinutes >= 20 && raw.levels[1].expectedMinutes <= 30, 'first promotion in 20-30 minutes');
   assert.ok(raw.levels[4].expectedMinutes >= 120 && raw.levels[4].expectedMinutes <= 240, 'levels 4-5 around 2-4 hours');
 }
 
-testProgressionConfigHasTenCareerLevels();
+testProgressionConfigHasTwentyCareerLevels();
 console.log('progression config tests passed');

@@ -317,7 +317,9 @@ export class V2EventService {
     if (effects.performance) {
       // V5.9-N.11：宗门绩效文化接通（民企 1.05× / 大厂 1.1× / 国企 0.95×，此前死配置）
       const sectPerfMul = this.context.sect.current()?.modifiers.performanceMultiplier ?? 1;
-      const perfDelta = effects.performance > 0 ? Math.floor(effects.performance * sectPerfMul) : effects.performance;
+      // V10.2 功法乘子（§7.1）：职场流 performanceMul（996燃血大法等）按当前工作模式聚合
+      const techPerfMul = this.context.v2Items.techniqueAggregates(p.workMode).performanceMul;
+      const perfDelta = effects.performance > 0 ? Math.floor(effects.performance * sectPerfMul * techPerfMul) : effects.performance;
       p.performance = Math.max(0, p.performance + perfDelta);
       this.gameDay.addIncome('performance', perfDelta);
     }

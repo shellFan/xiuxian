@@ -7,7 +7,7 @@
       "kpiWorkSeconds": 7200,
       "salaryPerHour": 10,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 22
+      "expectedMinutes": 8
     },
     {
       "careerLevel": 2,
@@ -16,7 +16,7 @@
       "kpiWorkSeconds": 28800,
       "salaryPerHour": 20,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 64
+      "expectedMinutes": 25
     },
     {
       "careerLevel": 3,
@@ -25,7 +25,7 @@
       "kpiWorkSeconds": 64800,
       "salaryPerHour": 40,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 134
+      "expectedMinutes": 50
     },
     {
       "careerLevel": 4,
@@ -34,7 +34,7 @@
       "kpiWorkSeconds": 122400,
       "salaryPerHour": 80,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 232
+      "expectedMinutes": 90
     },
     {
       "careerLevel": 5,
@@ -43,7 +43,7 @@
       "kpiWorkSeconds": 208800,
       "salaryPerHour": 160,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 358
+      "expectedMinutes": 150
     },
     {
       "careerLevel": 6,
@@ -52,7 +52,7 @@
       "kpiWorkSeconds": 324000,
       "salaryPerHour": 320,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 512
+      "expectedMinutes": 210
     },
     {
       "careerLevel": 7,
@@ -61,7 +61,7 @@
       "kpiWorkSeconds": 468000,
       "salaryPerHour": 320,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 694
+      "expectedMinutes": 280
     },
     {
       "careerLevel": 8,
@@ -70,7 +70,7 @@
       "kpiWorkSeconds": 648000,
       "salaryPerHour": 320,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 904
+      "expectedMinutes": 360
     },
     {
       "careerLevel": 9,
@@ -79,7 +79,7 @@
       "kpiWorkSeconds": 864000,
       "salaryPerHour": 320,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 1142
+      "expectedMinutes": 480
     },
     {
       "careerLevel": 10,
@@ -88,7 +88,7 @@
       "kpiWorkSeconds": 12960000,
       "salaryPerHour": 320,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 1408
+      "expectedMinutes": 600
     },
     {
       "careerLevel": 11,
@@ -97,7 +97,7 @@
       "kpiWorkSeconds": 16416000,
       "salaryPerHour": 480,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 1702
+      "expectedMinutes": 720
     },
     {
       "careerLevel": 12,
@@ -106,7 +106,7 @@
       "kpiWorkSeconds": 20736000,
       "salaryPerHour": 480,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 2024
+      "expectedMinutes": 840
     },
     {
       "careerLevel": 13,
@@ -115,7 +115,7 @@
       "kpiWorkSeconds": 25920000,
       "salaryPerHour": 480,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 2374
+      "expectedMinutes": 960
     },
     {
       "careerLevel": 14,
@@ -124,7 +124,7 @@
       "kpiWorkSeconds": 32400000,
       "salaryPerHour": 480,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 2752
+      "expectedMinutes": 1080
     },
     {
       "careerLevel": 15,
@@ -133,7 +133,7 @@
       "kpiWorkSeconds": 40608000,
       "salaryPerHour": 720,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 3158
+      "expectedMinutes": 1200
     },
     {
       "careerLevel": 16,
@@ -142,7 +142,7 @@
       "kpiWorkSeconds": 50976000,
       "salaryPerHour": 720,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 3592
+      "expectedMinutes": 1320
     },
     {
       "careerLevel": 17,
@@ -151,7 +151,7 @@
       "kpiWorkSeconds": 63936000,
       "salaryPerHour": 720,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 4054
+      "expectedMinutes": 1440
     },
     {
       "careerLevel": 18,
@@ -160,7 +160,7 @@
       "kpiWorkSeconds": 79920000,
       "salaryPerHour": 1080,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 4544
+      "expectedMinutes": 1560
     },
     {
       "careerLevel": 19,
@@ -169,7 +169,7 @@
       "kpiWorkSeconds": 99360000,
       "salaryPerHour": 1080,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 5062
+      "expectedMinutes": 1680
     },
     {
       "careerLevel": 20,
@@ -178,7 +178,7 @@
       "kpiWorkSeconds": 0,
       "salaryPerHour": 1080,
       "mindDrainPerHour": 60,
-      "expectedMinutes": 5608
+      "expectedMinutes": 1800
     }
   ],
   "notes": {

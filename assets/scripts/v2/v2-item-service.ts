@@ -10,6 +10,7 @@
  * 全部操作 clamp + 事务式（校验 → 变更 → 事件），材料永远 >= 0（§262）。
  */
 import type { GameContext } from '../core/game-context';
+import type { WorkMode } from '../model/save-data';
 import type { RandomService, Rng } from './random-service';
 import type { GameClockV2 } from './v2-clock';
 import type { GameDayService } from './game-day-service';
@@ -56,7 +57,30 @@ export interface TechniqueDef {
   readonly maxLevel: number;
   readonly upgradeCost: Readonly<Record<string, number>>;
   readonly modifiers: TechniqueModifiers;
+  /** V10.2 功法流派（§7.1）：WORK 职场 / FISH 摸鱼 / CULTIVATE 修炼 / SOCIAL 社交 / ADAPTIVE 应变 */
+  readonly route?: TechniqueRoute;
 }
+
+/** V10.2 功法流派（§7.1 五路线）。 */
+export type TechniqueRoute = 'WORK' | 'FISH' | 'CULTIVATE' | 'SOCIAL' | 'ADAPTIVE';
+
+/** 流派共鸣：全部已装备功法同流派时主乘子额外 ×1.1（route → 主乘子键）。 */
+export const ROUTE_RESONANCE_KEY: Record<TechniqueRoute, string | null> = {
+  WORK: 'performanceMul',
+  FISH: 'cultivationMul',
+  CULTIVATE: 'cultivationMul',
+  SOCIAL: 'relationshipMul',
+  ADAPTIVE: null, // 应变流无单一主乘子（事件类功法组合），共鸣暂缺位（BACKLOG）
+};
+
+/** 流派展示名。 */
+export const ROUTE_LABELS: Record<TechniqueRoute, string> = {
+  WORK: '职场流',
+  FISH: '摸鱼流',
+  CULTIVATE: '修炼流',
+  SOCIAL: '社交流',
+  ADAPTIVE: '应变流',
+};
 
 export interface EquipmentDef {
   readonly id: string;
@@ -241,6 +265,74 @@ export class V2ItemService {
     }
     this.context.events.emit('techniqueUpgraded', { techniqueId: id, level: level + 1 });
     return { success: true, message: `${def.name} 升至 Lv${level + 1}` };
+  }
+
+  // ── V10.2 功法流派与乘子聚合（§7.1） ─────────────────────────────────────
+
+  /**
+   * 功法乘子聚合：已装备功法中 modifiers.mode === mode 的 mode 型乘子逐项相乘。
+   * 等级缩放数值化「质变：效果翻倍」文案：Lv1 原值 / Lv2 delta×1.5 / Lv3 delta×2，
+   * 即 effective = 1 + (value - 1) × scale（Lv1 恒为原值）。
+   * 全部已装备功法同流派 → 流派共鸣：主乘子额外 ×1.1（ROUTE_RESONANCE_KEY）。
+   * trigger 型功法（onXxx）无 mode 型乘子，不进入本聚合（走各自接线点）。
+   *
+   * @param mode 当前工作模式；null 表示非模式化上下文（mode 型功法全部跳过）
+   */
+  public techniqueAggregates(mode: WorkMode | null): {
+    salaryMul: number;
+    cultivationMul: number;
+    performanceMul: number;
+    relationshipMul: number;
+    resonanceRoute: TechniqueRoute | null;
+  } {
+    const p = this.context.player;
+    let salaryMul = 1;
+    let cultivationMul = 1;
+    let performanceMul = 1;
+    let relationshipMul = 1;
+    const routes: TechniqueRoute[] = [];
+    for (const id of p.equippedTechniques) {
+      if (!id) continue;
+      const def = TECHNIQUE_MAP.get(id);
+      if (!def) continue;
+      routes.push(def.route ?? 'ADAPTIVE');
+      // mode 门槛：mode 型功法仅在对应模式下生效
+      if (def.modifiers.mode && mode !== null && def.modifiers.mode !== mode) continue;
+      if (def.modifiers.mode && mode === null) continue;
+      const level = p.techniqueLevels[id] ?? 1;
+      const scale = level >= 3 ? 2 : level === 2 ? 1.5 : 1;
+      const apply = (value: number | undefined): number =>
+        value === undefined ? 1 : 1 + (value - 1) * scale;
+      salaryMul *= apply(def.modifiers.salaryMul);
+      cultivationMul *= apply(def.modifiers.cultivationMul);
+      performanceMul *= apply(def.modifiers.performanceMul);
+      relationshipMul *= apply(def.modifiers.relationshipMul);
+    }
+    let resonanceRoute: TechniqueRoute | null = null;
+    // 共鸣门槛：至少 2 件已装备功法且全部同流派（单件不成阵）
+    if (routes.length >= 2 && routes.every((r) => r === routes[0])) {
+      resonanceRoute = routes[0]!;
+      const key = ROUTE_RESONANCE_KEY[resonanceRoute];
+      if (key === 'salaryMul') salaryMul *= 1.1;
+      else if (key === 'cultivationMul') cultivationMul *= 1.1;
+      else if (key === 'performanceMul') performanceMul *= 1.1;
+      else if (key === 'relationshipMul') relationshipMul *= 1.1;
+    }
+    return { salaryMul, cultivationMul, performanceMul, relationshipMul, resonanceRoute };
+  }
+
+  /** 当前装备功法的流派共鸣（UI 展示用）。 */
+  public routeResonance(): { route: TechniqueRoute; label: string } | null {
+    const routes = this.context.player.equippedTechniques
+      .filter((id): id is string => !!id)
+      .map((id) => TECHNIQUE_MAP.get(id)?.route ?? 'ADAPTIVE');
+    if (routes.length === 0 || routes.some((r) => r !== routes[0])) return null;
+    return { route: routes[0]!, label: ROUTE_LABELS[routes[0]!] };
+  }
+
+  /** 功法目录（只读投影，功法页渲染单源）。 */
+  public techniqueCatalog(): readonly TechniqueDef[] {
+    return ITEMS.techniques;
   }
 
   // ── 装备（§57） ───────────────────────────────────────────────────────────

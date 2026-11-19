@@ -4807,3 +4807,11 @@ button.ux-journey--sec { cursor: pointer; }
   background: rgba(216, 178, 94, .08); border-radius: 0 8px 8px 0; font-size: 12px; line-height: 1.8; color: #c9b98a; }
 .ux-ai-summary b { color: var(--gold-lo, #d8b25e); }
 .ux-daily-report { margin-top: 6px; }
+/* V10.2：功法流派徽章 + 共鸣横幅 */
+.ux-tech-route { display: inline-block; padding: 2px 10px; margin-left: 6px; border-radius: 999px; font-size: 15px; font-weight: 800; vertical-align: middle; }
+.ux-tech-route.is-route-work { background: rgba(74,156,216,.18); color: #6db3e8; }
+.ux-tech-route.is-route-fish { background: rgba(52,199,123,.16); color: #4ade80; }
+.ux-tech-route.is-route-cultivate { background: rgba(192,132,252,.16); color: #c084fc; }
+.ux-tech-route.is-route-social { background: rgba(216,178,94,.16); color: #d8b25e; }
+.ux-tech-route.is-route-adaptive { background: rgba(156,163,175,.16); color: #9ca3af; }
+.ux-tech-resonance { margin-bottom: 12px; padding: 12px 16px; border: 1px solid rgba(216,178,94,.4); border-radius: 10px; background: rgba(216,178,94,.08); color: #d8b25e; font-weight: 800; }

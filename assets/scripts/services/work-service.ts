@@ -167,7 +167,9 @@ export class WorkService {
     const mindResult = accumulate(Math.abs(mindRate), standardSeconds, 1, this.context.player[mindRemainderKey] ?? 0, 3600);
     // 底薪乘数（Offer 谈薪涨薪写入；兼容旧档缺省 1）
     const wageMul = this.context.player.wageMultiplier || 1;
-    const baseSalary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier * wageMul);
+    // V10.2 功法乘子聚合（§7.1）：mode 匹配的功法 salaryMul/cultivationMul + 流派共鸣接通
+    const tech = this.context.v2Items.techniqueAggregates(mode);
+    const baseSalary = Math.floor(salaryResult.reward * salaryBuffMul * careerMul.salaryMultiplier * wageMul * tech.salaryMul);
     const salary = mode === 'WORK' ? applyCharacterEffectToInteger(
       baseSalary,
       this.context.player,
@@ -177,7 +179,7 @@ export class WorkService {
     // 大厂宗 1.2× 修为 vs 国企宗 1.0×，宗门选择真实影响成长速度。
     const sectCultivationMul = this.context.sect.current()?.modifiers.cultivationMultiplier ?? 1;
     const attributeCultivationExp = applyCharacterEffectToInteger(
-      Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier * sectCultivationMul),
+      Math.floor(cultivationResult.reward * cultivationBuffMul * careerMul.cultivationMultiplier * sectCultivationMul * tech.cultivationMul),
       this.context.player,
       'CULTIVATION_REWARD',
     );

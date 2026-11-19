@@ -50,28 +50,51 @@
     return '<div class="ux-demon" title="心魔：长期风险资源，阈值解锁负面效果">😈 心魔 ' + Math.floor(d.value) + '</div>';
   }
 
-  /* ── 功法页（§126） ── */
+  /* ── 功法页（§126；V10.2 流派徽章 + 共鸣横幅） ── */
+
+  var TECH_ROUTE_CLASS = { WORK: 'is-route-work', FISH: 'is-route-fish', CULTIVATE: 'is-route-cultivate', SOCIAL: 'is-route-social', ADAPTIVE: 'is-route-adaptive' };
+
+  function techRouteBadge(catalog, id) {
+    var def = catalog[id];
+    if (!def || !def.route) return '';
+    var label = { WORK: '职场流', FISH: '摸鱼流', CULTIVATE: '修炼流', SOCIAL: '社交流', ADAPTIVE: '应变流' }[def.route] || def.route;
+    return '<span class="ux-tech-route ' + (TECH_ROUTE_CLASS[def.route] || '') + '">' + H.escHtml(label) + '</span>';
+  }
 
   function renderTechniques() {
     var owned = fQuery('queryOwnedTechniques') || [];
     var levels = fQuery('queryTechniqueLevels') || {};
     var equipped = fQuery('queryEquippedTechniques') || [null, null, null];
+    var catalog = {};
+    try {
+      (fQuery('queryTechniqueCatalog') || []).forEach(function (t) { catalog[t.id] = t; });
+    } catch (eCatalog) { catalog = {}; }
+    var resonance = null;
+    try { resonance = fQuery('queryRouteResonance'); } catch (eReso) { resonance = null; }
     var slots = ['主修', '辅助·壹', '辅助·贰'];
-    var html = '<div class="ux-section-ribbon">功法装配</div><div class="ux-equip-slots">';
+    var html = '';
+    if (resonance) {
+      html += '<div class="ux-card ux-tech-resonance">✦ ' + H.escHtml(resonance.label) + '共鸣 · 主乘子 +10%（同流派功法全部就位）</div>';
+    }
+    html += '<div class="ux-section-ribbon">功法装配</div><div class="ux-equip-slots">';
     for (var i = 0; i < 3; i++) {
       var eq = equipped[i];
+      var eqDef = eq ? catalog[eq] : null;
       html += '<div class="ux-card ux-tech-slot' + (eq ? '' : ' ux-tech-slot--empty') + '">' +
         '<div class="ux-task-name">' + slots[i] + '</div>' +
-        '<div class="ux-recipe-desc">' + (eq ? H.escHtml(eq) + ' Lv' + (levels[eq] || 1) : '空置') + '</div>' +
+        '<div class="ux-recipe-desc">' + (eqDef ? H.escHtml(eqDef.name) + ' Lv' + (levels[eq] || 1) + ' ' + techRouteBadge(catalog, eq) : (eq ? H.escHtml(eq) + ' Lv' + (levels[eq] || 1) : '空置')) + '</div>' +
         (eq ? '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="techUnequip" data-slot="' + i + '">卸下</button>' : '') +
         '</div>';
     }
     html += '</div><div class="ux-section-ribbon">功法库</div>';
     if (!owned.length) return html + H.emptyState('📖', '尚未习得功法', '完成事件/合成残页获得功法');
     owned.forEach(function (id) {
+      var def = catalog[id];
+      var name = def ? def.name : id;
       html += '<div class="ux-card ux-ach-card">' +
         '<div class="ux-ach-info">' +
-          '<div class="ux-ach-name">' + H.escHtml(id) + ' <small style="color:var(--text-ink-muted)">Lv' + (levels[id] || 1) + '</small></div>' +
+          '<div class="ux-ach-name">' + H.escHtml(name) + ' ' + techRouteBadge(catalog, id) + ' <small style="color:var(--text-ink-muted)">Lv' + (levels[id] || 1) + '</small></div>' +
+          (def ? '<div class="ux-recipe-desc">' + H.escHtml(def.description) + '</div>' : '') +
         '</div>' +
         '<button class="ux-btn ux-btn--blue ux-btn--sm" data-action="techEquip" data-id="' + H.escHtml(id) + '">装备</button>' +
         '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="techUpgrade" data-id="' + H.escHtml(id) + '">升级</button>' +
