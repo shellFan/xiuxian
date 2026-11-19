@@ -91,9 +91,9 @@ CDP 真实鼠标事件流：广告全链（领双倍/取消/回落）+ 推荐装
 
 ## 12. 最新 Commit SHA
 
-- **推送验证：✅ 成功**（fast-forward `b792ad3..e2b7b01`，远程与本地一致）
-- 推送 HEAD：`e2b7b01`（docs: soak 回填 + FINAL_REPORT）
-- 功能提交 SHA：a807152（广告+推荐装备）/ 66797db（技能）/ 0422caa（NPC）/ 3602ab8（文档体系）/ f2cd687（BGM）
+- **推送验证：✅ 成功**（fast-forward `b792ad3..e2b7b01` → `e2b7b01..415d2fc` → `415d2fc..c31b89d`，远程与本地一致）
+- 最终 HEAD：`c31b89d`（test: mobile sweep 证据刷新）
+- 功能提交 SHA：a807152（广告+推荐装备）/ 66797db（技能）/ 0422caa（NPC）/ 3602ab8（文档体系）/ f2cd687（BGM）/ e2b7b01（soak 回填+本报告）/ 415d2fc（推送 SHA 记录）
 - 远程分支：`origin/feature/v10-final-release`（GitHub shellFan/xiuxian）
 
 ## 13. 下一阶段建议
