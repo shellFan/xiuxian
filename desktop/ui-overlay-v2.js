@@ -114,8 +114,31 @@
   function renderNpc() {
     var views = fQuery('queryNpcViews');
     if (!views || !views.length) return H.emptyState('🧑‍🤝‍🧑', '人际网络', 'NPC 关系通过事件选择变化');
-    var facadeObj = typeof facade === 'function' ? facade() : null;
-    var html = '<div class="ux-section-ribbon">六位核心 NPC</div>';
+    /* V10.1 修复：本模块的 facade 访问器是 H.facade()——原 `typeof facade === 'function'`
+       引用了不存在的标识符，恒为 null，记忆卡块此前从未渲染（死代码）。 */
+    var facadeObj = null;
+    try { facadeObj = H.facade() || null; } catch (e) { facadeObj = null; }
+    /* V10.1：关系增益总览——六项数值效果实时呈现，让好感度的影响可见（§47） */
+    var buffs = [];
+    try { if (facadeObj && typeof facadeObj.queryNpcBuffs === 'function') buffs = facadeObj.queryNpcBuffs() || []; } catch (e) { buffs = []; }
+    var buffRows = buffs.map(function (b) {
+      var nameById = {};
+      views.forEach(function (n) { nameById[n.id] = n.name; });
+      var isGood = b.kind === 'bonus' ? b.value > 0 : b.value < 1;
+      var isBad = b.kind === 'bonus' ? b.value < 0 : b.value > 1;
+      var valText = b.kind === 'bonus' ? ('+' + b.value + b.unit) : (b.value.toFixed(2) + b.unit);
+      return '<div class="ux-npc-buff-row' + (isGood ? ' is-good' : isBad ? ' is-bad' : '') + '">' +
+        '<span class="ux-npc-buff-npc">' + H.escHtml(nameById[b.npcId] || b.npcId) + '</span>' +
+        '<span class="ux-npc-buff-label">' + H.escHtml(b.label) + '</span>' +
+        '<b class="ux-npc-buff-val">' + valText + '</b>' +
+      '</div>';
+    }).join('');
+    var html = '<div class="ux-card ux-npc-buff-card">' +
+      '<div class="ux-card-title">关系增益 · 好感度的实际效果</div>' +
+      '<div class="ux-recipe-desc">与同事的互动会改变这些数值：晋升、Bug 预警、材料掉落、道心损耗。维护好关键人脉就是维护修炼资源。</div>' +
+      '<div class="ux-npc-buff-list">' + buffRows + '</div>' +
+    '</div>';
+    html += '<div class="ux-section-ribbon">核心 NPC（' + views.length + ' 位）</div>';
     views.forEach(function (n) {
       var pct = Math.round((n.value + 100) / 2);
       html += '<div class="ux-card ux-friend-card">' +

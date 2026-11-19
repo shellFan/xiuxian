@@ -670,6 +670,22 @@ export class GameFacade {
   public v2Buy(itemId: string, price: number) { return this.context.v2Items.buy(itemId, price); }
   /** V2 NPC 关系。 */
   public queryNpcViews() { return this.context.npc.views(); }
+
+  /**
+   * V10.1 NPC 关系增益总览（§47 六项数值效果，人际页可视化）。
+   * 让「好感度到底有什么用」对玩家可见——NPC 对职场绩效的影响必须有实际呈现。
+   */
+  public queryNpcBuffs() {
+    const npc = this.context.npc;
+    return [
+      { npcId: 'BOSS' as const, label: '晋升答辩成功率', value: npc.promotionChanceBonus(), unit: '%', kind: 'bonus' as const },
+      { npcId: 'HR' as const, label: '晋升窗口洞察', value: npc.hrPromotionInsight(), unit: '%', kind: 'bonus' as const },
+      { npcId: 'TESTER' as const, label: 'Bug 事件权重', value: npc.bugEventWeightMul(), unit: '×', kind: 'mult' as const },
+      { npcId: 'VETERAN' as const, label: '负面事件伤害', value: npc.negativeEventMul(), unit: '×', kind: 'mult' as const },
+      { npcId: 'JUNIOR' as const, label: '材料情报掉落', value: npc.materialMul(), unit: '×', kind: 'mult' as const },
+      { npcId: 'PRODUCT' as const, label: '需求事件道心损耗', value: npc.productMindLossMul(), unit: '×', kind: 'mult' as const },
+    ];
+  }
   /** V2 晋升答辩。 */
   public queryPromotionCheckV2() { return this.context.promotionV2.check(); }
   public startPromotionDefense() { return this.context.promotionV2.startDefense(); }

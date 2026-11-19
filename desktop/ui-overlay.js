@@ -2910,7 +2910,7 @@
       '<div class="ux-more-grid">' +
         moreItem('techniques', '📖', '功法', '主修与辅助 Build') +
         moreItem('equipment', '🎽', '法宝', '三槽职场法宝') +
-        moreItem('npc', '🧑‍🤝‍🧑', '人际', '六位核心NPC关系') +
+        moreItem('npc', '🧑‍🤝‍🧑', '人际', '核心NPC关系与增益') +
         moreItem('craft', '🧪', '合成', '丹药与功法炼制') +
         moreItem('sect', '⚔️', '宗门', '选择你的流派') +
         moreItem('leaderboard', '🏆', '排行榜', '修为职级大比拼') +
