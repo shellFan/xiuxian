@@ -854,6 +854,9 @@
     /* 离线不足 60 秒且没有待决策内容时不弹简报——没有可领取或决策的事项。 */
     if ((simulation.effectiveSeconds || 0) < 60 && pendingCount === 0) return;
     var hasPending = decisionRemaining > 0 && !!decisions.current;
+    /* V10.1（QA-BUG-013）：仅当收益未领取且有效时长 > 0 时展示广告双倍入口（已领取则只保留关闭按钮） */
+    var canClaimOffline = simulation.effectiveSeconds > 0 &&
+      (!f.queryOfflineIsSettled || !f.queryOfflineIsSettled(summary.settlementId));
     var policyLabels = { NORMAL: '均衡', SAFE: '稳健', GRINDER: '卷王', SLACKER: '摸鱼' };
     var summaryRows = '' +
       '<div class="ux-welcome-summary-row"><span>有效时长</span><b>' + fmtDuration(simulation.effectiveSeconds) + (simulation.capped ? '（已封顶）' : '') + '</b></div>' +
@@ -883,7 +886,14 @@
                 }).join('') +
               '</div>' +
               '<div class="ux-welcome-note">托管策略变更将在下次回归时生效；高风险破事仍由你亲自处理。</div>' +
-              '<button class="ux-btn ux-btn--gold ux-btn--md ux-welcome-continue" id="WelcomeContinueBtn">' + (hasPending ? '领取并处理破事' : '继续上班') + '</button>' +
+              /* V10.1（QA-BUG-013 接线）：广告双倍领取入口接入唯一可达的启动简报流。
+                 领取语义与 Cocos OFFLINE_REWARD 弹窗一致：广告未完成不发放，回落普通领取。
+                 金色=广告增益（修仙装饰色），蓝色=正常领取（主视觉色），层级清晰。 */
+              (canClaimOffline
+                ? '<button class="ux-btn ux-btn--gold ux-btn--md ux-welcome-double" id="WelcomeDoubleBtn">📺 看广告 ×2 领取</button>' +
+                  '<div class="ux-welcome-double-note">看完广告可获双倍收益；中途取消不发放，可正常领取</div>'
+                : '') +
+              '<button class="ux-btn ux-btn--blue ux-btn--md ux-welcome-continue" id="WelcomeContinueBtn">' + (hasPending ? '领取并处理破事' : '继续上班') + '</button>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -926,6 +936,38 @@
       }
       closePopup();
       refresh();
+    });
+    /* V10.1（QA-BUG-013）：广告 ×2 领取。走 claimOfflineDouble（RewardProvider 边界，
+       服务层自带 isSettled/double 集合/in-flight 三重防重 + 异步回调后二次校验 + 失败事务回滚）。
+       广告取消/失败：回落普通领取（与 Cocos OFFLINE_REWARD 弹窗同语义），绝不发放未完成的奖励。 */
+    var doubleBtn = $('#WelcomeDoubleBtn');
+    if (doubleBtn) doubleBtn.addEventListener('click', function () {
+      showAdPopup({
+        onComplete: function () {
+          try {
+            f.claimOfflineDouble(summary.settlementId, function (ok) {
+              if (!ok) {
+                try {
+                  f.claimOfflineReward(summary.settlementId);
+                  toast('广告未完成，已领取普通收益', 'warning');
+                } catch (e2) { toast(errMsg(e2), 'error'); }
+              } else {
+                toast('双倍离线收益已领取！', 'success');
+              }
+              closePopup();
+              refresh();
+            });
+          } catch (e) {
+            toast(errMsg(e), 'error');
+            closePopup();
+            refresh();
+          }
+        },
+        onCancel: function () {
+          /* 取消不发放。广告弹窗与简报共用弹窗层，cancel 已清空整层——重建简报，玩家仍可正常领取。 */
+          showWelcomeBackPopup();
+        },
+      });
     });
   }
 

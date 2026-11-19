@@ -1086,6 +1086,9 @@ export class GameFacade {
   /** V6.4 装备强化。 */
   public enhanceEquip(instanceId: string) { return this.context.autoBattle.enhanceEquip(instanceId); }
 
+  /** V10.1 一键推荐装备：逐槽位穿上背包综合评分最高的装备。 */
+  public equipRecommended() { return this.context.autoBattle.equipRecommended(); }
+
   /** V6.4 每日目标视图。 */
   public queryDailyGoals(dayIndex?: number) {
     return this.context.autoBattle.dailyGoalsView(dayIndex ?? this.context.player.gameDay?.dayIndex ?? 1);

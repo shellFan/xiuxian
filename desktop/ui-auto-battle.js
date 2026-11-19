@@ -315,6 +315,8 @@
           '<div class="ux63-hire-title">⚔️ 战斗装备</div>';
     }
     var html = open;
+    /* V10.1：一键推荐装备（遗留项）——逐槽位穿上背包综合评分最高装备 */
+    html += '<div class="ux64-equip-reco-row"><button class="ux64-equip-mini-btn ux64-equip-reco-btn" data-action="v64-equipRecommended">✨ 一键推荐</button></div>';
     // 已装备槽位
     html += '<div class="ux64-equip-slots">';
     var slots = ['WEAPON', 'ARMOR', 'ACCESSORY', 'RELIC'];
@@ -593,6 +595,8 @@
         return true;
       case 'equipItem':
         return doEquipItem(el);
+      case 'equipRecommended':
+        return doEquipRecommended();
       case 'unequipItem':
         return doUnequipItem(el);
       case 'enhanceEquip':
@@ -650,6 +654,20 @@
     var r = fQuery('equipItem', instId);
     if (!r) return true;
     H.toast(r.ok ? '⚔️ 装备成功' : (r.reason || '装备失败'));
+    H.refresh();
+    return true;
+  }
+
+  /* V10.1：一键推荐装备（逐槽位最优），结果逐项播报 */
+  function doEquipRecommended() {
+    var r = fQuery('equipRecommended');
+    if (!r) return true;
+    if (r.ok && r.changed && r.changed.length) {
+      var names = r.changed.map(function (c) { return (SLOT_NAMES[c.slot] || c.slot) + '→' + c.name; }).join('、');
+      H.toast('✨ 已推荐装备：' + names);
+    } else {
+      H.toast(r.reason || '已是当前最优配置');
+    }
     H.refresh();
     return true;
   }

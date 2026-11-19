@@ -1042,6 +1042,38 @@ export class AutoBattleService {
     this.context.events.emit('playerChanged', { reason: 'v64Unequip' });
   }
 
+  /**
+   * V10.1 一键推荐装备：逐槽位从背包选综合评分最高的装备穿上。
+   * 评分 = atk×(1+暴击期望)×2 + hp（暴击加权 DPS + 生存），槽位互相独立，逐槽取最优即全局最优。
+   * 已装备的当前槽位装备也参与比较——最优则保留，否则换新。
+   */
+  public equipRecommended(): {
+    ok: boolean;
+    changed: { slot: EquipSlot; itemId: string; name: string }[];
+    reason?: string;
+  } {
+    const eqState = this.equipState();
+    const slots: EquipSlot[] = ['WEAPON', 'ARMOR', 'ACCESSORY', 'RELIC'];
+    const changed: { slot: EquipSlot; itemId: string; name: string }[] = [];
+    for (const slot of slots) {
+      let best: { id: string; name: string; score: number } | null = null;
+      for (const inst of eqState.bag) {
+        const def = equipDef(inst.defId);
+        if (!def || def.slot !== slot) continue;
+        const s = equipStats(inst);
+        const score = s.atk * (1 + s.critRate * s.critMult) * 2 + s.hp;
+        if (!best || score > best.score) best = { id: inst.id, name: def.name, score };
+      }
+      if (best && eqState.equipped[slot] !== best.id) {
+        eqState.equipped[slot] = best.id;
+        changed.push({ slot, itemId: best.id, name: best.name });
+      }
+    }
+    if (changed.length === 0) return { ok: true, changed, reason: '已是当前最优配置' };
+    this.context.events.emit('playerChanged', { reason: 'v64EquipRecommended' });
+    return { ok: true, changed };
+  }
+
   public enhanceEquip(instanceId: string): { ok: boolean; newLevel: number; reason?: string } {
     const eqState = this.equipState();
     const inst = eqState.bag.find(b => b.id === instanceId);

@@ -726,5 +726,5 @@ if (require.main === module) {
   }).catch((error) => { process.stderr.write(String(error && error.stack || error) + '\n'); process.exitCode = 1; });
 }
 
-module.exports = { parseArgs, buildLaunchSpec, BootGate, RunManifest, SoakMonitor, CdpClient, snapshot, gateSnapshot, run, ownedProcessMetrics, processTree, handleSpecificModal, sleep };
+module.exports = { parseArgs, buildLaunchSpec, BootGate, RunManifest, SoakMonitor, CdpClient, snapshot, gateSnapshot, run, ownedProcessMetrics, processTree, handleSpecificModal, runCardBattleSession, sleep };
 

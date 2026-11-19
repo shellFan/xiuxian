@@ -1139,6 +1139,9 @@
 .ux-welcome-route { margin-left: 7px; color: #3f789e !important; }
 .ux-welcome-empty { padding: 24px 10px; text-align: center; color: var(--text-ink-muted); font-size: 20px; }
 .ux-welcome-continue { width: 100%; margin-top: 16px; }
+/* V10.1（QA-BUG-013）：启动简报广告双倍领取入口 */
+.ux-welcome-double { width: 100%; margin-top: 16px; }
+.ux-welcome-double-note { margin-top: 6px; color: var(--text-ink-muted); font-size: 15px; line-height: 1.5; text-align: center; }
 .ux-welcome-decision { text-align: center; }
 .ux-welcome-position { color: #3f789e; font-size: 20px; font-weight: 900; letter-spacing: 2px; }
 .ux-welcome-decision-kind { margin-top: 14px; font-size: 28px; font-weight: 900; }
