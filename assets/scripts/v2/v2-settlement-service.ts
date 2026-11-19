@@ -242,6 +242,8 @@ export interface DailySettlementView {
   /** Free overtime is shown separately so the UI cannot imply it was paid. */
   readonly freeOvertimeSeconds: number;
   readonly statusText: string;
+  /** V10.2 AI 化下班总结：基于当日事实的拟人化生成（日报弹窗与日报页共用）。 */
+  readonly aiSummary: string;
   readonly mindDelta: number;
   readonly demonEnd: number;
   readonly eventsHandled: number;
@@ -280,6 +282,77 @@ export class DaySettlementService {
     private readonly demons: InnerDemonService,
   ) {}
 
+  /**
+   * V10.2 日报 AI 化下班总结：基于当日真实数据的拟人化生成（规则模板 + dayIndex
+   * 确定性变体，无外部 AI 依赖——"AI 化"指按当日事实个性化成文的文案质感）。
+   * 同一天同数据必得同文案（重启/回看不漂移）。
+   */
+  private buildAiSummary(input: {
+    dayIndex: number;
+    durations: { work: number; fishing: number; cultivating: number; social: number; overtime: number };
+    income: { salary: number; cultivation: number; performance: number };
+    eventsHandled: number;
+    overtimeFree: boolean;
+    paidFishingSalary: number;
+    assignedTasksDone: number;
+    assignedTasksRefused: number;
+    blamesTaken: number;
+    blameCounters: number;
+    incidents: number;
+    evidenceGained: number;
+    messageCount: number;
+    readNoReplyCount: number;
+    demonEnd: number;
+    rank: string;
+  }): string {
+    const hours = (seconds: number): string => (seconds / 3600).toFixed(1);
+    const sentences: string[] = [];
+
+    // 主线：当日最高时长模式 + 加班备注
+    const modes = [
+      { label: '埋头工作', seconds: input.durations.work },
+      { label: '带薪摸鱼', seconds: input.durations.fishing },
+      { label: '闭关修炼', seconds: input.durations.cultivating },
+      { label: '走动社交', seconds: input.durations.social },
+    ].sort((a, b) => b.seconds - a.seconds);
+    const top = modes[0];
+    const overtimeNote = input.durations.overtime > 0
+      ? `，另${input.overtimeFree ? '免费' : '有偿'}加班 ${hours(input.durations.overtime)} 小时`
+      : '';
+    sentences.push(`今天主修「${top.label}」${hours(top.seconds)} 小时${overtimeNote}。`);
+
+    if (input.income.salary > 0 || input.income.cultivation > 0 || input.income.performance > 0) {
+      sentences.push(`入账：工资 ${input.income.salary}、修为 ${input.income.cultivation}、绩效 ${input.income.performance}。`);
+    }
+    if (input.paidFishingSalary > 0) sentences.push(`带薪摸鱼悄悄进账 ¥${input.paidFishingSalary.toFixed(2)}。`);
+
+    // 职场破事
+    const officeBits: string[] = [];
+    if (input.eventsHandled > 0) officeBits.push(`处理破事 ${input.eventsHandled} 件`);
+    if (input.incidents > 0) officeBits.push(`生产事故 ${input.incidents} 起`);
+    if (input.blamesTaken > 0) officeBits.push(`背锅 ${input.blamesTaken} 次`);
+    if (input.blameCounters > 0) officeBits.push(`成功反击 ${input.blameCounters} 次`);
+    if (input.assignedTasksDone > 0 || input.assignedTasksRefused > 0) {
+      officeBits.push(`塞来的活完成 ${input.assignedTasksDone} · 拒绝 ${input.assignedTasksRefused}`);
+    }
+    if (input.evidenceGained > 0) officeBits.push(`拿到证据 ${input.evidenceGained} 份`);
+    if (officeBits.length > 0) sentences.push(`${officeBits.join('、')}。`);
+    else sentences.push('今天没有职场破事找上门——在牛马界，这已是难得的清净。');
+
+    if (input.messageCount > 0) {
+      sentences.push(`飞剑传书 ${input.messageCount} 条${input.readNoReplyCount > 0 ? `，已读不回 ${input.readNoReplyCount} 条` : ''}。`);
+    }
+
+    // 收尾：心魔/评级/平凡日三分口径，dayIndex 确定性选变体
+    const closerPool = input.demonEnd >= 70
+      ? ['心魔已重——今晚早点休息，道心要紧。', '心魔盘踞心口，明日宜静不宜动。']
+      : /^(S|A)/.test(input.rank)
+        ? ['评级不俗，今晚可以大方地御剑（地铁）回家。', '这一天的绩效，灵石和头发总算保住了一头。']
+        : ['平凡而珍贵的一天，牛马也有牛马的道行。', '明天继续——工位即洞府，日报即经文。'];
+    sentences.push(closerPool[Math.abs(input.dayIndex) % closerPool.length]);
+    return sentences.join('');
+  }
+
   /** 是否可结算：已开工、未结算、已过 18:00（DEV 跳时间也能触发）。 */
   public canSettle(): boolean {
     const day = this.gameDay.current();
@@ -302,6 +375,38 @@ export class DaySettlementService {
     // 标记结算（先写 settled 防重复，§261）
     this.gameDay.markSettled();
 
+    // V10.2 AI 化下班总结：从当日真实数据聚合（与 view 字段同口径，供生成与持久化共用）
+    const assignedTasksDone = p.assignedTasks.filter((t) => t.status === 'DONE' && t.createdDay === day.dayIndex).length;
+    const assignedTasksRefused = p.assignedTasks.filter((t) => t.status === 'REFUSED' && t.createdDay === day.dayIndex).length;
+    const blamesTaken = p.responsibilityCases.filter((c) => c.status === 'PLAYER_ACCEPTED' && c.createdDay === day.dayIndex).length;
+    const blameCounters = p.responsibilityCases.filter((c) => c.status === 'PLAYER_CLEARED' && c.createdDay === day.dayIndex).length;
+    const incidents = p.incidents.filter((i) => i.dayIndex === day.dayIndex).length;
+    const evidenceGained = p.evidence.filter((e) => e.dayIndex === day.dayIndex).length;
+    const messageCount = (p.messages ?? []).filter((m) => m.timestamp >= day.startedAt && m.timestamp <= this.clock.now()).length;
+    const readNoReplyCount = p.lifetimeStats['msg_ach:read_no_reply'] ?? 0;
+    const aiSummary = this.buildAiSummary({
+      dayIndex: day.dayIndex,
+      durations: {
+        work: day.durations.work, fishing: day.durations.fishing,
+        cultivating: day.durations.cultivating, social: day.durations.social,
+        overtime: day.durations.overtime,
+      },
+      income: { ...day.income },
+      eventsHandled: day.eventsHandled,
+      overtimeFree: day.overtimeFree,
+      paidFishingSalary: day.settlementInputs?.paidFishingSalary ?? 0,
+      assignedTasksDone,
+      assignedTasksRefused,
+      blamesTaken,
+      blameCounters,
+      incidents,
+      evidenceGained,
+      messageCount,
+      readNoReplyCount,
+      demonEnd: p.innerDemon,
+      rank,
+    });
+
     const summary: DaySummaryState = {
       dayIndex: day.dayIndex,
       salary: day.income.salary,
@@ -311,6 +416,13 @@ export class DaySettlementService {
       innerDemonEnd: p.innerDemon,
       titleId: title.id,
       rank,
+      weekday: day.weekday,
+      durations: {
+        work: day.durations.work, fishing: day.durations.fishing,
+        cultivating: day.durations.cultivating, social: day.durations.social,
+        overtime: day.durations.overtime,
+      },
+      aiSummary,
     };
     const history = [...p.dailyHistory, summary].slice(-90); // §271 保留 90 天
     p.dailyHistory = history;
@@ -329,6 +441,7 @@ export class DaySettlementService {
       income: { ...day.income },
       freeOvertimeSeconds: day.overtimeFree ? day.durations.overtime : 0,
       statusText: day.durations.overtime > 0 ? '工资已经下班了，你还没有。' : '准时下班，今晚的工位归还给夜色。',
+      aiSummary,
       mindDelta: 0, // UI 可与昨日对比；此处存终值
       demonEnd: p.innerDemon,
       eventsHandled: day.eventsHandled,
@@ -337,16 +450,16 @@ export class DaySettlementService {
       // V4 日总结：当日口径（从各领当日字段聚合）
       paidFishingSalary: day.settlementInputs?.paidFishingSalary ?? 0,
       paidOvertimeSeconds: day.overtimeFree ? 0 : day.durations.overtime,
-      assignedTasksDone: p.assignedTasks.filter((t) => t.status === 'DONE' && t.createdDay === day.dayIndex).length,
-      assignedTasksRefused: p.assignedTasks.filter((t) => t.status === 'REFUSED' && t.createdDay === day.dayIndex).length,
-      blamesTaken: p.responsibilityCases.filter((c) => c.status === 'PLAYER_ACCEPTED' && c.createdDay === day.dayIndex).length,
-      blameCounters: p.responsibilityCases.filter((c) => c.status === 'PLAYER_CLEARED' && c.createdDay === day.dayIndex).length,
-      incidents: p.incidents.filter((i) => i.dayIndex === day.dayIndex).length,
-      evidenceGained: p.evidence.filter((e) => e.dayIndex === day.dayIndex).length,
+      assignedTasksDone,
+      assignedTasksRefused,
+      blamesTaken,
+      blameCounters,
+      incidents,
+      evidenceGained,
       dailyPlan: [...(p.dailyPlan ?? [])],
       dailyReality: (p.dailyReality ?? []).map((r) => ({ time: r.time, text: r.text, kind: r.kind })),
-      messageCount: (p.messages ?? []).filter((m) => m.timestamp >= day.startedAt && m.timestamp <= this.clock.now()).length,
-      readNoReplyCount: p.lifetimeStats['msg_ach:read_no_reply'] ?? 0,
+      messageCount,
+      readNoReplyCount,
     };
 
     try {
