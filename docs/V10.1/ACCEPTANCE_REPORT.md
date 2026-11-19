@@ -45,9 +45,23 @@
 | V101-TOOL-001 | 工具 | cdp-runner runCardBattleSession 未导出（深度探针被迫维护 mirror 副本） | module.exports 导出 | equip-reco-probe 复用成功 |
 | V101-TOOL-002 | 工具 | 离线注入测试被 pagehide save flush 覆盖（effective=3.365s 假象） | 探针注入前屏蔽本页 Storage.setItem | 注入 effective=7203s 正确 |
 
-## D. 长时间运行（soak 60 分钟）
+## D. 长时间运行（soak 60 分钟，已完成）
 
-> 执行中：`cdp-runner --mode h5 --soak-minutes 60 --output ai/reports/v10.1/soak-60min`，结果回填本节。
+`cdp-runner --mode h5 --soak-minutes 60` → `ai/reports/v10.1/soak-60min/h5-2026-11-19T17-10-57-099Z-70532/`
+
+| 指标 | 结果 |
+|---|---|
+| 采样数 | 116（每 30s） |
+| 心跳断流（>45s 无采样） | **0**（gapFailures 空） |
+| 空白页 | **0**（blankFailures 空） |
+| 心跳失败 | **0**（heartbeatFailures 空） |
+| JS 堆 | 51.1 → 40.9 → 30MB（峰值 62MB，周期性 GC 有效，无单调泄漏） |
+| DOM 节点 | 372 → 378（max 378，零泄漏） |
+| 控制台/页面错误 | **0**（全程） |
+| 游戏进程 | 自动推关 stage 5→12（BOSS_PENDING 等待卡牌 Boss 为预期挂机行为），小队攻击 15→110 自动成长 |
+
+移动端 5 视口扫描（430×932 / 414×896 / 390×844 / 375×812 / 360×640）：
+**横向溢出 0/5**（noHorizontalOverflow=true）；boot 门未全过为新档向导未完成的采集口径（本轮其余探针 boot 门 9/9 实测通过，非回归）。
 
 ## E. 环境限制（如实）
 1. 广告真机验证（微信/抖音）：无小游戏开发者环境
