@@ -190,8 +190,8 @@
         },
         {
           "type": "CULTIVATION",
-          "target": 73000,
-          "description": "修为达到 73000"
+          "target": 72000,
+          "description": "修为达到 72000"
         },
         {
           "type": "TASK_DONE",
@@ -205,13 +205,13 @@
       "requirements": [
         {
           "type": "WORK_SECONDS",
-          "target": 16416000,
-          "description": "累计工作 190 天"
+          "target": 15552000,
+          "description": "累计工作 180 天"
         },
         {
           "type": "CULTIVATION",
-          "target": 102000,
-          "description": "修为达到 102000"
+          "target": 86400,
+          "description": "修为达到 86400"
         },
         {
           "type": "TASK_DONE",
@@ -225,13 +225,13 @@
       "requirements": [
         {
           "type": "WORK_SECONDS",
-          "target": 20736000,
-          "description": "累计工作 240 天"
+          "target": 18662400,
+          "description": "累计工作 216 天"
         },
         {
           "type": "CULTIVATION",
-          "target": 143000,
-          "description": "修为达到 143000"
+          "target": 103680,
+          "description": "修为达到 103680"
         },
         {
           "type": "TASK_DONE",
@@ -245,13 +245,13 @@
       "requirements": [
         {
           "type": "WORK_SECONDS",
-          "target": 25920000,
-          "description": "累计工作 300 天"
+          "target": 22377600,
+          "description": "累计工作 259 天"
         },
         {
           "type": "CULTIVATION",
-          "target": 200000,
-          "description": "修为达到 200000"
+          "target": 124320,
+          "description": "修为达到 124320"
         },
         {
           "type": "TASK_DONE",
@@ -265,13 +265,13 @@
       "requirements": [
         {
           "type": "WORK_SECONDS",
-          "target": 32400000,
-          "description": "累计工作 375 天"
+          "target": 26870400,
+          "description": "累计工作 311 天"
         },
         {
           "type": "CULTIVATION",
-          "target": 280000,
-          "description": "修为达到 280000"
+          "target": 149280,
+          "description": "修为达到 149280"
         },
         {
           "type": "TASK_DONE",
@@ -285,13 +285,13 @@
       "requirements": [
         {
           "type": "WORK_SECONDS",
-          "target": 40608000,
-          "description": "累计工作 470 天"
+          "target": 32227200,
+          "description": "累计工作 373 天"
         },
         {
           "type": "CULTIVATION",
-          "target": 390000,
-          "description": "修为达到 390000"
+          "target": 179040,
+          "description": "修为达到 179040"
         },
         {
           "type": "TASK_DONE",
@@ -305,13 +305,13 @@
       "requirements": [
         {
           "type": "WORK_SECONDS",
-          "target": 50976000,
-          "description": "累计工作 590 天"
+          "target": 38707200,
+          "description": "累计工作 448 天"
         },
         {
           "type": "CULTIVATION",
-          "target": 545000,
-          "description": "修为达到 545000"
+          "target": 215040,
+          "description": "修为达到 215040"
         },
         {
           "type": "TASK_DONE",
@@ -325,13 +325,13 @@
       "requirements": [
         {
           "type": "WORK_SECONDS",
-          "target": 63936000,
-          "description": "累计工作 740 天"
+          "target": 46483200,
+          "description": "累计工作 538 天"
         },
         {
           "type": "CULTIVATION",
-          "target": 760000,
-          "description": "修为达到 760000"
+          "target": 258240,
+          "description": "修为达到 258240"
         },
         {
           "type": "TASK_DONE",
@@ -345,13 +345,13 @@
       "requirements": [
         {
           "type": "WORK_SECONDS",
-          "target": 79920000,
-          "description": "累计工作 925 天"
+          "target": 55814400,
+          "description": "累计工作 646 天"
         },
         {
           "type": "CULTIVATION",
-          "target": 1060000,
-          "description": "修为达到 1060000"
+          "target": 310080,
+          "description": "修为达到 310080"
         },
         {
           "type": "TASK_DONE",
@@ -365,13 +365,13 @@
       "requirements": [
         {
           "type": "WORK_SECONDS",
-          "target": 99360000,
-          "description": "累计工作 1150 天"
+          "target": 66960000,
+          "description": "累计工作 775 天"
         },
         {
           "type": "CULTIVATION",
-          "target": 1480000,
-          "description": "修为达到 1480000"
+          "target": 372000,
+          "description": "修为达到 372000"
         },
         {
           "type": "TASK_DONE",
