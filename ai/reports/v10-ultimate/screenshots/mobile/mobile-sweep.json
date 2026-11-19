@@ -1,20 +1,20 @@
 {
- "url": "http://127.0.0.1:8633/",
+ "url": "--url",
  "results": [
   {
    "viewport": "360x640",
    "gates": {
     "home": {
      "electronReady": true,
-     "cocosReady": true,
-     "facadeReady": true,
-     "creationComplete": true,
-     "homeVisible": true,
-     "resourcesReady": true,
-     "heroSpriteReady": true,
-     "chapterValid": true
+     "cocosReady": false,
+     "facadeReady": false,
+     "creationComplete": false,
+     "homeVisible": false,
+     "resourcesReady": false,
+     "heroSpriteReady": false,
+     "chapterValid": false
     },
-    "battleReady": true
+    "battleReady": false
    },
    "overflow": {
     "home": false,
@@ -30,15 +30,15 @@
    "gates": {
     "home": {
      "electronReady": true,
-     "cocosReady": true,
-     "facadeReady": true,
-     "creationComplete": true,
-     "homeVisible": true,
-     "resourcesReady": true,
-     "heroSpriteReady": true,
-     "chapterValid": true
+     "cocosReady": false,
+     "facadeReady": false,
+     "creationComplete": false,
+     "homeVisible": false,
+     "resourcesReady": false,
+     "heroSpriteReady": false,
+     "chapterValid": false
     },
-    "battleReady": true
+    "battleReady": false
    },
    "overflow": {
     "home": false,
@@ -54,15 +54,15 @@
    "gates": {
     "home": {
      "electronReady": true,
-     "cocosReady": true,
-     "facadeReady": true,
-     "creationComplete": true,
-     "homeVisible": true,
-     "resourcesReady": true,
-     "heroSpriteReady": true,
-     "chapterValid": true
+     "cocosReady": false,
+     "facadeReady": false,
+     "creationComplete": false,
+     "homeVisible": false,
+     "resourcesReady": false,
+     "heroSpriteReady": false,
+     "chapterValid": false
     },
-    "battleReady": true
+    "battleReady": false
    },
    "overflow": {
     "home": false,
@@ -78,15 +78,15 @@
    "gates": {
     "home": {
      "electronReady": true,
-     "cocosReady": true,
-     "facadeReady": true,
-     "creationComplete": true,
-     "homeVisible": true,
-     "resourcesReady": true,
-     "heroSpriteReady": true,
-     "chapterValid": true
+     "cocosReady": false,
+     "facadeReady": false,
+     "creationComplete": false,
+     "homeVisible": false,
+     "resourcesReady": false,
+     "heroSpriteReady": false,
+     "chapterValid": false
     },
-    "battleReady": true
+    "battleReady": false
    },
    "overflow": {
     "home": false,
@@ -102,15 +102,15 @@
    "gates": {
     "home": {
      "electronReady": true,
-     "cocosReady": true,
-     "facadeReady": true,
-     "creationComplete": true,
-     "homeVisible": true,
-     "resourcesReady": true,
-     "heroSpriteReady": true,
-     "chapterValid": true
+     "cocosReady": false,
+     "facadeReady": false,
+     "creationComplete": false,
+     "homeVisible": false,
+     "resourcesReady": false,
+     "heroSpriteReady": false,
+     "chapterValid": false
     },
-    "battleReady": true
+    "battleReady": false
    },
    "overflow": {
     "home": false,
@@ -122,5 +122,5 @@
    }
   }
  ],
- "at": "2026-11-18T18:02:40.170Z"
+ "at": "2026-11-19T18:22:49.532Z"
 }
