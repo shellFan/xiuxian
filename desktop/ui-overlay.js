@@ -1284,13 +1284,14 @@
   function homeStatsHtml(hud) {
     var rates = readRates();
     var expReq = hud.requiredExp > 0 ? hud.requiredExp : 0;
-    var expPct = expReq > 0 ? pct(hud.cultivationExp, expReq) : 100;
+    /* V10.2 DEF-009：无修为门槛时不渲染"恒满"进度条（职级 1 起点） */
+    var expPct = expReq > 0 ? pct(hud.cultivationExp, expReq) : 0;
     return '<section class="ux-stats">' +
       '<div class="ux-stat ux-stat--main">' +
         '<span class="ux-stat-label">修为</span>' +
         '<b class="ux-stat-value" id="StatCultivation">' + fmtNum(hud.cultivationExp) + '</b>' +
         '<span class="ux-stat-rate">+' + rates.cultivationPerMin.toFixed(1) + '/分 · ' + escHtml(hud.realm) + '</span>' +
-        '<div class="ux-progress"><div class="ux-progress-fill ux-progress-fill--blue" style="width:' + expPct + '%"></div></div>' +
+        (expReq > 0 ? '<div class="ux-progress"><div class="ux-progress-fill ux-progress-fill--blue" style="width:' + expPct + '%"></div></div>' : '') +
       '</div>' +
       '<div class="ux-stat"><span class="ux-stat-label">工资</span><b>¥' + fmtNum(hud.salary) + '</b><span class="ux-stat-rate">+' + rates.salaryPerMin.toFixed(2) + '/分</span></div>' +
       '<div class="ux-stat"><span class="ux-stat-label">道心</span><b>' + fmtNum(hud.mind) + '<i>/' + fmtNum(hud.maxMind) + '</i></b><span class="ux-stat-rate">心神状态</span></div>' +
@@ -1832,6 +1833,9 @@
           });
           var skipBtn = $('.ux-bc-reward [data-action="battleRewardSkip"]', rewardLayer);
           if (skipBtn) skipBtn.addEventListener('click', function () { BC.handleRewardSkip(); closePopup(); });
+          /* V10.2 奖励替换（Transform）：handler 成功后自行 closePopup+refresh，收尾观察器重开新候选弹窗 */
+          var transformBtn = $('.ux-bc-reward [data-action="battleRewardTransform"]', rewardLayer);
+          if (transformBtn && !transformBtn.disabled) transformBtn.addEventListener('click', function () { BC.handleRewardTransform(); });
         }
         return;
       }
@@ -2626,8 +2630,8 @@
     var cd = cooldownOf('cultivate');
     var head = '<div class="ux-card ux-cult-head">' +
       '<div class="ux-task-name">🧘 ' + escHtml(hud.realm) + ' · ' + escHtml(hud.careerName) + ' Lv.' + hud.careerLevel + '</div>' +
-      '<div class="ux-progress" style="height:18px;margin-top:8px"><div class="ux-progress-fill ux-progress-fill--blue" style="width:' + pct(hud.cultivationExp, hud.requiredExp || hud.cultivationExp || 1) + '%"></div></div>' +
-      '<div class="ux-recipe-desc">修为 ' + fmtNum(hud.cultivationExp) + ' / ' + fmtNum(hud.requiredExp) + ' · 道心 ' + fmtNum(hud.mind) + ' / ' + fmtNum(hud.maxMind) + '</div>' +
+      (hud.requiredExp > 0 ? '<div class="ux-progress" style="height:18px;margin-top:8px"><div class="ux-progress-fill ux-progress-fill--blue" style="width:' + pct(hud.cultivationExp, hud.requiredExp) + '%"></div></div>' : '') +
+      '<div class="ux-recipe-desc">修为 ' + fmtNum(hud.cultivationExp) + (hud.requiredExp > 0 ? ' / ' + fmtNum(hud.requiredExp) : ' · ' + escHtml(hud.realm) + '（当前境界无修为门槛）') + ' · 道心 ' + fmtNum(hud.mind) + ' / ' + fmtNum(hud.maxMind) + '</div>' +
       '<div class="ux-dialog-actions">' +
         '<button class="ux-btn ux-btn--gold ux-btn--md" data-action="cultivate"' + (cd > 0 ? ' disabled' : '') + '>' +
           (cd > 0 ? '冷却中 ' + Math.ceil(cd) + 's' : '修炼一次') + '</button>' +
@@ -3629,7 +3633,9 @@ function renderCave() {
   '</section>';
 
   /* ── B. 主角展示区：Sprite 动画立绘 + 境界/职业/职级/战力/修为进度 ── */
-  var expPct = hud.requiredExp > 0 ? Math.min(100, Math.round(hud.cultivationExp / hud.requiredExp * 100)) : 100;
+  /* V10.2 DEF-009：职级 1 无修为门槛（requiredExp=0）——不再渲染"恒满"进度条，文案改显境界 */
+  var hasExpReq = hud.requiredExp > 0;
+  var expPct = hasExpReq ? Math.min(100, Math.round(hud.cultivationExp / hud.requiredExp * 100)) : 0;
   var power = ab && ab.powerScore !== undefined ? ab.powerScore : null;
   var hero = '<section class="ux91-hero ux-hero">' +
     '<div class="ux91-hero-art">' +
@@ -3641,8 +3647,8 @@ function renderCave() {
       '<div class="ux91-hero-sub">' + escHtml(ab && ab.squad && ab.squad[0] ? ab.squad[0].professionLabel : hud.careerName) + '</div>' +
       '<div class="ux91-hero-realm">' + escHtml(hud.careerName) + ' · ' + escHtml(hud.realm) + '</div>' +
       (power !== null ? '<div class="ux91-hero-power">⚡ 战力 ' + fmtNum(power) + '</div>' : '') +
-      '<div class="ux-progress"><div class="ux-progress-fill ux-progress-fill--blue" style="width:' + expPct + '%"></div></div>' +
-      '<div class="ux91-hero-exp">修为 ' + fmtNum(hud.cultivationExp) + ' / ' + fmtNum(hud.requiredExp) + '</div>' +
+      (hasExpReq ? '<div class="ux-progress"><div class="ux-progress-fill ux-progress-fill--blue" style="width:' + expPct + '%"></div></div>' : '') +
+      '<div class="ux91-hero-exp">修为 ' + fmtNum(hud.cultivationExp) + (hasExpReq ? ' / ' + fmtNum(hud.requiredExp) : ' · ' + escHtml(hud.realm)) + '</div>' +
       '<button class="ux-hero-cultivate" data-action="cultivate"' + (cooldownOf('cultivate') > 0 ? ' disabled' : '') + '>' +
         (cooldownOf('cultivate') > 0 ? '冷却 ' + Math.ceil(cooldownOf('cultivate')) + 's' : '⚡ 修炼一次') +
       '</button>' +
@@ -3856,8 +3862,8 @@ function renderGrowthPage() {
   var CREATION_DESTINY = {
     LABOR_SAINT: { name: '天生牛马圣体', benefit: '疲劳增长降低 20%。', cost: '当前没有额外负面命格效果。', fit: '适合所有职业的稳健耐久路线。' },
     KING_OF_GRIND: { name: '绝世卷王', benefit: '职业技能成长提高 20%。', cost: '工作和修炼时的道心消耗提高 25%。', fit: '适合希望更快积累职业经验的路线。' },
-    FISHING_IMMORTAL: { name: '摸鱼仙尊转世', benefit: '摸鱼奇遇权重效果尚未接入。', cost: '常规工作结算降低 10%。', fit: '偏向摸鱼玩法；本命格的正向效果仍待实现。' },
-    SCAPEGOAT: { name: '天选背锅侠', benefit: '成功化解责任事件后，绩效成长提高 50%。', cost: '背锅事件的触发权重尚未接入。', fit: '适合通过责任事件处理来成长的职业路线。' },
+    FISHING_IMMORTAL: { name: '摸鱼仙尊转世', benefit: '摸鱼类奇遇事件触发权重提高 50%。', cost: '常规工作结算降低 10%。', fit: '适合慢节奏摸鱼流派：奇遇更多，但常规工作与修炼结算打九折。' },
+    SCAPEGOAT: { name: '天选背锅侠', benefit: '成功化解责任事件后，绩效成长提高 50%。', cost: '背锅类负面事件触发权重提高 50%。', fit: '适合通过责任事件处理来成长的职业路线。' },
     CODE_SPIRIT: { name: '代码通灵体', benefit: '技术任务进度提高 10%。', cost: '非技术事项没有额外加成。', fit: '契合互联网技术研发方向，不提供通用战斗加成。' },
     SOCIAL_FATE: { name: '社交天命者', benefit: 'NPC 协助提高 15%，正向关系成长提高 25%。', cost: '独处型任务进度降低 10%。', fit: '适合依赖 NPC 协作与关系成长的路线。' }
   };
@@ -4242,6 +4248,12 @@ function renderGrowthPage() {
               var selectedAvatar = $('.v59-avatar-pick.is-selected');
               var avatarId = selectedAvatar ? selectedAvatar.dataset.creationChoice.split(':')[1] : (fCreationAction.queryCharacterCreation().draft.avatarId);
               creationResult = fCreationAction.characterCreationSetIdentity(identityInput ? identityInput.value : '', avatarId);
+              /* V10.2 DEF-012：保存昵称与形象成功后，若身份三要素（昵称/形象/出身）齐备则自动前进到下一步；
+                 不齐备（例如出身未选）时 advance 会被服务层校验拦下，静默保持当前步即可。 */
+              if (creationResult && creationResult.success) {
+                var identityAdvance = fCreationAction.characterCreationAdvance();
+                if (identityAdvance && identityAdvance.success) creationResult = identityAdvance;
+              }
               break;
             }
             case 'reroll': creationResult = fCreationAction.characterCreationReroll(); break;
@@ -4577,6 +4589,22 @@ function renderGrowthPage() {
             fRm.handleRemoveCard(el.dataset.card);
             fullRefresh();
           }
+          break;
+        }
+        case 'battleDeckPresetToggle': {
+          if (window.__BATTLE_CARD__) { window.__BATTLE_CARD__.handleDeckPresetToggle(el.dataset.card); fullRefresh(); }
+          break;
+        }
+        case 'battleDeckPresetSave': {
+          if (window.__BATTLE_CARD__) { window.__BATTLE_CARD__.handleDeckPresetSave(el.dataset.slot); fullRefresh(); }
+          break;
+        }
+        case 'battleDeckPresetActivate': {
+          if (window.__BATTLE_CARD__) { window.__BATTLE_CARD__.handleDeckPresetActivate(el.dataset.slot); fullRefresh(); }
+          break;
+        }
+        case 'battleDeckPresetDeactivate': {
+          if (window.__BATTLE_CARD__) { window.__BATTLE_CARD__.handleDeckPresetDeactivate(); fullRefresh(); }
           break;
         }
         case 'battleTutorialNext': {

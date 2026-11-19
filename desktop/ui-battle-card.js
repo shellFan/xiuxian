@@ -217,6 +217,12 @@
     return '<div class="ux-modal-mask" data-modal="battleReward"><div class="ux-bc-reward">' +
       '<h3>🎉 项目交付！选择一张卡牌加入卡组</h3>' +
       '<div class="ux-bc-reward-row">' + cards + '</div>' +
+      /* V10.2 奖励替换（Transform）：每场一次、消耗灵石重掷候选 */
+      (card.reward.transformed
+        ? '<span class="ux-bc-transform-note">本场候选已替换（每场限一次）</span>'
+        : '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="battleRewardTransform"' +
+          (tryGet(function () { return f.queryPlayer().spiritStones; }, 0) >= 60 ? '' : ' disabled title="灵石不足"') +
+          ' title="消耗灵石重掷全部候选（每场限一次）">🔄 替换候选（💎60）</button>') +
       '<button class="ux-btn ux-btn--gray ux-btn--sm" data-action="battleRewardSkip">放弃奖励</button>' +
       '</div></div>';
   }
@@ -247,6 +253,9 @@
     }).join('') + '<small>同流派卡牌打出会有真实联动伤害（毒爆/格挡转攻/连击/破甲）</small>';
   }
 
+  /* V10.2 卡组预设：排除草稿（UI 内存态；存入槽位/启用后生效到存档）。 */
+  var deckPresetDraft = null;
+
   function deckPageHtml() {
     var f = facade();
     var deck = tryGet(function () { return f.queryCardDeck(); }, null);
@@ -255,39 +264,73 @@
     if (!deck) return '';
     var stones = tryGet(function () { return f.queryPlayer().spiritStones; }, 0);
     var removalCostNow = deck.removalNextCost != null ? deck.removalNextCost : (removalView ? removalView.nextCost : 50);
+    /* V10.2 卡组预设：草稿首次进入按启用中的预设初始化 */
+    var presetsView = tryGet(function () { return f.queryCardDeckPresets(); }, null);
+    if (!deckPresetDraft) {
+      deckPresetDraft = presetsView && presetsView.active
+        ? (presetsView.presets[presetsView.active] || []).slice()
+        : [];
+    }
+    var presetHtml = '';
+    if (presetsView) {
+      var slotRows = presetsView.slots.map(function (slot) {
+        var count = (presetsView.presets[slot] || []).length;
+        var isActive = presetsView.active === slot;
+        return '<span class="ux-bc-preset-slot' + (isActive ? ' is-active' : '') + '">' +
+          '<b>预设' + slot + '</b><small>排除 ' + count + ' 张' + (isActive ? ' · 启用中' : '') + '</small>' +
+          '<button class="ux-btn ux-btn--sm ux-btn--gray" data-action="battleDeckPresetSave" data-slot="' + esc(slot) + '" title="把当前排除草稿存入该槽位">存入</button>' +
+          (isActive
+            ? '<button class="ux-btn ux-btn--sm" data-action="battleDeckPresetDeactivate">停用</button>'
+            : '<button class="ux-btn ux-btn--sm" data-action="battleDeckPresetActivate" data-slot="' + esc(slot) + '">启用</button>') +
+          '</span>';
+      }).join('');
+      presetHtml = '<div class="ux-bc-presets"><b>卡组预设</b>' +
+        '<small>排除草稿 ' + (deckPresetDraft ? deckPresetDraft.length : 0) + ' 张 · 启用预设后战斗卡组不编入被排除的卡</small>' +
+        '<div class="ux-bc-preset-slots">' + slotRows + '</div></div>';
+    }
     var rows = catalog.filter(function (d) { return !d.unplayable && d.type !== 'SPECIAL' || d.id === 'card_overtime'; }).map(function (def) {
       var count = deck.manifest[def.id] || 0;
-      if (!count) return '';
+      var drafted = !!(deckPresetDraft && deckPresetDraft.indexOf(def.id) >= 0);
+      if (!count && !drafted) return '';
       var upLevel = deck.upgrades[def.id] || 0;
       var currentDef = upLevel > 0 ? (catalog.filter(function (c) { return c.id === def.id + '_up' + upLevel; })[0] || def) : def;
       var canUp = !!currentDef.upgradeTo;
       var costByRarity = { BASIC: 20, COMMON: 30, RARE: 60, EPIC: 100 };
       var cost = costByRarity[def.rarity] || 30;
       var removable = removalView ? (removalView.removable[def.id] || 0) : 0;
-      return '<div class="ux-bc-deckrow' + (count ? '' : ' is-empty') + '">' +
-        '<span class="ux-bc-deckname">' + esc(currentDef.name) + (upLevel ? '<b>+' + upLevel + '</b>' : '') + ' <small>×' + count + '</small></span>' +
-        '<span class="ux-bc-deckmeta">' + esc(TYPE_CN[def.type] || def.type) + ' · ' + esc(RARITY_CN[def.rarity] || def.rarity) + ' · 费用 ' + currentDef.cost + '</span>' +
-        '<span class="ux-bc-deckdesc">' + esc(currentDef.desc) + '</span>' +
-        '<span class="ux-bc-deckops">' +
-        (canUp
+      /* V10.2：预设排除/编入切换（草稿态，存入槽位并启用后影响战斗卡组） */
+      var presetToggle = drafted
+        ? '<button class="ux-btn ux-btn--sm" data-action="battleDeckPresetToggle" data-card="' + esc(def.id) + '" title="重新编入战斗卡组（草稿）">＋ 编入</button>'
+        : '<button class="ux-btn ux-btn--sm ux-btn--gray" data-action="battleDeckPresetToggle" data-card="' + esc(def.id) + '" title="从战斗卡组排除（存入预设槽位并启用后生效）">✕ 排除</button>';
+      var ops = presetToggle;
+      if (count > 0) {
+        ops += (canUp
           ? '<button class="ux-btn ux-btn--sm' + (stones >= cost ? '' : ' ux-btn--gray') + '" data-action="battleUpgradeCard" data-card="' + esc(def.id) + '">升级（💎' + cost + '）</button>'
           : '<span class="ux-bc-maxed">已满级</span>') +
-        (removable > 0
-          ? '<button class="ux-btn ux-btn--sm ux-btn--gray' + (stones >= removalCostNow ? '' : ' is-disabled') + '" data-action="battleRemoveCard" data-card="' + esc(def.id) + '" title="把这张牌从卡组移除（精简牌组是重要策略）">净化（💎' + removalCostNow + '）</button>'
-          : '') +
-        '</span>' +
+          (removable > 0
+            ? '<button class="ux-btn ux-btn--sm ux-btn--gray' + (stones >= removalCostNow ? '' : ' is-disabled') + '" data-action="battleRemoveCard" data-card="' + esc(def.id) + '" title="把这张牌从卡组移除（精简牌组是重要策略）">净化（💎' + removalCostNow + '）</button>'
+            : '');
+      }
+      return '<div class="ux-bc-deckrow' + (count ? '' : ' is-empty') + (drafted ? ' is-draft-excluded' : '') + '">' +
+        '<span class="ux-bc-deckname">' + esc(currentDef.name) + (upLevel ? '<b>+' + upLevel + '</b>' : '') +
+        ' <small>' + (count > 0 ? '×' + count : '（已排除）') + '</small></span>' +
+        '<span class="ux-bc-deckmeta">' + esc(TYPE_CN[def.type] || def.type) + ' · ' + esc(RARITY_CN[def.rarity] || def.rarity) + ' · 费用 ' + currentDef.cost + '</span>' +
+        '<span class="ux-bc-deckdesc">' + esc(currentDef.desc) + '</span>' +
+        '<span class="ux-bc-deckops">' + ops + '</span>' +
         '</div>';
     }).join('');
     var codex = catalog.filter(function (d) { return d.rewardable; }).map(function (def) {
-      var owned = deck.manifest[def.id] || 0;
+      var owned = (deck.ownedCollection || deck.manifest)[def.id] || 0;
       return '<span class="ux-bc-codex-item' + (owned ? ' is-owned' : '') + '" title="' + esc(def.desc) + '">' +
         esc(def.name) + (owned ? ' ×' + owned : '') + '</span>';
     }).join('');
+    var ownedMap = deck.ownedCollection || deck.manifest;
     return '<section class="ux-bc-deckpage">' +
       '<div class="ux-bc-deckhead"><b>卡组（' + deck.total + ' 张）</b><span>💎 ' + stones + ' 灵石 · 胜利后可收新卡</span></div>' +
       '<div class="ux-bc-archbar">' + archetypeHints(deck.manifest) + '</div>' +
+      presetHtml +
       (rows || '<div class="ux-bc-empty">卡组为空</div>') +
-      '<div class="ux-bc-codexhead">卡牌图鉴 <small>收集进度 ' + catalog.filter(function (d) { return d.rewardable && (deck.manifest[d.id] || 0) > 0; }).length + ' / ' + catalog.filter(function (d) { return d.rewardable; }).length + '</small></div>' +
+      '<div class="ux-bc-codexhead">卡牌图鉴 <small>收集进度 ' + catalog.filter(function (d) { return d.rewardable && (ownedMap[d.id] || 0) > 0; }).length + ' / ' + catalog.filter(function (d) { return d.rewardable; }).length + '</small></div>' +
       '<div class="ux-bc-codex">' + codex + '</div>' +
       '</section>';
   }
@@ -525,6 +568,22 @@
     }
   }
 
+  /* V10.2 奖励替换：重掷候选后关闭弹层并刷新——battle 收尾观察器会用新候选重开奖励弹窗 */
+  function handleRewardTransform() {
+    var f = facade();
+    if (!f) return;
+    try {
+      f.transformBattleCardReward();
+      toast('奖励候选已替换');
+    } catch (e) {
+      toast(e && e.message ? e.message : '替换失败');
+      return;
+    }
+    var overlay = window.__UI_OVERLAY__;
+    if (overlay && typeof overlay.closePopup === 'function') overlay.closePopup();
+    if (overlay && typeof overlay.refresh === 'function') overlay.refresh();
+  }
+
   function handleUpgrade(cardId) {
     var f = facade();
     if (!f) return;
@@ -545,6 +604,57 @@
       try { if (gf()) gf().battle('reward', {}); } catch (eGF) { /* 特效失败不影响游戏 */ }
     } catch (e) {
       toast(e && e.message ? e.message : '净化失败');
+    }
+  }
+
+  // ── V10.2 卡组预设（deck presets） ────────────────────────────────────────────
+
+  function handleDeckPresetToggle(cardId) {
+    if (!cardId) return;
+    if (!deckPresetDraft) deckPresetDraft = [];
+    var idx = deckPresetDraft.indexOf(cardId);
+    if (idx >= 0) {
+      deckPresetDraft.splice(idx, 1);
+      toast('已编回卡组（草稿）');
+    } else {
+      deckPresetDraft.push(cardId);
+      toast('已从卡组排除（草稿，存入预设槽位并启用后生效）');
+    }
+  }
+
+  function handleDeckPresetSave(slot) {
+    var f = facade();
+    if (!f) return;
+    try {
+      f.saveCardDeckPreset(slot, deckPresetDraft || []);
+      toast('预设' + slot + ' 已保存（排除 ' + (deckPresetDraft ? deckPresetDraft.length : 0) + ' 张）');
+    } catch (e) {
+      toast(e && e.message ? e.message : '保存失败');
+    }
+  }
+
+  function handleDeckPresetActivate(slot) {
+    var f = facade();
+    if (!f) return;
+    try {
+      f.activateCardDeckPreset(slot);
+      var pv = tryGet(function () { return f.queryCardDeckPresets(); }, null);
+      deckPresetDraft = pv && pv.presets[slot] ? pv.presets[slot].slice() : [];
+      toast('预设' + slot + ' 已启用');
+    } catch (e) {
+      toast(e && e.message ? e.message : '启用失败');
+    }
+  }
+
+  function handleDeckPresetDeactivate() {
+    var f = facade();
+    if (!f) return;
+    try {
+      f.activateCardDeckPreset(null);
+      deckPresetDraft = [];
+      toast('已停用预设，全部卡牌编入');
+    } catch (e) {
+      toast(e && e.message ? e.message : '停用失败');
     }
   }
 
@@ -584,8 +694,13 @@
     handleEndTurn: handleEndTurn,
     handleRewardPick: handleRewardPick,
     handleRewardSkip: handleRewardSkip,
+    handleRewardTransform: handleRewardTransform,
     handleUpgrade: handleUpgrade,
     handleRemoveCard: handleRemoveCard,
+    handleDeckPresetToggle: handleDeckPresetToggle,
+    handleDeckPresetSave: handleDeckPresetSave,
+    handleDeckPresetActivate: handleDeckPresetActivate,
+    handleDeckPresetDeactivate: handleDeckPresetDeactivate,
     handleTutorialNext: handleTutorialNext,
     handleTutorialSkip: handleTutorialSkip,
     isSelecting: function () { return !!selectedCardUid; },

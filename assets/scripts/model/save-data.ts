@@ -192,6 +192,12 @@ export interface DaySummaryState {
   innerDemonEnd: number;
   titleId: string;
   rank: string;
+  /** V10.2 AI 化下班总结（日报页可回看）。 */
+  aiSummary?: string;
+  /** V10.2 当日星期（0=周日）。 */
+  weekday?: number;
+  /** V10.2 当日各模式时长（秒）——日报回看用。 */
+  durations?: { work: number; fishing: number; cultivating: number; social: number; overtime: number };
 }
 
 /** 周结算历史。 */
@@ -426,6 +432,10 @@ export interface GameSaveData {
   readonly cardUpgrades?: Readonly<Record<string, number>>;
   /** V10.1 净化记录：卡牌移除（defId → 已移除张数）。 */
   readonly cardRemovals?: Readonly<Record<string, number>>;
+  /** V10.2 卡组预设：槽位（'1'|'2'|'3'）→ 不编入战斗卡组的卡牌定义 id 列表。 */
+  readonly cardDeckPresetExcludes?: Readonly<Record<string, readonly string[]>>;
+  /** V10.2 当前启用的卡组预设槽位（null/缺省 = 全部编入）。 */
+  readonly activeDeckPreset?: string | null;
   /** 今日情境（DailySituation）。 */
   readonly dailySituation?: string;
   /** 公司宗门（CompanyProfile）。 */

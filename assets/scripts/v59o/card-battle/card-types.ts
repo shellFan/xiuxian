@@ -191,6 +191,8 @@ export interface CardRewardState {
   claimed: boolean;
   /** 已选中的卡（claimed 后记录，供结算展示）。 */
   chosen: string | null;
+  /** V10.2 奖励替换（Transform）：本场战斗候选是否已替换过（每场一次）。 */
+  transformed?: boolean;
 }
 
 export interface CardBattleState {

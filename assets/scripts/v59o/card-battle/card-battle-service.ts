@@ -54,6 +54,15 @@ export function secondsToTurns(seconds: number): number {
   return Math.max(1, Math.round(seconds / 2));
 }
 
+/** V10.2 奖励替换（Transform）灵石费用：与净化/升级同属卡组灵石经济，取中档。 */
+export const CARD_REWARD_TRANSFORM_COST = 60;
+
+/** V10.2 卡组预设槽位名（卡组页 3 槽）。 */
+export const CARD_DECK_PRESET_SLOTS = ['1', '2', '3'] as const;
+
+/** V10.2 战斗卡组最低张数（预设排除/停用守卫）。 */
+export const CARD_DECK_MIN_SIZE = 5;
+
 interface PlayerLoadout {
   attack: number;
   critChance: number;
@@ -200,13 +209,7 @@ export class CardBattleService {
   /** 由 BattleService.start 调用：创建卡牌战斗并写入 run.card。 */
   public beginRun(run: BattleRunState): CardBattleState {
     const rules = battleRules();
-    const deckManifest = buildDeckManifest({
-      professionId: this.context.profession?.currentId() ?? 'JAVA_BACKEND',
-      destinyId: this.context.player.destinyId ?? null,
-      collection: this.collectionOf(),
-      upgrades: this.upgradesOf(),
-      removals: this.removalsOf(),
-    });
+    const deckManifest = this.buildBattleManifest();
     const loadout = this.loadout(run, run.buildId);
     const seed = (Math.floor(this.rngSource() * 0x7fffffff) ^ Math.imul(run.dayIndex, 2654435761)) >>> 0;
     const sectId = this.context.player.sectId ?? null;
@@ -709,20 +712,37 @@ export class CardBattleService {
     }
   }
 
+  /**
+   * V10.2 奖励替换（Transform）：对未领取的胜利奖励重掷全部候选。
+   * 每场战斗限一次；消耗灵石（与升级/净化同一卡组灵石经济）。
+   * 重掷走 battle rng（可序列化状态回写），确定性回放不受破坏。
+   */
+  public transformReward(state: CardBattleState): { candidates: readonly string[]; cost: number; stones: number } {
+    if (!state.reward || state.reward.claimed) throw new Error('当前没有待领取的卡牌奖励');
+    if (state.reward.transformed) throw new Error('本场奖励候选已替换过（每场限一次）');
+    const player = this.context.player;
+    if ((player.spiritStones ?? 0) < CARD_REWARD_TRANSFORM_COST) {
+      throw new Error(`灵石不足（需要 ${CARD_REWARD_TRANSFORM_COST}）`);
+    }
+    player.spiritStones -= CARD_REWARD_TRANSFORM_COST;
+    const rng = CardRng.fromState(state.rng);
+    const candidates = this.rollRewards(rng);
+    state.rng = rng.toState();
+    state.reward.candidates = candidates;
+    state.reward.transformed = true;
+    state.reward.chosen = null;
+    state.log.push(`🎁 奖励候选已替换（-${CARD_REWARD_TRANSFORM_COST} 灵石）`);
+    return { candidates, cost: CARD_REWARD_TRANSFORM_COST, stones: player.spiritStones ?? 0 };
+  }
+
   // ── 卡组/升级（战斗外） ─────────────────────────────────────────────────────
 
-  /** 卡组总览（卡组页 UI）。 */
-  public deckView(): { manifest: Record<string, number>; total: number; upgrades: Record<string, number>; removals: Record<string, number>; removalNextCost: number } {
-    const manifest = buildDeckManifest({
-      professionId: this.context.profession?.currentId() ?? 'JAVA_BACKEND',
-      destinyId: this.context.player.destinyId ?? null,
-      collection: this.collectionOf(),
-      upgrades: this.upgradesOf(),
-      removals: this.removalsOf(),
-    });
+  /** 卡组总览（卡组页 UI）。ownedCollection 为未过滤收藏（图鉴收集进度用）。 */
+  public deckView(): { manifest: Record<string, number>; total: number; upgrades: Record<string, number>; removals: Record<string, number>; removalNextCost: number; ownedCollection: Record<string, number> } {
+    const manifest = this.buildBattleManifest();
     const removals = this.removalsOf();
     const totalRemoved = Object.values(removals).reduce((s, n) => s + n, 0);
-    return { manifest: manifest.manifest, total: manifest.total, upgrades: this.upgradesOf(), removals: { ...removals }, removalNextCost: removalCost(totalRemoved) };
+    return { manifest: manifest.manifest, total: manifest.total, upgrades: this.upgradesOf(), removals: { ...removals }, removalNextCost: removalCost(totalRemoved), ownedCollection: { ...this.collectionOf() } };
   }
 
   /** 收藏列表（id → 数量，不含基础卡组）。 */
@@ -792,6 +812,123 @@ export class CardBattleService {
   /** 全卡牌图鉴（卡组页展示）。 */
   public catalog(): readonly CardDef[] {
     return allCardDefs().filter((d) => !!d && typeof d.id === 'string' && (!d.id.startsWith('card_fate_') || d.type === 'FATE'));
+  }
+
+  // ── V10.2 卡组预设（deck presets）：3 槽位排除集，启用后战斗卡组不编入被排除的卡 ──
+
+  private presetsOf(): Record<string, string[]> {
+    const raw = (this.context.player as { cardDeckPresetExcludes?: Record<string, string[]> }).cardDeckPresetExcludes;
+    return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+  }
+
+  private activePresetSlot(): string | null {
+    const raw = (this.context.player as { activeDeckPreset?: string | null }).activeDeckPreset;
+    return typeof raw === 'string' && (CARD_DECK_PRESET_SLOTS as readonly string[]).includes(raw) ? raw : null;
+  }
+
+  /** 生效收藏：启用预设时剔除被排除的卡（未启用的槽位不生效；未收藏的排除项无害）。 */
+  private effectiveCollection(): Record<string, number> {
+    const collection = this.collectionOf();
+    const active = this.activePresetSlot();
+    if (!active) return collection;
+    const excludes = new Set(this.presetsOf()[active] ?? []);
+    if (excludes.size === 0) return collection;
+    const filtered: Record<string, number> = {};
+    for (const [id, count] of Object.entries(collection)) {
+      if (!excludes.has(id) && count > 0) filtered[id] = count;
+    }
+    return filtered;
+  }
+
+  /**
+   * V10.2：合成战斗卡组 manifest（模板 + 收藏 − 净化），并把启用预设的排除集
+   * 作用到最终结果（含基础模板卡——预设是比净化更自由的临时编组工具）。
+   */
+  private buildBattleManifest(): { manifest: Record<string, number>; total: number } {
+    const built = buildDeckManifest({
+      professionId: this.context.profession?.currentId() ?? 'JAVA_BACKEND',
+      destinyId: this.context.player.destinyId ?? null,
+      collection: this.effectiveCollection(),
+      upgrades: this.upgradesOf(),
+      removals: this.removalsOf(),
+    });
+    const active = this.activePresetSlot();
+    if (active) {
+      for (const id of this.presetsOf()[active] ?? []) {
+        if (built.manifest[id]) {
+          built.total -= built.manifest[id];
+          delete built.manifest[id];
+        }
+      }
+    }
+    return built;
+  }
+
+  /** 预览启用指定排除集后的战斗卡组总数（保存/启用守卫用）。 */
+  private previewDeckTotalWithExcludes(excludes: readonly string[]): number {
+    const built = buildDeckManifest({
+      professionId: this.context.profession?.currentId() ?? 'JAVA_BACKEND',
+      destinyId: this.context.player.destinyId ?? null,
+      collection: this.collectionOf(),
+      upgrades: this.upgradesOf(),
+      removals: this.removalsOf(),
+    });
+    let total = built.total;
+    for (const id of excludes) {
+      if (built.manifest[id]) total -= built.manifest[id];
+    }
+    return total;
+  }
+
+  /** 卡组预设视图（卡组页 UI）。 */
+  public deckPresetsView(): {
+    active: string | null;
+    slots: readonly string[];
+    presets: Record<string, readonly string[]>;
+  } {
+    const presets = this.presetsOf();
+    return {
+      active: this.activePresetSlot(),
+      slots: CARD_DECK_PRESET_SLOTS,
+      presets: {
+        '1': [...(presets['1'] ?? [])],
+        '2': [...(presets['2'] ?? [])],
+        '3': [...(presets['3'] ?? [])],
+      },
+    };
+  }
+
+  /** 保存预设到槽位（覆盖该槽位；仅接受真实卡牌 id，去重上限 60；结果卡组不得低于 5 张）。 */
+  public saveDeckPreset(slot: string, excludedIds: readonly string[]): ReturnType<CardBattleService['deckPresetsView']> {
+    if (!(CARD_DECK_PRESET_SLOTS as readonly string[]).includes(slot)) throw new Error('预设槽位无效');
+    const seen = new Set<string>();
+    const clean: string[] = [];
+    for (const id of excludedIds) {
+      if (typeof id !== 'string' || !cardDefById(id) || seen.has(id) || clean.length >= 60) continue;
+      seen.add(id);
+      clean.push(id);
+    }
+    if (this.previewDeckTotalWithExcludes(clean) < CARD_DECK_MIN_SIZE) {
+      throw new Error(`预设会使战斗卡组低于 ${CARD_DECK_MIN_SIZE} 张，请减少排除`);
+    }
+    const presets = this.presetsOf();
+    presets[slot] = clean;
+    (this.context.player as { cardDeckPresetExcludes?: Record<string, string[]> }).cardDeckPresetExcludes = presets;
+    return this.deckPresetsView();
+  }
+
+  /** 启用/停用预设（null=停用，全部编入）。启用需保证战斗卡组不低于 5 张。 */
+  public activateDeckPreset(slot: string | null): ReturnType<CardBattleService['deckPresetsView']> {
+    if (slot === null) {
+      (this.context.player as { activeDeckPreset?: string | null }).activeDeckPreset = null;
+      return this.deckPresetsView();
+    }
+    if (!(CARD_DECK_PRESET_SLOTS as readonly string[]).includes(slot)) throw new Error('预设槽位无效');
+    if (this.previewDeckTotalWithExcludes(this.presetsOf()[slot] ?? []) < CARD_DECK_MIN_SIZE) {
+      throw new Error(`当前卡组无法启用该预设（编入后不足 ${CARD_DECK_MIN_SIZE} 张），请先保存更小的排除集`);
+    }
+    (this.context.player as { activeDeckPreset?: string | null }).activeDeckPreset = slot;
+    return this.deckPresetsView();
   }
 
   /** 数据库诊断透出（EXE 环境自检）。 */

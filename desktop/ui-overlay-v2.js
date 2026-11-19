@@ -178,11 +178,42 @@
 
   /* ── 日结算页（§92/§93 手动入口） ── */
 
+  /* V10.2 日报：已结算日的可回看日报（持久化在 dailyHistory 的当日记录） */
+  function dailyReportHtml(summary) {
+    if (!summary) return '';
+    var weekName = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][summary.weekday] || '';
+    var d = summary.durations || {};
+    function dur(sec) { return Math.floor(sec / 3600) + '时' + Math.floor((sec % 3600) / 60) + '分'; }
+    return '<div class="ux-daily-report">' +
+      '<div class="ux-off-title">第 ' + summary.dayIndex + ' 个牛马修仙日' + (weekName ? ' · ' + weekName : '') + '</div>' +
+      '<div class="ux-off-rows">' +
+        '<div class="ux-off-row">' + H.icon('salary') + '<span class="rn">工资</span><span class="rv">+' + H.fmtNum(summary.salary) + '</span></div>' +
+        '<div class="ux-off-row">' + H.icon('cultivation') + '<span class="rn">修为</span><span class="rv">+' + H.fmtNum(summary.cultivation) + '</span></div>' +
+        '<div class="ux-off-row">' + H.icon('performance') + '<span class="rn">绩效</span><span class="rv">+' + H.fmtNum(summary.performance) + '</span></div>' +
+      '</div>' +
+      '<div class="ux-recipe-desc" style="margin-top:10px;line-height:1.9">' +
+        '💼 ' + dur(d.work || 0) + ' · 🐟 ' + dur(d.fishing || 0) + '<br>' +
+        '🧘 ' + dur(d.cultivating || 0) + ' · 🍵 ' + dur(d.social || 0) +
+        ((d.overtime || 0) > 0 ? ' · ⚡ 加班 ' + dur(d.overtime) : '') +
+      '</div>' +
+      (summary.aiSummary ? '<div class="ux-ai-summary" style="margin-top:10px"><b>【AI 下班总结】</b>' + H.escHtml(summary.aiSummary) + '</div>' : '') +
+      '</div>';
+  }
+
   function renderSettlementPage() {
     var day = fQuery('queryGameDay');
     var canSettle = fQuery('queryCanSettleDay');
     var clock = fQuery('queryGameClock');
     if (!day) return H.emptyState('🌇', '还未开工', '进入工作时段自动开工');
+    /* V10.2：已结算日 → 展示今日日报（含 AI 下班总结），不再误导为"未到下班" */
+    if (day.settled) {
+      var history = fQuery('queryDailyHistory') || [];
+      var today = history.length > 0 && history[history.length - 1].dayIndex === day.dayIndex ? history[history.length - 1] : null;
+      return '<div class="ux-card">' +
+        '<div class="ux-dialog-title">今日日报（已结算）</div>' +
+        (today ? dailyReportHtml(today) : '<div class="ux-recipe-desc">今日已结算，新的一天开工后再来下班结算。</div>') +
+        '</div>';
+    }
     if (!canSettle) {
       return '<div class="ux-card" style="text-align:center;padding:40px 20px">' +
         '<div style="font-size:56px;margin-bottom:12px">⏳</div>' +
@@ -606,6 +637,7 @@
                   view.dailyReality.map(function (entry) { return '· ' + H.escHtml(entry.text); }).join('<br>')
                   : '') +
               '</div>' : '') +
+            (view.aiSummary ? '<div class="ux-ai-summary"><b>【AI 下班总结】</b>' + H.escHtml(view.aiSummary) + '</div>' : '') +
             '<div class="ux-work-today__warning">' + H.escHtml(view.statusText || '') + '</div>' +
             '<div class="ux-dialog-actions"><button class="ux-btn ux-btn--gold ux-btn--md" id="SettleOk">明天见</button></div>' +
           '</div>' +

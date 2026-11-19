@@ -1303,6 +1303,10 @@
 .ux-agenda-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ux-agenda-btn { width: 20px; height: 20px; border-radius: 6px; font-size: 12px; line-height: 1; background: rgba(92, 181, 68, .16); border: 1px solid rgba(92,181,68,.4); color: var(--pos); flex: none; }
 .ux-agenda-btn--no { background: rgba(216, 75, 58, .1); border-color: rgba(216,75,58,.35); color: var(--neg); }
+/* V10.2 L-1：次级小按钮触控目标 <32px——用透明热区（::after 外扩）扩大点击范围，不改视觉尺寸 */
+.ux-btn--sm, .ux-card-more, .ux-agenda-btn, .ux64-goal-claim, .ux91-goal-claim { position: relative; }
+.ux-btn--sm::after, .ux-card-more::after, .ux-agenda-btn::after, .ux64-goal-claim::after, .ux91-goal-claim::after {
+  content: ''; position: absolute; inset: -8px; }
 .ux-agenda-empty { padding: 6px 2px; font-size: 12px; color: var(--text-ink-muted); }
 .ux-prio { flex: none; min-width: 24px; text-align: center; padding: 1px 4px; border-radius: 6px; font-size: 10.5px; font-weight: 700; }
 .ux-prio.p0 { background: rgba(216, 75, 58, .16); color: #a33326; border: 1px solid rgba(216,75,58,.45); }
@@ -2739,7 +2743,8 @@ button.ux-journey--sec { cursor: pointer; }
 .ux-bc-cost { position: absolute; top: -8px; left: -6px; width: 24px; height: 24px; border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #9fc2ff, #3f6dc4); color: #fff; font-size: 13px; font-weight: 800;
   display: flex; align-items: center; justify-content: center; border: 1px solid #cfe0ff; }
-.ux-bc-name { font-size: 13px; font-weight: 700; }
+/* V10.2 LOW：费用徽章（.ux-bc-cost 左上角外溢圆章）此前压住卡名首字——名字下移让位 */
+.ux-bc-name { font-size: 13px; font-weight: 700; margin-top: 10px; }
 .ux-bc-name b { color: #7fe08f; margin-left: 2px; }
 .ux-bc-type { font-size: 10px; color: #9aa3b8; }
 .ux-bc-desc { font-size: 11px; color: #c3c9d8; line-height: 1.3; max-height: 44px; overflow: hidden; }
@@ -4785,3 +4790,20 @@ button.ux-journey--sec { cursor: pointer; }
 .ux91-chapter-progress { flex: 1; height: 4px; border-radius: 2px; background: rgba(60,90,118,.5); overflow: hidden; }
 .ux91-chapter-fill { height: 100%; background: linear-gradient(90deg, var(--v65-gold,#e6c77f), #ffd97a); border-radius: 2px; transition: width .5s ease; }
 .ux91-chapter-pct { font-size: 10px; color: #8fa9ba; white-space: nowrap; }
+
+/* ═══ V10.2 卡牌战斗：奖励替换提示 + 卡组预设（deck presets） ═══ */
+.ux-bc-transform-note { font-size: 11px; color: #8b93a7; }
+.ux-bc-presets { margin: 8px 0; padding: 8px 10px; border: 1px solid rgba(74,156,216,.25); border-radius: 10px;
+  background: rgba(20,32,50,.4); display: flex; flex-direction: column; gap: 6px; }
+.ux-bc-presets > b { font-size: 12px; color: #c9b98a; }
+.ux-bc-presets > small { font-size: 10px; color: #8b93a7; }
+.ux-bc-preset-slots { display: flex; flex-wrap: wrap; gap: 6px; }
+.ux-bc-preset-slot { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px;
+  border: 1px solid rgba(74,156,216,.3); border-radius: 8px; font-size: 11px; color: #e8e4d8; }
+.ux-bc-preset-slot.is-active { border-color: #ffd76a; background: rgba(255,215,106,.08); color: #ffd76a; }
+.ux-bc-preset-slot small { color: #8b93a7; }
+.ux-bc-deckrow.is-draft-excluded .ux-bc-deckname { text-decoration: line-through; opacity: .55; }
+.ux-ai-summary { margin-top: 10px; padding: 8px 10px; border-left: 3px solid var(--gold-lo, #d8b25e);
+  background: rgba(216, 178, 94, .08); border-radius: 0 8px 8px 0; font-size: 12px; line-height: 1.8; color: #c9b98a; }
+.ux-ai-summary b { color: var(--gold-lo, #d8b25e); }
+.ux-daily-report { margin-top: 6px; }

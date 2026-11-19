@@ -283,6 +283,10 @@ function migrate(raw: unknown, now: number): GameSaveData {
     cardCollection: sanitizeNumberRecord(raw.cardCollection),
     cardUpgrades: sanitizeNumberRecord(raw.cardUpgrades),
     cardRemovals: sanitizeNumberRecord(raw.cardRemovals),
+    cardDeckPresetExcludes: sanitizeDeckPresetExcludesRecord(raw.cardDeckPresetExcludes),
+    activeDeckPreset: typeof raw.activeDeckPreset === 'string' && (raw.activeDeckPreset === '1' || raw.activeDeckPreset === '2' || raw.activeDeckPreset === '3')
+      ? raw.activeDeckPreset
+      : null,
     dailySituation: isString(raw.dailySituation) && raw.dailySituation.length <= 48 ? raw.dailySituation : 'sit_normal',
     companyProfile: isString(raw.companyProfile) && raw.companyProfile.length <= 48 ? raw.companyProfile : 'COMP_MIN_PRIVATE',
     secretEventsDone: isStringArray(raw.secretEventsDone) ? raw.secretEventsDone.slice(0, 64) : [],
@@ -537,6 +541,18 @@ function sanitizeNumberRecord(value: unknown): Record<string, number> {
   const out: Record<string, number> = {};
   for (const [k, v] of Object.entries(value)) {
     if (isString(k) && isFiniteNumber(v) && v >= 0) out[k] = Math.floor(v);
+  }
+  return out;
+}
+
+/** V10.2 卡组预设排除集清洗（migrate 白名单）：仅认槽位 1/2/3，id 去重/限长/限量。 */
+function sanitizeDeckPresetExcludesRecord(value: unknown): Record<string, string[]> {
+  if (!isRecord(value)) return {};
+  const out: Record<string, string[]> = {};
+  for (const [slot, ids] of Object.entries(value)) {
+    if ((slot !== '1' && slot !== '2' && slot !== '3') || !Array.isArray(ids)) continue;
+    const clean = ids.filter((id): id is string => isString(id) && id.length > 0 && id.length <= 64);
+    out[slot] = [...new Set(clean)].slice(0, 60);
   }
   return out;
 }

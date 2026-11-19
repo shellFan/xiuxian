@@ -425,6 +425,18 @@ export class BattleService {
     return run;
   }
 
+  /** V10.2 奖励替换（Transform）：重掷胜利奖励候选（每场一次，消耗灵石）。 */
+  public transformBattleCardReward(): BattleRunState {
+    const run = this.storedRun();
+    if (!run || run.mode !== 'CARD' || !isCardBattleState(run.card)) throw new Error('没有待领取的卡牌奖励');
+    if (run.status !== 'VICTORY') throw new Error('战斗尚未胜利');
+    this.cards.transformReward(run.card);
+    run.log = run.card.log.slice(-MAX_LOG);
+    this.persist(run);
+    this.context.saveService.save(this.context.player);
+    return run;
+  }
+
   /** 卡牌战斗完整视图（UI 数据源：手牌/牌堆/能量/意图/状态/奖励）。 */
   public battleCardView(): CardBattleState | null {
     const run = this.storedRun();
@@ -471,8 +483,27 @@ export class BattleService {
     return this.cards.removalView();
   }
 
+  /** V10.2 卡组预设视图（槽位/排除集/激活状态）。 */
+  public cardDeckPresetsView(): ReturnType<CardBattleService['deckPresetsView']> {
+    return this.cards.deckPresetsView();
+  }
+
+  /** V10.2 保存卡组预设到槽位（覆盖该槽位）。 */
+  public saveCardDeckPreset(slot: string, excludedIds: string[]): ReturnType<CardBattleService['deckPresetsView']> {
+    const view = this.cards.saveDeckPreset(slot, excludedIds);
+    this.context.saveService.save(this.context.player);
+    return view;
+  }
+
+  /** V10.2 启用/停用卡组预设（null=停用）。 */
+  public activateCardDeckPreset(slot: string | null): ReturnType<CardBattleService['deckPresetsView']> {
+    const view = this.cards.activateDeckPreset(slot);
+    this.context.saveService.save(this.context.player);
+    return view;
+  }
+
   /** V5.9-O.2 §28：卡组视图（战斗外）。 */
-  public cardDeckView(): { manifest: Record<string, number>; total: number; upgrades: Record<string, number>; removals: Record<string, number>; removalNextCost: number } {
+  public cardDeckView(): { manifest: Record<string, number>; total: number; upgrades: Record<string, number>; removals: Record<string, number>; removalNextCost: number; ownedCollection: Record<string, number> } {
     return this.cards.deckView();
   }
 

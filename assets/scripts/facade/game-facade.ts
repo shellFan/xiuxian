@@ -634,6 +634,10 @@ export class GameFacade {
   public claimBattleCardReward(cardId: string | null) {
     return this.context.battle.claimBattleCardReward(cardId);
   }
+  /** V10.2 奖励替换（Transform）：重掷胜利奖励候选（每场一次，消耗灵石）。 */
+  public transformBattleCardReward() {
+    return this.context.battle.transformBattleCardReward();
+  }
   /** 卡组视图（战斗外）。 */
   public queryCardDeck() { return this.context.battle.cardDeckView(); }
   /** 卡牌图鉴（全部定义）。 */
@@ -644,6 +648,12 @@ export class GameFacade {
   public queryCardRemovalView() { return this.context.battle.cardRemovalView(); }
   /** V10.1 卡组管理：净化（移除）一张卡牌（消耗灵石）。 */
   public removeBattleCard(defId: string) { return this.context.battle.removeCollectionCard(defId); }
+  /** V10.2 卡组预设视图（槽位/排除集/激活状态）。 */
+  public queryCardDeckPresets() { return this.context.battle.cardDeckPresetsView(); }
+  /** V10.2 保存卡组预设到槽位（覆盖该槽位）。 */
+  public saveCardDeckPreset(slot: string, excludedIds: string[]) { return this.context.battle.saveCardDeckPreset(slot, excludedIds); }
+  /** V10.2 启用/停用卡组预设（null=停用）。 */
+  public activateCardDeckPreset(slot: string | null) { return this.context.battle.activateCardDeckPreset(slot); }
   public queryAllMaterials() { return ({ ...this.context.player.materials }); }
   public queryOwnedTechniques() { return [...this.context.player.ownedTechniques]; }
   public queryTechniqueLevels() { return ({ ...this.context.player.techniqueLevels }); }
@@ -693,6 +703,8 @@ export class GameFacade {
   /** V2 日结算。 */
   public queryCanSettleDay() { return this.context.daySettlement.canSettle(); }
   public settleDay() { return this.context.daySettlement.settle(); }
+  /** V10.2 日报历史（含 aiSummary，日报页回看）。 */
+  public queryDailyHistory() { return [...this.context.player.dailyHistory]; }
   /** 周末活动。 */
   public queryWeekendOptions() { return this.context.weekend.options(); }
   public queryWeekendChosen() { return this.context.weekend.hasChosen(); }

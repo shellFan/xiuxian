@@ -124,6 +124,10 @@ export interface PlayerDataOptions {
   readonly cardUpgrades?: Record<string, number>;
   /** V10.1 净化记录：卡牌移除（defId → 已移除张数）。 */
   readonly cardRemovals?: Record<string, number>;
+  /** V10.2 卡组预设：槽位（'1'|'2'|'3'）→ 排除的卡牌定义 id 列表。 */
+  readonly cardDeckPresetExcludes?: Record<string, readonly string[]>;
+  /** V10.2 当前启用的预设槽位（null/缺省 = 全部编入）。 */
+  readonly activeDeckPreset?: string | null;
   readonly dailySituation?: string;
   readonly companyProfile?: string;
   readonly secretEventsDone?: readonly string[];
@@ -290,6 +294,9 @@ export class PlayerData {
   public cardUpgrades: Record<string, number>;
   /** V10.1 净化记录：卡牌移除。 */
   public cardRemovals: Record<string, number>;
+  /** V10.2 卡组预设：槽位 → 排除列表；activeDeckPreset 当前启用槽位。 */
+  public cardDeckPresetExcludes: Record<string, string[]>;
+  public activeDeckPreset: string | null;
   public dailySituation: string;
   public companyProfile: string;
   public secretEventsDone: string[];
@@ -438,6 +445,8 @@ export class PlayerData {
     this.cardCollection = sanitizeCardRecord(options.cardCollection);
     this.cardUpgrades = sanitizeCardRecord(options.cardUpgrades);
     this.cardRemovals = sanitizeCardRecord(options.cardRemovals);
+    this.cardDeckPresetExcludes = sanitizeDeckPresetExcludes(options.cardDeckPresetExcludes);
+    this.activeDeckPreset = sanitizeDeckPresetSlot(options.activeDeckPreset);
     this.dailySituation = options.dailySituation ?? 'sit_normal';
     this.companyProfile = options.companyProfile ?? 'COMP_MIN_PRIVATE';
     this.secretEventsDone = [...(options.secretEventsDone ?? [])];
@@ -592,6 +601,10 @@ export class PlayerData {
       cardCollection: { ...this.cardCollection },
       cardUpgrades: { ...this.cardUpgrades },
       cardRemovals: { ...this.cardRemovals },
+      cardDeckPresetExcludes: Object.fromEntries(
+        Object.entries(this.cardDeckPresetExcludes).map(([slot, ids]) => [slot, [...ids]]),
+      ),
+      activeDeckPreset: this.activeDeckPreset,
       dailySituation: this.dailySituation,
       companyProfile: this.companyProfile,
       secretEventsDone: [...this.secretEventsDone],
@@ -647,6 +660,30 @@ function sanitizeCardRecord(raw: Record<string, number> | undefined): Record<str
     }
   }
   return out;
+}
+
+/** V10.2 卡组预设槽位名。 */
+const DECK_PRESET_SLOTS = ['1', '2', '3'] as const;
+
+function sanitizeDeckPresetExcludes(raw: Record<string, readonly string[]> | undefined): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const [slot, ids] of Object.entries(raw ?? {})) {
+    if (!(DECK_PRESET_SLOTS as readonly string[]).includes(slot) || !Array.isArray(ids)) continue;
+    const seen = new Set<string>();
+    const clean: string[] = [];
+    for (const id of ids) {
+      if (typeof id === 'string' && id.length > 0 && id.length <= 64 && !seen.has(id) && clean.length < 60) {
+        seen.add(id);
+        clean.push(id);
+      }
+    }
+    out[slot] = clean;
+  }
+  return out;
+}
+
+function sanitizeDeckPresetSlot(raw: string | null | undefined): string | null {
+  return typeof raw === 'string' && (DECK_PRESET_SLOTS as readonly string[]).includes(raw) ? raw : null;
 }
 
 /** Copies JSON-shaped extension state so save snapshots cannot mutate live state. */
