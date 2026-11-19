@@ -10,6 +10,7 @@
 
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
 import type { RewardType } from './reward-provider';
+import type { StorageAdapter } from './storage-adapter';
 
 /** Ad placement types for frequency capping. */
 export type AdPlacement =
@@ -37,6 +38,11 @@ export interface RewardedAdServiceOptions {
   readonly maxAdsPerHour?: number;
   /** Simulated ad duration in seconds. Default: 5. */
   readonly simulatedDuration?: number;
+  /**
+   * V10.2（IAA 频控持久化）：提供 storage 时，广告频控历史跨页面重载/跨会话保留，
+   * 不再"重载即重置"。缺省不持久化（纯内存，测试环境用）。
+   */
+  readonly storage?: StorageAdapter;
 }
 
 /** Ad watch history entry for frequency capping. */
@@ -44,6 +50,14 @@ interface AdHistoryEntry {
   readonly placement: AdPlacement;
   readonly timestamp: number;
 }
+
+/** V10.2：频控历史持久化键与上限（只保留最近 24h，最多 200 条）。 */
+const AD_HISTORY_STORAGE_KEY = 'v1-rewarded-ad-history';
+const AD_HISTORY_MAX_ENTRIES = 200;
+const AD_HISTORY_VALID_PLACEMENTS: readonly AdPlacement[] = [
+  'TASK_SPEEDUP', 'TASK_DOUBLE_REWARD', 'OFFLINE_DOUBLE', 'MIND_RECOVERY',
+  'PROMOTION_RETRY', 'CULTIVATION_BOOST', 'MERGE_HINT',
+];
 
 export class RewardedAdService {
   private readonly clock: Clock;
@@ -54,12 +68,49 @@ export class RewardedAdService {
   private watching = false;
   /** V10 QA P3：pending 的完成定时器句柄——cancel 必须真正取消它，否则奖励仍会发放。 */
   private pendingCompleteTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly storage?: StorageAdapter;
 
   public constructor(options: RewardedAdServiceOptions = {}) {
     this.clock = options.clock ?? DEFAULT_CLOCK;
     this.cooldownPerPlacement = options.cooldownPerPlacement ?? 60;
     this.maxAdsPerHour = options.maxAdsPerHour ?? 10;
     this.simulatedDuration = options.simulatedDuration ?? 5;
+    this.storage = options.storage;
+    this.loadPersistedHistory();
+  }
+
+  /** V10.2：从 storage 恢复频控历史（损坏/越界条目直接丢弃，绝不阻塞广告）。 */
+  private loadPersistedHistory(): void {
+    if (!this.storage) return;
+    try {
+      const raw = this.storage.getItem(AD_HISTORY_STORAGE_KEY);
+      if (!raw) return;
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return;
+      const now = this.clock.now();
+      const oneDayAgo = now - 86_400_000;
+      const validPlacements = new Set<string>(AD_HISTORY_VALID_PLACEMENTS);
+      for (const entry of parsed) {
+        const candidate = entry as { placement?: unknown; timestamp?: unknown };
+        if (typeof candidate.placement !== 'string' || !validPlacements.has(candidate.placement)) continue;
+        if (typeof candidate.timestamp !== 'number' || !Number.isFinite(candidate.timestamp)) continue;
+        if (candidate.timestamp < oneDayAgo || candidate.timestamp > now + 60_000) continue;
+        this.history.push({ placement: candidate.placement as AdPlacement, timestamp: candidate.timestamp });
+      }
+      this.history.sort((a, b) => a.timestamp - b.timestamp);
+    } catch { /* 历史损坏按无历史处理 */ }
+  }
+
+  /** V10.2：把频控历史写回 storage（失败只降级为内存态，不影响广告流程）。 */
+  private persistHistory(): void {
+    if (!this.storage) return;
+    try {
+      const oneDayAgo = this.clock.now() - 86_400_000;
+      const entries = this.history
+        .filter((e) => e.timestamp >= oneDayAgo)
+        .slice(-AD_HISTORY_MAX_ENTRIES);
+      this.storage.setItem(AD_HISTORY_STORAGE_KEY, JSON.stringify(entries));
+    } catch { /* 写失败不影响广告 */ }
   }
 
   /** Whether an ad can be shown for the given placement right now. */
@@ -122,6 +173,7 @@ export class RewardedAdService {
       while (this.history.length > 0 && this.history[0].timestamp < oneDayAgo) {
         this.history.shift();
       }
+      this.persistHistory();
       onComplete({
         success: true,
         rewardType,
@@ -151,6 +203,7 @@ export class RewardedAdService {
     }
     const entry: AdHistoryEntry = { placement, timestamp: this.clock.now() };
     this.history.push(entry);
+    this.persistHistory();
     return {
       success: true,
       rewardType,
@@ -179,5 +232,6 @@ export class RewardedAdService {
   public reset(): void {
     this.history.length = 0;
     this.watching = false;
+    this.persistHistory();
   }
 }

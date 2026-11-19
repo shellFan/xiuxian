@@ -20,6 +20,94 @@ export interface DailyTaskProgress {
   readonly claimed: boolean;
 }
 
+// ── DAILY-TASK-POOL-V1：每日任务随机池（docs/DAILY-TASK-POOL-V1.md） ──────────
+// 每天 5 项（同族不重复——当前每族一条，天然满足）；按 UTC 日（北京时间 08:00）
+// 持久化抽取结果：dayIndex 决定抽取，重启/切页不重抽（同日必同结果）。
+// 枚举全部组合后按预算筛（salary750/cultivation100/performance30/mind45，旧六任务
+// 合计上限，不是保证发满；超预算跳过模板，不自动缩奖励）。不足 5 个合格项时
+// 安全降级为全部合格项。注：难度约束（≥2 EASY / ≤1 HARD）在配置接入难度元数据前不生效。
+export const DAILY_POOL_SIZE = 5;
+export const DAILY_POOL_BUDGET = Object.freeze({
+  salary: 750,
+  cultivation: 100,
+  performance: 30,
+  mind: 45,
+} as const satisfies Record<string, number>);
+
+export interface DailyPoolGate {
+  /** 晋升任务入池条件：非满级（晋升机制可用）。 */
+  readonly promotionAvailable: boolean;
+  /** KPI 任务入池条件：当前职级存在 KPI 目标。 */
+  readonly kpiAvailable: boolean;
+}
+
+const DAILY_POOL_BUDGET_KEYS = Object.keys(DAILY_POOL_BUDGET) as readonly (keyof typeof DAILY_POOL_BUDGET)[];
+
+function dailyPoolTaskBudgetSum(tasks: readonly DailyTaskConfig[], key: keyof typeof DAILY_POOL_BUDGET): number {
+  return tasks.reduce((sum, cfg) => {
+    const value = (cfg.reward as unknown as Record<string, number | undefined>)[key];
+    return sum + (typeof value === 'number' && value > 0 ? value : 0);
+  }, 0);
+}
+
+function dailyPoolWithinBudget(tasks: readonly DailyTaskConfig[]): boolean {
+  return DAILY_POOL_BUDGET_KEYS.every((key) => dailyPoolTaskBudgetSum(tasks, key) <= DAILY_POOL_BUDGET[key]);
+}
+
+/** FNV-1a 32bit：dayIndex → 确定性下标（时钟回退/重复调用结果一致）。 */
+function dailyPoolDayPickIndex(day: number, poolSize: number): number {
+  let hash = 0x811c9dc5;
+  const input = String(day);
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return Math.abs(hash) % Math.max(1, poolSize);
+}
+
+function dailyPoolCombinations(items: readonly DailyTaskConfig[], size: number): DailyTaskConfig[][] {
+  const result: DailyTaskConfig[][] = [];
+  const current: DailyTaskConfig[] = [];
+  const walk = (start: number): void => {
+    if (current.length === size) {
+      result.push([...current]);
+      return;
+    }
+    for (let i = start; i < items.length; i++) {
+      current.push(items[i]);
+      walk(i + 1);
+      current.pop();
+    }
+  };
+  walk(0);
+  return result;
+}
+
+/**
+ * DAILY-TASK-POOL-V1 选择算法：能力门槛过滤 → 预算内枚举 → dayIndex 确定性抽取。
+ * 输出保持配置表顺序，进度映射与既有口径一致。
+ */
+export function selectDailyTaskSet(
+  configs: readonly DailyTaskConfig[],
+  day: number,
+  gates: DailyPoolGate,
+): DailyTaskConfig[] {
+  const qualified = configs.filter((cfg) => {
+    if (cfg.type === 'PROMOTION_1') return gates.promotionAvailable;
+    if (cfg.type === 'KPI_COMPLETE') return gates.kpiAvailable;
+    return true;
+  });
+  if (qualified.length <= DAILY_POOL_SIZE) return [...qualified];
+  for (let size = DAILY_POOL_SIZE; size >= 1; size--) {
+    const feasible = dailyPoolCombinations(qualified, size).filter(dailyPoolWithinBudget);
+    if (feasible.length > 0) {
+      const picked = feasible[dailyPoolDayPickIndex(day, feasible.length)];
+      return qualified.filter((cfg) => picked.includes(cfg));
+    }
+  }
+  return [];
+}
+
 /**
  * DailyTaskService manages daily task generation, progress tracking,
  * completion detection, and reward claiming.
@@ -162,9 +250,10 @@ export class DailyTaskService {
     return this.context.player.dailyTasks.filter((t) => t.completed).length;
   }
 
-  /** Get the total number of tasks. */
+  /** Get the total number of tasks (当前池内实际任务数，UI 显示实际数并解释其余待条件开放）。 */
   public totalCount(): number {
-    return this.configs.length;
+    this.refresh();
+    return this.context.player.dailyTasks.length;
   }
 
   private findTaskByType(type: DailyTaskType): DailyTaskState | undefined {
@@ -174,8 +263,18 @@ export class DailyTaskService {
     });
   }
 
+  /** DAILY-TASK-POOL-V1 入池能力门槛：晋升只在非满级；KPI 只在存在当前职级目标时。 */
+  private poolGates(): DailyPoolGate {
+    let promotionAvailable = true;
+    let kpiAvailable = true;
+    try { promotionAvailable = this.context.career.next() !== undefined; } catch { /* 门槛查询失败按可用 */ }
+    try { kpiAvailable = this.context.kpi.getCurrentRequirements().length > 0; } catch { /* 门槛查询失败按可用 */ }
+    return { promotionAvailable, kpiAvailable };
+  }
+
   private generateTasks(day: number): void {
-    this.context.player.dailyTasks = this.configs.map((cfg) => ({
+    const selected = selectDailyTaskSet(this.configs, day, this.poolGates());
+    this.context.player.dailyTasks = selected.map((cfg) => ({
       taskId: cfg.id,
       progress: 0,
       completed: false,

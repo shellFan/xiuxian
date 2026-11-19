@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { FakeClock } from '../../assets/scripts/core/clock';
 import { GameContext } from '../../assets/scripts/core/game-context';
 import { PlayerData } from '../../assets/scripts/model/player-data';
-import { DailyTaskService, type DailyTaskBundle } from '../../assets/scripts/services/daily-task-service';
+import { DailyTaskService, selectDailyTaskSet, type DailyTaskBundle } from '../../assets/scripts/services/daily-task-service';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
 import { SaveService } from '../../assets/scripts/services/save-service';
 import type { DailyTaskConfig } from '../../assets/scripts/model/config-types';
@@ -35,8 +35,12 @@ function testRefreshGeneratesTasks(): void {
   assert.equal(context.player.dailyTaskDay, -1);
   const regenerated = service.refresh();
   assert.equal(regenerated, true);
-  assert.equal(context.player.dailyTasks.length, 6);
+  // DAILY-TASK-POOL-V1：每天 5 项（6 源中去 1），dayIndex 确定性抽取。
+  // day 0 → FNV-1a("0")%6 = 3 → 组合 [merge,work,event,kpi,promotion]（fish 落选）。
+  assert.equal(context.player.dailyTasks.length, 5);
   assert.equal(context.player.dailyTaskDay, 0);
+  const types = service.getProgress().map((p) => p.type).sort();
+  assert.deepEqual(types, ['EVENT_3', 'KPI_COMPLETE', 'MERGE_5', 'PROMOTION_1', 'WORK_10_MIN']);
   for (const task of context.player.dailyTasks) {
     assert.equal(task.progress, 0);
     assert.equal(task.completed, false);
@@ -57,7 +61,7 @@ function testRefreshRegeneratesOnNewDay(): void {
   clock.set(MS_PER_DAY);
   assert.equal(service.refresh(), true);
   assert.equal(context.player.dailyTaskDay, 1);
-  assert.equal(context.player.dailyTasks.length, 6);
+  assert.equal(context.player.dailyTasks.length, 5);
   assert.equal(context.player.dailyTasks[0].progress, 0);
 }
 
@@ -175,7 +179,7 @@ function testGetProgressReturnsAllTasks(): void {
   const { service } = createContext();
   service.refresh();
   const progress = service.getProgress();
-  assert.equal(progress.length, 6);
+  assert.equal(progress.length, 5);
   assert.equal(progress[0].taskId, 'merge-5');
   assert.equal(progress[0].type, 'MERGE_5');
   assert.equal(progress[0].target, 5);
@@ -192,9 +196,9 @@ function testAllClaimedReturnsFalseWhenIncomplete(): void {
 function testAllClaimedReturnsTrueWhenAllClaimed(): void {
   const { service } = createContext();
   service.refresh();
-  for (const cfg of TEST_TASKS) {
-    service.addProgress(cfg.type, cfg.target);
-    service.claim(cfg.id);
+  for (const p of service.getProgress()) {
+    service.addProgress(p.type, p.target);
+    service.claim(p.taskId);
   }
   assert.equal(service.allClaimed(), true);
 }
@@ -203,11 +207,57 @@ function testCompletedCountAndTotalCount(): void {
   const { service } = createContext();
   service.refresh();
   assert.equal(service.completedCount(), 0);
-  assert.equal(service.totalCount(), 6);
+  assert.equal(service.totalCount(), 5);
   service.addProgress('MERGE_5', 5);
   assert.equal(service.completedCount(), 1);
   service.addProgress('WORK_10_MIN', 600);
   assert.equal(service.completedCount(), 2);
+}
+
+/* ── DAILY-TASK-POOL-V1：随机池契约 ─────────────────────────────────────────── */
+
+function testPoolSelectionIsDeterministicSameDay(): void {
+  const a = createContext();
+  const b = createContext();
+  a.service.refresh();
+  b.service.refresh();
+  const idsA = a.service.getProgress().map((p) => p.taskId).sort().join(',');
+  const idsB = b.service.getProgress().map((p) => p.taskId).sort().join(',');
+  assert.equal(idsA, idsB);
+  assert.equal(idsA.length > 0, true);
+}
+
+function testPoolRespectsBudgetCapByDegradation(): void {
+  // 6 项、每项 cultivation 60：任一 5/4/3 组合都超 cultivation100 上限，
+  // 按契约"超预算跳过模板"逐级降容 → 2 项（120 超限）→ 实际落到 1 项（60）。
+  const overBudget: readonly DailyTaskConfig[] = TEST_TASKS.map((cfg) => ({
+    ...cfg,
+    reward: { cultivation: 60 },
+  }));
+  const selected = selectDailyTaskSet(overBudget, 0, { promotionAvailable: true, kpiAvailable: true });
+  assert.equal(selected.length, 1);
+  const totalCultivation = selected.reduce((sum, cfg) => sum + ((cfg.reward as { cultivation: number }).cultivation), 0);
+  assert.equal(totalCultivation <= 100, true);
+}
+
+function testPoolGatesExcludeUnavailableTypes(): void {
+  // 纯函数口径：晋升/KPI 门槛不可用 → 安全降级为全部合格（4 项）。
+  const selected = selectDailyTaskSet(TEST_TASKS, 0, { promotionAvailable: false, kpiAvailable: false });
+  assert.equal(selected.length, 4);
+  const types = selected.map((cfg) => cfg.type).sort();
+  assert.deepEqual(types, ['EVENT_3', 'FISH_3_MIN', 'MERGE_5', 'WORK_10_MIN']);
+}
+
+function testPoolExcludesPromotionAtMaxLevel(): void {
+  // 服务口径：满级（career.json 最高 10 级）时晋升任务不入池；
+  // kpi.json 只配到 9 级，满级也无 KPI 目标 → KPI 任务同样不入池（降级为 4 项）。
+  const { context, service } = createContext();
+  context.player.careerLevel = 10;
+  service.refresh();
+  const types = service.getProgress().map((p) => p.type);
+  assert.equal(types.includes('PROMOTION_1'), false);
+  assert.equal(types.includes('KPI_COMPLETE'), false);
+  assert.equal(types.length, 4);
 }
 
 function testNewDayResetsProgress(): void {
@@ -241,4 +291,8 @@ testAllClaimedReturnsFalseWhenIncomplete();
 testAllClaimedReturnsTrueWhenAllClaimed();
 testCompletedCountAndTotalCount();
 testNewDayResetsProgress();
+testPoolSelectionIsDeterministicSameDay();
+testPoolRespectsBudgetCapByDegradation();
+testPoolGatesExcludeUnavailableTypes();
+testPoolExcludesPromotionAtMaxLevel();
 console.log('daily task service tests passed');

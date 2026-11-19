@@ -318,7 +318,8 @@ export class GameContext {
     this.tutorial = new TutorialService(this);
     this.debug = new DebugService(this, options.randomProvider);
     this.tasks = new TaskService(this, { clock: options.clock });
-    this.rewardedAd = new RewardedAdService({ clock: options.clock });
+    // V10.2：频控历史持久化——页面重载/跨会话不再重置广告冷却与小时上限。
+    this.rewardedAd = new RewardedAdService({ clock: options.clock, storage: this.storage });
     this.idleEfficiency = new IdleEfficiencyService(this);
     this.leaderboard = new LeaderboardService(this);
     this.friends = new FriendsService(this);
