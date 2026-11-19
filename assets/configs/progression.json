@@ -1,20 +1,191 @@
 {
   "levels": [
-    { "careerLevel": 1, "name": "练气职员", "requiredExp": 0, "kpiWorkSeconds": 300, "salaryPerHour": 10, "mindDrainPerHour": 60, "expectedMinutes": 8 },
-    { "careerLevel": 2, "name": "筑基职员", "requiredExp": 100, "kpiWorkSeconds": 600, "salaryPerHour": 20, "mindDrainPerHour": 60, "expectedMinutes": 25 },
-    { "careerLevel": 3, "name": "部门主管", "requiredExp": 300, "kpiWorkSeconds": 900, "salaryPerHour": 40, "mindDrainPerHour": 60, "expectedMinutes": 50 },
-    { "careerLevel": 4, "name": "部门经理", "requiredExp": 700, "kpiWorkSeconds": 1200, "salaryPerHour": 80, "mindDrainPerHour": 60, "expectedMinutes": 90 },
-    { "careerLevel": 5, "name": "高级经理", "requiredExp": 1500, "kpiWorkSeconds": 1500, "salaryPerHour": 160, "mindDrainPerHour": 60, "expectedMinutes": 150 },
-    { "careerLevel": 6, "name": "区域副总监", "requiredExp": 3000, "kpiWorkSeconds": 1800, "salaryPerHour": 320, "mindDrainPerHour": 60, "expectedMinutes": 210 },
-    { "careerLevel": 7, "name": "部门主管", "requiredExp": 6000, "kpiWorkSeconds": 2100, "salaryPerHour": 320, "mindDrainPerHour": 60, "expectedMinutes": 280 },
-    { "careerLevel": 8, "name": "部门经理", "requiredExp": 12000, "kpiWorkSeconds": 2400, "salaryPerHour": 320, "mindDrainPerHour": 60, "expectedMinutes": 360 },
-    { "careerLevel": 9, "name": "高级经理", "requiredExp": 24000, "kpiWorkSeconds": 2700, "salaryPerHour": 320, "mindDrainPerHour": 60, "expectedMinutes": 480 },
-    { "careerLevel": 10, "name": "区域副总监", "requiredExp": 50000, "kpiWorkSeconds": 0, "salaryPerHour": 320, "mindDrainPerHour": 60, "expectedMinutes": 600 }
+    {
+      "careerLevel": 1,
+      "name": "实习牛马",
+      "requiredExp": 0,
+      "kpiWorkSeconds": 7200,
+      "salaryPerHour": 10,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 22
+    },
+    {
+      "careerLevel": 2,
+      "name": "正式牛马",
+      "requiredExp": 300,
+      "kpiWorkSeconds": 28800,
+      "salaryPerHour": 20,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 64
+    },
+    {
+      "careerLevel": 3,
+      "name": "骨干牛马",
+      "requiredExp": 1800,
+      "kpiWorkSeconds": 64800,
+      "salaryPerHour": 40,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 134
+    },
+    {
+      "careerLevel": 4,
+      "name": "小组骨干",
+      "requiredExp": 3900,
+      "kpiWorkSeconds": 122400,
+      "salaryPerHour": 80,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 232
+    },
+    {
+      "careerLevel": 5,
+      "name": "项目骨干",
+      "requiredExp": 7500,
+      "kpiWorkSeconds": 208800,
+      "salaryPerHour": 160,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 358
+    },
+    {
+      "careerLevel": 6,
+      "name": "部门骨干",
+      "requiredExp": 13600,
+      "kpiWorkSeconds": 324000,
+      "salaryPerHour": 320,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 512
+    },
+    {
+      "careerLevel": 7,
+      "name": "部门主管",
+      "requiredExp": 22700,
+      "kpiWorkSeconds": 468000,
+      "salaryPerHour": 320,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 694
+    },
+    {
+      "careerLevel": 8,
+      "name": "部门经理",
+      "requiredExp": 35800,
+      "kpiWorkSeconds": 648000,
+      "salaryPerHour": 320,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 904
+    },
+    {
+      "careerLevel": 9,
+      "name": "高级经理",
+      "requiredExp": 52900,
+      "kpiWorkSeconds": 864000,
+      "salaryPerHour": 320,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 1142
+    },
+    {
+      "careerLevel": 10,
+      "name": "区域副总监",
+      "requiredExp": 76000,
+      "kpiWorkSeconds": 12960000,
+      "salaryPerHour": 320,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 1408
+    },
+    {
+      "careerLevel": 11,
+      "name": "区域总监",
+      "requiredExp": 110000,
+      "kpiWorkSeconds": 16416000,
+      "salaryPerHour": 480,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 1702
+    },
+    {
+      "careerLevel": 12,
+      "name": "事业部经理",
+      "requiredExp": 155000,
+      "kpiWorkSeconds": 20736000,
+      "salaryPerHour": 480,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 2024
+    },
+    {
+      "careerLevel": 13,
+      "name": "事业部总经理",
+      "requiredExp": 215000,
+      "kpiWorkSeconds": 25920000,
+      "salaryPerHour": 480,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 2374
+    },
+    {
+      "careerLevel": 14,
+      "name": "集团高级总监",
+      "requiredExp": 300000,
+      "kpiWorkSeconds": 32400000,
+      "salaryPerHour": 480,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 2752
+    },
+    {
+      "careerLevel": 15,
+      "name": "集团副总裁",
+      "requiredExp": 420000,
+      "kpiWorkSeconds": 40608000,
+      "salaryPerHour": 720,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 3158
+    },
+    {
+      "careerLevel": 16,
+      "name": "集团高级副总裁",
+      "requiredExp": 590000,
+      "kpiWorkSeconds": 50976000,
+      "salaryPerHour": 720,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 3592
+    },
+    {
+      "careerLevel": 17,
+      "name": "集团执行副总裁",
+      "requiredExp": 830000,
+      "kpiWorkSeconds": 63936000,
+      "salaryPerHour": 720,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 4054
+    },
+    {
+      "careerLevel": 18,
+      "name": "集团总裁",
+      "requiredExp": 1160000,
+      "kpiWorkSeconds": 79920000,
+      "salaryPerHour": 1080,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 4544
+    },
+    {
+      "careerLevel": 19,
+      "name": "天庭联络官",
+      "requiredExp": 1620000,
+      "kpiWorkSeconds": 99360000,
+      "salaryPerHour": 1080,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 5062
+    },
+    {
+      "careerLevel": 20,
+      "name": "天庭在编·首席修仙牛马",
+      "requiredExp": 2250000,
+      "kpiWorkSeconds": 0,
+      "salaryPerHour": 1080,
+      "mindDrainPerHour": 60,
+      "expectedMinutes": 5608
+    }
   ],
   "notes": {
     "firstVisibleUpgradeMinutes": "5-10",
     "firstPromotionMinutes": "20-30",
     "earlyGameHours": "2-4",
-    "offline": "noticeable but does not replace active play"
+    "offline": "noticeable but does not replace active play",
+    "v102": "20 级扩展：本表为 pacing 设计文档（镜像 career.json 单源），代码消费方仅 career.json"
   }
 }

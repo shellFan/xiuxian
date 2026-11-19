@@ -176,7 +176,7 @@ function testInvalidKpiConfigRejected(): void {
     ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig, careerConfig, sectConfig, talentConfig, careerEventsConfig, {
       levels: [{ careerLevel: 99, requirements: [{ type: 'MERGE_COUNT', target: 1 }] }],
     });
-  }, /must be between 1 and 10/);
+  }, /must be between 1 and 20/);
 
   assert.throws(() => {
     ConfigService.loadFromJson(workerConfig, economyConfig, gameConfig,  careerConfig, sectConfig, talentConfig, careerEventsConfig, {

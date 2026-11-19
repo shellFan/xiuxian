@@ -51,7 +51,7 @@ function testCultivationInsufficientBlocksPromotion(): void {
 }
 
 function testMaxLevelBlocksPromotion(): void {
-  const { promotion } = makeContext({ ...readyLevelOne(), careerLevel: 10 });
+  const { promotion } = makeContext({ ...readyLevelOne(), careerLevel: 20 }); // V10.2：上限 20
   assert.equal(promotion.canPromote().allowed, false);
   assert.equal(promotion.canPromote().reason, 'MAX_LEVEL');
 }

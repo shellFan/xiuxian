@@ -64,10 +64,10 @@ function testCanPromoteReady(): void {
 // ── Test 2: canPromote blocks at max level ───────────────────────────────────
 
 function testCanPromoteMaxLevel(): void {
-  const { promotion } = makeContext({ careerLevel: 10, cultivationExp: 999999 });
+  const { promotion } = makeContext({ careerLevel: 20, cultivationExp: 999999 }); // V10.2：上限 20
   const check = promotion.canPromote();
   assert.equal(check.allowed, false, 'should be blocked at max level');
-  assert.equal(check.reason, 'MAX_LEVEL', 'reason should be MAX_LEVEL');
+  assert.equal(check.reason, 'MAX_LEVEL', 'reason should be MAX_LEVEL (20 级上限)');
 
   console.log('  ✓ canPromote blocks at max level');
 }

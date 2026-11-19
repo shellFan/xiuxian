@@ -16,8 +16,8 @@ export type WorkModeRequirement = 'ANY' | 'WORK' | 'FISHING';
 
 export interface EventEligibility {
   readonly eventId: string;
-  readonly minCareerLevel: number;       // 1..10, default 1
-  readonly maxCareerLevel: number;       // 1..10, default 10
+  readonly minCareerLevel: number;       // 1..20, default 1
+  readonly maxCareerLevel: number;       // 1..20, default 20
   readonly requiresWorkMode: WorkModeRequirement; // default ANY
   readonly cooldownMs: number;           // default 1800000 (30min)
   readonly minMindRatio?: number;        // 0..1, default 0

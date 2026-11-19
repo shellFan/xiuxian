@@ -249,10 +249,10 @@ function testPoolGatesExcludeUnavailableTypes(): void {
 }
 
 function testPoolExcludesPromotionAtMaxLevel(): void {
-  // 服务口径：满级（career.json 最高 10 级）时晋升任务不入池；
-  // kpi.json 只配到 9 级，满级也无 KPI 目标 → KPI 任务同样不入池（降级为 4 项）。
+  // 服务口径：满级（V10.2 起 career.json 最高 20 级）时晋升任务不入池；
+  // kpi.json 配到 19 级，20 级满级无 KPI 目标 → KPI 任务同样不入池（降级为 4 项）。
   const { context, service } = createContext();
-  context.player.careerLevel = 10;
+  context.player.careerLevel = 20;
   service.refresh();
   const types = service.getProgress().map((p) => p.type);
   assert.equal(types.includes('PROMOTION_1'), false);

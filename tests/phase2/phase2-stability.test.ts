@@ -243,8 +243,8 @@ function testCareerEventWrongIdRejected(): void {
 // 7. KPI: max-level not "completed", completion + switchLevel reset
 // ---------------------------------------------------------------------------
 function testKpiMaxLevelNotCompleted(): void {
-  const { context } = makeContext({ careerLevel: 10 });
-  assert.equal(context.kpi.isCurrentKpiCompleted(), false, 'no config at max level');
+  const { context } = makeContext({ careerLevel: 20 });
+  assert.equal(context.kpi.isCurrentKpiCompleted(), false, 'no config at max level (20)');
 }
 
 function testKpiCompletionAndSwitchReset(): void {
@@ -260,7 +260,7 @@ function testKpiCompletionAndSwitchReset(): void {
 // 8. Promotion: reasons, success/failure via injected RNG, save-failure rollback
 // ---------------------------------------------------------------------------
 function testPromotionReasons(): void {
-  const { context } = makeContext({ careerLevel: 10 });
+  const { context } = makeContext({ careerLevel: 20 });
   assert.equal(context.promotion.canPromote().reason, 'MAX_LEVEL');
   const kpiIncomplete = makeContext({ careerLevel: 1, cultivationExp: 10 });
   assert.equal(kpiIncomplete.context.promotion.canPromote().reason, 'KPI_INCOMPLETE');
@@ -420,7 +420,7 @@ function testStressInvariantsHold(): void {
     context.kpi.recordMerge();
     context.mind.applyDelta(i % 2 === 0 ? -1 : 1);
     // Invariants must hold every iteration.
-    assert.ok(player.careerLevel >= 1 && player.careerLevel <= 10, `careerLevel in range at ${i}`);
+    assert.ok(player.careerLevel >= 1 && player.careerLevel <= 20, `careerLevel in range at ${i}`);
     assert.ok(player.mind >= 0 && player.mind <= player.maxMind, `mind in range at ${i}`);
     assert.ok(player.salary >= 0 && Number.isInteger(player.salary), `salary valid at ${i}`);
     assert.ok(player.cultivationExp >= 0, `cultivation valid at ${i}`);

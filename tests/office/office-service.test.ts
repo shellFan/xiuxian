@@ -59,8 +59,11 @@ function testCareerTenIsManagerOffice(): void {
 function testNextOfficeProgression(): void {
   const { context } = makeContext({ careerLevel: 1 });
   assert.equal(context.office.getNextOffice()?.name, '普通工位');
-  const top = makeContext({ careerLevel: 9 }).context;
+  // V10.2：20 级满级时无下一工位（office 10 天庭在编工位为顶）
+  const top = makeContext({ careerLevel: 20 }).context;
   assert.equal(top.office.getNextOffice(), undefined);
+  const mid = makeContext({ careerLevel: 10 }).context;
+  assert.equal(mid.office.getNextOffice()?.name, '总监办公室');
 }
 
 function testInvalidOfficeConfigRejected(): void {

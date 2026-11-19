@@ -5,8 +5,8 @@
       "name": "实习牛马",
       "realm": "炼气一层",
       "requiredExp": 0,
-      "salaryMultiplier": 1.0,
-      "cultivationMultiplier": 1.0
+      "salaryMultiplier": 1,
+      "cultivationMultiplier": 1
     },
     {
       "level": 2,
@@ -61,7 +61,7 @@
       "name": "部门经理",
       "realm": "金丹中期",
       "requiredExp": 35800,
-      "salaryMultiplier": 4.0,
+      "salaryMultiplier": 4,
       "cultivationMultiplier": 3.4
     },
     {
@@ -69,7 +69,7 @@
       "name": "高级经理",
       "realm": "金丹后期",
       "requiredExp": 52900,
-      "salaryMultiplier": 5.0,
+      "salaryMultiplier": 5,
       "cultivationMultiplier": 4.2
     },
     {
@@ -78,7 +78,87 @@
       "realm": "元婴初期",
       "requiredExp": 76000,
       "salaryMultiplier": 6.5,
-      "cultivationMultiplier": 5.0
+      "cultivationMultiplier": 5
+    },
+    {
+      "level": 11,
+      "name": "区域总监",
+      "realm": "元婴中期",
+      "requiredExp": 110000,
+      "salaryMultiplier": 8.5,
+      "cultivationMultiplier": 6.4
+    },
+    {
+      "level": 12,
+      "name": "事业部经理",
+      "realm": "元婴后期",
+      "requiredExp": 155000,
+      "salaryMultiplier": 11,
+      "cultivationMultiplier": 8.2
+    },
+    {
+      "level": 13,
+      "name": "事业部总经理",
+      "realm": "元婴圆满",
+      "requiredExp": 215000,
+      "salaryMultiplier": 14.5,
+      "cultivationMultiplier": 10.5
+    },
+    {
+      "level": 14,
+      "name": "集团高级总监",
+      "realm": "化神初期",
+      "requiredExp": 300000,
+      "salaryMultiplier": 19,
+      "cultivationMultiplier": 13.5
+    },
+    {
+      "level": 15,
+      "name": "集团副总裁",
+      "realm": "化神中期",
+      "requiredExp": 420000,
+      "salaryMultiplier": 25,
+      "cultivationMultiplier": 17.5
+    },
+    {
+      "level": 16,
+      "name": "集团高级副总裁",
+      "realm": "化神后期",
+      "requiredExp": 590000,
+      "salaryMultiplier": 32,
+      "cultivationMultiplier": 22.5
+    },
+    {
+      "level": 17,
+      "name": "集团执行副总裁",
+      "realm": "化神圆满",
+      "requiredExp": 830000,
+      "salaryMultiplier": 42,
+      "cultivationMultiplier": 29
+    },
+    {
+      "level": 18,
+      "name": "集团总裁",
+      "realm": "渡劫初期",
+      "requiredExp": 1160000,
+      "salaryMultiplier": 55,
+      "cultivationMultiplier": 37
+    },
+    {
+      "level": 19,
+      "name": "天庭联络官",
+      "realm": "渡劫中期",
+      "requiredExp": 1620000,
+      "salaryMultiplier": 72,
+      "cultivationMultiplier": 47.5
+    },
+    {
+      "level": 20,
+      "name": "天庭在编·首席修仙牛马",
+      "realm": "渡劫圆满",
+      "requiredExp": 2250000,
+      "salaryMultiplier": 92,
+      "cultivationMultiplier": 60
     }
   ]
 }

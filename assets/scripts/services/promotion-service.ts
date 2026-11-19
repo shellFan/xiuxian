@@ -77,7 +77,8 @@ export class PromotionService {
   /** Prerequisites: below max level, current KPI completed, and cultivation meets the current level's requirement. */
   public canPromote(): PromotionCheck {
     const player = this.context.player;
-    if (player.careerLevel >= 10) return { allowed: false, reason: 'MAX_LEVEL' };
+    // V10.2：职级上限扩展 20 级（career.json 同步扩展 11..20）
+    if (player.careerLevel >= 20) return { allowed: false, reason: 'MAX_LEVEL' };
     if (!this.context.kpi.isCurrentKpiCompleted()) return { allowed: false, reason: 'KPI_INCOMPLETE' };
     const required = this.context.career.current().requiredExp;
     if (player.cultivationExp < required) return { allowed: false, reason: 'CULTIVATION_INSUFFICIENT' };

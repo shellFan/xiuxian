@@ -143,8 +143,8 @@ function validateKpi(kpi: Record<string, unknown>): void {
     const level = raw as Record<string, unknown>;
     requireNumber(level.careerLevel, `kpi.levels[${index}].careerLevel`);
     const careerLevel = level.careerLevel as number;
-    if (!Number.isSafeInteger(careerLevel) || careerLevel < 1 || careerLevel > 10) {
-      fail(`kpi.levels[${index}].careerLevel must be between 1 and 10`);
+    if (!Number.isSafeInteger(careerLevel) || careerLevel < 1 || careerLevel > 20) {
+      fail(`kpi.levels[${index}].careerLevel must be between 1 and 20`);
     }
     if (seenLevels.has(careerLevel)) fail(`kpi.levels contains duplicate careerLevel ${careerLevel}`);
     seenLevels.add(careerLevel);
@@ -184,7 +184,8 @@ function validateTalent(talent: Record<string, unknown>): void {
 }
 
 function validateOffice(office: Record<string, unknown>): void {
-  if (!Array.isArray(office.offices) || office.offices.length !== 5) fail('office.offices must contain exactly 5 offices');
+  // V10.2：职级扩展 20 级——工位扩展到 10 个（1..20 全覆盖）
+  if (!Array.isArray(office.offices) || office.offices.length !== 10) fail('office.offices must contain exactly 10 offices');
   const levels = new Set<number>();
   const covered = new Set<number>();
   (office.offices as unknown[]).forEach((raw, index) => {
@@ -192,7 +193,7 @@ function validateOffice(office: Record<string, unknown>): void {
     const item = raw as Record<string, unknown>;
     requireNumber(item.level, `office.offices[${index}].level`);
     const level = item.level as number;
-    if (!Number.isSafeInteger(level) || level < 1 || level > 5) fail(`office.offices[${index}].level must be between 1 and 5`);
+    if (!Number.isSafeInteger(level) || level < 1 || level > 10) fail(`office.offices[${index}].level must be between 1 and 10`);
     if (levels.has(level)) fail(`office.offices contains duplicate level ${level}`);
     levels.add(level);
     requireString(item.name, `office.offices[${index}].name`);
@@ -200,11 +201,11 @@ function validateOffice(office: Record<string, unknown>): void {
     requireNumber(item.maxCareerLevel, `office.offices[${index}].maxCareerLevel`);
     const min = item.minCareerLevel as number;
     const max = item.maxCareerLevel as number;
-    if (!Number.isSafeInteger(min) || !Number.isSafeInteger(max) || min < 1 || max > 10 || min > max) fail(`office.offices[${index}] has invalid career level range`);
+    if (!Number.isSafeInteger(min) || !Number.isSafeInteger(max) || min < 1 || max > 20 || min > max) fail(`office.offices[${index}] has invalid career level range`);
     for (let career = min; career <= max; career += 1) covered.add(career);
   });
-  for (let level = 1; level <= 5; level += 1) if (!levels.has(level)) fail(`office.offices is missing level ${level}`);
-  for (let career = 1; career <= 10; career += 1) if (!covered.has(career)) fail(`office.offices does not cover career level ${career}`);
+  for (let level = 1; level <= 10; level += 1) if (!levels.has(level)) fail(`office.offices is missing level ${level}`);
+  for (let career = 1; career <= 20; career += 1) if (!covered.has(career)) fail(`office.offices does not cover career level ${career}`);
 }
 
 function validateDaily(daily: Record<string, unknown>): void {
@@ -337,7 +338,8 @@ function validateSect(sect: Record<string, unknown>): void {
 function validateCareer(career: Record<string, unknown>): void {
   if (!Array.isArray(career.levels)) fail('career.levels must be an array');
   const levels = career.levels as unknown[];
-  if (levels.length !== 10) fail('career.levels must contain exactly 10 levels');
+  // V10.2：职级扩展 20 级（career.json 同步）
+  if (levels.length !== 20) fail('career.levels must contain exactly 20 levels');
   levels.forEach((raw, index) => {
     requireObject(raw, `career.levels[${index}]`);
     const level = raw as Record<string, unknown>;
@@ -446,5 +448,11 @@ function defaultOfficeConfig(): OfficeBundle {
     { level: 3, name: '隔断工位', minCareerLevel: 5, maxCareerLevel: 6 },
     { level: 4, name: '主管办公室', minCareerLevel: 7, maxCareerLevel: 8 },
     { level: 5, name: '经理办公室', minCareerLevel: 9, maxCareerLevel: 10 },
+    // V10.2：职级扩展 20 级（office.json 同步）——11..20 必须有工位覆盖，否则 officeLevelForCareer 抛错
+    { level: 6, name: '总监办公室', minCareerLevel: 11, maxCareerLevel: 12 },
+    { level: 7, name: '高级总监办公室', minCareerLevel: 13, maxCareerLevel: 14 },
+    { level: 8, name: '副总裁办公室', minCareerLevel: 15, maxCareerLevel: 16 },
+    { level: 9, name: '总裁办公室', minCareerLevel: 17, maxCareerLevel: 19 },
+    { level: 10, name: '天庭在编工位', minCareerLevel: 20, maxCareerLevel: 20 },
   ] };
 }

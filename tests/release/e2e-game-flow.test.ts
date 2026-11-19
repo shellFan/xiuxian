@@ -17,23 +17,8 @@ import { MergeService } from '../../assets/scripts/services/merge-service';
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Gameplay V2 KPI requirements per career level (from kpi.json). */
-const KPI_REQUIREMENTS: Record<number, { TASK_DONE: number; WORK_SECONDS: number; CULTIVATION: number }> = {
-  1: { TASK_DONE: 3, WORK_SECONDS: 7200, CULTIVATION: 100 },
-  2: { TASK_DONE: 8, WORK_SECONDS: 28800, CULTIVATION: 500 },
-  3: { TASK_DONE: 15, WORK_SECONDS: 64800, CULTIVATION: 1500 },
-  4: { TASK_DONE: 24, WORK_SECONDS: 122400, CULTIVATION: 3500 },
-  5: { TASK_DONE: 36, WORK_SECONDS: 208800, CULTIVATION: 7000 },
-  6: { TASK_DONE: 50, WORK_SECONDS: 324000, CULTIVATION: 13000 },
-  7: { TASK_DONE: 66, WORK_SECONDS: 468000, CULTIVATION: 22000 },
-  8: { TASK_DONE: 84, WORK_SECONDS: 648000, CULTIVATION: 35000 },
-  9: { TASK_DONE: 104, WORK_SECONDS: 864000, CULTIVATION: 52000 },
-};
-
-/** Career level requiredExp (cultivation) from career.json. */
-const CAREER_REQUIRED_EXP: Record<number, number> = {
-  1: 0, 2: 300, 3: 1800, 4: 3900, 5: 7500,
-  6: 13600, 7: 22700, 8: 35800, 9: 52900, 10: 76000,
-};
+/** V10.2：KPI/晋升期望值一律读活配置（kpi.json/career.json），不再维护测试常量双源。 */
+import kpiConfig from '../../assets/configs/kpi.json';
 
 interface TestSetup {
   facade: GameFacade;
@@ -74,21 +59,19 @@ function assertSafeResource(value: number, label: string): void {
 /** Set player state to meet KPI and cultivation requirements for promotion from current level. */
 function prepareForPromotion(facade: GameFacade, clock: FakeClock): void {
   const player = facade.context.player;
+  // V10.2：改为读活配置（消除测试常量表与 career.json/kpi.json 的双源漂移），支持 1..20 全 ladder
   const level = player.careerLevel;
-  if (level >= 10) return;
-
-  const kpi = KPI_REQUIREMENTS[level];
-  if (!kpi) return;
-
-  // Set KPI counters
-  player.kpiProgress = {
-    TASK_DONE: kpi.TASK_DONE,
-  };
-  // Set work seconds
-  player.workSeconds = kpi.WORK_SECONDS;
-  // Set cultivation to meet BOTH the KPI CULTIVATION target AND the career requiredExp
-  // (career.requiredExp is checked by canPromote(), KPI CULTIVATION is checked by isCurrentKpiCompleted())
-  player.cultivationExp = Math.max(kpi.CULTIVATION, CAREER_REQUIRED_EXP[level]);
+  const requirements = facade.context.kpi.getCurrentRequirements();
+  for (const req of requirements) {
+    if (req.type === 'TASK_DONE') player.kpiProgress = { ...player.kpiProgress, TASK_DONE: req.target };
+    if (req.type === 'WORK_SECONDS') player.workSeconds = Math.max(player.workSeconds, req.target);
+    if (req.type === 'CULTIVATION') player.cultivationExp = Math.max(player.cultivationExp, req.target);
+    if (req.type === 'MERGE_COUNT' || req.type === 'SALARY_EARNED' || req.type === 'EVENT_RESOLVED') {
+      player.kpiProgress = { ...player.kpiProgress, [req.type]: req.target };
+    }
+  }
+  // career.requiredExp 由 canPromote() 检查（修为）
+  player.cultivationExp = Math.max(player.cultivationExp, facade.context.career.current().requiredExp);
   // Ensure mind is high for better promotion probability
   player.mind = 100;
   player.maxMind = 100;
@@ -296,9 +279,9 @@ test('E2E: promotion check validates KPI and cultivation requirements', () => {
   assert.strictEqual(check.reason, 'KPI_INCOMPLETE', 'Reason should be KPI_INCOMPLETE');
 
   // At max level, promotion should be blocked
-  const { facade: maxFacade } = createTestSetup({ careerLevel: 10 });
+  const { facade: maxFacade } = createTestSetup({ careerLevel: 20 });
   const maxCheck = maxFacade.queryPromotionCheck();
-  assert.strictEqual(maxCheck.allowed, false, 'Should not be promotable at max level');
+  assert.strictEqual(maxCheck.allowed, false, 'Should not be promotable at max level (20)');
   assert.strictEqual(maxCheck.reason, 'MAX_LEVEL', 'Reason should be MAX_LEVEL');
 });
 
@@ -387,7 +370,7 @@ test('E2E: offline reward settlement grants salary and cultivation', () => {
 
 // ── 15. Career Level 1→10 Complete Promotion Path ────────────────────────────
 
-test('E2E: complete promotion path from Level 1 to Level 10', () => {
+test('E2E: complete promotion path from Level 1 to Level 20', () => {
   const clock = new FakeClock(0);
   const storage = new MemoryStorageAdapter();
   const player = new PlayerData({ careerLevel: 1, mind: 100, maxMind: 100, lastSaveTime: 0 });
@@ -401,8 +384,8 @@ test('E2E: complete promotion path from Level 1 to Level 10', () => {
     modeSwitchCooldownMs: 0,
   });
 
-  for (let level = 1; level <= 9; level++) {
-    // Prepare for promotion from current level
+  for (let level = 1; level <= 19; level++) {
+    // Prepare for promotion from current level（V10.2：1→20 全阶梯）
     prepareForPromotion(facade, clock);
 
     // Verify promotion is allowed
@@ -419,23 +402,23 @@ test('E2E: complete promotion path from Level 1 to Level 10', () => {
     assertSafeResource(p.salary, `salary after level ${level + 1}`);
     assertSafeResource(p.cultivationExp, `cultivation after level ${level + 1}`);
     assertSafeResource(p.mind, `mind after level ${level + 1}`);
-    assert.ok(p.careerLevel >= 1 && p.careerLevel <= 10, `Career level should be 1-10, got ${p.careerLevel}`);
+    assert.ok(p.careerLevel >= 1 && p.careerLevel <= 20, `Career level should be 1-20, got ${p.careerLevel}`);
     assert.ok(Number.isFinite(p.performance), `Performance should be finite at level ${level + 1}`);
   }
 
   // Verify final state
-  assert.strictEqual(facade.context.player.careerLevel, 10, 'Should reach career level 10');
+  assert.strictEqual(facade.context.player.careerLevel, 20, 'Should reach career level 20');
   const finalCheck = facade.queryPromotionCheck();
   assert.strictEqual(finalCheck.allowed, false, 'Should not be promotable at level 10');
   assert.strictEqual(finalCheck.reason, 'MAX_LEVEL', 'Reason should be MAX_LEVEL');
 
   // Verify office level at level 10 → office level 5
-  assert.strictEqual(facade.context.office.getOfficeLevel(), 5, 'Career level 10 → office level 5');
+  assert.strictEqual(facade.context.office.getOfficeLevel(), 10, 'Career level 20 → office level 10');
 
   // Verify the career names are correct
   const career = facade.queryCareer();
-  assert.strictEqual(career.level, 10, 'Career query should show level 10');
-  assert.strictEqual(career.name, '区域副总监', 'Level 10 should be 区域副总监');
+  assert.strictEqual(career.level, 20, 'Career query should show level 20');
+  assert.strictEqual(career.name, '天庭在编·首席修仙牛马', 'Level 20 should be 天庭在编·首席修仙牛马');
 });
 
 // ── 16. No NaN / Infinity / Negative Resources ───────────────────────────────
@@ -683,14 +666,19 @@ test('E2E: KPI targets increase across career levels', () => {
   let prevWork = 0;
   let prevCult = 0;
 
-  for (let level = 1; level <= 9; level++) {
-    const kpi = KPI_REQUIREMENTS[level];
-    assert.ok(kpi.TASK_DONE > prevTask, `Level ${level} task target should increase`);
-    assert.ok(kpi.WORK_SECONDS > prevWork, `Level ${level} work target should increase`);
-    assert.ok(kpi.CULTIVATION > prevCult, `Level ${level} cultivation target should increase`);
-    prevTask = kpi.TASK_DONE;
-    prevWork = kpi.WORK_SECONDS;
-    prevCult = kpi.CULTIVATION;
+  // V10.2：读活 kpi.json（1..19 全表单调性，消除测试常量双源漂移）
+  const levels = kpiConfig.levels.slice().sort((a, b) => a.careerLevel - b.careerLevel);
+  for (const l of levels) {
+    const reqs = Object.fromEntries(l.requirements.map((r) => [r.type, r.target]));
+    const td = reqs['TASK_DONE'] ?? 0;
+    const ws = reqs['WORK_SECONDS'] ?? 0;
+    const cu = reqs['CULTIVATION'] ?? 0;
+    assert.ok(td > prevTask, `L${l.careerLevel} task target should increase`);
+    assert.ok(ws > prevWork, `L${l.careerLevel} work target should increase`);
+    assert.ok(cu > prevCult, `L${l.careerLevel} cultivation target should increase`);
+    prevTask = td;
+    prevWork = ws;
+    prevCult = cu;
   }
 });
 
@@ -725,10 +713,10 @@ test('E2E: MergeService unavailable in PC V1 (no merge feature)', () => {
 
 // ── 28. Promotion Path Integrity: No Broken Chain ────────────────────────────
 
-test('E2E: career level chain 1-10 has no gaps', () => {
+test('E2E: career level chain 1-20 has no gaps', () => {
   const { facade } = createTestSetup();
 
-  for (let level = 1; level <= 10; level++) {
+  for (let level = 1; level <= 20; level++) {
     const config = facade.context.career.get(level);
     assert.strictEqual(config.level, level, `Career level ${level} must exist`);
     assert.ok(config.name.length > 0, `Level ${level} must have a name`);
@@ -737,8 +725,8 @@ test('E2E: career level chain 1-10 has no gaps', () => {
     assert.ok(config.cultivationMultiplier >= 1, `Level ${level} cultivation multiplier should be >= 1`);
   }
 
-  // Verify no level 11
-  assert.throws(() => facade.context.career.get(11), /Unknown career level/, 'Level 11 should not exist');
+  // Verify no level 21（V10.2：上限 20）
+  assert.throws(() => facade.context.career.get(21), /Unknown career level/, 'Level 21 should not exist');
 });
 
 // ── 29. Work Mode Affects Income Rate ────────────────────────────────────────

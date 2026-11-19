@@ -179,6 +179,206 @@
           "description": "完成任务 104 次"
         }
       ]
+    },
+    {
+      "careerLevel": 10,
+      "requirements": [
+        {
+          "type": "WORK_SECONDS",
+          "target": 12960000,
+          "description": "累计工作 150 天"
+        },
+        {
+          "type": "CULTIVATION",
+          "target": 73000,
+          "description": "修为达到 73000"
+        },
+        {
+          "type": "TASK_DONE",
+          "target": 125,
+          "description": "完成任务 125 次"
+        }
+      ]
+    },
+    {
+      "careerLevel": 11,
+      "requirements": [
+        {
+          "type": "WORK_SECONDS",
+          "target": 16416000,
+          "description": "累计工作 190 天"
+        },
+        {
+          "type": "CULTIVATION",
+          "target": 102000,
+          "description": "修为达到 102000"
+        },
+        {
+          "type": "TASK_DONE",
+          "target": 150,
+          "description": "完成任务 150 次"
+        }
+      ]
+    },
+    {
+      "careerLevel": 12,
+      "requirements": [
+        {
+          "type": "WORK_SECONDS",
+          "target": 20736000,
+          "description": "累计工作 240 天"
+        },
+        {
+          "type": "CULTIVATION",
+          "target": 143000,
+          "description": "修为达到 143000"
+        },
+        {
+          "type": "TASK_DONE",
+          "target": 180,
+          "description": "完成任务 180 次"
+        }
+      ]
+    },
+    {
+      "careerLevel": 13,
+      "requirements": [
+        {
+          "type": "WORK_SECONDS",
+          "target": 25920000,
+          "description": "累计工作 300 天"
+        },
+        {
+          "type": "CULTIVATION",
+          "target": 200000,
+          "description": "修为达到 200000"
+        },
+        {
+          "type": "TASK_DONE",
+          "target": 215,
+          "description": "完成任务 215 次"
+        }
+      ]
+    },
+    {
+      "careerLevel": 14,
+      "requirements": [
+        {
+          "type": "WORK_SECONDS",
+          "target": 32400000,
+          "description": "累计工作 375 天"
+        },
+        {
+          "type": "CULTIVATION",
+          "target": 280000,
+          "description": "修为达到 280000"
+        },
+        {
+          "type": "TASK_DONE",
+          "target": 260,
+          "description": "完成任务 260 次"
+        }
+      ]
+    },
+    {
+      "careerLevel": 15,
+      "requirements": [
+        {
+          "type": "WORK_SECONDS",
+          "target": 40608000,
+          "description": "累计工作 470 天"
+        },
+        {
+          "type": "CULTIVATION",
+          "target": 390000,
+          "description": "修为达到 390000"
+        },
+        {
+          "type": "TASK_DONE",
+          "target": 310,
+          "description": "完成任务 310 次"
+        }
+      ]
+    },
+    {
+      "careerLevel": 16,
+      "requirements": [
+        {
+          "type": "WORK_SECONDS",
+          "target": 50976000,
+          "description": "累计工作 590 天"
+        },
+        {
+          "type": "CULTIVATION",
+          "target": 545000,
+          "description": "修为达到 545000"
+        },
+        {
+          "type": "TASK_DONE",
+          "target": 375,
+          "description": "完成任务 375 次"
+        }
+      ]
+    },
+    {
+      "careerLevel": 17,
+      "requirements": [
+        {
+          "type": "WORK_SECONDS",
+          "target": 63936000,
+          "description": "累计工作 740 天"
+        },
+        {
+          "type": "CULTIVATION",
+          "target": 760000,
+          "description": "修为达到 760000"
+        },
+        {
+          "type": "TASK_DONE",
+          "target": 450,
+          "description": "完成任务 450 次"
+        }
+      ]
+    },
+    {
+      "careerLevel": 18,
+      "requirements": [
+        {
+          "type": "WORK_SECONDS",
+          "target": 79920000,
+          "description": "累计工作 925 天"
+        },
+        {
+          "type": "CULTIVATION",
+          "target": 1060000,
+          "description": "修为达到 1060000"
+        },
+        {
+          "type": "TASK_DONE",
+          "target": 540,
+          "description": "完成任务 540 次"
+        }
+      ]
+    },
+    {
+      "careerLevel": 19,
+      "requirements": [
+        {
+          "type": "WORK_SECONDS",
+          "target": 99360000,
+          "description": "累计工作 1150 天"
+        },
+        {
+          "type": "CULTIVATION",
+          "target": 1480000,
+          "description": "修为达到 1480000"
+        },
+        {
+          "type": "TASK_DONE",
+          "target": 650,
+          "description": "完成任务 650 次"
+        }
+      ]
     }
   ]
 }

@@ -119,7 +119,8 @@ export class KpiService {
   }
 
   public switchLevel(newLevel: number): void {
-    if (!Number.isSafeInteger(newLevel) || newLevel < 1 || newLevel > 10) throw new Error('Invalid career level');
+    // V10.2：职级扩展 20 级（career.json 同步）
+    if (!Number.isSafeInteger(newLevel) || newLevel < 1 || newLevel > 20) throw new Error('Invalid career level');
     this.context.player.careerLevel = newLevel;
     // WORK_SECONDS / CULTIVATION are cumulative fact fields. TASK_DONE is also
     // cumulative in V2, while legacy counters remain per-level and are cleared.
