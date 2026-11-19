@@ -12,7 +12,7 @@ import { CURRENT_SAVE_VERSION, type GameSaveData, type WorkerSaveData } from '..
 import { PlayerData } from '../model/player-data';
 import type { StorageAdapter } from './storage-adapter';
 import { DEFAULT_CLOCK, type Clock } from '../core/clock';
-import { SaveService } from './save-service';
+import { SaveService, SaveLoadError } from './save-service';
 import { MemoryStorageAdapter } from './storage-adapter';
 
 export const DEFAULT_SAVE_KEY = 'game-save';
@@ -51,9 +51,16 @@ export class SaveServiceV2 {
 
   /**
    * Load save data with corruption recovery.
-   * Strategy: primary → backup → default
+   * Strategy: primary → backup → (no keys at all) default.
+   * V10.2：fail-closed 对齐 F01——主档与备份档都"存在但无法读取"（损坏/版本不符）
+   * 时绝不静默回新档（那会覆盖玩家进度），改为进入写保护并抛 SaveLoadError。
    */
   public load(): GameSaveData {
+    const primaryRaw = this.storage.getItem(this.saveKey);
+    const backupRaw = this.storage.getItem(this.backupKey);
+    const hasPersistedSave = (primaryRaw !== null && primaryRaw.trim() !== '')
+      || (backupRaw !== null && backupRaw.trim() !== '');
+
     // Try primary
     const primary = this.tryLoad(this.saveKey);
     if (primary) {
@@ -68,7 +75,13 @@ export class SaveServiceV2 {
       return cloneSaveData(backup);
     }
 
-    // Default
+    if (hasPersistedSave) {
+      // F10：持久档被拒后锁死全部写入，close flush 不可能碰坏档文件
+      this.storage.markFailClosed?.();
+      throw new SaveLoadError('SAVE_LOAD_FAILED: persisted save and backup are both unreadable — refusing to overwrite with a fresh save');
+    }
+
+    // 全新玩家（主/备份键都不存在）才允许默认新档
     const defaultData = PlayerData.createDefault().toSaveData();
     this.latestSnapshot = cloneSaveData(defaultData);
     return cloneSaveData(defaultData);

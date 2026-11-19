@@ -4,7 +4,7 @@
  * Validates:
  *   1. Data consistency after 1000 save/load cycles
  *   2. Backup recovery when primary save is corrupted
- *   3. Safe fallback when both primary and backup are corrupted
+ *   3. Fail-closed when both primary and backup are corrupted (V10.2: no silent fresh save)
  *   4. Old version save migration
  */
 import test from 'node:test';
@@ -16,6 +16,7 @@ import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adap
 import { PlayerData } from '../../assets/scripts/model/player-data';
 import { FixedRandomProvider } from '../../assets/scripts/core/random-provider';
 import { SaveServiceV2, DEFAULT_SAVE_KEY, BACKUP_SAVE_KEY } from '../../assets/scripts/services/save-service-v2';
+import { SaveLoadError } from '../../assets/scripts/services/save-service';
 import { mulberry32, RandomService } from '../../assets/scripts/v2/random-service';
 
 function createFacade(storage: MemoryStorageAdapter, clock: FakeClock): GameFacade {
@@ -88,9 +89,9 @@ test('Save Stress: backup recovers when primary save is corrupted', () => {
   assert.strictEqual(loaded.careerLevel, 3, 'Should recover career level from backup');
 });
 
-// ── 3. Both Corrupted → Safe Default ────────────────────────────────────────
+// ── 3. Both Corrupted → Fail-Closed（V10.2 QA-BUG-012：不再静默回新档） ─────
 
-test('Save Stress: safe default when both primary and backup are corrupted', () => {
+test('Save Stress: fail-closed when both primary and backup are corrupted', () => {
   const storage = new MemoryStorageAdapter();
   const clock = new FakeClock(0);
 
@@ -99,9 +100,23 @@ test('Save Stress: safe default when both primary and backup are corrupted', () 
   storage.setItem(BACKUP_SAVE_KEY, 'not-json-backup');
 
   const saveV2 = new SaveServiceV2(storage, { clock });
-  const loaded = saveV2.load();
+  // 主档+备份档都损坏时必须拒绝静默回新档（那会覆盖玩家进度）——
+  // 按 F01 口径抛 SaveLoadError 并进入写保护。
+  assert.throws(() => saveV2.load(), (error: unknown) => error instanceof SaveLoadError);
+  // 写路径已锁死：损坏档不能被后续写入覆盖
+  storage.setItem(DEFAULT_SAVE_KEY, '{"saveVersion":999,"hijacked":true}');
+  assert.notStrictEqual(
+    storage.getItem(DEFAULT_SAVE_KEY),
+    '{"saveVersion":999,"hijacked":true}',
+    'Storage must be fail-closed after load rejection',
+  );
+});
 
-  // Should get default new game state, not crash
+test('Save Stress: fresh player (no keys) still gets default save', () => {
+  const storage = new MemoryStorageAdapter();
+  const clock = new FakeClock(0);
+  const saveV2 = new SaveServiceV2(storage, { clock });
+  const loaded = saveV2.load();
   assert.strictEqual(loaded.careerLevel, 1, 'Should default to career level 1');
   assert.strictEqual(loaded.salary, 0, 'Should default to 0 salary');
   assert.ok(Number.isFinite(loaded.mind), 'Mind should be finite');

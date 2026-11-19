@@ -7,7 +7,10 @@ const CHILD_FLAG = '--v59-creation-ui-child';
 const overlayContract = readFileSync(join(process.cwd(), 'desktop', 'ui-overlay.js'), 'utf8');
 assert.match(overlayContract, /疲劳增长降低 20%/);
 assert.match(overlayContract, /职业技能成长提高 20%/);
-assert.match(overlayContract, /摸鱼奇遇权重效果尚未接入/);
+// V10.2：命格效果已真实接线（v2-event-service FISHING_EVENT_WEIGHT / work-service REGULAR_WORK_OUTPUT），
+// 文案同步为实际效果，不再宣称"尚未接入"。
+assert.match(overlayContract, /摸鱼类奇遇事件触发权重提高 50%/);
+assert.match(overlayContract, /背锅类负面事件触发权重提高 50%/);
 assert.match(overlayContract, /成功化解责任事件后，绩效成长提高 50%/);
 assert.match(overlayContract, /技术任务进度提高 10%/);
 assert.match(overlayContract, /正向关系成长提高 25%/);

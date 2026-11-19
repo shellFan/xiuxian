@@ -52,7 +52,7 @@
       "description": "周五下午突然通知团建，不去扣绩效。你去还是不去？",
       "choices": [
         { "id": "JOIN", "text": "积极参加", "effects": { "mind": 8, "performance": 3 } },
-        { "id": "SLACK", "text": "摸鱼划水", "effects": { "mind": 3, "performance": -2 } }
+        { "id": "SLACK", "text": "摸鱼划水，趁乱偷偷打坐", "effects": { "mind": 3, "performance": -2, "cultivation": 6 } }
       ]
     },
     {
@@ -204,7 +204,7 @@
       "id": "EVENT_AFTERNOON_TEA",
       "type": "POSITIVE",
       "title": "下午茶",
-      "description": "行政小姐姐推来一车奶茶点心，全场欢呼。一口下肚，道心回满。",
+      "description": "行政小姐姐推来一车奶茶点心，全场欢呼。一口下肚，道心大幅回暖。",
       "effects": { "mind": 12, "performance": 2 }
     },
     {
