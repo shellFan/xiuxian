@@ -81,6 +81,62 @@
   function isEnabled() { return settings.sfx; }
   function getVolume() { return settings.volume; }
 
+  /* ── V10.1：程序化 BGM 兜底（遗留 #6：无真实音乐资源时的合成环境音垫） ──
+   * 音色：慢速和弦垫（小调走向），正弦波 + 指数缓起缓收，总增益 ≤0.06 不抢音效；
+   * 开关：设置面板「背景音乐」同步（setBgmEnabled），偏好持久化 localStorage；
+   * 红线：独立 AudioContext 调度（3.6s/和弦），不占用游戏 tick，不影响核心逻辑。 */
+  var bgm = { enabled: true, playing: false, timer: null, step: 0 };
+  var BGM_CHORDS = [
+    [220.0, 261.63, 329.63],  // Am
+    [174.61, 220.0, 261.63],  // F
+    [196.0, 246.94, 293.66],  // G
+    [164.81, 220.0, 261.63],  // Em
+  ];
+  var BGM_STEP_MS = 3600;
+  function bgmPlayChord() {
+    if (!bgm.enabled || !audioCtx) return;
+    var chord = BGM_CHORDS[bgm.step % BGM_CHORDS.length];
+    bgm.step += 1;
+    var t0 = audioCtx.currentTime;
+    for (var i = 0; i < chord.length; i += 1) {
+      var osc = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = chord[i];
+      var peak = 0.055 / (i + 1);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + 1.5);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + BGM_STEP_MS / 1000 + 0.6);
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start(t0);
+      osc.stop(t0 + BGM_STEP_MS / 1000 + 0.8);
+    }
+  }
+  function startBgm() {
+    if (bgm.playing || !bgm.enabled) return;
+    unlock();
+    if (!audioCtx) return;
+    bgm.playing = true;
+    bgmPlayChord();
+    bgm.timer = setInterval(bgmPlayChord, BGM_STEP_MS);
+  }
+  function stopBgm() {
+    bgm.playing = false;
+    if (bgm.timer) { clearInterval(bgm.timer); bgm.timer = null; }
+  }
+  function setBgmEnabled(on) {
+    bgm.enabled = !!on;
+    try { localStorage.setItem('nmx_bgm_enabled', bgm.enabled ? '1' : '0'); } catch (eStore) { /* 隐私模式忽略 */ }
+    if (bgm.enabled) startBgm(); else stopBgm();
+  }
+  function getBgmEnabled() { return bgm.enabled; }
+  // 初始化：读取持久化偏好；首次交互解锁后自动起播（仅当偏好开启）
+  try { if (localStorage.getItem('nmx_bgm_enabled') === '0') bgm.enabled = false; } catch (eInit) { /* 默认开 */ }
+  if (typeof document !== 'undefined') {
+    document.addEventListener('pointerdown', function () { if (bgm.enabled && !bgm.playing) startBgm(); }, { once: false, passive: true });
+  }
+
   // 首次交互解锁（移动端 Safari/微信内核要求在手势内 resume AudioContext）。
   if (typeof document !== 'undefined') {
     document.addEventListener('pointerdown', unlock, { once: false, passive: true });
@@ -117,5 +173,9 @@
     setVolume: setVolume,
     isEnabled: isEnabled,
     getVolume: getVolume,
+    startBgm: startBgm,
+    stopBgm: stopBgm,
+    setBgmEnabled: setBgmEnabled,
+    getBgmEnabled: getBgmEnabled,
   };
 })();

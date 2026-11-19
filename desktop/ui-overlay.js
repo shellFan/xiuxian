@@ -4796,6 +4796,8 @@ function renderGrowthPage() {
           try {
             if (key === 'sfx' && window.__UI_SFX__) window.__UI_SFX__.setEnabled(_settings.sfx);
             if (key === 'sfx' && _settings.sfx) window.__UI_SFX__.play('CLICK');
+            // V10.1（遗留 #6）：背景音乐开关 → 程序化 BGM 兜底引擎
+            if (key === 'bgm' && window.__UI_SFX__ && window.__UI_SFX__.setBgmEnabled) window.__UI_SFX__.setBgmEnabled(_settings.bgm);
           } catch (eSfxT) { /* 同步失败不影响设置 */ }
           break;
         }
