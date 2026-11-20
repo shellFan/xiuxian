@@ -22,6 +22,10 @@ Reviewer 默认不直接大规模代写业务代码；发现 `BLOCKER` 或 `HIGH
 
 Developer 只能修改 Task 的 `allowedPaths`，不得修改 `forbiddenPaths`；任务之外的问题写入 `outOfScopeFindings`。
 
+## GameDev Skills
+
+专业游戏研发技能体系入口：`docs/GAMEDEV_SKILLS/`（已安装 11 个引擎无关技能，见 `skills-lock.json`）。任务开始按 `docs/GAMEDEV_SKILLS/SKILL_ROUTER.md` 选择技能与必读规范；技能内的 Godot/Unity 等示例 API 不得直接复制，必须过 `COCOS_CREATOR_STANDARDS.md` 兼容检查。技能方法论与 AGENTS.md 冲突时以 AGENTS.md 为准；每次实际使用追加记录到 `docs/GAMEDEV_SKILLS/SKILL_USAGE_LOG.md`；体系完整性校验命令：`node scripts/check-gamedev-skills.cjs`。
+
 ## Git and safety
 
 默认 `AI_AUTO_COMMIT=false`。不得 force push、删除远程分支、重写主分支、自动 merge/push。不得自动执行 `rm -rf`、format、`del /s`、`git reset --hard`、`git clean -fd` 或类似危险命令。
