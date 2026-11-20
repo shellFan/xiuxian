@@ -14,7 +14,7 @@
 | Schema | ai/schemas×3 为 draft-2020-12；docs/schema×5 为 draft-07 | 实测 `$schema` 字段 |
 | 场景 | **单场景** `assets/scenes/Main.scene`（无其他生产场景） | git ls-files |
 | Prefab | **0 个已跟踪 .prefab**；`docs/COCOS-PREFAB-ARCHITECTURE.md` 为规格先行 | git ls-files + 文档 |
-| 设计分辨率基准 | 750×1334（逻辑像素），长屏加空间不拉伸 | docs/UI-DESIGN-SYSTEM.md |
+| 设计分辨率基准 | **口径冲突待裁决（DECISION_LOG D-011）**：编辑器/场景实测 **720×1280**（settings/v2/editor.json + Main.scene，运行时生效）；UI 文档与 ui-theme.json 声明 **750×1334** 逻辑像素。裁决前验收以编辑器实际渲染为准 | docs/UI-DESIGN-SYSTEM.md、settings/v2/editor.json |
 
 **禁止**：升级引擎版本；引入 Phaser/PixiJS/Three.js 语法或其技能示例 API（web-engines 技能未安装且不适用）；手写 prefab 序列化 JSON。
 

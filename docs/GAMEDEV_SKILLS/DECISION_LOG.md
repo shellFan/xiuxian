@@ -44,3 +44,7 @@ save-service-v2.ts（validate→backup→write→verify）无生产 import、无
 ## D-010 | 2026-11-21 | 上游一致性复验方法（供 check 脚本引用）
 
 `sparse/full clone 上游 @ pinned commit`（`git clone --depth 1` 后 `git rev-parse HEAD` 核对 c6ca6c4），对 11 个 `SKILL.md` 与 `.agents/skills/<name>/SKILL.md` 做逐字节 `cmp`。2026-11-21 实测 11/11 BYTE_IDENTICAL。参考克隆位于 `tmp/gamedev-skills-upstream/`（gitignore 内，不入库）。
+
+## D-011 | 2026-11-21 | 设计分辨率口径冲突待裁决（OPEN）
+
+实测冲突：`settings/v2/editor.json` + `assets/scenes/Main.scene` 为 **720×1280**（Cocos 编辑器设计分辨率，运行时实际生效）；`assets/configs/ui-theme.json` `designSize` 与 `docs/UI-DESIGN-SYSTEM.md` 声明 **750×1334**（逻辑像素）。两口径均来自真实文件，本轮不改任何数值（涉及业务配置，超出技能接入范围）。裁决路径：定 720×1280 → 改 ui-theme.json `designSize` 与 UI 文档基准；定 750×1334 → 改 editor.json/场景并回归全部 UI 截图验收（desktop + mobile 五档）。**裁决前**：新 UI 验收一律以编辑器实际渲染（720×1280）为准；安全区公式、层级、token 引用不受影响。待产品/架构（Sol）裁决后关闭本条。
