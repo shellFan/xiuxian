@@ -3,7 +3,7 @@ import type { GameEvents } from '../core/game-events';
 import type { GameEffect } from '../model/game-effect';
 
 /** Achievement category for grouping in UI */
-export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK' | 'OVERTIME';
+export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK' | 'OVERTIME' | 'CRAFT';
 
 /** Achievement status lifecycle */
 export type AchievementStatus = 'LOCKED' | 'COMPLETED' | 'CLAIMED';

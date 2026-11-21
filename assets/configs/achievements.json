@@ -1385,6 +1385,90 @@
       "reward": {
         "salary": 180
       }
+    },
+    {
+      "id": "CRAFT_FIRST",
+      "name": "初试丹道",
+      "description": "首次成功炼制丹药",
+      "category": "CRAFT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "craftSuccessCount",
+        "target": 1
+      },
+      "reward": {
+        "salary": 50
+      }
+    },
+    {
+      "id": "CRAFT_10",
+      "name": "丹道入门",
+      "description": "累计成功炼制 10 次",
+      "category": "CRAFT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "craftSuccessCount",
+        "target": 10
+      },
+      "reward": {
+        "salary": 150
+      }
+    },
+    {
+      "id": "CRAFT_50",
+      "name": "丹道小成",
+      "description": "累计成功炼制 50 次",
+      "category": "CRAFT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "craftSuccessCount",
+        "target": 50
+      },
+      "reward": {
+        "salary": 400
+      }
+    },
+    {
+      "id": "CRAFT_PERFECT_5",
+      "name": "极品丹师",
+      "description": "炼成 5 颗极品品质丹药",
+      "category": "CRAFT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "craftPerfectCount",
+        "target": 5
+      },
+      "reward": {
+        "cultivation": 300
+      }
+    },
+    {
+      "id": "CRAFT_FAIL_10",
+      "name": "百炼成丹",
+      "description": "经历 10 次炼制失败仍不放弃",
+      "category": "CRAFT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "craftFailCount",
+        "target": 10
+      },
+      "reward": {
+        "mind": 30
+      }
+    },
+    {
+      "id": "CRAFT_ALL_PILLS",
+      "name": "制药大亨",
+      "description": "累计成功炼制 200 次",
+      "category": "CRAFT",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "craftSuccessCount",
+        "target": 200
+      },
+      "reward": {
+        "cultivation": 800
+      }
     }
   ]
 }

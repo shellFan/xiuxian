@@ -270,7 +270,7 @@ function validatePromotion(promotion: Record<string, unknown>): void {
   });
 }
 
-const VALID_ACHIEVEMENT_CATEGORIES = ['MERGE', 'SALARY', 'CAREER', 'EVENT', 'PROMOTION', 'OFFICE', 'MIND', 'IDLE', 'SECT', 'TALENT', 'WORK', 'OVERTIME'];
+const VALID_ACHIEVEMENT_CATEGORIES = ['MERGE', 'SALARY', 'CAREER', 'EVENT', 'PROMOTION', 'OFFICE', 'MIND', 'IDLE', 'SECT', 'TALENT', 'WORK', 'OVERTIME', 'CRAFT'];
 const VALID_ACHIEVEMENT_CONDITION_TYPES = ['KPI', 'SALARY', 'CAREER_LEVEL', 'EVENT_TYPE', 'PROMOTION', 'OFFICE_LEVEL', 'MIND_FULL', 'IDLE_CLAIM', 'SECT_JOIN', 'TALENT_PICK', 'WORK_SECONDS', 'OVERTIME_STAT', 'LIFETIME_STAT'];
 const VALID_OVERTIME_ACHIEVEMENT_STATS = ['totalSeconds', 'paidSeconds', 'freeSeconds', 'sessions', 'nightSessions', 'freeSessions', 'consecutiveDays', 'longestStreak'];
 

@@ -66,3 +66,17 @@
   - 纠偏记录：此前认为「AudioService 无限流」是误判——CocosAudioBackend 已实现 per-id cooldown 80ms + 并发上限 8
 - 测试结果：**新增 tests/settings（6/6）+ tests/ui/animation-dispatcher-craft（4/4）；全量 191 文件全过 exit 0**
 - 涉及文件：`game-context.ts`、`cocos-bootstrap-component.ts`、`settings-service.ts`、`settings-page-component.ts`、`animation-dispatcher.ts`、`animation-trigger-map.json`、tests×2
+- 提交：`860e9a9`
+
+### 2026-11-21 · V11-S4 炼丹成就系列（CRAFT 类别 + lifetime 统计键）
+
+- 技能：`rpg`（成就梯度 1/10/50/200 与极品稀有度 5 定位）、`game-docs`（幽默文案贴合项目调性）
+- 设计依据：任务书§7（成就）、§14（可测试可复现）；零存档 schema 变更（lifetimeStats 为已存档开放键值库）
+- 修改内容：
+  - `craft-service.ts`：新增 lifetime 统计键 craftSuccessCount/craftFailCount/craftPerfectCount（成功/极品在 apply 成功后计入，失败即时计入，回滚路径不残留）
+  - CRAFT 成就类别注册：`achievement-service.ts` + `config-types.ts` + `config-service.ts`（VALID_ACHIEVEMENT_CATEGORIES）
+  - `achievements.json`：6 个新成就（CRAFT_FIRST/10/50/PERFECT_5/FAIL_10/ALL_PILLS，total 105→111）
+  - `game-context.ts`：CraftService 接收 `options.randomProvider`（与其他服务一致的注入口径）
+  - 修复测试稳定性：craft.json 引入成功率后，`game-ui-controller.test` 未注入 RNG 有 10% 失败率 → 3 处 facade 构造注入确定性随机源
+- 测试结果：**craft 22/22；全量 191 文件全过 exit 0；content:check PASSED（成就 111）**
+- 涉及文件：`craft-service.ts`、`achievement-service.ts`、`config-types.ts`、`config-service.ts`、`achievements.json`、`game-context.ts`、`tests/craft/`、`tests/ui/game-ui-controller.test.ts`

@@ -156,6 +156,7 @@ export class CraftService {
     // 2. 成功率掷骰：失败 → 材料已耗、无产出（防无限制造资源）
     const successRate = recipe.successRate ?? 1;
     if (this.random.next() >= successRate) {
+      this.trackLifetimeStat('craftFailCount'); // V11-S4：炼丹成就统计（失败也是经历）
       this.context.events.emit('itemCraftFailed', {
         recipeId: recipe.id,
         recipeName: recipe.name,
@@ -184,7 +185,9 @@ export class CraftService {
       throw error;
     }
 
-    // 5. 事件
+    // 5. 统计 + 事件（在 apply 成功后计入，回滚路径不残留）
+    this.trackLifetimeStat('craftSuccessCount');
+    if (quality === 'perfect') this.trackLifetimeStat('craftPerfectCount');
     this.context.events.emit('itemCrafted', { recipeId: recipe.id, recipeName: recipe.name });
 
     return { success: true, recipe, quality, qualityMultiplier: multiplier, appliedEffect };
@@ -198,6 +201,13 @@ export class CraftService {
   /** Total number of items crafted（仅成功产出计数）. */
   public getTotalCraftedCount(): number {
     return this.context.player.craftedItemIds.length;
+  }
+
+  /** V11-S4：lifetimeStats 计数（成就条件 LIFETIME_STAT 读这些键）。 */
+  private trackLifetimeStat(key: 'craftSuccessCount' | 'craftFailCount' | 'craftPerfectCount'): void {
+    const player = this.context.player;
+    const stats = player.lifetimeStats;
+    player.lifetimeStats = { ...stats, [key]: (stats[key] ?? 0) + 1 };
   }
 }
 

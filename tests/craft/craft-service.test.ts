@@ -381,6 +381,48 @@ function testRollbackOnApplyFailureRestoresMaterialsAndCount(): void {
   console.log('✔ CraftService(V11): apply failure rolls back materials + count (no half-state)');
 }
 
+// ── V11-S4：炼丹 lifetime 统计（成就条件源） ─────────────────────────────────
+
+function testLifetimeStatsIncrementOnSuccessAndFailure(): void {
+  const ctx = createContext({ careerLevel: 1, cultivationExp: 10_000, spiritStones: 100 });
+  // 注意：成功路径消耗 2 个随机数（成功掷 + 品质掷），失败路径消耗 1 个。
+  // 序列 [0.9 | 0.1,0.9 | 0.9 | 0.1,0.9] → 失败,成功,失败,成功
+  const craft = new CraftService(ctx, RATE_CONFIG, new SequenceRandomProvider([0.9, 0.1, 0.9, 0.9, 0.1]));
+  craft.craft('pill_risky'); // 0.9>=0.5 失败
+  craft.craft('pill_risky'); // 0.1<0.5 成功（品质掷 0.9 → normal）
+  craft.craft('pill_risky'); // 0.9>=0.5 失败
+  craft.craft('pill_risky'); // 0.1<0.5 成功（品质掷 0.9 → normal）
+  const stats = ctx.player.lifetimeStats;
+  assert.equal(stats.craftSuccessCount, 2);
+  assert.equal(stats.craftFailCount, 2);
+  assert.equal(stats.craftPerfectCount ?? 0, 0); // 品质掷 0.9 落在 normal 段（未 increment 时键缺省）
+  console.log('✔ CraftService(V11): lifetime stats count success/fail separately');
+}
+
+function testPerfectQualityIncrementsPerfectStat(): void {
+  const ctx = createContext({ careerLevel: 1, cultivationExp: 10_000 });
+  // 成功掷 0.1 + 品质掷 0.99 → perfect
+  const craft = new CraftService(ctx, TEST_CONFIG, new SequenceRandomProvider([0.1, 0.99]));
+  craft.craft('pill_basic');
+  assert.equal(ctx.player.lifetimeStats.craftPerfectCount, 1);
+  assert.equal(ctx.player.lifetimeStats.craftSuccessCount, 1);
+  assert.equal(ctx.player.lifetimeStats.craftFailCount, undefined);
+  console.log('✔ CraftService(V11): perfect quality increments craftPerfectCount');
+}
+
+function testRollbackDoesNotLeaveStats(): void {
+  const ctx = new GameContext({
+    player: new PlayerData({ careerLevel: 1, cultivationExp: 500 }),
+    saveService: new ThrowingSaveService(new MemoryStorageAdapter()),
+  });
+  const craft = new CraftService(ctx, TEST_CONFIG, DETERMINISTIC_RNG);
+  assert.throws(() => craft.craft('pill_basic'), /disk full/);
+  // 回滚路径不得残留成功统计
+  assert.equal(ctx.player.lifetimeStats.craftSuccessCount, undefined);
+  assert.equal(ctx.player.lifetimeStats.craftPerfectCount, undefined);
+  console.log('✔ CraftService(V11): rollback leaves no success stats behind');
+}
+
 // ── Run ─────────────────────────────────────────────────────────────────────
 
 testAllRecipesReturnsAll();
@@ -410,5 +452,8 @@ testQualityRollPerRecipeWeights();
 testRollQualityHelperBoundary();
 testInvalidRecipeConfigThrows();
 testRollbackOnApplyFailureRestoresMaterialsAndCount();
+testLifetimeStatsIncrementOnSuccessAndFailure();
+testPerfectQualityIncrementsPerfectStat();
+testRollbackDoesNotLeaveStats();
 
 console.log('craft service tests passed');

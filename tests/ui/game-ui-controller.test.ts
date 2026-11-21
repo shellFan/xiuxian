@@ -5,6 +5,10 @@ import path from 'node:path';
 import { GameFacade } from '../../assets/scripts/facade/game-facade';
 import { buildCraftViewModel, buildMainHUDViewModel } from '../../assets/scripts/ui/view-models';
 import { MemoryStorageAdapter } from '../../assets/scripts/services/storage-adapter';
+import { SequenceRandomProvider } from '../../assets/scripts/core/random-provider';
+
+/** V11-S2：craft.json 引入成功率后，UI 级 craft 测试需确定性随机源（0 → 必成功 + 普通品质）。 */
+const DETERMINISTIC_RANDOM = new SequenceRandomProvider([0]);
 
 const root = process.cwd();
 const controllerSource = fs.readFileSync(path.join(root, 'assets/scripts/ui/game-ui-controller.ts'), 'utf8');
@@ -225,7 +229,7 @@ function testControllerResolvesVisualCraftLayoutNodes(): void {
 
 function testRealFacadeCraftsAndPersistsTheDisplayedRecipe(): void {
   const storage = new MemoryStorageAdapter();
-  const facade = new GameFacade({ storage, board: null });
+  const facade = new GameFacade({ storage, board: null, randomProvider: DETERMINISTIC_RANDOM });
   const viewModel = buildCraftViewModel(facade);
   const recipe = viewModel.recipes.find((candidate) => candidate.canCraft) ?? viewModel.recipes[0];
 
@@ -243,7 +247,7 @@ function testRealFacadeCraftsAndPersistsTheDisplayedRecipe(): void {
 
 function testBoundCraftButtonUsesRealFacadeAndRefreshesPresentation(): void {
   const storage = new MemoryStorageAdapter();
-  const facade = new GameFacade({ storage, board: null });
+  const facade = new GameFacade({ storage, board: null, randomProvider: DETERMINISTIC_RANDOM });
   // Web V1 设计图: 丹药页首条配方为聚气丹 (entry-level)。
   const recipe = buildCraftViewModel(facade).recipes.find((candidate) => candidate.id === 'pill_juqi');
   assert.ok(recipe, 'the entry-level craft recipe should be available');

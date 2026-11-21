@@ -326,7 +326,7 @@ export class GameContext {
     this.idleEfficiency = new IdleEfficiencyService(this);
     this.leaderboard = new LeaderboardService(this);
     this.friends = new FriendsService(this);
-    this.craft = new CraftService(this, craftConfig as import('../services/craft-service').CraftConfig);
+    this.craft = new CraftService(this, craftConfig as import('../services/craft-service').CraftConfig, options.randomProvider);
     // ── Gameplay V2 services ──
     this.clockV2 = new GameClockV2({ clock: options.clock, playTimeScale: options.playTimeScale });
     this.clockV2.setDevOffsetMs(this.player.devTimeOffsetMs ?? 0);
