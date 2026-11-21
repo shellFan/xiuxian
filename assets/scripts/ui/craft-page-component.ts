@@ -26,6 +26,7 @@ import { SceneBindingComponent } from './scene-binding-component';
 import type { GameFacade } from '../facade/game-facade';
 import type { CraftViewModel, CraftRecipeViewModel } from './view-models';
 import { buildCraftViewModel } from './view-models';
+import { CRAFT_QUALITY_LABELS } from '../services/craft-service';
 import type { UiEventCategory } from '../facade/ui-event-types';
 import { formatNumber } from './number-formatter';
 
@@ -71,11 +72,13 @@ function getRecipeIcon(id: string): string {
 // ── Effect description helper ────────────────────────────────────────────────
 
 const EFFECT_LABELS: Record<string, string> = {
-  cultivationExp: '修为',
-  spiritStones: '灵石',
+  cultivation: '修为',
   salary: '工资',
+  performance: '绩效',
+  mind: '道心',
+  // 兼容旧键（历史配置/文档中出现过）
+  cultivationExp: '修为',
   mindValue: '道心',
-  kpi: '绩效',
 };
 
 function describeEffect(effect: Readonly<Record<string, number>>): string {
@@ -137,6 +140,8 @@ export class CraftPageComponent extends Component {
   private viewModel: CraftViewModel | null = null;
   private unsubs: Array<() => void> = [];
   private disposed = false;
+  /** 已绑定 click 的 CraftButton 实例（防 refresh 重复绑定累积监听器）。 */
+  private readonly boundCraftButtons = new WeakSet<object>();
 
   // ── Cocos Lifecycle ───────────────────────────────────────────────────────
 
@@ -247,10 +252,11 @@ export class CraftPageComponent extends Component {
       costLabel.string = parts.length > 0 ? parts.join(' ') : '免费';
     }
 
-    // Effect line: → 修为+50
+    // Effect line: → 修为+50 · 成功率85% · 品质最高×2.5（V11-S2）
     const effectLabel = this.findLabel(node, 'EffectLabel');
     if (effectLabel) {
-      effectLabel.string = `→ ${describeEffect(recipe.effect)}`;
+      const ratePct = Math.round(recipe.successRate * 100);
+      effectLabel.string = `→ ${describeEffect(recipe.effect)} · 成功率${ratePct}% · 品质最高×${recipe.qualityMultiplierMax}`;
     }
 
     // Craft count: 已炼: 2/∞ or 已炼: 1/1
@@ -269,12 +275,15 @@ export class CraftPageComponent extends Component {
       }
     }
 
-    // Craft button
+    // Craft button — 只绑定一次：refresh 会重复调用本方法，重复 on('click') 会累积监听器
+    // 导致一次点击触发多次炼制（重复扣资源，任务书§23 禁止）。WeakSet 按 Button 实例去重。
     const craftButton = this.findButton(node, 'CraftButton');
     if (craftButton) {
       craftButton.interactable = recipe.canCraft;
-      // Bind click handler — use closure to capture recipeId
-      craftButton.on?.('click', () => this.craftItem(recipe.id), this);
+      if (!this.boundCraftButtons.has(craftButton)) {
+        craftButton.on?.('click', () => this.craftItem(recipe.id), this);
+        this.boundCraftButtons.add(craftButton);
+      }
     }
 
     // Craft button label
@@ -292,14 +301,23 @@ export class CraftPageComponent extends Component {
 
     const result = this.facade.craft(recipeId);
     if (!result.success) {
+      // V11-S2：炼制失败（材料已消耗）与前置不满足（未扣资源）区分提示
+      const isFailedAttempt = result.reason?.includes('炼制失败') ?? false;
       SceneBindingComponent.instance?.showToast(
-        result.reason ?? '无法炼制', 'WARNING',
+        result.reason ?? '无法炼制', isFailedAttempt ? 'WARNING' : 'INFO',
       );
+      this.refresh();
       return;
     }
 
+    // V11-S2：成功反馈带品质与实际效果（品质乘子后）
+    const qualityLabel = result.quality ? CRAFT_QUALITY_LABELS[result.quality] : '';
+    const effectText = result.appliedEffect
+      ? describeEffect(result.appliedEffect as Readonly<Record<string, number>>)
+      : '';
     SceneBindingComponent.instance?.showToast(
-      `成功炼制 ${result.recipe?.name ?? recipeId}！`, 'SUCCESS',
+      `炼制成功：${qualityLabel ? `【${qualityLabel}】` : ''}${result.recipe?.name ?? recipeId}${effectText ? `（${effectText}）` : ''}`,
+      'SUCCESS',
     );
     this.refresh();
   }

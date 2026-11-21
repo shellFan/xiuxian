@@ -53,6 +53,8 @@ export interface TaskCompletedEvent { readonly taskId: string; readonly taskType
 export interface TaskClaimedEvent { readonly taskId: string; readonly taskType: TaskType; readonly salary: number; readonly cultivationExp: number; readonly spiritStones: number; }
 export interface SpiritStonesChangedEvent { readonly amount: number; readonly total: number; }
 export interface ItemCraftedEvent { readonly recipeId: string; readonly recipeName: string; }
+/** V11-S2：炼制失败（材料已消耗、无产出）。 */
+export interface ItemCraftFailedEvent { readonly recipeId: string; readonly recipeName: string; readonly reason: string; }
 
 export interface TaskMilestoneEvent {
   readonly taskId: string;
@@ -174,6 +176,7 @@ export interface GameEvents extends Record<string, unknown> {
   readonly taskClaimed: TaskClaimedEvent;
   readonly spiritStonesChanged: SpiritStonesChangedEvent;
   readonly itemCrafted: ItemCraftedEvent;
+  readonly itemCraftFailed: ItemCraftFailedEvent;
   readonly sectChanged: { readonly sectId: string };
   // ── V6.3 自动战斗 ──
   readonly v63BossPending: { readonly stage: number; readonly bossName: string };
@@ -218,6 +221,7 @@ export const PHASE2_REFRESH_EVENTS = [
   'taskClaimed',
   'spiritStonesChanged',
   'itemCrafted',
+  'itemCraftFailed',
   'v63Victory',
   'v63StageAdvanced',
   'v63MemberHired',

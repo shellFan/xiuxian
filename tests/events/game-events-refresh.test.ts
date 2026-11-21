@@ -31,6 +31,7 @@ function testPhase2RefreshEventListIsExplicit(): void {
     'taskClaimed',
     'spiritStonesChanged',
     'itemCrafted',
+    'itemCraftFailed',
     'v63Victory',
     'v63StageAdvanced',
     'v63MemberHired',

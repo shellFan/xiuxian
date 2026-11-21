@@ -32,3 +32,18 @@
   - 新增 `tests/leaderboard/leaderboard-service.test.ts`（确定性/排序/玩家排名/topN/around/四榜/负值防御）
 - 测试结果：**排行榜测试 12/12 PASS；全量 189 文件全过 exit 0**（含编译）。UI 切换依赖场景 RefreshButton（原死节点）绑定，节点缺失时静默降级单榜
 - 涉及文件：`leaderboard-service.ts`、`leaderboard-page-component.ts`、`game-facade.ts`（queryLeaderboard/Metrics/TopN/AroundPlayer 加 metric 参数）、`tests/leaderboard/`
+- 提交：`f9526bc`
+
+### 2026-11-21 · V11-S2 炼丹深化（成功率 + 品质 + 事务回滚 + 重复绑定修复）
+
+- 技能：`rpg`（品质期望值曲线，保证净消耗池不变负循环）、`game-feel`（品质反馈文案）、`save-systems`（事务一致性原则）
+- 设计依据：任务书§11（成功率/品质/防无限产资源）、§23（重复操作/资源扣除与到账一致性）；品质乘子 EV 校验：默认权重 [0.6,0.25,0.12,0.03] × 乘子 [1,1.3,1.7,2.5] → EV ×1.204，修为→修为配方仍净负（100→60.2），无资源放大回路
+- 现有实现：craft 即时结算、无成功率/品质；**发现 P1 级 UI 缺陷：refresh 重复绑定 CraftButton click → 一次点击多次炼制（重复扣资源）**
+- 修改内容：
+  - `craft-service.ts`：`successRate`/`qualityWeights` 配置 + 确定性 RNG 注入 + 失败路径（材料消耗、无产出、`itemCraftFailed` 事件）+ 品质分段权重掷骰（普通/良品/上品/极品 ×1/1.3/1.7/2.5）+ **apply 失败回滚材料与产出登记（要么全成要么无痕）** + 构造期配置校验
+  - `craft.json`：9 配方全部补 successRate（0.75–0.95）；artifact_lingpai 补 qualityWeights
+  - `game-events.ts`：新增 `ItemCraftFailedEvent` + 事件表注册
+  - `craft-page-component.ts`：修复重复绑定（WeakSet 按 Button 实例去重）；EFFECT_LABELS 修正实际键（cultivation/salary/performance/mind）；效果行展示「成功率 N% · 品质最高×2.5」；成功 toast 带【品质】+实际效果
+  - `view-models.ts`：VM 增加 successRate/qualityMultiplierMax
+- 测试结果：**craft 测试 19/19 PASS（含 7 个新 V11 用例：失败路径/掷骰边界/品质乘子/配方权重/rollQuality 边界/坏配置拒绝/回滚一致性）；`tsc --noEmit` 0 错误**
+- 涉及文件：`craft-service.ts`、`craft.json`、`game-events.ts`、`craft-page-component.ts`、`view-models.ts`、`tests/craft/craft-service.test.ts`

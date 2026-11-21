@@ -16,6 +16,7 @@ import type { TutorialStep } from '../services/tutorial-service';
 import type { SettingsService } from '../services/settings-service';
 import { CURRENT_SAVE_VERSION, type WorkMode } from '../model/save-data';
 import type { IdleEfficiencyBreakdown } from '../services/idle-efficiency-service';
+import { CRAFT_QUALITY_MULTIPLIERS } from '../services/craft-service';
 import type { LeaderboardEntry } from '../services/leaderboard-service';
 import type { FriendEntry } from '../services/friends-service';
 import type { AdPlacement } from '../services/rewarded-ad-service';
@@ -325,6 +326,10 @@ export interface CraftRecipeViewModel {
   readonly craftedCount: number;
   readonly canCraft: boolean;
   readonly reason: string;
+  /** V11-S2：成功率 [0,1]（1 表示必定成功）。 */
+  readonly successRate: number;
+  /** V11-S2：品质乘子上限（极品 ×2.5），UI 提示用。 */
+  readonly qualityMultiplierMax: number;
 }
 
 export interface CraftViewModel {
@@ -822,6 +827,8 @@ export function buildCraftViewModel(facade: GameFacade): CraftViewModel {
       craftedCount,
       canCraft: isAvailable && check.canCraft,
       reason: !isAvailable ? '职级不足' : (check.reason ?? ''),
+      successRate: recipe.successRate ?? 1,
+      qualityMultiplierMax: CRAFT_QUALITY_MULTIPLIERS.perfect,
     });
   });
 
