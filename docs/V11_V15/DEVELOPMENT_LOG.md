@@ -80,3 +80,16 @@
   - 修复测试稳定性：craft.json 引入成功率后，`game-ui-controller.test` 未注入 RNG 有 10% 失败率 → 3 处 facade 构造注入确定性随机源
 - 测试结果：**craft 22/22；全量 191 文件全过 exit 0；content:check PASSED（成就 111）**
 - 涉及文件：`craft-service.ts`、`achievement-service.ts`、`config-types.ts`、`config-service.ts`、`achievements.json`、`game-context.ts`、`tests/craft/`、`tests/ui/game-ui-controller.test.ts`
+- 提交：`844245c`
+
+### 2026-11-21 · V11-ACC 真实运行验收（任务书§26）+ MORE 死入口回归修复（P1）
+
+- 技能：`game-ui-ux`（导航可达性）、`performance-optimization`（探针复用 CDP 体系）
+- 发现（**P1 UX 回归**）：V9.0 五页导航重构把 MORE 从 NAV_TABS 移除后，`case 'MORE'` 成死代码——**成就/设置/图鉴/排行榜/法宝/结算等 renderMore 页面在 overlay 中全部不可达**（代码注释 §54 明确「功法/法宝在更多」，设计意图被回归）。附带：overlay craft handler 成功 toast 无品质信息。
+- 修复：NAV_TABS 恢复第六项「更多」；overlay craft 成功 toast 带品质标签；配方卡显示成功率/品质上限（与 Cocos 页面同口径）
+- 验收探针：新增 `scripts/v11-qa/v11-acceptance-probe.cjs`（fresh web-desktop build + 430×932 真实 Chrome + CDP）：
+  - 重建链路验证：`build-web.cjs`（Cocos 3.8.4 编辑器实机构建，27s）→ `copy-web-build.cjs` → 服务 → 探针
+  - **7/7 阶段 PASS**：A1 boot/新档/facade；A2 排行榜四榜+确定性+rank31；A3 炼丹卡「成功率90%」入 DOM + **真实点击合成 → toast「炼制成功！【普通】」+ craftSuccessCount=1 + 修为 5000→4950（扣100得50）**；A4 成就页 DOM 可见初试丹道/极品丹师；A5 设置页真实行+滑条+context.settings 音量字段
+  - 截图 8 张：`artifacts/V11_V15/screenshots/01-home…08-home-final.png` + `v11-acceptance-results.json`
+- 涉及文件：`desktop/ui-overlay.js`、`scripts/v11-qa/`、`artifacts/V11_V15/`
+- 局限（如实）：canvas 侧 LeaderboardPage 的榜单切换按钮（RefreshButton 绑定）未做视觉验证（canvas 内坐标点击脆弱），服务层行为已由 A2 + 12/12 单测覆盖；微信真机仍属环境阻塞（BACKLOG E1）

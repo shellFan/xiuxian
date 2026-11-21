@@ -38,3 +38,12 @@
 |---|---|---|
 | P1 | BUG-ECO-1：L10→L11 停滞 ≈336 天 | 需策划确认是否下调 10–19 级出勤目标（影响 career.json 数值） |
 | P2 | 设计分辨率口径（720×1280 vs 750×1334） | GAMEDEV_SKILLS DECISION_LOG D-011 OPEN |
+
+## 本轮新增（V11 验收发现）
+
+| # | 项 | 说明 | 状态 |
+|---|---|---|---|
+| F1 | ~~MORE 导航死入口~~ | ~~成就/设置/图鉴等 8 页不可达~~ | ✅ 已修复（NAV_TABS 恢复第六项） |
+| F2 | 设置面三源并存 | overlay `_settings`（DOM 开关）↔ `window.__UI_SFX__`（WebAudio）↔ `context.settings`+AudioService（S3 已接线）——三处不同步，切 overlay 开关不影响 Cocos 页 | P2，统一到 SettingsService 为独立任务 |
+| F3 | canvas 榜单切换视觉验证 | RefreshButton 绑定已实现+单测，缺 canvas 截图证据（坐标点击脆弱） | P3 |
+| F4 | overlay Emoji 图标 | 更多菜单/成就图标用 Emoji（任务书§16 禁作正式图标） | P3，需美术资产（E3 同源） |

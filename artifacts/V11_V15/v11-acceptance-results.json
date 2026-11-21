@@ -1,0 +1,73 @@
+{
+  "phases": {
+    "A1-wizard": {
+      "pass": true
+    },
+    "A1-facade": {
+      "pass": true
+    },
+    "A2-leaderboard-service": {
+      "pass": true,
+      "lb": {
+        "metrics": [
+          "career",
+          "cultivation",
+          "wealth",
+          "achievement"
+        ],
+        "careerRank": 31,
+        "careerEntries": 31,
+        "careerLabel": "职级榜",
+        "wealthScore": 0,
+        "deterministic": true
+      }
+    },
+    "A3-craft-seeded": {
+      "pass": true,
+      "seeded": {
+        "cult": 5000,
+        "stones": 100,
+        "refreshed": true
+      }
+    },
+    "A3-craft-ui-click": {
+      "pass": true,
+      "craftClickClicked": true,
+      "craftOnce": {
+        "successCount": 1,
+        "failCount": 0,
+        "toastText": "炼制成功！【普通】",
+        "cult": 4950,
+        "stones": 100
+      }
+    },
+    "A4-achievements": {
+      "pass": true,
+      "achCfg": {
+        "total": 135,
+        "craft": 6
+      },
+      "achDom": {
+        "hasCraftAch": true,
+        "hasPerfect": true
+      },
+      "gotoClicked": true
+    },
+    "A5-settings": {
+      "pass": true,
+      "settingsState": {
+        "musicEnabled": true,
+        "sfxEnabled": true,
+        "bgmVolume": 0.6,
+        "sfxVolume": 0.8
+      },
+      "settingsDom": {
+        "hasSfxRow": true,
+        "hasBgmRow": true,
+        "hasSlider": true
+      },
+      "gotoClicked": true
+    }
+  },
+  "pass": true
+}

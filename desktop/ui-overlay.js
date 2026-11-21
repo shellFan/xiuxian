@@ -23,6 +23,9 @@
     { id: 'GROWTH',   label: '养成', emoji: '🧑‍🤝‍🧑' },
     { id: 'PROJECT',  label: '挑战', emoji: '🏯' },
     { id: 'TASKS',    label: '任务', emoji: '📜' },
+    /* V11（§54 回归修复）：五页架构重构后 MORE 入口丢失——成就/设置/图鉴/排行榜/
+       法宝/结算等 renderMore 页面全部不可达（case 'MORE' 成死代码）。恢复第六导航项。 */
+    { id: 'MORE',     label: '更多', emoji: '📋' },
   ];
 
   var PLAYER_NAME = '范大牛';
@@ -2359,6 +2362,7 @@
             '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="craft" data-id="' + escHtml(r.id) + '"' + (check.canCraft ? '' : ' disabled') + '>合成</button>' +
           '</div>' +
           '<div class="ux-recipe-desc">' + escHtml(r.description || '') +
+            (typeof r.successRate === 'number' ? ' · 成功率' + Math.round(r.successRate * 100) + '% · 品质最高×2.5' : '') +
             (!check.canCraft && check.reason ? ' · <span class="val-neg">' + escHtml(check.reason) + '</span>' : '') +
           '</div>' +
         '</div>';
@@ -4755,7 +4759,11 @@ function renderGrowthPage() {
           cmd('cleanupClaimedTasks');
           break;
         case 'craft':
-          cmdResult('craft', '炼制成功！', el.dataset.id);
+          // V11-S2：成功反馈带品质（CraftResult.quality），失败由 cmdResult 显示 reason
+          cmdResult('craft', function (r) {
+            var qLabel = { normal: '普通', good: '良品', fine: '上品', perfect: '极品' }[r && r.quality];
+            return '炼制成功！' + (qLabel ? '【' + qLabel + '】' : '');
+          }, el.dataset.id);
           break;
         case 'promote': {
           var promo = readPromotion();
