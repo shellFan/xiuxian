@@ -110,6 +110,22 @@ testClaimLockedAchievementThrows();
 testClaimAlreadyClaimedThrows();
 testClaimUnknownAchievementThrows();
 testClaimNoRewardAchievement();
+
+function testFishSecondsAchievements(): void {
+  // V11-F6：摸鱼时长成就（fishingSeconds 由 work-service FISHING 模式累计）
+  const below = makeContext(new PlayerData({ fishingSeconds: 3599 }));
+  assert.deepEqual(below.achievements.checkAll().filter((id) => id.startsWith('FISH_')), []);
+  const oneHour = makeContext(new PlayerData({ fishingSeconds: 3600 }));
+  assert.ok(oneHour.achievements.checkAll().includes('FISH_1H'));
+  const expert = makeContext(new PlayerData({ fishingSeconds: 180000 }));
+  const unlocked = expert.achievements.checkAll();
+  assert.ok(unlocked.includes('FISH_1H'));
+  assert.ok(unlocked.includes('FISH_10H'));
+  assert.ok(unlocked.includes('FISH_50H'));
+  assert.ok(!unlocked.includes('FISH_200H'));
+}
+
 testClaimedPersistOnSave();
+testFishSecondsAchievements();
 
 console.log('achievement service tests passed');

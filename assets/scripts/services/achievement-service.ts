@@ -3,7 +3,7 @@ import type { GameEvents } from '../core/game-events';
 import type { GameEffect } from '../model/game-effect';
 
 /** Achievement category for grouping in UI */
-export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK' | 'OVERTIME' | 'CRAFT';
+export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK' | 'OVERTIME' | 'CRAFT' | 'FISH';
 
 /** Achievement status lifecycle */
 export type AchievementStatus = 'LOCKED' | 'COMPLETED' | 'CLAIMED';
@@ -12,7 +12,7 @@ export type AchievementStatus = 'LOCKED' | 'COMPLETED' | 'CLAIMED';
 export type AchievementConditionType =
   | 'KPI' | 'SALARY' | 'CAREER_LEVEL' | 'EVENT_TYPE'
   | 'PROMOTION' | 'OFFICE_LEVEL' | 'MIND_FULL'
-  | 'IDLE_CLAIM' | 'SECT_JOIN' | 'TALENT_PICK' | 'WORK_SECONDS' | 'OVERTIME_STAT'
+  | 'IDLE_CLAIM' | 'SECT_JOIN' | 'TALENT_PICK' | 'WORK_SECONDS' | 'FISH_SECONDS' | 'OVERTIME_STAT'
   | 'LIFETIME_STAT';
 
 export type OvertimeAchievementStat = 'totalSeconds' | 'paidSeconds' | 'freeSeconds' | 'sessions' | 'nightSessions' | 'freeSessions' | 'consecutiveDays' | 'longestStreak';
@@ -169,6 +169,9 @@ export class AchievementService {
         return player.mind >= player.maxMind;
       case 'WORK_SECONDS':
         return condition.target !== undefined && player.workSeconds >= condition.target;
+      case 'FISH_SECONDS':
+        // V11-F6：摸鱼时长成就（player.fishingSeconds，work-service 按 FISHING 模式累计）
+        return condition.target !== undefined && player.fishingSeconds >= condition.target;
       case 'SECT_JOIN':
         return player.sectId !== null;
       case 'TALENT_PICK':

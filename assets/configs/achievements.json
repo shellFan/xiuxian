@@ -1469,6 +1469,58 @@
       "reward": {
         "cultivation": 800
       }
+    },
+    {
+      "id": "FISH_1H",
+      "name": "带薪如厕",
+      "description": "累计摸鱼 1 小时",
+      "category": "FISH",
+      "condition": {
+        "type": "FISH_SECONDS",
+        "target": 3600
+      },
+      "reward": {
+        "mind": 20
+      }
+    },
+    {
+      "id": "FISH_10H",
+      "name": "摸鱼入门",
+      "description": "累计摸鱼 10 小时",
+      "category": "FISH",
+      "condition": {
+        "type": "FISH_SECONDS",
+        "target": 36000
+      },
+      "reward": {
+        "salary": 100
+      }
+    },
+    {
+      "id": "FISH_50H",
+      "name": "摸鱼专家",
+      "description": "累计摸鱼 50 小时",
+      "category": "FISH",
+      "condition": {
+        "type": "FISH_SECONDS",
+        "target": 180000
+      },
+      "reward": {
+        "cultivation": 200
+      }
+    },
+    {
+      "id": "FISH_200H",
+      "name": "摸鱼仙尊",
+      "description": "累计摸鱼 200 小时，触摸摸鱼大道本源",
+      "category": "FISH",
+      "condition": {
+        "type": "FISH_SECONDS",
+        "target": 720000
+      },
+      "reward": {
+        "cultivation": 500
+      }
     }
   ]
 }

@@ -109,7 +109,7 @@ export interface OfficeConfig {
 }
 export interface OfficeBundle { readonly offices: readonly OfficeConfig[]; }
 
-export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK' | 'OVERTIME' | 'CRAFT';
+export type AchievementCategory = 'MERGE' | 'SALARY' | 'CAREER' | 'EVENT' | 'PROMOTION' | 'OFFICE' | 'MIND' | 'IDLE' | 'SECT' | 'TALENT' | 'WORK' | 'OVERTIME' | 'CRAFT' | 'FISH';
 
 export type AchievementConditionType =
   | 'KPI' | 'SALARY' | 'CAREER_LEVEL' | 'EVENT_TYPE'

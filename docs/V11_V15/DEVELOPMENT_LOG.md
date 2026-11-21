@@ -108,6 +108,13 @@
 - 行为变化（如实）：事件分布从均匀随机变为 EVENT-POOL-V1 设计分布（彩蛋 0.1%/稀有 1%/普通池按职级段加权+保护规则）；冷却/近史/彩蛋已见状态为会话级（内存），跨会话持久化属 B 系列存档扩展
 - 涉及文件：`career-event-service.ts`、`event-runtime-adapter.ts`、`career-events.json`、`tests/events/career-event-service.test.ts`、`tests/config/config-service.test.ts`、`tests/phase2/phase2-stability.test.ts`
 
+### 2026-11-21（第二轮） · V11-F6 摸鱼成就系列（FISH_SECONDS 条件类型 + FISH 类别）
+
+- 技能：`rpg`（时长梯度 1h/10h/50h/200h）、`game-feel`（摸鱼幽默文案调性）
+- 修改内容：`achievement-service.ts`/`config-types.ts`/`config-service.ts` 注册 `FISH_SECONDS` 条件类型（读 `player.fishingSeconds`——work-service FISHING 模式已持久化的累计秒）与 `FISH` 类别；`achievements.json` +4（带薪如厕/摸鱼入门/摸鱼专家/摸鱼仙尊，111→115）
+- 测试结果：成就套件（新增 FISH_SECONDS 阈值/梯度/负例用例）全过；**全量 191 文件 exit 0；content:check PASSED（115）**
+- 涉及文件：`achievement-service.ts`、`config-types.ts`、`config-service.ts`、`achievements.json`、`tests/achievements/achievement-service.test.ts`
+
 ### 2026-11-21 · V11-F2 overlay 设置面统一（三源 → 单一持久化源）
 
 - 技能：`game-ui-ux`（状态单一真实源）、`save-systems`（设置持久化链路）
