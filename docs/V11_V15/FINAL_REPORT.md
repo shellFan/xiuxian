@@ -67,7 +67,18 @@
 - **P0 = 0**；本轮新发现 P1 全部修复（§2 前三项）；终验遗留 P1 = 0（BUG-001/002 修复在用户 WIP 中待提交，不属本轮）
 - 遗留 P2：BUG-003（1 项，非回归）；P3 若干（BUG_LIST）
 
-## 7. Git
+
+
+## 8. 第三轮增量（2026-11-22，基线确认 + 事件/性能/文档）
+
+- **基线审计（任务书§2）**：fetch 全远程分支对比——feature/v10-final-release @ de99982 为唯一最完整基线（main 08-20 陈旧；gameplay-v2/v59f/v59j/v59n 分支 diff 以删除为主=陈旧快照）；gameplay-v2 的暴击 RNG 修复（78115a0）未合入已备案（F8，等 WIP 提交后 cherry-pick）
+- **F5 已接线验证 + F7 事件扩展**：事件池 42（30 权威+7 摸鱼+5 修仙/奇遇）；统一事件管理器承接纯内容零引擎改动
+- **F6 摸鱼成就**：FISH_SECONDS 条件类型 + FISH 类别 + 4 成就（115 总）
+- **§18/§24 稳定性**：perf-probe 实测（DCL 570ms / FPS 60.2 锁帧 / heap 41.8MB）+ soak-60m.cjs 60 分钟浸泡（结果见 PERFORMANCE_REPORT §3）
+- **交付文档补齐**：CAREER/CULTIVATION/EQUIPMENT/NPC_STORY/GAME_ECONOMY/UI_UX_GUIDELINES/ART_ASSET_INDEX/SAVE_DATA_MIGRATION/PERFORMANCE_REPORT 九份（全部基于代码事实）
+- **提交链**：7a28bdf(F5) → de99982(F6) → 641feb8(F7+文档) → 本轮收尾提交
+
+## 7. Git（第一轮）
 
 - 提交链：`c37edf5 → f9526bc → 36b988c → 860e9a9 → 844245c → c57c7b7 → e2814e3`
 - **已推送**：`origin/feature/v10-final-release = e2814e3`

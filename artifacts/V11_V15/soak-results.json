@@ -1,0 +1,19 @@
+{
+  "soakMinutes": 60,
+  "sampleMs": 30000,
+  "pass": true,
+  "boot": {
+    "wizard": true
+  },
+  "samples": 120,
+  "actions": 117,
+  "errors": 0,
+  "gaps": 0,
+  "heap": {
+    "firstMB": 37.4,
+    "lastMB": 53.2,
+    "growthMB": 15.8
+  },
+  "startedAt": "2026-11-21T16:04:13.559Z",
+  "finishedAt": "2026-11-21T17:04:27.950Z"
+}

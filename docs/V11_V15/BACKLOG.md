@@ -47,3 +47,7 @@
 | F2 | ~~设置面三源并存~~ | overlay `_settings` 已统一读自/写回 `context.settings`（持久化单源，探针 A7 实测翻转+持久化）；canvas AudioService 立即生效仍走下次启动应用 | ✅ 已修复（即时生效差异见 DEVELOPMENT_LOG F2 节） |
 | F3 | canvas 榜单切换视觉验证 | RefreshButton 绑定已实现+单测，缺 canvas 截图证据（坐标点击脆弱） | P3 |
 | F4 | overlay Emoji 图标 | 更多菜单/成就图标用 Emoji（任务书§16 禁作正式图标） | P3，需美术资产（E3 同源） |
+| F8 | gameplay-v2 暴击 RNG 修复未合入 | 78115a0（CultivationService rng 注入，修测试确定性）——cultivation-service 属用户 WIP，提交后评估 cherry-pick | 待 WIP 提交 |
+| F9 | 事件池 42 事件 | 30 权威 + 7 摸鱼（FISHING 门控）+ 5 修仙/奇遇；扩展=纯内容+校验，引擎零改动 | ✅ F5/F7 完成 |
+| F10 | 图集化落地 | SPRITE-ATLAS-PLAN 规划未执行（0 .plist；首屏 PNG 2.76MB 最大单项） | P2 性能优化任务 |
+| F11 | 浸泡基建 | scripts/v11-qa/soak-60m.cjs（30s 采样+动作注入+gap 检测）+ serve-build.cjs 入册 | ✅ 工具产出 |
