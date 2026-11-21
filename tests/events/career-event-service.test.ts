@@ -20,7 +20,7 @@ const EXPECTED_TITLES = [
   'HR约谈', '凌晨电话', '周末上线', '客户临时改需求', '项目延期', '产品经理失踪', '服务器炸了',
   '数据库慢查询', '线上紧急回滚', '同事请假', '下午茶', '领导出差', '项目奖金', '提前下班',
   // V11-F5 摸鱼场景（requiresWorkMode=FISHING）
-  '茶水间偶遇', '会议摸鱼', '厕所秘籍', '隐藏红包', '领导抓包', '同事掩护', '高人指点',
+  '茶水间偶遇', '会议摸鱼', '厕所秘籍', '隐藏红包', '领导抓包', '同事掩护', '高人指点', '残页机缘', '灵气泄漏', '会议顿悟', '售货机奇遇', '凌晨楼梯',
 ];
 
 function baseConfig(): ConfigBundle {
@@ -53,8 +53,8 @@ function createService(clock: FakeClock, random: SequenceRandomProvider | FixedR
 
 function testLoadsThirtySevenValidEvents(): void {
   const events = loadRealEvents().careerEvents.events;
-  assert.equal(events.length, 37);
-  assert.equal(new Set(events.map((event) => event.id)).size, 37);
+  assert.equal(events.length, 42);
+  assert.equal(new Set(events.map((event) => event.id)).size, 42);
   for (const event of events) {
     assert.ok(event.id, 'event id must be present');
     assert.ok(event.title.trim(), 'event title must be non-empty');
@@ -105,7 +105,7 @@ function testUsesInjectedClockForThreeToEightMinuteInterval(): void {
 function testChoiceEventAppliesDeterministicEffect(): void {
   const clock = new FakeClock(0);
   const context = new GameContext({ storage: new MemoryStorageAdapter(), player: new PlayerData(), clock });
-  const service = new CareerEventService(context, { clock, randomProvider: new SequenceRandomProvider([0, 0.5, 0.2, 0.0]) });
+  const service = new CareerEventService(context, { clock, randomProvider: new SequenceRandomProvider([0, 0.5, 0.05, 0.0]) });
   assert.equal(service.poll(), undefined);
   clock.advance(180_000);
   const event = service.poll();
@@ -154,8 +154,8 @@ function testAfternoonTeaReachableViaWithinCategoryIndex(): void {
   const clock = new FakeClock(0);
   const player = new PlayerData({ mind: 50 });
   const context = new GameContext({ storage: new MemoryStorageAdapter(), player, clock });
-  // POSITIVE[2] = 下午茶（floor(0.35*7)=2）
-  const service = new CareerEventService(context, { clock, randomProvider: new SequenceRandomProvider([0, 0.5, 0.6, 0.35]) });
+  // POSITIVE[2] = 下午茶（floor(0.33*8)=2）
+  const service = new CareerEventService(context, { clock, randomProvider: new SequenceRandomProvider([0, 0.5, 0.6, 0.33]) });
   assert.equal(service.poll(), undefined);
   clock.advance(180_000);
   const event = service.poll();
@@ -169,7 +169,7 @@ function testNegativeEventEffect(): void {
   const clock = new FakeClock(0);
   const player = new PlayerData({ performance: 50, mind: 50, cultivationExp: 50, salary: 100 });
   const context = new GameContext({ storage: new MemoryStorageAdapter(), player, clock });
-  // NEGATIVE[7] = 部门裁员（floor(0.44*17)=7）
+  // NEGATIVE[7] = 部门裁员（floor(0.44*18)=7）
   const service = new CareerEventService(context, { clock, randomProvider: new SequenceRandomProvider([0, 0.5, 0.4, 0.44]) });
   assert.equal(service.poll(), undefined);
   clock.advance(180_000);
@@ -185,8 +185,8 @@ function testFishEventResolvesEffect(): void {
   const clock = new FakeClock(0);
   const player = new PlayerData({ mind: 50 });
   const context = new GameContext({ storage: new MemoryStorageAdapter(), player, clock });
-  // POSITIVE[5] = 茶水间偶遇（floor(0.85*7)=5，新档 FISHING 模式下摸鱼事件参与普通池）
-  const service = new CareerEventService(context, { clock, randomProvider: new SequenceRandomProvider([0, 0.5, 0.6, 0.85]) });
+  // POSITIVE[5] = 茶水间偶遇（floor(0.65*8)=5，新档 FISHING 模式下摸鱼事件参与普通池）
+  const service = new CareerEventService(context, { clock, randomProvider: new SequenceRandomProvider([0, 0.5, 0.6, 0.65]) });
   assert.equal(service.poll(), undefined);
   clock.advance(180_000);
   const event = service.poll();
@@ -226,8 +226,8 @@ function testFixedRandomProviderIsDeterministic(): void {
   b.service.poll();
   b.clock.advance(330_000);
   // 类别 roll 0.5*100 → POSITIVE 段（entries [CHOICE,NEG,POS]）；类内 floor(0.5*7)=3
-  assert.equal(a.service.poll()?.id, 'EVENT_LEADER_BUSINESS_TRIP');
-  assert.equal(b.service.poll()?.id, 'EVENT_LEADER_BUSINESS_TRIP');
+  assert.equal(a.service.poll()?.id, 'EVENT_PROJECT_BONUS');
+  assert.equal(b.service.poll()?.id, 'EVENT_PROJECT_BONUS');
 }
 
 function testRejectsIllegalCareerEventConfig(): void {
@@ -264,4 +264,4 @@ testFishEventResolvesEffect();
 testFishEventsGatedByWorkMode();
 testFixedRandomProviderIsDeterministic();
 testRejectsIllegalCareerEventConfig();
-console.log('career event tests passed (V11-F5: EventRuntimeAdapter wired, 37 events)');
+console.log('career event tests passed (V11-F5/F7: EventRuntimeAdapter wired, 42 events)');

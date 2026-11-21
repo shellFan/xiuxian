@@ -62,10 +62,10 @@ function testValidatesCareerEventsBundle(): void {
     undefined, undefined, undefined, careerEvents,
   );
   // V11-F5：30 个 TASK-029 权威事件 + 7 个摸鱼场景事件（FISH_*）
-  assert.equal(service.careerEvents.events.length, 37);
+  assert.equal(service.careerEvents.events.length, 42);
   assert.ok(service.careerEvents.events.every((event) =>
     ['POSITIVE', 'NEGATIVE', 'CHOICE', 'RARE', 'EASTER_EGG'].includes(event.type)));
-  assert.equal(new Set(service.careerEvents.events.map((event) => event.id)).size, 37);
+  assert.equal(new Set(service.careerEvents.events.map((event) => event.id)).size, 42);
   assert.equal(service.careerEvents.events.filter((event) => event.id.startsWith('FISH_')).length, 7);
 }
 function testRejectsChoiceWithoutChoices(): void {

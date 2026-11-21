@@ -108,6 +108,14 @@
 - 行为变化（如实）：事件分布从均匀随机变为 EVENT-POOL-V1 设计分布（彩蛋 0.1%/稀有 1%/普通池按职级段加权+保护规则）；冷却/近史/彩蛋已见状态为会话级（内存），跨会话持久化属 B 系列存档扩展
 - 涉及文件：`career-event-service.ts`、`event-runtime-adapter.ts`、`career-events.json`、`tests/events/career-event-service.test.ts`、`tests/config/config-service.test.ts`、`tests/phase2/phase2-stability.test.ts`
 
+### 2026-11-22 · V11-F7 修仙/奇遇事件扩展（任务书§10/§5.3，池 37→42）
+
+- 技能：`rpg`（RARE 1% 彩票定位）、`dialogue-systems`（分支文案）
+- 内容（全部 ANY 模式，职场/摸鱼双线可见）：残页机缘（POS）/灵气泄漏（NEG）/会议顿悟（CHOICE）/售货机奇遇（CHOICE）/凌晨楼梯（RARE，城市灵潮）
+- 基建复用：V11-F5 事件运行时（资格/冷却/近史/连击抑制）零改动承接——**统一事件管理器价值兑现**：新事件=纯内容+校验，无引擎改动
+- 测试更新：career-event（42 事件/种子重算：CHOICE 分母 10、POSITIVE 分母 8）、config-service/phase2-stability 计数（42/10 choice/32 direct）；**全量 191 文件 exit 0；content:check PASSED**
+- 涉及文件：`career-events.json`、`tests/events/career-event-service.test.ts`、`tests/config/config-service.test.ts`、`tests/phase2/phase2-stability.test.ts`
+
 ### 2026-11-21（第二轮） · V11-F6 摸鱼成就系列（FISH_SECONDS 条件类型 + FISH 类别）
 
 - 技能：`rpg`（时长梯度 1h/10h/50h/200h）、`game-feel`（摸鱼幽默文案调性）

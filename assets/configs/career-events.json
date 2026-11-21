@@ -499,6 +499,81 @@
         "cultivation": 50,
         "mind": 10
       }
+    },
+    {
+      "id": "XIUXIAN_LOST_SCRIPT",
+      "type": "POSITIVE",
+      "title": "残页机缘",
+      "description": "整理工位抽屉，翻出前任留下的手抄功法残页。字迹生涩，但照着运功一周天，竟真的温顺了几分。",
+      "effects": {
+        "cultivation": 20
+      }
+    },
+    {
+      "id": "XIUXIAN_QI_LEAK",
+      "type": "NEGATIVE",
+      "title": "灵气泄漏",
+      "description": "工位下的灵气管道老化泄漏，浊气混着甲醛味吸了一口，整个人半天没缓过来。",
+      "effects": {
+        "mind": -8,
+        "performance": -5
+      }
+    },
+    {
+      "id": "XIUXIAN_MEETING_ENLIGHTEN",
+      "type": "CHOICE",
+      "title": "会议顿悟",
+      "description": "无聊例会上，投影 PPT 翻页的一瞬间，某行字让你灵台清明——原来卡了三天的关隘在此处。",
+      "choices": [
+        {
+          "id": "MEDITATE_NOW",
+          "text": "当场闭目推演",
+          "effects": {
+            "cultivation": 18,
+            "mind": -4
+          }
+        },
+        {
+          "id": "HOLD_IT",
+          "text": "忍住回工位再参悟",
+          "effects": {
+            "mind": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "ADVENTURE_VENDING",
+      "type": "CHOICE",
+      "title": "售货机奇遇",
+      "description": "自动售货机吞了硬币后，多掉出一瓶隐隐发光的饮料，罐身没有生产日期。",
+      "choices": [
+        {
+          "id": "DRINK",
+          "text": "一饮而尽",
+          "effects": {
+            "cultivation": 15
+          }
+        },
+        {
+          "id": "TURN_IN",
+          "text": "上交行政领赏",
+          "effects": {
+            "salary": 20,
+            "mind": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "ADVENTURE_STAIR_CAT",
+      "type": "RARE",
+      "title": "凌晨楼梯",
+      "description": "加班到凌晨，楼梯间遇到一只通体微光的猫。它回头看了你一眼，竟引着你上天台看了一场「城市灵潮」。",
+      "effects": {
+        "cultivation": 35,
+        "mind": 8
+      }
     }
   ]
 }
