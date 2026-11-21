@@ -275,4 +275,20 @@ export const DEFAULT_ANIMATION_TRIGGERS: readonly AnimationTrigger[] = [
     audioId: 'ui_click',
     durationMs: 120,
   },
+  {
+    id: 'craft_success',
+    sourceEvent: 'itemCrafted',
+    animation: 'cauldron glint + quality flash over 220ms',
+    target: 'craft recipe list',
+    audioId: 'ui_success',
+    durationMs: 220,
+  },
+  {
+    id: 'craft_failed',
+    sourceEvent: 'itemCraftFailed',
+    animation: 'smoke puff over 180ms',
+    target: 'craft recipe list',
+    audioId: 'ui_fail',
+    durationMs: 180,
+  },
 ];

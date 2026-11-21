@@ -22,8 +22,17 @@ const resolveCocosType = (name: string): unknown =>
 
 interface TextLike { string: string; active?: boolean; }
 interface ButtonLike { on?: (event: string, callback: () => void, target?: unknown) => void; off?: (event: string, callback: () => void, target?: unknown) => void; interactable?: boolean; }
-interface ToggleLike { isChecked?: boolean; checkEvents?: Array<{ emit: () => void }>; }
-interface SliderLike { progress?: number; }
+interface ToggleLike {
+  isChecked?: boolean;
+  checkEvents?: Array<{ emit: () => void }>;
+  on?: (event: string, callback: (toggle?: unknown) => void, target?: unknown) => void;
+  off?: (event: string, callback: (toggle?: unknown) => void, target?: unknown) => void;
+}
+interface SliderLike {
+  progress?: number;
+  on?: (event: string, callback: (slider?: unknown) => void, target?: unknown) => void;
+  off?: (event: string, callback: (slider?: unknown) => void, target?: unknown) => void;
+}
 
 const SETTINGS_REFRESH_CATEGORIES: readonly UiEventCategory[] = ['SETTINGS_CHANGED'];
 
@@ -95,13 +104,30 @@ export class SettingsPageComponent extends Component {
   public refresh(): void {
     if (!this.facade || this.disposed) return;
 
-    // BGM/SFX status
+    // V11-S3：BGM/SFX 状态来自 AudioService 真实状态（此前硬编码「开」），
+    // 开关初始态同步持久化设置。
     const audioService = CocosBootstrapComponent.instance?.audioService;
+    const settings = this.facade.context?.settings;
+    const musicEnabled = audioService ? audioService.isMusicEnabled() : (settings?.musicEnabled ?? true);
+    const sfxEnabled = audioService ? audioService.isSfxEnabled() : (settings?.sfxEnabled ?? true);
+
     if (this.bgmStatusLabel) {
-      this.bgmStatusLabel.string = audioService ? 'BGM: 开' : 'BGM: 关';
+      this.bgmStatusLabel.string = `BGM: ${musicEnabled ? '开' : '关'}`;
     }
     if (this.sfxStatusLabel) {
-      this.sfxStatusLabel.string = 'SFX: 开';
+      this.sfxStatusLabel.string = `SFX: ${sfxEnabled ? '开' : '关'}`;
+    }
+    if (this.bgmToggle && audioService) {
+      this.bgmToggle.isChecked = musicEnabled;
+    }
+    if (this.sfxToggle && audioService) {
+      this.sfxToggle.isChecked = sfxEnabled;
+    }
+    if (this.bgmVolumeSlider && audioService) {
+      this.bgmVolumeSlider.progress = audioService.getBgmVolume();
+    }
+    if (this.sfxVolumeSlider && audioService) {
+      this.sfxVolumeSlider.progress = audioService.getSfxVolume();
     }
 
     // Fullscreen status
@@ -128,8 +154,39 @@ export class SettingsPageComponent extends Component {
   }
 
   private bindButtons(): void {
-    // BGM toggle
-    this.bgmToggle?.checkEvents?.[0]?.emit();
+    // V11-S3：真实开关接线——此前 checkEvents[0].emit() 是无意义调用、无任何 handler，
+    // BGM/SFX 开关与音量滑条均为空壳（违反「每个按钮都有真实行为」）。
+    // 每次变更同时应用 AudioService（立即生效）+ SettingsService（持久化）。
+    const audio = () => CocosBootstrapComponent.instance?.audioService ?? null;
+    const settings = () => this.facade?.context?.settings ?? null;
+
+    this.bgmToggle?.on?.('toggle', () => {
+      const enabled = this.bgmToggle?.isChecked ?? true;
+      audio()?.setMusicEnabled(enabled);
+      settings()?.setMusicEnabled(enabled);
+      if (this.bgmStatusLabel) this.bgmStatusLabel.string = `BGM: ${enabled ? '开' : '关'}`;
+    }, this);
+
+    this.sfxToggle?.on?.('toggle', () => {
+      const enabled = this.sfxToggle?.isChecked ?? true;
+      audio()?.setSfxEnabled(enabled);
+      settings()?.setSfxEnabled(enabled);
+      if (this.sfxStatusLabel) this.sfxStatusLabel.string = `SFX: ${enabled ? '开' : '关'}`;
+    }, this);
+
+    this.bgmVolumeSlider?.on?.('slide', () => {
+      const volume = this.bgmVolumeSlider?.progress;
+      if (volume === undefined) return;
+      audio()?.setBgmVolume(volume);
+      settings()?.setBgmVolume(volume);
+    }, this);
+
+    this.sfxVolumeSlider?.on?.('slide', () => {
+      const volume = this.sfxVolumeSlider?.progress;
+      if (volume === undefined) return;
+      audio()?.setSfxVolume(volume);
+      settings()?.setSfxVolume(volume);
+    }, this);
 
     // Save button
     this.saveButton?.on?.('click', () => {
@@ -148,8 +205,7 @@ export class SettingsPageComponent extends Component {
       }
     }, this);
 
-    // Fullscreen toggle
-    this.fullscreenToggle?.checkEvents?.[0]?.emit();
+    // Fullscreen toggle（Electron 专属，真机绑定仍欠：见 docs/V11_V15/BACKLOG）
   }
 
   /** Toggle fullscreen via Electron API */

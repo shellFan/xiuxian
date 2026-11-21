@@ -47,3 +47,22 @@
   - `view-models.ts`：VM 增加 successRate/qualityMultiplierMax
 - 测试结果：**craft 测试 19/19 PASS（含 7 个新 V11 用例：失败路径/掷骰边界/品质乘子/配方权重/rollQuality 边界/坏配置拒绝/回滚一致性）；`tsc --noEmit` 0 错误**
 - 涉及文件：`craft-service.ts`、`craft.json`、`game-events.ts`、`craft-page-component.ts`、`view-models.ts`、`tests/craft/craft-service.test.ts`
+- 提交：`36b988c`
+
+### 2026-11-21 · V11-S3 音频与设置接线（空壳开关修复 + 炼丹音效）
+
+- 技能：`audio-design`（开关/音量真实生效口径）、`game-ui-ux`（状态来自真实数据，禁止硬编码标签）、`game-feel`（反馈音效映射）
+- 设计依据：任务书§20（音效可调节/开关真实生效）、§16（每个按钮都有真实行为）
+- 现有实现审计发现（3 个空壳/断链）：
+  1. **SettingsService 从未被实例化**——设置持久化整链断路（服务完好但死代码）
+  2. **设置页 BGM/SFX 开关无 handler**——`checkEvents[0].emit()` 是无意义调用，标签硬编码「开」
+  3. **AudioService 启动不读持久化设置**——只用默认值
+- 修改内容：
+  - `game-context.ts`：注册 `context.settings = new SettingsService(storage)`
+  - `cocos-bootstrap-component.ts`：`wireAudioLifecycle()` 启动时应用持久化 musicEnabled/sfxEnabled
+  - `settings-service.ts`：新增 bgmVolume/sfxVolume 字段（默认 0.6/0.8，钳位 [0,1]，白名单加载兼容旧档）
+  - `settings-page-component.ts`：真实 toggle/slide handler（同时应用 AudioService 立即生效 + SettingsService 持久化）；标签/开关初始态来自真实状态；移除 `checkEvents[0].emit()` 噪声调用
+  - `animation-dispatcher.ts` + `animation-trigger-map.json`：新增 craft_success（itemCrafted→ui_success）/craft_failed（itemCraftFailed→ui_fail）触发器，双源同步
+  - 纠偏记录：此前认为「AudioService 无限流」是误判——CocosAudioBackend 已实现 per-id cooldown 80ms + 并发上限 8
+- 测试结果：**新增 tests/settings（6/6）+ tests/ui/animation-dispatcher-craft（4/4）；全量 191 文件全过 exit 0**
+- 涉及文件：`game-context.ts`、`cocos-bootstrap-component.ts`、`settings-service.ts`、`settings-page-component.ts`、`animation-dispatcher.ts`、`animation-trigger-map.json`、tests×2

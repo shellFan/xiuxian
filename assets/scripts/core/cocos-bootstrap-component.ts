@@ -327,6 +327,14 @@ export class CocosBootstrapComponent extends Component {
    * When the game returns, BGM resumes if it was previously playing.
    */
   private wireAudioLifecycle(): void {
+    // V11-S3：启动时应用持久化设置——此前 AudioService 只用默认值，
+    // 设置页开关从未生效（labels 硬编码「开」、无 handler）。
+    const persistedSettings = this._facade?.context?.settings;
+    if (persistedSettings && this._audioService) {
+      this._audioService.setMusicEnabled(persistedSettings.musicEnabled);
+      this._audioService.setSfxEnabled(persistedSettings.sfxEnabled);
+    }
+
     this._facade?.lifecycle.onHide(() => {
       if (this._audioService) {
         this._lastBgmId = this._audioService.getCurrentBgmId();

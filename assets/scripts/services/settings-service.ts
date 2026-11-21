@@ -10,6 +10,10 @@ import type { StorageAdapter } from './storage-adapter';
 export interface GameSettings {
   musicEnabled: boolean;
   sfxEnabled: boolean;
+  /** V11-S3：BGM 音量 [0,1]（0.6 默认）。 */
+  bgmVolume: number;
+  /** V11-S3：SFX 音量 [0,1]。 */
+  sfxVolume: number;
   vibrationEnabled: boolean;
   performanceMode: boolean;
   language: string;
@@ -21,6 +25,8 @@ const SETTINGS_KEY = 'game-settings';
 const DEFAULT_SETTINGS: GameSettings = {
   musicEnabled: true,
   sfxEnabled: true,
+  bgmVolume: 0.6,
+  sfxVolume: 0.8,
   vibrationEnabled: true,
   performanceMode: false,
   language: 'zh-CN',
@@ -38,6 +44,9 @@ export class SettingsService {
 
   public get musicEnabled(): boolean { return this.settings.musicEnabled; }
   public get sfxEnabled(): boolean { return this.settings.sfxEnabled; }
+  /** V11-S3：BGM/SFX 音量 [0,1]，越界值钳回合法区间。 */
+  public get bgmVolume(): number { return clampVolume(this.settings.bgmVolume); }
+  public get sfxVolume(): number { return clampVolume(this.settings.sfxVolume); }
   public get vibrationEnabled(): boolean { return this.settings.vibrationEnabled; }
   public get performanceMode(): boolean { return this.settings.performanceMode; }
   public get language(): string { return this.settings.language; }
@@ -55,6 +64,17 @@ export class SettingsService {
 
   public setSfxEnabled(value: boolean): void {
     this.settings.sfxEnabled = value;
+    this.persist();
+  }
+
+  /** V11-S3：音量钳位 [0,1] 后持久化。 */
+  public setBgmVolume(value: number): void {
+    this.settings.bgmVolume = clampVolume(value);
+    this.persist();
+  }
+
+  public setSfxVolume(value: number): void {
+    this.settings.sfxVolume = clampVolume(value);
     this.persist();
   }
 
@@ -103,6 +123,8 @@ export class SettingsService {
       return {
         musicEnabled: typeof parsed.musicEnabled === 'boolean' ? parsed.musicEnabled : DEFAULT_SETTINGS.musicEnabled,
         sfxEnabled: typeof parsed.sfxEnabled === 'boolean' ? parsed.sfxEnabled : DEFAULT_SETTINGS.sfxEnabled,
+        bgmVolume: clampVolume(typeof parsed.bgmVolume === 'number' ? parsed.bgmVolume : DEFAULT_SETTINGS.bgmVolume),
+        sfxVolume: clampVolume(typeof parsed.sfxVolume === 'number' ? parsed.sfxVolume : DEFAULT_SETTINGS.sfxVolume),
         vibrationEnabled: typeof parsed.vibrationEnabled === 'boolean' ? parsed.vibrationEnabled : DEFAULT_SETTINGS.vibrationEnabled,
         performanceMode: typeof parsed.performanceMode === 'boolean' ? parsed.performanceMode : DEFAULT_SETTINGS.performanceMode,
         language: typeof parsed.language === 'string' ? parsed.language : DEFAULT_SETTINGS.language,
@@ -112,4 +134,9 @@ export class SettingsService {
       return { ...DEFAULT_SETTINGS };
     }
   }
+}
+
+function clampVolume(value: number): number {
+  if (!Number.isFinite(value)) return DEFAULT_SETTINGS.bgmVolume;
+  return Math.min(Math.max(value, 0), 1);
 }

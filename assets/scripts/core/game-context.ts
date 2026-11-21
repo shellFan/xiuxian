@@ -83,6 +83,7 @@ import { OfferService } from '../services/offer-service';
 import { TeamService } from '../services/team-service';
 import { MetaService } from '../services/meta-service';
 import { GameSoundService } from '../services/sound-service';
+import { SettingsService } from '../services/settings-service';
 import { CharacterCreationService } from '../v59/character-creation-service';
 import { HomeService } from '../v59f/home-service';
 import { ProfessionActionService } from '../services/profession-action-service';
@@ -233,6 +234,8 @@ export class GameContext {
   public readonly meta: MetaService;
   /** V5.8 声音事件层（graceful no-audio）。 */
   public readonly sound: GameSoundService;
+  /** V11-S3：持久化用户设置（音频开关/音量/振动/性能模式）。 */
+  public readonly settings: SettingsService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   /** Shared persistence adapter for the game save and resumable creation draft. */
@@ -353,6 +356,7 @@ export class GameContext {
     this.team = new TeamService(this);
     this.meta = new MetaService(this);
     this.sound = new GameSoundService(this);
+    this.settings = new SettingsService(this.storage);
     this.messenger = new MessengerService(this);
     this.storyDirector = new StoryDirectorService(this, this.messenger);
     this.profession = new ProfessionService(this);

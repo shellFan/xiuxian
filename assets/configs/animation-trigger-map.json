@@ -152,6 +152,26 @@
       "target": "OfficeEventModal",
       "audioId": "events_meeting",
       "integrationStatus": "ADAPTER_REQUIRED"
+    },
+    {
+      "id": "craft_success",
+      "sourceEvent": "itemCrafted",
+      "sourceKind": "GAME_EVENT",
+      "condition": "craft succeeded with quality",
+      "animation": "cauldron glint + quality flash over 220ms",
+      "target": "craft recipe list",
+      "audioId": "ui_success",
+      "integrationStatus": "COMPATIBLE"
+    },
+    {
+      "id": "craft_failed",
+      "sourceEvent": "itemCraftFailed",
+      "sourceKind": "GAME_EVENT",
+      "condition": "craft attempt failed; materials consumed",
+      "animation": "smoke puff over 180ms",
+      "target": "craft recipe list",
+      "audioId": "ui_fail",
+      "integrationStatus": "COMPATIBLE"
     }
   ]
 }
