@@ -2941,9 +2941,9 @@
   function renderSettings() {
     return '' +
       '<div class="ux-card">' +
-        settingRow('音效', '游戏音效开关', 'sfx', true) +
-        settingRow('背景音乐', '修仙背景音乐开关', 'bgm', true) +
-        settingRow('推送提醒', '渡劫与事件提醒', 'notify', false) +
+        settingRow('音效', '游戏音效开关', 'sfx', overlaySettings().sfx) +
+        settingRow('背景音乐', '修仙背景音乐开关', 'bgm', overlaySettings().bgm) +
+        settingRow('推送提醒', '渡劫与事件提醒', 'notify', overlaySettings().notify) +
         '<div class="ux-setting-row" style="display:flex;align-items:center;justify-content:space-between">' +
           '<div><div class="ux-task-name">音效音量</div><div class="ux-recipe-desc">合成音效的播放音量</div></div>' +
           '<input id="SfxVolumeSlider" type="range" min="0" max="100" value="' + Math.round((window.__UI_SFX__ ? window.__UI_SFX__.getVolume() : 0.5) * 100) + '" data-action="sfxVolume" style="width:160px" />' +
@@ -4091,7 +4091,23 @@ function renderGrowthPage() {
 
   /* ── 事件绑定 (委托) ── */
 
-  var _settings = { sfx: true, bgm: true, notify: false };
+  /* V11-F2：overlay 设置态统一读自 context.settings（持久化单一源）。
+     此前硬编码 {sfx:true,bgm:true,notify:false}，开关只在 overlay 内存里翻转、
+     与 S3 接线的 AudioService/SettingsService 完全脱节。 */
+  var _settings = null;
+  function overlaySettings() {
+    if (_settings) return _settings;
+    var base = { sfx: true, bgm: true, notify: false };
+    try {
+      var s = facade() && facade().context && facade().context.settings;
+      if (s) {
+        base.sfx = s.sfxEnabled !== false;
+        base.bgm = s.musicEnabled !== false;
+      }
+    } catch (e) { /* 设置服务缺席时保持默认 */ }
+    _settings = base;
+    return _settings;
+  }
 
 
   /* V5.5 §18：战斗飘字——从新增日志行提取伤害数字，向敌人卡注入上飘淡出元素。 */
@@ -4825,16 +4841,25 @@ function renderGrowthPage() {
           break;
         case 'toggle': {
           var key = el.dataset.key;
-          _settings[key] = !_settings[key];
-          el.className = 'ux-btn ux-btn--' + (_settings[key] ? 'gold' : 'gray') + ' ux-btn--sm';
-          el.textContent = _settings[key] ? '开' : '关';
+          var st = overlaySettings();
+          st[key] = !st[key];
+          el.className = 'ux-btn ux-btn--' + (st[key] ? 'gold' : 'gray') + ' ux-btn--sm';
+          el.textContent = st[key] ? '开' : '关';
           // V10 ULTIMATE §16：音效开关同步到 WebAudio 引擎。
           try {
-            if (key === 'sfx' && window.__UI_SFX__) window.__UI_SFX__.setEnabled(_settings.sfx);
-            if (key === 'sfx' && _settings.sfx) window.__UI_SFX__.play('CLICK');
+            if (key === 'sfx' && window.__UI_SFX__) window.__UI_SFX__.setEnabled(st.sfx);
+            if (key === 'sfx' && st.sfx) window.__UI_SFX__.play('CLICK');
             // V10.1（遗留 #6）：背景音乐开关 → 程序化 BGM 兜底引擎
-            if (key === 'bgm' && window.__UI_SFX__ && window.__UI_SFX__.setBgmEnabled) window.__UI_SFX__.setBgmEnabled(_settings.bgm);
+            if (key === 'bgm' && window.__UI_SFX__ && window.__UI_SFX__.setBgmEnabled) window.__UI_SFX__.setBgmEnabled(st.bgm);
           } catch (eSfxT) { /* 同步失败不影响设置 */ }
+          // V11-F2：同步持久化设置（S3 链路——下次启动 AudioService 自动应用）。
+          try {
+            var ssvc = facade() && facade().context && facade().context.settings;
+            if (ssvc) {
+              if (key === 'sfx') ssvc.setSfxEnabled(st.sfx);
+              if (key === 'bgm') ssvc.setMusicEnabled(st.bgm);
+            }
+          } catch (eSync) { /* 持久化失败不影响本地开关 */ }
           break;
         }
         case 'clearSave':

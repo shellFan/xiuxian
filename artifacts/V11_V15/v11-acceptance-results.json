@@ -36,8 +36,8 @@
       "craftOnce": {
         "successCount": 1,
         "failCount": 0,
-        "toastText": "炼制成功！【普通】",
-        "cult": 4950,
+        "toastText": "炼制成功！【良品】",
+        "cult": 4965,
         "stones": 100
       }
     },
@@ -67,6 +67,17 @@
         "hasSlider": true
       },
       "gotoClicked": true
+    },
+    "A7-overlay-settings-sync": {
+      "pass": true,
+      "toggleSync": {
+        "found": true,
+        "before": true,
+        "after": false,
+        "flipped": true,
+        "restoredSame": true,
+        "persistedSfx": false
+      }
     }
   },
   "pass": true

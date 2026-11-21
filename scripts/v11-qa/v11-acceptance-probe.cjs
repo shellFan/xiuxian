@@ -221,6 +221,25 @@ async function main() {
       settingsState, settingsDom, gotoClicked: gotoSettings.clicked,
     });
 
+    // ── A7 F2：overlay 开关 → 持久化设置同步（真点击 + 状态翻转 + 复原）──
+    const toggleSync = await cdp.evaluate(`(function(){
+      var f = window.__GAME_FACADE__;
+      var before = f.context.settings.sfxEnabled;
+      var btn = document.querySelector('[data-action="toggle"][data-key="sfx"]');
+      if (!btn) return { found: false };
+      btn.click();
+      var after = f.context.settings.sfxEnabled;
+      var persisted = null;
+      try { persisted = JSON.parse(localStorage.getItem('game-settings') || 'null'); } catch (e) { persisted = null; }
+      btn.click(); // 复原
+      var restored = f.context.settings.sfxEnabled;
+      return { found: true, before: before, after: after, flipped: after !== before, restoredSame: restored === before, persistedSfx: persisted ? persisted.sfxEnabled : null };
+    })()`);
+    summary('A7-overlay-settings-sync', {
+      pass: !!toggleSync && toggleSync.found === true && toggleSync.flipped === true && toggleSync.restoredSame === true,
+      toggleSync,
+    });
+
     // ── A6 回首页收尾截图 ──
     await cdp.clickFirst(['[data-action="back"]']);
     await sleep(700);

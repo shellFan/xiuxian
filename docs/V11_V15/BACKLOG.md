@@ -44,6 +44,6 @@
 | # | 项 | 说明 | 状态 |
 |---|---|---|---|
 | F1 | ~~MORE 导航死入口~~ | ~~成就/设置/图鉴等 8 页不可达~~ | ✅ 已修复（NAV_TABS 恢复第六项） |
-| F2 | 设置面三源并存 | overlay `_settings`（DOM 开关）↔ `window.__UI_SFX__`（WebAudio）↔ `context.settings`+AudioService（S3 已接线）——三处不同步，切 overlay 开关不影响 Cocos 页 | P2，统一到 SettingsService 为独立任务 |
+| F2 | ~~设置面三源并存~~ | overlay `_settings` 已统一读自/写回 `context.settings`（持久化单源，探针 A7 实测翻转+持久化）；canvas AudioService 立即生效仍走下次启动应用 | ✅ 已修复（即时生效差异见 DEVELOPMENT_LOG F2 节） |
 | F3 | canvas 榜单切换视觉验证 | RefreshButton 绑定已实现+单测，缺 canvas 截图证据（坐标点击脆弱） | P3 |
 | F4 | overlay Emoji 图标 | 更多菜单/成就图标用 Emoji（任务书§16 禁作正式图标） | P3，需美术资产（E3 同源） |

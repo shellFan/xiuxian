@@ -93,3 +93,12 @@
   - 截图 8 张：`artifacts/V11_V15/screenshots/01-home…08-home-final.png` + `v11-acceptance-results.json`
 - 涉及文件：`desktop/ui-overlay.js`、`scripts/v11-qa/`、`artifacts/V11_V15/`
 - 局限（如实）：canvas 侧 LeaderboardPage 的榜单切换按钮（RefreshButton 绑定）未做视觉验证（canvas 内坐标点击脆弱），服务层行为已由 A2 + 12/12 单测覆盖；微信真机仍属环境阻塞（BACKLOG E1）
+- 提交：`c57c7b7`
+
+### 2026-11-21 · V11-F2 overlay 设置面统一（三源 → 单一持久化源）
+
+- 技能：`game-ui-ux`（状态单一真实源）、`save-systems`（设置持久化链路）
+- 现状：overlay `_settings` 硬编码 `{sfx:true,bgm:true,notify:false}` 且不持久化，与 S3 接线的 `context.settings`/AudioService 脱节（BACKLOG F2）
+- 修改内容：`desktop/ui-overlay.js` —— `overlaySettings()` 从 `context.settings` 惰性初始化；`settingRow` 渲染真实状态；toggle handler 同步 `setSfxEnabled/setMusicEnabled`（持久化，下次启动 AudioService 自动应用，本次 overlay WebAudio 立即生效照旧）
+- 验证：验收探针新增 A7 阶段 —— 真实点击 overlay SFX 开关 → `context.settings.sfxEnabled` 翻转 + `localStorage game-settings` 持久化 + 复原一致；**探针 8/8 PASS**（本轮 A3 随机炼出【良品】×1.3，修为 5000→4965，品质乘子真实结算证据）
+- 涉及文件：`desktop/ui-overlay.js`、`scripts/v11-qa/v11-acceptance-probe.cjs`
