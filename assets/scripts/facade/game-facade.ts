@@ -35,7 +35,7 @@ import type { PromotionCheck } from '../services/promotion-service';
 import type { CultivationClickResult } from '../services/cultivation-service';
 import type { TaskStartResult, TaskClaimResult, TaskConfig } from '../services/task-service';
 import type { IdleEfficiencyBreakdown } from '../services/idle-efficiency-service';
-import type { LeaderboardView } from '../services/leaderboard-service';
+import type { LeaderboardMetric, LeaderboardMetricMeta, LeaderboardView } from '../services/leaderboard-service';
 import type { FriendsView } from '../services/friends-service';
 import type { AdPlacement, RewardedAdResult } from '../services/rewarded-ad-service';
 import type { CraftResult } from '../services/craft-service';
@@ -1176,19 +1176,30 @@ export class GameFacade {
 
   // ── Leaderboard API ──────────────────────────────────────────────────────
 
-  /** Get the current leaderboard view. */
-  public queryLeaderboard(): LeaderboardView {
-    return this.context.leaderboard.getLeaderboard();
+  /** Get a leaderboard view (career/cultivation/wealth/achievement；默认 career，旧调用兼容）。 */
+  public queryLeaderboard(metric?: LeaderboardMetric): LeaderboardView {
+    return metric
+      ? this.context.leaderboard.getLeaderboard(metric)
+      : this.context.leaderboard.getLeaderboard();
+  }
+
+  /** Get available leaderboard metrics (UI 切换用)。 */
+  public queryLeaderboardMetrics(): readonly LeaderboardMetricMeta[] {
+    return this.context.leaderboard.getMetrics();
   }
 
   /** Get top N leaderboard entries. */
-  public queryLeaderboardTopN(n: number) {
-    return this.context.leaderboard.getTopN(n);
+  public queryLeaderboardTopN(n: number, metric?: LeaderboardMetric) {
+    return metric
+      ? this.context.leaderboard.getTopN(n, metric)
+      : this.context.leaderboard.getTopN(n);
   }
 
   /** Get leaderboard entries around the player. */
-  public queryLeaderboardAroundPlayer(radius = 5) {
-    return this.context.leaderboard.getAroundPlayer(radius);
+  public queryLeaderboardAroundPlayer(radius = 5, metric?: LeaderboardMetric) {
+    return metric
+      ? this.context.leaderboard.getAroundPlayer(radius, metric)
+      : this.context.leaderboard.getAroundPlayer(radius);
   }
 
   // ── Friends API ──────────────────────────────────────────────────────────
