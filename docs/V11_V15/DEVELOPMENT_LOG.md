@@ -95,6 +95,19 @@
 - 局限（如实）：canvas 侧 LeaderboardPage 的榜单切换按钮（RefreshButton 绑定）未做视觉验证（canvas 内坐标点击脆弱），服务层行为已由 A2 + 12/12 单测覆盖；微信真机仍属环境阻塞（BACKLOG E1）
 - 提交：`c57c7b7`
 
+### 2026-11-21（第二轮） · V11-F5 统一事件管理器接线 + 摸鱼场景事件（任务书§14/§7）
+
+- 技能：`rpg`（事件权重/彩票结构）、`dialogue-systems`（分支选择文案）、`game-feel`（摸鱼调性文案）
+- **审计发现（核心）**：生产 `CareerEventService.poll()` 是全池均匀随机、零资格过滤（同事件可连发、彩蛋可重复、无职级/模式门控），而完整实现 EVENT-POOL-V1 契约的 `EventRuntimeAdapter`（类别彩票/冷却/近史排除/负面连击抑制/mode 门控/彩蛋 once）**从未接入生产**——"设计在案未接线"型缺口
+- 修改内容：
+  - `career-event-service.ts`：poll() 接入 EventRuntimeAdapter（快照：career/workMode/mind/KPI 完成比）；`recordShown` 记账；无合格候选跳过本机会（契约语义）；导出 `FISH_EVENT_ELIGIBILITY`（7 个摸鱼事件 `requiresWorkMode:'FISHING'` sidecar——以 TS 常量落地，避免手写 .meta 风险）
+  - `event-runtime-adapter.ts`：**修复默认 maxCareerLevel 10→20**（V10.2 职级扩展后 11+ 级玩家会被默认元数据过滤成零候选）
+  - `career-events.json`：+7 摸鱼场景事件（茶水间偶遇/会议摸鱼/厕所秘籍/隐藏红包/领导抓包/同事掩护/高人指点【彩蛋】），30→37
+  - 设计确认：新档默认 `workMode='FISHING'`（摸鱼起步），摸鱼事件对新玩家立即生效；adapter 内建 FISHING 权重修正（POSITIVE×1.2/NEGATIVE×0.8）
+- 测试结果：**career-event 13/13（种子按新选择算法重算）+ 门控引擎级用例（WORK 模式 0.99 掷点也只能选到非摸鱼事件）**；config-service/phase2-stability 事件计数断言更新（30→37/8 choice/29 direct）；**全量 191 文件全过 exit 0；content:check PASSED**
+- 行为变化（如实）：事件分布从均匀随机变为 EVENT-POOL-V1 设计分布（彩蛋 0.1%/稀有 1%/普通池按职级段加权+保护规则）；冷却/近史/彩蛋已见状态为会话级（内存），跨会话持久化属 B 系列存档扩展
+- 涉及文件：`career-event-service.ts`、`event-runtime-adapter.ts`、`career-events.json`、`tests/events/career-event-service.test.ts`、`tests/config/config-service.test.ts`、`tests/phase2/phase2-stability.test.ts`
+
 ### 2026-11-21 · V11-F2 overlay 设置面统一（三源 → 单一持久化源）
 
 - 技能：`game-ui-ux`（状态单一真实源）、`save-systems`（设置持久化链路）

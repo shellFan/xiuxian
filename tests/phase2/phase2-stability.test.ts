@@ -198,17 +198,18 @@ function testTalentChoosePersistsAndRejectsOutOfPool(): void {
 }
 
 // ---------------------------------------------------------------------------
-// 6. Career events: exactly 30, all titled, choice + direct variety, no double resolve
+// 6. Career events: exactly 37 (30 authoritative + 7 摸鱼 V11-F5), all titled,
+//    choice + direct variety, no double resolve
 // ---------------------------------------------------------------------------
 function testCareerEventsConfigShape(): void {
   const { context } = makeContext();
   const events = context.configService.careerEvents.events;
-  assert.equal(events.length, 30, 'exactly 30 events');
+  assert.equal(events.length, 37, 'exactly 37 events');
   assert.ok(events.every((e) => typeof e.title === 'string' && e.title.length > 0), 'every event has a title');
   const withChoices = events.filter((e) => e.choices && e.choices.length > 0).length;
   const withDirect = events.filter((e) => e.effects).length;
-  assert.equal(withChoices, 6, '6 choice events');
-  assert.equal(withDirect, 24, '24 direct-effect events');
+  assert.equal(withChoices, 8, '8 choice events');
+  assert.equal(withDirect, 29, '29 direct-effect events');
   assert.ok(events.every((e) => !e.choices || new Set(e.choices.map((c) => c.id)).size === e.choices.length), 'choice ids unique within an event');
 }
 

@@ -64,7 +64,7 @@ const EGG_DAILY_LIMIT = 1;
 // ── Snapshot needed for eligibility ──
 
 export interface PlayerSnapshot {
-  readonly careerLevel: number;     // 1..10
+  readonly careerLevel: number;     // 1..20（V10.2 职级扩展；STAGE_WEIGHTS 内部 clamp 到最高档）
   readonly workMode: 'WORK' | 'FISHING';
   readonly mind: number;
   readonly maxMind: number;
@@ -304,7 +304,8 @@ function buildEligibility(ev: CareerEventConfig, override?: Partial<EventEligibi
   return {
     eventId: ev.id,
     minCareerLevel: override?.minCareerLevel ?? 1,
-    maxCareerLevel: override?.maxCareerLevel ?? 10,
+    // V11-F5：默认上限 20——V10.2 职级扩展到 20 后，默认 10 会把 11+ 级玩家过滤成零候选
+    maxCareerLevel: override?.maxCareerLevel ?? 20,
     requiresWorkMode: override?.requiresWorkMode ?? 'ANY',
     cooldownMs: override?.cooldownMs ?? DEFAULT_COOLDOWN_MS,
     minMindRatio: override?.minMindRatio,
