@@ -1,0 +1,379 @@
+{
+  "pass": true,
+  "viewports": [
+    {
+      "viewport": "360x640",
+      "pass": true,
+      "pages": [
+        {
+          "page": "home",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "craft",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 5,
+            "errors": 0
+          }
+        },
+        {
+          "page": "talents",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "settings",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "achievements",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "more",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        }
+      ],
+      "boot": true,
+      "errors": 0
+    },
+    {
+      "viewport": "375x667",
+      "pass": true,
+      "pages": [
+        {
+          "page": "home",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "craft",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 5,
+            "errors": 0
+          }
+        },
+        {
+          "page": "talents",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "settings",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "achievements",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "more",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        }
+      ],
+      "boot": true,
+      "errors": 0
+    },
+    {
+      "viewport": "390x844",
+      "pass": true,
+      "pages": [
+        {
+          "page": "home",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "craft",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 5,
+            "errors": 0
+          }
+        },
+        {
+          "page": "talents",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "settings",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "achievements",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "more",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        }
+      ],
+      "boot": true,
+      "errors": 0
+    },
+    {
+      "viewport": "393x852",
+      "pass": true,
+      "pages": [
+        {
+          "page": "home",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "craft",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 5,
+            "errors": 0
+          }
+        },
+        {
+          "page": "talents",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "settings",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "achievements",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "more",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        }
+      ],
+      "boot": true,
+      "errors": 0
+    },
+    {
+      "viewport": "412x915",
+      "pass": true,
+      "pages": [
+        {
+          "page": "home",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "craft",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 5,
+            "errors": 0
+          }
+        },
+        {
+          "page": "talents",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "settings",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "achievements",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "more",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        }
+      ],
+      "boot": true,
+      "errors": 0
+    },
+    {
+      "viewport": "430x932",
+      "pass": true,
+      "pages": [
+        {
+          "page": "home",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "craft",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 5,
+            "errors": 0
+          }
+        },
+        {
+          "page": "talents",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "settings",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "achievements",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        },
+        {
+          "page": "more",
+          "pass": true,
+          "check": {
+            "horizontalOverflow": false,
+            "overflowCount": 0,
+            "errors": 0
+          }
+        }
+      ],
+      "boot": true,
+      "errors": 0
+    }
+  ],
+  "startedAt": "2026-11-22T17:01:59.467Z",
+  "finishedAt": "2026-11-22T17:03:52.789Z"
+}

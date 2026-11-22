@@ -38,6 +38,7 @@ import type { IdleEfficiencyBreakdown } from '../services/idle-efficiency-servic
 import type { LeaderboardMetric, LeaderboardMetricMeta, LeaderboardView } from '../services/leaderboard-service';
 import type { RealmState, BreakthroughResult } from '../services/realm-service';
 import type { TalentTreeState, TalentUnlockResult } from '../services/talent-tree-service';
+import type { ShopBuyResult, ShopGoodView } from '../services/shop-service';
 import type { FriendsView } from '../services/friends-service';
 import type { AdPlacement, RewardedAdResult } from '../services/rewarded-ad-service';
 import type { CraftResult } from '../services/craft-service';
@@ -1231,6 +1232,18 @@ export class GameFacade {
   /** 炼制队列视图。 */
   public queryCraftQueue() {
     return this.context.craft.getQueue();
+  }
+
+  // ── Shop API（V31-T7 统一商店）────────────────────────────────────────────
+
+  /** 商店视图（解锁/限购/可购判定）。 */
+  public queryShop(): readonly ShopGoodView[] {
+    return this.context.shop.getView();
+  }
+
+  /** 购买（扣货币+发货统一通道，事务化+每日限购）。 */
+  public buyShopGoods(goodsId: string): ShopBuyResult {
+    return this.context.shop.buy(goodsId);
   }
 
   // ── Talent Tree API（V12-R2 五路线天赋）───────────────────────────────────

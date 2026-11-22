@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "status": "V31_SHOP_V1",
+  "goods": [
+    {
+      "id": "shop_stone_s",
+      "name": "灵石袋·小",
+      "description": "灵石 ×20",
+      "currency": "salary",
+      "price": 150,
+      "stockPerDay": 5,
+      "careerLevel": 1,
+      "effect": {
+        "spiritStones": 20
+      }
+    },
+    {
+      "id": "shop_stone_m",
+      "name": "灵石袋·中",
+      "description": "灵石 ×60",
+      "currency": "salary",
+      "price": 400,
+      "stockPerDay": 3,
+      "careerLevel": 3,
+      "effect": {
+        "spiritStones": 60
+      }
+    },
+    {
+      "id": "shop_stone_l",
+      "name": "灵石袋·大",
+      "description": "灵石 ×150",
+      "currency": "salary",
+      "price": 900,
+      "stockPerDay": 2,
+      "careerLevel": 6,
+      "effect": {
+        "spiritStones": 150
+      }
+    },
+    {
+      "id": "shop_pill_cult",
+      "name": "聚气丹",
+      "description": "修为 +50（立即生效）",
+      "currency": "spiritStones",
+      "price": 8,
+      "stockPerDay": 5,
+      "careerLevel": 1,
+      "effect": {
+        "cultivation": 50
+      }
+    },
+    {
+      "id": "shop_pill_mind",
+      "name": "静心丹",
+      "description": "道心 +40（立即生效）",
+      "currency": "spiritStones",
+      "price": 10,
+      "stockPerDay": 5,
+      "careerLevel": 1,
+      "effect": {
+        "mind": 40
+      }
+    },
+    {
+      "id": "shop_pill_perf",
+      "name": "绩效丹",
+      "description": "绩效 +30（立即生效）",
+      "currency": "spiritStones",
+      "price": 12,
+      "stockPerDay": 3,
+      "careerLevel": 3,
+      "effect": {
+        "performance": 30
+      }
+    },
+    {
+      "id": "shop_salary_pack",
+      "name": "补贴包",
+      "description": "工资 ¥200",
+      "currency": "spiritStones",
+      "price": 15,
+      "stockPerDay": 2,
+      "careerLevel": 2,
+      "effect": {
+        "salary": 200
+      }
+    }
+  ]
+}

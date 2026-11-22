@@ -88,6 +88,8 @@ import { RealmService } from '../services/realm-service';
 import realmConfig from '../../configs/realm.json';
 import { TalentTreeService } from '../services/talent-tree-service';
 import talentTreeConfig from '../../configs/talent-tree.json';
+import { ShopService } from '../services/shop-service';
+import shopConfig from '../../configs/shop.json';
 import { CharacterCreationService } from '../v59/character-creation-service';
 import { HomeService } from '../v59f/home-service';
 import { ProfessionActionService } from '../services/profession-action-service';
@@ -244,6 +246,8 @@ export class GameContext {
   public readonly realm: RealmService;
   /** V12-R2：五路线天赋成长系统（派生式 + buff 载体）。 */
   public readonly talentTree: TalentTreeService;
+  /** V31-T7：统一商店（每日限购/双货币/统一效果通道）。 */
+  public readonly shop: ShopService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   /** Shared persistence adapter for the game save and resumable creation draft. */
@@ -367,6 +371,7 @@ export class GameContext {
     this.settings = new SettingsService(this.storage);
     this.realm = new RealmService(this, realmConfig as import('../services/realm-service').RealmConfig, { clock: options.clock, randomProvider: options.randomProvider });
     this.talentTree = new TalentTreeService(this, talentTreeConfig as import('../services/talent-tree-service').TalentTreeConfig, { clock: options.clock, randomProvider: options.randomProvider });
+    this.shop = new ShopService(this, shopConfig as import('../services/shop-service').ShopConfig, { clock: options.clock });
     // 派生式天赋 buff：每次启动按节点等级重施（等价永久生效）
     this.talentTree.applyAllActiveBuffs();
     this.messenger = new MessengerService(this);

@@ -2568,6 +2568,17 @@ button.ux-journey--sec { cursor: pointer; }
   font-size: 11px; line-height: 1; padding: 4px 8px; border-radius: 8px; cursor: pointer;
   background: rgba(76, 156, 216, .12); border: 1px solid rgba(74, 156, 216, .4); color: #a9cbe4;
 }
+/* V31-T3：独立境界徽章（待渡劫金色高亮引导） */
+.ux-hero-realm--pending {
+  background: rgba(240, 177, 60, .18); border-color: rgba(240, 177, 60, .65); color: #f8cf62;
+  animation: realmPendingPulse 1.6s ease-in-out infinite;
+}
+@keyframes realmPendingPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(248, 207, 98, .35); } 50% { box-shadow: 0 0 0 4px rgba(248, 207, 98, .12); } }
+/* V31-T4：正式 SVG 图标 */
+.ui-ico { width: 1em; height: 1em; display: inline-block; vertical-align: -0.12em; }
+.ui-ico-wrap { display: inline-flex; width: 30px; height: 30px; align-items: center; justify-content: center; color: var(--text-ink); }
+.ui-ico-wrap .ui-ico { width: 24px; height: 24px; }
+.ux-more-item .mc .ui-ico { width: 44px; height: 44px; color: var(--text-ink); }
 .ux-hero-cultivate {
   flex: none; cursor: pointer; border-radius: 12px; padding: 10px 12px;
   font-size: 14px; font-weight: 800; color: #3a2a08;

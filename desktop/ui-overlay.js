@@ -89,6 +89,44 @@
     stone:       ['💎', 'ico--jade'],
   };
 
+  /* ═══ V31-T4：正式 SVG 图标（替换 Emoji 占位）═══
+     风格：24×24 线性描边（stroke=currentColor），与水墨描边母版统一。
+     使用 uiIcon('name') 输出内联 SVG；颜色由外层 class/父元素控制。 */
+  var UI_ICONS = {
+    cultivation: '<path d="M12 3c3 4 5 6.5 5 9a5 5 0 0 1-10 0c0-2.5 2-5 5-9z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 14c0 1.4 1 2 2 2" fill="none" stroke="currentColor" stroke-width="1.4"/>',
+    salary: '<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 8v8M9.5 10.5h5M9.5 13.5h5" stroke="currentColor" stroke-width="1.2"/>',
+    performance: '<path d="M4 19h16" stroke="currentColor" stroke-width="1.8"/><path d="M6 15l4-5 3 3 5-7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15 6h3v3" fill="none" stroke="currentColor" stroke-width="1.8"/>',
+    mind: '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17 4.25 4.25 0 0 1 0-8.5 4.25 4.25 0 0 0 0-8.5z" fill="currentColor"/><circle cx="12" cy="7.75" r="1.2" fill="#f7efdb"/><circle cx="12" cy="16.25" r="1.2" fill="currentColor"/>',
+    stone: '<path d="M7 4h10l3 5-8 11L4 9z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 9h16M12 20L9 9l3-5 3 5z" fill="none" stroke="currentColor" stroke-width="1.1"/>',
+    techniques: '<path d="M6 4h12v14l-3 2H9l-3-2z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 8h6M9 11h6M9 14h4" stroke="currentColor" stroke-width="1.3"/>',
+    equipment: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v9M8.5 10.5h7" stroke="currentColor" stroke-width="1.4"/>',
+    npc: '<circle cx="9" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 20c0-3.5 2.5-5.5 5.5-5.5s5.5 2 5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16.5" cy="9" r="2.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M15.5 14.6c3 .2 5 2 5 5.4" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+    craft: '<path d="M10 3h4v4l3 8a3 3 0 0 1-3 4h-4a3 3 0 0 1-3-4l3-8z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 13.5h7" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="16.5" r="1" fill="currentColor"/>',
+    sect: '<path d="M6 21V4" stroke="currentColor" stroke-width="1.8"/><path d="M6 5h12l-3 4 3 4H6" fill="none" stroke="currentColor" stroke-width="1.8"/>',
+    leaderboard: '<path d="M5 21h14" stroke="currentColor" stroke-width="1.8"/><rect x="5" y="12" width="4" height="7" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="10" y="7" width="4" height="12" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="15" y="10" width="4" height="9" fill="none" stroke="currentColor" stroke-width="1.8"/>',
+    achievements: '<circle cx="12" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 13.5L7.5 21l4.5-2.5L16.5 21 15 13.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 6.5l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2L8.8 8.8 11 8.5z" fill="currentColor"/>',
+    codex: '<path d="M5 4h9a3 3 0 0 1 3 3v13H8a3 3 0 0 0-3 3z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 20a3 3 0 0 1 3-3h9" fill="none" stroke="currentColor" stroke-width="1.8"/>',
+    settings: '<circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="currentColor" stroke-width="1.8"/>',
+    settlement: '<circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2 2M16.4 16.4l2 2M18.4 5.6l-2 2M7.6 16.4l-2 2" stroke="currentColor" stroke-width="1.4"/>',
+    sfx: '<path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M18.5 7a7 7 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+    bgm: '<path d="M9 18V6l10-2v12" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="7" cy="18" r="2.2" fill="currentColor"/><circle cx="17" cy="16" r="2.2" fill="currentColor"/>',
+    notify: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 3H4z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 21a2.2 2.2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+    home: '<path d="M4 12l8-8 8 8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 11v9h12v-9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 20v-5h4v5" fill="none" stroke="currentColor" stroke-width="1.4"/>',
+    realm: '<path d="M12 3l2.2 4.6L19 8.4l-3.4 3.3.8 4.7L12 14.2l-4.4 2.2.8-4.7L5 8.4l4.8-.8z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 17v4M8 21h8" stroke="currentColor" stroke-width="1.5"/>',
+    task: '<rect x="5" y="4" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 4.5V3h6v1.5" stroke="currentColor" stroke-width="1.4"/><path d="M8.5 10l2 2 4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 15h7M8.5 18h5" stroke="currentColor" stroke-width="1.3"/>',
+    meditation: '<circle cx="12" cy="6.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 9.5v3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 17c2-3 5-4.2 7-4.2s5 1.2 7 4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 20c1.8-1.4 3.5-2 5.5-2s3.7.6 5.5 2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 11.5c1-1 2.2-1.6 3.5-1.8M19.5 11.5c-1-1-2.2-1.6-3.5-1.8" fill="none" stroke="currentColor" stroke-width="1.3"/>',
+    talent: '<path d="M12 3l1.9 3.9 4.3.6-3.1 3 .7 4.2-3.8-2-3.8 2 .7-4.2-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 16.5v4.5M8.5 21h7" stroke="currentColor" stroke-width="1.4"/><path d="M6 6l1.2 1M18 6l-1.2 1" stroke="currentColor" stroke-width="1.2"/>',
+    shop: '<path d="M5 8h14l-1.5 12.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 8V6.5a3.5 3.5 0 0 1 7 0V8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 12.5h6M12 9.5v6" stroke="currentColor" stroke-width="1.4"/>',
+  };
+
+  /** V31-T4：正式图标输出（内联 SVG，替换 Emoji 占位）。 */
+  function uiIcon(name, extraCls) {
+    var body = UI_ICONS[name];
+    if (!body) return '';
+    return '<svg class="ui-ico' + (extraCls ? ' ' + extraCls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + body + '</svg>';
+  }
+
+
   var EFFECT_LABELS = { salary: '工资', performance: '绩效', cultivation: '修为', mind: '道心' };
   var MIND_LABELS = ['心魔缠身', '焦虑', '疲惫', '平静', '专注', '道心通明'];
 
@@ -1307,6 +1345,17 @@
     var running = hud.workMode || 'WORK';
     var cd = cooldownOf('cultivate');
     var pose = heroPoseText(running);
+    /* V31-T3：独立境界徽章（与职级 realm 区分；待渡劫高亮引导）。 */
+    var realmHeroChip = '';
+    try {
+      var rf = facade();
+      var rs = rf && rf.context && rf.context.realm ? rf.context.realm.getState() : null;
+      if (rs) {
+        var chipCls = rs.status === 'TRIBULATION_PENDING' ? ' ux-hero-realm--pending' : '';
+        var chipLabel = rs.status === 'TRIBULATION_PENDING' ? '⚡ ' + rs.name + '·可渡劫' : '🌀 ' + rs.name;
+        realmHeroChip = '<button class="ux-hero-link ux-hero-realm' + chipCls + '" data-action="goto" data-page="cultivation">' + chipLabel + '</button>';
+      }
+    } catch (eRealmChip) { /* 境界系统缺席不阻塞首页 */ }
     return '<section class="ux-hero">' +
       '<div class="ux-hero-char">' +
         '<div class="ux-hero-avatar is-mode-' + running.toLowerCase() + '">' +
@@ -1320,6 +1369,7 @@
             '<button class="ux-hero-link" data-action="goto" data-page="sect">宗门 · ' + escHtml(hud.sectName || '散修') + '</button>' +
             '<button class="ux-hero-link" data-action="openModal" data-modal="evidence">🧾 证据袋</button>' +
             '<button class="ux-hero-link" data-action="goto" data-page="techniques">📖 功法</button>' +
+            realmHeroChip +
           '</div>' +
         '</div>' +
         '<button class="ux-hero-cultivate" data-action="cultivate"' + (cd > 0 ? ' disabled' : '') + '>' +
@@ -2718,6 +2768,29 @@
     return html;
   }
 
+
+  /* ── V31-T7. 统一商店 ── */
+  function renderShop() {
+    var f = facade();
+    if (!f || !f.queryShop) return emptyState('⏳', '商店数据未就绪', '');
+    var goods = f.queryShop();
+    var curIcon = { salary: icon('salary'), spiritStones: icon('stone') };
+    var html = '<div class="ux-card"><div class="ux-task-name">🛒 商店 · 每日限购（UTC 日刷新）</div>' +
+      '<div class="ux-recipe-desc">工资与灵石双货币；购买走统一结算通道。</div></div>';
+    goods.forEach(function (g) {
+      html += '<div class="ux-card ux-recipe-card">' +
+        '<div class="ux-recipe-name">' + escHtml(g.name) + (g.unlocked ? '' : '<span class="ux-recipe-count">Lv.' + g.careerLevel + ' 解锁</span>') + '</div>' +
+        '<div class="ux-recipe-desc">' + escHtml(g.description) + '</div>' +
+        '<div class="ux-dialog-actions">' +
+          '<span class="ux-recipe-desc">' + (curIcon[g.currency] || '') + ' ×' + fmtNum(g.price) + ' · 今日 ' + g.boughtToday + '/' + g.stockPerDay + '</span>' +
+          (g.canBuy
+            ? '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="shopBuy" data-id="' + escHtml(g.id) + '">购买</button>'
+            : '<span class="val-neg">' + escHtml(g.reason || '') + '</span>') +
+        '</div></div>';
+    });
+    return html;
+  }
+
   /* ── 6d. 晋升渡劫 ── */
 
   function renderPromotion() {
@@ -2992,6 +3065,7 @@
       '<div class="ux-more-grid">' +
         moreItem('cultivation', '🧘', '修仙', '境界·渡劫·功法·法宝') +
         moreItem('talents', '✨', '天赋', '五路线成长树') +
+        moreItem('shop', '🛒', '商店', '灵石·丹药·补给') +
         moreItem('techniques', '📖', '功法', '主修与辅助 Build') +
         moreItem('equipment', '🎽', '法宝', '三槽职场法宝') +
         moreItem('npc', '🧑‍🤝‍🧑', '人际', '核心NPC关系与增益') +
@@ -3009,9 +3083,21 @@
       '<div class="ux-about">—— 白天上班，晚上修仙，上班也是渡劫 ——<br>《牛马修仙传》Web V1</div>';
   }
 
+  /* V31-T4：MORE 菜单图标映射（Emoji → 正式 SVG 图标）。 */
+  var MORE_PAGE_ICONS = {
+    techniques: 'techniques', equipment: 'equipment', npc: 'npc', craft: 'craft',
+    sect: 'sect', leaderboard: 'leaderboard', achievements: 'achievements',
+    codex: 'codex', settings: 'settings', settlement: 'settlement',
+    cultivation: 'meditation', talents: 'talent', shop: 'shop',
+  };
+
   function moreItem(page, emoji, label, sub) {
+    var iconName = MORE_PAGE_ICONS[page];
+    var glyph = iconName && UI_ICONS[iconName]
+      ? uiIcon(iconName)
+      : emoji; // 无对应 SVG 时保留原字符（兜底，不空格）
     return '<button class="ux-card ux-more-item" data-action="goto" data-page="' + page + '">' +
-      '<span class="mc">' + emoji + '</span><span class="mi">' + label + '</span><span class="ms">' + sub + '</span></button>';
+      '<span class="mc">' + glyph + '</span><span class="mi">' + label + '</span><span class="ms">' + sub + '</span></button>';
   }
 
   function renderSettings() {
@@ -3035,8 +3121,10 @@
   }
 
   function settingRow(label, desc, key, on) {
+    // V31-T4：设置行前缀正式图标（sfx/bgm/notify）
+    var ico = UI_ICONS[key] ? '<span class="ui-ico-wrap">' + uiIcon(key) + '</span>' : '';
     return '<div class="ux-setting-row" style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">' +
-      '<div><div class="ux-task-name">' + label + '</div><div class="ux-recipe-desc">' + desc + '</div></div>' +
+      '<div style="display:flex;align-items:center;gap:10px">' + ico + '<div><div class="ux-task-name">' + label + '</div><div class="ux-recipe-desc">' + desc + '</div></div></div>' +
       '<button class="ux-btn ux-btn--' + (on ? 'gold' : 'gray') + ' ux-btn--sm" data-action="toggle" data-key="' + key + '">' + (on ? '开' : '关') + '</button></div>';
   }
 
@@ -3911,6 +3999,7 @@ function renderGrowthPage() {
       case 'PROJECT': return renderProject();
       case 'CULTIVATION': return renderCultivation();
       case 'TALENTS': return renderTalents();
+      case 'SHOP': return renderShop();
       case 'MESSENGER': return renderMessenger();
       case 'CRAFT': return renderCraft();
       case 'PROMOTION': {
@@ -4861,6 +4950,18 @@ function renderGrowthPage() {
           }, el.dataset.id);
           break;
 
+
+        case 'shopBuy': {
+          var sf = facade();
+          if (!sf) { console.warn('[overlay] shopBuy unavailable'); break; }
+          try {
+            var sr = sf.buyShopGoods(el.dataset.id);
+            if (sr.success) toast('购买成功', 'success');
+            else toast(sr.reason || '购买失败', 'error');
+          } catch (eSb) { toast(errMsg(eSb), 'error'); }
+          refresh();
+          break;
+        }
         case 'talentUp': {
           var tf = facade();
           if (!tf) { console.warn('[overlay] talentUp unavailable'); break; }
