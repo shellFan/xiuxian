@@ -291,4 +291,20 @@ export const DEFAULT_ANIMATION_TRIGGERS: readonly AnimationTrigger[] = [
     audioId: 'ui_fail',
     durationMs: 180,
   },
+  {
+    id: 'realm_advanced',
+    sourceEvent: 'realmAdvanced',
+    animation: 'tribulation halo + realm seal over 900ms',
+    target: 'cultivation page',
+    audioId: 'ui_success',
+    durationMs: 900,
+  },
+  {
+    id: 'realm_breakthrough_failed',
+    sourceEvent: 'realmBreakthroughFailed',
+    animation: 'thunder backlash shake over 240ms',
+    target: 'cultivation page',
+    audioId: 'ui_fail',
+    durationMs: 240,
+  },
 ];

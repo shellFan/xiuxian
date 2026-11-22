@@ -36,6 +36,7 @@ import type { CultivationClickResult } from '../services/cultivation-service';
 import type { TaskStartResult, TaskClaimResult, TaskConfig } from '../services/task-service';
 import type { IdleEfficiencyBreakdown } from '../services/idle-efficiency-service';
 import type { LeaderboardMetric, LeaderboardMetricMeta, LeaderboardView } from '../services/leaderboard-service';
+import type { RealmState, BreakthroughResult } from '../services/realm-service';
 import type { FriendsView } from '../services/friends-service';
 import type { AdPlacement, RewardedAdResult } from '../services/rewarded-ad-service';
 import type { CraftResult } from '../services/craft-service';
@@ -1200,6 +1201,18 @@ export class GameFacade {
     return metric
       ? this.context.leaderboard.getAroundPlayer(radius, metric)
       : this.context.leaderboard.getAroundPlayer(radius);
+  }
+
+  // ── Realm API（V12-R1 独立境界系统）───────────────────────────────────────
+
+  /** 查询境界状态（派生：层/渡劫待突破/进度/门信息）。 */
+  public queryRealmState(): RealmState {
+    return this.context.realm.getState();
+  }
+
+  /** 渡劫突破（消耗灵石+掷骰，事务化）。 */
+  public breakthroughRealm(): BreakthroughResult {
+    return this.context.realm.breakthrough();
   }
 
   // ── Friends API ──────────────────────────────────────────────────────────

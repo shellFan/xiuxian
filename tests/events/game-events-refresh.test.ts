@@ -32,6 +32,8 @@ function testPhase2RefreshEventListIsExplicit(): void {
     'spiritStonesChanged',
     'itemCrafted',
     'itemCraftFailed',
+    'realmAdvanced',
+    'realmBreakthroughFailed',
     'v63Victory',
     'v63StageAdvanced',
     'v63MemberHired',

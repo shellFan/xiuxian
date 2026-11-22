@@ -36,15 +36,15 @@
       "craftOnce": {
         "successCount": 1,
         "failCount": 0,
-        "toastText": "炼制成功！【良品】",
-        "cult": 4965,
+        "toastText": "炼制成功！【上品】",
+        "cult": 4985,
         "stones": 100
       }
     },
     "A4-achievements": {
       "pass": true,
       "achCfg": {
-        "total": 135,
+        "total": 144,
         "craft": 6
       },
       "achDom": {
@@ -77,6 +77,27 @@
         "flipped": true,
         "restoredSame": true,
         "persistedSfx": false
+      }
+    },
+    "A8-realm-card": {
+      "pass": true,
+      "realmCard": {
+        "hasRealmCard": true,
+        "pending": true,
+        "hasButton": true,
+        "buttonText": "⚡ 渡劫突破 · 成功率85% · 灵石×50"
+      },
+      "gotoClicked": true
+    },
+    "A8-realm-breakthrough": {
+      "pass": true,
+      "brClickClicked": true,
+      "realmAfter": {
+        "passed": true,
+        "fails": 0,
+        "highest": 3,
+        "layerName": "炼气中期",
+        "toastText": "渡劫成功！晋入 炼气初期 · 修炼效率 +4%"
       }
     }
   },

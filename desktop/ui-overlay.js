@@ -2636,12 +2636,32 @@
       '<div class="ux-task-name">🧘 ' + escHtml(hud.realm) + ' · ' + escHtml(hud.careerName) + ' Lv.' + hud.careerLevel + '</div>' +
       (hud.requiredExp > 0 ? '<div class="ux-progress" style="height:18px;margin-top:8px"><div class="ux-progress-fill ux-progress-fill--blue" style="width:' + pct(hud.cultivationExp, hud.requiredExp) + '%"></div></div>' : '') +
       '<div class="ux-recipe-desc">修为 ' + fmtNum(hud.cultivationExp) + (hud.requiredExp > 0 ? ' / ' + fmtNum(hud.requiredExp) : ' · ' + escHtml(hud.realm) + '（当前境界无修为门槛）') + ' · 道心 ' + fmtNum(hud.mind) + ' / ' + fmtNum(hud.maxMind) + '</div>' +
-      '<div class="ux-dialog-actions">' +
+        '<div class="ux-dialog-actions">' +
         '<button class="ux-btn ux-btn--gold ux-btn--md" data-action="cultivate"' + (cd > 0 ? ' disabled' : '') + '>' +
           (cd > 0 ? '冷却中 ' + Math.ceil(cd) + 's' : '修炼一次') + '</button>' +
       '</div>' +
     '</div>';
-    return head + (V2 ? V2.renderTechniques() + V2.renderEquipment() : emptyState('📖', '功法数据未就绪', '稍后再来看看'));
+    /* V12-R1：独立境界卡（修为驱动 + 渡劫门）。facade/context 缺席时静默降级。 */
+    var realmCard = '';
+    try {
+      var rf = facade();
+      var rs = rf && rf.context && rf.context.realm ? rf.context.realm.getState() : null;
+      if (rs) {
+        realmCard = '<div class="ux-card">' +
+          '<div class="ux-task-name">🌀 修仙境界 · ' + escHtml(rs.name) + (rs.status === 'TRIBULATION_PENDING' ? '（待渡劫）' : '') + '</div>' +
+          '<div class="ux-recipe-desc">修为进度 ' + fmtNum(hud.cultivationExp) + (rs.nextThreshold !== null ? ' / ' + fmtNum(rs.nextThreshold) : ' · 已至圆满') + '</div>' +
+          '<div class="ux-progress" style="height:14px;margin-top:8px"><div class="ux-progress-fill ux-progress-fill--blue" style="width:' + Math.round(rs.progress * 100) + '%"></div></div>';
+        if (rs.status === 'TRIBULATION_PENDING' && rs.gate) {
+          realmCard += '<div class="ux-dialog-actions">' +
+            '<button class="ux-btn ux-btn--gold ux-btn--md" data-action="realmBreakthrough">⚡ 渡劫突破 · 成功率' +
+            Math.round(rs.gate.effectiveSuccessRate * 100) + '% · 灵石×' + fmtNum(rs.gate.stonesCost) + '</button>' +
+            (rs.gate.priorFails > 0 ? '<div class="ux-recipe-desc">已失败 ' + rs.gate.priorFails + ' 次，每次 +5% 成功率</div>' : '') +
+            '</div>';
+        }
+        realmCard += '</div>';
+      }
+    } catch (eRealm) { /* 境界系统未就绪时不阻塞修仙页 */ }
+    return head + realmCard + (V2 ? V2.renderTechniques() + V2.renderEquipment() : emptyState('📖', '功法数据未就绪', '稍后再来看看'));
   }
 
   /* ── 6d. 晋升渡劫 ── */
@@ -2916,6 +2936,7 @@
   function renderMore() {
     return '' +
       '<div class="ux-more-grid">' +
+        moreItem('cultivation', '🧘', '修仙', '境界·渡劫·功法·法宝') +
         moreItem('techniques', '📖', '功法', '主修与辅助 Build') +
         moreItem('equipment', '🎽', '法宝', '三槽职场法宝') +
         moreItem('npc', '🧑‍🤝‍🧑', '人际', '核心NPC关系与增益') +
@@ -4781,6 +4802,23 @@ function renderGrowthPage() {
             return '炼制成功！' + (qLabel ? '【' + qLabel + '】' : '');
           }, el.dataset.id);
           break;
+        case 'realmBreakthrough': {
+          // V12-R1：渡劫突破（事务化在 RealmService 内完成；这里只做反馈与刷新）
+          var brf = facade();
+          if (!brf) { console.warn('[overlay] realmBreakthrough unavailable'); break; }
+          try {
+            var br = brf.breakthroughRealm();
+            if (br.success) {
+              try { if (window.__GAME_FEEL__) window.__GAME_FEEL__.promotion(); } catch (eGF2) { /* 特效失败不影响突破 */ }
+              toast('渡劫成功！晋入 ' + (br.name || '新境界') + (br.cultivationBonus ? ' · 修炼效率 +' + Math.round(br.cultivationBonus * 100) + '%' : ''), 'success');
+            } else {
+              try { if (window.__GAME_FEEL__) { window.__GAME_FEEL__.shake('heavy'); } } catch (eGF3) { /* ignore */ }
+              toast(br.reason || '渡劫失败，道心不减', 'error');
+            }
+          } catch (eBr) { toast(errMsg(eBr), 'error'); }
+          refresh();
+          break;
+        }
         case 'promote': {
           var promo = readPromotion();
           var f = facade();

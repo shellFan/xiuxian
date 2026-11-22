@@ -89,6 +89,25 @@ async function wizardComplete(cdp) {
   return false;
 }
 
+/** 清理可能挡住点击的事件/系统/周报弹窗（F5 后事件更频繁；周报弹窗 gate 检测不到，用 DOM 兜底）。 */
+async function dismissModals(cdp) {
+  for (let i = 0; i < 8; i++) {
+    // DOM 兜底：周报/通用弹窗关闭按钮
+    const domClosed = await cdp.clickFirst([
+      '[data-v57-close-weekly]',
+      '.ux-modal-close',
+      '[data-action="closeModal"]',
+    ]);
+    if (domClosed.clicked) { await sleep(350); continue; }
+    const raw = await runner.snapshot(cdp);
+    const cur = runner.gateSnapshot(raw, 'h5');
+    if (!cur.modal) return true;
+    await runner.handleSpecificModal(cdp, cur);
+    await sleep(300);
+  }
+  return false;
+}
+
 async function main() {
   fs.mkdirSync(SHOTS, { recursive: true });
   const { server, port } = await serveStatic(BUILD_DIR);
@@ -138,6 +157,7 @@ async function main() {
     await shot(cdp, '02-home-before-leaderboard.png');
 
     // ── A3 炼丹（S2/S4：成功率入卡 + 真实炼制 + 统计一致性）──
+    await dismissModals(cdp);
     const gotoCraft = await cdp.clickFirst(['[data-nav="CRAFT"]', '[data-action="goto"][data-page="craft"]']);
     await sleep(1200);
     const craftCard = await cdp.evaluate(`(function(){
@@ -178,6 +198,7 @@ async function main() {
     await shot(cdp, '04-craft-after.png');
 
     // ── A4 成就（S4：CRAFT 系列）── 返回 → 更多 → 成就
+    await dismissModals(cdp);
     await cdp.clickFirst(['[data-action="back"]']);
     await sleep(500);
     await cdp.clickFirst(['[data-nav="MORE"]']);
@@ -239,6 +260,46 @@ async function main() {
       pass: !!toggleSync && toggleSync.found === true && toggleSync.flipped === true && toggleSync.restoredSame === true,
       toggleSync,
     });
+
+    // ── A8 境界系统（V12-R1：修仙页境界卡 + 渡劫按钮 + 突破一致性）──
+    // A3 已 seed exp=5000 ≥ 炼气 gate 阈值 2000 → 应处于 TRIBULATION_PENDING
+    await dismissModals(cdp);
+    await cdp.clickFirst(['[data-nav="MORE"]']);
+    await sleep(500);
+    const gotoCult = await cdp.clickFirst(['[data-action="goto"][data-page="cultivation"]']);
+    await sleep(800);
+    const realmCard = await cdp.evaluate(`(function(){
+      var t = document.body.textContent || '';
+      return {
+        hasRealmCard: t.indexOf('修仙境界') >= 0,
+        pending: t.indexOf('待渡劫') >= 0,
+        hasButton: !!document.querySelector('[data-action="realmBreakthrough"]'),
+        buttonText: (document.querySelector('[data-action="realmBreakthrough"]') || {}).textContent || ''
+      };
+    })()`);
+    await shot(cdp, '09-cultivation-realm.png');
+    const brClick = await cdp.clickFirst(['[data-action="realmBreakthrough"]']);
+    await sleep(900);
+    const realmAfter = await cdp.evaluate(`(function(){
+      var f = window.__GAME_FACADE__;
+      var s = f.context.player.lifetimeStats;
+      var toast = document.querySelector('.ux-toast, [class*="toast"]');
+      var state = f.context.realm.getState();
+      return {
+        passed: s['realmGatePassed:3'] === 1,
+        fails: s['realmGateFails:3'] || 0,
+        highest: s.realmHighestReached || 0,
+        layerName: state.name,
+        toastText: toast ? toast.textContent : ''
+      };
+    })()`);
+    const realmConsistent = !!realmAfter && (realmAfter.passed === true || realmAfter.fails >= 1);
+    summary('A8-realm-card', {
+      pass: gotoCult.clicked && realmCard.hasRealmCard && realmCard.pending && realmCard.hasButton,
+      realmCard, gotoClicked: gotoCult.clicked,
+    });
+    summary('A8-realm-breakthrough', { pass: brClick.clicked && realmConsistent, brClickClicked: brClick.clicked, realmAfter });
+    await shot(cdp, '10-realm-after-breakthrough.png');
 
     // ── A6 回首页收尾截图 ──
     await cdp.clickFirst(['[data-action="back"]']);

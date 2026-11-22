@@ -1521,6 +1521,76 @@
       "reward": {
         "cultivation": 500
       }
+    },
+    {
+      "id": "REALM_LIANQI",
+      "name": "踏入炼气",
+      "description": "渡劫成功进入炼气期",
+      "category": "REALM",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "realmHighestReached",
+        "target": 1
+      },
+      "reward": {
+        "cultivation": 100
+      }
+    },
+    {
+      "id": "REALM_ZHUJI",
+      "name": "筑基道基",
+      "description": "渡劫成功进入筑基期",
+      "category": "REALM",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "realmHighestReached",
+        "target": 3
+      },
+      "reward": {
+        "cultivation": 500
+      }
+    },
+    {
+      "id": "REALM_JINDAN",
+      "name": "金丹初成",
+      "description": "渡劫成功进入金丹期",
+      "category": "REALM",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "realmHighestReached",
+        "target": 6
+      },
+      "reward": {
+        "cultivation": 2000
+      }
+    },
+    {
+      "id": "REALM_YUANYING",
+      "name": "元婴出窍",
+      "description": "渡劫成功进入元婴期",
+      "category": "REALM",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "realmHighestReached",
+        "target": 9
+      },
+      "reward": {
+        "cultivation": 8000
+      }
+    },
+    {
+      "id": "REALM_DUIJIE",
+      "name": "渡劫飞升",
+      "description": "渡劫成功进入渡劫期",
+      "category": "REALM",
+      "condition": {
+        "type": "LIFETIME_STAT",
+        "lifetimeKey": "realmHighestReached",
+        "target": 27
+      },
+      "reward": {
+        "cultivation": 50000
+      }
     }
   ]
 }

@@ -55,6 +55,10 @@ export interface SpiritStonesChangedEvent { readonly amount: number; readonly to
 export interface ItemCraftedEvent { readonly recipeId: string; readonly recipeName: string; }
 /** V11-S2：炼制失败（材料已消耗、无产出）。 */
 export interface ItemCraftFailedEvent { readonly recipeId: string; readonly recipeName: string; readonly reason: string; }
+/** V12-R1：渡劫突破成功（进入新大境界）。 */
+export interface RealmAdvancedEvent { readonly gateIndex: number; readonly name: string; readonly realmName: string; readonly rewardSalary: number; readonly cultivationBonus: number; }
+/** V12-R1：渡劫突破失败（材料已耗、不损修为、失败补偿累计）。 */
+export interface RealmBreakthroughFailedEvent { readonly gateIndex: number; readonly name: string; readonly priorFails: number; }
 
 export interface TaskMilestoneEvent {
   readonly taskId: string;
@@ -177,6 +181,8 @@ export interface GameEvents extends Record<string, unknown> {
   readonly spiritStonesChanged: SpiritStonesChangedEvent;
   readonly itemCrafted: ItemCraftedEvent;
   readonly itemCraftFailed: ItemCraftFailedEvent;
+  readonly realmAdvanced: RealmAdvancedEvent;
+  readonly realmBreakthroughFailed: RealmBreakthroughFailedEvent;
   readonly sectChanged: { readonly sectId: string };
   // ── V6.3 自动战斗 ──
   readonly v63BossPending: { readonly stage: number; readonly bossName: string };
@@ -222,6 +228,8 @@ export const PHASE2_REFRESH_EVENTS = [
   'spiritStonesChanged',
   'itemCrafted',
   'itemCraftFailed',
+  'realmAdvanced',
+  'realmBreakthroughFailed',
   'v63Victory',
   'v63StageAdvanced',
   'v63MemberHired',

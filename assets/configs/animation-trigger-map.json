@@ -172,6 +172,26 @@
       "target": "craft recipe list",
       "audioId": "ui_fail",
       "integrationStatus": "COMPATIBLE"
+    },
+    {
+      "id": "realm_advanced",
+      "sourceEvent": "realmAdvanced",
+      "sourceKind": "GAME_EVENT",
+      "condition": "tribulation succeeded",
+      "animation": "tribulation halo + realm seal over 900ms",
+      "target": "cultivation page",
+      "audioId": "ui_success",
+      "integrationStatus": "COMPATIBLE"
+    },
+    {
+      "id": "realm_breakthrough_failed",
+      "sourceEvent": "realmBreakthroughFailed",
+      "sourceKind": "GAME_EVENT",
+      "condition": "tribulation failed; stones consumed, no exp loss",
+      "animation": "thunder backlash shake over 240ms",
+      "target": "cultivation page",
+      "audioId": "ui_fail",
+      "integrationStatus": "COMPATIBLE"
     }
   ]
 }

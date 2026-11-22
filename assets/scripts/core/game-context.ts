@@ -84,6 +84,8 @@ import { TeamService } from '../services/team-service';
 import { MetaService } from '../services/meta-service';
 import { GameSoundService } from '../services/sound-service';
 import { SettingsService } from '../services/settings-service';
+import { RealmService } from '../services/realm-service';
+import realmConfig from '../../configs/realm.json';
 import { CharacterCreationService } from '../v59/character-creation-service';
 import { HomeService } from '../v59f/home-service';
 import { ProfessionActionService } from '../services/profession-action-service';
@@ -236,6 +238,8 @@ export class GameContext {
   public readonly sound: GameSoundService;
   /** V11-S3：持久化用户设置（音频开关/音量/振动/性能模式）。 */
   public readonly settings: SettingsService;
+  /** V12-R1：独立修仙境界系统（派生式状态 + 渡劫突破）。 */
+  public readonly realm: RealmService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   /** Shared persistence adapter for the game save and resumable creation draft. */
@@ -357,6 +361,7 @@ export class GameContext {
     this.meta = new MetaService(this);
     this.sound = new GameSoundService(this);
     this.settings = new SettingsService(this.storage);
+    this.realm = new RealmService(this, realmConfig as import('../services/realm-service').RealmConfig, { clock: options.clock, randomProvider: options.randomProvider });
     this.messenger = new MessengerService(this);
     this.storyDirector = new StoryDirectorService(this, this.messenger);
     this.profession = new ProfessionService(this);
