@@ -9,6 +9,14 @@ import { SequenceRandomProvider } from '../../assets/scripts/core/random-provide
 
 /** V11-S2：确定性随机源（恒 0 → 必成功 + 普通品质 ×1），保持既有期望值成立。 */
 const DETERMINISTIC_RNG = new SequenceRandomProvider([0]);
+import { FakeClock } from '../../assets/scripts/core/clock';
+
+const QUEUE_RECIPE: CraftRecipe = {
+  id: 'pill_timed', name: '定时丹', description: '60 秒炼制',
+  costCultivation: 100, costSpiritStones: 0, effect: { cultivation: 50 },
+  unlockCareerLevel: 1, maxCraftCount: 0, durationSeconds: 60,
+};
+const QUEUE_CONFIG: CraftConfig = { recipes: [QUEUE_RECIPE] };
 
 // ── Test fixtures ───────────────────────────────────────────────────────────
 
@@ -423,6 +431,98 @@ function testRollbackDoesNotLeaveStats(): void {
   console.log('✔ CraftService(V11): rollback leaves no success stats behind');
 }
 
+
+// ── V12-R3：炼丹队列（时间/挂机/防重复领取）─────────────────────────────────
+
+function testStartCraftQueuesWithTimestampAndDeducts(): void {
+  const clock = new FakeClock(1_000_000);
+  const ctx = createContext({ careerLevel: 1, cultivationExp: 5000, spiritStones: 100 });
+  const craft = new CraftService(ctx, QUEUE_CONFIG, DETERMINISTIC_RNG, clock);
+  const r = craft.startCraft('pill_timed');
+  assert.equal(r.success, true);
+  assert.equal(r.completesAtMs, 1_000_000 + 60_000); // 60s
+  assert.equal(ctx.player.cultivationExp, 4900); // 5000-100
+  // 队列键入 lifetimeStats
+  assert.equal(ctx.player.lifetimeStats['craftQueue:pill_timed'], 1_060_000);
+  assert.equal(craft.getQueue().length, 1);
+  console.log('✔ CraftService(V12): startCraft queues with Clock-based completion');
+}
+
+function testClaimCraftBeforeReadyReportsRemaining(): void {
+  const clock = new FakeClock(1_000_000);
+  const ctx = createContext({ careerLevel: 1, cultivationExp: 5000 });
+  const craft = new CraftService(ctx, QUEUE_CONFIG, DETERMINISTIC_RNG, clock);
+  craft.startCraft('pill_timed');
+  clock.advance(10_000); // 仅 10s < 60s
+  const claim = craft.claimCraft('pill_timed');
+  assert.equal(claim.ready, false);
+  assert.equal(claim.remainingSeconds, 50);
+  assert.equal(craft.getQueue().length, 1);
+  console.log('✔ CraftService(V12): claim before ready reports remaining seconds');
+}
+
+function testClaimCraftAfterReadyAppliesQualityAndClears(): void {
+  const clock = new FakeClock(1_000_000);
+  const ctx = createContext({ careerLevel: 1, cultivationExp: 5000, mind: 50 });
+  const craft = new CraftService(ctx, QUEUE_CONFIG, new SequenceRandomProvider([0.7]), clock); // 品质掷 0.7 → 良品段 [0.6,0.85)
+  craft.startCraft('pill_timed');
+  clock.advance(61_000); // 完成
+  const claim = craft.claimCraft('pill_timed');
+  assert.equal(claim.ready, true);
+  assert.equal(claim.quality, 'good'); // 0.7 ∈ [0.6,0.85)
+  assert.equal(ctx.player.cultivationExp, 4900 + 65); // 排队扣 100，领取 +50×1.3=65
+  assert.equal(ctx.player.lifetimeStats['craftQueue:pill_timed'], undefined); // 队列键清除
+  assert.equal(ctx.player.lifetimeStats.craftSuccessCount, 1);
+  // 防重复领取：再领 → 不在队列
+  const again = craft.claimCraft('pill_timed');
+  assert.equal(again.ready, false);
+  assert.equal(again.reason, '该配方不在炼制队列');
+  console.log('✔ CraftService(V12): claim applies quality, clears queue, double-claim blocked');
+}
+
+function testQueueCapacityAndDuplicateRecipe(): void {
+  const clock = new FakeClock(0);
+  const ctx = createContext({ careerLevel: 1, cultivationExp: 100_000, spiritStones: 10_000 });
+  // 3 个不同 timed 配方占满 3 炉
+  const cfg: CraftConfig = { recipes: [
+    { ...QUEUE_RECIPE, id: 'q1' }, { ...QUEUE_RECIPE, id: 'q2' }, { ...QUEUE_RECIPE, id: 'q3' }, { ...QUEUE_RECIPE, id: 'q4' },
+  ] };
+  const craft = new CraftService(ctx, cfg, DETERMINISTIC_RNG, clock);
+  assert.equal(craft.startCraft('q1').success, true);
+  assert.equal(craft.startCraft('q2').success, true);
+  assert.equal(craft.startCraft('q3').success, true);
+  const full = craft.startCraft('q4');
+  assert.equal(full.success, false);
+  assert.equal(full.reason, '丹炉已满（最多 3 炉）');
+  const dup = craft.startCraft('q1');
+  assert.equal(dup.success, false);
+  assert.equal(dup.reason, '该配方已在炼制中');
+  console.log('✔ CraftService(V12): queue capacity 3 + per-recipe dedup');
+}
+
+function testStartCraftFailureDoesNotQueue(): void {
+  const clock = new FakeClock(0);
+  const ctx = createContext({ careerLevel: 1, cultivationExp: 5000 });
+  const craft = new CraftService(ctx, RATE_CONFIG, new SequenceRandomProvider([0.95]), clock); // RATE_CONFIG successRate 0.5，0.95→失败
+  const r = craft.startCraft('pill_risky');
+  assert.equal(r.success, false);
+  assert.equal(r.reason, '炼制失败，材料已消耗');
+  assert.equal(craft.getQueue().length, 0); // 失败不入队
+  assert.equal(ctx.player.cultivationExp, 4900); // 材料消耗
+  assert.equal(ctx.player.lifetimeStats['craftQueue:pill_risky'], undefined);
+  console.log('✔ CraftService(V12): failed roll consumes materials without queueing');
+}
+
+function testInstantRecipeBypassesQueue(): void {
+  const ctx = createContext({ careerLevel: 1, cultivationExp: 500 });
+  const craft = new CraftService(ctx, TEST_CONFIG, DETERMINISTIC_RNG, new FakeClock(0)); // TEST_CONFIG 无 durationSeconds → 即时
+  const r = craft.startCraft('pill_basic');
+  assert.equal(r.success, true);
+  assert.equal(craft.getQueue().length, 0); // 即时无队列
+  assert.equal(ctx.player.cultivationExp, 450); // 500-100+50
+  console.log('✔ CraftService(V12): zero-duration recipes keep instant fast path');
+}
+
 // ── Run ─────────────────────────────────────────────────────────────────────
 
 testAllRecipesReturnsAll();
@@ -455,5 +555,11 @@ testRollbackOnApplyFailureRestoresMaterialsAndCount();
 testLifetimeStatsIncrementOnSuccessAndFailure();
 testPerfectQualityIncrementsPerfectStat();
 testRollbackDoesNotLeaveStats();
+testStartCraftQueuesWithTimestampAndDeducts();
+testClaimCraftBeforeReadyReportsRemaining();
+testClaimCraftAfterReadyAppliesQualityAndClears();
+testQueueCapacityAndDuplicateRecipe();
+testStartCraftFailureDoesNotQueue();
+testInstantRecipeBypassesQueue();
 
 console.log('craft service tests passed');

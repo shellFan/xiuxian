@@ -17,6 +17,8 @@ import type { GameContext } from '../core/game-context';
 import type { GameEffect } from '../model/game-effect';
 import type { RandomProvider } from '../core/random-provider';
 import { DEFAULT_RANDOM_PROVIDER } from '../core/random-provider';
+import type { Clock } from '../core/clock';
+import { DEFAULT_CLOCK } from '../core/clock';
 
 // ── Recipe Types ─────────────────────────────────────────────────────────────
 
@@ -30,6 +32,8 @@ export interface CraftRecipe {
   readonly unlockCareerLevel: number;
   /** Max times this recipe can be crafted. 0 = unlimited. */
   readonly maxCraftCount: number;
+  /** V12-R3：炼丹时长（秒）。缺省 0 = 即时炼制（旧配置/测试兼容）；>0 走队列挂机+领取。 */
+  readonly durationSeconds?: number;
   /** 成功率 (0,1]。缺省 1.0（旧配置兼容）。 */
   readonly successRate?: number;
   /** 品质权重 [普通,良品,上品,极品]，非负且和>0。缺省 DEFAULT_QUALITY_WEIGHTS。 */
@@ -80,14 +84,17 @@ export interface CraftResult {
 export class CraftService {
   private readonly recipes: readonly CraftRecipe[];
   private readonly random: RandomProvider;
+  private readonly clock: Clock;
 
   public constructor(
     private readonly context: GameContext,
     config?: CraftConfig,
     random: RandomProvider = DEFAULT_RANDOM_PROVIDER,
+    clock: Clock = DEFAULT_CLOCK,
   ) {
     this.recipes = Object.freeze([...(config?.recipes ?? [])]);
     this.random = random;
+    this.clock = clock;
     for (const recipe of this.recipes) validateRecipe(recipe);
   }
 
@@ -215,6 +222,145 @@ export class CraftService {
     const player = this.context.player;
     const stats = player.lifetimeStats;
     player.lifetimeStats = { ...stats, [key]: (stats[key] ?? 0) + 1 };
+  }
+
+  // ── V12-R3：炼丹队列（时间/挂机/离线完成/防重复领取）───────────────────────
+
+  /** 队列容量上限（同时炼制中的配方数）。 */
+  public static readonly QUEUE_CAPACITY = 3;
+  private static readonly QUEUE_KEY_PREFIX = 'craftQueue:';
+
+  private queueKey(recipeId: string): string {
+    return CraftService.QUEUE_KEY_PREFIX + recipeId;
+  }
+
+  /** 队列视图：进行中条目（配方 id/完成时间戳/剩余秒）。 */
+  public getQueue(): readonly { recipeId: string; completesAtMs: number; remainingSeconds: number }[] {
+    const now = this.clock.now();
+    const queue: { recipeId: string; completesAtMs: number; remainingSeconds: number }[] = [];
+    for (const [key, completesAtMs] of Object.entries(this.context.player.lifetimeStats)) {
+      if (!key.startsWith(CraftService.QUEUE_KEY_PREFIX)) continue;
+      const recipeId = key.slice(CraftService.QUEUE_KEY_PREFIX.length);
+      queue.push({
+        recipeId,
+        completesAtMs,
+        remainingSeconds: Math.max(0, Math.ceil((completesAtMs - now) / 1000)),
+      });
+    }
+    return queue;
+  }
+
+  /**
+   * 开始炼制（配方 durationSeconds > 0 时走队列）：扣材料 → 写完成时间戳（Clock 注入，
+   * 离线/挂机自然完成；时钟回拨只会延迟领取，不会提前）。防重复：同配方排队中拒绝。
+   */
+  public startCraft(recipeId: string): { success: boolean; reason?: string; completesAtMs?: number } {
+    const recipe = this.recipes.find((r) => r.id === recipeId);
+    if (!recipe) return { success: false, reason: '配方不存在' };
+    const duration = recipe.durationSeconds ?? 0;
+    if (duration <= 0) {
+      // 即时配方：走原 craft() 快路径
+      const instant = this.craft(recipeId);
+      return instant.success ? { success: true, completesAtMs: this.clock.now() } : { success: false, reason: instant.reason };
+    }
+    if (this.context.player.lifetimeStats[this.queueKey(recipeId)] !== undefined) {
+      return { success: false, reason: '该配方已在炼制中' };
+    }
+    if (this.getQueue().length >= CraftService.QUEUE_CAPACITY) {
+      return { success: false, reason: '丹炉已满（最多 3 炉）' };
+    }
+    const check = this.canCraft(recipeId);
+    if (!check.canCraft) return { success: false, reason: check.reason };
+
+    const player = this.context.player;
+    const statsBefore = player.lifetimeStats;
+    const stonesBefore = player.spiritStones;
+    const completesAtMs = this.clock.now() + duration * 1000;
+
+    // 成功率掷骰在投入时点（与即时模式语义一致）：失败消耗材料、不入队、不计产出；
+    // 入队后必得成品（等待不含二次随机，避免挂机后挫败）。
+    const successBoost = this.context.buffs.getMultiplier('CRAFT_SUCCESS_BOOST');
+    const successRate = Math.min(0.95, (recipe.successRate ?? 1) * successBoost);
+    if (this.random.next() >= successRate) {
+      player.cultivationExp -= recipe.costCultivation;
+      player.spiritStones -= recipe.costSpiritStones;
+      player.lifetimeStats = { ...statsBefore };
+      try {
+        this.context.saveService.save(player);
+      } catch (error) {
+        player.lifetimeStats = statsBefore;
+        player.cultivationExp += recipe.costCultivation;
+        player.spiritStones = stonesBefore;
+        throw error;
+      }
+      this.trackLifetimeStat('craftFailCount');
+      this.context.events.emit('itemCraftFailed', { recipeId, recipeName: recipe.name, reason: '炼制失败' });
+      return { success: false, reason: '炼制失败，材料已消耗' };
+    }
+
+    player.cultivationExp -= recipe.costCultivation;
+    player.spiritStones -= recipe.costSpiritStones;
+    player.lifetimeStats = { ...statsBefore, [this.queueKey(recipeId)]: completesAtMs };
+    try {
+      this.context.saveService.save(player);
+    } catch (error) {
+      player.lifetimeStats = statsBefore;
+      player.cultivationExp += recipe.costCultivation;
+      player.spiritStones = stonesBefore;
+      throw error;
+    }
+    if (recipe.costSpiritStones !== 0) {
+      try {
+        this.context.events.emit('spiritStonesChanged', { amount: -recipe.costSpiritStones, total: player.spiritStones });
+      } catch { /* 反馈监听不得影响事务本身 */ }
+    }
+    this.context.events.emit('itemCraftQueued', { recipeId, recipeName: recipe.name, completesAtMs });
+    return { success: true, completesAtMs };
+  }
+
+  /**
+   * 领取成品（到期后）：品质掷骰 → 效果 → 计数 → 清队列键（同事务内防重复领取）。
+   * 未到期返回 { ready:false, remainingSeconds }。
+   */
+  public claimCraft(recipeId: string): { ready: boolean; success?: boolean; quality?: CraftQuality; reason?: string; remainingSeconds?: number } {
+    const key = this.queueKey(recipeId);
+    const completesAtMs = this.context.player.lifetimeStats[key];
+    if (completesAtMs === undefined) return { ready: false, reason: '该配方不在炼制队列' };
+    const remainingMs = completesAtMs - this.clock.now();
+    if (remainingMs > 0) {
+      return { ready: false, remainingSeconds: Math.ceil(remainingMs / 1000) };
+    }
+    const recipe = this.recipes.find((r) => r.id === recipeId);
+    if (!recipe) return { ready: false, reason: '配方不存在' };
+
+    const player = this.context.player;
+    const statsBefore = player.lifetimeStats;
+    // 清队列键（事务内）→ 防重复领取
+    const nextStats: Record<string, number> = { ...statsBefore };
+    delete nextStats[key];
+    player.lifetimeStats = nextStats;
+
+    // 品质掷骰（成功率按 1 计：排队即投入，成品必得，品质随机）
+    const quality = rollQuality(recipe.qualityWeights ?? DEFAULT_QUALITY_WEIGHTS, () => this.random.next());
+    const multiplier = CRAFT_QUALITY_MULTIPLIERS[quality];
+    const appliedEffect = scaleEffect(recipe.effect, multiplier);
+
+    player.craftedItemIds = [...player.craftedItemIds, recipeId];
+    try {
+      this.context.effects.apply(appliedEffect);
+    } catch (error) {
+      player.lifetimeStats = statsBefore;
+      const ids = player.craftedItemIds;
+      if (ids.length > 0 && ids[ids.length - 1] === recipeId) {
+        player.craftedItemIds = ids.slice(0, -1);
+      }
+      throw error;
+    }
+
+    this.trackLifetimeStat('craftSuccessCount');
+    if (quality === 'perfect') this.trackLifetimeStat('craftPerfectCount');
+    this.context.events.emit('itemCrafted', { recipeId: recipe.id, recipeName: recipe.name });
+    return { ready: true, success: true, quality };
   }
 }
 

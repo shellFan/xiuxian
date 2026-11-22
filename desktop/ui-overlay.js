@@ -2327,6 +2327,26 @@
       return '<button class="ux-tab' + (_craftTab === t.id ? ' ux-tab--active' : '') + '" data-crafttab="' + t.id + '">' + t.label + '</button>';
     }).join('') + '</div>';
 
+    /* V12-R3：炼丹队列（进行中/可领取）。挂机+离线完成，Clock 权威结算。 */
+    try {
+      var fq = facade();
+      var queue = fq && fq.queryCraftQueue ? fq.queryCraftQueue() : [];
+      if (queue.length > 0) {
+        html += '<div class="ux-card"><div class="ux-task-name">🔥 丹炉（' + queue.length + '/3）</div>';
+        queue.forEach(function (q) {
+          var recipe = recipes.filter(function (r) { return r.id === q.recipeId; })[0];
+          var name = recipe ? recipe.name : q.recipeId;
+          if (q.remainingSeconds > 0) {
+            html += '<div class="ux-recipe-desc">⚗ ' + escHtml(name) + ' · 炼制中，剩余 ' + q.remainingSeconds + 's</div>';
+          } else {
+            html += '<div class="ux-dialog-actions"><span class="ux-recipe-desc" style="display:inline">⚗ ' + escHtml(name) + ' · 已炼成</span>' +
+              '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="craftClaim" data-id="' + escHtml(q.recipeId) + '">领取</button></div>';
+          }
+        });
+        html += '</div>';
+      }
+    } catch (eQueue) { /* 队列视图失败不阻塞配方列表 */ }
+
     if (_craftTab === 'mat') {
       var hud = readHUD() || {};
       return html +
@@ -2359,7 +2379,7 @@
             '<div class="ux-mat">' + img(mats[1]) + '<span class="x' + ((readHUD() && readHUD().spiritStones < r.costSpiritStones) ? ' lack' : '') + '">×' + fmtNum(r.costSpiritStones) + '</span></div>' +
             '<span class="ux-arrow">→</span>' +
             '<div class="ux-recipe-result">' + img(resultImg) + '</div>' +
-            '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="craft" data-id="' + escHtml(r.id) + '"' + (check.canCraft ? '' : ' disabled') + '>合成</button>' +
+            '<button class="ux-btn ux-btn--gold ux-btn--sm" data-action="' + ((r.durationSeconds || 0) > 0 ? 'craftStart' : 'craft') + '" data-id="' + escHtml(r.id) + '"' + (check.canCraft ? '' : ' disabled') + '>合成</button>' +
           '</div>' +
           '<div class="ux-recipe-desc">' + escHtml(r.description || '') +
             (typeof r.successRate === 'number' ? ' · 成功率' + Math.round(r.successRate * 100) + '% · 品质最高×2.5' : '') +
@@ -4859,6 +4879,39 @@ function renderGrowthPage() {
             var rr = rf2.resetTalentRoute(_talentTab);
             toast(rr.reason || '已重置', rr.success ? 'success' : 'error');
           } catch (eRr) { toast(errMsg(eRr), 'error'); }
+          refresh();
+          break;
+        }
+        case 'craftStart': {
+          // V12-R3：炼丹队列——入炉（扣材料+登记完成时间戳），离线/挂机自然完成
+          var csf = facade();
+          if (!csf) { console.warn('[overlay] craftStart unavailable'); break; }
+          try {
+            var cr = csf.startCraft(el.dataset.id);
+            if (cr.success) {
+              toast('已入丹炉，炼制中…', 'success');
+            } else {
+              toast(cr.reason || '无法开始炼制', 'error');
+            }
+          } catch (eCs) { toast(errMsg(eCs), 'error'); }
+          refresh();
+          break;
+        }
+        case 'craftClaim': {
+          // V12-R3：领取成品（同事务清队列键，防重复领取）
+          var ccf = facade();
+          if (!ccf) { console.warn('[overlay] craftClaim unavailable'); break; }
+          try {
+            var cc = ccf.claimCraft(el.dataset.id);
+            if (cc.ready && cc.success) {
+              var qLabel2 = { normal: '普通', good: '良品', fine: '上品', perfect: '极品' }[cc.quality || 'normal'];
+              toast('炼成【' + qLabel2 + '】' + el.dataset.id, 'success');
+            } else if (cc.ready === false && cc.remainingSeconds !== undefined) {
+              toast('尚未炼成，剩余 ' + cc.remainingSeconds + 's', 'info');
+            } else {
+              toast(cc.reason || '无法领取', 'error');
+            }
+          } catch (eCc) { toast(errMsg(eCc), 'error'); }
           refresh();
           break;
         }

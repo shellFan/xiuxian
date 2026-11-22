@@ -1,5 +1,15 @@
 # V12–V20 开发日志（DEVELOPMENT_LOG）
 
+## 2026-11-22 · R3 炼丹二期·队列化（派生式，任务书§7.4/第七部分）
+
+- 技能：`save-systems`（Clock 权威时间/防重复领取）、`game-feel`（入炉/领取反馈）。详见 ALCHEMY_V2.md
+- 架构：队列状态 = lifetimeStats 键 `craftQueue:<recipeId>` = 完成时间戳（epoch，Clock 注入）——离线/挂机自然完成；防重复领取 = 领取同事务清键；时钟回拨只会延迟领取（安全侧）
+- 实现：craft.json 9 配方 durationSeconds 30-420s；startCraft（成功率掷骰在投入时点，失败不入队）/claimCraft（到期领取+品质+同事务清键）/getQueue+容量 3+去重；itemCraftQueued 事件；overlay 丹炉卡片（倒计时/领取）+按钮分流
+- 测试：craft **26/26**（新增 6 用例）；全量 **193 文件 exit 0**
+- 运行证据：探针 A10——UI 入炉（丹炉 1/3+倒计时）→ 32s 后领取（quality normal、队列清空、successCount 1）；UI 点击被事件弹窗竞态时 fallback 直调兜底（如实记录）
+- 涉及文件：craft.json、craft-service.ts、game-events.ts、game-facade.ts、ui-overlay.js、tests/craft/、v11-acceptance-probe.cjs
+
+
 > 持续追加。格式：日期 | 切片 | 技能 | 设计依据 | 修改 | 测试。
 > 基线：feature/v10-final-release @ 8c026bb（V11 全部成果沉淀于 docs/V11_V15/）。
 

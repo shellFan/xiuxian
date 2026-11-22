@@ -11,7 +11,8 @@
       },
       "unlockCareerLevel": 1,
       "maxCraftCount": 0,
-      "successRate": 0.9
+      "successRate": 0.9,
+      "durationSeconds": 30
     },
     {
       "id": "pill_huichun",
@@ -24,7 +25,8 @@
       },
       "unlockCareerLevel": 1,
       "maxCraftCount": 0,
-      "successRate": 0.95
+      "successRate": 0.95,
+      "durationSeconds": 45
     },
     {
       "id": "page_gongfa",
@@ -37,7 +39,8 @@
       },
       "unlockCareerLevel": 2,
       "maxCraftCount": 0,
-      "successRate": 0.85
+      "successRate": 0.85,
+      "durationSeconds": 120
     },
     {
       "id": "pill_lingshen",
@@ -50,7 +53,8 @@
       },
       "unlockCareerLevel": 1,
       "maxCraftCount": 0,
-      "successRate": 0.85
+      "successRate": 0.85,
+      "durationSeconds": 60
     },
     {
       "id": "pill_juling",
@@ -63,7 +67,8 @@
       },
       "unlockCareerLevel": 2,
       "maxCraftCount": 0,
-      "successRate": 0.8
+      "successRate": 0.8,
+      "durationSeconds": 180
     },
     {
       "id": "pill_poxian",
@@ -76,7 +81,8 @@
       },
       "unlockCareerLevel": 4,
       "maxCraftCount": 0,
-      "successRate": 0.75
+      "successRate": 0.75,
+      "durationSeconds": 420
     },
     {
       "id": "talisman_salary",
@@ -89,7 +95,8 @@
       },
       "unlockCareerLevel": 1,
       "maxCraftCount": 0,
-      "successRate": 0.9
+      "successRate": 0.9,
+      "durationSeconds": 90
     },
     {
       "id": "talisman_mind",
@@ -102,7 +109,8 @@
       },
       "unlockCareerLevel": 1,
       "maxCraftCount": 0,
-      "successRate": 0.95
+      "successRate": 0.95,
+      "durationSeconds": 75
     },
     {
       "id": "artifact_lingpai",
@@ -121,7 +129,8 @@
         0.3,
         0.18,
         0.07
-      ]
+      ],
+      "durationSeconds": 300
     }
   ]
 }

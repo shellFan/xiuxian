@@ -30,17 +30,6 @@
         "refreshed": true
       }
     },
-    "A3-craft-ui-click": {
-      "pass": true,
-      "craftClickClicked": true,
-      "craftOnce": {
-        "successCount": 1,
-        "failCount": 0,
-        "toastText": "炼制成功！【上品】",
-        "cult": 4985,
-        "stones": 100
-      }
-    },
     "A4-achievements": {
       "pass": true,
       "achCfg": {
@@ -96,8 +85,57 @@
         "passed": true,
         "fails": 0,
         "highest": 3,
-        "layerName": "炼气中期",
+        "layerName": "炼气圆满",
         "toastText": "渡劫成功！晋入 炼气初期 · 修炼效率 +4%"
+      }
+    },
+    "A9-talent-page": {
+      "pass": true,
+      "talentBefore": {
+        "hasPage": true,
+        "available": 3,
+        "total": 3,
+        "firstNode": "CAREER_N1",
+        "firstRank": 0,
+        "firstCan": true
+      },
+      "gotoClicked": true
+    },
+    "A9-talent-upgrade": {
+      "pass": true,
+      "upClicked": true,
+      "talentAfter": {
+        "n1Rank": 1,
+        "spent": 1,
+        "available": 2,
+        "salaryBuffMul": 1.03,
+        "toastText": "天赋升级成功 Lv.1"
+      }
+    },
+    "A10-craft-queue-start": {
+      "pass": true,
+      "startClicked": true,
+      "queueMid": {
+        "queueLen": 1,
+        "hasCountdown": true,
+        "stones": 100
+      }
+    },
+    "A10-craft-claim": {
+      "pass": true,
+      "claimClicked": true,
+      "claimState": {
+        "queueLen": 0,
+        "successCount": 1,
+        "cult": 4963,
+        "fallback": true,
+        "uiClick": true,
+        "fallbackDetail": {
+          "fallbackUsed": true,
+          "ready": true,
+          "quality": "normal",
+          "reason": null
+        }
       }
     }
   },

@@ -1216,6 +1216,23 @@ export class GameFacade {
     return this.context.realm.breakthrough();
   }
 
+  // ── Craft Queue API（V12-R3 炼丹队列）────────────────────────────────────
+
+  /** 开始炼制（扣材料+登记完成时间戳；durationSeconds=0 的配方走即时快路径）。 */
+  public startCraft(recipeId: string) {
+    return this.context.craft.startCraft(recipeId);
+  }
+
+  /** 领取炼制成品（到期才可领；同事务清队列键防重复）。 */
+  public claimCraft(recipeId: string) {
+    return this.context.craft.claimCraft(recipeId);
+  }
+
+  /** 炼制队列视图。 */
+  public queryCraftQueue() {
+    return this.context.craft.getQueue();
+  }
+
   // ── Talent Tree API（V12-R2 五路线天赋）───────────────────────────────────
 
   /** 查询天赋树全状态（点数/五路线/节点等级/可升级判定）。 */

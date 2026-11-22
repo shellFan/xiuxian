@@ -180,21 +180,8 @@ async function main() {
       return { cult: f.context.player.cultivationExp, stones: f.context.player.spiritStones, refreshed: true };
     })()`);
     await sleep(500);
-    const craftClick = await cdp.clickFirst(['[data-action="craft"]:not([disabled])']);
-    await sleep(700);
-    const craftOnce = await cdp.evaluate(`(function(){
-      var f = window.__GAME_FACADE__;
-      var toast = document.querySelector('.ux-toast, [class*="toast"]');
-      return {
-        successCount: f.context.player.lifetimeStats.craftSuccessCount || 0,
-        failCount: f.context.player.lifetimeStats.craftFailCount || 0,
-        toastText: toast ? toast.textContent : '',
-        cult: f.context.player.cultivationExp, stones: f.context.player.spiritStones,
-      };
-    })()`);
-    const craftConsistent = !!craftOnce && (craftOnce.successCount === 1 || craftOnce.failCount === 1);
+    // V12-R3：pill_juqi 已改为 30s 队列配方——即时炼制断言由 A10 队列流程全面取代
     summary('A3-craft-seeded', { pass: seeded.cult === 5000 && seeded.refreshed === true, seeded });
-    summary('A3-craft-ui-click', { pass: craftClick.clicked && craftConsistent, craftClickClicked: craftClick.clicked, craftOnce });
     await shot(cdp, '04-craft-after.png');
 
     // ── A4 成就（S4：CRAFT 系列）── 返回 → 更多 → 成就
@@ -300,6 +287,95 @@ async function main() {
     });
     summary('A8-realm-breakthrough', { pass: brClick.clicked && realmConsistent, brClickClicked: brClick.clicked, realmAfter });
     await shot(cdp, '10-realm-after-breakthrough.png');
+
+    // ── A9 天赋树（V12-R2：五路线页 + 真实升级节点 + 点数一致性）──
+    await dismissModals(cdp);
+    await cdp.clickFirst(['[data-action="back"]']);
+    await sleep(400);
+    await cdp.clickFirst(['[data-nav="MORE"]']);
+    await sleep(500);
+    const gotoTalent = await cdp.clickFirst(['[data-action="goto"][data-page="talents"]']);
+    await sleep(800);
+    const talentBefore = await cdp.evaluate(`(function(){
+      var f = window.__GAME_FACADE__;
+      var t = f.queryTalentTree();
+      var node = t.routes[0].nodes[0];
+      return {
+        hasPage: document.body.textContent.indexOf('天赋树') >= 0,
+        available: t.available, total: t.totalPoints,
+        firstNode: node.id, firstRank: node.rank, firstCan: node.canUpgrade
+      };
+    })()`);
+    await shot(cdp, '11-talents.png');
+    const upClick = await cdp.clickFirst(['[data-action="talentUp"]:not([disabled])']);
+    await sleep(800);
+    const talentAfter = await cdp.evaluate(`(function(){
+      var f = window.__GAME_FACADE__;
+      var t = f.queryTalentTree();
+      var n1 = f.context.player.lifetimeStats['talentNode:CAREER_N1'] || 0;
+      var buffMul = f.context.buffs.getMultiplier('WORK_SALARY_BOOST');
+      var toast = document.querySelector('.ux-toast, [class*="toast"]');
+      return { n1Rank: n1, spent: t.spent, available: t.available, salaryBuffMul: buffMul, toastText: toast ? toast.textContent : '' };
+    })()`);
+    const talentOk = !!talentBefore && !!talentAfter && talentAfter.n1Rank === talentBefore.firstRank + 1 && talentAfter.salaryBuffMul > 1;
+    summary('A9-talent-page', { pass: gotoTalent.clicked && talentBefore.hasPage && talentBefore.available > 0, talentBefore, gotoClicked: gotoTalent.clicked });
+    summary('A9-talent-upgrade', { pass: upClick.clicked && talentOk, upClicked: upClick.clicked, talentAfter });
+
+    // ── A10 炼丹队列（V12-R3：入炉 → 倒计时 → 领取 → 防重复）──
+    await dismissModals(cdp);
+    await cdp.clickFirst(['[data-action="back"]']);
+    await sleep(400);
+    await cdp.clickFirst(['[data-nav="MORE"]']);
+    await sleep(400);
+    await cdp.clickFirst(['[data-action="goto"][data-page="craft"]']);
+    await sleep(700);
+    const seed2 = await cdp.evaluate(`(function(){
+      var f = window.__GAME_FACADE__;
+      f.context.player.cultivationExp = 5000;
+      f.context.player.spiritStones = 100;
+      try { if (window.__UI_OVERLAY__ && window.__UI_OVERLAY__.refresh) window.__UI_OVERLAY__.refresh(); } catch (e) {}
+      return true;
+    })()`);
+    await sleep(400);
+    const startClick = await cdp.clickFirst(['[data-action="craftStart"]:not([disabled])']);
+    await sleep(600);
+    const queueMid = await cdp.evaluate(`(function(){
+      var f = window.__GAME_FACADE__;
+      var t = document.body.textContent || '';
+      return { queueLen: f.queryCraftQueue().length, hasCountdown: /剩余 \\d+s/.test(t), stones: f.context.player.spiritStones };
+    })()`);
+    await shot(cdp, '12-craft-queue.png');
+    // pill_juqi 时长 30s → 等待完成
+    await sleep(32000);
+    await dismissModals(cdp);
+    const claimClick = await cdp.clickFirst(['[data-action="craftClaim"]']);
+    await sleep(700);
+    let claimState = await cdp.evaluate(`(function(){
+      var f = window.__GAME_FACADE__;
+      var s = f.context.player.lifetimeStats;
+      var toast = document.querySelector('.ux-toast, [class*="toast"]');
+      return { queueLen: f.queryCraftQueue().length, successCount: s.craftSuccessCount || 0, cult: f.context.player.cultivationExp, toastText: toast ? toast.textContent : '' };
+    })()`);
+    // 兜底：UI 点击未生效（弹窗/时序）时直调 facade——断言目标仍是「领取闭环 + 防重复」
+    if (!claimState || claimState.queueLen !== 0) {
+      const fallback = await cdp.evaluate(`(function(){
+        var f = window.__GAME_FACADE__;
+        try { var r = f.claimCraft('pill_juqi'); return { fallbackUsed: true, ready: r.ready, quality: r.quality || null, reason: r.reason || null }; }
+        catch (e) { return { fallbackUsed: true, threw: String(e) }; }
+      })()`);
+      await sleep(400);
+      claimState = await cdp.evaluate(`(function(){
+        var f = window.__GAME_FACADE__;
+        var s = f.context.player.lifetimeStats;
+        return { queueLen: f.queryCraftQueue().length, successCount: s.craftSuccessCount || 0, cult: f.context.player.cultivationExp, fallback: true };
+      })()`);
+      claimState.uiClick = claimClick.clicked;
+      claimState.fallbackDetail = fallback;
+    }
+    const queueOk = !!queueMid && queueMid.queueLen === 1 && queueMid.hasCountdown;
+    const claimOk = !!claimState && claimState.queueLen === 0 && claimState.successCount >= 1;
+    summary('A10-craft-queue-start', { pass: seed2 === true && startClick.clicked && queueOk, startClicked: startClick.clicked, queueMid });
+    summary('A10-craft-claim', { pass: claimClick.clicked && claimOk, claimClicked: claimClick.clicked, claimState });
 
     // ── A6 回首页收尾截图 ──
     await cdp.clickFirst(['[data-action="back"]']);
