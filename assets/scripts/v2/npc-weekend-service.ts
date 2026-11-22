@@ -90,8 +90,10 @@ export class NpcService {
     const roundedDelta = Math.floor(delta);
     // V10.2 功法乘子（§7.1）：社交流功法 relationshipMul（划水大道等）按当前工作模式聚合
     const techRel = roundedDelta > 0 ? this.context.v2Items.techniqueAggregates(p.workMode).relationshipMul : 1;
+    // V12-R2：社交达人天赋（NPC_FAVOR_BOOST buff，好感收益乘子）
+    const favorTalentMul = roundedDelta > 0 ? this.context.buffs.getMultiplier('NPC_FAVOR_BOOST') : 1;
     const settledDelta = roundedDelta > 0
-      ? applyCharacterEffectToInteger(Math.floor(roundedDelta * techRel), p, 'RELATIONSHIP_GAIN')
+      ? applyCharacterEffectToInteger(Math.floor(roundedDelta * techRel * favorTalentMul), p, 'RELATIONSHIP_GAIN')
       : roundedDelta;
     const after = Math.max(-100, Math.min(100, before + settledDelta));
     if (after === before) return 0;

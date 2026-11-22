@@ -3,6 +3,19 @@
 > 持续追加。格式：日期 | 切片 | 技能 | 设计依据 | 修改 | 测试。
 > 基线：feature/v10-final-release @ 8c026bb（V11 全部成果沉淀于 docs/V11_V15/）。
 
+## 2026-11-22 · R2 五路线天赋系统（派生式，任务书§第六部分）
+
+- 技能：`rpg`（点数经济/路线取舍）、`save-systems`（派生式重施）、`game-ui-ux`（五路线 tab 页）
+- 架构（与境界同模式）：节点等级走 lifetimeStats 开放键 + buff 载体（boot 重施等价永久）——**审计发现 buff 不持久化**，若不做启动重施则天赋是空壳，故 applyAllActiveBuffs() 在 GameContext 构造时按节点等级重施
+- 实现：
+  - `configs/talent-tree.json`（新）：50 节点（5 路线 × 10），tier 1-5 链式前置、maxRank 3、整路线满级 165 点 vs 全期可得 ~56 点 → **单精通 vs 均衡真实取舍**
+  - 7 个效果载体（3 个新增 BuffType）：WORK_SALARY/KPI_PROGRESS（职场）、FISHING_MIND（摸鱼）、WORK_CULTIVATION+CRAFT_SUCCESS（修仙奇才）、NPC_FAVOR_BOOST（社交，npc-weekend-service.change 好感乘子接线）、MERGE_REWARD+CRAFT_COST_REDUCTION（资源管理，craft-service 成功率乘子+成本折扣接线）
+  - `services/talent-tree-service.ts`（新）：点数账本（careerLevel + 渡劫门×2）/升级（依赖+点数校验+buff 重施）/重置（50% 返还+移除 buff）/构造期校验
+  - overlay MORE「天赋」页：五路线 tab、节点 rank 展示、升级/重置按钮、点数头部
+- 测试：**talent 7/7**（点数派生/依赖/ledger/buff 授予与升级/重置返还/折扣载体/生产配置）；全量 **193 文件 exit 0**
+- 运行证据：探针 A9（12/12 PASS）——真实 UI 升级 CAREER_N1 → rank1、spent 1、**WORK_SALARY_BOOST ×1.03 真实生效**；A3 随机出【良品】×1.3 再次实证品质结算
+- 涉及文件：talent-tree.json(新)、talent-tree-service.ts(新)、buff-service.ts(BuffType+3)、npc-weekend-service.ts(好感乘子)、craft-service.ts(成功率/成本乘子+回滚修正)、game-context/game-facade、ui-overlay.js、tests/talent/(新)
+
 ## 2026-11-22 · R1 独立修仙境界系统（派生式，任务书最高优先级 D）
 
 - 技能：`rpg`（境界 pacing/突破风险）、`save-systems`（零迁移状态设计）、`game-feel`（渡劫反馈）、`game-ui-ux`（双境界同屏展示）

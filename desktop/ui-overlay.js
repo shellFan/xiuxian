@@ -2664,6 +2664,40 @@
     return head + realmCard + (V2 ? V2.renderTechniques() + V2.renderEquipment() : emptyState('📖', '功法数据未就绪', '稍后再来看看'));
   }
 
+
+  /* ── V12-R2. 天赋五路线成长树 ── */
+  function renderTalents() {
+    var f = facade();
+    if (!f || !f.queryTalentTree) return emptyState('⏳', '天赋数据未就绪', '');
+    var tree = f.queryTalentTree();
+    var routeDefs = { CAREER: '职场精英', FISH: '摸鱼大师', CULTIVATE: '修仙奇才', SOCIAL: '社交达人', RESOURCE: '资源管理大师' };
+    var html = '<div class="ux-card"><div class="ux-task-name">✨ 天赋树 · 点数 ' + tree.available + ' / ' + tree.totalPoints + '</div>' +
+      '<div class="ux-recipe-desc">点数来源：职级 ×1 + 渡劫门 ×2。重置返还 50%。</div></div>';
+    var tabs = ['CAREER', 'FISH', 'CULTIVATE', 'SOCIAL', 'RESOURCE'].map(function (r) {
+      return '<button class="ux-tab' + (_talentTab === r ? ' ux-tab--active' : '') + '" data-talenttab="' + r + '">' + routeDefs[r] + '</button>';
+    }).join('');
+    html += '<div class="ux-tabs">' + tabs + '</div>';
+    var route = tree.routes.filter(function (r) { return r.id === _talentTab; })[0] || tree.routes[0];
+    if (!route) return html + emptyState('✨', '暂无天赋', '');
+    html += route.nodes.map(function (n) {
+      var meter = '';
+      for (var i = 0; i < n.maxRank; i++) meter += i < n.rank ? '◆' : '◇';
+      var btn = '';
+      if (n.rank < n.maxRank) {
+        btn = '<button class="ux-btn ux-btn--' + (n.canUpgrade ? 'gold' : 'gray') + ' ux-btn--sm" data-action="talentUp" data-id="' + n.id + '"' + (n.canUpgrade ? '' : ' disabled') + '>升级 ×' + n.costPerRank + '</button>';
+      } else {
+        btn = '<span class="ux-ach-progress" style="color:#4e9e3e">已满级</span>';
+      }
+      return '<div class="ux-card ux-recipe-card">' +
+        '<div class="ux-recipe-name">' + escHtml(n.name) + ' <span class="ux-recipe-count">' + meter + ' ' + n.rank + '/' + n.maxRank + '</span></div>' +
+        '<div class="ux-recipe-desc">' + escHtml(n.description) + '</div>' +
+        '<div class="ux-recipe-desc">' + (n.requiresMet ? '' : '<span class="val-neg">需先解锁前置</span> · ') + '</div>' +
+        btn + '</div>';
+    }).join('');
+    html += '<div class="ux-card"><button class="ux-btn ux-btn--gray ux-btn--sm" data-action="talentReset">重置本路线（返还 ' + Math.floor(route.spent * 0.5) + ' 点）</button></div>';
+    return html;
+  }
+
   /* ── 6d. 晋升渡劫 ── */
 
   function renderPromotion() {
@@ -2937,6 +2971,7 @@
     return '' +
       '<div class="ux-more-grid">' +
         moreItem('cultivation', '🧘', '修仙', '境界·渡劫·功法·法宝') +
+        moreItem('talents', '✨', '天赋', '五路线成长树') +
         moreItem('techniques', '📖', '功法', '主修与辅助 Build') +
         moreItem('equipment', '🎽', '法宝', '三槽职场法宝') +
         moreItem('npc', '🧑‍🤝‍🧑', '人际', '核心NPC关系与增益') +
@@ -3855,6 +3890,7 @@ function renderGrowthPage() {
       case 'TASKS': return renderTasks();
       case 'PROJECT': return renderProject();
       case 'CULTIVATION': return renderCultivation();
+      case 'TALENTS': return renderTalents();
       case 'MESSENGER': return renderMessenger();
       case 'CRAFT': return renderCraft();
       case 'PROMOTION': {
@@ -4115,6 +4151,7 @@ function renderGrowthPage() {
   /* V11-F2：overlay 设置态统一读自 context.settings（持久化单一源）。
      此前硬编码 {sfx:true,bgm:true,notify:false}，开关只在 overlay 内存里翻转、
      与 S3 接线的 AudioService/SettingsService 完全脱节。 */
+  var _talentTab = 'CAREER';
   var _settings = null;
   function overlaySettings() {
     if (_settings) return _settings;
@@ -4400,6 +4437,7 @@ function renderGrowthPage() {
         /* 页内 tab 切换 */
         if (el.dataset.tasktab) { _taskTab = el.dataset.tasktab; refresh(); }
         else if (el.dataset.crafttab) { _craftTab = el.dataset.crafttab; refresh(); }
+        else if (el.dataset.talenttab) { _talentTab = el.dataset.talenttab; refresh(); }
         else if (el.dataset.lbtab) { _lbTab = el.dataset.lbtab; refresh(); }
         else if (el.dataset.ftab) { _friendTab = el.dataset.ftab; refresh(); }
         else if (el.dataset.achtab) { _achTab = el.dataset.achtab; refresh(); }
@@ -4802,6 +4840,28 @@ function renderGrowthPage() {
             return '炼制成功！' + (qLabel ? '【' + qLabel + '】' : '');
           }, el.dataset.id);
           break;
+
+        case 'talentUp': {
+          var tf = facade();
+          if (!tf) { console.warn('[overlay] talentUp unavailable'); break; }
+          try {
+            var tr = tf.upgradeTalentNode(el.dataset.id);
+            if (tr.success) toast('天赋升级成功 Lv.' + tr.newRank, 'success');
+            else toast(tr.reason || '无法升级', 'error');
+          } catch (eTr) { toast(errMsg(eTr), 'error'); }
+          refresh();
+          break;
+        }
+        case 'talentReset': {
+          var rf2 = facade();
+          if (!rf2) { console.warn('[overlay] talentReset unavailable'); break; }
+          try {
+            var rr = rf2.resetTalentRoute(_talentTab);
+            toast(rr.reason || '已重置', rr.success ? 'success' : 'error');
+          } catch (eRr) { toast(errMsg(eRr), 'error'); }
+          refresh();
+          break;
+        }
         case 'realmBreakthrough': {
           // V12-R1：渡劫突破（事务化在 RealmService 内完成；这里只做反馈与刷新）
           var brf = facade();

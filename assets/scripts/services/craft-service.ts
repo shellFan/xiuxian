@@ -116,7 +116,10 @@ export class CraftService {
       return { canCraft: false, reason: '修为不足' };
     }
 
-    if (player.spiritStones < recipe.costSpiritStones) {
+    // V12-R2：资源管理大师天赋——材料成本乘子（<1 折扣），消耗判定与实际扣除同源
+    const costMul = this.context.buffs.getMultiplier('CRAFT_COST_REDUCTION');
+    const stonesCost = Math.ceil(recipe.costSpiritStones * costMul);
+    if (player.spiritStones < stonesCost) {
       return { canCraft: false, reason: '灵石不足' };
     }
 
@@ -145,16 +148,20 @@ export class CraftService {
     const player = this.context.player;
 
     // 1. 扣除材料（attempt 消耗）；灵石变动必须发事件（UI 资源显示依赖，失败路径同样生效）
+    const costMul = this.context.buffs.getMultiplier('CRAFT_COST_REDUCTION');
+    const stonesCost = Math.ceil(recipe.costSpiritStones * costMul);
     player.cultivationExp -= recipe.costCultivation;
-    if (recipe.costSpiritStones !== 0) {
-      player.spiritStones -= recipe.costSpiritStones;
+    if (stonesCost !== 0) {
+      player.spiritStones -= stonesCost;
       try {
-        this.context.events.emit('spiritStonesChanged', { amount: -recipe.costSpiritStones, total: player.spiritStones });
+        this.context.events.emit('spiritStonesChanged', { amount: -stonesCost, total: player.spiritStones });
       } catch { /* 反馈监听不得影响事务本身 */ }
     }
 
     // 2. 成功率掷骰：失败 → 材料已耗、无产出（防无限制造资源）
-    const successRate = recipe.successRate ?? 1;
+    // V12-R2：修仙奇才天赋——CRAFT_SUCCESS_BOOST 乘子（rate × mult，钳 ≤0.95 保底失败可能）
+    const successBoost = this.context.buffs.getMultiplier('CRAFT_SUCCESS_BOOST');
+    const successRate = Math.min(0.95, (recipe.successRate ?? 1) * successBoost);
     if (this.random.next() >= successRate) {
       this.trackLifetimeStat('craftFailCount'); // V11-S4：炼丹成就统计（失败也是经历）
       this.context.events.emit('itemCraftFailed', {
@@ -175,13 +182,13 @@ export class CraftService {
     try {
       this.context.effects.apply(appliedEffect);
     } catch (error) {
-      // 回滚本次产出登记（末尾追加的那一条）与材料扣除
+      // 回滚本次产出登记（末尾追加的那一条）与材料扣除（灵石按折扣后实际扣除量还原）
       const ids = player.craftedItemIds;
       if (ids.length > 0 && ids[ids.length - 1] === recipeId) {
         player.craftedItemIds = ids.slice(0, -1);
       }
       player.cultivationExp += recipe.costCultivation;
-      player.spiritStones += recipe.costSpiritStones;
+      player.spiritStones += stonesCost;
       throw error;
     }
 

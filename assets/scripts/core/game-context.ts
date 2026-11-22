@@ -86,6 +86,8 @@ import { GameSoundService } from '../services/sound-service';
 import { SettingsService } from '../services/settings-service';
 import { RealmService } from '../services/realm-service';
 import realmConfig from '../../configs/realm.json';
+import { TalentTreeService } from '../services/talent-tree-service';
+import talentTreeConfig from '../../configs/talent-tree.json';
 import { CharacterCreationService } from '../v59/character-creation-service';
 import { HomeService } from '../v59f/home-service';
 import { ProfessionActionService } from '../services/profession-action-service';
@@ -240,6 +242,8 @@ export class GameContext {
   public readonly settings: SettingsService;
   /** V12-R1：独立修仙境界系统（派生式状态 + 渡劫突破）。 */
   public readonly realm: RealmService;
+  /** V12-R2：五路线天赋成长系统（派生式 + buff 载体）。 */
+  public readonly talentTree: TalentTreeService;
   public readonly rewardProvider: RewardProvider;
   public readonly configService: ConfigService;
   /** Shared persistence adapter for the game save and resumable creation draft. */
@@ -362,6 +366,9 @@ export class GameContext {
     this.sound = new GameSoundService(this);
     this.settings = new SettingsService(this.storage);
     this.realm = new RealmService(this, realmConfig as import('../services/realm-service').RealmConfig, { clock: options.clock, randomProvider: options.randomProvider });
+    this.talentTree = new TalentTreeService(this, talentTreeConfig as import('../services/talent-tree-service').TalentTreeConfig, { clock: options.clock, randomProvider: options.randomProvider });
+    // 派生式天赋 buff：每次启动按节点等级重施（等价永久生效）
+    this.talentTree.applyAllActiveBuffs();
     this.messenger = new MessengerService(this);
     this.storyDirector = new StoryDirectorService(this, this.messenger);
     this.profession = new ProfessionService(this);

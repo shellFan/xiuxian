@@ -9,6 +9,12 @@ export type BuffType =
   | 'FISHING_MIND_BOOST'
   | 'MERGE_REWARD_BOOST'
   | 'KPI_PROGRESS_BOOST'
+  /** V12-R2：社交达人天赋——NPC 好感收益乘子（npc-weekend-service.change 消费）。 */
+  | 'NPC_FAVOR_BOOST'
+  /** V12-R2：修仙奇才天赋——炼丹成功率乘子（CraftService 消费，rate × mult 钳 0.95）。 */
+  | 'CRAFT_SUCCESS_BOOST'
+  /** V12-R2：资源管理大师天赋——炼丹材料成本乘子（<1 折扣，CraftService 消费）。 */
+  | 'CRAFT_COST_REDUCTION'
   | 'EVENT_REROLL';
 
 /** A single active buff instance. */

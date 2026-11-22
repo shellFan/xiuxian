@@ -37,6 +37,7 @@ import type { TaskStartResult, TaskClaimResult, TaskConfig } from '../services/t
 import type { IdleEfficiencyBreakdown } from '../services/idle-efficiency-service';
 import type { LeaderboardMetric, LeaderboardMetricMeta, LeaderboardView } from '../services/leaderboard-service';
 import type { RealmState, BreakthroughResult } from '../services/realm-service';
+import type { TalentTreeState, TalentUnlockResult } from '../services/talent-tree-service';
 import type { FriendsView } from '../services/friends-service';
 import type { AdPlacement, RewardedAdResult } from '../services/rewarded-ad-service';
 import type { CraftResult } from '../services/craft-service';
@@ -1213,6 +1214,23 @@ export class GameFacade {
   /** 渡劫突破（消耗灵石+掷骰，事务化）。 */
   public breakthroughRealm(): BreakthroughResult {
     return this.context.realm.breakthrough();
+  }
+
+  // ── Talent Tree API（V12-R2 五路线天赋）───────────────────────────────────
+
+  /** 查询天赋树全状态（点数/五路线/节点等级/可升级判定）。 */
+  public queryTalentTree(): TalentTreeState {
+    return this.context.talentTree.getState();
+  }
+
+  /** 升级/解锁天赋节点（花点+重施 buff，事务化）。 */
+  public upgradeTalentNode(nodeId: string): TalentUnlockResult {
+    return this.context.talentTree.upgradeNode(nodeId);
+  }
+
+  /** 重置整条天赋路线（移除 buff + 返还 50% 点数）。 */
+  public resetTalentRoute(route: string): TalentUnlockResult {
+    return this.context.talentTree.resetRoute(route);
   }
 
   // ── Friends API ──────────────────────────────────────────────────────────
